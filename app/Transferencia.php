@@ -3,6 +3,11 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Stock;
+use App\Producto;
+use App\ComprasDet;
+use App\Common;
+use App\Parametro;
 
 class Transferencia extends Model
 {
@@ -268,5 +273,242 @@ class Transferencia extends Model
         return ['ventas' => $transferencias_det, 'marcas' => (array)$marca[0], 'categorias' => (array)$categoria[0]];
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function guardar($datos) 
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+        
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+
+        $c = 0;
+        $filas = $datos["data"]["length"];
+        $cod_prod = '';
+        $cantidad = 0;
+        $cantidad_total = 0;
+        $precio = 0;
+        $iva = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $exentas = 0;
+        $total = 0;
+        $sin_stock = [];
+        $respuesta_FK_CD = [];
+        $cantidad_FK_CD = 1;
+        $todos_guardados = true;
+
+        $tr_gravada = 0;
+        $tr_iva = 0;
+        $tr_exenta = 0;
+        $tr_base5 = 0;
+        $tr_base10 = 0;
+
+        $tr_dt_gravada = 0;
+        $tr_dt_iva = 0;
+        $tr_dt_exenta = 0;
+        $tr_dt_base5 = 0;
+        $tr_dt_base10 = 0;
+        $tr_dt_total = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR TRANSFERENCIA 
+
+        $transferencias_det = DB::connection('retail')
+        ->table('transferencias')
+        ->insert(
+            [
+            'CODIGO' => 33333, 
+            'SUCURSAL_ORIGEN' => $datos["data"][$c]["ITEM"],
+            'SUCURSAL_DESTINO' => $cod_prod,
+            'DIRECCION' =>  $producto['producto'][0]->CODIGO_INTERNO,
+            'TELEFONO' => $datos["data"][$c]["DESCRIPCION"],
+            'FECHA' => $datos["data"][$c]["ITEM"],
+            'HORA' => $cantidad,
+            'ENVIA' => Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC),
+            'TRANSPORTA' => $tr_exenta,
+            'RECIBE' => $tr_gravada,
+            'NRO_CAJA' => $tr_dt_iva,
+            'SUB_TOTAL' => $tr_dt_total,
+            'IVA' => 0,
+            'TOTAL' => $tr_dt_base5,
+            'ENVIADO' => $tr_dt_base10,
+            'DEVUELTO' => 'NO',
+            'MONEDA' => $user->name,
+            'USERALTAS' =>  $dia,
+            'FECALTAS' =>  $dia,
+            'HORALTAS' =>  $hora,
+            'ID_SUCURSAL' => $user->id_sucursal,
+            'ESTATUS' => 0,
+            'CAMBIO' => 
+            ]
+        );
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // PARAMETRO 
+        
+        $parametro = Parametro::mostrarParametro();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RECORRER TODAS LAS FILAS DEL DATATABLE
+
+         while($c < $filas) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // INICIAR DATOS 
+
+                $cod_prod = $datos["data"][$c]["CODIGO"];
+                $cantidad = Common::quitar_coma($datos["data"][$c]["CANTIDAD"], $parametro['parametros'][0]->CANDEC);
+                $cantidad_total = $cantidad;
+                $iva = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // REALIZAR CALCULOS 
+
+                if ($datos["data"][$c]["IVA_PORCENTAJE"] === 5) {
+                    $base5 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                } else if ($datos["data"][$c]["IVA_PORCENTAJE"] === 10) {
+                    $base10 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                } else {
+                    $exentas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
+                }
+
+                $precio = Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC);
+                
+                $gravadas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC) - Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                $total = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC); 
+
+                $tr_gravada = Common::quitar_coma(($gravadas/$cantidad), $parametro['parametros'][0]->CANDEC);
+                $tr_iva = Common::quitar_coma(($iva/$cantidad), $parametro['parametros'][0]->CANDEC);
+                $tr_exenta = Common::quitar_coma(($exentas/$cantidad), $parametro['parametros'][0]->CANDEC);
+                $tr_base5 = Common::quitar_coma(($base5/$cantidad), $parametro['parametros'][0]->CANDEC);
+                $tr_base10 = Common::quitar_coma(($base10/$cantidad), $parametro['parametros'][0]->CANDEC);    
+                $tr_dt_total = Common::quitar_coma(($total/$cantidad), $parametro['parametros'][0]->CANDEC); 
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER DATOS FALTANTES 
+
+                $producto = Producto::datosVariosProducto($cod_prod);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // COMPROBAR SI EXISTE STOCK 
+
+                if (Stock::comprobar_stock_producto($cod_prod, $cantidad) === true){
+
+                    /*  --------------------------------------------------------------------------------- */ 
+
+                    // RECORRER HASTA TERMINAR 
+
+                    while ($cantidad_FK_CD > 0) {
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // RESTAR STOCK DEL PRODUCTO
+
+                        $respuesta_resta = Stock::restar_stock_producto_FK_CD($cod_prod, $cantidad);
+                        $cantidad_FK_CD = $respuesta_resta['cantidad'];
+                        $cantidad = $cantidad - $cantidad_FK_CD;
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CALCULAR POR DETALLE 
+
+                        $tr_dt_gravada = $tr_gravada * $cantidad;
+                        $tr_dt_iva = $tr_iva * $cantidad;
+                        $tr_dt_exenta = $tr_exenta * $cantidad;
+                        $tr_dt_base5 = $tr_base5 * $cantidad;
+                        $tr_dt_base10 = $tr_base10 * $cantidad;
+
+                        if ($cantidad_FK_CD === 0) {
+                            $tr_dt_gravada = $gravadas - (($cantidad_total - $cantidad) * $tr_gravada);
+                            $tr_dt_iva = $iva - (($cantidad_total - $cantidad) * $tr_iva);
+                            $tr_dt_exenta = $exentas - (($cantidad_total - $cantidad) * $tr_exenta);
+                            $tr_dt_base5 = $base5 - (($cantidad_total - $cantidad) * $tr_base5);
+                            $tr_dt_base10 = $base10 - (($cantidad_total - $cantidad) * $tr_base10);
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // OBTENER FK_CD
+
+                        $fk_cd = ComprasDet::id_cd($cod_prod, $respuesta_resta['lote']);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR TRANSFERENCIA DET 
+
+                        $transferencias_det = DB::connection('retail')
+                        ->table('transferencias_det')
+                        ->insert(
+                            [
+                            'CODIGO' => 33333, 
+                            'ITEM' => $datos["data"][$c]["ITEM"],
+                            'CODIGO_PROD' => $cod_prod,
+                            'CODIGO_INTERNO' =>  $producto['producto'][0]->CODIGO_INTERNO,
+                            'DESCRIPCION' => $datos["data"][$c]["DESCRIPCION"],
+                            'TIPO' => $datos["data"][$c]["ITEM"],
+                            'CANTIDAD' => $cantidad,
+                            'PRECIO' => Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC),
+                            'EXENTAS' => $tr_exenta,
+                            'GRABADAS' => $tr_gravada,
+                            'IVA' => $tr_dt_iva,
+                            'TOTAL' => $tr_dt_total,
+                            'DESCUENTO' => 0,
+                            'BASE5' => $tr_dt_base5,
+                            'BASE10' => $tr_dt_base10,
+                            'DEVUELTO' => 'NO',
+                            'USERALTAS' => $user->name,
+                            'FECALTAS' =>  $dia,
+                            'HORALTAS' =>  $hora,
+                            'ID_SUCURSAL' => $user->id_sucursal,
+                            'FK_CD' => $fk_cd
+                            ]
+                        );
+
+                        var_dump($transferencias_det);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                } else {
+
+                    /*  --------------------------------------------------------------------------------- */ 
+
+                    // SI NO HAY STOCK SE GUARDDARA EN ESTE ARRAY EL CODIGO Y SE ACTIVARA LA VARIABLE TODOS GUARDADOS
+
+                    $sin_stock[] = $cod_prod;
+                    $todos_guardados = false;
+
+                    /*  --------------------------------------------------------------------------------- */ 
+
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+                
+                // AUMENTAR CONTADOR 
+
+                $c++;
+
+                /*  --------------------------------------------------------------------------------- */
+         }
+        
+        /*  --------------------------------------------------------------------------------- */ 
     }
 }

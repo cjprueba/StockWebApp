@@ -26,7 +26,15 @@ Route::apiResource('ventas', 'VentaController');
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
 Route::post('ventas', 'VentaController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+// TRANSFERENCIA
+
 Route::post('transferencias', 'TransferenciaControler@mostrar');
+Route::post('transferenciaGuardar', 'TransferenciaControler@guardarTransferencia');
+
+/* -------------------------------------------------------------------------- */
 
 /* LARAVEL EXCEL */
 
@@ -41,4 +49,41 @@ Route::post('transferencias', 'TransferenciaControler@mostrar');
 // 	return Excel::download(new VentasMarca(), 'ventasMarca.xlsx');
 // });
 
+/* -------------------------------------------------------------------------- */
+
 Route::post('export', 'ExportController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+// SUCURSAL
+
+Route::get('sucursal', 'SucursalController@mostrar');
+Route::post('sucursal', 'SucursalController@encontrar');
+
+/* -------------------------------------------------------------------------- */
+
+//	EMPLEADOS
+
+Route::get('empleado', 'EmpleadoController@mostrar');
+Route::post('empleado', 'EmpleadoController@encontrar');
+
+/* -------------------------------------------------------------------------- */
+
+//	PRODUCTOS
+
+Route::get('producto', 'ProductoController@mostrar');
+Route::post('producto', 'ProductoController@encontrar');
+
+/* -------------------------------------------------------------------------- */
+
+//	PARAMETROS
+
+Route::get('parametro', 'ParametroController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+// COTIZACION
+
+Route::post('cotizacion', 'CotizacionController@cotizar');
+
+/* -------------------------------------------------------------------------- */

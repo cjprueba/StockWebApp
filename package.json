@@ -21,7 +21,7 @@
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.15.2",
         "sass-loader": "^7.1.0",
-        "vue": "^2.5.17",
+        "vue": "^2.6.10",
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
@@ -31,7 +31,7 @@
         "@handsontable/vue": "^4.1.0",
         "apexcharts": "^3.8.1",
         "bootstrap-datepicker": "^1.9.0",
-        "bootstrap-vue": "^2.0.0-rc.26",
+        "bootstrap-vue": "^2.0.2",
         "datatables": "^1.10.18",
         "datatables.net": "^1.10.19",
         "datatables.net-bs4": "^1.10.19",
@@ -39,7 +39,12 @@
         "datatables.net-dt": "^1.10.19",
         "datatables.net-responsive": "^2.2.3",
         "handsontable": "^7.1.1",
+        "i": "^0.3.6",
+        "numeral": "^2.0.6",
+        "toastr": "^2.1.4",
         "vue-apexcharts": "^1.4.0",
+        "vue-single-select": "^1.1.0",
+        "vue-toastr-2": "0.0.10",
         "vuex": "^3.1.1"
     }
 }

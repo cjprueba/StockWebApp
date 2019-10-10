@@ -1,12 +1,42 @@
 
 <template>
 	<div id="wrapper">
-		<sidebar @menu="cambiarMenu"></sidebar>
+		
+    <!-- ------------------------------------------------------------------------ -->
+
+    <!-- SIDEBAR -->
+
+    <sidebar @menu="cambiarMenu" v-bind:moneda="monedaSucursal" ></sidebar>
+
+    <!-- ------------------------------------------------------------------------ -->
+
+    <!-- DASHBOARD -->
+
 		<dashboard v-if="menu === 1"></dashboard>
+
+    <!-- ------------------------------------------------------------------------ -->
+
+    <!-- MARCA -->
+
     <marca v-if="menu === 2"></marca>
+
+    <!-- ------------------------------------------------------------------------ -->
+
+    <!-- TRANSFERENCIA -->
+
     <transferencia v-if="menu === 3"></transferencia>
+
+    <!-- ------------------------------------------------------------------------ -->
+
     <!-- REALIZAR TRANSFERENCIAS -->
-    <realizarTransferencia v-if="menu === 21"></realizarTransferencia>
+
+    <realizarTransferencia 
+    v-if="menu === 21" 
+    v-bind:candec="candec, monedaCodigo, tab_unica">
+    </realizarTransferencia>
+
+    <!-- ------------------------------------------------------------------------ -->
+
     <!--  -->
 	</div>
 </template>
@@ -15,15 +45,71 @@
 	export default {
         data(){
             return {
-               menu: 1
+               menu: 1,
+               parametros: [],
+               monedaSucursal: '',
+               monedaCodigo: 0,
+               tab_unica: false,
+               candec: 0
             }
         }, 
         methods: {
             cambiarMenu(menu){
+
+                // ------------------------------------------------------------------------ 
+
+                // CAMBIAR EL MENU DE ACUERDO AL SIDEBAR
+
                 this.menu = menu;
+
+                // ------------------------------------------------------------------------ 
+
+            }, 
+            llamarParametros(){
+
+                // ------------------------------------------------------------------------ 
+
+                // INICIAR VARIABLES
+
+                let me = this;
+
+                // ------------------------------------------------------------------------ 
+
+                // OBTENER PARAMETROS
+
+                axios.get('/parametro').then(function (response) {
+                  me.parametros = response.data.parametros;
+                  me.monedaCodigo = response.data.parametros[0].MONEDA;
+                  me.monedaSucursal = response.data.parametros[0].DESCRIPCION;
+                  me.candec = response.data.parametros[0].CANDEC;
+
+                  // ------------------------------------------------------------------------ 
+
+                  // REVISAR SI TABLA COTIZACION ES UNICA O DIFERENTE 
+
+                  if (response.data.parametros[0].TAB_UNICA === 'SI') {
+                    me.tab_unica = true;
+                  } else {
+                    me.tab_unica = false;
+                  }
+
+                  // ------------------------------------------------------------------------ 
+
+                });
+
+                // ------------------------------------------------------------------------  
             }
         },
         mounted() {
+
+          // ------------------------------------------------------------------------  
+
+          // LLAMAR LOS PARAMETROS AL INICIAR
+          
+          this.llamarParametros();
+
+          // ------------------------------------------------------------------------  
+
             (function($) {
   "use strict"; // Start of use strict
      

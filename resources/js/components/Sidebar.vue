@@ -10,8 +10,21 @@
         <div class="sidebar-brand-text mx-3">RETAIL</div>
       </a>
 
-      <!-- Divider -->
       <hr class="sidebar-divider my-0">
+
+      <!-- ------------------------------------------------------------------------ -->
+
+      <!-- PARAMETROS -->
+
+      <div class="sidebar-heading text-center">Moneda: {{moneda}}</div>
+
+      <!-- ------------------------------------------------------------------------ -->
+
+      <!-- Divider -->
+
+      <hr class="sidebar-divider my-0">
+
+      <!-- ------------------------------------------------------------------------ -->
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
@@ -47,7 +60,7 @@
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
           <font-awesome-icon icon="sticky-note" />
-          <span>Reportes</span>
+          <span >Reportes</span>
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -127,6 +140,7 @@
 </template>
 <script>
   export default {
+      props: ['moneda'],
       data(){
         return {
           menu : 0
@@ -148,7 +162,7 @@
             }
       },
         mounted() {
-            console.log('Component mounted.')
+           
         }
     }
 </script>

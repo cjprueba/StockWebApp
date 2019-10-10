@@ -19,12 +19,34 @@ window.Vue = require('vue');
 require('./bootstrap');
 require('bootstrap-datepicker');
 
+/* ********************************************* */
+
+// Funciones utiles 
+window.numeral = require('numeral');
+window.Common = require('./common.js');
+
+/* ********************************************* */
+// BOOSTRAP VUE
+
+import BootstrapVue from 'bootstrap-vue'
+Vue.use(BootstrapVue)
+
+/* ********************************************* */
+
 // DATATABLE JS
 
 window.dt = require('datatables.net');
 require( 'datatables.net-bs4' );
 require('datatables.net-responsive');
 require( 'datatables.net-buttons' );
+
+/* ********************************************* */
+
+// VUE SINGLE
+
+import VueSingleSelect from "vue-single-select";
+
+/* ********************************************* */
 
 import { VBPopover } from 'bootstrap-vue';
 Vue.directive('b-popover', VBPopover);
@@ -42,16 +64,22 @@ import VueApexCharts from 'vue-apexcharts'
 /* FONT AWESOME */ 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket)
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode)
 
 /* ********************************************* */
 
 /* ------------------------------------------------------------------------------- */
 
 /* COMPONENTS */ 
+
+/* ********************************************* */
+
+// VUE SINGLE
+
+Vue.component('vue-single-select', VueSingleSelect);
 
 /* ********************************************* */
 

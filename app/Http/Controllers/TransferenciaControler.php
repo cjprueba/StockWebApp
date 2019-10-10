@@ -24,53 +24,22 @@ class TransferenciaControler extends Controller
 
     public function mostrar(Request $request)
     {
-        //return response()->json([$request->all()]);
         $ventas = Transferencia::generarConsulta($request->all());
         return response()->json($ventas);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    
+    public function guardarTransferencia(Request $request)
     {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // COMPROBAR SI HAY STOCK DISPONIBLE
+
+        $transferencia = Transferencia::guardar($request->all());
+        return response()->json($transferencia); 
         
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        /*  --------------------------------------------------------------------------------- */
+        
     }
 }
