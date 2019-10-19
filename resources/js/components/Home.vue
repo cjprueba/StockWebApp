@@ -12,7 +12,7 @@
 
     <!-- DASHBOARD -->
 
-		<dashboard v-if="menu === 1"></dashboard>
+		<!-- <dashboard v-if="menu === 1"></dashboard> -->
 
     <!-- ------------------------------------------------------------------------ -->
 
@@ -25,7 +25,7 @@
     <!-- TRANSFERENCIA -->
 
     <transferencia v-if="menu === 3"></transferencia>
-
+    <router-view v-bind:candec="candec, monedaCodigo, tab_unica"></router-view>
     <!-- ------------------------------------------------------------------------ -->
 
     <!-- REALIZAR TRANSFERENCIAS -->
@@ -50,6 +50,7 @@
                monedaSucursal: '',
                monedaCodigo: 0,
                tab_unica: false,
+               id_sucursal: '',
                candec: 0
             }
         }, 
@@ -82,7 +83,8 @@
                   me.monedaCodigo = response.data.parametros[0].MONEDA;
                   me.monedaSucursal = response.data.parametros[0].DESCRIPCION;
                   me.candec = response.data.parametros[0].CANDEC;
-
+                  me.id_sucursal = response.data.parametros[0].id_sucursal;
+                  
                   // ------------------------------------------------------------------------ 
 
                   // REVISAR SI TABLA COTIZACION ES UNICA O DIFERENTE 
@@ -236,6 +238,7 @@ body {
   color: #858796;
   text-align: left;
   background-color: #fff;
+  padding-right: 0 !important;
 }
 
 [tabindex="-1"]:focus {

@@ -20,7 +20,6 @@ require('./bootstrap');
 require('bootstrap-datepicker');
 
 /* ********************************************* */
-
 // Funciones utiles 
 window.numeral = require('numeral');
 window.Common = require('./common.js');
@@ -30,6 +29,12 @@ window.Common = require('./common.js');
 
 import BootstrapVue from 'bootstrap-vue'
 Vue.use(BootstrapVue)
+
+/* ********************************************* */
+
+window.Swal = require('sweetalert2');
+// import Swal from 'sweetalert2'
+// Vue.use(Swal)
 
 /* ********************************************* */
 
@@ -113,7 +118,7 @@ Vue.component('venta-marca-categoria', require('./components/marca/busquedas/Ven
 
 // TRANSFERENCIA
 
-Vue.component('transferencia', require('./components/transferencia/Inicio.vue').default);
+Vue.component('transferencia',  require('./components/transferencia/Inicio.vue').default);
 Vue.component('transferencia-marca-categoria', require('./components/transferencia/busquedas/TransferenciaMarcaCategoria.vue').default);
 Vue.component('realizarTransferencia', require('./components/transferencia/RealizarTransferencia.vue').default);
 
@@ -132,6 +137,12 @@ Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
 
 /* ********************************************* */
 
+// COTIZACIONES
+
+Vue.component('cotizacionEnviarTransferencia', require('./components/cotizacion/cotizacionEnviarTransferencia.vue').default);
+
+/* ********************************************* */
+
 Vue.component('miscomponentes', require('./components/MisComponentes.vue').default);
 Vue.component('categoria', require('./components/Categoria.vue').default);
 Vue.component('formv', require('./components/Form.vue').default);
@@ -144,6 +155,15 @@ Vue.component('home', require('./components/Home.vue').default);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+/* ********************************************* */
+
+// RUTAS 
+
+import router from './routes';
+
+/* ********************************************* */
+
 const app = new Vue({
     el: '#app',
+    router
 });

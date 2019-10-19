@@ -22,10 +22,16 @@ class TransferenciaControler extends Controller
         
     }
 
+    public function mostrarDataTable(Request $request)
+    {
+        $transferencia = Transferencia::mostrarDatatable($request);
+        return response()->json($transferencia);
+    }
+
     public function mostrar(Request $request)
     {
-        $ventas = Transferencia::generarConsulta($request->all());
-        return response()->json($ventas);
+        $transferencia = Transferencia::generarConsulta($request->all());
+        return response()->json($transferencia);
     }
 
     
@@ -34,12 +40,68 @@ class TransferenciaControler extends Controller
 
         /*  --------------------------------------------------------------------------------- */
 
-        // COMPROBAR SI HAY STOCK DISPONIBLE
+        // GUARDAR TRANSFERENCIA Y ENVIAR UNO COMO REFERENCIA DE GUARDADO
 
-        $transferencia = Transferencia::guardar($request->all());
+        $transferencia = Transferencia::guardar_modificar($request->all(), 1);
         return response()->json($transferencia); 
         
         /*  --------------------------------------------------------------------------------- */
         
+    }
+
+    public function eliminarTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ELIMINAR TRANSFERENCIA
+
+        $transferencia = Transferencia::eliminar($request->all(), 1);
+        return response()->json($transferencia); 
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public function modificarTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MODIFICAR TRANSFERENCIA
+
+        $transferencia = Transferencia::modificar($request->all());
+        return response()->json($transferencia); 
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public function mostrarCabecera(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR CABECERA DE TRANSFERENCIA 
+
+        $transferencia = Transferencia::mostrar_cabecera($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function mostrarCuerpo(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR CABECERA DE TRANSFERENCIA 
+
+        $transferencia = Transferencia::mostrar_cuerpo($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

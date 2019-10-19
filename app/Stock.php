@@ -233,4 +233,117 @@ class Stock extends Model
 
     }
 
+    public static function sumar_stock_producto($codigo, $cantidad, $lote)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+    	$dia = date('Y-m-d');
+    	$hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LOTE NO ES NULO 
+
+        if ($lote === NULL) {
+            $lote = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($lote > 0) {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// SI CANTIDAD A SUMAR POSEE LOTE 
+
+        	$stock = DB::connection('retail')
+	        ->table('lotes')
+	        ->where('COD_PROD','=', $codigo)
+	        ->where('LOTE','=', $lote)
+	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	        ->limit(1)
+	        ->increment('CANTIDAD', $cantidad);
+
+	        /*  --------------------------------------------------------------------------------- */
+
+        } else {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// CONSEGUIR LOTE A SUMAR 
+
+        	$lote = DB::connection('retail')
+	        ->table('lotes')
+	        ->select(DB::raw('LOTE'))
+	        ->where('COD_PROD','=', $codigo)
+	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	        ->orderBy('LOTE', 'desc')
+	        ->limit(1)
+	        ->get();
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// REVISAR SI ENCUENTRA ULTIMO LOTE 
+
+        	if (count($lote) > 0) 
+        	{
+
+	        	$lote = $lote[0]->LOTE;
+
+	        	$stock = DB::connection('retail')
+		        ->table('lotes')
+		        ->where('COD_PROD','=', $codigo)
+		        ->where('LOTE','=', $lote)
+		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+		        ->limit(1)
+		        ->increment('CANTIDAD', $cantidad);
+
+	    	} else {
+
+	    		/*  --------------------------------------------------------------------------------- */
+
+	    		// INSERTAR NUEVO LOTE SI PRODUCTO NO POSEE NINGUN LOTE
+
+	    		DB::connection('retail')
+		        ->table('lotes')
+		        ->insert(
+				    [
+				    	'COD_PROD' => $codigo, 
+				    	'CANTIDAD_INICIAL' => $cantidad,
+				    	'CANTIDAD' => $cantidad,
+				    	'COSTO' => 0,
+				    	'LOTE' => 1,
+				    	'USER' => $user->name,
+				    	'FECALTAS' => $dia,
+				    	'HORALTAS' => $hora,
+				    	'ID_SUCURSAL' => $user->id_sucursal
+				    ]
+				);
+
+	    		/*  --------------------------------------------------------------------------------- */
+	    	}
+
+	        /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return true;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

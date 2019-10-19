@@ -25,7 +25,7 @@ class Empleado extends Model
 
         // RETORNAR EL VALOR
 
-        if ($empleados) {
+        if (count($empleados) > 0) {
         	return ['empleados' => $empleados];
         } else {
         	return ['empleados' => 0];

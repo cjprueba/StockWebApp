@@ -127,6 +127,19 @@ function multiplicarCommon(valor_a, valor_b, candec){
 
 }
 
+function ocultarBoton(valor){
+
+			// ------------------------------------------------------------------------
+
+			//	OCULTAR BOTON 
+
+			document.getElementById(''+valor+'').disabled = true;
+			//document.getElementById(''+valor+'').style.visibility = 'disabled';
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -235,7 +248,7 @@ function calcularCotizaciónPrecioCommon(precioProducto, monedaProducto, monedaS
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function guardarTransferenciaCommon(data){
+function guardarTransferenciaCommon(data, cabecera){
 
 			// ------------------------------------------------------------------------
 
@@ -247,13 +260,114 @@ function guardarTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/transferenciaGuardar', {'data': data}).then(function (response) {
+			return axios.post('/transferenciaGuardar', {'data': data, 'cabecera': cabecera}).then(function (response) {
 					return response.data;
 			});
 
 			// ------------------------------------------------------------------------
 
 }
+
+function eliminarTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/transferenciaEliminar', {'codigo': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+function modificarTransferenciaCommon(codigo, data, cabecera){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/transferenciaModificar', {'codigo': codigo, 'data': data, 'cabecera': cabecera}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerCabeceraTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/transferenciaCabecera', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerCuerpoTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/transferenciaCuerpo', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							  COTIZACIONES
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerCotizacionDia(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.get('/cotizacion').then(function (response) {
+						return response.data;
+					});
+
+			// ------------------------------------------------------------------------
+			
+
+			// ------------------------------------------------------------------------
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -263,4 +377,20 @@ function guardarTransferenciaCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-export {darFormatoCommon, quitarComaCommon, calcularIVACommon, restarCommon, multiplicarCommon, existeProductoDataTableCommon, filtrarProductosCommon, codigoInternoCommon, calcularCotizaciónPrecioCommon, guardarTransferenciaCommon};
+export {
+		darFormatoCommon, 
+		quitarComaCommon, 
+		calcularIVACommon, 
+		restarCommon, 
+		multiplicarCommon, 
+		existeProductoDataTableCommon, 
+		filtrarProductosCommon, 
+		codigoInternoCommon, 
+		calcularCotizaciónPrecioCommon, 
+		guardarTransferenciaCommon, 
+		obtenerCotizacionDia,
+		obtenerCabeceraTransferenciaCommon,
+		obtenerCuerpoTransferenciaCommon,
+		ocultarBoton,
+		modificarTransferenciaCommon
+		};

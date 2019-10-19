@@ -79,7 +79,9 @@
         <div id="collapseTransferencia" class="collapse" aria-labelledby="headingTransferencia" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a>
+            <router-link class="collapse-item" :to="{name: 'transferenciaMostrar'}">Mostrar Transferencias</router-link>
+            <router-link class="collapse-item" :to="{name: 'transferencia'}">Realizar Transferencias</router-link>
+            <!-- <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a> -->
             <a class="collapse-item" href="#" v-on:click="llamar(3)">Importar Transferencias</a>
           </div>
         </div>

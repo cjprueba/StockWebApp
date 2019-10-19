@@ -11,4 +11,9 @@ class CotizacionController extends Controller
     	$cambio = Cotizacion::CALMONED($request->all());
         return response()->json($cambio);
     }
+
+    public function cotizacionDia(Request $request){
+    	$cotizaciones = Cotizacion::cotizacion_dia_monedas($request->all());
+        return response()->json($cotizaciones);
+    }
 }

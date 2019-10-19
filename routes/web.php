@@ -31,8 +31,13 @@ Route::post('ventas', 'VentaController@mostrar');
 
 // TRANSFERENCIA
 
+Route::get('transferencias', 'TransferenciaControler@mostrarDataTable');
 Route::post('transferencias', 'TransferenciaControler@mostrar');
 Route::post('transferenciaGuardar', 'TransferenciaControler@guardarTransferencia');
+Route::post('transferenciaModificar', 'TransferenciaControler@modificarTransferencia');
+Route::post('transferenciaGuardar', 'TransferenciaControler@eliminarTransferencia');
+Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
+Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 
 /* -------------------------------------------------------------------------- */
 
@@ -85,5 +90,14 @@ Route::get('parametro', 'ParametroController@mostrar');
 // COTIZACION
 
 Route::post('cotizacion', 'CotizacionController@cotizar');
+Route::get('cotizacion', 'CotizacionController@cotizacionDia');
+
+/* -------------------------------------------------------------------------- */
+
+// PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
+
+Route::get('{any}', function () {
+    return view('home');
+})->where('any','.*');
 
 /* -------------------------------------------------------------------------- */

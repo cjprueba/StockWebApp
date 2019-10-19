@@ -5,19 +5,18 @@
 
 		<!-- FORMULARIO  -->
 
-		<div class="card">
+		<div class="card border-bottom-primary">
 		  
 		  <div class="card-header">
 		  	<div class="row">
 			  	<div class="col-md-11 text-primary font-weight-bold">
-			  		Transferencia
+			  		Transferencia 
 			  	</div>
 			  	<div class="col-md-1">
 			  		<div class="input-group">
 						<div class="input-group-prepend">
-							<button type="button" class="btn btn-secondary btn-sm"><font-awesome-icon icon="search"/></button>
+							{{ $route.params.id }}
 						</div>
-						<input class="form-control form-control-sm" type="text" >
 					</div>
 			  	</div>
 		  	</div>	 
@@ -106,7 +105,7 @@
 						<div class="input-group-prepend">
 							<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(2)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
 						</div>
-						<input class="form-control form-control-sm" v-model="codigoTransporta" type="text" v-on:blur="cargarSucursales(2, 2)">
+						<input class="form-control form-control-sm" v-model="codigoTransporta" type="text" v-on:blur="cargarEmpleados(2)">
 					</div>
 				</div>	
 
@@ -122,36 +121,28 @@
 			</div>
 
 			<div class="row">
+
 				<div class="col-md-1">
 					<label class="mt-1" for="validationTooltip01">Recibe</label>
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(3)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
 						</div>
-						<input class="form-control form-control-sm" v-model="codigoRecibe" type="text" v-on:blur="cargarSucursales(2, 3)">
+						<input class="form-control form-control-sm" v-model="codigoRecibe" type="text" v-on:blur="cargarEmpleados(3)">
 					</div>
 				</div>	
 
 				<div class="col-md-5">
 					<label class="mt-1" for="validationTooltip01">Descripción</label>
 					<input class="form-control form-control-sm" type="text" v-model="descripcionRecibe"  disabled>
-					</div>	
+				</div>	
 
-					<div class="col-md-1">
-						<label class="mt-1" for="validationTooltip01">Moneda</label>
-						<input class="form-control form-control-sm" type="text" >
-					</div>
-
-					<div class="col-md-3">
-						<label class="mt-1" for="validationTooltip01">Cotización</label>
-						<input class="form-control form-control-sm" type="text" >
-					</div>
-
-					<div class="col-md-2">
-						<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
-						<input class="form-control form-control-sm" type="text" >
-					</div>	
+				<div class="col-md-6">
+					<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+					<input class="form-control form-control-sm" type="text" v-model="nro_caja">
 				</div>
+
+			</div>
 
 				</div>
 		</div>
@@ -162,7 +153,7 @@
 
 		<!-- AGREGAR PRODUCTO -->
 
-		<div class="card mt-3">
+		<div class="card mt-3 border-bottom-primary">
 			<div class="card-header text-primary font-weight-bold">
 				Agregar Producto
 			</div>	
@@ -258,9 +249,8 @@
 
 		<div class="col-md-12 mt-3 mb-3">
 				<div class="text-right">
-					<button v-on:click="guardarTransferencia()" class="btn btn-primary">Guardar</button>
-					<button class="btn btn-warning">Modificar</button>
-					<button class="btn btn-danger">Eliminar</button>
+					<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
+					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
 				</div>
 		</div>
 
@@ -562,8 +552,33 @@
 
 	    <!-- ******************************************************************* -->
 
+	    <!-- TOAST COMPLETAR CABECERA -->
+
+		<b-toast id="toast-completar-cabecera" variant="warning" solid>
+	      <template v-slot:toast-title>
+	        <div class="d-flex flex-grow-1 align-items-baseline">
+	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+	          <strong class="mr-auto">Error !</strong>
+	          <small class="text-muted mr-2">incompleto</small>
+	        </div>
+	      </template>
+	      Complete todos los datos correctamente !
+	    </b-toast>
+
+	    <!-- ******************************************************************* -->
+
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- MENU COTIZACION TRANSFERENCIA -->
+
+		<cotizacionEnviarTransferencia 
+		@mostrar-cotizacion-enviar="funcionMostrarCerrarCotizacion" 
+		ref="cotizacionEnviarTransferencia" 
+		@moneda_enviar="seleccionarMonedaEnviar"
+		v-bind:moneda_codigo="monedaCodigo"
+		></cotizacionEnviarTransferencia>
+
+		<!-- ------------------------------------------------------------------------ -->
 		</div>
 </template>
 <script>
@@ -585,17 +600,18 @@
          		PREVIP: '',
          		FECHULT_C: ''
          	}],
-         	codigoOrigen: null,
-         	codigoDestino: null,
-            codigoTransporta: null,
-            codigoEnvia: null,
-            codigoRecibe: null,
+         	codigoOrigen: '',
+         	codigoDestino: '',
+            codigoTransporta: '',
+            codigoEnvia: '',
+            codigoRecibe: '',
          	descripcionOrigen: '',
          	descripcionDestino: '',
             descripcionEnvia: '',
             descripcionTransporta: '',
             descripcionRecibe: '',
             descripcionProducto: '',
+            nro_caja: '',
          	validarOrigen: false,
          	validarDestino: false,
             validarCodigoProducto: false,
@@ -617,7 +633,8 @@
             editarPrecio: '',
             editarCantidad: '',
             editarStock: '',
-            editarRow: ''
+            editarRow: '',
+            moneda_enviar: 0
         }
       },
       components: {
@@ -805,7 +822,7 @@
 
        			axios.post('/empleado', {'codigo': origenV}).then(function (response) {
        				
-					if(response.data.sucursal === 0) {
+					if(response.data.empleado === 0) {
 
 						// *******************************************************************
 
@@ -839,7 +856,7 @@
 						} else if (origen === 2) {
 							me.descripcionTransporta = response.data.empleado[0].NOMBRE;
 							me.validarTransporta = false;
-						} else if (origen === 2) {
+						} else if (origen === 3) {
 							me.descripcionRecibe = response.data.empleado[0].NOMBRE;
 							me.validarRecibe = false;
 						}
@@ -1028,37 +1045,9 @@
 
             // ------------------------------------------------------------------------
 
-            // CARGAR DATO EN TABLA TRANSFERENCIAS 
+            // CARGAR DATO EN TABLA TRANSFERENCIAS
 
-            tableTransferencia.rows.add( [ {
-                    "ITEM": '',
-                    "CODIGO":   me.codigoProducto,
-                    "DESCRIPCION":     me.descripcionProducto,
-                    "CANTIDAD": me.cantidadProducto,
-                    "PRECIO":     me.precioProducto,
-                    "IVA":       iva,
-                    "TOTAL":       precio,
-                    "ACCION":    "&emsp;<a href='#' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarModal' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
-                    "IVA_PORCENTAJE": me.ivaProducto,
-                    "STOCK": me.stockProducto
-                } ] )
-            .draw();
-
-            // ------------------------------------------------------------------------
-
-            // AGREGAR INDEX A LA TABLA TRANSFERNCIAS
-
-            tableTransferencia.on( 'order.dt search.dt', function () {
-                tableTransferencia.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                    cell.innerHTML = i+1;
-                } );
-            } ).draw();
-
-            // ------------------------------------------------------------------------
-
-            // AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
-
-            tableTransferencia.columns.adjust().draw();
+            me.agregarFilaTabla(me.codigoProducto, me.descripcionProducto, me.cantidadProducto, me.precioProducto, iva, precio, me.ivaProducto, me.stockProducto);
 
             // ------------------------------------------------------------------------
 
@@ -1142,6 +1131,26 @@
 
             // ------------------------------------------------------------------------   
 
+		}, seleccionarMonedaEnviar(valor) {
+
+			// ------------------------------------------------------------------------ 
+
+			// CARGAR MONEDA A ENVIAR 
+
+			this.moneda_enviar = valor;
+
+			// ------------------------------------------------------------------------ 
+
+			// REVISAR QUE BOTON ESTA DESACTIVADO PARA REDIGIRLO A MODIFICAR O GUARDAR 
+			
+			if (document.getElementById('guardar').disabled === false) {
+				this.guardarTransferencia();
+			} else {
+				this.modificarTransferencia();
+			}
+
+			// ------------------------------------------------------------------------ 
+
 		}, guardarTransferencia(){
 
 			// ------------------------------------------------------------------------ 
@@ -1154,6 +1163,24 @@
 
 			// ------------------------------------------------------------------------ 
 
+			// Llamar Controlador 
+			
+			if (this.inivarCabecera(tableTransferencia) === true) {
+				me.$bvToast.show('toast-completar-cabecera');
+				return;
+			}
+
+			// ------------------------------------------------------------------------ 
+
+			// LLAMAR TABLA COTIZACION 
+
+			if(this.moneda_enviar === 0) {
+				this.funcionMostrarCerrarCotizacion();
+				return;
+			}
+
+			// ------------------------------------------------------------------------ 
+
 			// PREPARAR ARRAY 
 
 			data = {
@@ -1161,16 +1188,354 @@
 				destino: me.codigoDestino,
 				envia: me.codigoEnvia,
 				transporta: me.codigoTransporta,
-				recibe: me.codigoRecibe
+				recibe: me.codigoRecibe,
+				monedaSistema: me.monedaCodigo,
+				monedaEnviar: me.moneda_enviar,
+				nro_caja: me.nro_caja,
+				tab_unica: me.tab_unica
 			}
 
 			// ------------------------------------------------------------------------ 
-			console.log(tableTransferencia.rows().data());
-			Common.guardarTransferenciaCommon(tableTransferencia.rows().data());
+
+			Common.guardarTransferenciaCommon(tableTransferencia.rows().data(), data).then(data => {
+			  
+				if (data === true) {
+					Swal.fire(
+					  'Guardado !',
+					  'La Transferencia ha sido guardada correctamente !',
+					  'success'
+					).then((result) => {
+					  if (result.value) {
+
+					  	// ------------------------------------------------------------------------ 
+
+					  	// SI DA OK LO REDIRIJE A MOSTRAR TRANSFERENCIAS 
+
+					    this.$router.push('/tr1');
+
+					    // ------------------------------------------------------------------------ 
+
+					   }
+					});
+				} else {
+					Swal.fire(
+					  'Error !',
+					  'La Transferencia no se ha guardado correctamente !',
+					  'Error'
+					);
+				}
+				
+			});
+			
 			
 			// ------------------------------------------------------------------------ 
 
-		}
+			// DEVOLVER VALOR A VARIABLE
+
+			this.moneda_enviar = 0;
+
+			// ------------------------------------------------------------------------ 
+
+		}, inivarCabecera(tablaEnviada){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			let me = this;
+			var tabla = tablaEnviada.rows().data();
+
+			// ------------------------------------------------------------------------
+
+            // CONTROLADOR CABECERA
+
+            if (me.codigoOrigen.length === 0) {
+                me.validarOrigen = true;
+                return true;
+            } else {
+                me.validarOrigen = false;
+            }
+
+            if (me.codigoDestino.length === 0) {
+                me.validarDestino = true;
+                return true;
+            } else {
+                me.validarDestino = false;
+            }
+
+            if (me.codigoEnvia.length === 0) {
+                me.validarEnvia = true;
+                return true;
+            } else {
+                me.validarEnvia = false;
+            }
+
+            if (me.codigoTransporta.length === 0) {
+                me.validarTransporta = true;
+                return true;
+            } else {
+                me.validarTransporta = false;
+            }
+
+            if (me.codigoRecibe.length === 0) {
+                me.validarRecibe = true;
+                return true;
+            } else {
+                me.validarRecibe = false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            // RETORNAR SI ORIGEN Y DESTINO SON IGUALES
+
+            if (me.codigoOrigen === me.codigoDestino) {
+            	me.validarOrigen = true;
+            	me.validarDestino = true;
+            	return true;
+            } else {
+            	me.validarOrigen = false;
+            	me.validarDestino = false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            // SI LA TABLA TRANSFERENCIA ESTA VACIA DEVUELVE TAMBIEN TRUE 
+
+            if (tabla.length === 0){
+            	return true;
+            }
+
+            // ------------------------------------------------------------------------
+
+            // RETORNAR VALOR 
+           
+            return false;
+
+            // ------------------------------------------------------------------------
+
+		}, cotizacionEnviar(valor){
+
+            // ------------------------------------------------------------------------ 
+
+            // CAMBIAR EL MENU DE ACUERDO AL SIDEBAR
+
+            console.log(valor);
+
+            // ------------------------------------------------------------------------ 
+
+        },
+        funcionMostrarCerrarCotizacion() {
+        	
+        	this.$refs.cotizacionEnviarTransferencia.mostrarModal();
+
+        }, mostrarTransferencia(codigo){
+
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES 
+
+        	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	// SE ENCARGA DE COMPROBAR SI EXISTE CODIGO EN LA URL PARA PODER CARGAR UNA TRANSFERENCIA EXISTENTE
+        	
+        	if (codigo !== undefined) {
+
+        		// ------------------------------------------------------------------------
+
+        		// OCULTAR BOTON GUARDAR 
+
+        		Common.ocultarBoton('guardar');
+
+        		// ------------------------------------------------------------------------
+
+        		// AGREGAR CABECERA 
+
+        		Common.obtenerCabeceraTransferenciaCommon(codigo).then(data => {
+        			me.codigoOrigen = data.CODIGO_ORIGEN;
+        			me.codigoDestino = data.CODIGO_DESTINO;
+        			me.codigoEnvia = data.CODIGO_ENVIA;
+        			me.codigoTransporta = data.CODIGO_TRANSPORTA;
+        			me.codigoRecibe = data.CODIGO_RECIBE;
+        			me.descripcionOrigen = data.ORIGEN;
+        			me.descripcionDestino = data.DESTINO;
+        			me.descripcionEnvia = data.ENVIA;
+        			me.descripcionTransporta = data.TRANSPORTA;
+        			me.descripcionRecibe = data.RECIBE;
+        			me.nro_caja = data.NRO_CAJA;
+        		});
+
+        		// ------------------------------------------------------------------------
+
+        		// AGREGAR CUERPO
+
+        		Common.obtenerCuerpoTransferenciaCommon(codigo).then(data => {
+        			data.map(function(x) {
+					   
+        			   // ------------------------------------------------------------------------
+        			   	
+					   // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
+
+					   me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, '', '');
+					  
+					   // ------------------------------------------------------------------------
+
+					});
+        		});
+
+        		// ------------------------------------------------------------------------
+
+        	} else {
+
+        		// ------------------------------------------------------------------------
+
+        		// OCULTAR BOTON MODIFICAR 
+
+        		Common.ocultarBoton('modificar');
+
+        		// ------------------------------------------------------------------------
+
+        	}
+
+        	// ------------------------------------------------------------------------
+
+        }, agregarFilaTabla(codigo, descripcion, cantidad, precio, iva, total, iva_porcentaje, stock){
+
+        	// ------------------------------------------------------------------------
+
+        	//	INICIAR VARIABLES 
+
+        	 var tableTransferencia = $('#tablaTransferencia').DataTable();
+
+        	// ------------------------------------------------------------------------
+
+        	// AGREGAR FILAS 
+
+        	 tableTransferencia.rows.add( [ {
+		                    "ITEM": '',
+		                    "CODIGO":   codigo,
+		                    "DESCRIPCION":     descripcion,
+		                    "CANTIDAD": cantidad,
+		                    "PRECIO":    precio,
+		                    "IVA":       iva,
+		                    "TOTAL":       total,
+		                    "ACCION":    "&emsp;<a href='#' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarModal' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
+		                    "IVA_PORCENTAJE": iva_porcentaje,
+		                    "STOCK": stock
+		                } ] )
+		     .draw();
+
+		    // ------------------------------------------------------------------------ 
+
+            // AGREGAR INDEX A LA TABLA TRANSFERNCIAS
+
+            tableTransferencia.on( 'order.dt search.dt', function () {
+                tableTransferencia.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                    cell.innerHTML = i+1;
+                } );
+            } ).draw();
+
+            // ------------------------------------------------------------------------
+
+            // AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
+
+            tableTransferencia.columns.adjust().draw();
+
+            // ------------------------------------------------------------------------
+
+        },
+        modificarTransferencia(){
+
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES 
+
+			let me = this;
+			var tableTransferencia = $('#tablaTransferencia').DataTable();
+			var data = [];
+			var codigo = this.$route.params.id;
+
+			// ------------------------------------------------------------------------ 
+
+			// Llamar Controlador 
+			
+			if (this.inivarCabecera(tableTransferencia) === true) {
+				me.$bvToast.show('toast-completar-cabecera');
+				return;
+			}
+
+			// ------------------------------------------------------------------------ 
+
+			// LLAMAR TABLA COTIZACION 
+
+			if(this.moneda_enviar === 0) {
+				this.funcionMostrarCerrarCotizacion();
+				return;
+			}
+
+			// ------------------------------------------------------------------------ 
+
+			// PREPARAR ARRAY 
+
+			data = {
+				origen: me.codigoOrigen,
+				destino: me.codigoDestino,
+				envia: me.codigoEnvia,
+				transporta: me.codigoTransporta,
+				recibe: me.codigoRecibe,
+				monedaSistema: me.monedaCodigo,
+				monedaEnviar: me.moneda_enviar,
+				nro_caja: me.nro_caja,
+				tab_unica: me.tab_unica
+			}
+
+			// ------------------------------------------------------------------------ 
+
+			// MOSTRAR MENSAJE PARA MODIFICAR 
+
+			Swal.fire({
+				title: 'Estas seguro ?',
+				text: "Modificar la Transferencia " + codigo + " !",
+				type: 'warning',
+				showLoaderOnConfirm: true,
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Si, modificalo!',
+				cancelButtonText: 'Cancelar',
+				preConfirm: () => {
+				    return Common.modificarTransferenciaCommon(codigo, tableTransferencia.rows().data(), data).then(data => {
+				    if (!data === true) {
+				        throw new Error('error');
+				    }
+				  	return data;
+
+					}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				}
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      'Modificado !',
+						      'Se ha modificado correctamente la transferencia !',
+						      'success'
+					)
+				  }
+			})
+			
+			// ------------------------------------------------------------------------ 
+
+			// DEVOLVER VALOR A VARIABLE
+
+			this.moneda_enviar = 0;
+
+			// ------------------------------------------------------------------------
+
+        } 
       },  
         mounted() {
 
@@ -1288,7 +1653,15 @@
                             { "data": "MONEDA" }
                         ]      
                     });
-                 
+                
+                // ------------------------------------------------------------------------
+
+                // RECARGAR SIEMPRE TABLA PRODUCTOS 
+
+                setInterval( function () {
+				    tableProductos.ajax.reload( null, false ); // user paging is not reset on reload
+				}, 30000 );
+
                 // ------------------------------------------------------------------------
                 
                 // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
@@ -1556,7 +1929,15 @@
 						  // *******************************************************************
 						}      
                 });
-                 
+                
+				// ------------------------------------------------------------------------
+
+            	// DESPUES DE INICIAR LA TABLA TRANSFERENCIAS LLAMAR A LA CONSULTA PARA CARGAR CABECERA Y CUERPO 
+
+            	me.mostrarTransferencia(me.$route.params.id);
+
+            	// ------------------------------------------------------------------------
+
                 // ------------------------------------------------------------------------
                 // ------------------------------------------------------------------------
                 //                  EDITAR FILA DATATABLE TRANSFERENICAS
