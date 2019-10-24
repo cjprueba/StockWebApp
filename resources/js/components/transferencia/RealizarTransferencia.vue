@@ -1,6 +1,16 @@
 <template>
 	<div class="container-fluid mt-4">
 
+		<!-- ------------------------------------------------------------------------------------- -->
+
+		<!-- TITULO  -->
+		
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				 <li class="breadcrumb-item active" aria-current="page">Realizar Transferencia</li>
+			</ol>
+		</nav>
+
         <!-- ------------------------------------------------------------------------------------- -->
 
 		<!-- FORMULARIO  -->
@@ -36,7 +46,7 @@
 							<div class="input-group-prepend">
 								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(1)"><font-awesome-icon icon="search"/></button>
 							</div>
-							<input class="form-control form-control-sm" type="text" v-model="codigoOrigen" v-on:blur="cargarSucursales(2, 1)">
+							<input class="form-control form-control-sm" type="text" v-model="codigoOrigen" v-on:blur="cargarSucursales(2, 1)" disabled>
 						</div>
 				</div>	
 
@@ -585,7 +595,7 @@
 
 	import { HotTable } from '@handsontable/vue';
 	export default {
-      props: ['candec', 'monedaCodigo', 'tab_unica'],  
+      props: ['candec', 'monedaCodigo', 'tab_unica', 'id_sucursal'],  
       data(){
         return {
          	sucursales: [],
@@ -1420,7 +1430,7 @@
 		                    "PRECIO":    precio,
 		                    "IVA":       iva,
 		                    "TOTAL":       total,
-		                    "ACCION":    "&emsp;<a href='#' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarModal' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
+		                    "ACCION":    "&emsp;<a href='#' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href=''  title='Eliminar'><i id='eliminarModal' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 		                    "IVA_PORCENTAJE": iva_porcentaje,
 		                    "STOCK": stock
 		                } ] )
@@ -1546,6 +1556,13 @@
             let me = this;
             var precio = 0;
             var iva = 0;
+
+            // ------------------------------------------------------------------------
+
+            // CARGAR SUCURSAL 
+
+            this.codigoOrigen = this.id_sucursal;
+            this.cargarSucursales(2, 1);
 
             // ------------------------------------------------------------------------
 

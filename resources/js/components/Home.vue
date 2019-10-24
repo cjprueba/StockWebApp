@@ -25,7 +25,7 @@
     <!-- TRANSFERENCIA -->
 
     <transferencia v-if="menu === 3"></transferencia>
-    <router-view v-bind:candec="candec, monedaCodigo, tab_unica"></router-view>
+    <router-view v-bind:candec="candec, monedaCodigo, tab_unica, id_sucursal"></router-view>
     <!-- ------------------------------------------------------------------------ -->
 
     <!-- REALIZAR TRANSFERENCIAS -->
@@ -83,7 +83,7 @@
                   me.monedaCodigo = response.data.parametros[0].MONEDA;
                   me.monedaSucursal = response.data.parametros[0].DESCRIPCION;
                   me.candec = response.data.parametros[0].CANDEC;
-                  me.id_sucursal = response.data.parametros[0].id_sucursal;
+                  me.id_sucursal = response.data.parametros[0].ID_SUCURSAL;
                   
                   // ------------------------------------------------------------------------ 
 

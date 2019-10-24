@@ -18,6 +18,11 @@ export default new Router({
 			path: '/tr1',
 			name: 'transferenciaMostrar',
 			component: require('./components/transferencia/MostrarTransferencias.vue').default
+		},
+		{
+			path: '/tr3',
+			name: 'transferenciaImportar',
+			component: require('./components/transferencia/ImportarTransferencia.vue').default
 		}
 	],
 	mode: 'history'

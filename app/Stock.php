@@ -346,4 +346,73 @@ class Stock extends Model
 
     }
 
+    public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// INICIAR VARIABLES 
+
+    	$dia = date("Y-m-d");
+        $hora = date("H:i:s");
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// CONSEGUIR LOTE 
+
+    	$lote = DB::connection('retail')
+	    ->table('lotes')
+	    ->select(DB::raw('LOTE'))
+	    ->where('COD_PROD','=', $codigo)
+	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	    ->orderBy('LOTE', 'desc')
+	    ->limit(1)
+	    ->get();
+
+	    /*  --------------------------------------------------------------------------------- */
+
+	    // CALCULAR NUMERO LOTE 
+
+	    if (count($lote) > 0) {
+	    	$lote = $lote[0]->LOTE + 1;
+	    } else {
+	    	$lote = 1;
+	    }
+
+    	/*  --------------------------------------------------------------------------------- */
+
+		DB::connection('retail')
+		->table('lotes')
+		->insert(
+		[
+			'COD_PROD' => $codigo, 
+			'CANTIDAD_INICIAL' => $cantidad,
+			'CANTIDAD' => $cantidad,
+			'COSTO' => $costo,
+			'LOTE' => $lote,
+			'USER' => $user->name,
+			'FECALTAS' => $dia,
+			'HORALTAS' => $hora,
+			'ID_SUCURSAL' => $user->id_sucursal,
+			'MODO' => $modo,
+			'USERE' => $usere
+		]
+		);
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// RETORNAR VALOR 
+
+    	return $lote;
+
+    	/*  --------------------------------------------------------------------------------- */
+    	
+    }
+
 }

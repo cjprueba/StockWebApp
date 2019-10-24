@@ -260,7 +260,8 @@ function guardarTransferenciaCommon(data, cabecera){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/transferenciaGuardar', {'data': data, 'cabecera': cabecera}).then(function (response) {
+			return axios.post('/transferenciaG', {'data': data, 'cabecera': cabecera}).then(function (response) {
+					console.log(response.data);
 					return response.data;
 			});
 
@@ -280,7 +281,27 @@ function eliminarTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/transferenciaEliminar', {'codigo': data}).then(function (response) {
+			return axios.post('/transferenciaEliminar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function enviarTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/transferenciaEnviar', {'data': data}).then(function (response) {
 					return response.data;
 			});
 
@@ -337,6 +358,45 @@ function obtenerCuerpoTransferenciaCommon(codigo){
 
 }
 
+function rechazarTransferenciaCommon(codigo, codigo_origen){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/transferenciaRechazar', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function importarTransferenciaCommon(codigo, codigo_origen){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/transferenciaImportar', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -392,5 +452,9 @@ export {
 		obtenerCabeceraTransferenciaCommon,
 		obtenerCuerpoTransferenciaCommon,
 		ocultarBoton,
-		modificarTransferenciaCommon
+		modificarTransferenciaCommon,
+		rechazarTransferenciaCommon,
+		importarTransferenciaCommon,
+		eliminarTransferenciaCommon,
+		enviarTransferenciaCommon
 		};

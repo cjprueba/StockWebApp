@@ -1,6 +1,15 @@
 <template>
 	<div class="container-fluid mt-4">
 		<div class="row">
+
+			<div class="col-md-12">
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item active" aria-current="page">Mostrar Transferencias</li>
+				  </ol>
+				</nav>
+			</div>
+
 			<div class="col-md-12">
 				<table id="tablaTransferencias" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
@@ -22,8 +31,18 @@
 
 
 			</div>	
-		</div>	
-		
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
+
+		<modal-detalle-transferencia 
+		ref="ModalImportarTransferencia"
+		></modal-detalle-transferencia>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -31,6 +50,7 @@
 
 
 	 export default {
+	  props: ['id_sucursal'],	
       data(){
         return {
           	codigoTransferencia: ''
@@ -46,8 +66,16 @@
       			 this.$router.push('/tr2/'+ codigo + '');
 
       			// ------------------------------------------------------------------------
-      		},
-      		eliminarTransferencia(codigo){
+      		}, mostrarModalTranferencia(codigo, codigo_origen) {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+      			this.$refs.ModalImportarTransferencia.mostrarModal(codigo, codigo_origen);
+
+      			// ------------------------------------------------------------------------
+      		}, eliminarTransferencia(codigo){
 
       			// ------------------------------------------------------------------------
 
@@ -70,7 +98,7 @@
 				  confirmButtonText: 'Si, eliminalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.guardarTransferenciaCommon(codigo).then(data => {
+				    return Common.eliminarTransferenciaCommon(codigo).then(data => {
 				    	if (!data === true) {
 				          throw new Error('error');
 				        }
@@ -86,6 +114,60 @@
 				  	Swal.fire(
 						      'Eliminado!',
 						      'Se ha eliminado la transferencia y devuelto el stock !',
+						      'success'
+					)
+
+				  	// ------------------------------------------------------------------------
+
+				  	// RECARGAR TABLA 
+				  	
+					tableTransferencia.ajax.reload( null, false );
+
+					// ------------------------------------------------------------------------
+
+				  }
+				})
+
+				// ------------------------------------------------------------------------
+
+      		}, enviarTransferencia(codigo){
+      			
+      			// ------------------------------------------------------------------------
+
+      			// INICIAR VARIABLES
+
+      			var tableTransferencia = $('#tablaTransferencias').DataTable();
+
+      			// ------------------------------------------------------------------------
+
+      			// MOSTRAR LA PREGUNTA DE ELIMINAR 
+
+      			Swal.fire({
+				  title: 'Estas seguro ?',
+				  text: "Enviar la Transferencia " + codigo + " !",
+				  type: 'warning',
+				  showLoaderOnConfirm: true,
+				  showCancelButton: true,
+				  cancelButtonColor: '#3085d6',
+				  confirmButtonText: 'Si, envialo!',
+				  cancelButtonText: 'Cancelar',
+				  preConfirm: () => {
+				    return Common.enviarTransferenciaCommon(codigo).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+				  	}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				  }
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      'Enviado!',
+						      'Se ha enviado la transferencia correctamente !',
 						      'success'
 					)
 
@@ -181,7 +263,38 @@
 
                     // ------------------------------------------------------------------------
 
-	 });
+                    // ENVIAR TRANSFERENCIA
+
+                    $('#tablaTransferencias').on('click', 'tbody tr #enviarTransferencia', function() {
+
+	                    // *******************************************************************
+
+	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                   	
+	                   	var row  = $(this).parents('tr')[0];
+	                    me.enviarTransferencia(tableTransferencia.row( row ).data().CODIGO);
+
+	                    // *******************************************************************
+
+	                });
+
+                    // ------------------------------------------------------------------------
+
+                    $('#tablaTransferencias').on('click', 'tbody tr #mostrarTransferencia', function() {
+
+	                    // *******************************************************************
+
+	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+
+	                   	 var row  = $(this).parents('tr')[0];
+	                   	 me.mostrarModalTranferencia(tableTransferencia.row( row ).data().CODIGO, me.id_sucursal);
+
+	                    // *******************************************************************
+
+	                });
+
+	                // ------------------------------------------------------------------------
+	 });	
         }
     }
 </script>

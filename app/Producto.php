@@ -217,5 +217,33 @@ class Producto extends Model
 
     }
 
+    public static function existeProducto($codigo, $id_sucursal)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE PRODUCTO 
+
+        $producto = DB::connection('retail')
+        ->table('PRODUCTOS_AUX')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO'))
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $codigo)
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+        
+        if (count($producto) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
     
 }

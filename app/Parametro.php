@@ -71,5 +71,28 @@ class Parametro extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function candec($moneda){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // BUSCAR CANTIDAD DE DECIMALES DE MONEDA 
+
+        $candec = DB::connection('retail')
+        ->table('monedas')
+        ->select(DB::raw('CANDEC, DESCRIPCION'))
+        ->where('CODIGO','=', $moneda)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if (count($candec) > 0){
+            return ["CANDEC" => $candec[0]->CANDEC, "DESCRIPCION" => $candec[0]->DESCRIPCION];
+        } else {
+            return ["CANDEC" => 0, "DESCRIPCION" => 'N/A'];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
     }    
 }

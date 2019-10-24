@@ -33,11 +33,17 @@ Route::post('ventas', 'VentaController@mostrar');
 
 Route::get('transferencias', 'TransferenciaControler@mostrarDataTable');
 Route::post('transferencias', 'TransferenciaControler@mostrar');
-Route::post('transferenciaGuardar', 'TransferenciaControler@guardarTransferencia');
+Route::post('transferenciaG', 'TransferenciaControler@guardarTransferencia');
 Route::post('transferenciaModificar', 'TransferenciaControler@modificarTransferencia');
-Route::post('transferenciaGuardar', 'TransferenciaControler@eliminarTransferencia');
+Route::post('transferenciaEliminar', 'TransferenciaControler@eliminarTransferencia');
+Route::post('transferenciaEnviar', 'TransferenciaControler@enviarTransferencia');
 Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
+Route::get('transferenciaMostrarImportar', 'TransferenciaControler@mostrarImportar');
+Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
+Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
+Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
+Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
 
 /* -------------------------------------------------------------------------- */
 

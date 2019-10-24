@@ -104,4 +104,87 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function mostrarImportar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::mostrar_importar($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function mostrarProductos(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::mostrar_productos($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function enviarTransferencia(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ENVIAR TRANSFERENCIA
+
+        $transferencia = Transferencia::enviar_transferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function rechazarTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::rechazar_transferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function importarTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::importar_transferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function detalleTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::detalle_transferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

@@ -121,6 +121,7 @@ Vue.component('venta-marca-categoria', require('./components/marca/busquedas/Ven
 Vue.component('transferencia',  require('./components/transferencia/Inicio.vue').default);
 Vue.component('transferencia-marca-categoria', require('./components/transferencia/busquedas/TransferenciaMarcaCategoria.vue').default);
 Vue.component('realizarTransferencia', require('./components/transferencia/RealizarTransferencia.vue').default);
+Vue.component('modal-detalle-transferencia', require('./components/transferencia/modal/ModalDetalleTransferencia.vue').default);
 
 /* ********************************************* */
 
