@@ -11,11 +11,12 @@
 			</ol>
 		</nav>
 
+	
         <!-- ------------------------------------------------------------------------------------- -->
 
 		<!-- FORMULARIO  -->
 
-		<div class="card border-bottom-primary">
+		<div class="card border-bottom-primary shadow-sm">
 		  
 		  <div class="card-header">
 		  	<div class="row">
@@ -149,7 +150,7 @@
 
 				<div class="col-md-6">
 					<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
-					<input class="form-control form-control-sm" type="text" v-model="nro_caja">
+					<input class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
 				</div>
 
 			</div>
@@ -170,18 +171,11 @@
 			<div class="card-body">	
 				<div class="row">
 					<div class="col-md-2">
-						<label for="validationTooltip01">Código</label>
-						<div class="input-group">
-							<div class="input-group-prepend">
-								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".producto-modal"><font-awesome-icon icon="search"/></button>
-							</div>
+						
+							
+							<codigo-producto @codigo_producto="cargarProductos" ref="compontente_codigo_producto"></codigo-producto >
 
-							<datalist id="productos">
-							  <option v-for="producto in productos" :value="producto.CODIGO"></option>
-							</datalist>
-
-							<input ref="codigo" class="custom-select custom-select-sm" type="text" list="productos" v-model="codigoProducto" v-bind:class="{ 'is-invalid': validarCodigoProducto }" v-on:keyup="filtrarProductos()" v-on:blur="cargarProductos()">
-						</div>
+						<!-- </div> -->
 					</div>	
 
 					<div class="col-md-4">
@@ -199,6 +193,13 @@
 						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
 					</div>
 
+
+ 					<!-- <div class="col-md-2">
+						<label for="validationTooltip01">Cantidad</label>
+						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
+					</div> -->
+
+
 					<div class="col-md-2">
 						<label for="validationTooltip01">Stock</label>
 						<input class="form-control form-control-sm" type="text" v-model="stockProducto" disabled>
@@ -209,7 +210,7 @@
 
 		<!-- FINAL AGREGAR PRODUCTO -->
 		
-        <!-- ------------------------------------------------------------------------------------- -->
+		 <!-- ------------------------------------------------------------------------------------- -->
 
         <!-- TABLA TRANSFERENCIA -->
 
@@ -348,46 +349,6 @@
 				  </div>
 				</div>	
 
-		<!-- ******************************************************************* -->
-
-        <!-- MODAL PRODUCTOS -->
-
-                <div class="modal fade producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenterTitle">Productos: </small></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                            <table id="tablaModalProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Codigo</th>
-                                        <th>Descripcion</th>
-                                        <th>Precio Venta</th>
-                                        <th>Precio Costo</th>
-                                        <th>Precio Mayorista</th>
-                                        <th>Stock</th>
-                                        <th>IVA</th>
-                                        <th>Imagen</th>
-                                        <th>Moneda</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <td></td>
-                                </tbody>
-                            </table>        
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>  
-
         <!-- ******************************************************************* -->
 
         <!-- MODAL EDITAR PRODUCTO TRANSFERENCIA -->
@@ -518,20 +479,6 @@
 
 	    <!-- ******************************************************************* -->
 
-	    <!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
-
-		<b-toast id="toast-producto-transferencia-eliminado" variant="danger" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <strong class="mr-auto">Éxito !</strong>
-	          <small class="text-muted mr-2">eliminado</small>
-	        </div>
-	      </template>
-	      Este producto ha sido eliminado con éxito !
-	    </b-toast>
-
-	    <!-- ******************************************************************* -->
-
 	    <!-- TOAST CODIGO PRODUCTO REPETIDO -->
 
 		<b-toast id="toast-editar-cero" variant="warning" solid>
@@ -645,6 +592,7 @@
             editarStock: '',
             editarRow: '',
             moneda_enviar: 0
+            
         }
       },
       components: {
@@ -878,7 +826,7 @@
        		// ------------------------------------------------------------------------
 
        	},
-        cargarProductos() {
+        cargarProductos(codigo) {
 
             // ------------------------------------------------------------------------
 
@@ -890,7 +838,7 @@
 
             // CONTROLAR SI HAY DATOS EN EL TEXTBOX Y RETORNAR SI NO EXISTE DATO
 
-            if (me.codigoProducto.length <= 0) {
+            if (codigo.length <= 0) {
                 me.inivarAgregarProducto();
                 return;
             }	
@@ -899,14 +847,14 @@
 
             // OBTENER CODIGO PRODUCTO POR CODIGO INTERNO
 
-    		Common.codigoInternoCommon(me.codigoProducto).then(data => {
+    		Common.codigoInternoCommon(codigo).then(data => {
 
     			// ------------------------------------------------------------------------
 
     			// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
 
 	    		if (data === '0') {
-	            	data = me.codigoProducto; 
+	            	data = codigo; 
 	            } 
 
             	// ------------------------------------------------------------------------
@@ -977,7 +925,6 @@
             var tableTransferencia = $('#tablaTransferencia').DataTable();
             var precio = 0;
             var iva = 0;
-            const inputCodigoProducto = this.$refs.codigo;
 
             // ------------------------------------------------------------------------
 
@@ -1031,30 +978,6 @@
 
             // ------------------------------------------------------------------------
 
-            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS - SALIR SI EXISTE
-
-            if (Common.existeProductoDataTableCommon(tableTransferencia, me.codigoProducto) == true) {
-            	me.validarCodigoProducto = true;
-            	me.$bvToast.show('toast-codigo-repetido');
-            	return;
-            } else {
-            	me.validarCodigoProducto = false;
-            }
-
-            // ------------------------------------------------------------------------
-
-            // REVISAR SI CANTIDAD SUPERA STOCK
-
-            if (parseFloat(me.cantidadProducto) > parseFloat(me.stockProducto)) {
-            	me.validarCantidad = true;
-            	me.$bvToast.show('toast-cantidad-superada');
-            	return;
-            } else {
-            	me.validarCantidad = false;
-            }
-
-            // ------------------------------------------------------------------------
-
             // CARGAR DATO EN TABLA TRANSFERENCIAS
 
             me.agregarFilaTabla(me.codigoProducto, me.descripcionProducto, me.cantidadProducto, me.precioProducto, iva, precio, me.ivaProducto, me.stockProducto);
@@ -1067,11 +990,11 @@
 
             // ------------------------------------------------------------------------
 
-            // DAR FOCO A CODIGO PRODUCTO 
-            
-            this.$refs.codigo.focus();
+	        // LLAMAR AL METODO HIJO 
 
-            // ------------------------------------------------------------------------
+	        this.$refs.compontente_codigo_producto.vaciarDevolver();
+
+	        // ------------------------------------------------------------------------
 
         }, formatoPrecio(){
 
@@ -1345,6 +1268,7 @@
         	// INICIAR VARIABLES 
 
         	let me = this;
+        	var stock = 0;
 
         	// ------------------------------------------------------------------------
 
@@ -1383,11 +1307,17 @@
         		Common.obtenerCuerpoTransferenciaCommon(codigo).then(data => {
         			data.map(function(x) {
 					   
+					   // ------------------------------------------------------------------------
+
+					   // CALCULAR STOCK ACTUAL CON POSIBLE ELIMINACION
+
+					   stock = parseFloat(x.STOCK) + parseFloat(x.CANTIDAD);
+
         			   // ------------------------------------------------------------------------
         			   	
 					   // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
 
-					   me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, '', '');
+					   me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, stock);
 					  
 					   // ------------------------------------------------------------------------
 
@@ -1416,9 +1346,36 @@
 
         	//	INICIAR VARIABLES 
 
-        	 var tableTransferencia = $('#tablaTransferencia').DataTable();
+        	let me = this;
+        	var tableTransferencia = $('#tablaTransferencia').DataTable();
 
         	// ------------------------------------------------------------------------
+
+            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS - SALIR SI EXISTE
+
+            if (Common.existeProductoDataTableCommon(tableTransferencia, codigo) == true) {
+            	me.validarCodigoProducto = true;
+            	me.$bvToast.show('toast-codigo-repetido');
+            	return;
+            } else {
+            	me.validarCodigoProducto = false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            // REVISAR SI CANTIDAD SUPERA STOCK
+
+            if (stock !== '') {
+	            if (parseFloat(cantidad) > parseFloat(stock)) {
+	            	me.validarCantidad = true;
+	            	me.$bvToast.show('toast-cantidad-superada');
+	            	return;
+	            } else {
+	            	me.validarCantidad = false;
+	            }
+            }
+
+            // ------------------------------------------------------------------------
 
         	// AGREGAR FILAS 
 
@@ -1430,7 +1387,7 @@
 		                    "PRECIO":    precio,
 		                    "IVA":       iva,
 		                    "TOTAL":       total,
-		                    "ACCION":    "&emsp;<a href='#' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href=''  title='Eliminar'><i id='eliminarModal' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
+		                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarModal' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 		                    "IVA_PORCENTAJE": iva_porcentaje,
 		                    "STOCK": stock
 		                } ] )
@@ -1545,9 +1502,76 @@
 
 			// ------------------------------------------------------------------------
 
+        }, productosCompra(){
+
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES
+
+        	let me = this;
+
+        		Swal.fire({
+				  title: '¿ Importar ?',
+				  text: "Importar productos de Nro. Caja " + me.nro_caja + " !",
+				  type: 'warning',
+				  showLoaderOnConfirm: true,
+				  showCancelButton: true,
+				  confirmButtonColor: '#d33',
+				  cancelButtonColor: '#3085d6',
+				  confirmButtonText: 'Si, importalo!',
+				  cancelButtonText: 'Cancelar',
+				  preConfirm: () => {
+				    return Common.obtenerProductosComprasDetCommon(this.nro_caja).then(data => {
+
+				    	// ------------------------------------------------------------------------
+
+				    	// REVISAR SI HAY DATOS 
+
+				    	if (!data.response === true) {
+				          throw new Error('error');
+				        } else {
+			        		data.datos.map(function(x) {
+
+			        			  // ------------------------------------------------------------------------
+			        			   	
+								  // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
+
+								  me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, x.STOCK);
+								  
+								  // ------------------------------------------------------------------------
+
+							});	
+				        }
+
+		        		// ------------------------------------------------------------------------
+
+						return true;
+
+						// ------------------------------------------------------------------------
+
+        			}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				  }
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      'Importado !',
+						      'Se ha importado los productos de la compra !',
+						      'success'
+					)
+
+				  }
+				})
+
+        	// ------------------------------------------------------------------------
+
         } 
       },  
         mounted() {
+
 
             // ------------------------------------------------------------------------
             
@@ -1556,7 +1580,7 @@
             let me = this;
             var precio = 0;
             var iva = 0;
-
+            	
             // ------------------------------------------------------------------------
 
             // CARGAR SUCURSAL 
@@ -1567,6 +1591,8 @@
             // ------------------------------------------------------------------------
 
             $(document).ready( function () {
+
+            	
 
 			    $('#example22').DataTable({
 			    	"bAutoWidth": false
@@ -1637,87 +1663,6 @@
                 });
 
                 //FIN TABLA MODAL EMPLEADOS
-                // <<   
-                // ------------------------------------------------------------------------
-
-
-                // ------------------------------------------------------------------------
-                // >>
-                // INICIAR EL DATATABLE PRODUCTOS MODAL
-                // ------------------------------------------------------------------------
-                
-                var tableProductos = $('#tablaModalProductos').DataTable({
-                        "processing": true,
-                        "serverSide": true,
-                        "destroy": true,
-                        "bAutoWidth": true,
-                        "select": true,
-                        "ajax":{
-                                 "url": "/producto",
-                                 "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
-                               },
-                        "columns": [
-                            { "data": "CODIGO" },
-                            { "data": "DESCRIPCION" },
-                            { "data": "PREC_VENTA" },
-                            { "data": "PRECOSTO" },
-                            { "data": "PREMAYORISTA" },
-                            { "data": "STOCK" },
-                            { "data": "IVA" },
-                            { "data": "IMAGEN" },
-                            { "data": "MONEDA" }
-                        ]      
-                    });
-                
-                // ------------------------------------------------------------------------
-
-                // RECARGAR SIEMPRE TABLA PRODUCTOS 
-
-                setInterval( function () {
-				    tableProductos.ajax.reload( null, false ); // user paging is not reset on reload
-				}, 30000 );
-
-                // ------------------------------------------------------------------------
-                
-                // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
-
-
-                $('#tablaModalProductos').on('click', 'tbody tr', function() {
-
-                    if ($(this).hasClass('selected')) {
-                        $(this).removeClass('selected');
-                    } else {
-                        tableProductos.$('tr.selected').removeClass('selected');
-                        $(this).addClass('selected');
-                    }
-
-                    // *******************************************************************
-
-                    // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
-
-                    me.codigoProducto = tableProductos.row(this).data().CODIGO;
-                    me.descripcionProducto = tableProductos.row(this).data().DESCRIPCION;  
-                    me.stockProducto = tableProductos.row(this).data().STOCK;
-
-                    Common.calcularCotizaciónPrecioCommon(tableProductos.row(this).data().PREC_VENTA, tableProductos.row(this).data().MONEDA, me.monedaCodigo, me.candec, me.tab_unica).then(data => {
-						  me.precioProducto = data
-					});
-
-                   	me.ivaProducto = tableProductos.row(this).data().IVA;
-
-                    // *******************************************************************
-
-                    // CERRAR EL MODAL
-                     
-                     $('.producto-modal').modal('hide');
-
-                    // *******************************************************************
-
-                });
-
-                //FIN TABLA MODAL PRODUCTOS
                 // <<   
                 // ------------------------------------------------------------------------
                 
@@ -2014,7 +1959,7 @@
                 	// *******************************************************************
 
                 	// PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
-
+                	
                 	if (parseFloat(Common.quitarComaCommon(me.editarCantidad)) > parseFloat(Common.quitarComaCommon(me.editarStock))) {
                 		me.$bvToast.show('toast-cantidad-superada');
                 		return;	
@@ -2079,38 +2024,45 @@
                 // ------------------------------------------------------------------------
                 // ------------------------------------------------------------------------
 
-                // MOSTRAR MODAL ELIMINAR
+                // MOSTRAR SWEET ELIMINAR
 
                 $('#tablaTransferencia').on('click', 'tbody tr #eliminarModal', function() {
 
                     // *******************************************************************
 
-                    // ABRIR EL MODAL
+                    // ABRIR EL SWEET ALERT
 
-                    $('.eliminar-producto-transferencia-modal').modal('show');
+                    Swal.fire({
+					  title: 'Estas seguro ?',
+					  text: "Eliminar el producto " + me.editarCodigo + " !",
+					  type: 'warning',
+					  showLoaderOnConfirm: true,
+					  showCancelButton: true,
+					  confirmButtonColor: '#d33',
+					  cancelButtonColor: '#3085d6',
+					  confirmButtonText: 'Si, eliminalo!',
+					  cancelButtonText: 'Cancelar'
+					}).then((result) => {
+					  if (result.value) {
 
-                    // *******************************************************************
+					  	// *******************************************************************
 
-                });
+	                    // ELIMINAR 
+	                    
+		                tableTransferencia.row($(me.editarRow)).remove().draw(); 
 
+	                    // *******************************************************************
 
-                // ------------------------------------------------------------------------
+					  	Swal.fire(
+							      'Eliminado!',
+							      'Se ha eliminado el producto de la tabla !',
+							      'success'
+						)
 
-                // ELIMINAR FILA
+						// *******************************************************************
 
-                $('#eliminarFila').on('click', function() {
-
-                    // *******************************************************************
-
-                    // ELIMINAR 
-                    
-	                tableTransferencia.row($(me.editarRow)).remove().draw(); 
-
-                    // *******************************************************************
-
-                    // LLAMAR TOAST ELIMINAR
-
-                    me.$bvToast.show('toast-producto-transferencia-eliminado');
+					  }
+					})
 
                     // *******************************************************************
 

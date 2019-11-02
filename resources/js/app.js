@@ -24,6 +24,8 @@ require('bootstrap-datepicker');
 window.numeral = require('numeral');
 window.Common = require('./common.js');
 
+import {Howl, Howler} from 'howler';
+
 /* ********************************************* */
 // BOOSTRAP VUE
 
@@ -57,7 +59,6 @@ import { VBPopover } from 'bootstrap-vue';
 Vue.directive('b-popover', VBPopover);
 // // not sure if you need this at all
 
-
 /* ********************************************* */
 
 /* APPEX CHARTS */
@@ -69,10 +70,10 @@ import VueApexCharts from 'vue-apexcharts'
 /* FONT AWESOME */ 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode)
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags)
 
 /* ********************************************* */
 
@@ -141,6 +142,13 @@ Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
 // COTIZACIONES
 
 Vue.component('cotizacionEnviarTransferencia', require('./components/cotizacion/cotizacionEnviarTransferencia.vue').default);
+
+/* ********************************************* */
+
+// TEXTBOX
+
+Vue.component('selected-sucursal', require('./components/textboxs/Sucursal.vue').default);
+Vue.component('codigo-producto', require('./components/textboxs/CodigoProducto.vue').default);
 
 /* ********************************************* */
 

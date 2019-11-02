@@ -73,4 +73,30 @@ class Common
 
     }
 
+    public static function precio_candec_sin_letra($valor, $moneda){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // BUSCAR CANTIDAD DE DECIMALES DE MONEDA
+
+        $candec = Parametro::candec($moneda);
+                
+        $cantidad_decimal = $candec["CANDEC"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DAR FORMATO
+
+        $valor = Common::formato_precio($valor, $cantidad_decimal);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return $valor;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

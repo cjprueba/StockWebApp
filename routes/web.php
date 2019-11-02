@@ -45,6 +45,16 @@ Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferenc
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
 
+
+/* -------------------------------------------------------------------------- */
+
+// INVENTARIO
+
+Route::post('inventarioGuardar', 'InventarioController@guardarInventario');
+Route::post('inventarioAgregarEditarProducto', 'InventarioController@agregarEditarProducto');
+Route::get('inventarioProductos', 'InventarioController@productosDataTable');
+Route::get('inventarioMostrar', 'InventarioController@inventarioDataTable');
+
 /* -------------------------------------------------------------------------- */
 
 /* LARAVEL EXCEL */
@@ -97,6 +107,12 @@ Route::get('parametro', 'ParametroController@mostrar');
 
 Route::post('cotizacion', 'CotizacionController@cotizar');
 Route::get('cotizacion', 'CotizacionController@cotizacionDia');
+
+/* -------------------------------------------------------------------------- */
+
+// COMPRAS
+
+Route::post('comprasDetProductos', 'ComprasDetController@obtenerProductosNroCaja');
 
 /* -------------------------------------------------------------------------- */
 

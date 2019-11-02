@@ -894,21 +894,55 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $transferencia = DB::connection('retail')
-        ->table('transferencias_det')
+        ->table('TRANSFERENCIAS_DET')
         ->select(DB::raw(
-                        'ITEM, 
-                        CODIGO_PROD, 
-                        DESCRIPCION, 
-                        CANTIDAD, 
-                        PRECIO,
-                        IVA,
-                        TOTAL'
-                    ))
-        ->where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('CODIGO','=', $codigo)
+                        'TRANSFERENCIAS_DET.ITEM, 
+                        TRANSFERENCIAS_DET.CODIGO_PROD, 
+                        TRANSFERENCIAS_DET.DESCRIPCION, 
+                        TRANSFERENCIAS_DET.CANTIDAD, 
+                        TRANSFERENCIAS_DET.PRECIO,
+                        TRANSFERENCIAS_DET.IVA,
+                        TRANSFERENCIAS_DET.TOTAL,
+                        TRANSFERENCIAS.MONEDA,
+                        0 AS IVA_PORCENTAJE'
+                    ),
+                 DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = TRANSFERENCIAS_DET.CODIGO_PROD) AND (l.ID_SUCURSAL = TRANSFERENCIAS_DET.ID_SUCURSAL))),0) AS STOCK'))
+        ->leftJoin('TRANSFERENCIAS', function($join){
+                                $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                                     ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                            })
+        ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
+
+        foreach ($transferencia as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR IVA PRODUCTO
+
+            $producto = DB::connection('retail')
+            ->table('PRODUCTOS')
+            ->select(DB::raw('IMPUESTO'))
+            ->where('CODIGO', '=', $value->CODIGO_PROD)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR PORCENTAJE IVA IVA 
+
+            $transferencia[$key]->IVA_PORCENTAJE = $producto[0]->IMPUESTO;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $transferencia[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $transferencia[$key]->PRECIO = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            $transferencia[$key]->IVA = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
+            $transferencia[$key]->TOTAL = Common::precio_candec_sin_letra($value->TOTAL, $value->MONEDA);
+
+        }
 
         return $transferencia;
 
@@ -2037,5 +2071,120 @@ class Transferencia extends Model
        return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function insertar_inventario($dato) {
+
+       /*  --------------------------------------------------------------------------------- */
+       
+       // INICIAR VARIABLE 
+
+       $codigo = $dato["codigo"];
+       $codigointerno = 'Nulo';
+
+       /*  --------------------------------------------------------------------------------- */
+
+       $codigo_interno = DB::connection('retail')
+        ->table('PRODUCTOS_AUX')
+        ->select(DB::raw('CODIGO'))
+        ->where('CODIGO_INTERNO', '=', $codigo)
+        ->get();
+
+       /*  --------------------------------------------------------------------------------- */
+
+       // CAMBIAR CODIGO PRODUCTO
+
+       if (count($codigo_interno) > 0) {
+            $codigointerno = $codigo;
+            $codigo = $codigo_interno[0]->CODIGO;
+       } 
+         
+       /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE PRODUCTO 
+
+        $producto = DB::connection('ret')
+        ->table('PRODUCTOS_AUX')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.MARCA'),
+        DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+        ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $codigo)
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', 4)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+        
+        if (count($producto) > 0) {
+            $stock = $producto[0]->STOCK;
+        } else {
+            return ["response" => false, "status" => "No existe producto", "codigo" => $codigo];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // $lote = DB::connection('ret')
+        // ->table('LOTES')
+        // ->select(DB::raw('SUM(CANTIDAD) AS STOCK'))
+        // ->where('COD_PROD', '=', $codigo)
+        // ->where('ID_SUCURSAL', '=', '4')
+        // ->get();
+
+        
+        /*  --------------------------------------------------------------------------------- */
+       
+       // INSERTAR 
+
+       // DB::connection('retail')
+       // ->table('lista_inventario')
+       // ->updateOrInsert(
+       //      ['CODIGO' => $codigo],
+       //      ['CANTIDAD' => $cantidad]
+       //  );
+
+       /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE PRODUCTO 
+
+        $existe = DB::connection('retail')
+        ->table('lista_inventario')
+        ->select(DB::raw('STOCK'))
+        ->where('CODIGO', '=', $codigo)
+        ->get();
+
+        if (count($existe) > 0) {
+            $stock = $existe[0]->STOCK;
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+       $insert = DB::connection('retail')
+       ->table('lista_inventario')
+       ->updateOrInsert(
+            ['CODIGO' => $codigo],
+            ['CANTIDAD' => \DB::raw('CANTIDAD + 1'), 'STOCK' => $stock, 'MARCA' => $producto[0]->MARCA]
+        );
+
+       /*  --------------------------------------------------------------------------------- */
+
+       // RETORNAR VALOR 
+
+       if ($insert === true) {
+
+        $pro = DB::connection('retail')
+        ->table('lista_inventario')
+        ->select(DB::raw('CANTIDAD'))
+        ->where('CODIGO', '=', $codigo)
+        ->limit(1)
+        ->get();
+
+          return ["response" => true, "status" => "Guardado correctamente", "codigo" => $codigo, "cantidad" => $pro[0]->CANTIDAD." - Stock: ".$stock." - Interno: ".$codigointerno];
+       } 
+       
+
+       /*  --------------------------------------------------------------------------------- */
+
+
     } 
 }

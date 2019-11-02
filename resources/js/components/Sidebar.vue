@@ -73,7 +73,7 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransferencia" aria-expanded="true" aria-controls="collapseTransferencia">
-          <font-awesome-icon icon="truck" />
+          <font-awesome-icon icon="truck"/>
           <span>Transferencia</span>
         </a>
         <div id="collapseTransferencia" class="collapse" aria-labelledby="headingTransferencia" data-parent="#accordionSidebar">
@@ -83,9 +83,46 @@
             <router-link class="collapse-item" :to="{name: 'transferencia'}">Realizar Transferencias</router-link>
             <!-- <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a> -->
             <router-link class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencia</router-link>
+
           </div>
         </div>
       </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
+          <font-awesome-icon icon="tags"/>
+          <span>Productos</span>
+        </a>
+        <div id="collapseProdutos" class="collapse" aria-labelledby="headingProdutos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
+            <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+          </div>
+        </div>
+      </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
+      <!-- INVENTARIO MENU -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInventario" aria-expanded="true" aria-controls="collapseInventario">
+          <font-awesome-icon icon="list-alt" />
+          <span>Inventario</span>
+        </a>
+        <div id="collapseInventario" class="collapse" aria-labelledby="headingInventario" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'inventarioMostrar'}">Mostrar Inventario</router-link>
+            <router-link class="collapse-item" :to="{name: 'inventarioRealizar'}">Realizar Inventario</router-link>
+          </div>
+        </div>
+      </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
 
       <!-- Divider -->
       <!-- <hr class="sidebar-divider"> -->

@@ -17,7 +17,7 @@ class Cotizacion extends Model
     	// DEVOLVER VALOR SI ES QUE LAS MONEDAS SON IGUALES
 
     	if ($data['monedaProducto'] === $data['monedaSistema']) {
-    		return ["valor" => $data['precio']];
+    		return ["valor" => Common::formato_precio($data['precio'], $data['decSistema'])];
     	}
 
     	/*  --------------------------------------------------------------------------------- */
@@ -72,7 +72,7 @@ class Cotizacion extends Model
 	        ->get();
 
     	}
-
+        
     	/*  --------------------------------------------------------------------------------- */
 
     	// REALIZAR CALCULO 
