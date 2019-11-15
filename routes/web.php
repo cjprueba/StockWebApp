@@ -57,6 +57,66 @@ Route::get('inventarioMostrar', 'InventarioController@inventarioDataTable');
 
 /* -------------------------------------------------------------------------- */
 
+// CATEGORIA
+
+Route::get('categoria', 'CategoriaController@obtenerCategorias');
+
+/* -------------------------------------------------------------------------- */
+
+// SUB CATEGORIA
+
+Route::get('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
+
+/* -------------------------------------------------------------------------- */
+
+// COLOR
+
+Route::get('color', 'ColorController@obtenerColores');
+
+/* -------------------------------------------------------------------------- */
+
+// TELAS
+
+Route::get('tela', 'TelaController@obtenerTelas');
+
+/* -------------------------------------------------------------------------- */
+
+// TALLE
+
+Route::get('talle', 'TalleController@obtenerTalles');
+
+/* -------------------------------------------------------------------------- */
+
+// GENERO
+
+Route::get('genero', 'GeneroController@obtenerGeneros');
+
+/* -------------------------------------------------------------------------- */
+
+// MARCA
+
+Route::get('marca', 'MarcaController@obtenerMarcas');
+
+/* -------------------------------------------------------------------------- */
+
+// GONDOLA
+
+Route::get('gondola', 'GondolaController@obtenerGondolas');
+
+/* -------------------------------------------------------------------------- */
+
+// PROVEEDOR
+
+Route::get('proveedor', 'ProveedorController@obtenerProveedores');
+
+/* -------------------------------------------------------------------------- */
+
+// MONEDA
+
+Route::get('moneda', 'MonedaController@obtenerMonedas');
+
+/* -------------------------------------------------------------------------- */
+
 /* LARAVEL EXCEL */
 
 // use App\Exports\VentasMarca;
@@ -92,8 +152,12 @@ Route::post('empleado', 'EmpleadoController@encontrar');
 
 //	PRODUCTOS
 
-Route::get('producto', 'ProductoController@mostrar');
+Route::post('productoDatatable', 'ProductoController@mostrar');
 Route::post('producto', 'ProductoController@encontrar');
+Route::get('productoCodigoInterno', 'ProductoController@generarCI');
+Route::get('productoCodigo', 'ProductoController@generarCodigo');
+Route::post('productoGuardar', 'ProductoController@guardar');
+Route::post('productoObtener', 'ProductoController@obtener');
 
 /* -------------------------------------------------------------------------- */
 

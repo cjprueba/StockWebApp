@@ -31,7 +31,8 @@ class Inventario extends Model
 
        $codigo = $dato["codigo"];
        $id = $dato["id"];
-       $codigointerno = 'Nulo';
+       $cantidad = $dato["cantidad"];
+       $codigointerno = 'No Usado';
 
        /*  --------------------------------------------------------------------------------- */
 
@@ -54,54 +55,81 @@ class Inventario extends Model
 
         // REVISAR SI EXISTE PRODUCTO 
 
-        $producto = DB::connection('retail')
-        ->table('PRODUCTOS_AUX')
-        ->select(DB::raw('PRODUCTOS_AUX.CODIGO'),
-        DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
-        ->where('PRODUCTOS_AUX.CODIGO', '=', $codigo)
-        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
-        ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR EL VALOR
-        
-        if (count($producto) > 0) {
-            $stock = $producto[0]->STOCK;
-        } else {
-            return ["response" => false, "status" => "No existe producto", "codigo" => $codigo];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR SI EXISTE PRODUCTO 
-
-        $existe = DB::connection('retail')
-        ->table('conteo_det')
-        ->select(DB::raw('STOCK'))
+        $existe = Inventario::select(DB::raw('STOCK'))
         ->where('COD_PROD', '=', $codigo)
         ->where('FK_CONTEO', '=', $id)
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
         if (count($existe) > 0) {
+
+            /*  --------------------------------------------------------------------------------- */
+
             $stock = $existe[0]->STOCK;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // MODIFICAR PRODUCTO EXISTENTE
+
+            $insert = Inventario::where(['COD_PROD' => $codigo, 'FK_CONTEO' => $id, 'ID_SUCURSAL' => $user->id_sucursal])
+            ->update(['UPDATED_AT' => date('Y-m-d'), 'CONTEO' => \DB::raw('CONTEO + '.$cantidad.''), 'FK_USER' => $user->id]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } else {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $producto = DB::connection('retail')
+            ->table('PRODUCTOS_AUX')
+            ->select(DB::raw('PRODUCTOS_AUX.CODIGO'),
+            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+            ->where('PRODUCTOS_AUX.CODIGO', '=', $codigo)
+            ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->get();
+
+            // RETORNAR EL VALOR
+        
+            if (count($producto) > 0) {
+                $stock = $producto[0]->STOCK;
+            } else {
+                return ["response" => false, "status" => "No existe producto", "codigo" => $codigo];
+            }
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PRODUCTO 
+
+            $insert = Inventario::insert(
+                [
+                 'COD_PROD' => $codigo, 
+                 'FK_CONTEO' => $id, 
+                 'ID_SUCURSAL' => $user->id_sucursal, 
+                 'CONTEO' => $cantidad, 
+                 'STOCK' => $stock,
+                 'CREATED_AT' => date('Y-m-d'), 
+                 'FK_USER' => $user->id]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
         } 
 
         /*  --------------------------------------------------------------------------------- */
 
-       $insert = DB::connection('retail')
-       ->table('conteo_det')
-       ->updateOrInsert(
-            ['COD_PROD' => $codigo, 'FK_CONTEO' => $id, 'ID_SUCURSAL' => $user->id_sucursal],
-            ['CONTEO' => \DB::raw('CONTEO + 1'), 'STOCK' => $stock]
-        );
+        // UPDATE OR INSERT
+
+        // $insert = DB::connection('retail')
+        // ->table('conteo_det')
+        // ->updateOrInsert(
+        //      ['COD_PROD' => $codigo, 'FK_CONTEO' => $id, 'ID_SUCURSAL' => $user->id_sucursal],
+        //      ['CONTEO' => \DB::raw('CONTEO + 1'), 'STOCK' => $stock, 'FK_USER' => $user->id]
+        //  );
 
        /*  --------------------------------------------------------------------------------- */
 
        // RETORNAR VALOR 
 
-       if ($insert === true) {
+       if ($insert === true || $insert === 1) {
 
         $pro = DB::connection('retail')
         ->table('conteo_det')
@@ -427,8 +455,8 @@ class Inventario extends Model
                 $nestedData['SUCURSAL'] = $post->SUCURSAL;
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarTransferencia' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarTransferencia' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
 
                 $data[] = $nestedData;
 

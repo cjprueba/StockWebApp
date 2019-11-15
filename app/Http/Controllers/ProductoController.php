@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Producto;
 use Illuminate\Support\Facades\DB;
 use App\Common;
+use App\ProductosAux;
+use App\Imagen;
 
 class ProductoController extends Controller
 {
@@ -43,7 +45,7 @@ class ProductoController extends Controller
 
   		// CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
 
-        $totalData = Producto::where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+        $totalData = ProductosAux::where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
         			 ->count();	 
         
         /*  --------------------------------------------------------------------------------- */
@@ -67,7 +69,7 @@ class ProductoController extends Controller
 
         	//	CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Producto::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
         			 DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
             			 ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
@@ -91,7 +93,7 @@ class ProductoController extends Controller
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Producto::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+            $posts =  ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
         			 DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
             			 ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
@@ -109,7 +111,7 @@ class ProductoController extends Controller
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = Producto::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
             				 ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)	
             				 ->where(function ($query) {
 				                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$this->search}%")
@@ -136,9 +138,7 @@ class ProductoController extends Controller
 
             	// BUSCAR IMAGEN
 
-            	$imagen = DB::connection('retail')
-		        ->table('IMAGENES')
-		        ->select(DB::raw('PICTURE'))
+            	$imagen = Imagen::select(DB::raw('PICTURE'))
 		        ->where('COD_PROD','=', $post->CODIGO)
 		        ->get();
 
@@ -200,5 +200,62 @@ class ProductoController extends Controller
             return response()->json($productos);
         } 
     }
+
+    public function generarCI()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PROVEEDORES
+
+        $producto = Producto::generar_ci();
+        return response()->json($producto);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarCodigo()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR CODIGO PRODUCTO
+
+        $producto = Producto::generar_codigo();
+        return response()->json($producto);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function guardar(Request $request)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $productos = Producto::guardar($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function obtener(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::obtener_datos($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
 }

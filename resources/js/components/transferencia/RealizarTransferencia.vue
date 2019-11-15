@@ -173,7 +173,7 @@
 					<div class="col-md-2">
 						
 							
-							<codigo-producto @codigo_producto="cargarProductos" ref="compontente_codigo_producto"></codigo-producto >
+							<codigo-producto @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="codigoProducto"></codigo-producto >
 
 						<!-- </div> -->
 					</div>	
@@ -992,6 +992,7 @@
 
 	        // LLAMAR AL METODO HIJO 
 
+	        this.codigoProducto = '';
 	        this.$refs.compontente_codigo_producto.vaciarDevolver();
 
 	        // ------------------------------------------------------------------------

@@ -16,62 +16,75 @@ class CategoriaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return Categoria::where('user_id', auth()->id())->get();
+
+    public function obtenerCategorias(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR PRODUCTOS
+
+        $categoria = Categoria::obtener_categorias();
+        return response()->json($categoria);
+
+        /*  --------------------------------------------------------------------------------- */
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $categoria = new Categoria();
-        $categoria->description = $request->description;
-        $categoria->user_id = auth()->id();
-        $categoria->save();
+    // public function index()
+    // {
+    //     return Categoria::where('user_id', auth()->id())->get();
+    // }
 
-        return $categoria;
-    }
+    // /**
+    //  * Store a newly created resource in storage.
+    //  *
+    //  * @param  \Illuminate\Http\Request  $request
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function store(Request $request)
+    // {
+    //     $categoria = new Categoria();
+    //     $categoria->description = $request->description;
+    //     $categoria->user_id = auth()->id();
+    //     $categoria->save();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+    //     return $categoria;
+    // }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $categoria = Categoria::find($id);
-        $categoria->description = $request->description;
-        $categoria->save();
-        return $categoria;
-    }
+    // /**
+    //  * Display the specified resource.
+    //  *
+    //  * @param  int  $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function show($id)
+    // {
+    //     //
+    // }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $categoria = Categoria::find($id);
-        $categoria->delete();
-    }
+    // /**
+    //  * Update the specified resource in storage.
+    //  *
+    //  * @param  \Illuminate\Http\Request  $request
+    //  * @param  int  $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function update(Request $request, $id)
+    // {
+    //     $categoria = Categoria::find($id);
+    //     $categoria->description = $request->description;
+    //     $categoria->save();
+    //     return $categoria;
+    // }
+
+    // /**
+    //  * Remove the specified resource from storage.
+    //  *
+    //  * @param  int  $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function destroy($id)
+    // {
+    //     $categoria = Categoria::find($id);
+    //     $categoria->delete();
+    // }
 }

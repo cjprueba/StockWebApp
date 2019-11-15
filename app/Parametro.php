@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\DB;
 
 class Parametro extends Model
 {
+
+    /*  --------------------------------------------------------------------------------- */
+
+    // DEFINIR CONECCION Y TABLA 
+
+    protected $connection = 'retail';
+    protected $table = 'parametros';
+
+    /*  --------------------------------------------------------------------------------- */
+    
      public static function mostrarParametro()
     {
 
@@ -94,5 +104,37 @@ class Parametro extends Model
         }
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function consultaPersonalizada($columnas){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETROS
+
+        $parametros = DB::connection('retail')
+        ->table('PARAMETROS')
+        ->select(DB::raw($columnas))
+        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if (count($parametros) > 0) {
+            return $parametros[0];
+        } else {
+            return 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
     }    
 }

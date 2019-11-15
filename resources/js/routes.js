@@ -30,7 +30,7 @@ export default new Router({
 			component: require('./components/inventario/MostrarInventario.vue').default
 		},
 		{
-			path: '/in2',
+			path: '/in2/:id',
 			name: 'inventarioRealizar',
 			component: require('./components/inventario/RealizarInventario.vue').default
 		},

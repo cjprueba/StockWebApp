@@ -35,7 +35,7 @@
 					  	<div class="col-md-12">
 					  		<selected-sucursal @sucursal_seleccionada="seleccionarSucursal"></selected-sucursal>
 					  		<label for="exampleFormControlTextarea1">Observación</label>
-					  		<textarea class="form-control" id="exampleFormControlTextarea1" v-model="observacion" rows="3"></textarea>
+					  		<textarea class="playSound form-control" id="exampleFormControlTextarea1" v-model="observacion" rows="3"></textarea>
 					  	</div>
 
 					  	<div class="col-md-12">
@@ -53,12 +53,42 @@
 
 				<div v-else>
 
+					<!-- ------------------------------------------------------------------ -->
+
+			    	<!-- SALTO DE LINEA -->
+
+			    	<hr>
+
+					<!-- ------------------------------------------------------------------ -->
+
+					<!-- COMPONENTE CODIGO PRODUCTO CANTIDAD -->
+
+					<div class="mb-3">
+						<div class="row">
+							<div class="col-md-6">
+								<codigo-producto  ref="compontente_codigo_producto_cantidad" v-model="codigoProductoCantidad"></codigo-producto >
+							</div>	
+							<div class="col-md-6">
+								<label>Cantidad</label>
+								<input class="form-control form-control-sm shadow-sm" type="text" v-model="cantidad" v-on:blur="cargarProductosInventarioPorCantidad()">
+							</div>
+						</div>	
+						
+						
+					</div>
+
 					<!-- ------------------------------------------------------------------------------------- -->
+					
+					<!-- SALTO DE LINEA -->
+
+			    	<hr>
+
+					<!-- ------------------------------------------------------------------ -->
 
 					<!-- COMPONENTE CODIGO PRODUCTO -->
 
 					<div class="mb-3">
-						<codigo-producto @codigo_producto="cargarProductosInventario" ref="compontente_codigo_producto"></codigo-producto >
+						<codigo-producto @codigo_producto="cargarProductosInventario" ref="compontente_codigo_producto" v-model="codigoProducto"></codigo-producto >
 					</div>
 
 					<!-- ------------------------------------------------------------------------------------- -->
@@ -136,7 +166,10 @@
             mostrar: '',
             cantidadResponse: '',
             id_Inventario: '',
-            mostrarDatatable: false
+            mostrarDatatable: false,
+            codigoProducto: '',
+            codigoProductoCantidad: '',
+            cantidad: ''
         }
       }, 
       methods: {
@@ -197,14 +230,27 @@
 
 	        	// ------------------------------------------------------------------------
 
-	        	Common.agregarInventarioCommon(codigo, this.id_Inventario).then(data => {
+	        	if (codigo === '' || codigo === undefined) {
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	Common.agregarInventarioCommon(codigo, this.id_Inventario, 1).then(data => {
 					   me.codigoResponse = data["codigo"];
 					   me.response = data["status"];
 					   
 					   if (data["response"] === true) {
+
 					   		me.mostrar = data["response"];
 					   		me.cantidadResponse = data["cantidad"];
 					   		
+					   		// ------------------------------------------------------------------------
+
+					   		// REPRODUCIR SONIDO OK 
+
+					   		this.playSound(require("./../../../sonidos/ok.mp3"));
+
 					   		// ------------------------------------------------------------------------
 
 					   		// MOSTRAR TOAST 
@@ -215,7 +261,7 @@
 
 	        				// RECARGAR DATATABLE 
 
-	        				me.recargarDatatable();
+	        				// me.recargarDatatable();
 
 							// ------------------------------------------------------------------------
 
@@ -224,8 +270,17 @@
 
 					   		// ------------------------------------------------------------------------
 
+					   		// REPRODUCIR SONIDO ERROR
+					   		
+					   		this.playSound(require("./../../../sonidos/error.mp3"));
+
+					   		// ------------------------------------------------------------------------
+
 					   		// LLAMAR A TOAST ERROR 
+
 					   		me.toast('Error - '+codigo+'', 'Este producto no existe !','b-toaster-top-right', 'danger');
+
+					   		// ------------------------------------------------------------------------
 					   }
 				});
 
@@ -233,7 +288,90 @@
 
 	        	// LLAMAR AL METODO HIJO 
 
-	        	this.$refs.compontente_codigo_producto.vaciarDevolver();
+	        	this.codigoProducto = '';
+	        	this.$refs.compontente_codigo_producto.input.focus();
+
+	        	// ------------------------------------------------------------------------
+					
+        	}, cargarProductosInventarioPorCantidad(){
+
+           		// ------------------------------------------------------------------------
+
+           		// INICIAR VARIABLES 
+
+	        	let me = this;
+	        	me.mostrarDatatable = true;
+	        	me.mostrar = '';
+
+
+	        	// ------------------------------------------------------------------------
+
+	        	if (this.codigoProductoCantidad === '' || this.codigoProductoCantidad === undefined) {
+	        		return;
+	        	}
+
+
+	        	if (this.cantidad === '' || this.cantidad === undefined) {
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	Common.agregarInventarioCommon(this.codigoProductoCantidad, this.id_Inventario, this.cantidad).then(data => {
+					   me.codigoResponse = data["codigo"];
+					   me.response = data["status"];
+					   
+					   if (data["response"] === true) {
+
+					   		me.mostrar = data["response"];
+					   		me.cantidadResponse = data["cantidad"];
+					   		
+					   		// ------------------------------------------------------------------------
+
+					   		// REPRODUCIR SONIDO OK 
+
+					   		this.playSound(require("./../../../sonidos/ok.mp3"));
+
+					   		// ------------------------------------------------------------------------
+
+					   		// MOSTRAR TOAST 
+
+					   		me.toast('Contado - '+me.codigoResponse+'', 'Cantidad: '+me.cantidadResponse+'','b-toaster-top-right', 'success');
+
+					   		// ------------------------------------------------------------------------
+
+	        				// RECARGAR DATATABLE 
+
+	        				// me.recargarDatatable();
+
+							// ------------------------------------------------------------------------
+
+					   } else {
+					   		me.mostrar = data["response"];
+
+					   		// ------------------------------------------------------------------------
+
+					   		// REPRODUCIR SONIDO ERROR
+					   		
+					   		this.playSound(require("./../../../sonidos/error.mp3"));
+
+					   		// ------------------------------------------------------------------------
+
+					   		// LLAMAR A TOAST ERROR 
+
+					   		me.toast('Error - '+this.codigoProductoCantidad+'', 'Este producto no existe !','b-toaster-top-right', 'danger');
+
+					   		// ------------------------------------------------------------------------
+					   }
+				});
+
+	        	// ------------------------------------------------------------------------
+
+	        	// LLAMAR AL METODO HIJO 
+
+	        	this.codigoProductoCantidad = '';
+	        	this.cantidad = '';
+	        	this.$refs.compontente_codigo_producto_cantidad.vaciarDevolver();
 
 	        	// ------------------------------------------------------------------------
 					
@@ -286,16 +424,63 @@
 		        })
 
 		        // ------------------------------------------------------------------------
-		    }
+		    },playSound (sound) {
+			      if(sound) {
+			        var audio = new Audio(sound);
+			        audio.play();
+			      }
+			 }, mostrarInventario(id){
+
+			 	// ------------------------------------------------------------------------
+
+	        	// INICIAR VARIABLES 
+
+	        	let me = this;
+
+	        	// ------------------------------------------------------------------------
+
+	        	// SE ENCARGA DE COMPROBAR SI EXISTE CODIGO EN LA URL PARA PODER CARGAR UN INVENTARIO EXISTENTE
+	        	
+	        	if (id !== undefined) {
+
+	        		// ------------------------------------------------------------------------
+
+	        		// CARGAR VARIABLE EN ID 
+
+	        		this.id_Inventario = id;
+
+	        		// ------------------------------------------------------------------------
+
+	        		// MOSTRAR LA SEGUNDA VENTANA 
+
+	        		me.ventana = 2;
+
+	        		// ------------------------------------------------------------------------
+	        		
+	        	}
+	        		
+	        	// ------------------------------------------------------------------------
+
+			 }
       },
         mounted() {
         	
+        	// ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES
+
+            let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	// LLAMAR INVENTARIO HECHO
+
+        	me.mostrarInventario(me.$route.params.id);
         	
-        	$(document).ready( function () {
+        	// ------------------------------------------------------------------------
 
-        		
 
-        	});
+
         }
     }
 </script>
