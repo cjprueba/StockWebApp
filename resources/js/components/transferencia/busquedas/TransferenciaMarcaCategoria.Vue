@@ -74,7 +74,7 @@
 					</div>
 
 				</div>
-				<button class="btn btn-dark btn-sm" type="submit" hidden><font-awesome-icon icon="download" /> Descargar</button>
+				<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download" /> Descargar</button>
 			    <button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button>
 			</div>
 		</div>
@@ -276,6 +276,26 @@
 	           	this.marcas = response.data.marcas;
 	           	this.categorias = response.data.categorias;
 	          }); 
+	        },
+	        	        descargar(){
+	        	let me = this;	
+	        	if(this.generarConsulta() === true) {
+	        		me.descarga = true;
+		        	axios({
+					  url: '/exportransferencia',
+					  method: 'POST',
+					  data: me.datos,
+					  responseType: 'blob', // important
+					}).then((response) => {
+						me.descarga = false;
+					   const url = window.URL.createObjectURL(new Blob([response.data]));
+					   const link = document.createElement('a');
+					   link.href = url;
+					   link.setAttribute('download', 'Venta-'+me.selectedInicialFecha+'-'+me.selectedFinalFecha+'.xlsx'); //or any other extension
+					   document.body.appendChild(link);
+					   link.click();
+					});
+				}
 	        },
 	        filterItems: function(items, codigo) {
 			      return items.filter(function(item) {

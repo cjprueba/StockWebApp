@@ -67,10 +67,11 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
                $this->marcas_array_aux[]= (object) array(
                  
                 'COD_PROD'=> $value->COD_PROD,
+                 'LOTE'=> $value->LOTE,
                 'DESCRIPCION'=> $value->DESCRIPCION,
                 'CANTIDAD_S'=> $value->CANTIDAD_S,
                 'PRECOSTO'=> $value->PRECOSTO,
-             'PRECOSTO_TOTAL'=> $value->PRECOSTO_TOTAL,
+               'PRECOSTO_TOTAL'=> $value->PRECOSTO_TOTAL,
                'PRECIO_UNIT_VENTA'=> $value->PRECIO_UNIT_VENTA,
                 'PRECIO_VENTA'=> $value->PRECIO_VENTA,
                 'UTILIDAD'=>  $value->UTILIDAD,
@@ -85,7 +86,7 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
         $this->marcas_array_aux = (array)$this->ventageneral;
          
       }
-        $marcas_array[]=array('COD_PROD','DESCRIPCION','STOCK','VENDIDO','COSTO','TOTAL_COSTO','PRECIO','TOTAL_PRECIO','UTILIDAD');
+        $marcas_array[]=array('COD_PROD','LOTE','DESCRIPCION','STOCK','VENDIDO','COSTO','TOTAL_COSTO','PRECIO','TOTAL_PRECIO','UTILIDAD');
         foreach ($this->marcas_array_aux as $this->venta) {
                $this->posicion=$this->posicion+1;
                $this->total_utilidad=$this->total_utilidad+$this->venta->UTILIDAD;  
@@ -113,6 +114,7 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
             $marcas_array[]=array(
                  
                 'COD_PROD'=> $this->venta->COD_PROD,
+                'LOTE'=> $this->venta->LOTE,
                 'DESCRIPCION'=> $this->venta->DESCRIPCION,
                 'STOCK'=> $this->stock,
                 'CANTIDAD'=> $this->venta->CANTIDAD_S,
@@ -127,6 +129,7 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
         };
                  $marcas_array[]=array(
                 'COD_PROD'=> "",
+                'LOTE'=> "",
                 'DESCRIPCION'=>"TOTALES",
                 'STOCK'=> $this->stocktotal,
                 'CANTIDAD'=> $this->cantidadvendida,
@@ -181,14 +184,15 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
         return [
             // Handle by a closure.
          AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-            $event->sheet->getStyle('A1:i1')->applyfromarray($styleArray);
+            $event->sheet->getStyle('A1:J1')->applyfromarray($styleArray);
             $this->posicion=$this->posicion+1;
-            $event->sheet->getStyle('B'.$this->posicion.':I'.$this->posicion)->applyfromarray($styleArray);
+            $event->sheet->getStyle('C'.$this->posicion.':J'.$this->posicion)->applyfromarray($styleArray);
             $event->sheet->getStyle('G2:'.'G'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
             $event->sheet->getStyle('E2:'.'E'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
             $event->sheet->getStyle('F2:'.'F'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
             $event->sheet->getStyle('H2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
             $event->sheet->getStyle('I2:'.'I'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+              $event->sheet->getStyle('J2:'.'J'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
         }
 
         ];
@@ -210,6 +214,7 @@ class VentaMarcaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoSize
            'G' => NumberFormat::FORMAT_NUMBER,
            'H' => NumberFormat::FORMAT_NUMBER,
            'I' => NumberFormat::FORMAT_NUMBER,
+           'J' => NumberFormat::FORMAT_NUMBER,
         ];
     }
 

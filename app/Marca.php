@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Marca extends Model
 {
+
+    protected $connection = 'retail';
+    protected $table = 'marca';
+
     public static function obtener_marcas()
     {
 
@@ -13,9 +17,7 @@ class Marca extends Model
 
     	// OBTENER TODAS LAS CATEGORIAS
 
-    	$marca = DB::connection('retail')
-        ->table('MARCA')
-        ->select(DB::raw('CODIGO, DESCRIPCION'))
+    	$marca = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

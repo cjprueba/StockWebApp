@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sucursal extends Model
 {
+
+    protected $connection = 'retail';
+    protected $table = 'sucursales';
+
      public static function mostrarSucursal($data)
     {
 
@@ -14,9 +18,7 @@ class Sucursal extends Model
 
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$sucursales = DB::connection('retail')
-        ->table('sucursales')
-        ->select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
+    	$sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -40,9 +42,7 @@ class Sucursal extends Model
     	   
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$sucursal = DB::connection('retail')
-        ->table('sucursales')
-        ->select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
+    	$sucursal = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
         ->where('CODIGO', '=', $data['codigoOrigen'])
         ->get();
 

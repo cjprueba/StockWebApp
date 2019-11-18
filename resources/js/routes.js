@@ -53,6 +53,46 @@ export default new Router({
 			path: '/rl1',
 			name: 'rolCrear',
 			component: require('./components/rol/CrearRol.vue').default
+		},
+		{
+			path: '/rpt1',
+			name: 'rptVenta',
+			component: require('./components/marca/Inicio.vue').default
+		},
+		{
+			path: '/rpt2',
+			name: 'rptTransferencia',
+			component: require('./components/transferencia/Inicio.vue').default
+		},
+		{
+			path: '/rpt3',
+			name: 'rptDescuento',
+			component: require('./components/descuento/Inicio.vue').default
+		},
+		{
+			path: '/rpt4',
+			name: 'rptVendedor',
+			component: require('./components/vendedor/inicio.vue').default
+		},
+		// {
+		// 	path: '/rpt5',
+		// 	name: 'rptCliente',
+		// 	component: require('./components/cliente/inicio.vue').default
+		// },
+		{
+			path: '/rpt6',
+			name: 'rptArticulo',
+			component: require('./components/Articulo/inicio.vue').default
+		},
+		{
+			path: '/rpt7',
+			name: 'rptProveedor',
+			component: require('./components/Proveedor/inicio.vue').default
+		},
+		{
+			path: '/rpt8',
+			name: 'rptInventario',
+			component: require('./components/Inventario/inicio.vue').default
 		}
 	],
 	mode: 'history'

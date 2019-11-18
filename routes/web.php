@@ -19,13 +19,26 @@ Auth::routes(['register' => true]);
 /* Auth::routes(); */
  	
 
+/* -------------------------------------------------------------------------- */
+
+// HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::apiResource('categorias', 'CategoriaController');
-Route::apiResource('ventas', 'VentaController');
+//Route::apiResource('categorias', 'CategoriaController');
+
+/* -------------------------------------------------------------------------- */
+
+// UTILES 
+
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
+
+/* -------------------------------------------------------------------------- */
+
+// VENTAS 
+
 Route::post('ventas', 'VentaController@mostrar');
+// Route::apiResource('ventas', 'VentaController');
 
 /* -------------------------------------------------------------------------- */
 
@@ -108,12 +121,20 @@ Route::get('gondola', 'GondolaController@obtenerGondolas');
 // PROVEEDOR
 
 Route::get('proveedor', 'ProveedorController@obtenerProveedores');
+Route::post('proveedores', 'ProveedoresController@mostrar');
 
 /* -------------------------------------------------------------------------- */
 
 // MONEDA
 
 Route::get('moneda', 'MonedaController@obtenerMonedas');
+
+/* -------------------------------------------------------------------------- */
+
+// VENDEDORES 
+
+Route::post('devendedores', 'DevolucionController@mostrar');
+Route::post('vendedores', 'VendedorController@mostrar');
 
 /* -------------------------------------------------------------------------- */
 
@@ -183,6 +204,37 @@ Route::post('comprasDetProductos', 'ComprasDetController@obtenerProductosNroCaja
 // ROLES
 
 Route::get('rolTraer', 'UserController@obtenerRoles');
+Route::post('rolGuardar', 'UserController@guardarRol');
+
+/* -------------------------------------------------------------------------- */
+
+// ARTICULOS 
+
+Route::post('MontoArticulos', 'ArticulosController@PorMonto');
+Route::post('CantidadArticulos', 'ArticulosController@PorCantidad');
+
+/* -------------------------------------------------------------------------- */
+
+// CLIENTES
+
+Route::post('clientes', 'ClientesController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+// DESCUENTO
+
+Route::post('descuento', 'DescuentoController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+// EXCEL REPORTES 
+
+Route::post('exportProveedor', 'ProveedorController@descargar');
+Route::post('exportransferencia', 'TransferenciaControler@descargar');
+Route::post('export', 'ExportController@mostrar');
+Route::post('stock', 'Stock@mostrar');
+Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
+Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
 
 /* -------------------------------------------------------------------------- */
 

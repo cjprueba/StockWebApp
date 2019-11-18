@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Transferencia;
-
+use App\Exports\TransferenciaGeneral;
 
 class TransferenciaControler extends Controller
 {
@@ -183,6 +184,19 @@ class TransferenciaControler extends Controller
 
         $transferencia = Transferencia::detalle_transferencia($request);
         return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function descargar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        return Excel::download(new TransferenciaGeneral($request->all()), 'Transferencias.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 

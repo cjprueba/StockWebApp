@@ -65,8 +65,14 @@
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Lista de Reportes:</h6>
-            <a class="collapse-item" href="#" v-on:click="llamar(2)">Ventas</a>
-            <a class="collapse-item" href="#" v-on:click="llamar(3)">Transferencias</a>
+             <router-link class="collapse-item" :to="{name: 'rptVenta'}">Ventas</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptTransferencia'}">Transferencias</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptDescuento'}">Descuentos</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptVendedor'}">Vendedor</router-link>
+             <!-- <router-link class="collapse-item" :to="{name: 'rptCliente'}">Clientes</router-link> -->
+             <router-link class="collapse-item" :to="{name: 'rptArticulo'}">Articulos</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptProveedor'}">Proveedores</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventario</router-link>
           </div>
         </div>
       </li>

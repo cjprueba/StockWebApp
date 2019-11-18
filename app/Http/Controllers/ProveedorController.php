@@ -18,4 +18,30 @@ class ProveedorController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public function mostrar(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $ventas = proveedores::generarConsulta($request->all());
+        return response()->json($ventas);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function descargar(Request $request)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// DESCARGAR REPORTE PROVEEDORES 
+    	
+        return Excel::download(new VentasProveedor($request->all()), 'VentasProveedores.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Proveedor extends Model
 {
+
+    protected $connection = 'retail';
+    protected $table = 'proveedores';
+
      public static function obtener_proveedores()
     {
 
@@ -13,9 +17,7 @@ class Proveedor extends Model
 
     	// OBTENER TODOS LOS PROVEEDORES
 
-    	$proveedores = DB::connection('retail')
-        ->table('PROVEEDORES')
-        ->select(DB::raw('CODIGO, NOMBRE AS DESCRIPCION'))
+    	$proveedores = Proveedor::select(DB::raw('CODIGO, NOMBRE AS DESCRIPCION'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

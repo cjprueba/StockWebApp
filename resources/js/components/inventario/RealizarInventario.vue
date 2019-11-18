@@ -1,6 +1,6 @@
 <template>
 
-	<div class="container-fluid mt-4">
+	<div class="container mt-4">
 
 		<div class="alert alert-danger mt-3 mb-3" role="alert" v-if="$can('products.index')">
 				 <i class="fa fa-exclamation-triangle"></i> HOLAAAAAA<strong></strong>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Inventario;
 
 class InventarioController extends Controller
@@ -55,6 +56,19 @@ class InventarioController extends Controller
         return response()->json($inventario);
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function Inventario_Cerrado(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGA REPORTE 
+
+        return Excel::download(new Inventario($request->all()), 'Inventario.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 
 }

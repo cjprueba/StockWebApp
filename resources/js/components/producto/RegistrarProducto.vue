@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid bg-light">
 
-		<div class="mt-3 mb-3" v-if="$can('products.destroy')">
+		<div class="mt-3 mb-3" v-if="$can('products.create')">
 
 			<!-- ------------------------------------------------------------------ -->
 

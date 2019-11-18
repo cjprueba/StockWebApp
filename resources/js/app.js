@@ -118,6 +118,31 @@ Vue.component('barChart', require('./components/charts/Barchart.vue').default);
 
 /* ********************************************* */
 
+// VENDEDOR 
+
+Vue.component('vendedor-general', require('./components/vendedor/busqueda/VendedorGeneral.vue').default);
+Vue.component('devolucion-vendedor', require('./components/vendedor/busqueda/DevolucionVendedor.vue').default);
+
+/* ********************************************* */
+
+// ARTICULO
+
+Vue.component('articulo-marca', require('./components/Articulo/busqueda/ArticuloMarca.vue').default);
+
+/* ********************************************* */
+
+// INVENTARIO
+
+Vue.component('Inventario-General', require('./components/Inventario/busqueda/InventarioGeneral.vue').default);
+
+/* ********************************************* */
+
+// PROVEEDOR
+
+Vue.component('producto-proveedor', require('./components/Proveedor/busqueda/ProveedorGeneral.vue').default);
+
+/* ********************************************* */
+
 // MARCA
 
 Vue.component('marca', require('./components/marca/Inicio.vue').default);
@@ -196,6 +221,12 @@ Vue.component('select-marca', require('./components/textboxs/MarcaCategoria.vue'
 // GONDOLA
 
 Vue.component('select-gondola', require('./components/textboxs/GondolaTextbox.vue').default);
+
+/* ********************************************* */
+
+// DESCUENTO 
+
+Vue.component('descuento-marca-categoria', require('./components/descuento/busqueda/DescuentoMarcaCategoria.vue').default);
 
 /* ********************************************* */
 

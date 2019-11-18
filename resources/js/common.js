@@ -935,6 +935,27 @@ function llamarRolesCommon(){
 }
 
 
+function guardarRolCommon(nombre,descripcion,permisos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+
+			return axios.post('/rolGuardar', {'nombre':nombre,'descripcion':descripcion,'permisos':permisos}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -982,5 +1003,6 @@ export {
 		filtrarCommon,
 		guardarProductoCommon,
 		obtenerProductoCommon,
-		llamarRolesCommon
+		llamarRolesCommon,
+		guardarRolCommon
 		};

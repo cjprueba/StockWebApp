@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Empleado extends Model
 {   
     protected $connection = 'retail';
+    protected $table = 'empleados';
 
      public static function mostrarEmpleado($data)
     {
@@ -16,9 +17,7 @@ class Empleado extends Model
 
     	// OBTENER TODOS LOS EMPLEADOS
 
-    	$empleados = DB::connection('retail')
-        ->table('empleados')
-        ->select(DB::raw('CODIGO, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
+    	$empleados = Emplado::select(DB::raw('CODIGO, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -42,8 +41,7 @@ class Empleado extends Model
     	   
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$empleado = DB::connection('retail')
-        ->table('empleados')
+    	$empleado = Emplado::table('empleados')
         ->select(DB::raw('ID, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
         ->where('ID', '=', $data['codigo'])
         ->get();
