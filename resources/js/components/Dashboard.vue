@@ -1,6 +1,6 @@
 <template>
 	 <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content-wrapper" class="d-flex flex-column bg-light" >
 
       <!-- Main Content -->
       <div id="content">
@@ -12,30 +12,30 @@
 
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4" >
-            <h1 class="h3 mb-0 text-gray-800">Panel</h1>
+            <h1 class="h3 mb-0 text-gray-800">Inicio</h1>
             
           </div>
 
           <!-- Content Row -->
           <div>
             <!-- Earnings (Monthly) Card Example -->
-            	<cajas></cajas>
+            	<!-- <cajas></cajas> -->
           </div>
 
           <!-- Content Row -->
           <div>
             <!-- Area Chart -->
-              <barChart></barChart>
+              <!-- <barChart></barChart> -->
           </div>
 
           <!-- Content Row -->
           <div class="row">
 
             <div class="col-lg-12">
-                <table-marcas></table-marcas>
+                <!-- <table-marcas></table-marcas> -->
             </div>
             <div class="col-lg-12">
-                <table-categorias></table-categorias>
+                <!-- <table-categorias></table-categorias> -->
             </div>
 
            

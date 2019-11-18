@@ -13,14 +13,21 @@ window.JQuery = require('jquery')*/
 
 /* VUE */ 
 
-
-
 window.Vue = require('vue');
 require('./bootstrap');
 require('bootstrap-datepicker');
 
 /* ********************************************* */
+
+// PERMISOS 
+
+import Permissions from './mixins/Permissions';
+Vue.mixin(Permissions);
+
+/* ********************************************* */
+
 // Funciones utiles 
+
 window.numeral = require('numeral');
 window.Common = require('./common.js');
 
@@ -207,6 +214,18 @@ Vue.component('select-moneda', require('./components/textboxs/MonedaTextbox.vue'
 // MENSAJE
 
 Vue.component('mensaje', require('./components/mensajes/Error.vue').default);
+
+/* ********************************************* */
+
+// UTILES
+
+Vue.component('cuatrocientos-cuatro', require('./components/utiles/404.vue').default);
+
+/* ********************************************* */
+
+// FOOTER
+
+Vue.component('pie-pagina', require('./components/utiles/Footer.vue').default);
 
 /* ********************************************* */
 

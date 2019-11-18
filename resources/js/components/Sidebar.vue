@@ -57,7 +57,7 @@
       </li>
 
       <!-- Nav Item - Utilities Collapse Menu -->
-      <li class="nav-item">
+      <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
           <font-awesome-icon icon="sticky-note" />
           <span >Reportes</span>
@@ -90,7 +90,7 @@
 
       <!-- ------------------------------------------------------------------------------------- -->
 
-      <li class="nav-item">
+      <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
           <font-awesome-icon icon="tags"/>
           <span>Productos</span>
@@ -118,6 +118,23 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'inventarioMostrar'}">Mostrar Inventario</router-link>
             <router-link class="collapse-item" :to="{name: 'inventarioRealizar'}">Realizar Inventario</router-link>
+          </div>
+        </div>
+      </li>
+
+        <!-- ------------------------------------------------------------------------------------- -->
+
+      <!-- USER MENU -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
+          <font-awesome-icon icon="list-alt" />
+          <span>Usuarios</span>
+        </a>
+        <div id="collapseRol" class="collapse" aria-labelledby="headingRol" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
           </div>
         </div>
       </li>

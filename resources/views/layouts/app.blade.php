@@ -6,7 +6,7 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <meta name="user" content="{{ Auth::user() }}">
     <title>{{ config('app.name', 'Retail Reportes') }}</title>
 
     <!-- Scripts -->
@@ -200,5 +200,24 @@
             @yield('content')
         </main>
     </div>
+
+    <script>
+
+      // ----------------------------------------------------------------------------------------
+      // **
+      // EN ESTE APARTADO SE OBITENE TODOS LOS PERMISOS CON QUE CUENTA EL USUARIO
+      // Y LOS DECLARA EN UNA VARIABLE GLOBAL WINDOW.PERMISSIONS
+      // **
+
+      @auth
+        window.Permissions = {!! json_encode(Auth::user()->can, true)  !!};
+      @else
+        window.Permissions = [];
+      @endauth
+      
+      // ----------------------------------------------------------------------------------------
+      
+    </script>
+
 </body>
 </html>

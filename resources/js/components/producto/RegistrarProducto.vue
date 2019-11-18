@@ -1,630 +1,634 @@
 <template>
 	<div class="container-fluid bg-light">
 
-		<div class="mt-3 mb-3">
+		<div class="mt-3 mb-3" v-if="$can('products.destroy')">
 
-		<!-- ------------------------------------------------------------------ -->
+			<!-- ------------------------------------------------------------------ -->
 
-		<!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-		
-		<mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+			<!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+			
+			<mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-		<!-- ------------------------------------------------------------------------------------- -->
+			<!-- ------------------------------------------------------------------------------------- -->
 
-		<!-- CARD REGISTRAR PRODUCTO -->
+			<!-- CARD REGISTRAR PRODUCTO -->
 
-		<div class="card shadow">
-		  <div class="card-header">
-		    <ul class="nav nav-tabs card-header-tabs">
-		      <li class="nav-item">
-		        <a class="nav-link active text-primary" href="#" value="1"><b>Producto</b></a>
-		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link" href="#" value="2">Producto</a>
-		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-		      </li>
-		    </ul>
-		  </div>
-		  <div class="card-body">
+			<div class="card shadow">
+			  <div class="card-header">
+			    <ul class="nav nav-tabs card-header-tabs">
+			      <li class="nav-item">
+			        <a class="nav-link active text-primary" href="#" value="1"><b>Producto</b></a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" href="#" value="2">Producto</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+			      </li>
+			    </ul>
+			  </div>
+			  <div class="card-body">
 
-		  	<!-- ------------------------------------------------------------------------------------- -->
+			  	<!-- ------------------------------------------------------------------------------------- -->
 
-		  	<!-- PRODUCTO - CUERPO 1 CARD -->
+			  	<!-- PRODUCTO - CUERPO 1 CARD -->
 
-		  	<div v-if="nav === '1'">
-			    <div class="row">
+			  	<div v-if="nav === '1'">
+				    <div class="row">
 
-			    		
+				    		
 
-			    	<!-- ------------------------------------------------------------------ -->
+				    	<!-- ------------------------------------------------------------------ -->
 
-			    	<div class="col-md-12">
-
-			    		<!-- ------------------------------------------------------------------ -->
-
-			    		<!-- HABILITAR CODIGO REAL -->
-
-				   		<div class="my-1">
-							  <div class="custom-control custom-checkbox mr-sm-2">
-							   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
-							   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
-							 </div>
-						</div>
-
-						<!-- ------------------------------------------------------------------ -->
-
-			    	</div>	
-
-			    	<!-- ------------------------------------------------------------------ -->
-
-			    	<!-- PRIMERA COLUMNA -->
-
-			    	<div class="col-md-6">
-			    		<div clas="row">
+				    	<div class="col-md-12">
 
 				    		<!-- ------------------------------------------------------------------ -->
 
-			    			<!-- SALTO DE LINEA -->
+				    		<!-- HABILITAR CODIGO REAL -->
 
-			    			<hr>
+					   		<div class="my-1">
+								  <div class="custom-control custom-checkbox mr-sm-2">
+								   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
+								   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
+								 </div>
+							</div>
 
-						    <!-- ------------------------------------------------------------------ -->
+							<!-- ------------------------------------------------------------------ -->
 
-			    			<!-- GRUPO DE FORMA CODIGO -->
+				    	</div>	
 
-				    		<div class="form-row">
+				    	<!-- ------------------------------------------------------------------ -->
 
-				    			<!-- ------------------------------------------------------------------ -->
+				    	<!-- PRIMERA COLUMNA -->
 
-				    			<!-- CODIGO PRODUCTO -->
-
-				    			<div class="col-6">
-				    				<codigo-producto  v-model="codigo_producto" v-bind:candec="candec, monedaCodigo, tab_unica, shadow, checked_codigo_real, validar_codigo_producto" @codigo_producto="codigoProducto"></codigo-producto>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- CODIGO INTERNO -->
-
-				    			<div class="col-6">
-				    				<label>Código Interno</label>
-				    				<input type="text" class="form-control form-control-sm" v-model="codigo_interno" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_interno }" v-on:change="() => generado = false">
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-
-			    			</div>
-
-						    <!-- ------------------------------------------------------------------ -->
-
-						    <!-- GRUPO DE FORMA CODIGO REAL -->
-
-				    		<div class="form-row mt-3" v-if="checked_codigo_real">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- CODIGO REAL -->
-
-				    			<div class="col-12">
-				    				<label>Código Real</label>
-				    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_real }" v-model="codigo_real" v-on:keyup="actualizarCodigo" v-on:blur="asignar">
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-			    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-			    			
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- GRUPO DESCRIPCION -->
-
-				    		<div class="form-row">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- DESCRIPCION -->
-
-				    			<div class="col-12">
-				    				<label>Descripción</label>
-				    				<input type="text" class="form-control form-control-sm" v-model="descripcion" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_descripcion }" v-on:blur="descripcionUpper">
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-			    			
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- GRUPO DE FORMA CATEGORIA Y SUB -->
-
-				    		<div class="form-row">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- CATEGORIA -->
-
-				    			<div class="col-md-6">
-				    				<selected-categoria v-model="seleccion_categoria" v-bind:shadow="shadow, validar_categoria" @opciones="opcionesCategoria"></selected-categoria>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- SUB CATEGORIA -->
-
-				    			<div class="col-md-6">
-				    				<selected-sub-categoria v-model="seleccion_sub_categoria" v-bind:shadow="shadow, validar_sub_categoria" @descripcion_sub_categoria="descripcionSubCategoria"></selected-sub-categoria>
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- SALTO DE LINEA -->
-
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- FORM ROW COLOR -->
-
-				    		<div class="form-row mt-3" v-if="mostrar_color">
+				    	<div class="col-md-6">
+				    		<div clas="row">
 
 					    		<!-- ------------------------------------------------------------------ -->
 
-				    			<!-- COLOR -->
+				    			<!-- SALTO DE LINEA -->
 
-				    			<div class="col-md-12">
-				    				<select-color v-model="seleccion_color" v-bind:shadow="shadow, validar_color" @cambiar_codigo="asignar" @descripcion_color="descripcionColor"></select-color>
-				    			</div>	
+				    			<hr>
 
-				    			<!-- ------------------------------------------------------------------ -->
+							    <!-- ------------------------------------------------------------------ -->
 
-			    			</div>
+				    			<!-- GRUPO DE FORMA CODIGO -->
 
-			    			<!-- ------------------------------------------------------------------ -->
+					    		<div class="form-row">
 
-			    			<!-- FORM ROW TELA -->
+					    			<!-- ------------------------------------------------------------------ -->
 
-				    		<div class="form-row mt-3" v-if="mostrar_tela">
+					    			<!-- CODIGO PRODUCTO -->
 
-					    		<!-- ------------------------------------------------------------------ -->
+					    			<div class="col-6">
+					    				<codigo-producto  v-model="codigo_producto" v-bind:candec="candec, monedaCodigo, tab_unica, shadow, checked_codigo_real, validar_codigo_producto" @codigo_producto="codigoProducto"></codigo-producto>
+					    			</div>
 
-				    			<!-- TELA -->
+					    			<!-- ------------------------------------------------------------------ -->
 
-				    			<div class="col-md-12">
-				    				<select-tela v-model="seleccion_tela" v-bind:shadow="shadow, validar_tela" @descripcion_tela="descripcionTela"></select-tela>
-				    			</div>	
+					    			<!-- CODIGO INTERNO -->
 
-				    			<!-- ------------------------------------------------------------------ -->
+					    			<div class="col-6">
+					    				<label>Código Interno</label>
+					    				<input type="text" class="form-control form-control-sm" v-model="codigo_interno" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_interno }" v-on:change="() => generado = false">
+					    			</div>	
 
-			    			</div>
+					    			<!-- ------------------------------------------------------------------ -->
 
-			    			<!-- ------------------------------------------------------------------ -->
 
-			    			<!-- FORM ROW TALLE -->
+				    			</div>
 
-				    		<div class="form-row mt-3" v-if="mostrar_talle">
+							    <!-- ------------------------------------------------------------------ -->
 
-					    		<!-- ------------------------------------------------------------------ -->
+							    <!-- GRUPO DE FORMA CODIGO REAL -->
 
-				    			<!-- TALLE -->
+					    		<div class="form-row mt-3" v-if="checked_codigo_real">
 
-				    			<div class="col-md-12">
-				    				<select-talle v-model="seleccion_talle" v-bind:shadow="shadow, validar_talle" @cambiar_codigo="asignar" @descripcion_talle="descripcionTalle"></select-talle>
-				    			</div>	
+					    			<!-- ------------------------------------------------------------------ -->
 
-				    			<!-- ------------------------------------------------------------------ -->
+					    			<!-- CODIGO REAL -->
 
-			    			</div>
+					    			<div class="col-12">
+					    				<label>Código Real</label>
+					    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_real }" v-model="codigo_real" v-on:keyup="actualizarCodigo" v-on:blur="asignar">
+					    			</div>
 
-			    			<!-- ------------------------------------------------------------------ -->
+					    			<!-- ------------------------------------------------------------------ -->
 
-			    			<!-- FORM ROW GENERO -->
-
-				    		<div class="form-row mt-3" v-if="mostrar_genero">
-
-					    		<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- GENERO -->
-
-				    			<div class="col-md-12">
-				    				<select-genero v-model="seleccion_genero" v-bind:shadow="shadow, validar_genero" @descripcion_genero="descripcionGenero"></select-genero>
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-			    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORM ROW MARCA -->
-
-				    		<div class="form-row mt-3" v-if="mostrar_marca">
-
-					    		<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- MARCA -->
-
-				    			<div class="col-md-12">
-				    				<select-marca v-model="seleccion_marca" v-bind:shadow="shadow, validar_marca" @descripcion_marca="descripcionMarca"></select-marca>
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-			    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORM ROW PROVEEDOR -->
-
-				    		<div class="form-row mt-3">
-
-					    		<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PROVEEDOR -->
-
-				    			<div class="col-md-12">
-				    				<select-proveedor v-model="seleccion_proveedor" v-bind:shadow="shadow, validar_proveedor"></select-proveedor>
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-			    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORM ROW PRESENTACION Y UBCACION -->
-				    		
-				    		<div class="form-row mt-3">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PRESENTACIÓN -->
-
-				    			<div class="col-md-12">
-				    				<div class="text-left">
-				    					<label>Presentación</label>
-				    				</div>
-				    				<select class="custom-select custom-select-sm" v-model="seleccion_presentacion" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_presentacion }">
-					                    <option value="UNIDADES">1 - UNIDADES</option>
-					                    <option value="2">2 - PESABLE</option>
-					                    <option value="3">3 - METROS</option>
-					                    <option value="4">4 - CAJAS</option>
-					                    <option value="5">5 - CIEN</option>
-					                    <option value="6">6 - DOCENA</option>
-					                    <option value="7">7 - LITROS</option>
-					                    <option value="8">8 - PAQUETES</option>
-					                    <option value="9">9 - SOBRES</option>
-					            	</select>
-				    			</div>	
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- UBICACIÓN -->
-
-				    			<!-- <div class="col-md-6">
-				    				<div class="text-left">
-				    					<label>Ubicación</label>
-				    				</div>
-				    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }">
-				    			</div> -->
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-			    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    		</div>		
-			    	</div>
-
-			    	<!-- ------------------------------------------------------------------ -->
-
-			    	<!-- SEGUNDA COLUMNA -->
-
-			    	<div class="col-md-6">
-			    		<div clas="row">
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-
-			    			<hr>
-
-						    <!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORM ROW IVA Y DESCUENTO -->
-				    		
-				    		<div class="form-row mt-3">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- IVA -->
-
-				    			<div class="col-md-4">
-				    				<label for="inlineFormInputGroupUsername">I.V.A.</label>
-				    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
-					    				<input type="text" class="form-control form-control-sm" id="inlineFormInputGroupUsername" v-model="iva" v-on:blur="formatoIVA">
-					    				<div class="input-group-append">
-								          <div class="input-group-text">%</div>
-								        </div>
-								    </div>    
 				    			</div>
 
 				    			<!-- ------------------------------------------------------------------ -->
 
-				    			<!-- DESCUENTO MAXIMO -->
-
-				    			<div class="col-md-4">
-				    				<label>Descuento Máximo</label>
-				    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
-				    					<input type="text" class="form-control form-control-sm" v-model="descuento_maximo" v-on:blur="formatoDescuento">
-				    					<div class="input-group-append">
-								          <div class="input-group-text">%</div>
-								        </div>
-								    </div> 
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- MONEDA -->
-
-				    			<div class="col-md-4">
-				    				<select-moneda v-model="seleccion_moneda" v-bind:shadow="shadow, validar_moneda" @descripcion_moneda="llamarPrecios" @cantidad_decimales="cantidad_decimal"></select-moneda>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			</div>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- SALTO DE LINEA -->
-
-			    			<hr v-if="mostrar_precios">
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORM ROW PRECIO VENTA Y PRECIO MAYORISTA -->
-				    		
-				    		<div class="form-row mt-3" v-if="mostrar_precios">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PRECIO VENTA -->
-
-				    			<div class="col-md-6">
-				    				<label>Precio Venta</label>
-				    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
-				    					<div class="input-group-prepend">
-										    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
-										</div>
-				    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_venta }" class="form-control form-control-sm" v-model="precio_venta" v-on:blur="formatoPrecioVenta">
-				    				</div>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PRECIO MAYORISTA -->
-
-				    			<div class="col-md-6">
-				    				<label>Precio Mayorista</label>
-				    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
-				    					<div class="input-group-prepend">
-										    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
-										</div>
-				    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_mayorista }" class="form-control form-control-sm" v-model="precio_mayorista" v-on:blur="formatoPrecioMayorista">
-				    				</div>	
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-			    			<!-- FORMA ROW PRECIO VIP Y COSTO -->
-				    		
-				    		<div class="form-row mt-3" v-if="mostrar_precios">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PRECIO VIP -->
-
-				    			<div class="col-md-6">
-				    				<label>Precio VIP</label>
-				    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
-				    					<div class="input-group-prepend">
-										    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
-										</div>
-				    					<input type="text" class="form-control form-control-sm" v-model="precio_vip" v-on:blur="formatoPrecioVIP">
-				    				</div>	
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- PRECIO COSTO -->
-
-				    			<div class="col-md-6">
-				    				<label>Precio Costo</label>
-				    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
-				    					<div class="input-group-prepend">
-										    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
-										</div>
-				    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_costo }" class="form-control form-control-sm" v-model="precio_costo" v-on:blur="formatoPrecioCosto">
-				    				</div>	
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- SALTO DE LINEA -->
-
-			    			<hr>
-
-			    			<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- FORMA MONEDA Y STOCK MINIMO -->
-				    		
-				    		<div class="form-row mt-3">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- STOCK MINIMO -->
-
-				    			<div class="col-md-6">
-				    				<div class="text-left">
-				    					<label>Stock Mínimo</label>
-				    				</div>
-				    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="stock_minimo" v-on:blur="formatoStockMinimo">
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- GONDOLA -->
-
-				    			<div class="col-md-6">
-				    				<select-gondola v-model="seleccion_gondola" v-bind:shadow="shadow"></select-gondola>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- FORMA OBSERVACION -->
-				    		
-				    		<div class="form-row mt-3">
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    			<!-- MONEDA -->
-
-				    			<div class="col-md-12">
-				    				<label for="exampleFormControlTextarea1">Observación</label>
-					  				<textarea class="form-control" id="exampleFormControlTextarea1" v-bind:class="{ 'shadow-sm': shadow }" v-model="observacion" rows="3"></textarea>
-				    			</div>
-
-				    			<!-- ------------------------------------------------------------------ -->
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- FORMA GONDOLA -->
-				    		
-				    		<div class="form-row mt-3">
-
+				    			<!-- SALTO DE LINEA -->
 				    			
-
-				    		</div>
-
-				    		<!-- ------------------------------------------------------------------ -->
-
-				    		<!-- IMAGEN -->
-				    		
-				    		<div class="form-row mt-3">
+				    			<hr>
 
 				    			<!-- ------------------------------------------------------------------ -->
 
-				    			<!-- IMAGEN -->
+				    			<!-- GRUPO DESCRIPCION -->
 
-				    			<div class="col-md-12">
+					    		<div class="form-row">
 
-				    				<div class="card mb-3" v-bind:class="{ 'shadow-sm': shadow }">
-									  <div class="row no-gutters">
-									    <div class="col-md-4">
-									      <img  :src="rutaImagen" class="card-img" alt="...">
-									    </div>
-									    <div class="col-md-8">
-									      <div class="card-body">
-									        <h5 class="card-title">{{fileName}}</h5>
-									    	<p class="card-text">Selecione por favor la imagen.</p>
-									    	<div class="custom-file">
-											  <input type="file" class="custom-file-input" id="customFile" v-on:change="cambiarImagen($event.target.files[0])" lang="es">
-											  <label class="custom-file-label" for="customFile">Elegir Archivo</label>
-											</div>
-									      </div>
-									    </div>
-									  </div>
-									</div>
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- DESCRIPCION -->
+
+					    			<div class="col-12">
+					    				<label>Descripción</label>
+					    				<input type="text" class="form-control form-control-sm" v-model="descripcion" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_descripcion }" v-on:blur="descripcionUpper">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+				    			
+				    			<hr>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- GRUPO DE FORMA CATEGORIA Y SUB -->
+
+					    		<div class="form-row">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- CATEGORIA -->
+
+					    			<div class="col-md-6">
+					    				<selected-categoria v-model="seleccion_categoria" v-bind:shadow="shadow, validar_categoria" @opciones="opcionesCategoria"></selected-categoria>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- SUB CATEGORIA -->
+
+					    			<div class="col-md-6">
+					    				<selected-sub-categoria v-model="seleccion_sub_categoria" v-bind:shadow="shadow, validar_sub_categoria" @descripcion_sub_categoria="descripcionSubCategoria"></selected-sub-categoria>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- SALTO DE LINEA -->
+
+				    			<hr>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- FORM ROW COLOR -->
+
+					    		<div class="form-row mt-3" v-if="mostrar_color">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- COLOR -->
+
+					    			<div class="col-md-12">
+					    				<select-color v-model="seleccion_color" v-bind:shadow="shadow, validar_color" @cambiar_codigo="asignar" @descripcion_color="descripcionColor"></select-color>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
 
 				    			</div>
 
 				    			<!-- ------------------------------------------------------------------ -->
 
+				    			<!-- FORM ROW TELA -->
+
+					    		<div class="form-row mt-3" v-if="mostrar_tela">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- TELA -->
+
+					    			<div class="col-md-12">
+					    				<select-tela v-model="seleccion_tela" v-bind:shadow="shadow, validar_tela" @descripcion_tela="descripcionTela"></select-tela>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW TALLE -->
+
+					    		<div class="form-row mt-3" v-if="mostrar_talle">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- TALLE -->
+
+					    			<div class="col-md-12">
+					    				<select-talle v-model="seleccion_talle" v-bind:shadow="shadow, validar_talle" @cambiar_codigo="asignar" @descripcion_talle="descripcionTalle"></select-talle>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW GENERO -->
+
+					    		<div class="form-row mt-3" v-if="mostrar_genero">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- GENERO -->
+
+					    			<div class="col-md-12">
+					    				<select-genero v-model="seleccion_genero" v-bind:shadow="shadow, validar_genero" @descripcion_genero="descripcionGenero"></select-genero>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW MARCA -->
+
+					    		<div class="form-row mt-3" v-if="mostrar_marca">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- MARCA -->
+
+					    			<div class="col-md-12">
+					    				<select-marca v-model="seleccion_marca" v-bind:shadow="shadow, validar_marca" @descripcion_marca="descripcionMarca"></select-marca>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW PROVEEDOR -->
+
+					    		<div class="form-row mt-3">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PROVEEDOR -->
+
+					    			<div class="col-md-12">
+					    				<select-proveedor v-model="seleccion_proveedor" v-bind:shadow="shadow, validar_proveedor"></select-proveedor>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+
+				    			<hr>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW PRESENTACION Y UBCACION -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PRESENTACIÓN -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Presentación</label>
+					    				</div>
+					    				<select class="custom-select custom-select-sm" v-model="seleccion_presentacion" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_presentacion }">
+						                    <option value="UNIDADES">1 - UNIDADES</option>
+						                    <option value="2">2 - PESABLE</option>
+						                    <option value="3">3 - METROS</option>
+						                    <option value="4">4 - CAJAS</option>
+						                    <option value="5">5 - CIEN</option>
+						                    <option value="6">6 - DOCENA</option>
+						                    <option value="7">7 - LITROS</option>
+						                    <option value="8">8 - PAQUETES</option>
+						                    <option value="9">9 - SOBRES</option>
+						            	</select>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- UBICACIÓN -->
+
+					    			<!-- <div class="col-md-6">
+					    				<div class="text-left">
+					    					<label>Ubicación</label>
+					    				</div>
+					    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }">
+					    			</div> -->
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+
+				    			<hr>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    		</div>		
+				    	</div>
+
+				    	<!-- ------------------------------------------------------------------ -->
+
+				    	<!-- SEGUNDA COLUMNA -->
+
+				    	<div class="col-md-6">
+				    		<div clas="row">
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+
+				    			<hr>
+
+							    <!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW IVA Y DESCUENTO -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- IVA -->
+
+					    			<div class="col-md-4">
+					    				<label for="inlineFormInputGroupUsername">I.V.A.</label>
+					    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
+						    				<input type="text" class="form-control form-control-sm" id="inlineFormInputGroupUsername" v-model="iva" v-on:blur="formatoIVA">
+						    				<div class="input-group-append">
+									          <div class="input-group-text">%</div>
+									        </div>
+									    </div>    
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- DESCUENTO MAXIMO -->
+
+					    			<div class="col-md-4">
+					    				<label>Descuento Máximo</label>
+					    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
+					    					<input type="text" class="form-control form-control-sm" v-model="descuento_maximo" v-on:blur="formatoDescuento">
+					    					<div class="input-group-append">
+									          <div class="input-group-text">%</div>
+									        </div>
+									    </div> 
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- MONEDA -->
+
+					    			<div class="col-md-4">
+					    				<select-moneda v-model="seleccion_moneda" v-bind:shadow="shadow, validar_moneda" @descripcion_moneda="llamarPrecios" @cantidad_decimales="cantidad_decimal"></select-moneda>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+
+				    			<hr v-if="mostrar_precios">
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW PRECIO VENTA Y PRECIO MAYORISTA -->
+					    		
+					    		<div class="form-row mt-3" v-if="mostrar_precios">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PRECIO VENTA -->
+
+					    			<div class="col-md-6">
+					    				<label>Precio Venta</label>
+					    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
+					    					<div class="input-group-prepend">
+											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
+											</div>
+					    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_venta }" class="form-control form-control-sm" v-model="precio_venta" v-on:blur="formatoPrecioVenta">
+					    				</div>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PRECIO MAYORISTA -->
+
+					    			<div class="col-md-6">
+					    				<label>Precio Mayorista</label>
+					    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
+					    					<div class="input-group-prepend">
+											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
+											</div>
+					    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_mayorista }" class="form-control form-control-sm" v-model="precio_mayorista" v-on:blur="formatoPrecioMayorista">
+					    				</div>	
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORMA ROW PRECIO VIP Y COSTO -->
+					    		
+					    		<div class="form-row mt-3" v-if="mostrar_precios">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PRECIO VIP -->
+
+					    			<div class="col-md-6">
+					    				<label>Precio VIP</label>
+					    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
+					    					<div class="input-group-prepend">
+											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
+											</div>
+					    					<input type="text" class="form-control form-control-sm" v-model="precio_vip" v-on:blur="formatoPrecioVIP">
+					    				</div>	
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PRECIO COSTO -->
+
+					    			<div class="col-md-6">
+					    				<label>Precio Costo</label>
+					    				<div class="input-group input-group-sm mb-3" v-bind:class="{ 'shadow-sm': shadow }">
+					    					<div class="input-group-prepend">
+											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
+											</div>
+					    					<input type="text" v-bind:class="{ 'is-invalid': validar_precio_costo }" class="form-control form-control-sm" v-model="precio_costo" v-on:blur="formatoPrecioCosto">
+					    				</div>	
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- SALTO DE LINEA -->
+
+				    			<hr>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- FORMA MONEDA Y STOCK MINIMO -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- STOCK MINIMO -->
+
+					    			<div class="col-md-6">
+					    				<div class="text-left">
+					    					<label>Stock Mínimo</label>
+					    				</div>
+					    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="stock_minimo" v-on:blur="formatoStockMinimo">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- GONDOLA -->
+
+					    			<div class="col-md-6">
+					    				<select-gondola v-model="seleccion_gondola" v-bind:shadow="shadow"></select-gondola>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- FORMA OBSERVACION -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- MONEDA -->
+
+					    			<div class="col-md-12">
+					    				<label for="exampleFormControlTextarea1">Observación</label>
+						  				<textarea class="form-control" id="exampleFormControlTextarea1" v-bind:class="{ 'shadow-sm': shadow }" v-model="observacion" rows="3"></textarea>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- FORMA GONDOLA -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- IMAGEN -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- IMAGEN -->
+
+					    			<div class="col-md-12">
+
+					    				<div class="card mb-3" v-bind:class="{ 'shadow-sm': shadow }">
+										  <div class="row no-gutters">
+										    <div class="col-md-4">
+										      <img  :src="rutaImagen" class="card-img" alt="...">
+										    </div>
+										    <div class="col-md-8">
+										      <div class="card-body">
+										        <h5 class="card-title">{{fileName}}</h5>
+										    	<p class="card-text">Selecione por favor la imagen.</p>
+										    	<div class="custom-file">
+												  <input type="file" class="custom-file-input" id="customFile" v-on:change="cambiarImagen($event.target.files[0])" lang="es">
+												  <label class="custom-file-label" for="customFile">Elegir Archivo</label>
+												</div>
+										      </div>
+										    </div>
+										  </div>
+										</div>
+
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+				    		</div>	
+				    	</div>
+
+				    	<!-- ------------------------------------------------------------------ -->	
+
+				    	<!-- SEGUNDA FILA -->
+
+				    	<div class="col-md-12">
+				    		<div class="text-right">
+				    			<button v-on:click="guardar" class="btn btn-primary"><font-awesome-icon icon="save" /> Guardar</button>
 				    		</div>
+				    	</div>
+				    		
+				    	<!-- ------------------------------------------------------------------ -->
 
-				    		<!-- ------------------------------------------------------------------ -->
+				    </div>	
+			    </div>
 
-			    		</div>	
-			    	</div>
+			    <!-- ------------------------------------------------------------------------------------- -->
 
-			    	<!-- ------------------------------------------------------------------ -->	
+			    <!-- CUERPO 2 CARD -->
 
-			    	<!-- SEGUNDA FILA -->
+			    <div v-if="nav === '2'">
+				    <h5 class="card-title">PROBANDO</h5>
+				    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+				    <a href="#" class="btn btn-primary">Go somewhere</a>
+			    </div>
 
-			    	<div class="col-md-12">
-			    		<div class="text-right">
-			    			<button v-on:click="guardar" class="btn btn-primary"><font-awesome-icon icon="save" /> Guardar</button>
-			    		</div>
-			    	</div>
-			    		
-			    	<!-- ------------------------------------------------------------------ -->
+			    <!-- ------------------------------------------------------------------------------------- -->
 
-			    </div>	
-		    </div>
+			  </div>
+			</div>
 
-		    <!-- ------------------------------------------------------------------------------------- -->
-
-		    <!-- CUERPO 2 CARD -->
-
-		    <div v-if="nav === '2'">
-			    <h5 class="card-title">PROBANDO</h5>
-			    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-			    <a href="#" class="btn btn-primary">Go somewhere</a>
-		    </div>
-
-		    <!-- ------------------------------------------------------------------------------------- -->
-
-		  </div>
+			<!-- ------------------------------------------------------------------------------------- -->
 		</div>
 
-		<!-- ------------------------------------------------------------------------------------- -->
-		</div>
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>	
 	</div>
 </template>
 <script>

@@ -10,6 +10,11 @@ Vue.use(Router);
 export default new Router({
 	routes: [
 		{
+			path: '/home',
+			name: 'Inicio',
+			component: require('./components/Dashboard.vue').default
+		},
+		{
 			path: '/tr2/:id',
 			name: 'transferencia',
 			component: require('./components/transferencia/RealizarTransferencia.vue').default
@@ -43,6 +48,11 @@ export default new Router({
 			path: '/pr2',
 			name: 'productoRegistrar',
 			component: require('./components/producto/RegistrarProducto.vue').default
+		},
+		{
+			path: '/rl1',
+			name: 'rolCrear',
+			component: require('./components/rol/CrearRol.vue').default
 		}
 	],
 	mode: 'history'

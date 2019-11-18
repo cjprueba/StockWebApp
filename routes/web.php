@@ -180,6 +180,12 @@ Route::post('comprasDetProductos', 'ComprasDetController@obtenerProductosNroCaja
 
 /* -------------------------------------------------------------------------- */
 
+// ROLES
+
+Route::get('rolTraer', 'UserController@obtenerRoles');
+
+/* -------------------------------------------------------------------------- */
+
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
 
 Route::get('{any}', function () {
