@@ -17,7 +17,7 @@ class Empleado extends Model
 
     	// OBTENER TODOS LOS EMPLEADOS
 
-    	$empleados = Emplado::select(DB::raw('CODIGO, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
+    	$empleados = Empleado::select(DB::raw('CODIGO, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -41,8 +41,7 @@ class Empleado extends Model
     	   
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$empleado = Emplado::table('empleados')
-        ->select(DB::raw('ID, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
+    	$empleado = Empleado::select(DB::raw('ID, NOMBRE, CI, DIRECCION, ID_SUCURSAL'))
         ->where('ID', '=', $data['codigo'])
         ->get();
 

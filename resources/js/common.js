@@ -161,7 +161,56 @@ function ocultarBoton(valor){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function existeProductoDataTableCommon(tabla, codigo){
+function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
+function cantidadSuperadaCommon(a, b){
 
 			// ------------------------------------------------------------------------
 
@@ -173,12 +222,9 @@ function existeProductoDataTableCommon(tabla, codigo){
 
         	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
 
-			tabla.rows().every(function(){
-				var data = this.data();
-				    if (data['CODIGO'] === codigo) {
-				    	valor = true;
-				    } 
-			});
+			if (parseFloat(a) > parseFloat(b)) {
+	            var valor = true;	
+	       	} 
 
 			// ------------------------------------------------------------------------
 
@@ -1004,5 +1050,6 @@ export {
 		guardarProductoCommon,
 		obtenerProductoCommon,
 		llamarRolesCommon,
-		guardarRolCommon
+		guardarRolCommon,
+		cantidadSuperadaCommon
 		};

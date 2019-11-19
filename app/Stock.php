@@ -28,7 +28,6 @@ class Stock extends Model
         ->select(DB::raw('SUM(CANTIDAD) AS CANTIDAD'))
         ->where('COD_PROD','=', $codigo)
         ->where('ID_SUCURSAL','=',$user->id_sucursal)
-        ->groupBy('COD_PROD')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

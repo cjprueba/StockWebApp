@@ -1349,15 +1349,47 @@
 
         	let me = this;
         	var tableTransferencia = $('#tablaTransferencia').DataTable();
+        	var productoExistente = [];
+        	var cantidadNueva = 0;
 
         	// ------------------------------------------------------------------------
 
-            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS - SALIR SI EXISTE
+            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
 
-            if (Common.existeProductoDataTableCommon(tableTransferencia, codigo) == true) {
-            	me.validarCodigoProducto = true;
-            	me.$bvToast.show('toast-codigo-repetido');
+            productoExistente = Common.existeProductoDataTableCommon(tableTransferencia, codigo, 2);
+            console.log(productoExistente);
+            console.log(iva);
+            if (productoExistente.respuesta == true) {
+
+            	// ------------------------------------------------------------------------
+
+            	// SUMAR LA CANTIDAD E IVA
+
+            	cantidadNueva = parseFloat(productoExistente.cantidad) + parseFloat(cantidad);
+
+            	// ------------------------------------------------------------------------
+
+            	// REVISAR SI CANTIDAD SUPERA STOCK
+
+            	if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
+            		me.validarCantidad = true;
+	            	me.$bvToast.show('toast-cantidad-superada');
+	            	return;
+            	} else {
+            		me.validarCantidad = false;
+            	}
+
+            	// ------------------------------------------------------------------------
+
+            	// EDITAR CANTIDAD PRODUCTO 
+
+            	me.editarCantidadProducto(tableTransferencia, cantidadNueva, productoExistente.precio, iva_porcentaje, productoExistente.stock, productoExistente.row);
             	return;
+
+            	// ------------------------------------------------------------------------
+
             } else {
             	me.validarCodigoProducto = false;
             }
@@ -1366,15 +1398,13 @@
 
             // REVISAR SI CANTIDAD SUPERA STOCK
 
-            if (stock !== '') {
-	            if (parseFloat(cantidad) > parseFloat(stock)) {
-	            	me.validarCantidad = true;
-	            	me.$bvToast.show('toast-cantidad-superada');
-	            	return;
-	            } else {
-	            	me.validarCantidad = false;
-	            }
-            }
+            if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
+	            me.validarCantidad = true;
+	            me.$bvToast.show('toast-cantidad-superada');
+	            return;
+	        } else {
+	            me.validarCantidad = false;
+	        }
 
             // ------------------------------------------------------------------------
 
@@ -1511,6 +1541,17 @@
 
         	let me = this;
 
+        	// ------------------------------------------------------------------------
+
+        	// DEVOLVER SI ESTA VACIO 
+
+        	if (me.nro_caja === '' || me.nro_caja === null || me.nro_caja === undefined) {
+        		return;
+        	}
+
+        	// ------------------------------------------------------------------------
+
+
         		Swal.fire({
 				  title: '¿ Importar ?',
 				  text: "Importar productos de Nro. Caja " + me.nro_caja + " !",
@@ -1568,6 +1609,69 @@
 				})
 
         	// ------------------------------------------------------------------------
+
+        }, editarCantidadProducto(tabla, cantidad, precio_producto, iva_producto, stock, row){
+
+        	let me = this;
+        	var precio = 0;
+        	var iva = 0;
+
+        	// *******************************************************************
+
+            // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
+
+            if (cantidad === '0' || precio_producto === '0') {
+                me.$bvToast.show('toast-editar-cero');
+                return;	
+            }
+
+            // *******************************************************************
+
+            // PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
+                	
+            if (parseFloat(Common.quitarComaCommon(cantidad)) > parseFloat(Common.quitarComaCommon(stock))) {
+                me.$bvToast.show('toast-cantidad-superada');
+                return;	
+            }
+
+            // *******************************************************************
+
+            // CARGAR LO EDITADO
+
+            tabla.cell(row, 3).data(cantidad).draw();
+            tabla.cell(row, 4).data(precio_producto).draw();
+
+            // *******************************************************************
+                    
+            // CALCULAR PRECIO TOTAL
+
+            precio = Common.multiplicarCommon(cantidad, precio_producto, me.candec);
+
+            // *******************************************************************
+
+            // CALCULO IVA 
+		            
+		    iva = Common.calcularIVACommon(precio, iva_producto, me.candec);
+
+		    // *******************************************************************
+
+		    // CARGAR PRECIO CALCULADO 
+
+            tabla.cell(row, 6).data(precio).draw();
+
+            // *******************************************************************
+
+            // CARGAR IVA CALCULADO 
+
+            tabla.cell(row, 5).data(iva).draw();
+
+           	// *******************************************************************
+
+            // LLAMAR TOAST MODIFICADO
+
+            me.$bvToast.show('toast-producto-transferencia-modificado');
+
+            // *******************************************************************
 
         } 
       },  
@@ -1950,60 +2054,11 @@
 
                 	// *******************************************************************
 
-                	// PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
+                	// EDITAR TRANSFERENCIA
 
-                	if (me.editarCantidad === '0' || me.editarPrecio === '0') {
-                		me.$bvToast.show('toast-editar-cero');
-                		return;	
-                	}
+                	me.editarCantidadProducto(tableTransferencia, me.editarCantidad, me.editarPrecio, me.editarIvaProducto, me.editarStock, me.editarRow);
 
                 	// *******************************************************************
-
-                	// PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
-                	
-                	if (parseFloat(Common.quitarComaCommon(me.editarCantidad)) > parseFloat(Common.quitarComaCommon(me.editarStock))) {
-                		me.$bvToast.show('toast-cantidad-superada');
-                		return;	
-                	}
-
-                    // *******************************************************************
-
-                    // CARGAR LO EDITADO
-
-                    tableTransferencia.cell(me.editarRow, 3).data(me.editarCantidad).draw();
-                    tableTransferencia.cell(me.editarRow, 4).data(me.editarPrecio).draw();
-
-                    // *******************************************************************
-                    
-                    // CALCULAR PRECIO TOTAL
-
-                    precio = Common.multiplicarCommon(me.editarCantidad, me.editarPrecio, me.candec);
-
-                    // *******************************************************************
-
-                    // CALCULO IVA 
-		            
-		            iva = Common.calcularIVACommon(precio, me.editarIvaProducto, me.candec);
-
-		            // *******************************************************************
-
-		            // CARGAR PRECIO CALCULADO 
-
-                    tableTransferencia.cell(me.editarRow, 6).data(precio).draw();
-
-                    // *******************************************************************
-
-                    // CARGAR IVA CALCULADO 
-
-                    tableTransferencia.cell(me.editarRow, 5).data(iva).draw();
-
-                    // *******************************************************************
-
-                    // LLAMAR TOAST MODIFICADO
-
-                    me.$bvToast.show('toast-producto-transferencia-modificado');
-
-                    // *******************************************************************
 
                     // OCULTAR MODAL EDITAR 
 

@@ -4,8 +4,7 @@
                 <label for="validationTooltip01">Góndola</label>
             </div>
 
-            <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow }" @input="$emit('input', $event.target.value)">
-                    <option :value="null">0 - Seleccionar</option>
+            <select multiple class="custom-select custom-select-sm" size="3" v-bind:class="{ 'shadow-sm': shadow }" @input="$emit('input', $event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)" v-model="seleccionGondola">
                     <option v-for="gondola in gondolas" :selected="gondola.CODIGO === parseInt(value)" :value="gondola.CODIGO">{{ gondola.CODIGO }} - {{ gondola.DESCRIPCION }}</option>
             </select>
 			
@@ -19,7 +18,7 @@
       },
       data(){
         return {
-          	seleccionGondola: 'null',
+          	seleccionGondola: [],
             gondolas: []
         }
       }, 
@@ -36,7 +35,17 @@
 
       				// ------------------------------------------------------------------------
 
-      			}
+      			}, enviarCodigoPadre(valor){
+
+              // ------------------------------------------------------------------------
+
+              // ENVIAR CODIGO
+
+              this.$emit('gondolas_seleccionadas', this.seleccionGondola);
+
+              // ------------------------------------------------------------------------
+
+            }
       },
         mounted() {
         	

@@ -496,7 +496,7 @@
 
 				    			<!-- ------------------------------------------------------------------ -->
 
-					    		<!-- FORMA MONEDA Y STOCK MINIMO -->
+					    		<!--  STOCK MINIMO -->
 					    		
 					    		<div class="form-row mt-3">
 
@@ -504,7 +504,7 @@
 
 					    			<!-- STOCK MINIMO -->
 
-					    			<div class="col-md-6">
+					    			<div class="col-md-12">
 					    				<div class="text-left">
 					    					<label>Stock Mínimo</label>
 					    				</div>
@@ -513,10 +513,38 @@
 
 					    			<!-- ------------------------------------------------------------------ -->
 
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- GONDOLA -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
 					    			<!-- GONDOLA -->
 
-					    			<div class="col-md-6">
-					    				<select-gondola v-model="seleccion_gondola" v-bind:shadow="shadow"></select-gondola>
+					    			<div class="col-md-12">
+					    				<select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- STOCK - GONDOLA -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- GONDOLA -->
+
+					    			<div class="col-md-12">
+					    				<select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -598,9 +626,38 @@
 				    	<!-- SEGUNDA FILA -->
 
 				    	<div class="col-md-12">
-				    		<div class="text-right">
-				    			<button v-on:click="guardar" class="btn btn-primary"><font-awesome-icon icon="save" /> Guardar</button>
-				    		</div>
+
+				    		<!-- ------------------------------------------------------------------ -->	
+
+				    		<!-- BOTON NUEVO, MODIFICAR O GUARDAR -->
+
+				    		
+				    			<div class="form-inline float-right">
+
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    				<!-- NUEVO -->
+
+				    				<div class="form-group mx-sm-3">
+				    					<button class="btn btn-secondary" v-on:click="()=> location.reload()">Nuevo</button>
+				    				</div>
+
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    				<!-- GUARDAR, EDITAR -->
+
+				    				<div class="form-group">
+				    					<button v-on:click="guardar" v-bind:class="{ 'btn btn-primary': estado_boton.boton_primary, 'btn btn-warning': estado_boton.boton_warning }" class="btn btn-primary"><font-awesome-icon icon="save" /> {{estado_boton.boton}} </button>
+				    				</div>
+				    				
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    			</div>	
+				    			
+				  
+
+				    		<!-- ------------------------------------------------------------------ -->	
+
 				    	</div>
 				    		
 				    	<!-- ------------------------------------------------------------------ -->
@@ -654,7 +711,7 @@
           seleccion_moneda: 'null',
           seleccion_proveedor: 'null',
           seleccion_gondola: 'null',
-          seleccion_presentacion: 1,
+          seleccion_presentacion: 'UNIDADES',
           observacion: '',
           iva: '10',
           descuento_maximo: 0,
@@ -702,6 +759,12 @@
           validar_codigo_real: false,
           mostrar_error: false,
           mensaje: '',
+          estado_boton: {
+          		boton: 'Guardar',
+          		boton_primary: true,
+          		boton_warning: false,
+          		mostrar_nuevo: false,
+          },
           datos: []
         }
       }, 
@@ -719,6 +782,14 @@
             	// OBTENER CODIGO GENARADO 
 
             	Common.obtenerProductoCommon(this.codigo_producto, 1).then(data => {
+
+            		// ------------------------------------------------------------------------
+
+            		// RETONAR SI ES FALSE LA RESPUESTA YA QUE NO ENCONTRO PRODUCTO 
+
+            		if (data.response === false) {
+            			return;
+            		}
 
             		// ------------------------------------------------------------------------
 
@@ -765,6 +836,14 @@
             		} else {
             			this.rutaImagen = data.imagen;
             		}
+            		// ------------------------------------------------------------------------
+
+            		// CAMBIAR BOTON 
+
+            		this.estado_boton.boton = 'Modificar';
+            		this.estado_boton.boton_primary = false;
+            		this.estado_boton.boton_warning = true;
+            		this.estado_boton.mostrar_nuevo = true;
 
            			// ------------------------------------------------------------------------
 
@@ -1558,6 +1637,14 @@
 	          	this.validar_codigo_real = false;
 
 	          	// ------------------------------------------------------------------------
+
+            }, gondolas_seleccionadas(gondolas){
+
+            	// ------------------------------------------------------------------------
+
+            	console.log(gondolas);
+
+            	// ------------------------------------------------------------------------
 
             }
       },
