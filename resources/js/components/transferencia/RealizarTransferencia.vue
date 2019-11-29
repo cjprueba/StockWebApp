@@ -215,7 +215,7 @@
         <!-- TABLA TRANSFERENCIA -->
 
 		<div class="col-md-12 mt-3">
-			<table id="tablaTransferencia" class="table table-striped table-bordered table-sm mb-3" style="width:100%">
+			<table id="tablaTransferencia" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
                 <thead>
                     <tr>
                         <th></th>
@@ -442,6 +442,48 @@
 
         <!-- ******************************************************************* -->
 
+        <!-- MODAL PRODUCTOS SIN REGISTRAR -->
+
+        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-scrollable" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
+				  <thead class="thead-light">
+				    <tr>
+				      <th scope="col">#</th>
+				      <th scope="col">Código</th>
+				      <th scope="col">Cantidad</th>
+				      <th scope="col">Guardado</th>
+				      <th scope="col">No guardado</th>
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
+				      <th scope="row">{{index+1}}</th>
+				      <td>{{no_registrado.cod_prod}}</td>
+				      <td>{{no_registrado.cantidad}}</td>
+				      <td>{{no_registrado.guardado}}</td>
+				      <td>{{no_registrado.restante}}</td>
+				    </tr>
+				  </tbody>
+				</table>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" v-on:click="mostrarTransferencias" data-dismiss="modal">Cerrar</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- ******************************************************************* -->
+
 		<!-- FINAL MODALES --> 
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -591,8 +633,8 @@
             editarCantidad: '',
             editarStock: '',
             editarRow: '',
-            moneda_enviar: 0
-            
+            moneda_enviar: 0,
+            no_registrados: []
         }
       },
       components: {
@@ -1132,13 +1174,15 @@
 			// ------------------------------------------------------------------------ 
 
 			Common.guardarTransferenciaCommon(tableTransferencia.rows().data(), data).then(data => {
-			  
-				if (data === true) {
+			    
+				if (data.response === true) {
+
 					Swal.fire(
 					  'Guardado !',
 					  'La Transferencia ha sido guardada correctamente !',
 					  'success'
 					).then((result) => {
+
 					  if (result.value) {
 
 					  	// ------------------------------------------------------------------------ 
@@ -1150,12 +1194,72 @@
 					    // ------------------------------------------------------------------------ 
 
 					   }
+
 					});
+
+				} else if (data.response === false) {
+
+					// ------------------------------------------------------------------------ 
+
+					// MOSTRAR SWAL DE PRODUCTOS NO GUARDADOS 
+
+					Swal.fire({
+					  title: 'No se ha guardado correctamente !',
+					  text: "Algunos productos no se registraron correctamente !",
+					  icon: 'warning',
+					  showCancelButton: true,
+					  confirmButtonText: 'Aceptar !',
+					  cancelButtonText: 'Ver productos !',
+					  reverseButtons: true,
+					  allowOutsideClick: false
+					}).then((result) => {
+
+					  if (result.value) {
+
+					  	// ------------------------------------------------------------------------
+
+					  	// REDIRIGIR A LA PAGINA MOSTRAR
+
+					     this.$router.push('/tr1');
+
+					     // ------------------------------------------------------------------------
+
+					  } else if (
+
+					  	// ------------------------------------------------------------------------
+
+					    /* CANCELAR EL DISMISS */
+
+					    result.dismiss === Swal.DismissReason.cancel
+
+					    // ------------------------------------------------------------------------
+
+					  ) {
+
+					    // ------------------------------------------------------------------------ 
+
+						// SI EL TAMAÑO DEL ARRAY SUPERA CERO SIGNIFICA QUE HAY PRODUCTOS SIN GUARDAR
+
+						me.no_registrados = data.productos;
+					
+						// ------------------------------------------------------------------------ 
+
+						// MOSTRAR MODAL CON LOS PRODUCTOS 
+
+						$('#modal_no_registrados').modal('show');
+
+						// ------------------------------------------------------------------------ 
+
+					  }
+					})
+
+					// ------------------------------------------------------------------------ 
+
 				} else {
 					Swal.fire(
 					  'Error !',
 					  'La Transferencia no se ha guardado correctamente !',
-					  'Error'
+					  'error'
 					);
 				}
 				
@@ -1612,11 +1716,15 @@
 
         }, editarCantidadProducto(tabla, cantidad, precio_producto, iva_producto, stock, row){
 
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES
+
         	let me = this;
         	var precio = 0;
         	var iva = 0;
 
-        	// *******************************************************************
+        	// ------------------------------------------------------------------------
 
             // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
 
@@ -1625,7 +1733,7 @@
                 return;	
             }
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
 
             // PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
                 	
@@ -1634,46 +1742,56 @@
                 return;	
             }
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
 
             // CARGAR LO EDITADO
 
             tabla.cell(row, 3).data(cantidad).draw();
             tabla.cell(row, 4).data(precio_producto).draw();
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
                     
             // CALCULAR PRECIO TOTAL
 
             precio = Common.multiplicarCommon(cantidad, precio_producto, me.candec);
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
 
             // CALCULO IVA 
 		            
 		    iva = Common.calcularIVACommon(precio, iva_producto, me.candec);
 
-		    // *******************************************************************
+		    // ------------------------------------------------------------------------
 
 		    // CARGAR PRECIO CALCULADO 
 
             tabla.cell(row, 6).data(precio).draw();
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
 
             // CARGAR IVA CALCULADO 
 
             tabla.cell(row, 5).data(iva).draw();
 
-           	// *******************************************************************
+           	// ------------------------------------------------------------------------
 
             // LLAMAR TOAST MODIFICADO
 
             me.$bvToast.show('toast-producto-transferencia-modificado');
 
-            // *******************************************************************
+            // ------------------------------------------------------------------------
 
-        } 
+        }, mostrarTransferencias(){
+
+        	// ------------------------------------------------------------------------ 
+
+			// SI DA OK LO REDIRIJE A MOSTRAR TRANSFERENCIAS 
+
+			this.$router.push('/tr1');
+
+			// ------------------------------------------------------------------------ 
+
+        }
       },  
         mounted() {
 
@@ -1697,7 +1815,18 @@
 
             $(document).ready( function () {
 
-            	
+            	// ------------------------------------------------------------------------
+                // >>
+                // PROHIBIR A MODAL QUE SE CIERRE CLICANDO AFUERA 
+                // ------------------------------------------------------------------------
+
+            	$('#modal_no_registrados').modal({
+				    backdrop: 'static',
+				    keyboard: false,
+				    show: false
+				})
+
+            	// ------------------------------------------------------------------------
 
 			    $('#example22').DataTable({
 			    	"bAutoWidth": false
@@ -1714,6 +1843,15 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				        	{ extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary' }
+				        ],
                         "ajax":{
                                  "url": "/empleado",
                                  "dataType": "json",
@@ -1780,6 +1918,15 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'Transferencia', messageTop: 'Productos registrados para Transferencia' }
+				        ],
 				        "columnDefs": [
 				            {
 				                "targets": [ 8 ],
@@ -1997,6 +2144,13 @@
 						}      
                 });
                 
+                // ------------------------------------------------------------------------
+
+                // ASIGNAR INLINE BUTTONS 
+
+                tableTransferencia.buttons().container()
+    			.appendTo( $('div.eight.column:eq(0)', tableTransferencia.table().container()) );
+
 				// ------------------------------------------------------------------------
 
             	// DESPUES DE INICIAR LA TABLA TRANSFERENCIAS LLAMAR A LA CONSULTA PARA CARGAR CABECERA Y CUERPO 

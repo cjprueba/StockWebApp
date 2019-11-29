@@ -526,25 +526,8 @@
 					    			<!-- GONDOLA -->
 
 					    			<div class="col-md-12">
-					    				<select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola>
-					    			</div>
-
-					    			<!-- ------------------------------------------------------------------ -->
-
-					    		</div>
-
-					    		<!-- ------------------------------------------------------------------ -->
-
-					    		<!-- STOCK - GONDOLA -->
-					    		
-					    		<div class="form-row mt-3">
-
-					    			<!-- ------------------------------------------------------------------ -->
-
-					    			<!-- GONDOLA -->
-
-					    			<div class="col-md-12">
-					    				<select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola>
+					    				<!-- <select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola> -->
+					    				<multiselect v-model="seleccion_gondola" :options="gondolas_seleccionadas" :multiple="true"></multiselect>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->

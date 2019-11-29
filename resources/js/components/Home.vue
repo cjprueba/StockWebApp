@@ -168,6 +168,11 @@
 
 </script>
 <style>
+
+.dataTables_wrapper .dt-buttons {
+  float:none;  
+  text-align:center;
+}
 	/*!
  * Start Bootstrap - SB Admin 2 v4.0.6 (https://startbootstrap.com/template-overviews/sb-admin-2)
  * Copyright 2013-2019 Start Bootstrap

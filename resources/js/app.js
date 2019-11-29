@@ -51,9 +51,22 @@ window.Swal = require('sweetalert2');
 // DATATABLE JS
 
 window.dt = require('datatables.net');
-require( 'datatables.net-bs4' );
-require('datatables.net-responsive');
-require( 'datatables.net-buttons' );
+import 'datatables.net-bs4';
+import jsZip from 'jszip';
+import 'datatables.net-buttons';
+import 'datatables.net-buttons/js/dataTables.buttons.js';
+import 'datatables.net-buttons/js/buttons.flash.js';
+
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'pdfmake';
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+window.JSZip = jsZip;
+import'datatables.net-responsive';
+// 
+import 'datatables.net-bs4/css/dataTables.bootstrap4.css';
+import 'datatables.net-buttons/js/buttons.print.js';
+
 
 /* ********************************************* */
 
@@ -75,13 +88,19 @@ import VueApexCharts from 'vue-apexcharts'
 
 /* ********************************************* */
 
+import Multiselect from 'vue-multiselect';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
+Vue.component('multiselect', Multiselect);
+
+/* ********************************************* */
+
 /* FONT AWESOME */ 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave)
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy)
 
 /* ********************************************* */
 
