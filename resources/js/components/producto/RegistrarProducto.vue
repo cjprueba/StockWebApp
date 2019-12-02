@@ -1,8 +1,8 @@
 <template>
-	<div class="container-fluid bg-light">
-
+	<div class="container-fluid">
+		
 		<div class="mt-3 mb-3" v-if="$can('products.create')">
-
+			
 			<!-- ------------------------------------------------------------------ -->
 
 			<!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
@@ -10,10 +10,18 @@
 			<mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
 			<!-- ------------------------------------------------------------------------------------- -->
+			
+			<!-- DIVISORIA VUESAX -->
+
+			<!-- <vs-divider>
+			   Registrar Producto
+			</vs-divider> -->
+			
+			<!-- ------------------------------------------------------------------------------------- -->
 
 			<!-- CARD REGISTRAR PRODUCTO -->
 
-			<div class="card shadow">
+			<!-- <div class="card shadow">
 			  <div class="card-header">
 			    <ul class="nav nav-tabs card-header-tabs">
 			      <li class="nav-item">
@@ -27,14 +35,17 @@
 			      </li>
 			    </ul>
 			  </div>
-			  <div class="card-body">
+			  <div class="card-body"> -->
 
 			  	<!-- ------------------------------------------------------------------------------------- -->
 
 			  	<!-- PRODUCTO - CUERPO 1 CARD -->
 
-			  	<div v-if="nav === '1'">
-				    <div class="row">
+			  	<!-- <div v-if="nav === '1'"> -->
+
+			<vs-tabs>
+      			<vs-tab label="Registrar">	
+				    <div class="row mt-3">
 
 				    		
 
@@ -47,7 +58,7 @@
 				    		<!-- HABILITAR CODIGO REAL -->
 
 					   		<div class="my-1">
-								  <div class="custom-control custom-checkbox mr-sm-2">
+								  <div class="custom-control custom-switch mr-sm-2">
 								   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
 								   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
 								 </div>
@@ -526,8 +537,7 @@
 					    			<!-- GONDOLA -->
 
 					    			<div class="col-md-12">
-					    				<!-- <select-gondola v-model="seleccion_gondola" @gondolas_seleccionadas="gondolas_seleccionadas" v-bind:shadow="shadow"></select-gondola> -->
-					    				<multiselect v-model="seleccion_gondola" :options="gondolas_seleccionadas" :multiple="true"></multiselect>
+					    				<select-gondola v-model="seleccion_gondola"  v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -646,22 +656,24 @@
 				    	<!-- ------------------------------------------------------------------ -->
 
 				    </div>	
-			    </div>
+			    <!-- </div> -->
 
 			    <!-- ------------------------------------------------------------------------------------- -->
-
+				</vs-tab>
+				<vs-tab label="Información">
+				</vs-tab>	
 			    <!-- CUERPO 2 CARD -->
 
-			    <div v-if="nav === '2'">
+			   <!--  <div v-if="nav === '2'">
 				    <h5 class="card-title">PROBANDO</h5>
 				    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
 				    <a href="#" class="btn btn-primary">Go somewhere</a>
 			    </div>
-
+ -->
 			    <!-- ------------------------------------------------------------------------------------- -->
-
-			  </div>
-			</div>
+			</vs-tabs>	
+			  <!-- </div>
+			</div> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 		</div>
@@ -693,7 +705,7 @@
           seleccion_proveedor: 'null',
           seleccion_moneda: 'null',
           seleccion_proveedor: 'null',
-          seleccion_gondola: 'null',
+          seleccion_gondola: [{}],
           seleccion_presentacion: 'UNIDADES',
           observacion: '',
           iva: '10',
@@ -1433,7 +1445,7 @@
             	// ------------------------------------------------------------------------
 
             }, guardar(){
-
+            	
             	// ------------------------------------------------------------------------
 
             	// INICIAR VARIABLES 
@@ -1620,14 +1632,6 @@
 	          	this.validar_codigo_real = false;
 
 	          	// ------------------------------------------------------------------------
-
-            }, gondolas_seleccionadas(gondolas){
-
-            	// ------------------------------------------------------------------------
-
-            	console.log(gondolas);
-
-            	// ------------------------------------------------------------------------
 
             }
       },

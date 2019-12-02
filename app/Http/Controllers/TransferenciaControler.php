@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Mpdf;
 use App\Transferencia;
 use App\Exports\TransferenciaGeneral;
 
@@ -202,5 +203,11 @@ class TransferenciaControler extends Controller
 
     }
 
+    public function getGenerar(Request $request)
+    {
+        $accion = $request->get('accion');
+        $tipo = $request->get('tipo');
+        return Transferencia::pdf($accion,$tipo);
+    }
    
 }

@@ -698,7 +698,6 @@ class Producto extends Model
             'PREVIP' => $datos["precioVip"],
             'PRECOSTO' => $datos["precioCosto"],
             'STOCK_MIN' => $datos["stockMinimo"],
-            'FK_GONDOLA' => $datos["gondola"],
             'OBSERVACION' => $datos["observacion"],
             'BAJA' => "NO",
             'FECALTAS' => date("Y-m-d H:i:s"),
