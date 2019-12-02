@@ -263,6 +263,22 @@
 
                     // ------------------------------------------------------------------------
 
+                    // ELIMINAR TRANSFERENCIA
+
+                    $('#tablaTransferencias').on('click', 'tbody tr #imprimirTransferencia', function() {
+
+	                    // *******************************************************************
+
+	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                   	
+	                   	Common.generarPdfTransferenciaCommon();
+	                   	
+	                    // *******************************************************************
+
+	                });
+
+                    // ------------------------------------------------------------------------
+
                     // ENVIAR TRANSFERENCIA
 
                     $('#tablaTransferencias').on('click', 'tbody tr #enviarTransferencia', function() {

@@ -5,12 +5,9 @@
 
 		<!-- TITULO  -->
 		
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				 <li class="breadcrumb-item active" aria-current="page">Realizar Transferencia</li>
-			</ol>
-		</nav>
-
+		<vs-divider>
+			Realizar Transferencia
+		</vs-divider>
 	
         <!-- ------------------------------------------------------------------------------------- -->
 

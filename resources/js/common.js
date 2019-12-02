@@ -409,6 +409,34 @@ function enviarTransferenciaCommon(data){
 }
 
 
+function generarPdfTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'pdf-generar', method: 'get', responseType: 'blob', data: {'accion': 'ver', 'tipo': 'digital'}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
 function modificarTransferenciaCommon(codigo, data, cabecera){
 
 			// ------------------------------------------------------------------------
@@ -1051,5 +1079,6 @@ export {
 		obtenerProductoCommon,
 		llamarRolesCommon,
 		guardarRolCommon,
-		cantidadSuperadaCommon
+		cantidadSuperadaCommon,
+		generarPdfTransferenciaCommon
 		};

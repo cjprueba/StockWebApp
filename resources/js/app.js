@@ -42,6 +42,27 @@ Vue.use(BootstrapVue)
 
 /* ********************************************* */
 
+// VUESAX
+import Vuesax from 'vuesax'
+import { vsDivider, vsTabs, vsTab } from 'vuesax'
+import 'vuesax/dist/vuesax.css' //Vuesax styles
+Vue.use(vsDivider);
+Vue.use(vsTabs);
+Vue.use(Vuesax, {
+  theme:{
+    colors:{
+      primary:'#5b3cc4',
+      success:'rgb(23, 201, 100)',
+      danger:'rgb(242, 19, 93)',
+      warning:'rgb(255, 130, 0)',
+      dark:'rgb(36, 33, 69)'
+    }
+  }
+});
+
+
+/* ********************************************* */
+
 window.Swal = require('sweetalert2');
 // import Swal from 'sweetalert2'
 // Vue.use(Swal)

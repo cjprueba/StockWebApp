@@ -57,7 +57,7 @@ Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProd
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
-
+Route::get('pdf-generar','TransferenciaControler@getGenerar');
 
 /* -------------------------------------------------------------------------- */
 
