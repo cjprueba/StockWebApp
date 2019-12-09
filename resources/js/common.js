@@ -286,7 +286,7 @@ function calcularCotizaciónPrecioCommon(precioProducto, monedaProducto, monedaS
 
 
 	        // ------------------------------------------------------------------------
-
+	        
 			// CONSEGUIR LA COTIZACION DEL PRECIO
 				
 			return axios.post('/cotizacion', {'precio': precioProducto, 'monedaProducto': monedaProducto, 'monedaSistema': monedaSistema, 'decSistema': dec, 'tab_unica': tab_unica}).then(function (response) {
@@ -409,7 +409,7 @@ function enviarTransferenciaCommon(data){
 }
 
 
-function generarPdfTransferenciaCommon(data){
+function generarPdfFacturaTransferenciaCommon(data){
 
 			// ------------------------------------------------------------------------
 
@@ -421,13 +421,40 @@ function generarPdfTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'pdf-generar', method: 'get', responseType: 'blob', data: {'accion': 'ver', 'tipo': 'digital'}}).then(function (response) {
-					const url = window.URL.createObjectURL(new Blob([response.data]));
+			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
 					link.href = url;
 					//DESCARGAR
 					// link.setAttribute('download', 'file.pdf');
 					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarRptPdfTransferenciaCommon(codigo, codigo_origen){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'pdf-generar-transferencia', method: 'post', responseType: 'blob', data: {'codigo': codigo, 'codigo_origen': codigo_origen}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
 					link.target = '_blank'
 					link.click();
 			});
@@ -457,13 +484,13 @@ function modificarTransferenciaCommon(codigo, data, cabecera){
 
 }
 
-function obtenerCabeceraTransferenciaCommon(codigo){
+function obtenerCabeceraTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCabecera', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCabecera', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -471,13 +498,13 @@ function obtenerCabeceraTransferenciaCommon(codigo){
 
 }
 
-function obtenerCuerpoTransferenciaCommon(codigo){
+function obtenerCuerpoTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCuerpo', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCuerpo', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -1080,5 +1107,6 @@ export {
 		llamarRolesCommon,
 		guardarRolCommon,
 		cantidadSuperadaCommon,
-		generarPdfTransferenciaCommon
+		generarPdfFacturaTransferenciaCommon,
+		generarRptPdfTransferenciaCommon
 		};

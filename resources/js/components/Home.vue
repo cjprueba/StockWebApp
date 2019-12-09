@@ -82,6 +82,7 @@
                   }
                   // ------------------------------------------------------------------------ 
                 });
+
                 // ------------------------------------------------------------------------  
             }
         },
@@ -140,6 +141,15 @@
    // End of use strict
 </script>
 <style>
+
+.cargar-medio {
+    position: fixed;
+    left: 50%;
+    top: 35%;
+    display: none;
+    z-index: 1000;
+}
+
 .dataTables_wrapper .dt-buttons {
   float:none;  
   text-align:center;

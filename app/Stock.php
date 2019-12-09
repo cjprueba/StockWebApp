@@ -3,6 +3,7 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Lotes_tiene_TransferenciaDet;
 
 class Stock extends Model
 {
@@ -451,7 +452,8 @@ class Stock extends Model
 			'HORALTAS' => $hora,
 			'ID_SUCURSAL' => $user->id_sucursal,
 			'MODO' => $modo,
-			'USERE' => $usere
+			'USERE' => $usere,
+			'FK_USER_CR' => $user->id
 		]
 		);
 

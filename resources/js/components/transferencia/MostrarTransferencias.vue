@@ -2,16 +2,31 @@
 	<div class="container-fluid mt-4">
 		<div class="row">
 
+			<!-- ------------------------------------------------------------------------------------- -->
+
+			<!-- TITULO  -->
+			
 			<div class="col-md-12">
-				<nav aria-label="breadcrumb">
-				  <ol class="breadcrumb">
-				    <li class="breadcrumb-item active" aria-current="page">Mostrar Transferencias</li>
-				  </ol>
-				</nav>
+				<vs-divider>
+					Mostrar Transferencias
+				</vs-divider>
 			</div>
+			
+	        <!-- ------------------------------------------------------------------------------------- -->
+
+	        <!-- MOSTRAR LOADING -->
+
+	        <div class="col-md-12">
+				<div v-if="procesar" class="d-flex justify-content-center mt-3">
+					<strong>Procesando...   </strong>
+	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
+	             </div>
+            </div>
+
+			<!-- ------------------------------------------------------------------------ -->
 
 			<div class="col-md-12">
-				<table id="tablaTransferencias" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+				<table id="tablaTransferencias" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
 		                    <th>Codigo</th>
@@ -53,7 +68,8 @@
 	  props: ['id_sucursal'],	
       data(){
         return {
-          	codigoTransferencia: ''
+          	codigoTransferencia: '',
+          	procesar: false
         }
       }, 
       methods: {
@@ -99,10 +115,10 @@
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
 				    return Common.eliminarTransferenciaCommon(codigo).then(data => {
-				    	if (!data === true) {
-				          throw new Error('error');
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
 				        }
-				  		return data;
+				  		return data.response;
 				  	}).catch(error => {
 				        Swal.showValidationMessage(
 				          `Request failed: ${error}`
@@ -263,7 +279,7 @@
 
                     // ------------------------------------------------------------------------
 
-                    // ELIMINAR TRANSFERENCIA
+                    // GENERAR FACTURA
 
                     $('#tablaTransferencias').on('click', 'tbody tr #imprimirTransferencia', function() {
 
@@ -271,8 +287,45 @@
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
-	                   	Common.generarPdfTransferenciaCommon();
+	                   	me.procesar = true;
+	                   	var row  = $(this).parents('tr')[0];
+	                   	Common.generarPdfFacturaTransferenciaCommon(tableTransferencia.row( row ).data().CODIGO).then( (data) => {
+	                   		if (data !== undefined) {
+	                   			Swal.fire({
+						  			title: 'Error',
+						  			text: "Revise cotización !",
+						  			type: 'warning',
+									showLoaderOnConfirm: true,
+									confirmButtonColor: 'btn btn-success',
+									confirmButtonText: 'Aceptar'
+								});
+	                   		}
+	                   		me.procesar = false;
+	                   	}).catch((err) => {
+	                   		me.procesar = false;
+           				});
+
+	                    // *******************************************************************
+
+	                });
+
+                    // ------------------------------------------------------------------------
+
+                    // GENERAR REPORTE PDF
+
+                    $('#tablaTransferencias').on('click', 'tbody tr #imprimirReporte', function() {
+
+	                    // *******************************************************************
+
+	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+
+	                   	me.procesar = true;
+	                   	var row  = $(this).parents('tr')[0];
+	                   	Common.generarRptPdfTransferenciaCommon(tableTransferencia.row( row ).data().CODIGO, 0).then( () => {
+	                   		me.procesar = false;
+	                   	});
 	                   	
+
 	                    // *******************************************************************
 
 	                });

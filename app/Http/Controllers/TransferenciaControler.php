@@ -205,9 +205,26 @@ class TransferenciaControler extends Controller
 
     public function getGenerar(Request $request)
     {
-        $accion = $request->get('accion');
-        $tipo = $request->get('tipo');
-        return Transferencia::pdf($accion,$tipo);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return Transferencia::factura_pdf($request->all());
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function getRptTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR PDF TRANSFERENCIA 
+
+        return Transferencia::pdf_transferencia($request->all());
+
+        /*  --------------------------------------------------------------------------------- */
+        
     }
    
 }

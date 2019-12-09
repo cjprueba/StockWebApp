@@ -75,6 +75,14 @@ class Cotizacion extends Model
         
     	/*  --------------------------------------------------------------------------------- */
 
+        // RETORNAR SI NO ENCUENTRA COTIZACIÓN 
+        
+        if (count($cotizaciones) <= 0) {
+            return ["response" => false, "statusText" => "No se ha encontrado ninguna cotización"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
     	// REALIZAR CALCULO 
 
     	if ($cotizaciones[0]->FORMULA === '*') {
@@ -91,7 +99,7 @@ class Cotizacion extends Model
     	
     	// RETORNAR VALOR
 
-    	return ["valor" => $valor];
+    	return ["response" => true, "valor" => $valor];
 
     	/*  --------------------------------------------------------------------------------- */	
     	 

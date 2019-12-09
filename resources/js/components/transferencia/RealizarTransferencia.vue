@@ -11,26 +11,30 @@
 	
         <!-- ------------------------------------------------------------------------------------- -->
 
+        <!-- UN PRODUCTO -->
+
+        <div class="col-12">
+		   	<div class="my-1 mb-3">
+				<div class="custom-control custom-switch mr-sm-2">
+					<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
+					<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
+				</div>
+			</div>
+		</div>
+		
+		<!-- ------------------------------------------------------------------------------------- -->
+
+	   	<vs-divider position="left">
+		 	Transferencia
+	   	</vs-divider>
+
+       	<!-- ------------------------------------------------------------------------------------- -->
+
 		<!-- FORMULARIO  -->
 
-		<div class="card border-bottom-primary shadow-sm">
-		  
-		  <div class="card-header">
-		  	<div class="row">
-			  	<div class="col-md-11 text-primary font-weight-bold">
-			  		Transferencia 
-			  	</div>
-			  	<div class="col-md-1">
-			  		<div class="input-group">
-						<div class="input-group-prepend">
-							{{ $route.params.id }}
-						</div>
-					</div>
-			  	</div>
-		  	</div>	 
-		  </div>
+		<div class="col-12">
 
-		  <div class="card-body">
+		  <div class="mt-3">
 
 			<div class="row">
 
@@ -157,15 +161,19 @@
 
 		<!-- FINAL DE FORMULARIO -->
 
-       <!-- ------------------------------------------------------------------------------------- -->
+	   <!-- ------------------------------------------------------------------------------------- -->
 
-		<!-- AGREGAR PRODUCTO -->
+	   <vs-divider position="left">
+		 	Agregar Producto
+	   </vs-divider>
 
-		<div class="card mt-3 border-bottom-primary">
-			<div class="card-header text-primary font-weight-bold">
-				Agregar Producto
-			</div>	
-			<div class="card-body">	
+	   <!-- ------------------------------------------------------------------------------------- -->
+	   
+	   <!-- AGREGAR PRODUCTO -->
+
+		<div class="col-12">
+	
+			<div class="mt-3">	
 				<div class="row">
 					<div class="col-md-2">
 						
@@ -187,7 +195,7 @@
 
 					<div class="col-md-2">
 						<label for="validationTooltip01">Cantidad</label>
-						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
+						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-on:keyup.prevent.13="agregarProductoTransferencia()" v-model="cantidadProducto">
 					</div>
 
 
@@ -207,11 +215,26 @@
 
 		<!-- FINAL AGREGAR PRODUCTO -->
 		
-		 <!-- ------------------------------------------------------------------------------------- -->
+		<!-- ------------------------------------------------------------------------------------- -->
+
+		<hr>
+		
+		<!-- ------------------------------------------------------------------------------------- -->
+
+	    <!-- MOSTRAR LOADING -->
+
+	    <div class="col-md-12">
+			<div v-if="procesar" class="d-flex justify-content-center mt-3">
+				Guardando...
+	            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
+	        </div>
+        </div>
+
+		<!-- ------------------------------------------------------------------------ -->
 
         <!-- TABLA TRANSFERENCIA -->
 
-		<div class="col-md-12 mt-3">
+		<div class="col-md-12 mt-4">
 			<table id="tablaTransferencia" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
                 <thead>
                     <tr>
@@ -256,10 +279,12 @@
 		<!-- BOTONES ABM -->
 
 		<div class="col-md-12 mt-3 mb-3">
-				<div class="text-right">
+				<div class="text-right" v-if="btnguardar">
 					<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
-					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
 				</div>
+				<div class="text-right" v-else>
+					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
+				</div>	
 		</div>
 
 		<!-- ******************************************************************* -->
@@ -578,8 +603,6 @@
 		</div>
 </template>
 <script>
-
-	import { HotTable } from '@handsontable/vue';
 	export default {
       props: ['candec', 'monedaCodigo', 'tab_unica', 'id_sucursal'],  
       data(){
@@ -631,11 +654,11 @@
             editarStock: '',
             editarRow: '',
             moneda_enviar: 0,
-            no_registrados: []
+            no_registrados: [],
+            btnguardar: true,
+            switch_un_producto: false,
+            procesar: false
         }
-      },
-      components: {
-        HotTable
       }, 
       methods: {
       	activarBuscar(opcion){
@@ -659,7 +682,7 @@
       		}
 
             // ------------------------------------------------------------------------
-      	} ,
+      	},
         activarBuscarEmpleado(opcion){
 
             // ------------------------------------------------------------------------
@@ -866,7 +889,7 @@
 
        	},
         cargarProductos(codigo) {
-
+        	
             // ------------------------------------------------------------------------
 
             // INICIAR VARIABLES
@@ -881,27 +904,24 @@
                 me.inivarAgregarProducto();
                 return;
             }	
-
+            
+            // ------------------------------------------------------------------------
+    			
+    		// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
+    		
+	        var data = {
+	            'codigo': codigo,
+	            'monedaSistema': me.monedaCodigo, 
+	            'candec': me.candec, 
+	            'tab_unica': me.tab_unica
+	        }; 
+	        
             // ------------------------------------------------------------------------
 
-            // OBTENER CODIGO PRODUCTO POR CODIGO INTERNO
+            // CONSULTAR PRODUCTO DETERMINADO
 
-    		Common.codigoInternoCommon(codigo).then(data => {
-
-    			// ------------------------------------------------------------------------
-
-    			// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
-
-	    		if (data === '0') {
-	            	data = codigo; 
-	            } 
-
-            	// ------------------------------------------------------------------------
-
-            	// CONSULTAR PRODUCTO DETERMINADO
-
-                axios.post('/producto', {'codigo': data, 'Opcion': 1}).then(function (response) {
-                    
+            axios.post('/producto', {'data': data, 'Opcion': 1}).then(function (response) {
+                   
                     if(response.data.producto === 0) {
 
                         // *******************************************************************
@@ -920,38 +940,36 @@
 
                     } else {
 
-
                         // *******************************************************************
 
                         // LLENAR DESCRIPCION DE PRODUCTO
 
-                        me.codigoProducto = data;
-                        me.descripcionProducto = response.data.producto[0].DESCRIPCION;
-                        me.stockProducto  = response.data.producto[0].STOCK;
-                        me.ivaProducto = response.data.producto[0].IVA;
-                        me.monedaProducto = response.data.producto[0].MONEDA;
+                        me.codigoProducto = response.data.producto.CODIGO;
+                        me.descripcionProducto = response.data.producto.DESCRIPCION;
+                        me.stockProducto  = response.data.producto.STOCK;
+                        me.ivaProducto = response.data.producto.IVA;
+                        me.monedaProducto = response.data.producto.MONEDA;
+                        me.precioProducto = response.data.valor;
 
-                        // *******************************************************************
+						// *******************************************************************
 
-                        // REVISAR SI PRECIO PRODUCTO ES IGUAL A LA MONEDA DEL SISTEMA, REALIZAR COTIZACION SI NO LO ES
+	                    // AGREGAR PRODUCTO TRANSFERENCIA AUTOMATICAMENTE 
 
-                        Common.calcularCotizaciónPrecioCommon(response.data.producto[0].PREC_VENTA, response.data.producto[0].MONEDA, me.monedaCodigo, me.candec, me.tab_unica).then(data => {
-						  me.precioProducto = data
-						});
+				    	if (me.switch_un_producto === true) {
+				    		me.cantidadProducto = 1;
+				    		me.agregarProductoTransferencia();
+				    		me.codigoProducto = '';
+				    	}
 
-                        // *******************************************************************
+			            // *******************************************************************
 
                         me.validarCodigoProducto = false;
 
                         // *******************************************************************
                     }
-                });
-
-            	// ------------------------------------------------------------------------
-
             });
 
-            // ------------------------------------------------------------------------
+    		// ------------------------------------------------------------------------
 
         }, 
         agregarProductoTransferencia(){
@@ -1116,7 +1134,7 @@
 
 			// REVISAR QUE BOTON ESTA DESACTIVADO PARA REDIGIRLO A MODIFICAR O GUARDAR 
 			
-			if (document.getElementById('guardar').disabled === false) {
+			if (this.btnguardar === true) {
 				this.guardarTransferencia();
 			} else {
 				this.modificarTransferencia();
@@ -1170,9 +1188,23 @@
 
 			// ------------------------------------------------------------------------ 
 
-			Common.guardarTransferenciaCommon(tableTransferencia.rows().data(), data).then(data => {
+			// ACTIVAR LOADING 
+
+			me.procesar = true;
+
+			// ------------------------------------------------------------------------ 
+
+			Common.guardarTransferenciaCommon(tableTransferencia.rows().data().toArray(), data).then(data => {
 			    
 				if (data.response === true) {
+
+					// ------------------------------------------------------------------------
+
+					// DESACTIVAR LOADING
+
+					me.procesar = false;
+
+					// ------------------------------------------------------------------------
 
 					Swal.fire(
 					  'Guardado !',
@@ -1197,6 +1229,12 @@
 				} else if (data.response === false) {
 
 					// ------------------------------------------------------------------------ 
+
+					// DESACTIVAR LOADING 
+
+					me.procesar = false;
+
+					// ------------------------------------------------------------------------
 
 					// MOSTRAR SWAL DE PRODUCTOS NO GUARDADOS 
 
@@ -1382,13 +1420,14 @@
 
         		// OCULTAR BOTON GUARDAR 
 
-        		Common.ocultarBoton('guardar');
+        		me.btnguardar = false;
 
         		// ------------------------------------------------------------------------
 
-        		// AGREGAR CABECERA 
+        		// AGREGAR CABECERA, ENVIO CERO PARA CODIGO ORIGEN PARA ESPECIFICAR QUE
+        		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
 
-        		Common.obtenerCabeceraTransferenciaCommon(codigo).then(data => {
+        		Common.obtenerCabeceraTransferenciaCommon(codigo, 0).then(data => {
         			me.codigoOrigen = data.CODIGO_ORIGEN;
         			me.codigoDestino = data.CODIGO_DESTINO;
         			me.codigoEnvia = data.CODIGO_ENVIA;
@@ -1404,9 +1443,10 @@
 
         		// ------------------------------------------------------------------------
 
-        		// AGREGAR CUERPO
+        		// AGREGAR CUERPO, ENVIO CERO PARA CODIGO ORIGEN PARA ESPECIFICAR QUE
+        		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
 
-        		Common.obtenerCuerpoTransferenciaCommon(codigo).then(data => {
+        		Common.obtenerCuerpoTransferenciaCommon(codigo, 0).then(data => {
         			data.map(function(x) {
 					   
 					   // ------------------------------------------------------------------------
@@ -1434,7 +1474,7 @@
 
         		// OCULTAR BOTON MODIFICAR 
 
-        		Common.ocultarBoton('modificar');
+        		me.btnguardar = true;
 
         		// ------------------------------------------------------------------------
 
@@ -1460,8 +1500,7 @@
             // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
 
             productoExistente = Common.existeProductoDataTableCommon(tableTransferencia, codigo, 2);
-            console.log(productoExistente);
-            console.log(iva);
+           
             if (productoExistente.respuesta == true) {
 
             	// ------------------------------------------------------------------------
@@ -1499,7 +1538,7 @@
 
             // REVISAR SI CANTIDAD SUPERA STOCK
 
-            if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
+            if (Common.cantidadSuperadaCommon(cantidad, stock)) {
 	            me.validarCantidad = true;
 	            me.$bvToast.show('toast-cantidad-superada');
 	            return;
@@ -1592,7 +1631,7 @@
 			// ------------------------------------------------------------------------ 
 
 			// MOSTRAR MENSAJE PARA MODIFICAR 
-
+			
 			Swal.fire({
 				title: 'Estas seguro ?',
 				text: "Modificar la Transferencia " + codigo + " !",
@@ -1604,12 +1643,11 @@
 				confirmButtonText: 'Si, modificalo!',
 				cancelButtonText: 'Cancelar',
 				preConfirm: () => {
-				    return Common.modificarTransferenciaCommon(codigo, tableTransferencia.rows().data(), data).then(data => {
-				    if (!data === true) {
-				        throw new Error('error');
+				    return Common.modificarTransferenciaCommon(codigo, tableTransferencia.rows().data().toArray(), data).then(data => {
+				    if (data.response !== true) {
+				        throw new Error(data.statusText);
 				    }
-				  	return data;
-
+				  	return data.response;
 					}).catch(error => {
 				        Swal.showValidationMessage(
 				          `Request failed: ${error}`
@@ -1624,7 +1662,7 @@
 						      'success'
 					)
 				  }
-			})
+			});
 			
 			// ------------------------------------------------------------------------ 
 
@@ -1791,7 +1829,6 @@
         }
       },  
         mounted() {
-
 
             // ------------------------------------------------------------------------
             
