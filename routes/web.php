@@ -121,7 +121,7 @@ Route::get('gondola', 'GondolaController@obtenerGondolas');
 // PROVEEDOR
 
 Route::get('proveedor', 'ProveedorController@obtenerProveedores');
-Route::post('proveedores', 'ProveedoresController@mostrar');
+Route::post('proveedores', 'ProveedorController@mostrar');
 
 /* -------------------------------------------------------------------------- */
 
@@ -201,13 +201,33 @@ Route::post('comprasDetProductos', 'ComprasDetController@obtenerProductosNroCaja
 
 /* -------------------------------------------------------------------------- */
 
-// ROLES
+// USUARIOS
 
-Route::get('rolTraer', 'UserController@obtenerRoles');
-Route::post('rolGuardar', 'UserController@guardarRol');
+Route::post('usuariosDatatable', 'UserController@mostrar');
+Route::post('usuarioGuardar', 'UserController@guardarUsuario');
+
 
 /* -------------------------------------------------------------------------- */
 
+
+// ROLES
+
+Route::get('rolTraer', 'UserController@obtenerRoles');
+Route::post('rolesDatatable', 'UserController@rolesDatatable');
+Route::post('rolFiltrar', 'UserController@filtrarPermisos');
+Route::post('rolUsuarioTraer', 'UserController@obtenerRolesUsuario');
+Route::post('rolGuardar', 'UserController@guardarRol');
+Route::post('rolAsignar', 'UserController@asignarRol');
+
+/* -------------------------------------------------------------------------- */
+
+// Permiso
+Route::get('permisoTraer', 'UserController@obtenerPermisos');
+Route::post('permisoFiltrar', 'UserController@filtrarPermiso');
+Route::post('permisosDatatable', 'UserController@permisosDatatable');
+Route::post('PermisoGuardar', 'UserController@guardarPermiso');
+Route::post('permisoAsignar', 'UserController@asignarPermiso');
+/* -------------------------------------------------------------------------- */
 // ARTICULOS 
 
 Route::post('MontoArticulos', 'ArticulosController@PorMonto');
@@ -215,7 +235,7 @@ Route::post('CantidadArticulos', 'ArticulosController@PorCantidad');
 
 /* -------------------------------------------------------------------------- */
 
-// CLIENTES
+// CLIENTES 
 
 Route::post('clientes', 'ClientesController@mostrar');
 
@@ -235,7 +255,7 @@ Route::post('export', 'ExportController@mostrar');
 Route::post('stock', 'Stock@mostrar');
 Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
 Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
-
+Route::post('exportCompra', 'CompraController@Descargar');
 /* -------------------------------------------------------------------------- */
 
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 

@@ -385,6 +385,7 @@
 	        		this.messageInvalidMarca = 'Por favor seleccione una o varias Marcas';
 	        		return false;
 	        	} else {
+	   
 	        		this.validarMarca = false;
 	        		this.messageInvalidMarca = '';
 	        	}

@@ -25,7 +25,7 @@ class ProveedorController extends Controller
 
         // MOSTRAR PROVEEDORES 
 
-        $ventas = proveedores::generarConsulta($request->all());
+        $ventas = proveedor::generarConsulta($request->all());
         return response()->json($ventas);
 
         /*  --------------------------------------------------------------------------------- */

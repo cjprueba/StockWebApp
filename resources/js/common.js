@@ -209,6 +209,26 @@ function filtrarProductosCommon(codigo){
 			// ------------------------------------------------------------------------
 
 }
+function filtrarUsuariosCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/producto', {'codigo': codigo, 'Opcion': 3}).then(function (response) {
+						return response.data.producto;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 
 function codigoInternoCommon(codigo){
 
@@ -934,8 +954,27 @@ function llamarRolesCommon(){
 
 }
 
+function traerRolUsuarioCommon(id){
 
-function guardarRolCommon(nombre,descripcion,permisos){
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/rolUsuarioTraer', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+
+function llamarPermisoCommon(){
 
 			// ------------------------------------------------------------------------
 
@@ -947,7 +986,103 @@ function guardarRolCommon(nombre,descripcion,permisos){
 
 			// LLAMAR ROL
 
-			return axios.post('/rolGuardar', {'nombre':nombre,'descripcion':descripcion,'permisos':permisos}).then(function (response) {
+			return axios.get('/permisoTraer').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function filtrarRolesCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/rolFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function filtrarPermisosCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/permisoFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+
+function guardarRolCommon(nombre,descripcion,permisos,existe,id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+
+			return axios.post('/rolGuardar', {'nombre':nombre,'descripcion':descripcion,'permisos':permisos,'existe':existe,'id':id}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function asignarRolCommon(id,roles){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// URL ASIGNAR ROL
+
+			return axios.post('/rolAsignar', {'id':id,'roles':roles}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function asignarPermisoCommon(id,permisos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// URL ASIGNAR ROL
+
+			return axios.post('/permisoAsignar', {'id':id,'permisos':permisos}).then(function (response) {
 					return response.data;
 				});
 
@@ -955,6 +1090,47 @@ function guardarRolCommon(nombre,descripcion,permisos){
 
 }
 
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							 	PERMISOS
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+function guardarPermisoCommon(nombre,descripcion,existe,id){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/PermisoGuardar', {'nombre':nombre,'descripcion':descripcion,'existe':existe,'id':id}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarUsuarioCommon(nombre,email,contraseña){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/usuarioGuardar', {'nombre':nombre,'email':email,'contraseña':contraseña	}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -972,7 +1148,10 @@ export {
 		restarCommon, 
 		multiplicarCommon, 
 		existeProductoDataTableCommon, 
-		filtrarProductosCommon, 
+		filtrarProductosCommon,
+		filtrarUsuariosCommon,
+		filtrarRolesCommon, 
+		filtrarPermisosCommon, 
 		codigoInternoCommon, 
 		calcularCotizaciónPrecioCommon, 
 		guardarTransferenciaCommon, 
@@ -1004,5 +1183,11 @@ export {
 		guardarProductoCommon,
 		obtenerProductoCommon,
 		llamarRolesCommon,
-		guardarRolCommon
+		llamarPermisoCommon,
+		guardarRolCommon,
+		asignarRolCommon,
+		asignarPermisoCommon,
+		traerRolUsuarioCommon,
+		guardarPermisoCommon,
+		guardarUsuarioCommon
 		};

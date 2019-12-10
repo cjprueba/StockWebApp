@@ -78,10 +78,10 @@ import VueApexCharts from 'vue-apexcharts'
 /* FONT AWESOME */ 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave,faUserCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave)
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave,faUserCircle)
 
 /* ********************************************* */
 
@@ -179,9 +179,11 @@ Vue.component('cotizacionEnviarTransferencia', require('./components/cotizacion/
 /* ********************************************* */
 
 // TEXTBOX
-
+Vue.component('rol-nombre', require('./components/textboxs/RolTextbox.vue').default);
+Vue.component('permiso-nombre', require('./components/textboxs/PermisoTextbox.vue').default);
 Vue.component('selected-sucursal', require('./components/textboxs/Sucursal.vue').default);
 Vue.component('codigo-producto', require('./components/textboxs/CodigoProducto.vue').default);
+Vue.component('usuario-nombre', require('./components/textboxs/UsuarioTextbox.vue').default);
 Vue.component('selected-categoria', require('./components/textboxs/CategoriaTextbox.vue').default);
 Vue.component('selected-sub-categoria', require('./components/textboxs/SubCategoriaTextbox.vue').default);
 Vue.component('precio-textbox', require('./components/textboxs/PrecioTextbox.vue').default);
@@ -257,6 +259,12 @@ Vue.component('cuatrocientos-cuatro', require('./components/utiles/404.vue').def
 // FOOTER
 
 Vue.component('pie-pagina', require('./components/utiles/Footer.vue').default);
+
+/* ********************************************* */
+
+// COMPRAS
+
+Vue.component('compras-marca', require('./components/compra/busqueda/CompraGeneral.vue').default);
 
 /* ********************************************* */
 
