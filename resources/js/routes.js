@@ -93,6 +93,16 @@ export default new Router({
 			path: '/rpt8',
 			name: 'rptInventario',
 			component: require('./components/Inventario/inicio.vue').default
+		},
+		{
+			path: '/cr1',
+			name: 'compraMostrar',
+			component: require('./components/compra/MostrarCompra.vue').default
+		},
+		{
+			path: '/cr2',
+			name: 'compra',
+			component: require('./components/compra/RealizarCompra.vue').default
 		}
 	],
 	mode: 'history'
