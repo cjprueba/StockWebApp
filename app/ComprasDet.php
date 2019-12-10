@@ -9,6 +9,8 @@ use App\Parametro;
 
 class ComprasDet extends Model
 {
+    protected $connection = 'retail';
+    protected $table = 'comprasdet';
      public static function id_cd($cod_prod, $lote)
     {
 
