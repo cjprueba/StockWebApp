@@ -3,11 +3,15 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Mpdf\Mpdf;
 use App\Stock;
 use App\Producto;
 use App\ComprasDet;
 use App\Common;
 use App\Parametro;
+use App\Sucursal;
+use App\TransferenciaDet_tiene_Lotes;
+use NumeroALetras\NumeroALetras;
 
 class Transferencia extends Model
 {
@@ -153,15 +157,15 @@ class Transferencia extends Model
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
                 if ($post->ESTATUS === 0) {
-                    $nestedData['ESTATUS'] = 'Pendiente';
+                    $nestedData['ESTATUS'] = '<span class="badge badge-warning">Pendiente</span>';
                 } else if ($post->ESTATUS === 1) {
-                    $nestedData['ESTATUS'] = 'Enviado';
+                    $nestedData['ESTATUS'] = '<span class="badge badge-info">Enviado</span>';
                 } else {
-                    $nestedData['ESTATUS'] = 'Procesado';
+                    $nestedData['ESTATUS'] = '<span class="badge badge-success">Procesado</span>';
                 }
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='enviarTransferencia' title='Enviar'><i class='fa fa-paper-plane text-success'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarTransferencia' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarTransferencia' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
 
                 $data[] = $nestedData;
 
@@ -471,9 +475,10 @@ class Transferencia extends Model
         $hora = date("H:i:s");
 
         $c = 0;
-        $filas = $datos["data"]["length"];
+        $filas = count($datos["data"]);
         $cod_prod = '';
         $cantidad = 0;
+        $cantidad_guardada = 0;
         $cantidad_total = 0;
         $precio = 0;
         $iva = 0;
@@ -482,22 +487,11 @@ class Transferencia extends Model
         $exentas = 0;
         $total = 0;
         $sin_stock = [];
+        $porcentaje = 0;
+
         $respuesta_FK_CD = [];
         $cantidad_FK_CD = 1;
         $todos_guardados = true;
-
-        $tr_gravada = 0;
-        $tr_iva = 0;
-        $tr_exenta = 0;
-        $tr_base5 = 0;
-        $tr_base10 = 0;
-
-        $tr_dt_gravada = 0;
-        $tr_dt_iva = 0;
-        $tr_dt_exenta = 0;
-        $tr_dt_base5 = 0;
-        $tr_dt_base10 = 0;
-        $tr_dt_total = 0;
 
         $total_total = 0;
         $total_iva = 0;
@@ -510,6 +504,7 @@ class Transferencia extends Model
         // PARAMETRO 
         
         $parametro = Parametro::mostrarParametro();
+        $candec = $parametro['parametros'][0]->CANDEC;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -572,55 +567,62 @@ class Transferencia extends Model
 
         while($c < $filas) {
 
-                /*  --------------------------------------------------------------------------------- */
+                    /*  --------------------------------------------------------------------------------- */
 
-                // INICIAR DATOS 
+                    // INICIAR DATOS 
 
-                $cantidad_FK_CD = 1;
-                $cod_prod = $datos["data"][$c]["CODIGO"];
-                $cantidad = Common::quitar_coma($datos["data"][$c]["CANTIDAD"], $parametro['parametros'][0]->CANDEC);
-                $cantidad_total = $cantidad;
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // COMPROBAR SI EXISTE STOCK 
-
-                if (Stock::comprobar_stock_producto($cod_prod, $cantidad) === true){
+                    $cod_prod = $datos["data"][$c]["CODIGO"];
+                    $cantidad = Common::quitar_coma($datos["data"][$c]["CANTIDAD"], $parametro['parametros'][0]->CANDEC);
+                    $cantidad_total = $cantidad;
+                    $precio = Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC);
+                    $porcentaje = $datos["data"][$c]["IVA_PORCENTAJE"];
 
                     /*  --------------------------------------------------------------------------------- */
 
-                    $iva = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                    // $iva = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // REVISAR IMPUESTO
+
+                    // if ($datos["data"][$c]["IVA_PORCENTAJE"] === 5) {
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    //     // BASE 5 
+
+                    //     $base5 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    // } else if ($datos["data"][$c]["IVA_PORCENTAJE"] === 10) {
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    //     // BASE 10 
+
+                    //     $base10 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    // } else {
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    //     // EXENTAS 
+
+                    //     $exentas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
+
+                    //     /*  --------------------------------------------------------------------------------- */
+
+                    // }
 
                     /*  --------------------------------------------------------------------------------- */
 
                     // REALIZAR CALCULOS 
-
-                    if ($datos["data"][$c]["IVA_PORCENTAJE"] === 5) {
-                        $base5 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
-                    } else if ($datos["data"][$c]["IVA_PORCENTAJE"] === 10) {
-                        $base10 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
-                    } else {
-                        $exentas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
-                    }
-
-                    $precio = Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC);
                     
-                    $gravadas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC) - Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
-                    $total = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC); 
-
-                    $tr_gravada = Common::quitar_coma(($gravadas/$cantidad), $parametro['parametros'][0]->CANDEC);
-                    $tr_iva = Common::quitar_coma(($iva/$cantidad), $parametro['parametros'][0]->CANDEC);
-                    $tr_exenta = Common::quitar_coma(($exentas/$cantidad), $parametro['parametros'][0]->CANDEC);
-                    $tr_base5 = Common::quitar_coma(($base5/$cantidad), $parametro['parametros'][0]->CANDEC);
-                    $tr_base10 = Common::quitar_coma(($base10/$cantidad), $parametro['parametros'][0]->CANDEC);    
-                    $tr_dt_total = Common::quitar_coma(($total/$cantidad), $parametro['parametros'][0]->CANDEC); 
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // TOTALES 
-
-                    $total_total = $total_total + $total;
-                    $total_iva = $total_iva + $iva;
+                    // $gravadas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC) - Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                    $total = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -630,50 +632,54 @@ class Transferencia extends Model
 
                     /*  --------------------------------------------------------------------------------- */ 
 
-                    // RECORRER HASTA TERMINAR 
+                    // RESTAR STOCK DEL PRODUCTO
 
-                    while ($cantidad_FK_CD > 0) {
-                        
-                        /*  --------------------------------------------------------------------------------- */
+                    $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
+                    
+                    /*  --------------------------------------------------------------------------------- */ 
 
-                        // RESTAR STOCK DEL PRODUCTO
+                    // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
 
-                        $respuesta_resta = Stock::restar_stock_producto_FK_CD($cod_prod, $cantidad);
-                        $cantidad_FK_CD = $respuesta_resta['cantidad'];
-                        $cantidad = $cantidad - $cantidad_FK_CD;
-                        $lote = $respuesta_resta['lote'];
+                    if ($respuesta_resta["datos"]) {
 
                         /*  --------------------------------------------------------------------------------- */
 
-                        // CALCULAR POR DETALLE 
+                        // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
 
-                        $tr_dt_gravada = $tr_gravada * $cantidad;
-                        $tr_dt_iva = $tr_iva * $cantidad;
-                        $tr_dt_exenta = $tr_exenta * $cantidad;
-                        $tr_dt_base5 = $tr_base5 * $cantidad;
-                        $tr_dt_base10 = $tr_base10 * $cantidad;
+                        $cantidad_guardada = 0;
 
-                        if ($cantidad_FK_CD === 0) {
-                            $tr_dt_gravada = $gravadas - (($cantidad_total - $cantidad) * $tr_gravada);
-                            $tr_dt_iva = $iva - (($cantidad_total - $cantidad) * $tr_iva);
-                            $tr_dt_exenta = $exentas - (($cantidad_total - $cantidad) * $tr_exenta);
-                            $tr_dt_base5 = $base5 - (($cantidad_total - $cantidad) * $tr_base5);
-                            $tr_dt_base10 = $base10 - (($cantidad_total - $cantidad) * $tr_base10);
+                        foreach ($respuesta_resta["datos"] as $key => $value) {
+                            $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
                         }
 
                         /*  --------------------------------------------------------------------------------- */
 
-                        // OBTENER FK_CD
+                        // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
 
-                        $fk_cd = ComprasDet::id_cd($cod_prod, $lote);
+                        if ($cantidad !== $cantidad_guardada) {
+                            $total = $precio * $cantidad_guardada;
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CALCULAR IVA
+
+                        $impuesto = Common::calculo_iva($porcentaje, $total, $candec);
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // TOTALES 
+
+                        $total_total = $total_total + $total;
+                        $total_iva = $total_iva + $impuesto["impuesto"];
 
                         /*  --------------------------------------------------------------------------------- */
 
                         // INSERTAR TRANSFERENCIA DET 
 
-                        $transferencias_det = DB::connection('retail')
+                        $id_transferencias_det = DB::connection('retail')
                         ->table('transferencias_det')
-                        ->insert(
+                        ->insertGetId(
                             [
                             'CODIGO' => $codigo, 
                             'ITEM' => $c + 1,
@@ -682,21 +688,20 @@ class Transferencia extends Model
                             'LOTE' => $lote,
                             'DESCRIPCION' => $datos["data"][$c]["DESCRIPCION"],
                             'TIPO' => $datos["data"][$c]["ITEM"],
-                            'CANTIDAD' => $cantidad,
-                            'PRECIO' => Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC),
-                            'EXENTAS' => $tr_exenta,
-                            'GRABADAS' => $tr_gravada,
-                            'IVA' => $tr_dt_iva,
-                            'TOTAL' => $tr_dt_total,
+                            'CANTIDAD' => $cantidad_guardada,
+                            'PRECIO' => $precio,
+                            'EXENTAS' => $impuesto["exentas"],
+                            'GRABADAS' => $impuesto["gravadas"],
+                            'IVA' => $impuesto["impuesto"],
+                            'TOTAL' => $total,
                             'DESCUENTO' => 0,
-                            'BASE5' => $tr_dt_base5,
-                            'BASE10' => $tr_dt_base10,
+                            'BASE5' => $impuesto["base5"],
+                            'BASE10' => $impuesto["base10"],
                             'DEVUELTO' => 'NO',
                             'USERALTAS' => $user->name,
                             'FECALTAS' =>  $dia,
                             'HORALTAS' =>  $hora,
-                            'ID_SUCURSAL' => $user->id_sucursal,
-                            'FK_CD' => $fk_cd
+                            'ID_SUCURSAL' => $user->id_sucursal
                             ]
                         );
 
@@ -704,26 +709,29 @@ class Transferencia extends Model
 
                     }
 
-                } else {
+                    /*  --------------------------------------------------------------------------------- */
 
-                    /*  --------------------------------------------------------------------------------- */ 
+                    // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
 
-                    // SI NO HAY STOCK SE GUARDDARA EN ESTE ARRAY EL CODIGO Y SE ACTIVARA LA VARIABLE TODOS GUARDADOS
+                    foreach ($respuesta_resta["datos"] as $key => $value) {
+                        TransferenciaDet_tiene_Lotes::guardar_referencia($id_transferencias_det, $value["id"], $value["cantidad"]);
+                    }
+                    
+                    /*  --------------------------------------------------------------------------------- */
 
-                    $sin_stock[] = $cod_prod;
-                    $todos_guardados = false;
+                    // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
 
-                    /*  --------------------------------------------------------------------------------- */ 
+                    if ($respuesta_resta["response"] === false){
+                        $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
+                    }
 
-                }
+                    /*  --------------------------------------------------------------------------------- */
+                    
+                    // AUMENTAR CONTADOR 
 
-                /*  --------------------------------------------------------------------------------- */
-                
-                // AUMENTAR CONTADOR 
+                    $c++;
 
-                $c++;
-
-                /*  --------------------------------------------------------------------------------- */
+                    /*  --------------------------------------------------------------------------------- */
          }
         
         /*  --------------------------------------------------------------------------------- */ 
@@ -788,7 +796,23 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        return true; 
+        // REVISAR SI HAY PRODUCTOS QUE NO SE GUARDARON TOTALMENTE 
+
+        if ($opcion === 1) {
+            if (count($sin_stock) > 0) {
+                return ["response" => false, "productos" => $sin_stock];
+            } else {
+                return ["response" => true];
+            }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($opcion === 2) {
+            return true; 
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
         
     }
 
@@ -838,6 +862,16 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // SI ENVIA CODIGO ORIGEN 
+        
+        if ($data["codigo_origen"] === 0) {
+            $sucursal = $user->id_sucursal;
+        } else {
+            $sucursal = $data["codigo_origen"];
+        }
+         
+        /*  --------------------------------------------------------------------------------- */
+
         // INICIAR VARIABLES
 
         $codigo = $data['codigo'];
@@ -847,7 +881,8 @@ class Transferencia extends Model
         $transferencia = DB::connection('retail')
         ->table('transferencias')
         ->select(DB::raw(
-                        'TRANSFERENCIAS.CODIGO, 
+                        'TRANSFERENCIAS.CODIGO,
+                        TRANSFERENCIAS.FECALTAS, 
                         ORIGEN.CODIGO AS CODIGO_ORIGEN, 
                         ORIGEN.DESCRIPCION AS ORIGEN, 
                         DESTINO.CODIGO AS CODIGO_DESTINO, 
@@ -859,14 +894,15 @@ class Transferencia extends Model
                         RECIBE.CODIGO AS CODIGO_RECIBE,
                         RECIBE.NOMBRE AS RECIBE, 
                         TRANSFERENCIAS.NRO_CAJA, 
-                        TRANSFERENCIAS.ESTATUS'
+                        TRANSFERENCIAS.ESTATUS,
+                        TRANSFERENCIAS.MONEDA'
                     ))
         ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
         ->leftjoin('SUCURSALES AS DESTINO', 'DESTINO.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
         ->leftjoin('EMPLEADOS AS ENVIA', 'ENVIA.CODIGO', '=', 'TRANSFERENCIAS.ENVIA')
         ->leftjoin('EMPLEADOS AS TRANSPORTA', 'TRANSPORTA.CODIGO', '=', 'TRANSFERENCIAS.TRANSPORTA')
         ->leftjoin('EMPLEADOS AS RECIBE', 'RECIBE.CODIGO', '=', 'TRANSFERENCIAS.RECIBE')
-        ->where('TRANSFERENCIAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('TRANSFERENCIAS.ID_SUCURSAL','=', $sucursal)
         ->where('TRANSFERENCIAS.CODIGO','=', $codigo)
         ->get();
 
@@ -887,6 +923,15 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // SI ENVIA CODIGO ORIGEN 
+        
+        if ($data["codigo_origen"] === 0) {
+            $sucursal = $user->id_sucursal;
+        } else {
+            $sucursal = $data["codigo_origen"];
+        }
+         
+        /*  --------------------------------------------------------------------------------- */
         // INICIAR VARIABLES
 
         $codigo = $data['codigo'];
@@ -902,6 +947,9 @@ class Transferencia extends Model
                         TRANSFERENCIAS_DET.CANTIDAD, 
                         TRANSFERENCIAS_DET.PRECIO,
                         TRANSFERENCIAS_DET.IVA,
+                        TRANSFERENCIAS_DET.EXENTAS,
+                        TRANSFERENCIAS_DET.BASE5,
+                        TRANSFERENCIAS_DET.BASE10,
                         TRANSFERENCIAS_DET.TOTAL,
                         TRANSFERENCIAS.MONEDA,
                         0 AS IVA_PORCENTAJE'
@@ -911,7 +959,7 @@ class Transferencia extends Model
                                 $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
                                      ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
                             })
-        ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $sucursal)
         ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
         ->get();
 
@@ -1036,7 +1084,7 @@ class Transferencia extends Model
         // VERIFICAR SI EXISTE
         
         if (Transferencia::verificar_existencia($codigo) === false) {
-            return false;
+            return ["response" => false, "statusText" => "No existe Transferencia !"];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -1046,7 +1094,7 @@ class Transferencia extends Model
         $estatus = Transferencia::verificar_estatus($codigo, $user->id_sucursal);
 
         if ($estatus === false) {
-            return false;
+            return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -1054,7 +1102,7 @@ class Transferencia extends Model
         // VERIFICAR SI LA TRANSFERENCIA YA SE PROCESO 
 
         if ($estatus === 1 or $estatus === 2) {
-            return false;
+            return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -1064,7 +1112,8 @@ class Transferencia extends Model
         $transferencias_det = DB::connection('retail')
         ->table('transferencias_det')
         ->select(DB::raw(
-                        'CODIGO_PROD, 
+                        'ID,
+                        CODIGO_PROD, 
                         CANTIDAD,
                         LOTE'
                     ))
@@ -1076,13 +1125,21 @@ class Transferencia extends Model
 
         // RECORRER FILAS DE TRANSFERENCIA DET 
 
-        foreach ($transferencias_det as $key => $value) {
+        foreach ($transferencias_det as $key => $td) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ELIMINAR CLAVES FORANEAS DE TRANSFERENCIA TIENE LOTES 
+            
+            $tdtl = TransferenciaDet_tiene_Lotes::eliminar_referencia($td->ID);
             
             /*  --------------------------------------------------------------------------------- */
 
             // DEVOLVER STOCK 
 
-            Stock::sumar_stock_producto($value->CODIGO_PROD, $value->CANTIDAD, $value->LOTE);
+            foreach ($tdtl as $key => $value) {
+                Stock::sumar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1116,7 +1173,7 @@ class Transferencia extends Model
 
         // RETORNAR VALOR 
 
-        return true;
+        return ["response" => true];
 
         /*  --------------------------------------------------------------------------------- */
     }
@@ -1140,8 +1197,8 @@ class Transferencia extends Model
 
         // SI ELIMINAR RETORNA FALSE - SE DETIENE LA MODIFICACION
          
-        if ($eliminar === false) {
-            return false;
+        if ($eliminar["response"] === false) {
+            return ["response" => false, "statusText" => $eliminar["statusText"]];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -1154,7 +1211,7 @@ class Transferencia extends Model
 
         // RETORNAR VALOR 
 
-        return true;
+        return ["response" => true];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1299,13 +1356,13 @@ class Transferencia extends Model
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
                 if ($post->ESTATUS === 1) {
-                    $nestedData['ESTATUS'] = 'Pendiente';
+                    $nestedData['ESTATUS'] = '<span class="badge badge-warning">Pendiente</span>';
                 } else if ($post->ESTATUS === 2) {
-                    $nestedData['ESTATUS'] = 'Procesado';
+                    $nestedData['ESTATUS'] = '<span class="badge badge-success">Procesado</span>';
                 }
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i>";
 
                 $data[] = $nestedData;
 
@@ -1690,6 +1747,7 @@ class Transferencia extends Model
         $precio_venta = 0;
         $precio_mayorista = 0;
         $precio_vip = 0;
+        $formula = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1749,6 +1807,72 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // TIPO DE CALCULO 
+        
+        if ($monedaTransferencia === 1 && $monedaEnviada === 2) {
+
+            /*  --------------------------------------------- */
+
+            // DIVIDIR - GUARANIES A DOLAR 
+
+            $formula = 2;
+
+            /*  --------------------------------------------- */
+
+        } else if ($monedaTransferencia === 2 && $monedaEnviada === 1) {
+
+            /*  --------------------------------------------- */
+
+            // MULTIPLICAR - DOLAR A GUARANIES
+
+            $formula = 1;
+
+            /*  --------------------------------------------- */
+
+        } else if ($monedaTransferencia === 1 && $monedaEnviada === 3) {
+
+            /*  --------------------------------------------- */
+
+            // DIVIDIR - GUARANIES A PESOS
+
+            $formula = 2;
+
+            /*  --------------------------------------------- */
+
+        } else if ($monedaTransferencia === 1 && $monedaEnviada === 4) {
+
+            /*  --------------------------------------------- */
+
+            // DIVIDIR - GUARANIES A REAL 
+
+            $formula = 2;
+
+            /*  --------------------------------------------- */
+
+        } else if ($monedaTransferencia === 2 && $monedaEnviada === 3) {
+
+            /*  --------------------------------------------- */
+
+            // MULTIPLICAR - DOLAR A PESO 
+
+            $formula = 1;
+
+            /*  --------------------------------------------- */
+
+        } else if ($monedaTransferencia === 2 && $monedaEnviada === 4) {
+
+            /*  --------------------------------------------- */
+
+            // MULTIPLICAR - DOLAR A PESO 
+
+            $formula = 1;
+
+            /*  --------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // REVISAR SI SUCURSAL DESTINO ES IGUAL A LA SUCURSAL
 
         if ($transferencia[0]->SUCURSAL_DESTINO !== $user->id_sucursal) {
@@ -1770,7 +1894,8 @@ class Transferencia extends Model
         $transferencia_det = DB::connection('retail')
         ->table('transferencias_det')
         ->select(DB::raw(
-                        'CODIGO_PROD, 
+                        'ID,
+                        CODIGO_PROD, 
                         CANTIDAD, 
                         PRECIO'
                     ))
@@ -1784,6 +1909,47 @@ class Transferencia extends Model
 
         foreach ($transferencia_det as $td) {
             
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // OBTENER DATOS DEL PRODUCTO 
+
+            $producto = DB::connection('retail')
+            ->table('PRODUCTOS_AUX')
+            ->where('CODIGO', '=', $td->CODIGO_PROD)
+            ->where('ID_SUCURSAL', '=', $codigo_origen)
+            ->select(DB::raw('CODIGO_INTERNO, BAJA, PREC_VENTA, PREMAYORISTA, PREVIP, DESCUENTO, STOCK_MIN, PROVEEDOR, OBSERVACION, PORCENTAJE, CODIGO_REAL'))
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI CONVERSION ES VERDADERO PARA COTIZAR
+                
+            if ($conversion === true) {
+
+                if ($formula === 1) {
+
+                    $precio_venta = $td->PRECIO * $cambio;
+                    $precio_mayorista = $producto[0]->PREMAYORISTA * $cambio;
+                    $precio_vip = $producto[0]->PREVIP * $cambio;  
+
+                } else if ($formula === 2) {
+                    
+                    $precio_venta = $td->PRECIO / $cambio;
+                    $precio_mayorista = $producto[0]->PREMAYORISTA / $cambio;
+                    $precio_vip = $producto[0]->PREVIP / $cambio; 
+
+                }
+                    
+
+            } else {
+
+                $precio_venta = $td->PRECIO;
+                $precio_mayorista = $producto[0]->PREMAYORISTA;
+                $precio_vip = $producto[0]->PREVIP;
+
+            }
+
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI EXISTE PRODUCTO 
@@ -1792,40 +1958,9 @@ class Transferencia extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // OBTENER DATOS DEL PRODUCTO 
-
-                $producto = DB::connection('retail')
-                ->table('PRODUCTOS_AUX')
-                ->where('CODIGO', '=', $td->CODIGO_PROD)
-                ->where('ID_SUCURSAL', '=', $codigo_origen)
-                ->select(DB::raw('CODIGO_INTERNO, BAJA, PREC_VENTA, PREMAYORISTA, PREVIP, DESCUENTO, STOCK_MIN, PROVEEDOR, OBSERVACION, PORCENTAJE, CODIGO_REAL'))
-                ->get();
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // REVISAR SI CONVERSION ES VERDADERO PARA COTIZAR
-                
-                if ($conversion === true) {
-
-                    $precio_venta = $td->PRECIO * $cambio;
-                    $precio_mayorista = $producto[0]->PREMAYORISTA * $cambio;
-                    $precio_vip = $producto[0]->PREVIP * $cambio;
-
-                } else {
-
-                    $precio_venta = $td->PRECIO;
-                    $precio_mayorista = $producto[0]->PREMAYORISTA;
-                    $precio_vip = $producto[0]->PREVIP;
-
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
                 // INSERTAR PRODUCTO 
 
-                $transferencias_det = DB::connection('retail')
-                ->table('PRODUCTOS_AUX')
-                ->insert(
+                $productos_aux = ProductosAux::insert(
                     [
                     'CODIGO' => $td->CODIGO_PROD, 
                     'CODIGO_INTERNO' => $producto[0]->CODIGO_INTERNO,
@@ -1863,7 +1998,14 @@ class Transferencia extends Model
 
             // MODIFICAR TRANSFERENCIA DET 
 
-            Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+            /*  --------------------------------------------------------------------------------- */
+
+            // MODOS
+            // MODO 1 - COMPRA
+            // MODO 2 - TRANSFERENCIA 
+
+            Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+            //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2186,5 +2328,575 @@ class Transferencia extends Model
        /*  --------------------------------------------------------------------------------- */
 
 
-    } 
+    }
+
+    public static function pdf($accion='ver',$tipo='digital')
+    {
+        $accion='descargar';
+        $tipo='fisico';
+        $ruc = "10072486893";
+        $numero = "00000412";
+        $nombres = "DAVID OLIVARES PEÑA";
+        $dia = "09";
+        $mes = "04";
+        $ayo = "17";
+        $direccion = "Lima Perú";
+        $dni = "23918745";
+        $total = 0;
+        $articulos = [
+            [
+                "cantidad" => 3,
+                "descripcion" => "COCINA A GAS",
+                "precio" => 400.00,
+                "importe" => 1200,
+            ],
+            [
+                "cantidad" => 1,
+                "descripcion" => "PLANCHA",
+                "precio" => 85.00,
+                "importe" => 85.00,
+            ],
+        ];
+        foreach ($articulos as $key => $value) {
+            $total += $value["importe"];
+            $articulos[$key]["precio"] = number_format($value["precio"],2,'.',' ');;
+            $articulos[$key]["importe"] = number_format($value["importe"],2,'.',' ');;
+ 
+        }
+        $total = number_format($total,2,'.',' ');
+ 
+        $data['ruc'] = $ruc;
+        $data['numero'] = $numero;
+        $data['nombres'] = $nombres;
+        $data['dia'] = $dia;
+        $data['mes'] = $mes;
+        $data['ayo'] = $ayo;
+        $data['direccion'] = $direccion;
+        $data['dni'] = $dni;
+        $data['articulos'] = $articulos;
+        $data['total'] = $total;
+        $data['tipo'] = $tipo;
+ 
+        if($accion=='html'){
+            return view('pdf.rptTransferencia',$data);
+        }else{
+            $html = view('pdf.rptTransferencia',$data)->render();
+        }
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+ 
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+ 
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+        $mpdf = new Mpdf([
+            'fontDir' => array_merge($fontDirs, [
+                public_path() . '/fonts',
+            ]),
+            'fontdata' => $fontData + [
+                'arial' => [
+                    'R' => 'arial.ttf',
+                    'B' => 'arialbd.ttf',
+                ],
+            ],
+            'default_font' => 'arial',
+             "format" => "A4",
+            //"format" => [264.8,188.9],
+        ]);
+        // $mpdf->SetTopMargin(5);
+        $mpdf->SetDisplayMode('fullpage');
+        $mpdf->WriteHTML($html);
+
+        // OTRA HOJA 
+        $mpdf->AddPage();
+        $mpdf->WriteHTML($html);
+        // dd($mpdf);
+        //$mpdf->debug = true;
+        if($accion=='ver'){
+            $mpdf->Output($namefile,"I");
+        }elseif($accion=='descargar'){
+            $mpdf->Output($namefile,"D");
+        }
+    }
+
+    public static function factura_pdf($dato)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $transferencia = Transferencia::mostrar_cabecera($dato);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $transferencia_det = Transferencia::mostrar_cuerpo($dato);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = 0;
+        $moneda = 1;
+        $monedaTransferencia = $transferencia->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER SUCURSAL
+
+        $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $user->id_sucursal]);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $c_rows = 0;
+        $c_rows_array = count($transferencia_det);
+        $c_filas_total = count($transferencia_det);
+        $codigo = $transferencia->CODIGO;
+        $origen = $transferencia->ORIGEN;
+        $destino = $transferencia->DESTINO;
+        $envia = $transferencia->ENVIA;
+        $transporta = $transferencia->TRANSPORTA;
+        $recibe = $transferencia->RECIBE;
+        $fecha = $transferencia->FECALTAS;
+        $nombre = 'Transferencia_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $direccion = $sucursal['sucursal'][0]['DIRECCION'];
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES 
+        
+        $data['codigo'] = $codigo;
+        $data['origen'] = $origen;
+        $data['destino'] = $destino;
+        $data['envia'] = $envia;
+        $data['transporta'] = $transporta;
+        $data['recibe'] = $recibe;
+        $data['fecha'] = $fecha;
+        $data['nombre'] = $nombre;
+        $data['c'] = $c;
+        $data['sucursal'] = $nombre_sucursal;
+        $data['direccion'] = $direccion;
+        $data['ruc'] = '111111-1';
+        $data['tipo'] = 'fisico';
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // INICIAR MPDF 
+
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+         
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        $mpdf = new Mpdf([
+            'fontDir' => array_merge($fontDirs, [
+                public_path() . '/fonts',
+            ]),
+            'fontdata' => $fontData + [
+                'arial' => [
+                    'R' => 'arial.ttf',
+                    'B' => 'arialbd.ttf',
+                ],
+            ],
+            'default_font' => 'arial',
+            "format" => [240,180],
+        ]);
+
+        $mpdf->SetDisplayMode('fullpage');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR DETALLE DE TRANSFERENCIA DET 
+
+        foreach ($transferencia_det as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
+
+            if ($value->MONEDA <> 1) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PRECIO 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica]);
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $articulos[$c_rows]["precio"] = $cotizacion["valor"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // TOTAL 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica]);
+                $articulos[$c_rows]["total"] = $cotizacion["valor"];
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+                $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+                $articulos[$c_rows]["precio"] = $value->PRECIO;
+                $articulos[$c_rows]["total"] = $value->TOTAL;
+                $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
+                $total = $total + Common::quitar_coma($value->TOTAL, $candec);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $articulos[$c_rows]["cantidad"] = $value->CANTIDAD;
+            $articulos[$c_rows]["cod_prod"] = $value->CODIGO_PROD;
+            $articulos[$c_rows]["descripcion"] = substr($value->DESCRIPCION, 0,32);
+            $cantidad = $cantidad + $value->CANTIDAD;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE EXENTAS 
+
+            if ($value->EXENTAS > 0) {
+                $articulos[$c_rows]["exentas"] = $articulos[$c_rows]["total"];
+            } else {
+                $articulos[$c_rows]["exentas"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE BASE5 O BASE10
+
+            if ($value->BASE5 > 0) {
+                $articulos[$c_rows]["base10"] = '';
+                $articulos[$c_rows]["base5"] = $articulos[$c_rows]["total"];
+                $base5 = $base5 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            } else if ($value->BASE10 > 0) {
+                $articulos[$c_rows]["base5"] = '';
+                $articulos[$c_rows]["base10"] = $articulos[$c_rows]["total"];
+                $base10 = $base10 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            } else {
+                $articulos[$c_rows]["base5"] = '';
+                $articulos[$c_rows]["base10"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+            
+            // CONTAR CANTIDAD DE FILAS DE HOJAS 
+
+            $c_rows = $c_rows + 1;    
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CONTAR LA CANTIDAD DE FILAS 
+
+            $c = $c + 1;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
+
+            if ($c_rows === 10){
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // AGREGAR ARTICULOS 
+
+                $data['articulos'] = $articulos;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // RESTAR LAS CANTIDADES CARGADAS 
+
+                $c_rows_array = $c_rows_array - 10;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PONER TRUE SWITCH YA QUE CREO UNA PAGINA 
+
+                $switch_hojas = true;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR SUB TOTALES POR HOJA
+
+                $data['cantidad'] = $cantidad;
+                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
+                $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
+                $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
+                $data['base10'] = Common::precio_candec_sin_letra($base10 / 11, $moneda);
+                $data['iva'] = Common::precio_candec_sin_letra(($base5 / 21) + ($base10 / 11), $moneda);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $html = view('pdf.facturaTransferencia', $data)->render();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($c !== 10) {
+                    $mpdf->AddPage();
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CERAR CONTADOR DE FILAS CARGADAS POR HOJAS Y ARTICULOS
+
+                $c_rows = 0;
+                $exentas = 0;
+                $base5 = 0;
+                $base10 = 0;
+                $total = 0;
+                $data['articulos'] = [];
+                $articulos = [];
+
+                /*  --------------------------------------------------------------------------------- */
+                    
+                $mpdf->WriteHTML($html);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else if ($c_rows_array < 10 && $c_filas_total === $c) {
+                
+                /*  --------------------------------------------------------------------------------- */
+                
+                // AGREGAR ARTICULOS 
+                
+                $data['articulos'] = $articulos;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR SUB TOTALES POR HOJA
+
+                $data['cantidad'] = $cantidad;
+                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
+                $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
+                $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
+                $data['base10'] = Common::precio_candec_sin_letra($base10 / 11, $moneda);
+                $data['iva'] = Common::precio_candec_sin_letra(($base5 / 21) + ($base10 / 11), $moneda);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CREAR HOJA 
+
+                $html = view('pdf.facturaTransferencia', $data)->render();
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($switch_hojas === true) {
+                    $mpdf->AddPage();
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+                    
+                $mpdf->WriteHTML($html);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output($namefile,"D");
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public static function pdf_transferencia($dato)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SI ENVIA CODIGO ORIGEN 
+
+        if ($dato["codigo_origen"] === 0) {
+            $sucursal = $user->id_sucursal;
+        } else {
+            $sucursal = $dato["codigo_origen"];
+        }
+         
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $transferencia = Transferencia::mostrar_cabecera($dato);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $transferencia_det = Transferencia::mostrar_cuerpo($dato);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETRO 
+
+        $moneda = $transferencia->MONEDA;
+        $candec = Parametro::candec($moneda);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER SUCURSAL
+
+        $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $sucursal]);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $codigo = $transferencia->CODIGO;
+        $origen = $transferencia->ORIGEN;
+        $destino = $transferencia->DESTINO;
+        $envia = $transferencia->ENVIA;
+        $transporta = $transferencia->TRANSPORTA;
+        $recibe = $transferencia->RECIBE;
+        $fecha = $transferencia->FECALTAS;
+        $nombre = 'Transferencia_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $total = 0;
+        $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $direccion = $sucursal['sucursal'][0]['DIRECCION'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR DETALLE DE TRANSFERENCIA DET 
+
+        foreach ($transferencia_det as $key => $value) {
+            $articulos[$key]["cantidad"] = $value->CANTIDAD;
+            $articulos[$key]["cod_prod"] = $value->CODIGO_PROD;
+            $articulos[$key]["descripcion"] = $value->DESCRIPCION;
+            $articulos[$key]["precio"] = $value->PRECIO;
+            $articulos[$key]["total"] = $value->TOTAL;
+            $cantidad = $cantidad + $value->CANTIDAD;
+            $total = $total + Common::quitar_coma($value->TOTAL, $candec['CANDEC']);
+            $c = $c + 1;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES 
+        
+        $data['codigo'] = $codigo;
+        $data['origen'] = $origen;
+        $data['destino'] = $destino;
+        $data['envia'] = $envia;
+        $data['transporta'] = $transporta;
+        $data['recibe'] = $recibe;
+        $data['fecha'] = $fecha;
+        $data['nombre'] = $nombre;
+        $data['articulos'] = $articulos;
+        $data['c'] = $c;
+        $data['cantidad'] = $cantidad;
+        $data['total'] = Common::precio_candec($total, $moneda);
+        $data['sucursal'] = $nombre_sucursal;
+        $data['direccion'] = $direccion;
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $html = view('pdf.rptTransferencia',$data)->render();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+ 
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        $mpdf = new Mpdf([
+            'fontDir' => array_merge($fontDirs, [
+                public_path() . '/fonts',
+            ]),
+            'fontdata' => $fontData + [
+                'arial' => [
+                    'R' => 'arial.ttf',
+                    'B' => 'arialbd.ttf',
+                ],
+            ],
+            'default_font' => 'arial',
+             "format" => "A4",
+        ]);
+        
+        $mpdf->SetDisplayMode('fullpage');
+        $mpdf->WriteHTML($html);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR ARCHIVO 
+
+        $mpdf->Output($nombre,"I");
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }  
 }

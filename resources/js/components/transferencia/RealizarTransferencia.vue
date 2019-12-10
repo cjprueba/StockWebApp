@@ -5,35 +5,36 @@
 
 		<!-- TITULO  -->
 		
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				 <li class="breadcrumb-item active" aria-current="page">Realizar Transferencia</li>
-			</ol>
-		</nav>
-
+		<vs-divider>
+			Realizar Transferencia
+		</vs-divider>
 	
         <!-- ------------------------------------------------------------------------------------- -->
 
+        <!-- UN PRODUCTO -->
+
+        <div class="col-12">
+		   	<div class="my-1 mb-3">
+				<div class="custom-control custom-switch mr-sm-2">
+					<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
+					<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
+				</div>
+			</div>
+		</div>
+		
+		<!-- ------------------------------------------------------------------------------------- -->
+
+	   	<vs-divider position="left">
+		 	Transferencia
+	   	</vs-divider>
+
+       	<!-- ------------------------------------------------------------------------------------- -->
+
 		<!-- FORMULARIO  -->
 
-		<div class="card border-bottom-primary shadow-sm">
-		  
-		  <div class="card-header">
-		  	<div class="row">
-			  	<div class="col-md-11 text-primary font-weight-bold">
-			  		Transferencia 
-			  	</div>
-			  	<div class="col-md-1">
-			  		<div class="input-group">
-						<div class="input-group-prepend">
-							{{ $route.params.id }}
-						</div>
-					</div>
-			  	</div>
-		  	</div>	 
-		  </div>
+		<div class="col-12">
 
-		  <div class="card-body">
+		  <div class="mt-3">
 
 			<div class="row">
 
@@ -160,15 +161,19 @@
 
 		<!-- FINAL DE FORMULARIO -->
 
-       <!-- ------------------------------------------------------------------------------------- -->
+	   <!-- ------------------------------------------------------------------------------------- -->
 
-		<!-- AGREGAR PRODUCTO -->
+	   <vs-divider position="left">
+		 	Agregar Producto
+	   </vs-divider>
 
-		<div class="card mt-3 border-bottom-primary">
-			<div class="card-header text-primary font-weight-bold">
-				Agregar Producto
-			</div>	
-			<div class="card-body">	
+	   <!-- ------------------------------------------------------------------------------------- -->
+	   
+	   <!-- AGREGAR PRODUCTO -->
+
+		<div class="col-12">
+	
+			<div class="mt-3">	
 				<div class="row">
 					<div class="col-md-2">
 						
@@ -190,7 +195,7 @@
 
 					<div class="col-md-2">
 						<label for="validationTooltip01">Cantidad</label>
-						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
+						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-on:keyup.prevent.13="agregarProductoTransferencia()" v-model="cantidadProducto">
 					</div>
 
 
@@ -210,12 +215,27 @@
 
 		<!-- FINAL AGREGAR PRODUCTO -->
 		
-		 <!-- ------------------------------------------------------------------------------------- -->
+		<!-- ------------------------------------------------------------------------------------- -->
+
+		<hr>
+		
+		<!-- ------------------------------------------------------------------------------------- -->
+
+	    <!-- MOSTRAR LOADING -->
+
+	    <div class="col-md-12">
+			<div v-if="procesar" class="d-flex justify-content-center mt-3">
+				Guardando...
+	            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
+	        </div>
+        </div>
+
+		<!-- ------------------------------------------------------------------------ -->
 
         <!-- TABLA TRANSFERENCIA -->
 
-		<div class="col-md-12 mt-3">
-			<table id="tablaTransferencia" class="table table-striped table-bordered table-sm mb-3" style="width:100%">
+		<div class="col-md-12 mt-4">
+			<table id="tablaTransferencia" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
                 <thead>
                     <tr>
                         <th></th>
@@ -259,10 +279,12 @@
 		<!-- BOTONES ABM -->
 
 		<div class="col-md-12 mt-3 mb-3">
-				<div class="text-right">
+				<div class="text-right" v-if="btnguardar">
 					<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
-					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
 				</div>
+				<div class="text-right" v-else>
+					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
+				</div>	
 		</div>
 
 		<!-- ******************************************************************* -->
@@ -442,6 +464,48 @@
 
         <!-- ******************************************************************* -->
 
+        <!-- MODAL PRODUCTOS SIN REGISTRAR -->
+
+        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-scrollable" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
+				  <thead class="thead-light">
+				    <tr>
+				      <th scope="col">#</th>
+				      <th scope="col">Código</th>
+				      <th scope="col">Cantidad</th>
+				      <th scope="col">Guardado</th>
+				      <th scope="col">No guardado</th>
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
+				      <th scope="row">{{index+1}}</th>
+				      <td>{{no_registrado.cod_prod}}</td>
+				      <td>{{no_registrado.cantidad}}</td>
+				      <td>{{no_registrado.guardado}}</td>
+				      <td>{{no_registrado.restante}}</td>
+				    </tr>
+				  </tbody>
+				</table>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" v-on:click="mostrarTransferencias" data-dismiss="modal">Cerrar</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- ******************************************************************* -->
+
 		<!-- FINAL MODALES --> 
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -539,8 +603,6 @@
 		</div>
 </template>
 <script>
-
-	import { HotTable } from '@handsontable/vue';
 	export default {
       props: ['candec', 'monedaCodigo', 'tab_unica', 'id_sucursal'],  
       data(){
@@ -591,12 +653,12 @@
             editarCantidad: '',
             editarStock: '',
             editarRow: '',
-            moneda_enviar: 0
-            
+            moneda_enviar: 0,
+            no_registrados: [],
+            btnguardar: true,
+            switch_un_producto: false,
+            procesar: false
         }
-      },
-      components: {
-        HotTable
       }, 
       methods: {
       	activarBuscar(opcion){
@@ -620,7 +682,7 @@
       		}
 
             // ------------------------------------------------------------------------
-      	} ,
+      	},
         activarBuscarEmpleado(opcion){
 
             // ------------------------------------------------------------------------
@@ -827,7 +889,7 @@
 
        	},
         cargarProductos(codigo) {
-
+        	
             // ------------------------------------------------------------------------
 
             // INICIAR VARIABLES
@@ -842,27 +904,24 @@
                 me.inivarAgregarProducto();
                 return;
             }	
-
+            
+            // ------------------------------------------------------------------------
+    			
+    		// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
+    		
+	        var data = {
+	            'codigo': codigo,
+	            'monedaSistema': me.monedaCodigo, 
+	            'candec': me.candec, 
+	            'tab_unica': me.tab_unica
+	        }; 
+	        
             // ------------------------------------------------------------------------
 
-            // OBTENER CODIGO PRODUCTO POR CODIGO INTERNO
+            // CONSULTAR PRODUCTO DETERMINADO
 
-    		Common.codigoInternoCommon(codigo).then(data => {
-
-    			// ------------------------------------------------------------------------
-
-    			// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
-
-	    		if (data === '0') {
-	            	data = codigo; 
-	            } 
-
-            	// ------------------------------------------------------------------------
-
-            	// CONSULTAR PRODUCTO DETERMINADO
-
-                axios.post('/producto', {'codigo': data, 'Opcion': 1}).then(function (response) {
-                    
+            axios.post('/producto', {'data': data, 'Opcion': 1}).then(function (response) {
+                   
                     if(response.data.producto === 0) {
 
                         // *******************************************************************
@@ -881,38 +940,36 @@
 
                     } else {
 
-
                         // *******************************************************************
 
                         // LLENAR DESCRIPCION DE PRODUCTO
 
-                        me.codigoProducto = data;
-                        me.descripcionProducto = response.data.producto[0].DESCRIPCION;
-                        me.stockProducto  = response.data.producto[0].STOCK;
-                        me.ivaProducto = response.data.producto[0].IVA;
-                        me.monedaProducto = response.data.producto[0].MONEDA;
+                        me.codigoProducto = response.data.producto.CODIGO;
+                        me.descripcionProducto = response.data.producto.DESCRIPCION;
+                        me.stockProducto  = response.data.producto.STOCK;
+                        me.ivaProducto = response.data.producto.IVA;
+                        me.monedaProducto = response.data.producto.MONEDA;
+                        me.precioProducto = response.data.valor;
 
-                        // *******************************************************************
+						// *******************************************************************
 
-                        // REVISAR SI PRECIO PRODUCTO ES IGUAL A LA MONEDA DEL SISTEMA, REALIZAR COTIZACION SI NO LO ES
+	                    // AGREGAR PRODUCTO TRANSFERENCIA AUTOMATICAMENTE 
 
-                        Common.calcularCotizaciónPrecioCommon(response.data.producto[0].PREC_VENTA, response.data.producto[0].MONEDA, me.monedaCodigo, me.candec, me.tab_unica).then(data => {
-						  me.precioProducto = data
-						});
+				    	if (me.switch_un_producto === true) {
+				    		me.cantidadProducto = 1;
+				    		me.agregarProductoTransferencia();
+				    		me.codigoProducto = '';
+				    	}
 
-                        // *******************************************************************
+			            // *******************************************************************
 
                         me.validarCodigoProducto = false;
 
                         // *******************************************************************
                     }
-                });
-
-            	// ------------------------------------------------------------------------
-
             });
 
-            // ------------------------------------------------------------------------
+    		// ------------------------------------------------------------------------
 
         }, 
         agregarProductoTransferencia(){
@@ -1077,7 +1134,7 @@
 
 			// REVISAR QUE BOTON ESTA DESACTIVADO PARA REDIGIRLO A MODIFICAR O GUARDAR 
 			
-			if (document.getElementById('guardar').disabled === false) {
+			if (this.btnguardar === true) {
 				this.guardarTransferencia();
 			} else {
 				this.modificarTransferencia();
@@ -1131,14 +1188,30 @@
 
 			// ------------------------------------------------------------------------ 
 
-			Common.guardarTransferenciaCommon(tableTransferencia.rows().data(), data).then(data => {
-			  
-				if (data === true) {
+			// ACTIVAR LOADING 
+
+			me.procesar = true;
+
+			// ------------------------------------------------------------------------ 
+
+			Common.guardarTransferenciaCommon(tableTransferencia.rows().data().toArray(), data).then(data => {
+			    
+				if (data.response === true) {
+
+					// ------------------------------------------------------------------------
+
+					// DESACTIVAR LOADING
+
+					me.procesar = false;
+
+					// ------------------------------------------------------------------------
+
 					Swal.fire(
 					  'Guardado !',
 					  'La Transferencia ha sido guardada correctamente !',
 					  'success'
 					).then((result) => {
+
 					  if (result.value) {
 
 					  	// ------------------------------------------------------------------------ 
@@ -1150,12 +1223,78 @@
 					    // ------------------------------------------------------------------------ 
 
 					   }
+
 					});
+
+				} else if (data.response === false) {
+
+					// ------------------------------------------------------------------------ 
+
+					// DESACTIVAR LOADING 
+
+					me.procesar = false;
+
+					// ------------------------------------------------------------------------
+
+					// MOSTRAR SWAL DE PRODUCTOS NO GUARDADOS 
+
+					Swal.fire({
+					  title: 'No se ha guardado correctamente !',
+					  text: "Algunos productos no se registraron correctamente !",
+					  icon: 'warning',
+					  showCancelButton: true,
+					  confirmButtonText: 'Aceptar !',
+					  cancelButtonText: 'Ver productos !',
+					  reverseButtons: true,
+					  allowOutsideClick: false
+					}).then((result) => {
+
+					  if (result.value) {
+
+					  	// ------------------------------------------------------------------------
+
+					  	// REDIRIGIR A LA PAGINA MOSTRAR
+
+					     this.$router.push('/tr1');
+
+					     // ------------------------------------------------------------------------
+
+					  } else if (
+
+					  	// ------------------------------------------------------------------------
+
+					    /* CANCELAR EL DISMISS */
+
+					    result.dismiss === Swal.DismissReason.cancel
+
+					    // ------------------------------------------------------------------------
+
+					  ) {
+
+					    // ------------------------------------------------------------------------ 
+
+						// SI EL TAMAÑO DEL ARRAY SUPERA CERO SIGNIFICA QUE HAY PRODUCTOS SIN GUARDAR
+
+						me.no_registrados = data.productos;
+					
+						// ------------------------------------------------------------------------ 
+
+						// MOSTRAR MODAL CON LOS PRODUCTOS 
+
+						$('#modal_no_registrados').modal('show');
+
+						// ------------------------------------------------------------------------ 
+
+					  }
+					})
+
+					// ------------------------------------------------------------------------ 
+
 				} else {
 					Swal.fire(
 					  'Error !',
 					  'La Transferencia no se ha guardado correctamente !',
-					  'Error'
+					  'error'
 					);
 				}
 				
@@ -1281,13 +1420,14 @@
 
         		// OCULTAR BOTON GUARDAR 
 
-        		Common.ocultarBoton('guardar');
+        		me.btnguardar = false;
 
         		// ------------------------------------------------------------------------
 
-        		// AGREGAR CABECERA 
+        		// AGREGAR CABECERA, ENVIO CERO PARA CODIGO ORIGEN PARA ESPECIFICAR QUE
+        		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
 
-        		Common.obtenerCabeceraTransferenciaCommon(codigo).then(data => {
+        		Common.obtenerCabeceraTransferenciaCommon(codigo, 0).then(data => {
         			me.codigoOrigen = data.CODIGO_ORIGEN;
         			me.codigoDestino = data.CODIGO_DESTINO;
         			me.codigoEnvia = data.CODIGO_ENVIA;
@@ -1303,9 +1443,10 @@
 
         		// ------------------------------------------------------------------------
 
-        		// AGREGAR CUERPO
+        		// AGREGAR CUERPO, ENVIO CERO PARA CODIGO ORIGEN PARA ESPECIFICAR QUE
+        		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
 
-        		Common.obtenerCuerpoTransferenciaCommon(codigo).then(data => {
+        		Common.obtenerCuerpoTransferenciaCommon(codigo, 0).then(data => {
         			data.map(function(x) {
 					   
 					   // ------------------------------------------------------------------------
@@ -1333,7 +1474,7 @@
 
         		// OCULTAR BOTON MODIFICAR 
 
-        		Common.ocultarBoton('modificar');
+        		me.btnguardar = true;
 
         		// ------------------------------------------------------------------------
 
@@ -1349,15 +1490,46 @@
 
         	let me = this;
         	var tableTransferencia = $('#tablaTransferencia').DataTable();
+        	var productoExistente = [];
+        	var cantidadNueva = 0;
 
         	// ------------------------------------------------------------------------
 
-            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS - SALIR SI EXISTE
+            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
 
-            if (Common.existeProductoDataTableCommon(tableTransferencia, codigo) == true) {
-            	me.validarCodigoProducto = true;
-            	me.$bvToast.show('toast-codigo-repetido');
+            productoExistente = Common.existeProductoDataTableCommon(tableTransferencia, codigo, 2);
+           
+            if (productoExistente.respuesta == true) {
+
+            	// ------------------------------------------------------------------------
+
+            	// SUMAR LA CANTIDAD E IVA
+
+            	cantidadNueva = parseFloat(productoExistente.cantidad) + parseFloat(cantidad);
+
+            	// ------------------------------------------------------------------------
+
+            	// REVISAR SI CANTIDAD SUPERA STOCK
+
+            	if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
+            		me.validarCantidad = true;
+	            	me.$bvToast.show('toast-cantidad-superada');
+	            	return;
+            	} else {
+            		me.validarCantidad = false;
+            	}
+
+            	// ------------------------------------------------------------------------
+
+            	// EDITAR CANTIDAD PRODUCTO 
+
+            	me.editarCantidadProducto(tableTransferencia, cantidadNueva, productoExistente.precio, iva_porcentaje, productoExistente.stock, productoExistente.row);
             	return;
+
+            	// ------------------------------------------------------------------------
+
             } else {
             	me.validarCodigoProducto = false;
             }
@@ -1366,15 +1538,13 @@
 
             // REVISAR SI CANTIDAD SUPERA STOCK
 
-            if (stock !== '') {
-	            if (parseFloat(cantidad) > parseFloat(stock)) {
-	            	me.validarCantidad = true;
-	            	me.$bvToast.show('toast-cantidad-superada');
-	            	return;
-	            } else {
-	            	me.validarCantidad = false;
-	            }
-            }
+            if (Common.cantidadSuperadaCommon(cantidad, stock)) {
+	            me.validarCantidad = true;
+	            me.$bvToast.show('toast-cantidad-superada');
+	            return;
+	        } else {
+	            me.validarCantidad = false;
+	        }
 
             // ------------------------------------------------------------------------
 
@@ -1461,7 +1631,7 @@
 			// ------------------------------------------------------------------------ 
 
 			// MOSTRAR MENSAJE PARA MODIFICAR 
-
+			
 			Swal.fire({
 				title: 'Estas seguro ?',
 				text: "Modificar la Transferencia " + codigo + " !",
@@ -1473,12 +1643,11 @@
 				confirmButtonText: 'Si, modificalo!',
 				cancelButtonText: 'Cancelar',
 				preConfirm: () => {
-				    return Common.modificarTransferenciaCommon(codigo, tableTransferencia.rows().data(), data).then(data => {
-				    if (!data === true) {
-				        throw new Error('error');
+				    return Common.modificarTransferenciaCommon(codigo, tableTransferencia.rows().data().toArray(), data).then(data => {
+				    if (data.response !== true) {
+				        throw new Error(data.statusText);
 				    }
-				  	return data;
-
+				  	return data.response;
 					}).catch(error => {
 				        Swal.showValidationMessage(
 				          `Request failed: ${error}`
@@ -1493,7 +1662,7 @@
 						      'success'
 					)
 				  }
-			})
+			});
 			
 			// ------------------------------------------------------------------------ 
 
@@ -1510,6 +1679,17 @@
         	// INICIAR VARIABLES
 
         	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	// DEVOLVER SI ESTA VACIO 
+
+        	if (me.nro_caja === '' || me.nro_caja === null || me.nro_caja === undefined) {
+        		return;
+        	}
+
+        	// ------------------------------------------------------------------------
+
 
         		Swal.fire({
 				  title: '¿ Importar ?',
@@ -1569,10 +1749,86 @@
 
         	// ------------------------------------------------------------------------
 
-        } 
+        }, editarCantidadProducto(tabla, cantidad, precio_producto, iva_producto, stock, row){
+
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES
+
+        	let me = this;
+        	var precio = 0;
+        	var iva = 0;
+
+        	// ------------------------------------------------------------------------
+
+            // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
+
+            if (cantidad === '0' || precio_producto === '0') {
+                me.$bvToast.show('toast-editar-cero');
+                return;	
+            }
+
+            // ------------------------------------------------------------------------
+
+            // PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
+                	
+            if (parseFloat(Common.quitarComaCommon(cantidad)) > parseFloat(Common.quitarComaCommon(stock))) {
+                me.$bvToast.show('toast-cantidad-superada');
+                return;	
+            }
+
+            // ------------------------------------------------------------------------
+
+            // CARGAR LO EDITADO
+
+            tabla.cell(row, 3).data(cantidad).draw();
+            tabla.cell(row, 4).data(precio_producto).draw();
+
+            // ------------------------------------------------------------------------
+                    
+            // CALCULAR PRECIO TOTAL
+
+            precio = Common.multiplicarCommon(cantidad, precio_producto, me.candec);
+
+            // ------------------------------------------------------------------------
+
+            // CALCULO IVA 
+		            
+		    iva = Common.calcularIVACommon(precio, iva_producto, me.candec);
+
+		    // ------------------------------------------------------------------------
+
+		    // CARGAR PRECIO CALCULADO 
+
+            tabla.cell(row, 6).data(precio).draw();
+
+            // ------------------------------------------------------------------------
+
+            // CARGAR IVA CALCULADO 
+
+            tabla.cell(row, 5).data(iva).draw();
+
+           	// ------------------------------------------------------------------------
+
+            // LLAMAR TOAST MODIFICADO
+
+            me.$bvToast.show('toast-producto-transferencia-modificado');
+
+            // ------------------------------------------------------------------------
+
+        }, mostrarTransferencias(){
+
+        	// ------------------------------------------------------------------------ 
+
+			// SI DA OK LO REDIRIJE A MOSTRAR TRANSFERENCIAS 
+
+			this.$router.push('/tr1');
+
+			// ------------------------------------------------------------------------ 
+
+        }
       },  
         mounted() {
-
 
             // ------------------------------------------------------------------------
             
@@ -1593,7 +1849,18 @@
 
             $(document).ready( function () {
 
-            	
+            	// ------------------------------------------------------------------------
+                // >>
+                // PROHIBIR A MODAL QUE SE CIERRE CLICANDO AFUERA 
+                // ------------------------------------------------------------------------
+
+            	$('#modal_no_registrados').modal({
+				    backdrop: 'static',
+				    keyboard: false,
+				    show: false
+				})
+
+            	// ------------------------------------------------------------------------
 
 			    $('#example22').DataTable({
 			    	"bAutoWidth": false
@@ -1610,6 +1877,15 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				        	{ extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary' }
+				        ],
                         "ajax":{
                                  "url": "/empleado",
                                  "dataType": "json",
@@ -1676,6 +1952,15 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'Transferencia', messageTop: 'Productos registrados para Transferencia' }
+				        ],
 				        "columnDefs": [
 				            {
 				                "targets": [ 8 ],
@@ -1893,6 +2178,13 @@
 						}      
                 });
                 
+                // ------------------------------------------------------------------------
+
+                // ASIGNAR INLINE BUTTONS 
+
+                tableTransferencia.buttons().container()
+    			.appendTo( $('div.eight.column:eq(0)', tableTransferencia.table().container()) );
+
 				// ------------------------------------------------------------------------
 
             	// DESPUES DE INICIAR LA TABLA TRANSFERENCIAS LLAMAR A LA CONSULTA PARA CARGAR CABECERA Y CUERPO 
@@ -1950,60 +2242,11 @@
 
                 	// *******************************************************************
 
-                	// PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
+                	// EDITAR TRANSFERENCIA
 
-                	if (me.editarCantidad === '0' || me.editarPrecio === '0') {
-                		me.$bvToast.show('toast-editar-cero');
-                		return;	
-                	}
+                	me.editarCantidadProducto(tableTransferencia, me.editarCantidad, me.editarPrecio, me.editarIvaProducto, me.editarStock, me.editarRow);
 
                 	// *******************************************************************
-
-                	// PROHIBIR EDITADO SI CANTIDAD SUPERA STOCK
-                	
-                	if (parseFloat(Common.quitarComaCommon(me.editarCantidad)) > parseFloat(Common.quitarComaCommon(me.editarStock))) {
-                		me.$bvToast.show('toast-cantidad-superada');
-                		return;	
-                	}
-
-                    // *******************************************************************
-
-                    // CARGAR LO EDITADO
-
-                    tableTransferencia.cell(me.editarRow, 3).data(me.editarCantidad).draw();
-                    tableTransferencia.cell(me.editarRow, 4).data(me.editarPrecio).draw();
-
-                    // *******************************************************************
-                    
-                    // CALCULAR PRECIO TOTAL
-
-                    precio = Common.multiplicarCommon(me.editarCantidad, me.editarPrecio, me.candec);
-
-                    // *******************************************************************
-
-                    // CALCULO IVA 
-		            
-		            iva = Common.calcularIVACommon(precio, me.editarIvaProducto, me.candec);
-
-		            // *******************************************************************
-
-		            // CARGAR PRECIO CALCULADO 
-
-                    tableTransferencia.cell(me.editarRow, 6).data(precio).draw();
-
-                    // *******************************************************************
-
-                    // CARGAR IVA CALCULADO 
-
-                    tableTransferencia.cell(me.editarRow, 5).data(iva).draw();
-
-                    // *******************************************************************
-
-                    // LLAMAR TOAST MODIFICADO
-
-                    me.$bvToast.show('toast-producto-transferencia-modificado');
-
-                    // *******************************************************************
 
                     // OCULTAR MODAL EDITAR 
 

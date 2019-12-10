@@ -161,7 +161,56 @@ function ocultarBoton(valor){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function existeProductoDataTableCommon(tabla, codigo){
+function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
+function cantidadSuperadaCommon(a, b){
 
 			// ------------------------------------------------------------------------
 
@@ -173,12 +222,9 @@ function existeProductoDataTableCommon(tabla, codigo){
 
         	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
 
-			tabla.rows().every(function(){
-				var data = this.data();
-				    if (data['CODIGO'] === codigo) {
-				    	valor = true;
-				    } 
-			});
+			if (parseFloat(a) > parseFloat(b)) {
+	            var valor = true;	
+	       	} 
 
 			// ------------------------------------------------------------------------
 
@@ -260,7 +306,7 @@ function calcularCotizaciónPrecioCommon(precioProducto, monedaProducto, monedaS
 
 
 	        // ------------------------------------------------------------------------
-
+	        
 			// CONSEGUIR LA COTIZACION DEL PRECIO
 				
 			return axios.post('/cotizacion', {'precio': precioProducto, 'monedaProducto': monedaProducto, 'monedaSistema': monedaSistema, 'decSistema': dec, 'tab_unica': tab_unica}).then(function (response) {
@@ -383,6 +429,61 @@ function enviarTransferenciaCommon(data){
 }
 
 
+function generarPdfFacturaTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarRptPdfTransferenciaCommon(codigo, codigo_origen){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'pdf-generar-transferencia', method: 'post', responseType: 'blob', data: {'codigo': codigo, 'codigo_origen': codigo_origen}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
 function modificarTransferenciaCommon(codigo, data, cabecera){
 
 			// ------------------------------------------------------------------------
@@ -403,13 +504,13 @@ function modificarTransferenciaCommon(codigo, data, cabecera){
 
 }
 
-function obtenerCabeceraTransferenciaCommon(codigo){
+function obtenerCabeceraTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCabecera', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCabecera', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -417,13 +518,13 @@ function obtenerCabeceraTransferenciaCommon(codigo){
 
 }
 
-function obtenerCuerpoTransferenciaCommon(codigo){
+function obtenerCuerpoTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCuerpo', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCuerpo', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -1190,4 +1291,7 @@ export {
 		traerRolUsuarioCommon,
 		guardarPermisoCommon,
 		guardarUsuarioCommon
+		cantidadSuperadaCommon,
+		generarPdfFacturaTransferenciaCommon,
+		generarRptPdfTransferenciaCommon
 		};

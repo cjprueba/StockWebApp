@@ -3,9 +3,21 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Lotes_tiene_TransferenciaDet;
 
 class Stock extends Model
 {
+
+	/*  --------------------------------------------------------------------------------- */
+
+	// INICIAR VARIABLES GLOBALES 
+
+	protected $connection = 'retail';
+	protected $table = 'lotes';
+	public $timestamps = false;
+
+	/*  --------------------------------------------------------------------------------- */
+
     public static function comprobar_stock_producto($codigo, $cantidad)
     {
 
@@ -23,12 +35,9 @@ class Stock extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        $stock = DB::connection('retail')
-        ->table('lotes')
-        ->select(DB::raw('SUM(CANTIDAD) AS CANTIDAD'))
+        $stock = Stock::select(DB::raw('SUM(CANTIDAD) AS CANTIDAD'))
         ->where('COD_PROD','=', $codigo)
         ->where('ID_SUCURSAL','=',$user->id_sucursal)
-        ->groupBy('COD_PROD')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -60,20 +69,28 @@ class Stock extends Model
 
         // INICIAR VARIABLES
 
+    	$datos = [];
     	$valor = false;
 
         /*  --------------------------------------------------------------------------------- */
 
         while ($cantidad > 0) {
 
-        	$stock = DB::connection('retail')
-	        ->table('lotes')
-	        ->select(DB::raw('CANTIDAD, LOTE'))
+        	$stock = Stock::select(DB::raw('ID, CANTIDAD, LOTE'))
 	        ->where('COD_PROD','=', $codigo)
 	        ->where('CANTIDAD','>', 0)
 	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	        ->limit(1)
 	        ->get();
+
+	        /*  --------------------------------------------------------------------------------- */
+
+	        // REVISAR SI STOCK ENCONTRO LOTES TODAVIA CON CANTIDAD 
+	        // SINO ENCONTRO MAS STOCK SE TIENE EL WHILE 
+
+	        if (count($stock) <= 0) {
+	        	break;
+	        }
 
 	        /*  --------------------------------------------------------------------------------- */
 
@@ -85,9 +102,7 @@ class Stock extends Model
 
 	        	// PONER EN CERO E LOTE PORQUE SUPERO CANTIDAD 
 
-	        	$stock = DB::connection('retail')
-		        ->table('lotes')
-		        ->where('COD_PROD','=', $codigo)
+	        	$restar = Stock::where('COD_PROD','=', $codigo)
 		        ->where('LOTE','=', $stock[0]->LOTE)
 		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 		        ->update(['CANTIDAD' => 0]);
@@ -100,19 +115,29 @@ class Stock extends Model
 
 		        /*  --------------------------------------------------------------------------------- */
 
+		        // CARGAR ARRAY 
+
+		        $datos[] = array ("id" => $stock[0]->ID, "cantidad" => $stock[0]->CANTIDAD);
+
+		        /*  --------------------------------------------------------------------------------- */
+
 	        } else {
 
 	        	/*  --------------------------------------------------------------------------------- */
 
 	        	// RESTAR CANTIDAD DE LOTE 
 
-	        	$stock = DB::connection('retail')
-		        ->table('lotes')
-		        ->where('COD_PROD','=', $codigo)
+	        	$restar =Stock::where('COD_PROD','=', $codigo)
 		        ->where('LOTE','=', $stock[0]->LOTE)
 		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 		        ->decrement('CANTIDAD', $cantidad);
 
+		        /*  --------------------------------------------------------------------------------- */
+
+		        // CARGAR ARRAY 
+
+		        $datos[] = array ("id" => $stock[0]->ID, "cantidad" => $cantidad);
+		        
 		        /*  --------------------------------------------------------------------------------- */
 
 		        // CERAR CANTIDAD
@@ -131,8 +156,14 @@ class Stock extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
+        // SI LA CANTIDAD ES CERO SIGNIFICA QUE PUDO GUARDAR TODOS LOS LOTES 
+        // SI LA CANTIDAD ES MAYOR A CERO SIGNIFICA QUE NO PUDO GUARDAR TODA LA CANTIDAD
 
-        return $stock;
+        if ($cantidad === 0) {
+        	return ["response" => true, "datos" => $datos];
+        } else {
+        	return ["response" => false, "datos" => $datos, "restante" => $cantidad];
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -158,9 +189,7 @@ class Stock extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        $stock = DB::connection('retail')
-	    ->table('lotes')
-	    ->select(DB::raw('CANTIDAD, LOTE'))
+        $stock = Stock::select(DB::raw('CANTIDAD, LOTE'))
 	    ->where('COD_PROD','=', $codigo)
 	    ->where('CANTIDAD','>', 0)
 	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
@@ -185,8 +214,7 @@ class Stock extends Model
 
 	     	// PONER EN CERO E LOTE PORQUE SUPERO CANTIDAD 
 
-	        $stock = DB::connection('retail')
-		    ->table('lotes')
+	        $stock = Stock::table('lotes')
 		    ->where('COD_PROD','=', $codigo)
 		    ->where('LOTE','=', $stock[0]->LOTE)
 		    ->where('ID_SUCURSAL','=',$user->id_sucursal)
@@ -206,9 +234,7 @@ class Stock extends Model
 
 	        // RESTAR CANTIDAD DE LOTE 
 
-	        $stock = DB::connection('retail')
-		    ->table('lotes')
-		    ->where('COD_PROD','=', $codigo)
+	        $stock = Stock::where('COD_PROD','=', $codigo)
 		    ->where('LOTE','=', $stock[0]->LOTE)
 		    ->where('ID_SUCURSAL','=',$user->id_sucursal)
 		    ->decrement('CANTIDAD', $cantidad);
@@ -265,9 +291,7 @@ class Stock extends Model
 
         	// SI CANTIDAD A SUMAR POSEE LOTE 
 
-        	$stock = DB::connection('retail')
-	        ->table('lotes')
-	        ->where('COD_PROD','=', $codigo)
+        	$stock = Stock::where('COD_PROD','=', $codigo)
 	        ->where('LOTE','=', $lote)
 	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	        ->limit(1)
@@ -281,9 +305,7 @@ class Stock extends Model
 
         	// CONSEGUIR LOTE A SUMAR 
 
-        	$lote = DB::connection('retail')
-	        ->table('lotes')
-	        ->select(DB::raw('LOTE'))
+        	$lote = Stock::select(DB::raw('LOTE'))
 	        ->where('COD_PROD','=', $codigo)
 	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	        ->orderBy('LOTE', 'desc')
@@ -299,9 +321,7 @@ class Stock extends Model
 
 	        	$lote = $lote[0]->LOTE;
 
-	        	$stock = DB::connection('retail')
-		        ->table('lotes')
-		        ->where('COD_PROD','=', $codigo)
+	        	$stock = Stock::where('COD_PROD','=', $codigo)
 		        ->where('LOTE','=', $lote)
 		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
 		        ->limit(1)
@@ -313,9 +333,7 @@ class Stock extends Model
 
 	    		// INSERTAR NUEVO LOTE SI PRODUCTO NO POSEE NINGUN LOTE
 
-	    		DB::connection('retail')
-		        ->table('lotes')
-		        ->insert(
+	    		Stock::insert(
 				    [
 				    	'COD_PROD' => $codigo, 
 				    	'CANTIDAD_INICIAL' => $cantidad,
@@ -346,6 +364,43 @@ class Stock extends Model
 
     }
 
+
+    public static function sumar_stock_id_lote($id_lote, $cantidad)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+    	$dia = date('Y-m-d');
+    	$hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SI CANTIDAD A SUMAR POSEE LOTE 
+
+        $stock = Stock::where('ID','=', $id_lote)
+        ->update(['FECMODIF' => date('Y-m-d'), 
+        		  'CANTIDAD' => \DB::raw('CANTIDAD + '.$cantidad.''), 
+        		  'FK_USER_MD' => $user->id]);
+
+	    /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return true;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
     public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere)
     {
 
@@ -366,9 +421,7 @@ class Stock extends Model
 
     	// CONSEGUIR LOTE 
 
-    	$lote = DB::connection('retail')
-	    ->table('lotes')
-	    ->select(DB::raw('LOTE'))
+    	$lote = Stock::select(DB::raw('LOTE'))
 	    ->where('COD_PROD','=', $codigo)
 	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	    ->orderBy('LOTE', 'desc')
@@ -387,9 +440,7 @@ class Stock extends Model
 
     	/*  --------------------------------------------------------------------------------- */
 
-		DB::connection('retail')
-		->table('lotes')
-		->insert(
+		Stock::insert(
 		[
 			'COD_PROD' => $codigo, 
 			'CANTIDAD_INICIAL' => $cantidad,
@@ -401,7 +452,8 @@ class Stock extends Model
 			'HORALTAS' => $hora,
 			'ID_SUCURSAL' => $user->id_sucursal,
 			'MODO' => $modo,
-			'USERE' => $usere
+			'USERE' => $usere,
+			'FK_USER_CR' => $user->id
 		]
 		);
 

@@ -18,11 +18,11 @@ class RolesTableSeeder extends Seeder
         
         
         //User Admin
-        $user = User::find(1); //Italo Morales
-        $user->assignRole('Guest');
+        // $user = User::find(1); //Italo Morales
+        // $user->assignRole('Guest');
 
         $role = Role::find(2);
-        $role->givePermissionTo('products.edit');
+        $role->givePermissionTo('products.create');
 
      }   
 }

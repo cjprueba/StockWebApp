@@ -1,8 +1,8 @@
 <template>
-	<div class="container-fluid bg-light">
-
+	<div class="container-fluid">
+		
 		<div class="mt-3 mb-3" v-if="$can('products.create')">
-
+			
 			<!-- ------------------------------------------------------------------ -->
 
 			<!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
@@ -10,10 +10,18 @@
 			<mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
 			<!-- ------------------------------------------------------------------------------------- -->
+			
+			<!-- DIVISORIA VUESAX -->
+
+			<!-- <vs-divider>
+			   Registrar Producto
+			</vs-divider> -->
+			
+			<!-- ------------------------------------------------------------------------------------- -->
 
 			<!-- CARD REGISTRAR PRODUCTO -->
 
-			<div class="card shadow">
+			<!-- <div class="card shadow">
 			  <div class="card-header">
 			    <ul class="nav nav-tabs card-header-tabs">
 			      <li class="nav-item">
@@ -27,14 +35,17 @@
 			      </li>
 			    </ul>
 			  </div>
-			  <div class="card-body">
+			  <div class="card-body"> -->
 
 			  	<!-- ------------------------------------------------------------------------------------- -->
 
 			  	<!-- PRODUCTO - CUERPO 1 CARD -->
 
-			  	<div v-if="nav === '1'">
-				    <div class="row">
+			  	<!-- <div v-if="nav === '1'"> -->
+
+			<vs-tabs>
+      			<vs-tab label="Registrar">	
+				    <div class="row mt-3">
 
 				    		
 
@@ -47,7 +58,7 @@
 				    		<!-- HABILITAR CODIGO REAL -->
 
 					   		<div class="my-1">
-								  <div class="custom-control custom-checkbox mr-sm-2">
+								  <div class="custom-control custom-switch mr-sm-2">
 								   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
 								   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
 								 </div>
@@ -496,7 +507,7 @@
 
 				    			<!-- ------------------------------------------------------------------ -->
 
-					    		<!-- FORMA MONEDA Y STOCK MINIMO -->
+					    		<!--  STOCK MINIMO -->
 					    		
 					    		<div class="form-row mt-3">
 
@@ -504,7 +515,7 @@
 
 					    			<!-- STOCK MINIMO -->
 
-					    			<div class="col-md-6">
+					    			<div class="col-md-12">
 					    				<div class="text-left">
 					    					<label>Stock Mínimo</label>
 					    				</div>
@@ -513,10 +524,20 @@
 
 					    			<!-- ------------------------------------------------------------------ -->
 
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+					    		<!-- GONDOLA -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
 					    			<!-- GONDOLA -->
 
-					    			<div class="col-md-6">
-					    				<select-gondola v-model="seleccion_gondola" v-bind:shadow="shadow"></select-gondola>
+					    			<div class="col-md-12">
+					    				<select-gondola v-model="seleccion_gondola"  v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -598,30 +619,61 @@
 				    	<!-- SEGUNDA FILA -->
 
 				    	<div class="col-md-12">
-				    		<div class="text-right">
-				    			<button v-on:click="guardar" class="btn btn-primary"><font-awesome-icon icon="save" /> Guardar</button>
-				    		</div>
+
+				    		<!-- ------------------------------------------------------------------ -->	
+
+				    		<!-- BOTON NUEVO, MODIFICAR O GUARDAR -->
+
+				    		
+				    			<div class="form-inline float-right">
+
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    				<!-- NUEVO -->
+
+				    				<div class="form-group mx-sm-3">
+				    					<button class="btn btn-secondary" v-on:click="()=> location.reload()">Nuevo</button>
+				    				</div>
+
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    				<!-- GUARDAR, EDITAR -->
+
+				    				<div class="form-group">
+				    					<button v-on:click="guardar" v-bind:class="{ 'btn btn-primary': estado_boton.boton_primary, 'btn btn-warning': estado_boton.boton_warning }" class="btn btn-primary"><font-awesome-icon icon="save" /> {{estado_boton.boton}} </button>
+				    				</div>
+				    				
+				    				<!-- ------------------------------------------------------------------ -->	
+
+				    			</div>	
+				    			
+				  
+
+				    		<!-- ------------------------------------------------------------------ -->	
+
 				    	</div>
 				    		
 				    	<!-- ------------------------------------------------------------------ -->
 
 				    </div>	
-			    </div>
+			    <!-- </div> -->
 
 			    <!-- ------------------------------------------------------------------------------------- -->
-
+				</vs-tab>
+				<vs-tab label="Información">
+				</vs-tab>	
 			    <!-- CUERPO 2 CARD -->
 
-			    <div v-if="nav === '2'">
+			   <!--  <div v-if="nav === '2'">
 				    <h5 class="card-title">PROBANDO</h5>
 				    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
 				    <a href="#" class="btn btn-primary">Go somewhere</a>
 			    </div>
-
+ -->
 			    <!-- ------------------------------------------------------------------------------------- -->
-
-			  </div>
-			</div>
+			</vs-tabs>	
+			  <!-- </div>
+			</div> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 		</div>
@@ -653,8 +705,8 @@
           seleccion_proveedor: 'null',
           seleccion_moneda: 'null',
           seleccion_proveedor: 'null',
-          seleccion_gondola: 'null',
-          seleccion_presentacion: 1,
+          seleccion_gondola: [{}],
+          seleccion_presentacion: 'UNIDADES',
           observacion: '',
           iva: '10',
           descuento_maximo: 0,
@@ -702,6 +754,12 @@
           validar_codigo_real: false,
           mostrar_error: false,
           mensaje: '',
+          estado_boton: {
+          		boton: 'Guardar',
+          		boton_primary: true,
+          		boton_warning: false,
+          		mostrar_nuevo: false,
+          },
           datos: []
         }
       }, 
@@ -719,6 +777,14 @@
             	// OBTENER CODIGO GENARADO 
 
             	Common.obtenerProductoCommon(this.codigo_producto, 1).then(data => {
+
+            		// ------------------------------------------------------------------------
+
+            		// RETONAR SI ES FALSE LA RESPUESTA YA QUE NO ENCONTRO PRODUCTO 
+
+            		if (data.response === false) {
+            			return;
+            		}
 
             		// ------------------------------------------------------------------------
 
@@ -765,6 +831,14 @@
             		} else {
             			this.rutaImagen = data.imagen;
             		}
+            		// ------------------------------------------------------------------------
+
+            		// CAMBIAR BOTON 
+
+            		this.estado_boton.boton = 'Modificar';
+            		this.estado_boton.boton_primary = false;
+            		this.estado_boton.boton_warning = true;
+            		this.estado_boton.mostrar_nuevo = true;
 
            			// ------------------------------------------------------------------------
 
@@ -1371,7 +1445,7 @@
             	// ------------------------------------------------------------------------
 
             }, guardar(){
-
+            	
             	// ------------------------------------------------------------------------
 
             	// INICIAR VARIABLES 

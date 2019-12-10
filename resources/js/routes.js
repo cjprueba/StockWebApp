@@ -118,6 +118,15 @@ export default new Router({
 			path: '/rpt9',
 			name: 'rptCompra',
 			component: require('./components/compra/inicio.vue').default
+		},
+			path: '/cr1',
+			name: 'compraMostrar',
+			component: require('./components/compra/MostrarCompra.vue').default
+		},
+		{
+			path: '/cr2',
+			name: 'compra',
+			component: require('./components/compra/RealizarCompra.vue').default
 		}
 	],
 	mode: 'history'
