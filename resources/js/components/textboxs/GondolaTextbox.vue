@@ -8,25 +8,23 @@
                     <option v-for="gondola in gondolas" :selected="gondola.CODIGO === parseInt(value)" :value="gondola.CODIGO">{{ gondola.CODIGO }} - {{ gondola.DESCRIPCION }}</option>
             </select> -->
 			      
-            <multiselect @input="$emit('input', seleccionGondola)" v-model="seleccionGondola" :options="gondolas" label="DESCRIPCION" track-by="CODIGO" v-bind:class="{ 'shadow-sm': true }" :multiple="true"></multiselect> 
+            <multiselect @input="$emit('input', seleccionGondola)" v-model="seleccionGondola" :options="gondolas" label="DESCRIPCION" track-by="ID" v-bind:class="{ 'shadow-sm': true }" :multiple="true"></multiselect> 
 	</div>	
 </template>
 <script>
 	export default {
-      props: {
-        'shadow': Boolean
-      },
+      props: ['shadow', 'selecciones'],
       data(){
         return {
           	seleccionGondola: [],
-            gondolas: [{CODIGO: '0', DESCRIPCION: 'SELECCIONE'}] ,
-            options: [
-              { name: 'Vue.js', code: 'vu' },
-              { name: 'Javascript', code: 'js' },
-              { name: 'Open Source', code: 'os' }
-            ]
+            gondolas: [{ID: '0', CODIGO: '0', DESCRIPCION: 'SELECCIONE'}]
         }
-      }, 
+      }, watch: { 
+        selecciones: function(newVal, oldVal) { // watch it
+          // console.log('Prop changed: ', newVal, ' | was: ', oldVal)
+            this.seleccionGondola = newVal;
+        }
+      },
       methods: {
             obtenerGondolas(){
 

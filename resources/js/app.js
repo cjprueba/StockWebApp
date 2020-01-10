@@ -276,6 +276,12 @@ Vue.component('select-proveedor', require('./components/textboxs/ProveedorTextbo
 
 /* ********************************************* */
 
+// PRODUCTO
+
+Vue.component('producto-detalle', require('./components/producto/modal/DetalleProducto.vue').default);
+
+/* ********************************************* */
+
 // MONEDA
 
 Vue.component('select-moneda', require('./components/textboxs/MonedaTextbox.vue').default);

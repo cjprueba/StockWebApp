@@ -256,6 +256,26 @@ function filtrarProductosCommon(codigo){
 
 }
 
+function obtenerProductoDetalleCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/productoDetalle', {'codigo': codigo}).then(function (response) {
+						return response.data;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 function codigoInternoCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -332,6 +352,48 @@ function obtenerProductoCommon(codigo, tipo){
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
 			return axios.post('/productoObtener', {'codigo': codigo, 'tipo': tipo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerProveedoresProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/productoConProveedor', {'codigo': codigo}).then(function (response) {
+					return response.data.proveedor;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerTransferenciaProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/transferencia', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function eliminarProductoCommon(codigo) {
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/eliminar', {'codigo': codigo}).then(function (response) {
 					return response.data;
 			});
 
@@ -904,6 +966,19 @@ function obtenerGondolaCommon(){
 
 }
 
+function obtenerGondolasProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/gondola/producto', {'codigo': codigo}).then(function (response) {
+					return response.data.gondolas;
+			});
+
+			// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1029,6 +1104,27 @@ function guardarRolCommon(nombre,descripcion,permisos){
 
 }
 
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      LOTES
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerLotesConCantidadCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/lotesConCantidad', {'codigo': codigo}).then(function (response) {
+					return response.data.lote;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1080,5 +1176,11 @@ export {
 		llamarRolesCommon,
 		guardarRolCommon,
 		cantidadSuperadaCommon,
-		generarPdfTransferenciaCommon
+		generarPdfTransferenciaCommon,
+		obtenerProductoDetalleCommon,
+		obtenerLotesConCantidadCommon,
+		obtenerProveedoresProductoCommon,
+		obtenerTransferenciaProductoCommon,
+		obtenerGondolasProductoCommon,
+		eliminarProductoCommon
 		};

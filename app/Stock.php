@@ -465,4 +465,41 @@ class Stock extends Model
     	
     }
 
+    public static function obtener_lotes_con_cantidad($codigo)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// INICIAR VARIABLES 
+
+    	$data = [];
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// CONSEGUIR LOTE 
+
+    	$lote = Stock::select(DB::raw('LOTE, CANTIDAD_INICIAL, CANTIDAD, COSTO, SUBSTR(FECALTAS, 1,11) AS FECALTAS'))
+	    ->where('COD_PROD','=', $codigo["codigo"])
+	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	    ->get();
+
+	    /*  --------------------------------------------------------------------------------- */
+
+	    // RETORNAR VALOR  
+
+	    if (count($lote) > 0) {
+	    	return ["lote" => $lote];
+	    } else {
+	    	return ["lote" => 0];
+	    }
+
+    	/*  --------------------------------------------------------------------------------- */
+    	
+    }
 }

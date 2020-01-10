@@ -1,3 +1,195 @@
 <template>
-	<h1>MOSTRAR PRODUCTO</h1>
+	<div class="container-fluid">
+		<div class="mt-3">
+			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th>Codigo</th>
+		                <th>Descripcion</th>
+		                <th>Precio Venta</th>
+		                <th>Precio Costo</th>
+		                <th>Precio Mayorista</th>
+		                <th>Stock</th>
+		                <th>Imagen</th>
+		                <th>Accion</th>
+		            </tr>
+		        </thead>
+		     </table>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+		
+		<!-- MODAL DETALLE PRODUCTO -->
+
+		<producto-detalle ref="detalle_producto" :codigo="codigo"></producto-detalle>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+	</div>
 </template>
+<script>
+	export default {
+      data(){
+        return {
+          	productos: [],
+          	codigo: ''
+        }
+      }, 
+      methods: {
+      },
+        mounted() {
+        	
+        	// ------------------------------------------------------------------------
+
+        	// INICIAR VARIABLES 
+
+        	let me = this;
+
+        	// ------------------------------------------------------------------------
+        	
+        	$(document).ready( function () {
+
+        	 	// ------------------------------------------------------------------------
+                // >>
+                // INICIAR EL DATATABLE PRODUCTOS MODAL
+                // ------------------------------------------------------------------------
+                
+                var tableProductos = $('#tablaModalProductos').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                                 "data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
+                                 "url": "/productoDatatableGeneral",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "DESCRIPCION" },
+                            { "data": "PREC_VENTA" },
+                            { "data": "PRECOSTO" },
+                            { "data": "PREMAYORISTA" },
+                            { "data": "STOCK" },
+                            { "data": "IMAGEN" },
+                            { "data": "ACCION" }
+                        ]      
+                    });
+
+                // ------------------------------------------------------------------------
+
+            	// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
+	
+				$("table#tablaModalProductos").css("font-size", 12);
+            	tableProductos.columns.adjust().draw();
+
+            	// ------------------------------------------------------------------------
+                
+                // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
+
+
+                $('#tablaModalProductos').on('click', 'tbody tr', function() {
+
+                    // *******************************************************************
+
+                    // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
+
+
+                    // *******************************************************************
+
+                });
+
+                //FIN TABLA MODAL PRODUCTOS
+                // <<   
+                // ------------------------------------------------------------------------
+
+                // MOSTRAR MODAL PRODUCTO
+
+                $('#tablaModalProductos').on('click', 'tbody tr #mostrarDetalle', function() {
+
+                	// *******************************************************************
+
+                	// OBTENER DATOS DEL PRODUCTO DATATABLE JS
+
+                	me.codigo = tableProductos.row($(this).parents('tr')).data().CODIGO;
+                	me.$refs.detalle_producto.mostrar();
+                	// OBTENER IMAGEN - UTIL
+                	// me.imagen = $(tableProductos.row($(this).parents('tr')).data().IMAGEN).attr('src');
+
+                    // *******************************************************************
+
+                });
+
+                // ------------------------------------------------------------------------
+
+                // MOSTRAR MODAL PRODUCTO
+
+                $('#tablaModalProductos').on('click', 'tbody tr #eliminarProducto', function() {
+
+                    // *******************************************************************
+
+                    // OBTENER DATOS DEL PRODUCTO DATATABLE JS
+                    
+                    Swal.fire({
+                      title: '¿ Eliminar ?',
+                      text: 'Eliminar el producto',
+                      type: 'warning',
+                      showLoaderOnConfirm: true,
+                      showCancelButton: true,
+                      confirmButtonColor: 'btn btn-success',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Si !',
+                      cancelButtonText: 'Cancelar',
+                      preConfirm: () => {
+
+                        return Common.eliminarProductoCommon(tableProductos.row($(this).parents('tr')).data().CODIGO).then(data => {
+
+                            // ------------------------------------------------------------------------
+
+                            // REVISAR SI HAY DATOS 
+
+                            if (!data.response === true) {
+                              throw new Error(data.statusText);
+                            } 
+
+                            // ------------------------------------------------------------------------
+
+                            return true;
+
+                            // ------------------------------------------------------------------------
+
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                              `Request failed: ${error}`
+                            )
+                        });
+                      }
+
+                    }).then((result) => {
+                      if (result.value) {
+                        Swal.fire(
+                                  'Eliminado !',
+                                  'Se ha eliminado el producto correctamente !',
+                                  'success'
+                        )
+
+                        // ------------------------------------------------------------------------
+
+                      }
+                    })
+                    //me.codigo = tableProductos.row($(this).parents('tr')).data().CODIGO;
+
+                    // *******************************************************************
+
+                });
+
+                // ------------------------------------------------------------------------
+            });    
+        }
+    }
+</script>
+

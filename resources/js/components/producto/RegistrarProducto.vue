@@ -52,11 +52,13 @@
 				    	<!-- ------------------------------------------------------------------ -->
 
 				    	<div class="col-md-12">
+							
+							<form class="form-inline">
 
 				    		<!-- ------------------------------------------------------------------ -->
 
 				    		<!-- HABILITAR CODIGO REAL -->
-
+							
 					   		<div class="my-1">
 								  <div class="custom-control custom-switch mr-sm-2">
 								   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
@@ -65,6 +67,28 @@
 							</div>
 
 							<!-- ------------------------------------------------------------------ -->
+							
+							<!-- VENCIMIENTO -->
+
+							<div class="my-4">
+								  <div class="custom-control custom-switch mr-sm-2">
+								   <input type="checkbox" class="custom-control-input" id="switchVencimiento" v-model="checked_vencimiento">
+								   <label class="custom-control-label" for="switchVencimiento">Vencimiento</label>
+								 </div>
+							</div>
+							
+							<!-- ------------------------------------------------------------------ -->
+
+							<div class="my-4">
+								  <div class="custom-control custom-switch mr-sm-2">
+								   <input type="checkbox" class="custom-control-input" id="switchAutoDescripcion" v-model="checked_auto_descripcion" v-on:change="onChangeAutoDescripcion">
+								   <label class="custom-control-label" for="switchAutoDescripcion">Auto Descripción</label>
+								 </div>
+							</div>
+							
+							<!-- ------------------------------------------------------------------ -->
+
+							</form>
 
 				    	</div>	
 
@@ -537,7 +561,7 @@
 					    			<!-- GONDOLA -->
 
 					    			<div class="col-md-12">
-					    				<select-gondola v-model="seleccion_gondola"  v-bind:shadow="shadow"></select-gondola>
+					    				<select-gondola v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar" v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -706,6 +730,7 @@
           seleccion_moneda: 'null',
           seleccion_proveedor: 'null',
           seleccion_gondola: [{}],
+          seleccion_gondola_modificar: [{}],
           seleccion_presentacion: 'UNIDADES',
           observacion: '',
           iva: '10',
@@ -728,6 +753,8 @@
           mostrar_genero: false,
           mostrar_marca: false,
           checked_codigo_real: false,
+          checked_vencimiento: false,
+          checked_auto_descripcion: true,
           descri_color: '',
           descri_tela: '',
           descri_talle: '',
@@ -775,7 +802,7 @@
             	// ------------------------------------------------------------------------
 
             	// OBTENER CODIGO GENARADO 
-
+            	
             	Common.obtenerProductoCommon(this.codigo_producto, 1).then(data => {
 
             		// ------------------------------------------------------------------------
@@ -792,7 +819,8 @@
 
             		this.codigo_producto = data.producto.CODIGO;
                     this.codigo_interno = data.producto.CODIGO_INTERNO; 
-                    this.descripcion = data.producto.DESCRIPCION; 
+                    this.descripcion = data.producto.DESCRIPCION;
+                    this.checked_auto_descripcion = data.producto.AUTODESCRIPCION; 
                     this.iva = data.producto.IVA; 
                     this.seleccion_categoria = data.producto.LINEA.toString();
                     this.seleccion_sub_categoria = data.producto.SUBLINEA.toString();
@@ -809,9 +837,11 @@
                     this.precio_vip = data.producto.PREVIP;
                     this.precio_costo = data.producto.PRECOSTO;
                     this.stock_minimo = data.producto.STOCK_MIN;
-                    this.seleccion_gondola = data.producto.FK_GONDOLA;
                     this.observacion = data.producto.OBSERVACION;
                     this.seleccion_moneda = data.producto.MONEDA.toString();
+                    this.seleccion_gondola_modificar = data.producto.GONDOLAS;
+                    this.seleccion_proveedor = data.producto.PROVEEDOR.toString();
+
 
                     // ------------------------------------------------------------------------
 
@@ -1143,6 +1173,14 @@
 
             	// ------------------------------------------------------------------------
 
+            	// REVISAR SI ESTA ACTIVADO AUTO DESCRIPCION 
+
+            	if (this.checked_auto_descripcion === false) {
+            		return;
+            	}
+
+            	// ------------------------------------------------------------------------
+
             	// INICIAR VARIABLES 
 
             	var descripcion = '';
@@ -1451,6 +1489,8 @@
             	// INICIAR VARIABLES 
 
             	let me = this;
+            	var textRegistro = '';
+            	var textTitulo = '';
 
             	// ------------------------------------------------------------------------
 
@@ -1497,16 +1537,25 @@
             		gondola: this.seleccion_gondola,
             		observacion: this.observacion,
             		imagen: this.rutaImagen,
-            		generado: this.generado
+            		generado: this.generado,
+            		modificar: this.estado_boton.boton_warning,
+            		vencimiento: this.checked_vencimiento
             	}
+
+            	// ------------------------------------------------------------------------
+
+            	// CAMBIAR TEXTO DE ACUERDO A MODIFICAR O GUARDAR 
+
+            	textRegistro = this.estado_boton.boton_warning ? "Modificar el producto " + me.codigo_producto + " !" : "Guardar el producto " + me.codigo_producto + " !";
+            	textTitulo = this.estado_boton.boton_warning ? "Modificar" : "Guardar";
 
             	// ------------------------------------------------------------------------
 
             	// GUARDAR PRODUCTO
 
             	Swal.fire({
-				  title: '¿ Guardar ?',
-				  text: "Guardar el producto " + me.codigo_producto + " !",
+				  title: '¿ '+textTitulo+' ?',
+				  text: textRegistro,
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -1606,6 +1655,7 @@
 	          	this.mostrar_genero = false;
 	          	this.mostrar_marca = false;
 	          	this.checked_codigo_real = false;
+	          	this.checked_vencimiento = false;
 	          	this.descri_color = '';
 	          	this.descri_tela = '';
 	          	this.descri_talle = '';
@@ -1632,6 +1682,16 @@
 	          	this.validar_codigo_real = false;
 
 	          	// ------------------------------------------------------------------------
+
+            }, onChangeAutoDescripcion(){
+
+            	// ------------------------------------------------------------------------
+
+            	// AL CAMBIAR AL SWITCH LLAMAR AUTO DESCRIPCION 
+
+            	this.generarDescripcion();
+
+            	// ------------------------------------------------------------------------
 
             }
       },

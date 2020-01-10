@@ -115,6 +115,7 @@ Route::get('marca', 'MarcaController@obtenerMarcas');
 // GONDOLA
 
 Route::get('gondola', 'GondolaController@obtenerGondolas');
+Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
 
 /* -------------------------------------------------------------------------- */
 
@@ -179,12 +180,23 @@ Route::get('productoCodigoInterno', 'ProductoController@generarCI');
 Route::get('productoCodigo', 'ProductoController@generarCodigo');
 Route::post('productoGuardar', 'ProductoController@guardar');
 Route::post('productoObtener', 'ProductoController@obtener');
+Route::post('productoDatatableGeneral', 'ProductoController@mostrarDataTableGeneral');
+Route::post('productoDetalle', 'ProductoController@productoDetalle');
+Route::post('productoConProveedor', 'ProductoController@productoProveedor');
+Route::post('producto/transferencia', 'ProductoController@productoTransferencia');
+Route::post('producto/eliminar', 'ProductoController@eliminar');
 
 /* -------------------------------------------------------------------------- */
 
 //	PARAMETROS
 
 Route::get('parametro', 'ParametroController@mostrar');
+
+/* -------------------------------------------------------------------------- */
+
+//	LOTES
+
+Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
 
 /* -------------------------------------------------------------------------- */
 
