@@ -89,7 +89,7 @@
 				// ENVIAR CODIGO
 
 				this.$emit('codigo_producto', codigo);
-
+                
 				// ------------------------------------------------------------------------
 
 			}, vaciarDevolver(){
@@ -163,28 +163,17 @@
 
                 $('#tablaModalProductos').on('click', 'tbody tr', function() {
 
-                    if ($(this).hasClass('selected')) {
-                        $(this).removeClass('selected');
-                    } else {
-                        tableProductos.$('tr.selected').removeClass('selected');
-                        $(this).addClass('selected');
-                    }
-
                     // *******************************************************************
 
                     // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
 
                     me.codigoProducto = tableProductos.row(this).data().CODIGO;
-                    me.descripcionProducto = tableProductos.row(this).data().DESCRIPCION;  
-                    me.stockProducto = tableProductos.row(this).data().STOCK;
+                    // me.descripcionProducto = tableProductos.row(this).data().DESCRIPCION;  
+                    // me.stockProducto = tableProductos.row(this).data().STOCK;
 
                     me.enviarCodigoPadre(me.codigoProducto);
 
-                    Common.calcularCotizaciónPrecioCommon(tableProductos.row(this).data().PREC_VENTA, tableProductos.row(this).data().MONEDA, me.monedaCodigo, me.candec, me.tab_unica).then(data => {
-						  me.precioProducto = data
-					});
-
-                   	me.ivaProducto = tableProductos.row(this).data().IVA;
+                   	// me.ivaProducto = tableProductos.row(this).data().IVA;
 
                     // *******************************************************************
 

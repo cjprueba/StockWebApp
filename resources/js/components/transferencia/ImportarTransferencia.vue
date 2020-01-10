@@ -2,16 +2,31 @@
 	<div class="container-fluid mt-4">
 		<div class="row">
 
+			<!-- ------------------------------------------------------------------------------------- -->
+
+			<!-- TITULO  -->
+			
 			<div class="col-md-12">
-				<nav aria-label="breadcrumb">
-				  <ol class="breadcrumb">
-				    <li class="breadcrumb-item active" aria-current="page">Importar Transferencias</li>
-				  </ol>
-				</nav>
+				<vs-divider>
+					Importar Transferencias
+				</vs-divider>
 			</div>
 
+			<!-- ------------------------------------------------------------------------------------- -->
+
+	        <!-- MOSTRAR LOADING -->
+
+	        <div class="col-md-12">
+				<div v-if="procesar" class="d-flex justify-content-center mt-3">
+					<strong>Procesando...   </strong>
+	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
+	             </div>
+            </div>
+
+			<!-- ------------------------------------------------------------------------------------- -->
+
 			<div class="col-md-12">
-				<table id="tablaImportarTransferencia" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+				<table id="tablaImportarTransferencia" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
 		                    <th>Codigo</th>
@@ -47,7 +62,9 @@
 	 export default {
       data(){
         return {
-          	codigoTransferencia: ''
+          	codigoTransferencia: '',
+          	procesar: false,
+          	
         }
       }, 
       methods: {
@@ -263,6 +280,27 @@
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
 	                    me.importarTransferencia(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+
+	                    // *******************************************************************
+
+	                });
+
+                    // ------------------------------------------------------------------------
+
+                    // GENERAR REPORTE PDF
+
+                    $('#tablaImportarTransferencia').on('click', 'tbody tr #imprimirReporte', function() {
+
+	                    // *******************************************************************
+
+	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+
+	                   	me.procesar = true;
+	                   	var row  = $(this).parents('tr')[0];
+	                   	Common.generarRptPdfTransferenciaCommon(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN).then( () => {
+	                   		me.procesar = false;
+	                   	});
+	                   	
 
 	                    // *******************************************************************
 

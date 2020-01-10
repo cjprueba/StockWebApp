@@ -60,7 +60,7 @@
       <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
           <font-awesome-icon icon="sticky-note" />
-          <span >Reportes</span>
+          <span >Reporte</span>
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -72,7 +72,8 @@
              <!-- <router-link class="collapse-item" :to="{name: 'rptCliente'}">Clientes</router-link> -->
              <router-link class="collapse-item" :to="{name: 'rptArticulo'}">Articulos</router-link>
              <router-link class="collapse-item" :to="{name: 'rptProveedor'}">Proveedores</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventario</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventarios</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link>
           </div>
         </div>
       </li>
@@ -90,6 +91,24 @@
             <!-- <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a> -->
             <router-link class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencia</router-link>
 
+          </div>
+        </div>
+      </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
+      <!-- COMPRA -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCompra" aria-expanded="true" aria-controls="collapseCompra">
+          <font-awesome-icon icon="cart-plus"/>
+          <span>Compra</span>
+        </a>
+        <div id="collapseCompra" class="collapse" aria-labelledby="headingCompra" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'compraMostrar'}">Mostrar Compras</router-link>
+            <router-link class="collapse-item" :to="{name: 'compra'}">Realizar Compras</router-link>
           </div>
         </div>
       </li>
@@ -134,13 +153,17 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
-          <font-awesome-icon icon="list-alt" />
+          <font-awesome-icon icon="user-circle" />
           <span>Usuarios</span>
         </a>
         <div id="collapseRol" class="collapse" aria-labelledby="headingRol" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
             <router-link class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
+            <router-link class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
+            <router-link class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
+            <router-link class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
           </div>
         </div>
       </li>

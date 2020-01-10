@@ -9,7 +9,6 @@ use App\Parametro;
 
 class ComprasDet extends Model
 {
-
     protected $connection = 'retail';
     protected $table = 'comprasdet';
 

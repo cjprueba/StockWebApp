@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac0c3218f9917414cbd4ab101e62fb06",
+    "content-hash": "111b5fc1513a0358a329dddff072efdc",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -821,6 +821,52 @@
                 "storage"
             ],
             "time": "2019-06-18T20:09:29+00:00"
+        },
+        {
+            "name": "luecano/numero-a-letras",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/luecano/numero-a-letras.git",
+                "reference": "059796cd2e53c3204b9ac49d1484853bbb5b5a7b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/luecano/numero-a-letras/zipball/059796cd2e53c3204b9ac49d1484853bbb5b5a7b",
+                "reference": "059796cd2e53c3204b9ac49d1484853bbb5b5a7b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.5 || ^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NumeroALetras\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luis Cano",
+                    "email": "luecano@gmail.com",
+                    "homepage": "https://github.com/luecano",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Convierte un número a letras con formato de moneda para facturación electrónica.",
+            "homepage": "https://github.com/luecano/numero-a-letras",
+            "keywords": [
+                "convertir",
+                "facturacion",
+                "letras",
+                "numero",
+                "sunat"
+            ],
+            "time": "2019-09-04T02:53:46+00:00"
         },
         {
             "name": "maatwebsite/excel",

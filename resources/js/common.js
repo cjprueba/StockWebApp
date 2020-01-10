@@ -255,6 +255,26 @@ function filtrarProductosCommon(codigo){
 			// ------------------------------------------------------------------------
 
 }
+function filtrarUsuariosCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/producto', {'codigo': codigo, 'Opcion': 3}).then(function (response) {
+						return response.data.producto;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 
 function obtenerProductoDetalleCommon(codigo){
 
@@ -306,7 +326,7 @@ function calcularCotizaciónPrecioCommon(precioProducto, monedaProducto, monedaS
 
 
 	        // ------------------------------------------------------------------------
-
+	        
 			// CONSEGUIR LA COTIZACION DEL PRECIO
 				
 			return axios.post('/cotizacion', {'precio': precioProducto, 'monedaProducto': monedaProducto, 'monedaSistema': monedaSistema, 'decSistema': dec, 'tab_unica': tab_unica}).then(function (response) {
@@ -471,7 +491,7 @@ function enviarTransferenciaCommon(data){
 }
 
 
-function generarPdfTransferenciaCommon(data){
+function generarPdfFacturaTransferenciaCommon(data){
 
 			// ------------------------------------------------------------------------
 
@@ -483,13 +503,40 @@ function generarPdfTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'pdf-generar', method: 'get', responseType: 'blob', data: {'accion': 'ver', 'tipo': 'digital'}}).then(function (response) {
-					const url = window.URL.createObjectURL(new Blob([response.data]));
+			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
 					link.href = url;
 					//DESCARGAR
 					// link.setAttribute('download', 'file.pdf');
 					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarRptPdfTransferenciaCommon(codigo, codigo_origen){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'pdf-generar-transferencia', method: 'post', responseType: 'blob', data: {'codigo': codigo, 'codigo_origen': codigo_origen}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
 					link.target = '_blank'
 					link.click();
 			});
@@ -519,13 +566,13 @@ function modificarTransferenciaCommon(codigo, data, cabecera){
 
 }
 
-function obtenerCabeceraTransferenciaCommon(codigo){
+function obtenerCabeceraTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCabecera', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCabecera', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -533,13 +580,13 @@ function obtenerCabeceraTransferenciaCommon(codigo){
 
 }
 
-function obtenerCuerpoTransferenciaCommon(codigo){
+function obtenerCuerpoTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
-			return axios.post('/transferenciaCuerpo', {'codigo': codigo}).then(function (response) {
+			return axios.post('/transferenciaCuerpo', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
 					return response.data;
 			});
 
@@ -1083,8 +1130,27 @@ function llamarRolesCommon(){
 
 }
 
+function traerRolUsuarioCommon(id){
 
-function guardarRolCommon(nombre,descripcion,permisos){
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/rolUsuarioTraer', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+
+function llamarPermisoCommon(){
 
 			// ------------------------------------------------------------------------
 
@@ -1096,13 +1162,46 @@ function guardarRolCommon(nombre,descripcion,permisos){
 
 			// LLAMAR ROL
 
-			return axios.post('/rolGuardar', {'nombre':nombre,'descripcion':descripcion,'permisos':permisos}).then(function (response) {
+			return axios.get('/permisoTraer').then(function (response) {
 					return response.data;
 				});
 
 			// ------------------------------------------------------------------------
 
 }
+function filtrarRolesCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/rolFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function filtrarPermisosCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/permisoFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1126,6 +1225,110 @@ function obtenerLotesConCantidadCommon(codigo){
 
 }
 
+			// ------------------------------------------------------------------------
+
+}
+
+function guardarRolCommon(nombre,descripcion,permisos,existe,id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+
+			return axios.post('/rolGuardar', {'nombre':nombre,'descripcion':descripcion,'permisos':permisos,'existe':existe,'id':id}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function asignarRolCommon(id,roles){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// URL ASIGNAR ROL
+
+			return axios.post('/rolAsignar', {'id':id,'roles':roles}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function asignarPermisoCommon(id,permisos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// URL ASIGNAR ROL
+
+			return axios.post('/permisoAsignar', {'id':id,'permisos':permisos}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							 	PERMISOS
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+function guardarPermisoCommon(nombre,descripcion,existe,id){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/PermisoGuardar', {'nombre':nombre,'descripcion':descripcion,'existe':existe,'id':id}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarUsuarioCommon(nombre,email,contraseña){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/usuarioGuardar', {'nombre':nombre,'email':email,'contraseña':contraseña	}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1142,7 +1345,10 @@ export {
 		restarCommon, 
 		multiplicarCommon, 
 		existeProductoDataTableCommon, 
-		filtrarProductosCommon, 
+		filtrarProductosCommon,
+		filtrarUsuariosCommon,
+		filtrarRolesCommon, 
+		filtrarPermisosCommon, 
 		codigoInternoCommon, 
 		calcularCotizaciónPrecioCommon, 
 		guardarTransferenciaCommon, 
@@ -1174,7 +1380,13 @@ export {
 		guardarProductoCommon,
 		obtenerProductoCommon,
 		llamarRolesCommon,
+		llamarPermisoCommon,
 		guardarRolCommon,
+		asignarRolCommon,
+		asignarPermisoCommon,
+		traerRolUsuarioCommon,
+		guardarPermisoCommon,
+		guardarUsuarioCommon
 		cantidadSuperadaCommon,
 		generarPdfTransferenciaCommon,
 		obtenerProductoDetalleCommon,
@@ -1183,4 +1395,6 @@ export {
 		obtenerTransferenciaProductoCommon,
 		obtenerGondolasProductoCommon,
 		eliminarProductoCommon
+		generarPdfFacturaTransferenciaCommon,
+		generarRptPdfTransferenciaCommon
 		};
