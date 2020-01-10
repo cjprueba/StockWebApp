@@ -1992,7 +1992,7 @@ class Transferencia extends Model
 
             // CREAR LOTE DEL PRODUCTO 
 
-            $lote = Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere);
+            $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere))["id"];
 
             /*  --------------------------------------------------------------------------------- */
 

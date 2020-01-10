@@ -124,12 +124,33 @@ Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
 
 Route::get('proveedor', 'ProveedorController@obtenerProveedores');
 Route::post('proveedores', 'ProveedorController@mostrar');
+Route::post('proveedor/pago', 'ProveedorController@pago');
+Route::get('proveedor/datatable', 'ProveedorController@datatable');
+
+/* -------------------------------------------------------------------------- */
+
+// PAGOS PROVEEDOR
+
+Route::post('pagos_prov/datatable', 'Pagos_ProvController@datatable');
+Route::post('pagos_prov/pagoUnico', 'Pagos_ProvController@pagoUnico');
 
 /* -------------------------------------------------------------------------- */
 
 // MONEDA
 
 Route::get('moneda', 'MonedaController@obtenerMonedas');
+
+/* -------------------------------------------------------------------------- */
+
+// TARJETA
+
+Route::get('tarjeta/datatable', 'TarjetaController@datatable');
+
+/* -------------------------------------------------------------------------- */
+
+// BANCO
+
+Route::get('banco/datatable', 'BancoController@datatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -186,6 +207,7 @@ Route::post('productoDetalle', 'ProductoController@productoDetalle');
 Route::post('productoConProveedor', 'ProductoController@productoProveedor');
 Route::post('producto/transferencia', 'ProductoController@productoTransferencia');
 Route::post('producto/eliminar', 'ProductoController@eliminar');
+Route::post('productoCompra', 'ProductoController@obtenerProductoCompra');
 
 /* -------------------------------------------------------------------------- */
 
@@ -205,12 +227,21 @@ Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
 
 Route::post('cotizacion', 'CotizacionController@cotizar');
 Route::get('cotizacion', 'CotizacionController@cotizacionDia');
+Route::get('cotizacion/compra-dia', 'CotizacionController@cotizacionCompraDia');
 
 /* -------------------------------------------------------------------------- */
 
 // COMPRAS
 
 Route::post('comprasDetProductos', 'ComprasDetController@obtenerProductosNroCaja');
+Route::post('compra/guardar-modificar', 'CompraController@guardarModificarCompra');
+Route::get('compra/codigo', 'CompraController@obtenerCodigo');
+Route::get('compra/datatable', 'CompraController@mostrarDataTable');
+Route::post('compra/eliminar', 'CompraController@eliminarCompra');
+Route::get('compra/mostrar_productos', 'CompraController@mostrarProductos');
+Route::post('compra/pdf', 'CompraController@getPdf');
+Route::post('compra/cabecera', 'CompraController@obtenerCabecera');
+Route::post('compra/cuerpo', 'CompraController@obtenerCuerpo');
 
 /* -------------------------------------------------------------------------- */
 
@@ -260,6 +291,14 @@ Route::post('descuento', 'DescuentoController@mostrar');
 
 /* -------------------------------------------------------------------------- */
 
+// DEUDA
+
+Route::post('/deuda/deudaDatatable', 'DeudaController@deuda_datatable');
+Route::post('/deuda/deudaCompraDatatable', 'DeudaController@deuda_compra_datatable');
+Route::post('/deuda/datosNota', 'DeudaController@datos_nota');
+
+/* -------------------------------------------------------------------------- */
+
 // EXCEL REPORTES 
 
 Route::post('exportProveedor', 'ProveedorController@descargar');
@@ -269,6 +308,7 @@ Route::post('stock', 'Stock@mostrar');
 Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
 Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
 Route::post('exportCompra', 'CompraController@Descargar');
+
 /* -------------------------------------------------------------------------- */
 
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 

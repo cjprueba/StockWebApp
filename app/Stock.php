@@ -440,7 +440,11 @@ class Stock extends Model
 
     	/*  --------------------------------------------------------------------------------- */
 
-		Stock::insert(
+    	// MODOS
+        // MODO 1 - COMPRA
+        // MODO 2 - TRANSFERENCIA 
+
+		$id = Stock::insertGetId(
 		[
 			'COD_PROD' => $codigo, 
 			'CANTIDAD_INICIAL' => $cantidad,
@@ -461,10 +465,68 @@ class Stock extends Model
 
     	// RETORNAR VALOR 
 
-    	return $lote;
+    	return ["lote" => $lote, "id" => $id];
 
     	/*  --------------------------------------------------------------------------------- */
     	
+    }
+
+    public static function ultimo_lote($codigo)
+    {
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER USUARIO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER ULTIMO LOTE 
+
+    	$lote = Stock::select(DB::raw('LOTE'))
+	    ->where('COD_PROD','=', $codigo)
+	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	    ->orderBy('LOTE', 'desc')
+	    ->limit(1)
+	    ->get();
+
+	    /*  --------------------------------------------------------------------------------- */
+
+	    if (count($lote) > 0) {
+	    	return $lote[0]["LOTE"];
+	    } else {
+	    	return 0;
+	    }
+	    
+	    /*  --------------------------------------------------------------------------------- */
+	    
+    }
+
+
+    public static function eliminar_lote_por_id($id)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // SI CANTIDAD A SUMAR POSEE LOTE 
+
+        Stock::where('ID','=', $id)
+        ->delete();
+
+	    /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return true;
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 
     public static function obtener_lotes_con_cantidad($codigo)

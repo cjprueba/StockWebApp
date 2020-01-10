@@ -1,10 +1,7 @@
 <template>
 	<div>
-			<div class="text-left"> 
-                <label for="validationTooltip01">Moneda</label>
-            </div>
-
-            <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow , 'is-invalid': validar_moneda }" @input="$emit('input', $event.target.value)" v-on:change="enviarDescripcionPadre($event.target.value)">
+            <label for="validationTooltip01">Moneda</label>
+            <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow , 'is-invalid': validar_moneda }" @input="$emit('input', $event.target.value)" v-on:change="enviarDescripcionPadre($event.target.value)" :disabled="deshabilitar">
                     <option v-for="moneda in monedas" :selected="moneda.CODIGO === parseInt(value)" :value="moneda.CODIGO">{{ moneda.CODIGO }} - {{ moneda.DESCRIPCION }}</option>
             </select>
 			
@@ -15,7 +12,8 @@
       props: {
         'value': String,
         'shadow': Boolean,
-        'validar_moneda': Boolean
+        'validar_moneda': Boolean,
+        'deshabilitar': Boolean
       },
       data(){
         return {

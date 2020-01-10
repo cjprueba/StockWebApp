@@ -257,6 +257,20 @@ class ProductoController extends Controller
 
     }
 
+     public function obtenerProductoCompra(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::obtener_producto_compra($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
     public function mostrarDataTableGeneral(Request $request)
     {
@@ -327,5 +341,5 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
-
+    
 }

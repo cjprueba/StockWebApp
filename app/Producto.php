@@ -1324,6 +1324,83 @@ class Producto extends Model
 
     }
     
+    public static function obtener_producto_compra($dato){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // USUARIO 
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $data = [];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
+
+        $producto = ProductosAux::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
+                          PRODUCTOS.DESCRIPCION, 
+                          PRODUCTOS_AUX.PREC_VENTA,
+                          PRODUCTOS_AUX.MONEDA,
+                          PRODUCTOS_AUX.PREMAYORISTA'))
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        foreach ($producto as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $data["CODIGO"] = $value->CODIGO;
+            $data["DESCRIPCION"] = $value->DESCRIPCION;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOTE
+
+            $lote = Stock::ultimo_lote($value->CODIGO);
+            $data["LOTE"] = $lote + 1;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // COTIZAR LOS PRECIOS 
+            
+            $candec = Parametro::candec((int)$dato["moneda"]);
+            $data["PREC_VENTA"] = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica])["valor"];
+            $data["PREMAYORISTA"] = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica])["valor"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true, "producto" => $data];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     public static function producto_proveedor($datos)
     {
 
