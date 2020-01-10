@@ -32,7 +32,7 @@ class Common
 
         // DAR FORMATO AL PRECIO DE ACUERDO A LA MONEDA
 
-         $dato = str_replace(',', '', $valor);
+        $dato = str_replace(',', '', $valor);
         
         return number_format((float)$dato, $candec, '.', '');
 

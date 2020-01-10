@@ -16,4 +16,9 @@ class CotizacionController extends Controller
     	$cotizaciones = Cotizacion::cotizacion_dia_monedas($request->all());
         return response()->json($cotizaciones);
     }
+
+    public function cotizacionCompraDia(Request $request){
+    	$cotizaciones = Cotizacion::cotizacion_dia_monedas_compra($request->all());
+        return response()->json($cotizaciones);
+    }
 }

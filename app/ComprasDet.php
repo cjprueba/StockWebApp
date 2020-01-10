@@ -11,6 +11,9 @@ class ComprasDet extends Model
 {
     protected $connection = 'retail';
     protected $table = 'comprasdet';
+    const CREATED_AT = 'FECALTAS';
+    const UPDATED_AT = 'FECMODIF';
+    
      public static function id_cd($cod_prod, $lote)
     {
 

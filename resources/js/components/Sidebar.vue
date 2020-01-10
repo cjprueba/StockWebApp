@@ -115,6 +115,24 @@
 
       <!-- ------------------------------------------------------------------------------------- -->
 
+      <!-- PROVEEDOR -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProveedor" aria-expanded="true" aria-controls="collapseProveedor">
+          <font-awesome-icon icon="ambulance"/>
+          <span>Proveedor</span>
+        </a>
+        <div id="collapseProveedor" class="collapse" aria-labelledby="headingProveedor" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'proveedorMostrar'}">Mostrar Proveedores</router-link>
+            <router-link class="collapse-item" :to="{name: 'proveedorPago'}">Pago de Cuentas</router-link>
+          </div>
+        </div>
+      </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
       <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
           <font-awesome-icon icon="tags"/>

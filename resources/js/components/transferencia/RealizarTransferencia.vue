@@ -1933,7 +1933,7 @@
 
                     // CERRAR EL MODAL
                      
-                     $('.empleado-modal').modal('hide');
+                    $('.empleado-modal').modal('hide');
 
                     // *******************************************************************
 

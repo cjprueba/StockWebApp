@@ -5,9 +5,12 @@
             </div>
 
             <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_proveedor }" @input="$emit('input', $event.target.value)">
-                    <option :value="null">0 - Seleccionar</option>
-                    <option v-for="proveedor in proveedores" :selected="proveedor.CODIGO === parseInt(value)" :value="proveedor.CODIGO">{{ proveedor.CODIGO }} - {{ proveedor.DESCRIPCION }}</option>
+                    <option :value="null">Seleccionar</option>
+                    <option v-for="proveedor in proveedores" :selected="proveedor.CODIGO === parseInt(value)" :value="proveedor.CODIGO">{{ proveedor.DESCRIPCION }}</option>
             </select>
+
+            <!-- <v-select :options="proveedores" label="DESCRIPCION" track-by="CODIGO"></v-select> -->
+           <!--  <multiselect :option-height="10" @input="$emit('input', seleccionGondola)" v-model="value" :options="proveedores" label="DESCRIPCION" track-by="CODIGO" v-bind:class="{ 'shadow-sm': true }" :multiple="false"></multiselect>  -->
 	</div>	
 </template>
 <script>
