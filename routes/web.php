@@ -74,31 +74,54 @@ Route::get('inventarioMostrar', 'InventarioController@inventarioDataTable');
 // CATEGORIA
 
 Route::get('categoria', 'CategoriaController@obtenerCategorias');
+Route::post('categoriaDatatable', 'CategoriaController@categoriasDatatable');
+Route::post('CategoriasPorSubCategoriasDatatable', 'CategoriaController@categoriaDatatable');
+Route::post('categoriaFiltrar', 'CategoriaController@filtrarCategoria');
+Route::post('CategoriaEliminar', 'CategoriaController@CategoriaEliminar');
+Route::get('nuevaCategoria','CategoriaController@obtenerCodigo');
+Route::post('categoriaGuardar', 'CategoriaController@categoriaGuardar');
 
 /* -------------------------------------------------------------------------- */
 
 // SUB CATEGORIA
 
 Route::get('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
-
+Route::post('subCategoriaFiltrar', 'SubCategoriaController@filtrarSubCategoria');
+Route::get('nuevaSubCategoria','SubCategoriaController@obtenerCodigo');
+Route::post('subCategoriaEliminar', 'SubCategoriaController@subCategoriaEliminar');
+Route::post('subCategoriaGuardar', 'SubCategoriaController@subCategoriaGuardar');
+Route::post('subCategoriaDatatable', 'SubCategoriaController@subCategoriasDatatable');
+Route::post('subCategoriasDatatable', 'SubCategoriaController@subCategoriaDatatable');
 /* -------------------------------------------------------------------------- */
 
 // COLOR
-
+Route::get('nuevoColor','ColorController@obtenerCodigo');
 Route::get('color', 'ColorController@obtenerColores');
+Route::post('coloresDatatable', 'ColorController@ColoresDatatable');
+Route::post('colorFiltrar', 'ColorController@filtrarColor');
+Route::post('colorGuardar', 'ColorController@colorGuardar');
+Route::post('colorEliminar', 'ColorController@colorEliminar');
 
 /* -------------------------------------------------------------------------- */
 
 // TELAS
 
 Route::get('tela', 'TelaController@obtenerTelas');
-
+Route::post('telasDatatable', 'TelaController@telasDatatable');
+Route::post('telaFiltrar', 'TelaController@filtrarTela');
+Route::get('nuevaTela','TelaController@obtenerCodigo');
+Route::post('telaGuardar', 'TelaController@telaGuardar');
+Route::post('telaEliminar', 'TelaController@telaEliminar');
 /* -------------------------------------------------------------------------- */
 
 // TALLE
 
 Route::get('talle', 'TalleController@obtenerTalles');
-
+Route::post('tallesDatatable', 'TalleController@tallesDatatable');
+Route::post('talleFiltrar', 'TalleController@filtrarTalle');
+Route::post('talleEliminar', 'TalleController@talleEliminar');
+Route::get('nuevoTalle','TalleController@obtenerCodigo');
+Route::post('talleGuardar', 'TalleController@talleGuardar');
 /* -------------------------------------------------------------------------- */
 
 // GENERO
@@ -109,13 +132,24 @@ Route::get('genero', 'GeneroController@obtenerGeneros');
 
 // MARCA
 
-Route::get('marca', 'MarcaController@obtenerMarcas');
+Route::get('marca','MarcaController@obtenerMarcas');
+Route::get('nuevaMarca','MarcaController@obtenerCodigo');
+Route::post('marcaFiltrar', 'MarcaController@filtrarMarca');
+Route::post('marcaGuardar', 'MarcaController@marcaGuardar');
+Route::post('marcaEliminar', 'MarcaController@marcaEliminar');
+Route::post('marcasDatatable', 'MarcaController@MarcasDatatable');
+Route::post('MarcasPorCategoriaDatatable', 'MarcaController@MarcasPorCategoriaDatatable');
 
 /* -------------------------------------------------------------------------- */
 
 // GONDOLA
 
 Route::get('gondola', 'GondolaController@obtenerGondolas');
+Route::post('gondolasDatatable', 'GondolaController@GondolasDatatable');
+Route::post('gondolasFiltrar', 'GondolaController@filtrarGondola');
+Route::post('gondolaGuardar', 'GondolaController@gondolaGuardar');
+Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
+Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 
 /* -------------------------------------------------------------------------- */
 
@@ -222,7 +256,7 @@ Route::post('rolAsignar', 'UserController@asignarRol');
 
 /* -------------------------------------------------------------------------- */
 
-// Permiso
+// PERMISOS
 Route::get('permisoTraer', 'UserController@obtenerPermisos');
 Route::post('permisoFiltrar', 'UserController@filtrarPermiso');
 Route::post('permisosDatatable', 'UserController@permisosDatatable');

@@ -167,6 +167,35 @@
           </div>
         </div>
       </li>
+            <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
+          <font-awesome-icon icon="user-circle" />
+          <span>Atributos</span>
+        </a>
+        <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+            <router-link class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+            <router-link class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+            <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+            <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+            <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+          </div>
+        </div>
+      </li>
+            <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGondolas" aria-expanded="true" aria-controls="collapseGondolas">
+          <font-awesome-icon icon="user-circle" />
+          <span>Gondolas</span>
+        </a>
+        <div id="collapseGondolas" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+          </div>
+        </div>
+      </li>
 
       <!-- ------------------------------------------------------------------------------------- -->
 

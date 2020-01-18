@@ -26,6 +26,12 @@ Vue.mixin(Permissions);
 
 /* ********************************************* */
 
+
+
+// HOTKEYS
+/* ********************************************* */
+import hotkeys from 'hotkeys-js';
+/* ********************************************* */
 // Funciones utiles 
 
 window.numeral = require('numeral');
@@ -189,6 +195,8 @@ Vue.component('producto-proveedor', require('./components/Proveedor/busqueda/Pro
 
 Vue.component('marca', require('./components/marca/Inicio.vue').default);
 Vue.component('venta-marca-categoria', require('./components/marca/busquedas/VentaMarcaCategoria.vue').default);
+Vue.component('select-marca', require('./components/textboxs/MarcaCategoria.vue').default);
+
 
 /* ********************************************* */
 
@@ -229,12 +237,20 @@ Vue.component('usuario-nombre', require('./components/textboxs/UsuarioTextbox.vu
 Vue.component('selected-categoria', require('./components/textboxs/CategoriaTextbox.vue').default);
 Vue.component('selected-sub-categoria', require('./components/textboxs/SubCategoriaTextbox.vue').default);
 Vue.component('precio-textbox', require('./components/textboxs/PrecioTextbox.vue').default);
+Vue.component('select-color', require('./components/textboxs/ColorCategoria.vue').default);
+Vue.component('talle-nombre', require('./components/textboxs/Atributos/TalleTextbox.vue').default);
+Vue.component('marca-nombre', require('./components/textboxs/Atributos/MarcaTextbox.vue').default);
+Vue.component('color-nombre', require('./components/textboxs/Atributos/ColorTextbox.vue').default);
+Vue.component('tela-nombre', require('./components/textboxs/Atributos/TelaTextbox.vue').default);
+Vue.component('gondola-nombre', require('./components/textboxs/Gondolas/GondolasTextbox.vue').default);
+Vue.component('categoria-nombre', require('./components/textboxs/Atributos/CategoriaTextbox.vue').default);
+Vue.component('subcategoria-nombre', require('./components/textboxs/Atributos/SubCategoriaTextbox.vue').default);
 
 /* ********************************************* */
 
 // COLOR 
 
-Vue.component('select-color', require('./components/textboxs/ColorCategoria.vue').default);
+
 
 /* ********************************************* */
 
@@ -253,12 +269,16 @@ Vue.component('select-talle', require('./components/textboxs/TalleCategoria.vue'
 // GENERO
 
 Vue.component('select-genero', require('./components/textboxs/GeneroCategoria.vue').default);
+/* ********************************************* */
+
+// COLOR
+
 
 /* ********************************************* */
 
-// MARCA
+// CATEGORIA
 
-Vue.component('select-marca', require('./components/textboxs/MarcaCategoria.vue').default);
+
 
 /* ********************************************* */
 

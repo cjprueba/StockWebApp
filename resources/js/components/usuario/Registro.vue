@@ -136,11 +136,19 @@
              
               Common.guardarUsuarioCommon(me.nombreUsuario,me.EmailUsuario,me.Contraseña).then(data => {
                if(data.response===true){
-                  Swal.fire(
-                     'Guardado!',
-                     'Se ha guardado correctamente el Usuario !',
-                     'success'
-                  )
+
+                Swal.fire({
+                title: 'Guardado!!',
+                text: "Se ha guardado el usuario con exito!",
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+                }).then((result) => {
+                  if (result.value) {
+                  location.reload();
+                  }
+                })
+
                }else{
                     Swal.fire(
                      'Error!',

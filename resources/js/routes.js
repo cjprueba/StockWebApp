@@ -119,6 +119,7 @@ export default new Router({
 			name: 'rptCompra',
 			component: require('./components/compra/inicio.vue').default
 		},
+		{ 
 			path: '/cr1',
 			name: 'compraMostrar',
 			component: require('./components/compra/MostrarCompra.vue').default
@@ -127,7 +128,43 @@ export default new Router({
 			path: '/cr2',
 			name: 'compra',
 			component: require('./components/compra/RealizarCompra.vue').default
+		},
+		{
+			path: '/mar1',
+			name: 'marcaCrear',
+			component: require('./components/Atributos/marca/CrearMarca.vue').default
+		},
+		{
+			path: '/col1',
+			name: 'colorCrear',
+			component: require('./components/Atributos/color/CrearColor.vue').default
+		},
+		{
+			path: '/tall1',
+			name: 'talleCrear',
+			component: require('./components/Atributos/talle/CrearTalle.vue').default
+		},
+		{
+			path: '/tel1',
+			name: 'telaCrear',
+			component: require('./components/Atributos/tela/CrearTela.vue').default
+		},
+		{
+			path: '/lin1',
+			name: 'categoriaCrear',
+			component: require('./components/Atributos/categoria/CrearCategoria.vue').default
+		},
+		{
+			path: '/sublin1',
+			name: 'subcategoriaCrear',
+			component: require('./components/Atributos/subCategoria/CrearSubCategoria.vue').default
+		},
+		{
+			path: '/gond1',
+			name: 'gondolaCrear',
+			component: require('./components/gondolas/CrearGondolas.vue').default
 		}
+
 	],
 	mode: 'history'
 });

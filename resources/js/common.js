@@ -1132,6 +1132,25 @@ function filtrarPermisosCommon(id){
 			// ------------------------------------------------------------------------
 
 }
+function filtrarMarcasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/marcaFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
 
 function guardarRolCommon(nombre,descripcion,permisos,existe,id){
 
@@ -1215,6 +1234,41 @@ function guardarPermisoCommon(nombre,descripcion,existe,id){
 
 			// ------------------------------------------------------------------------
 }
+function guardarMarcaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/marcaGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function eliminarMarcaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/marcaEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 function guardarUsuarioCommon(nombre,email,contraseña){
 	// ------------------------------------------------------------------------
 
@@ -1232,7 +1286,444 @@ function guardarUsuarioCommon(nombre,email,contraseña){
 
 			// ------------------------------------------------------------------------
 }
+function nuevaMarcaCommon(){
+	// ------------------------------------------------------------------------
 
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaMarca').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarColoresCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/colorFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function nuevoColorCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoColor').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarColorCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/colorGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarColorCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/colorEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarTallesCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/talleFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function nuevoTalleCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoTalle').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarTalleCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/talleGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarTalleCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/talleEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarTelasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/telaFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function guardarTelaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/telaGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function nuevaTelaCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaTela').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function eliminarTelaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/telaEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarCategoriasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/categoriaFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function nuevaCategoriaCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaCategoria').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarCategoriaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/categoriaGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarSubCategoriasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/subCategoriaFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function nuevaSubCategoriaCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaSubCategoria').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarSubCategoriaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/subCategoriaGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarSubCategoriaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/subCategoriaEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarCategoriaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/CategoriaEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarGondolasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/gondolasFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function nuevaGondolaCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaGondola').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarGondolaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/gondolaGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarGondolaCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/gondolaEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1287,11 +1778,39 @@ export {
 		llamarPermisoCommon,
 		guardarRolCommon,
 		asignarRolCommon,
+		guardarMarcaCommon,
 		asignarPermisoCommon,
 		traerRolUsuarioCommon,
 		guardarPermisoCommon,
-		guardarUsuarioCommon
+		guardarUsuarioCommon,
 		cantidadSuperadaCommon,
 		generarPdfFacturaTransferenciaCommon,
-		generarRptPdfTransferenciaCommon
+		generarRptPdfTransferenciaCommon,
+		nuevaMarcaCommon,
+		filtrarMarcasCommon, 
+		eliminarMarcaCommon,
+		filtrarColoresCommon,
+		guardarColorCommon,
+		eliminarColorCommon,
+		nuevoColorCommon,
+		filtrarTallesCommon,
+		guardarTalleCommon,
+		eliminarTalleCommon,
+		nuevoTalleCommon,
+		filtrarTelasCommon,
+		guardarTelaCommon,
+		eliminarTelaCommon,
+		nuevaTelaCommon,
+		filtrarCategoriasCommon,
+		nuevaCategoriaCommon,
+		guardarCategoriaCommon,
+		eliminarCategoriaCommon,
+		filtrarSubCategoriasCommon,
+		nuevaSubCategoriaCommon, 
+		guardarSubCategoriaCommon,
+		eliminarSubCategoriaCommon,
+		filtrarGondolasCommon,
+		nuevaGondolaCommon,
+		guardarGondolaCommon,
+		eliminarGondolaCommon
 		};

@@ -28,6 +28,82 @@ class CategoriaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+     public function categoriasDatatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Talles
+
+        $categoria = Categoria::categorias_datatable($request);
+        return response()->json($categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+}
+     public function categoriaDatatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Talles
+
+        $categoria = Categoria::categoria_datatable($request);
+        return response()->json($categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+}
+       public function obtenerCodigo(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $categoria = Categoria::obtener_codigo();
+        return response()->json($categoria);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+   public function filtrarCategoria(Request $request)
+{
+
+        /*  --------------------------------------------------------------------------------- */
+
+       // OBTENER TODOS LOS DATOS DEL TALLE
+
+         $categoria = Categoria::filtrar_categoria($request->all());
+        return response()->json($categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    public function categoriaGuardar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Usuarios
+
+        $categoria = Categoria::categoria_guardar($request->all());
+        return response()->json($categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+                public function CategoriaEliminar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Usuarios
+
+        $Categoria = Categoria::Categoria_eliminar($request->all());
+        return response()->json($Categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
     // public function index()
     // {

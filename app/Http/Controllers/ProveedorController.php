@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Proveedor;
-
+use App\Exports\VentasProveedor;
 class ProveedorController extends Controller
 {
     public function obtenerProveedores(){
