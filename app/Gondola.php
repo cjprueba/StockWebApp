@@ -55,9 +55,9 @@ class Gondola extends Model
 
         // OBTENER TODAS LAS GONDOLAS
 
-        $gondolas = Gondola::select(DB::raw('ID, CODIGO, DESCRIPCION'))
+        $gondolas = Gondola::select(DB::raw('GONDOLAS.ID, CODIGO, DESCRIPCION, GONDOLA_TIENE_PRODUCTOS.FECALTAS'))
         ->rightjoin('GONDOLA_TIENE_PRODUCTOS', 'GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA', '=', 'GONDOLAS.ID')
-        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('GONDOLAS.ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD', '=', $codigo)
         ->get();
 

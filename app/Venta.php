@@ -1341,4 +1341,227 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public static function periodos_superados($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'C', 
+                            1 => 'ID',
+                            2 => 'CODIGO',
+                            3 => 'FEC_VENTA',
+                            5 => 'IMAGEN',
+                            6 => 'ACCION',
+                            7 => 'ESTATUS'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $dia = date('Y-m-d');
+        $dias_filtro = date('Y-m-d', strtotime($dia. ' + 30 days'));
+
+        $c = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS VENCIDOS QUE PASAN EL TIEMPO DE VENCIMIENTO
+
+        $totalData = $posts = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+                    })
+                    ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('LOTES.CANTIDAD','>', 0)
+                    ->where('PRODUCTOS.PERIODO','>', 0)
+                    ->where('PRODUCTOS_AUX.FECHULT_V','<=', '(DATE_ADD('.$dia.', interval -(PRODUCTOS.PERIODO) month))')
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $imagen_producto = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = ProductosAux::select(DB::raw('0 AS C, PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.FECHULT_V, DATE_ADD(PRODUCTOS_AUX.FECHULT_V, interval PRODUCTOS.PERIODO month) AS LIMITE'))
+                    ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+                    })
+                    ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('LOTES.CANTIDAD','>', 0)
+                    ->where('PRODUCTOS.PERIODO','>', 0)
+                    ->where('PRODUCTOS_AUX.FECHULT_V','<=', '(DATE_ADD('.$dia.', interval -(PRODUCTOS.PERIODO) month))')
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order,$dir)
+                    ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  ProductosAux::select(DB::raw('0 AS C, PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.FECHULT_V, interval PRODUCTOS.PERIODO month) AS LIMITE'))
+                    ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+                    })
+                    ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('LOTES.CANTIDAD','>', 0)
+                    ->where('PRODUCTOS.PERIODO','>', 0)
+                    ->where('PRODUCTOS_AUX.FECHULT_V','<=', '(DATE_ADD('.$dia.', interval -(PRODUCTOS.PERIODO) month))')
+                            ->where(function ($query) use ($search) {
+                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+                    })
+                    ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('LOTES.CANTIDAD','>', 0)
+                    ->where('PRODUCTOS.PERIODO','>', 0)
+                    ->where('PRODUCTOS_AUX.FECHULT_V','<=', '(DATE_ADD('.$dia.', interval -(PRODUCTOS.PERIODO) month))')
+                            ->where(function ($query) use ($search) {
+                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->CODIGO)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $c = $c + 1;
+
+                $nestedData['C'] = $c;
+                $nestedData['CODIGO'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION, 0, 20).'...';
+                $nestedData['FEC_VENTA'] = substr($post->FECHULT_V, 0, 11);
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list text-white'  aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

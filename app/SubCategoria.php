@@ -6,16 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubCategoria extends Model
 {
-    public static function obtener_subCategorias()
-    {
 
+    /*  --------------------------------------------------------------------------------- */
+
+    // INICIAR VARIABLES GLOBALES 
+
+    protected $connection = 'retail';
+    protected $table = 'SUBLINEAS';
+
+    /*  --------------------------------------------------------------------------------- */
+
+    public static function obtener_subCategorias($categoria)
+    {
+        
     	/*  --------------------------------------------------------------------------------- */
 
     	// OBTENER TODAS LAS SUB CATEGORIAS
 
-    	$subCategorias = DB::connection('retail')
-        ->table('SUBLINEAS')
-        ->select(DB::raw('CODIGO, DESCRIPCION'))
+    	$subCategorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->leftjoin('LINEAS_TIENE_SUBLINEAS', 'LINEAS_TIENE_SUBLINEAS.FK_COD_SUBLINEA', '=', 'SUBLINEAS.CODIGO')
+        ->where('LINEAS_TIENE_SUBLINEAS.FK_COD_LINEA', '=', $categoria)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

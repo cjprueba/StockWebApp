@@ -2,10 +2,9 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-use Mpdf\Mpdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Mpdf\Mpdf;
 use App\ComprasDet;
 use App\Lotes_tiene_ComprasDet;
 use App\Deuda;
@@ -112,7 +111,7 @@ class Compra extends Model
 
     			// INSERTAR LOTE 
 
-    			$lote = Stock::insetar_lote($value['CODIGO'], $value['CANTIDAD'], Common::quitar_coma($value['COSTO'], $candec), 1, '');
+    			$lote = Stock::insetar_lote($value['CODIGO'], $value['CANTIDAD'], Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO']);
     			$compra_det->LOTE = $lote["lote"];
 
     			/*  --------------------------------------------------------------------------------- */
@@ -723,7 +722,7 @@ class Compra extends Model
         $compra = Compra::select(DB::raw(
                         'COMPRAS.CODIGO,
                         PROVEEDORES.NOMBRE,
-                        SUBSTRING(COMPRAS.FEC_FACTURA, 1, 11) AS FEC_FACTURA,
+                        SUBSTRING(COMPRAS.FEC_FACTURA, 1, 10) AS FEC_FACTURA,
                         COMPRAS.FECALTAS,
                         COMPRAS.NRO_FACTURA,
                         COMPRAS.TIPO,
@@ -773,12 +772,15 @@ class Compra extends Model
                         COMPRASDET.COSTO_TOTAL,
                         COMPRASDET.PREC_VENTA,
                         COMPRASDET.PREMAYORISTA,
-                        COMPRAS.MONEDA'
+                        COMPRAS.MONEDA,
+                        SUBSTRING(LOTES.FECHA_VENC, 1, 10) AS VENCIMIENTO'
                     ))
         ->leftJoin('COMPRAS', function($join){
 			    $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
 			         ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
 		})
+        ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+        ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
         ->where('COMPRASDET.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('COMPRASDET.CODIGO','=', $codigo)
         ->get();
@@ -790,6 +792,12 @@ class Compra extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // VER PRECIOS DE PRODUCTOS 
+
+            if ($value->VENCIMIENTO === '0000-00-00') {
+                $value->VENCIMIENTO = 'N/A';
+            }
+
+            /*  --------------------------------------------------------------------------------- */
 
             $compra[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
             $compra[$key]->PREC_VENTA = Common::precio_candec_sin_letra($value->PREC_VENTA, $value->MONEDA);
@@ -1048,7 +1056,7 @@ class Compra extends Model
 
     			// INSERTAR LOTE 
 
-    			$lote = Stock::insetar_lote($value['CODIGO'], $value['CANTIDAD'], Common::quitar_coma($value['COSTO'], $candec), 1, '');
+    			$lote = Stock::insetar_lote($value['CODIGO'], $value['CANTIDAD'], Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO']);
     			$compra_det->LOTE = $lote["lote"];
 
     			/*  --------------------------------------------------------------------------------- */

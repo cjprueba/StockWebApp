@@ -22,4 +22,19 @@ class StockController extends Controller
 
     }
 
+
+    public function vencidos(Request $request)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $stock = Stock::vencidos($request);
+        return response()->json($stock);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

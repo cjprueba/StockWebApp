@@ -4,7 +4,7 @@
                 <label for="validationTooltip01">Sub Categoria</label>
             </div>
 
-            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_sub_categoria }" @input="$emit('input', $event.target.value)">
+            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_sub_categoria }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="subCategoria in subCategorias" :selected="subCategoria.CODIGO === parseInt(value)" :value="subCategoria.CODIGO">{{ subCategoria.CODIGO }} - {{ subCategoria.DESCRIPCION }}</option>
             </select>
@@ -13,25 +13,34 @@
 </template>
 <script>
 	export default {
-      props: {
-        'value': String,
-        'shadow': Boolean,
-        'validar_sub_categoria': Boolean
-      },
+      props: [
+              'value',
+              'shadow',
+              'validar_sub_categoria',
+              'deshabilitar',
+              'categoria'
+            ],
       data(){
         return {
           	seleccionSubCategoria: 'null',
             subCategorias: []
         }
+      },
+      watch: { 
+        categoria: function(newVal, oldVal) { 
+          if(newVal !== '') {
+            this.obtenerSubCategorias(newVal);
+          }
+        }
       }, 
       methods: {
-            obtenerSubCategorias(){
+            obtenerSubCategorias(categoria){
 
       				// ------------------------------------------------------------------------
 
       				// LLAMAR LAS SUB CATEGORIAS
 
-      				Common.obtenerSubCategoriaCommon().then(data => {
+      				Common.obtenerSubCategoriaCommon(categoria).then(data => {
       				  this.subCategorias = data
       				});
 
@@ -58,7 +67,6 @@
         	// INICIAR VARIABLES 
 
         	let me = this;
-            me.obtenerSubCategorias();
 
         	// ------------------------------------------------------------------------
         	

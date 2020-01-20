@@ -49,7 +49,8 @@
             }, enviarOpcionesPadre(valor){
               var seleccion = '';
               seleccion = (this.filtrar(parseInt(valor)));
-              this.$emit('opciones', seleccion[0]);
+              console.log(seleccion);
+              this.$emit('opciones', seleccion);
             }
       },
         mounted() {

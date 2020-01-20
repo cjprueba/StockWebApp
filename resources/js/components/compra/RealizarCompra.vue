@@ -265,18 +265,18 @@
 							</div>
 						</div>
 
-						<div class="col-1">
+						<div class="col-md-1">
 							<label for="validationTooltip01">%</label>
 							<input class="form-control form-control-sm" type="text" v-on:blur="formatoPorcentaje"  v-on:keyup.prevent.13="" v-model="producto.PORCENTAJE">
 						</div>
 
-						<div class="col-2">
+						<div class="col-md-2">
 							<label for="validationTooltip01">Vencimiento</label>
 							<div class="input-group input-group-sm date">
 								<div class="input-group-prepend ">
 									<span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="calendar" /></span>
 								</div>
-								<input type="text" class="input-sm form-control form-control-sm" id="vencimiento" v-model="producto.VENCIMIENTO" data-date-format="dd/mm/yyyy"/>
+								<input type="text" class="input-sm form-control form-control-sm" id="vencimiento" v-model="producto.VENCIMIENTO" v-bind:class="{ 'is-invalid': validar.VENCIMIENTO }" data-date-format="yyyy-mm-dd" :disabled="!mostrar.VENCIMIENTO"/>
 							</div>	
 						</div>
 
@@ -286,7 +286,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio"v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
+					    		<input class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio" v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
 							</div>
 						</div>
 
@@ -329,15 +329,16 @@
 	                <thead>
 	                    <tr>
 	                        <th></th>
-	                        <th class="codigoDeclarados">Codigo Producto</th>
+	                        <th class="codigoDeclarados">Codigo</th>
 	                        <th>Descripción</th>
 	                        <th>Lote</th>
 	                        <th>%</th>
 	                        <th class="cantidadColumna">Cant.</th>
 	                        <th class="precioColumna">Precio</th>
-	                        <th class="mayoristaColumna">Mayorista</th>
+	                        <th class="mayoristaColumna">May.</th>
 	                        <th class="costoColumna">Costo</th>
 	                        <th class="costoTotalColumna">C. Total</th>
+	                        <th>Venc.</th>
 	                        <th>Acción</th>
 	                    </tr>
 	                </thead>
@@ -351,6 +352,7 @@
 	                		<th></th>
 		                	<th></th>
 		                	<th>TOTALES</th>
+		                	<th></th>
 		                	<th></th>
 		                	<th></th>
 		                	<th></th>
@@ -450,7 +452,8 @@
           		PREMAYORISTA: false,
           		DIAS: false,
           		CUOTAS: false,
-          		FECHA_CREDITO: false
+          		FECHA_CREDITO: false,
+          		VENCIMIENTO: false
           	},
           	credito: {
           		FECHA: '',
@@ -458,6 +461,9 @@
           		CANTIDAD: '',
           		DESHABILITAR_FECHA: true,
           		DESHABILITAR_CANTIDAD: true
+          	},
+          	mostrar: {
+          		VENCIMIENTO: false
           	},
           	deshabilitar_cuota: true,
           	shadow: false,
@@ -515,7 +521,7 @@
         			   	
 					   // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
 
-					   me.agregarFilaTabla(x.COD_PROD, x.DESCRIPCION, x.LOTE, x.PORCENTAJE, x.CANTIDAD, x.PREC_VENTA, x.PREMAYORISTA, x.COSTO, x.COSTO_TOTAL);
+					   me.agregarFilaTabla(x.COD_PROD, x.DESCRIPCION, x.LOTE, x.PORCENTAJE, x.CANTIDAD, x.PREC_VENTA, x.PREMAYORISTA, x.COSTO, x.COSTO_TOTAL, x.VENCIMIENTO);
 					  
 					   // ------------------------------------------------------------------------
 
@@ -561,30 +567,43 @@
 
             Common.obtenerProductoCompraCommon(codigo, me.moneda.CODIGO).then(data => {
 
-            	// ------------------------------------------------------------------------
+            	if (data.response  === true) {
 
-            	// AGREGAR PRODUCTO 
+	            	// ------------------------------------------------------------------------
 
-            	me.producto.CODIGO = data.producto.CODIGO;
-            	me.producto.DESCRIPCION = data.producto.DESCRIPCION;
-            	me.producto.PREC_VENTA = data.producto.PREC_VENTA;
-            	me.producto.PREMAYORISTA = data.producto.PREMAYORISTA;
-            	me.producto.LOTE = data.producto.LOTE;
+	            	// AGREGAR PRODUCTO 
 
-            	// ------------------------------------------------------------------------
+	            	me.producto.CODIGO = data.producto.CODIGO;
+	            	me.producto.DESCRIPCION = data.producto.DESCRIPCION;
+	            	me.producto.PREC_VENTA = data.producto.PREC_VENTA;
+	            	me.producto.PREMAYORISTA = data.producto.PREMAYORISTA;
+	            	me.producto.LOTE = data.producto.LOTE;
+	            	me.mostrar.VENCIMIENTO = data.producto.VENCIMIENTO;
 
-		        // SI SWITCH ESTA ACTIVADO AGREGAR PRODUCTO
+	            	// ------------------------------------------------------------------------
 
-				if (me.switch_un_producto === true) {
-					
-					if (me.agregarProductoRapido() === true) {
-						me.producto.CODIGO = '';
-						me.inivarAgregarProducto();
+			        // SI SWITCH ESTA ACTIVADO AGREGAR PRODUCTO
+
+					if (me.switch_un_producto === true) {
+						
+						if (me.agregarProductoRapido() === true) {
+							me.producto.CODIGO = '';
+							me.inivarAgregarProducto();
+						}
+
 					}
 
-				}
+					// ------------------------------------------------------------------------
 
-				// ------------------------------------------------------------------------
+				} else {
+
+					Swal.fire(
+						'Error !',
+						data.statusText,
+						'error'
+					)
+
+				}
 
             })       
 
@@ -686,6 +705,13 @@
             } else {
                 me.validar.CANTIDAD = false;
             }
+            
+            if (me.producto.VENCIMIENTO.length === 0 && me.mostrar.VENCIMIENTO === 1 ) {
+                me.validar.VENCIMIENTO = true;
+                return;
+            } else {
+                me.validar.VENCIMIENTO = false;
+            }
 
             // ------------------------------------------------------------------------
 
@@ -703,7 +729,7 @@
 
             // CARGAR DATO EN TABLA COMPRAS
 
-            me.agregarFilaTabla(me.producto.CODIGO, me.producto.DESCRIPCION, me.producto.LOTE, me.producto.PORCENTAJE, me.producto.CANTIDAD, me.producto.PREC_VENTA, me.producto.PREMAYORISTA, me.producto.COSTO, me.producto.COSTO_TOTAL);
+            me.agregarFilaTabla(me.producto.CODIGO, me.producto.DESCRIPCION, me.producto.LOTE, me.producto.PORCENTAJE, me.producto.CANTIDAD, me.producto.PREC_VENTA, me.producto.PREMAYORISTA, me.producto.COSTO, me.producto.COSTO_TOTAL, me.producto.VENCIMIENTO);
 
             // ------------------------------------------------------------------------
 
@@ -908,7 +934,7 @@
 
             // ------------------------------------------------------------------------
 
-        }, agregarFilaTabla(codigo, descripcion, lote, porcentaje, cantidad, precio, premayorista, costo, costo_total){
+        }, agregarFilaTabla(codigo, descripcion, lote, porcentaje, cantidad, precio, premayorista, costo, costo_total, vencimiento){
 
         	// ------------------------------------------------------------------------
 
@@ -950,6 +976,14 @@
 
             // ------------------------------------------------------------------------
 
+            // VENCIMIENTO 
+
+            if (me.mostrar.VENCIMIENTO === 0) {
+            	vencimiento = 'N/A';
+            }
+
+            // ------------------------------------------------------------------------
+
         	// AGREGAR FILAS 
 
         	 tableCompra.rows.add( [ {
@@ -963,6 +997,7 @@
 		                    "MAYORISTA":    premayorista,
 		                    "COSTO":    costo,
 		                    "COSTO_TOTAL":    costo_total,
+		                    "VENCIMIENTO": vencimiento,
 		                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>"
 		                } ] )
 		     .draw();
@@ -1032,7 +1067,13 @@
             tabla.cell(row, 5).data(cantidad).draw();
 
             // ------------------------------------------------------------------------
-                    
+            
+            // CARGAR COSTO 
+
+            tabla.cell(row, 8).data(costo).draw();
+
+            // ------------------------------------------------------------------------
+
             // CALCULAR PRECIO TOTAL
 
             costo_total = Common.multiplicarCommon(cantidad, costo, me.moneda.DECIMAL);
@@ -1075,12 +1116,12 @@
                 me.validar.TOTAL_COMPRA = false;
             }
 
-            if (me.factura.EXENTAS === "0" || me.factura.EXENTAS === '' || me.factura.EXENTAS === "0.00") {
-                me.validar.EXENTAS = true;
-                falta = true;
-            } else {
-                me.validar.EXENTAS = false;
-            }
+            // if (me.factura.EXENTAS === "0" || me.factura.EXENTAS === '' || me.factura.EXENTAS === "0.00") {
+            //     me.validar.EXENTAS = true;
+            //     falta = true;
+            // } else {
+            //     me.validar.EXENTAS = false;
+            // }
 
             if (tableCompra.rows().data().length === 0) {
             	falta = true;
@@ -1425,6 +1466,7 @@
                             { "data": "MAYORISTA" },
                             { "data": "COSTO" },
                             { "data": "COSTO_TOTAL" },
+                            { "data": "VENCIMIENTO" },
                             { "data": "ACCION" }
                         ],
                         "footerCallback": function(row, data, start, end, display) {
@@ -1648,7 +1690,7 @@
 						      // CARGAR EN EL FOOTER
 
 						      $( api.columns('.costoTotalColumna').footer() ).html(
-					                Common.darFormatoCommon(costoTotal, me.moneda.DECIMAL)
+					                me.factura.TOTAL = Common.darFormatoCommon(costoTotal, me.moneda.DECIMAL)
 					           );
 
 						      // *******************************************************************
@@ -1677,7 +1719,6 @@
     			$("#tablaCompra").css("font-size", 12);
 				tableCompra.columns.adjust().draw();
 
-
 				// ------------------------------------------------------------------------
 
 				// DESPUES DE INICIAR LA TABLA TRANSFERENCIAS LLAMAR A LA CONSULTA PARA CARGAR CABECERA Y CUERPO 
@@ -1686,7 +1727,7 @@
 
             	// ------------------------------------------------------------------------
 
-            	 // ------------------------------------------------------------------------
+            	// ------------------------------------------------------------------------
                 // ------------------------------------------------------------------------
                 //                  ELIMINAR FILA DATATABLE TRANSFERENICAS
                 // ------------------------------------------------------------------------
@@ -1741,8 +1782,6 @@
 					})
 
                     // *******************************************************************
-
-                    
 
                 });
 

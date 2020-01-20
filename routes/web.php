@@ -38,6 +38,7 @@ Route::apiResource('busquedas', 'BusquedaController');
 // VENTAS 
 
 Route::post('ventas', 'VentaController@mostrar');
+Route::get('ventas/periodos', 'VentaController@periodos_superados');
 // Route::apiResource('ventas', 'VentaController');
 
 /* -------------------------------------------------------------------------- */
@@ -79,7 +80,7 @@ Route::get('categoria', 'CategoriaController@obtenerCategorias');
 
 // SUB CATEGORIA
 
-Route::get('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
+Route::post('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
 
 /* -------------------------------------------------------------------------- */
 
@@ -109,7 +110,7 @@ Route::get('genero', 'GeneroController@obtenerGeneros');
 
 // MARCA
 
-Route::get('marca', 'MarcaController@obtenerMarcas');
+Route::post('marca', 'MarcaController@obtenerMarcas');
 
 /* -------------------------------------------------------------------------- */
 
@@ -220,6 +221,7 @@ Route::get('parametro', 'ParametroController@mostrar');
 //	LOTES
 
 Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
+Route::get('lote/vencidos', 'StockController@vencidos');
 
 /* -------------------------------------------------------------------------- */
 

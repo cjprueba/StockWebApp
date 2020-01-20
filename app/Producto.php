@@ -673,6 +673,7 @@ class Producto extends Model
 
     public static function modificar($datos){
 
+
         /*  --------------------------------------------------------------------------------- */
         // IMPORTANTE
         // AGREGAR FK USER A LA TABLA PRODUCTOS_AUX 
@@ -686,6 +687,7 @@ class Producto extends Model
 
         // INICIAR VARIABLES 
 
+        $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
         $datos = $datos["datos"];
         
         /*  --------------------------------------------------------------------------------- */
@@ -733,7 +735,6 @@ class Producto extends Model
         // GUARDAR PRODUCTO 
 
         $producto = Producto::where('CODIGO', '=', $datos["codigo_producto"])
-        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->update(
             [
             'CODIGO_REAL' => $datos["codigo_real"],
@@ -761,15 +762,30 @@ class Producto extends Model
             'HORMODIF' => date("H:i:s"),
             'USERM' => $user->id,
             'GENERADO' => $datos["generado"],
-            'VENCIMIENTO' => $datos["vencimiento"]
+            'PERIODO' => $datos["periodo"],
+            'TEMPORADA' => $datos["temporada"],
+            'VENCIMIENTO' => $datos["vencimiento"],
+            'ID_SUCURSAL' => $user->id_sucursal
             ]
         );
 
         /*  --------------------------------------------------------------------------------- */
 
+        // INSERTAR IMAGEN 
+        
+        if ($img !== "") { 
+            Imagen::guardar([
+                'COD_PROD' => $datos["codigo_producto"],
+                'CODIGO_INTERNO' => $datos["codigo_interno"],
+                'PICTURE' => $img
+            ]);
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
         // INSERTAR GONDOLA
 
-        //Gondola_tiene_Productos::asignar_gondolas($datos["codigo_producto"], $datos["gondola"]);
+        Gondola_tiene_Productos::modificar_asignar_gondolas($datos["codigo_producto"], $datos["gondola"]);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -794,8 +810,10 @@ class Producto extends Model
 
         // INICIAR VARIABLES 
 
+        $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
         $datos = $datos["datos"];
-        
+        $blob = '';
+
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO INTERNO 
@@ -838,11 +856,9 @@ class Producto extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        // REEMPLAZAR IMAGEN
+        // OBTENER CANDEC
 
-        if ($datos["imagen"] = "/images/SinImagen.png?343637be705e4033f95789ab8ec70808") {
-            $datos["imagen"] = "";
-        }
+        $candec = (Parametro::candec($datos["moneda"]))['CANDEC'];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -866,10 +882,10 @@ class Producto extends Model
             'IMPUESTO' => $datos["iva"],
             'DESCUENTO' => $datos["descuentoMaximo"],
             'MONEDA' => $datos["moneda"],
-            'PREC_VENTA' => $datos["precioVenta"],
-            'PREMAYORISTA' => $datos["precioMayorista"],
-            'PREVIP' => $datos["precioVip"],
-            'PRECOSTO' => $datos["precioCosto"],
+            'PREC_VENTA' => Common::quitar_coma($datos["precioVenta"], $candec),
+            'PREMAYORISTA' => Common::quitar_coma($datos["precioMayorista"], $candec),
+            'PREVIP' => Common::quitar_coma($datos["precioVip"], $candec),
+            'PRECOSTO' => Common::quitar_coma($datos["precioCosto"], $candec),
             'STOCK_MIN' => $datos["stockMinimo"],
             'OBSERVACION' => $datos["observacion"],
             'BAJA' => "NO",
@@ -878,9 +894,23 @@ class Producto extends Model
             'USER' => $user->id,
             'ID_SUCURSAL' => $user->id_sucursal,
             'GENERADO' => $datos["generado"],
-            'VENCIMIENTO' => $datos["vencimiento"]
+            'VENCIMIENTO' => $datos["vencimiento"],
+            'TEMPORADA' => $datos["temporada"],
+            'PERIODO' => $datos["periodo"]
             ]
         );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR IMAGEN 
+        
+        if ($img !== "") { 
+            Imagen::guardar([
+                'COD_PROD' => $datos["codigo_producto"],
+                'CODIGO_INTERNO' => $datos["codigo_interno"],
+                'PICTURE' => $img
+            ]);
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -956,19 +986,12 @@ class Producto extends Model
                           PRODUCTOS_AUX.OBSERVACION,
                           PRODUCTOS_AUX.MONEDA,
                           0 AS GONDOLAS,
-                          0 AS AUTODESCRIPCION'))
+                          0 AS AUTODESCRIPCION,
+                          PRODUCTOS.PERIODO, 
+                          PRODUCTOS.TEMPORADA'))
         ->where($filtro, '=', $codigo)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
-            
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER GONDOLAS 
-
-        $gondola = Gondola::obtener_gondolas_por_producto($codigo);
-        
-        $producto[0]["GONDOLAS"] = $gondola['gondolas'];
-        $producto[0]["AUTODESCRIPCION"] = false;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -978,9 +1001,18 @@ class Producto extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // OBTENER GONDOLAS 
+
+            $gondola = Gondola::obtener_gondolas_por_producto($codigo);
+            
+            $producto[0]["GONDOLAS"] = $gondola['gondolas'];
+            $producto[0]["AUTODESCRIPCION"] = false;
+
+            /*  --------------------------------------------------------------------------------- */
+
             // IMAGEN 
 
-            $imagen = Imagen::obtenerImagen($producto[0]->CODIGO);
+            $imagen = Imagen::obtenerImagen($codigo);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1236,7 +1268,9 @@ class Producto extends Model
                 PRODUCTOS_AUX.FECMODIF,
                 PRODUCTOS_AUX.FECHULT_C,
                 PRODUCTOS_AUX.FECHULT_V,
-                PRODUCTOS_AUX.STOCK_MIN'),
+                PRODUCTOS_AUX.STOCK_MIN,
+                PRODUCTOS.TEMPORADA,
+                PRODUCTOS.PERIODO'),
         DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
@@ -1265,6 +1299,34 @@ class Producto extends Model
             ->get();
 
             $dato["MONEDA"] = $moneda[0]["DESCRIPCION_LARGA"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // TEMPORADA
+
+            if ($value->TEMPORADA === 1) {
+                $dato["TEMPORADA"] = 'PRIMAVERA';
+            } else if ($value->TEMPORADA === 2) {
+                $dato["TEMPORADA"] = 'VERANO';
+            } else if ($value->TEMPORADA === 3) {
+                $dato["TEMPORADA"] = 'OTOÑO';
+            } else if ($value->TEMPORADA === 4) {
+                $dato["TEMPORADA"] = 'INVIERNO';
+            } else {
+                $dato["TEMPORADA"] = 'N/A';
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // PERIODO
+
+            if ($value->PERIODO === 1) {
+                $dato["PERIODO"] = '1 MES';
+            } else if ($value->PERIODO === 0) {
+                $dato["PERIODO"] = 'N/A';
+            } else {
+                $dato["PERIODO"] = $value->PERIODO.' MESES';
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1337,6 +1399,7 @@ class Producto extends Model
         // INICIAR VARIABLES 
 
         $data = [];
+        $valor = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1359,7 +1422,9 @@ class Producto extends Model
                           PRODUCTOS.DESCRIPCION, 
                           PRODUCTOS_AUX.PREC_VENTA,
                           PRODUCTOS_AUX.MONEDA,
-                          PRODUCTOS_AUX.PREMAYORISTA'))
+                          PRODUCTOS_AUX.PREMAYORISTA,
+                          PRODUCTOS.IMPUESTO,
+                          PRODUCTOS.VENCIMIENTO'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
@@ -1372,6 +1437,8 @@ class Producto extends Model
 
             $data["CODIGO"] = $value->CODIGO;
             $data["DESCRIPCION"] = $value->DESCRIPCION;
+            $data["IMPUESTO"] = $value->IMPUESTO;
+            $data["VENCIMIENTO"] = $value->VENCIMIENTO;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1385,8 +1452,26 @@ class Producto extends Model
             // COTIZAR LOS PRECIOS 
             
             $candec = Parametro::candec((int)$dato["moneda"]);
-            $data["PREC_VENTA"] = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica])["valor"];
-            $data["PREMAYORISTA"] = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica])["valor"];
+
+            // PRECIO VENTA 
+
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica]);
+
+            if ($valor["response"] === false) {
+                return $valor;
+            } else {
+                $data["PREC_VENTA"] = $valor["valor"];
+            }
+
+            // PRECIO MAYORISTA 
+
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica]);
+
+            if ($valor["response"] === false) {
+                return $valor;
+            } else {
+                $data["PREMAYORISTA"] = $valor["valor"];
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1404,6 +1489,9 @@ class Producto extends Model
     public static function producto_proveedor($datos)
     {
 
+        try {
+            
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -1415,7 +1503,7 @@ class Producto extends Model
         // INICIAR VARIABLES 
 
         $codigo = $datos["codigo"];
-        $data = [];
+        $datos = array();
         $c = 0;
 
         /*  --------------------------------------------------------------------------------- */
@@ -1432,7 +1520,7 @@ class Producto extends Model
         ])
         ->groupBy('COMPRAS.PROVEEDOR')
         ->get();
-        
+
         /*  --------------------------------------------------------------------------------- */
 
         // SE OBTIENE LA SUMA DE LOS TOTALES POR MONEDA 
@@ -1472,7 +1560,7 @@ class Producto extends Model
 
             $creacion = Compra::
             leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
-            ->select(DB::raw('SUBSTR(COMPRAS.FECALTAS, 1,11) AS FECALTAS'))
+            ->select(DB::raw('SUBSTR(COMPRAS.FECALTAS, 1,10) AS CREACION'))
             ->where([
                 ['COMPRASDET.COD_PROD', '=', $codigo],
                 ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
@@ -1482,12 +1570,13 @@ class Producto extends Model
             ->limit(1)
             ->get();
 
-            $data[$value->PROVEEDOR]['FECALTAS'] = $creacion[0]->FECALTAS;
+            $data[$value->PROVEEDOR]['FECALTAS'] = $creacion[0]->CREACION;
 
             /*  --------------------------------------------------------------------------------- */
 
         }
 
+        
         foreach ($monedas as $key => $value) {
             if (array_key_exists($value->PROVEEDOR, $data)) {
                 if ($value->MONEDA === 1) {
@@ -1499,6 +1588,8 @@ class Producto extends Model
                 } else if ($value->MONEDA === 4) {
                     $data[$value->PROVEEDOR]['REALES'] = Common::precio_candec($value->TOTAL, 4);
                 }
+
+                $datos[] = $data[$value->PROVEEDOR];
             }
         }
 
@@ -1512,15 +1603,19 @@ class Producto extends Model
 
             // RETORNAR VALOR 
 
-            return ["response" => true, "proveedor" => $data];
+            return ["response" => true, "proveedor" => $datos];
 
             /*  --------------------------------------------------------------------------------- */
 
         } else {
-            return ["response" => false];
+            return ["response" => false, "proveedor" => ""];
         }
 
         /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+            var_dump($e);
+        }
 
     }
 
@@ -1555,6 +1650,9 @@ class Producto extends Model
 
         foreach ($transferencia as $key => $value) {
 
+            /*  --------------------------------------------------------------------------------- */
+
+            // 
             $monedas = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
             ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
             ->select(DB::raw('TRANSFERENCIAS.MONEDA, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
@@ -1566,6 +1664,8 @@ class Producto extends Model
             ->groupBy('TRANSFERENCIAS.MONEDA')
             ->get();
 
+            /*  --------------------------------------------------------------------------------- */
+            
             $data[$key]['CANTIDAD_TRANSFERENCIA'] = $value->CANTIDAD_TRANSFERENCIA;
             $data[$key]['CANTIDAD'] = $value->CANTIDAD;
             $data[$key]['DESCRIPCION'] = $value->DESCRIPCION;
@@ -1573,6 +1673,8 @@ class Producto extends Model
             $data[$key]['DOLARES'] = 0;
             $data[$key]['PESOS'] = 0;
             $data[$key]['REALES'] = 0;
+
+            /*  --------------------------------------------------------------------------------- */
 
             foreach ($monedas as $key_moneda => $valor) {
 
@@ -1587,6 +1689,8 @@ class Producto extends Model
                } 
                
             }
+            
+            /*  --------------------------------------------------------------------------------- */
             
         }   
 

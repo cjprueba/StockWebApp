@@ -7,13 +7,13 @@ use App\SubCategoria;
 
 class SubCategoriaController extends Controller
 {
-    public function obtenerSubCategorias(){
+    public function obtenerSubCategorias(Request $request){
         
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER SUB CATEGORIAS
 
-        $sub_categoria = SubCategoria::obtener_subCategorias();
+        $sub_categoria = SubCategoria::obtener_subCategorias($request->all());
         return response()->json($sub_categoria);
 
         /*  --------------------------------------------------------------------------------- */

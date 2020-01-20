@@ -18,6 +18,7 @@
 
           <!-- Content Row -->
           <div>
+            
             <!-- Earnings (Monthly) Card Example -->
             	<!-- <cajas></cajas> -->
           </div>
@@ -31,11 +32,11 @@
           <!-- Content Row -->
           <div class="row">
 
-            <div class="col-lg-12">
-                <!-- <table-marcas></table-marcas> -->
+            <div class="col-md-6">
+                <caja-lote></caja-lote>
             </div>
-            <div class="col-lg-12">
-                <!-- <table-categorias></table-categorias> -->
+            <div class="col-lg-6" v-if="1 === 0">
+                <caja-periodo></caja-periodo>
             </div>
 
            

@@ -17,7 +17,7 @@ class Categoria extends Model
 
     	// OBTENER TODAS LAS CATEGORIAS
 
-    	$categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION, ATRIBTELA, ATRIBCOLOR, ATRIBTALLE, ATRIBGENERO, ATRIBMARCA'))
+    	$categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION, ATRIBTELA, ATRIBCOLOR, ATRIBTALLE, ATRIBGENERO, ATRIBMARCA, ATRIBTEMPORADA'))
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

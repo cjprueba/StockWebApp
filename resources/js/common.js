@@ -552,7 +552,7 @@ function obtenerProveedoresProductoCommon(codigo){
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
 			return axios.post('/productoConProveedor', {'codigo': codigo}).then(function (response) {
-					return response.data.proveedor;
+					return response.data;
 			});
 
 			// ------------------------------------------------------------------------
@@ -605,7 +605,7 @@ function obtenerProductoCompraCommon(codigo, moneda){
 
 			// ------------------------------------------------------------------------
 
-
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ function obtenerCategoriasCommon(){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function obtenerSubCategoriaCommon(){
+function obtenerSubCategoriaCommon(categoria){
 
 			// ------------------------------------------------------------------------
 
@@ -1101,7 +1101,7 @@ function obtenerSubCategoriaCommon(){
 
 			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
 
-			return axios.get('/subCategoria').then(function (response) {
+			return axios.post('/subCategoria', {categoria: categoria}).then(function (response) {
 					return response.data.subCategorias;
 				});
 
@@ -1229,7 +1229,7 @@ function obtenerGeneroCommon(){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function obtenerMarcaCommon(){
+function obtenerMarcaCommon(categoria){
 
 			// ------------------------------------------------------------------------
 
@@ -1241,7 +1241,7 @@ function obtenerMarcaCommon(){
 
 			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
 
-			return axios.get('/marca').then(function (response) {
+			return axios.post('/marca', {categoria: categoria}).then(function (response) {
 					return response.data.marcas;
 				});
 
@@ -1514,6 +1514,7 @@ function filtrarPermisosCommon(id){
 					return response.data;
 			});
 
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1536,9 +1537,13 @@ function obtenerLotesConCantidadCommon(codigo){
 
 }
 
-			// ------------------------------------------------------------------------
-
-}
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      ROLES
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 function guardarRolCommon(nombre,descripcion,permisos,existe,id){
 
@@ -1782,13 +1787,12 @@ export {
 		guardarPermisoCommon,
 		guardarUsuarioCommon,
 		cantidadSuperadaCommon,
-		generarPdfTransferenciaCommon,
 		obtenerProductoDetalleCommon,
 		obtenerLotesConCantidadCommon,
 		obtenerProveedoresProductoCommon,
 		obtenerTransferenciaProductoCommon,
 		obtenerGondolasProductoCommon,
-		eliminarProductoCommon
+		eliminarProductoCommon,
 		generarPdfFacturaTransferenciaCommon,
 		generarRptPdfTransferenciaCommon,
 		obtenerProductoCompraCommon,

@@ -401,7 +401,7 @@ class Stock extends Model
     }
 
 
-    public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere)
+    public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere, $vencimiento)
     {
 
     	/*  --------------------------------------------------------------------------------- */
@@ -438,6 +438,14 @@ class Stock extends Model
 	    	$lote = 1;
 	    }
 
+	    /*  --------------------------------------------------------------------------------- */
+
+	    // REVISAR VENCIMIENTO 
+
+	    if ($vencimiento === 'N/A') {
+	    	$vencimiento = '0000-00-00';
+	    }
+
     	/*  --------------------------------------------------------------------------------- */
 
     	// MODOS
@@ -457,6 +465,7 @@ class Stock extends Model
 			'ID_SUCURSAL' => $user->id_sucursal,
 			'MODO' => $modo,
 			'USERE' => $usere,
+			'FECHA_VENC' => $vencimiento,
 			'FK_USER_CR' => $user->id
 		]
 		);
@@ -565,5 +574,229 @@ class Stock extends Model
 
     	/*  --------------------------------------------------------------------------------- */
     	
+    }
+
+    public static function vencidos($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'C', 
+                            1 => 'ID',
+                            2 => 'CODIGO',
+                            3 => 'LOTE',
+                            4 => 'VENCIMIENTO',
+                            5 => 'IMAGEN',
+                            6 => 'ACCION',
+                            7 => 'ESTATUS'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $dia = date('Y-m-d');
+        $dias_filtro = date('Y-m-d', strtotime($dia. ' + 30 days'));
+        $dias_warning = date('Y-m-d', strtotime($dia. ' + 10 days'));
+        $c = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS VENCIDOS QUE PASAN EL TIEMPO DE VENCIMIENTO
+
+        $totalData = Stock::
+        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        			->where('LOTES.CANTIDAD','>', 0)
+        			->where('PRODUCTOS.VENCIMIENTO','=', 1)
+        			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $imagen_producto = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Stock::select(DB::raw('0 AS C, LOTES.COD_PROD, LOTES.LOTE, LOTES.FECHA_VENC, PRODUCTOS.DESCRIPCION, LOTES.CANTIDAD'))
+        			->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        			->where('LOTES.CANTIDAD','>', 0)
+        			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        			->where('PRODUCTOS.VENCIMIENTO','=', 1)
+        			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Stock::select(DB::raw('0 AS C, LOTES.COD_PROD, LOTES.LOTE, LOTES.FECHA_VENC, PRODUCTOS.DESCRIPCION, LOTES.CANTIDAD'))
+        			->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        			->where('PRODUCTOS.VENCIMIENTO','=', 1)
+        			->where('LOTES.CANTIDAD','>', 0)
+        			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Stock::
+		        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+		        			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+		        			->where('PRODUCTOS.VENCIMIENTO','=', 1)
+		        			->where('LOTES.CANTIDAD','>', 0)
+		        			->where('LOTES.FECHA_VENC','<=', $dias_filtro)  
+                             ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                             })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->CODIGO)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $c = $c + 1;
+
+                $nestedData['C'] = $c;
+                $nestedData['CODIGO'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION, 0, 20).'...';
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['VENCIMIENTO'] = substr($post->FECHA_VENC, 0, 11);
+
+
+                
+                $nestedData['ESTATUS'] = 'bg-info text-white';
+
+                if ($post->FECHA_VENC <= $dias_warning && $post->FECHA_VENC > $dia) {
+                	$nestedData['ESTATUS'] = 'bg-warning text-white';
+                }
+
+                if ($post->FECHA_VENC <= $dia) {
+                	$nestedData['ESTATUS'] = 'bg-danger text-white';
+                } 
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list text-white'  aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
     }
 }

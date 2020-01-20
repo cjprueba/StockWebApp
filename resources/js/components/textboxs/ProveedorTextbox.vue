@@ -5,7 +5,7 @@
             </div>
 
             <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_proveedor }" @input="$emit('input', $event.target.value)">
-                    <option :value="null">Seleccionar</option>
+                    <option :value="null">SELECCIONAR</option>
                     <option v-for="proveedor in proveedores" :selected="proveedor.CODIGO === parseInt(value)" :value="proveedor.CODIGO">{{ proveedor.DESCRIPCION }}</option>
             </select>
 

@@ -49,22 +49,22 @@
 			                                    <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span></p>
 			                            <ul class="nav nav-tabs" id="myTab" role="tablist">
 			                                <li class="nav-item">
-			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true">Información</a>
+			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Información</a>
 			                                </li>
 			                                <li class="nav-item">
-			                                    <a class="nav-link" id="lotes-tab" data-toggle="tab" href="#lotes" role="tab" aria-controls="lotes" aria-selected="false" v-on:click="obtenerLotes">Lotes</a>
+			                                    <a class="nav-link" id="lotes-tab" data-toggle="tab" href="#lotes" role="tab" aria-controls="lotes" aria-selected="true" v-on:click="obtenerLotes" :selected="seleccion.lotes">Lotes</a>
 			                                </li>
 			                                <li class="nav-item">
-			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="false" v-on:click="obtenerGondolas">Góndolas</a>
+			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true" v-on:click="obtenerGondolas">Góndolas</a>
 			                                </li>
 			                                <li class="nav-item">
-			                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="false" v-on:click="obtenerProveedores">Compras</a>
+			                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="true" v-on:click="obtenerProveedores">Compras</a>
 			                                </li>
 			                                <li class="nav-item">
-			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="false">Depósitos</a>
+			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>
 			                                </li>
 			                                <li class="nav-item">
-			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="false" v-on:click="obtenerTransferenciaProductos">Transferencias</a>
+			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
 			                                </li>
 			                            </ul>
 			                            <div class="row">
@@ -101,6 +101,22 @@
 						                                            </div>
 						                                            <div class="col-md-6">
 						                                                <p>{{producto.COLOR}}</p>
+						                                            </div>
+						                                        </div>
+						                                        <div class="row">
+						                                            <div class="col-md-6">
+						                                                <label>Temporada</label>
+						                                            </div>
+						                                            <div class="col-md-6">
+						                                                <p>{{producto.TEMPORADA}}</p>
+						                                            </div>
+						                                        </div>
+						                                        <div class="row">
+						                                            <div class="col-md-6">
+						                                                <label>Periodo</label>
+						                                            </div>
+						                                            <div class="col-md-6">
+						                                                <p>{{producto.PERIODO}}</p>
 						                                            </div>
 						                                        </div>
 						                                        <div class="row">
@@ -151,7 +167,12 @@
 								                                </div>
 						                            </div>
 						                            <div class="tab-pane fade" id="lotes" role="tabpanel" aria-labelledby="lotes-tab">
-						                                        <table class="table">
+
+						                            			<div v-if="loading.lotes" class="d-flex justify-content-center">
+														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
+																</div>
+
+						                                        <table class="table" v-if="lotes.length > 0 && loading.lotes === false">
 																  <thead>
 																    <tr>
 																      <th scope="col">#</th>
@@ -173,9 +194,20 @@
 																    </tr>
 																  </tbody>
 																</table>
+
+																<div v-if="lotes.length === 0 && loading.lotes === false">
+																	<div class="alert alert-primary" role="alert">
+																	  <font-awesome-icon icon="info-circle" /> No hay lotes
+																	</div>
+																</div>
 						                            </div>
 						                            <div class="tab-pane fade" id="gondola" role="tabpanel" aria-labelledby="gondola-tab">
-						                                        <table class="table table-borderless">
+
+						                            			<div v-if="loading.gondolas" class="d-flex justify-content-center">
+														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
+																</div>
+
+						                                        <table class="table table-borderless" v-if="gondolas.length > 0 && loading.gondolas === false">
 																  <thead>
 																    <tr>
 																      <th scope="col">#</th>
@@ -189,13 +221,24 @@
 																      <th scope="row">{{index + 1}}</th>	
 																      <th>{{gondola.CODIGO}}</th>
 																      <td>{{gondola.DESCRIPCION}}</td>
-																      <td>{{gondola.FECHA}}</td>
+																      <td>{{gondola.FECALTAS}}</td>
 																    </tr>
 																  </tbody>
 																</table>
+
+																<div v-if="gondolas.length === 0 && loading.gondolas === false">
+																	<div class="alert alert-primary" role="alert">
+																	  <font-awesome-icon icon="info-circle" /> No se asignaron góndolas
+																	</div>
+																</div>
+
 						                            </div>
 						                            <div class="tab-pane fade" id="proveedores" role="tabpanel" aria-labelledby="proveedores-tab">
-						                                        <table class="table">
+																<div v-if="loading.compras" class="d-flex justify-content-center">
+														            <div class="spinner-grow" role="status" aria-hidden="true"></div>
+														        </div>
+
+						                                        <table class="table" v-if="proveedores.length > 0 && loading.compras === false">
 																  <thead>
 																    <tr>
 																      <th scope="col">#</th>
@@ -221,103 +264,105 @@
 																    </tr>
 																  </tbody>
 																</table>
+
+																<div v-if="proveedores.length === 0 && loading.compras === false">
+																	<div class="alert alert-primary" role="alert">
+																	  <font-awesome-icon icon="info-circle" /> No hay compras
+																	</div>
+																</div>
 						                            </div>
-						                            <div class="tab-pane fade" id="proveedores" role="tabpanel" aria-labelledby="proveedores-tab">
-						                                        <table class="table">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Proveedor</th>
-																      <th scope="col">Cantidad</th>
-																      <th scope="col">Guaranies</th>
-																      <th scope="col">Dolares</th>
-																      <th scope="col">Reales</th>
-																      <th scope="col">Pesos</th>
-																      <th scope="col">Ult. Compra</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="proveedor in proveedores" class="cuerpoTabla">
-																      <th scope="row">{{proveedor.C}}</th>	
-																      <th>{{proveedor.NOMBRE}}</th>
-																      <td>{{proveedor.CANTIDAD}}</td>
-																      <td>{{proveedor.GUARANIES}}</td>
-																      <td>{{proveedor.DOLARES}}</td>
-																      <td>{{proveedor.PESOS}}</td>
-																      <td>{{proveedor.REALES}}</td>
-																      <td>{{proveedor.FECALTAS}}</td>
-																    </tr>
-																  </tbody>
-																</table>
-						                            </div>
+
 						                            <div class="tab-pane fade" id="transferencias" role="tabpanel" aria-labelledby="transferencias-tab">
-						                            	<div class="card">
-														  <div class="card-body">
-														    <h5 class="card-title">Recibidos</h5>
-														    <h6 class="card-subtitle mb-10 text-muted">Transferencias importadas de otras sucursales</h6>
-														    <table class="table mt-4">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Sucursal</th>
-																      <th scope="col">Transferencias</th>
-																      <th scope="col">Cantidad</th>
-																      <th scope="col">Guaranies</th>
-																      <th scope="col">Dolares</th>
-																      <th scope="col">Reales</th>
-																      <th scope="col">Pesos</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="importado in importados" class="cuerpoTabla">
-																      <th scope="row">{{importado.C}}</th>	
-																      <th>{{importado.DESCRIPCION}}</th>
-																      <td>{{importado.CANTIDAD_TRANSFERENCIA}}</td>
-																      <td>{{importado.CANTIDAD}}</td>
-																      <td>{{importado.GUARANIES}}</td>
-																      <td>{{importado.DOLARES}}</td>
-																      <td>{{importado.REALES}}</td>
-																      <td>{{importado.PESOS}}</td>
-																    </tr>
-																  </tbody>
-															</table>
-														  </div>
+
+						                            	<div v-if="loading.transferencias" class="d-flex justify-content-center">
+														     <div class="spinner-grow" role="status" aria-hidden="true"></div>
 														</div>
-						                                
-						                                <div class="card mt-4 mb-4">
-														  <div class="card-body">
-														    <h5 class="card-title">Enviados</h5>
-														    <h6 class="card-subtitle mb-10 text-muted">Transferencias enviadas a otras sucursales</h6>
-														    <table class="table mt-4">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Sucursal</th>
-																      <th scope="col">Transferencias</th>
-																      <th scope="col">Cantidad</th>
-																      <th scope="col">Guaranies</th>
-																      <th scope="col">Dolares</th>
-																      <th scope="col">Reales</th>
-																      <th scope="col">Pesos</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="enviada in enviadas" class="cuerpoTabla">
-																      <th scope="row">{{}}</th>	
-																      <th>{{enviada.DESCRIPCION}}</th>
-																      <td>{{enviada.CANTIDAD_TRANSFERENCIA}}</td>
-																      <td>{{enviada.CANTIDAD}}</td>
-																      <td>{{enviada.GUARANIES}}</td>
-																      <td>{{enviada.DOLARES}}</td>
-																      <td>{{enviada.REALES}}</td>
-																      <td>{{enviada.PESOS}}</td>
-																    </tr>
-																  </tbody>
-															</table>
-														  </div>
+
+						                            	<div >
+							                            	<div class="card" v-if="importados.length > 0 && loading.transferencias === false">
+															  <div class="card-body">
+															    <h5 class="card-title">Recibidos</h5>
+															    <h6 class="card-subtitle mb-10 text-muted">Transferencias importadas de otras sucursales</h6>
+															    <table class="table mt-4">
+																	  <thead>
+																	    <tr>
+																	      <th scope="col">#</th>
+																	      <th scope="col">Sucursal</th>
+																	      <th scope="col">Transferencias</th>
+																	      <th scope="col">Cantidad</th>
+																	      <th scope="col">Guaranies</th>
+																	      <th scope="col">Dolares</th>
+																	      <th scope="col">Reales</th>
+																	      <th scope="col">Pesos</th>
+																	    </tr>
+																	  </thead>
+																	  <tbody>
+																	    <tr v-for="importado in importados" class="cuerpoTabla">
+																	      <th scope="row">{{importado.C}}</th>	
+																	      <th>{{importado.DESCRIPCION}}</th>
+																	      <td>{{importado.CANTIDAD_TRANSFERENCIA}}</td>
+																	      <td>{{importado.CANTIDAD}}</td>
+																	      <td>{{importado.GUARANIES}}</td>
+																	      <td>{{importado.DOLARES}}</td>
+																	      <td>{{importado.REALES}}</td>
+																	      <td>{{importado.PESOS}}</td>
+																	    </tr>
+																	  </tbody>
+																</table>
+															  </div>
+															</div>
+
+															<div v-if="importados.length === 0 && loading.transferencias === false">
+																<div class="alert alert-primary" role="alert">
+																  <font-awesome-icon icon="info-circle" /> No hay transferencias importadas
+																</div>
+															</div>
+
+						                                </div>	
+
+						                                <div class="mt-4 mb-4">
+							                                <div class="card" v-if="enviadas.length > 0 && loading.transferencias === false">
+															  <div class="card-body">
+															    <h5 class="card-title">Enviados</h5>
+															    <h6 class="card-subtitle mb-10 text-muted">Transferencias enviadas a otras sucursales</h6>
+															    <table class="table mt-4">
+																	  <thead>
+																	    <tr>
+																	      <th scope="col">#</th>
+																	      <th scope="col">Sucursal</th>
+																	      <th scope="col">Transferencias</th>
+																	      <th scope="col">Cantidad</th>
+																	      <th scope="col">Guaranies</th>
+																	      <th scope="col">Dolares</th>
+																	      <th scope="col">Reales</th>
+																	      <th scope="col">Pesos</th>
+																	    </tr>
+																	  </thead>
+																	  <tbody>
+																	    <tr v-for="(enviada, index) in enviadas" class="cuerpoTabla">
+																	      <th scope="row">{{index + 1}}</th>	
+																	      <th>{{enviada.DESCRIPCION}}</th>
+																	      <td>{{enviada.CANTIDAD_TRANSFERENCIA}}</td>
+																	      <td>{{enviada.CANTIDAD}}</td>
+																	      <td>{{enviada.GUARANIES}}</td>
+																	      <td>{{enviada.DOLARES}}</td>
+																	      <td>{{enviada.REALES}}</td>
+																	      <td>{{enviada.PESOS}}</td>
+																	    </tr>
+																	  </tbody>
+																</table>
+															  </div>
+															</div>
+
+															<div v-if="enviadas.length === 0 && loading.transferencias === false">
+																<div class="alert alert-primary" role="alert">
+																  <font-awesome-icon icon="info-circle" /> No hay transferencias enviadas
+																</div>
+															</div>	
 														</div>
 
 						                            </div>
+
 						                        </div>
 						                    </div>
 			                            </div>	
@@ -386,10 +431,21 @@
           	},
           	gondolas: {
           		CODIGO: '',
-          		DESCRIPCION: ''
+          		DESCRIPCION: '',
+          		FECALTAS: ''
           	},
           	enviadas: {
 
+          	}, seleccion: {
+          		informacion: true,
+          		lotes: false,
+          		transferencias: false
+          	},
+          	loading: {
+          		compras: false,
+          		transferencias: false,
+          		lotes: false,
+          		gondolas: false
           	}      
          }
       },
@@ -441,12 +497,14 @@
       		// ------------------------------------------------------------------------
 
       		let me = this;
+      		me.loading.gondolas = true;
 
       		// ------------------------------------------------------------------------
 
       		// LLAMAR DATOS 
 
       		Common.obtenerGondolasProductoCommon(me.codigo).then(data => {
+      			me.loading.gondolas = false;
            		me.gondolas = data;
            	}).catch((err) => {
            		
@@ -460,48 +518,57 @@
       		// ------------------------------------------------------------------------
 
       		let me = this;
+      		me.loading.lotes = true;
 
       		// ------------------------------------------------------------------------
 
       		// LLAMAR DATOS 
 
       		Common.obtenerLotesConCantidadCommon(me.codigo).then(data => {
+      			me.loading.lotes = false;
            		me.lotes = data;
            	}).catch((err) => {
            		
            	});
 
       		// ------------------------------------------------------------------------
+
       	},
       	obtenerProveedores(){
 
       		// ------------------------------------------------------------------------
 
       		let me = this;
+      		me.loading.compras = true;
 
       		// ------------------------------------------------------------------------
 
       		// LLAMAR DATOS 
 
       		Common.obtenerProveedoresProductoCommon(me.codigo).then(data => {
-           		me.proveedores = data;
+      			me.loading.compras = false;
+           		me.proveedores = data.proveedor;
            	}).catch((err) => {
-           		
+
            	});
+           	
 
       		// ------------------------------------------------------------------------
+
       	},
       	obtenerTransferenciaProductos(){
 
       		// ------------------------------------------------------------------------
 
       		let me = this;
+      		me.loading.transferencias = true;
 
       		// ------------------------------------------------------------------------
 
       		// LLAMAR DATOS 
 
       		Common.obtenerTransferenciaProductoCommon(me.codigo).then(data => {
+      			me.loading.transferencias = false;
            		me.importados = data.importados;
            		me.enviadas = data.enviadas;
            	}).catch((err) => {
