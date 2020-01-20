@@ -236,7 +236,7 @@ class ProductoController extends Controller
 
         // GUARDAR PRODUCTO 
 
-        $productos = Producto::guardar($request->all());
+        $productos = Producto::guardar_modificar($request->all());
         return response()->json($productos);
         
         /*  --------------------------------------------------------------------------------- */
@@ -257,5 +257,89 @@ class ProductoController extends Controller
 
     }
 
+     public function obtenerProductoCompra(Request $request)
+    {
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::obtener_producto_compra($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
+    public function mostrarDataTableGeneral(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PRODUCTOS DATATABLE 
+
+        $producto = Producto::productos_datatable($request);
+        return response()->json($producto);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function productoDetalle(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::producto_detalle($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function productoProveedor(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::producto_proveedor($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function productoTransferencia(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::producto_transferencia($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function eliminar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::eliminar($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 }

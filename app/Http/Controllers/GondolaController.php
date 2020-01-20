@@ -82,4 +82,16 @@ class GondolaController extends Controller
 
     }
 
+
+    public function obtenerGondolasProducto(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER GONDOLAS
+
+        $gondolas = Gondola::obtener_gondolas_por_producto($request->all());
+        return response()->json($gondolas);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

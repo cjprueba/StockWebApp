@@ -1,7 +1,7 @@
 <template>
 	<div>
             <label for="validationTooltip01">Marca</label>
-            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_marca }" @input="$emit('input', $event.target.value)">
+            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_marca }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="marca in marcas" :selected="marca.CODIGO === parseInt(value)" :value="marca.CODIGO">{{ marca.CODIGO }} - {{ marca.DESCRIPCION }}</option>
             </select>
@@ -10,24 +10,26 @@
 </template>
 <script>
 	export default {
-      props: {
-        'value': String,
-        'shadow': Boolean,
-        'validar_marca': Boolean
-      },
+      props: [
+              'value',
+              'shadow',
+              'validar_marca',
+              'categoria',
+              'deshabilitar'
+            ],
       data(){
         return {
             marcas: []
         }
       }, 
       methods: {
-            obtenerMarca(){
+            obtenerMarca(categoria){
 
       				// ------------------------------------------------------------------------
 
       				// LLAMAR FUNCION PARA FILTRAR PRODUCTOS
 
-      				Common.obtenerMarcaCommon().then(data => {
+      				Common.obtenerMarcaCommon(categoria).then(data => {
       				  this.marcas = data
       				});
 
@@ -54,7 +56,6 @@
         	// INICIAR VARIABLES 
 
         	let me = this;
-          me.obtenerMarca();
 
         	// ------------------------------------------------------------------------
         	

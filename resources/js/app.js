@@ -48,7 +48,19 @@ Vue.use(BootstrapVue)
 
 /* ********************************************* */
 
+// VUE SELECT 
+
+import Vue from 'vue'
+import vSelect from 'vue-select'
+
+Vue.component('v-select', vSelect)
+import 'vue-select/dist/vue-select.css';
+
+
+/* ********************************************* */
+
 // VUESAX
+
 import Vuesax from 'vuesax'
 import { vsDivider, vsTabs, vsTab } from 'vuesax'
 import 'vuesax/dist/vuesax.css' //Vuesax styles
@@ -105,7 +117,6 @@ import VueSingleSelect from "vue-single-select";
 
 import { VBPopover } from 'bootstrap-vue';
 Vue.directive('b-popover', VBPopover);
-// // not sure if you need this at all
 
 /* ********************************************* */
 
@@ -125,10 +136,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo )
 
 
 /* ********************************************* */
@@ -219,6 +230,8 @@ Vue.component('table-categorias', require('./components/tables/tableCategoria.vu
 // CAJAS
 
 Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
+Vue.component('caja-lote', require('./components/cajas/LoteCaja.vue').default);
+Vue.component('caja-periodo', require('./components/cajas/PeriodoCaja.vue').default);
 
 /* ********************************************* */
 
@@ -245,6 +258,8 @@ Vue.component('tela-nombre', require('./components/textboxs/Atributos/TelaTextbo
 Vue.component('gondola-nombre', require('./components/textboxs/Gondolas/GondolasTextbox.vue').default);
 Vue.component('categoria-nombre', require('./components/textboxs/Atributos/CategoriaTextbox.vue').default);
 Vue.component('subcategoria-nombre', require('./components/textboxs/Atributos/SubCategoriaTextbox.vue').default);
+Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoTextbox.vue').default);
+
 
 /* ********************************************* */
 
@@ -300,9 +315,27 @@ Vue.component('select-proveedor', require('./components/textboxs/ProveedorTextbo
 
 /* ********************************************* */
 
+// PRODUCTO
+
+Vue.component('producto-detalle', require('./components/producto/modal/DetalleProducto.vue').default);
+
+/* ********************************************* */
+
 // MONEDA
 
 Vue.component('select-moneda', require('./components/textboxs/MonedaTextbox.vue').default);
+
+/* ********************************************* */
+
+// TARJETA
+
+Vue.component('tarjeta-modal', require('./components/tarjeta/modal/ModalTarjeta.vue').default);
+
+/* ********************************************* */
+
+// CHEQUE
+
+Vue.component('cheque-modal', require('./components/cheque/modal/ChequeModal.vue').default);
 
 /* ********************************************* */
 
@@ -327,6 +360,7 @@ Vue.component('pie-pagina', require('./components/utiles/Footer.vue').default);
 // COMPRAS
 
 Vue.component('compras-marca', require('./components/compra/busqueda/CompraGeneral.vue').default);
+Vue.component('modal-detalle-compra', require('./components/compra/modal/ModalDetalleCompra.vue').default);
 
 /* ********************************************* */
 

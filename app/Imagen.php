@@ -3,6 +3,7 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Imagen extends Model
 {
@@ -20,24 +21,75 @@ class Imagen extends Model
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
-           
-        // OBTENER EL PRODUCTO
 
-        $imagen = Imagen::select(DB::raw('PICTURE'))
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER EL PRODUCTO
+        //var_dump($codigo);
+        $imagen = Imagen::select('Picture')
         ->where('COD_PROD', '=', $codigo)
-        ->get();
+        ->get()
+        ->toArray();
+        //$imagen = Imagen::select(DB::raw('Picture'))
+        //->get();
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
-        
+       
         if (count($imagen) > 0) {
-            return ['imagen' => "data:image/jpg;base64,".base64_encode($imagen[0]->PICTURE)];
+            //var_dump("entre aqui 1");
+            return ['imagen' => "data:image/jpg;base64,".base64_encode($imagen[0]["Picture"])];
+            //return ['imagen' => "data:image/jpg;base64,".base64_encode($imagen[0]->PICTURE)];
         } else {
-            return ['imagen' => false];
+            return ['imagen' => "data:image/jpg;base64,".base64_encode($dataDefaultImage)];
         }
 
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function guardar($data){
+
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // $imagen = Imagen::insertGetId([
+            //     'COD_PROD' => $data["COD_PROD"],
+            //     'CODIGO_INTERNO' => $data["CODIGO_INTERNO"],
+            //     'PICTURE' => base64_decode($data["PICTURE"])
+            // ]);
+
+            $imagen = Imagen::updateOrInsert(
+                  ['COD_PROD' => $data["COD_PROD"]],
+                  ['CODIGO_INTERNO' => $data["CODIGO_INTERNO"], 'PICTURE' => base64_decode($data["PICTURE"])]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            Log::info('Imagen: Éxito al guardar.', ['PRODUCTO' => $data["COD_PROD"], 'ID' => $imagen]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ERROR 
+
+            Log::error('Imagen: Error al guardar.', ['PRODUCTO' => $data["COD_PROD"]]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+
+
 }

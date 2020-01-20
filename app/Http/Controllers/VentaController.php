@@ -45,5 +45,10 @@ class VentaController extends Controller
         //return response()->json([$request->all()]);
     }
 
+    public function periodos_superados(Request $request)
+    {
+        $ventas = Venta::periodos_superados($request);
+        return response()->json($ventas);
+    }
    
 }

@@ -11,6 +11,7 @@ class Marca extends Model
 
     protected $connection = 'retail';
     protected $table = 'marca';
+
     protected $primaryKey='Codigo';
     const CREATED_AT='FECALTAS';
     const UPDATED_AT='FECMODIF';
@@ -19,14 +20,18 @@ class Marca extends Model
         'CODIGO',
         'DESCRIPCION'
     ];
-    public static function obtener_marcas()
+
+
+    public static function obtener_marcas($categoria)
     {
 
     	/*  --------------------------------------------------------------------------------- */
 
     	// OBTENER TODAS LAS CATEGORIAS
-
+        
     	$marca = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->leftjoin('LINEAS_TIENE_MARCAS', 'LINEAS_TIENE_MARCAS.FK_COD_MARCA', '=', 'MARCA.CODIGO')
+        ->where('LINEAS_TIENE_MARCAS.FK_COD_LINEA_LINEAS_TIENE_MARCAS', '=', $categoria)
         ->get();
       
         /*  --------------------------------------------------------------------------------- */

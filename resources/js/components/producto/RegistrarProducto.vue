@@ -47,27 +47,61 @@
       			<vs-tab label="Registrar">	
 				    <div class="row mt-3">
 
-				    		
-
 				    	<!-- ------------------------------------------------------------------ -->
 
-				    	<div class="col-md-12">
+				    	<div class="col-md-10">
+							
+							<form class="form-inline">
 
-				    		<!-- ------------------------------------------------------------------ -->
+					    		<!-- ------------------------------------------------------------------ -->
 
-				    		<!-- HABILITAR CODIGO REAL -->
+					    		<!-- HABILITAR CODIGO REAL -->
+								
+						   		<div class="my-1">
+									  <div class="custom-control custom-switch mr-sm-2">
+									   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
+									   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
+									 </div>
+								</div>
 
-					   		<div class="my-1">
-								  <div class="custom-control custom-switch mr-sm-2">
-								   <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="checked_codigo_real">
-								   <label class="custom-control-label" for="customControlAutosizing">Código Real</label>
-								 </div>
-							</div>
+								<!-- ------------------------------------------------------------------ -->
+								
+								<!-- VENCIMIENTO -->
+
+								<div class="my-4">
+									  <div class="custom-control custom-switch mr-sm-2">
+									   <input type="checkbox" class="custom-control-input" id="switchVencimiento" v-model="checked_vencimiento">
+									   <label class="custom-control-label" for="switchVencimiento">Vencimiento</label>
+									 </div>
+								</div>
+								
+								<!-- ------------------------------------------------------------------ -->
+
+								<div class="my-4">
+									  <div class="custom-control custom-switch mr-sm-2">
+									   <input type="checkbox" class="custom-control-input" id="switchAutoDescripcion" v-model="checked_auto_descripcion" v-on:change="onChangeAutoDescripcion">
+									   <label class="custom-control-label" for="switchAutoDescripcion">Auto Descripción</label>
+									 </div>
+								</div>
+								
+								<!-- ------------------------------------------------------------------ -->
+
+							</form>
 
 							<!-- ------------------------------------------------------------------ -->
 
 				    	</div>	
+				    	
+				    	<!-- ------------------------------------------------------------------ -->
 
+				    	<!-- MOSTRAR DETALLE -->
+
+				    	<div class="col-md-2">
+				    		<div class="my-4 float-right" v-if="mostrar.detalle">
+								<button type="button" class="btn btn-sm btn-outline-primary" v-on:click="detalle()">Ver Más</button>
+							</div>
+				    	</div>	
+				    		
 				    	<!-- ------------------------------------------------------------------ -->
 
 				    	<!-- PRIMERA COLUMNA -->
@@ -178,7 +212,7 @@
 					    			<!-- SUB CATEGORIA -->
 
 					    			<div class="col-md-6">
-					    				<selected-sub-categoria v-model="seleccion_sub_categoria" v-bind:shadow="shadow, validar_sub_categoria" @descripcion_sub_categoria="descripcionSubCategoria"></selected-sub-categoria>
+					    				<selected-sub-categoria v-model="seleccion_sub_categoria" v-bind:shadow="shadow, validar_sub_categoria" @descripcion_sub_categoria="descripcionSubCategoria" :deshabilitar="deshabilitar.subCategoria" :categoria="seleccion_categoria"></selected-sub-categoria>
 					    			</div>	
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -267,14 +301,39 @@
 
 				    			<!-- FORM ROW MARCA -->
 
-					    		<div class="form-row mt-3" v-if="mostrar_marca">
+					    		<div class="form-row mt-3" v-if="mostrar_marca" >
 
 						    		<!-- ------------------------------------------------------------------ -->
 
 					    			<!-- MARCA -->
 
 					    			<div class="col-md-12">
-					    				<select-marca v-model="seleccion_marca" v-bind:shadow="shadow, validar_marca" @descripcion_marca="descripcionMarca"></select-marca>
+					    				<select-marca v-model="seleccion_marca" ref="componente_select_marca" v-bind:shadow="shadow, validar_marca" @descripcion_marca="descripcionMarca" :categoria="seleccion_categoria"></select-marca>
+					    			</div>	
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+				    			</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW TEMPORADA -->
+
+					    		<div class="form-row mt-3" v-if="mostrar.temporada">
+
+						    		<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- TEMPORADA -->
+
+					    			<label>Temporada</label>
+					    			<div class="col-md-12">
+					    				<select class="custom-select custom-select-sm" v-model="seleccion.temporada" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.temporada }">
+					    					<option value="0">SELECCIONAR</option>
+						                    <option value="1">1 - PRIMAVERA</option>
+						                    <option value="2">2 - VERANO</option>
+						                    <option value="3">3 - OTOÑO</option>
+						                    <option value="4">4 - INVIERNO</option>
+						            	</select>
 					    			</div>	
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -331,17 +390,6 @@
 						                    <option value="9">9 - SOBRES</option>
 						            	</select>
 					    			</div>	
-
-					    			<!-- ------------------------------------------------------------------ -->
-
-					    			<!-- UBICACIÓN -->
-
-					    			<!-- <div class="col-md-6">
-					    				<div class="text-left">
-					    					<label>Ubicación</label>
-					    				</div>
-					    				<input type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }">
-					    			</div> -->
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -528,6 +576,35 @@
 
 					    		<!-- ------------------------------------------------------------------ -->
 
+					    		<!--  PERIODO -->
+					    		
+					    		<div class="form-row mt-3">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PERIODO -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Periodo</label>
+					    				</div>
+					    				<select class="custom-select custom-select-sm" v-model="seleccion.periodo" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.periodo }">
+					    					<option value="0">SELECCIONAR</option>
+						                    <option value="1">1 - UN MES</option>
+						                    <option value="2">2 - DOS MESES</option>
+						                    <option value="3">3 - TRES MESES</option>
+						                    <option value="4">4 - CUATROS MESES</option>
+						                    <option value="5">5 - CINCO MESES</option>
+						                    <option value="6">6 - SEIS MESES</option>
+						            	</select>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
 					    		<!-- GONDOLA -->
 					    		
 					    		<div class="form-row mt-3">
@@ -537,7 +614,7 @@
 					    			<!-- GONDOLA -->
 
 					    			<div class="col-md-12">
-					    				<select-gondola v-model="seleccion_gondola"  v-bind:shadow="shadow"></select-gondola>
+					    				<select-gondola v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar" v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -584,11 +661,11 @@
 					    			<!-- IMAGEN -->
 
 					    			<div class="col-md-12">
-
+					    				<form id="myAwesomeForm">
 					    				<div class="card mb-3" v-bind:class="{ 'shadow-sm': shadow }">
 										  <div class="row no-gutters">
 										    <div class="col-md-4">
-										      <img  :src="rutaImagen" class="card-img" alt="...">
+										      <img  :src="rutaImagen" class="card-img" alt="..." id="myAwesomeForm">
 										    </div>
 										    <div class="col-md-8">
 										      <div class="card-body">
@@ -602,7 +679,7 @@
 										    </div>
 										  </div>
 										</div>
-
+									</form>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -632,7 +709,7 @@
 				    				<!-- NUEVO -->
 
 				    				<div class="form-group mx-sm-3">
-				    					<button class="btn btn-secondary" v-on:click="()=> location.reload()">Nuevo</button>
+				    					<button class="btn btn-secondary" v-on:click="limpiar()">Nuevo</button>
 				    				</div>
 
 				    				<!-- ------------------------------------------------------------------ -->	
@@ -656,31 +733,28 @@
 				    	<!-- ------------------------------------------------------------------ -->
 
 				    </div>	
-			    <!-- </div> -->
 
 			    <!-- ------------------------------------------------------------------------------------- -->
 				</vs-tab>
-				<vs-tab label="Información">
-				</vs-tab>	
-			    <!-- CUERPO 2 CARD -->
 
-			   <!--  <div v-if="nav === '2'">
-				    <h5 class="card-title">PROBANDO</h5>
-				    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-				    <a href="#" class="btn btn-primary">Go somewhere</a>
-			    </div>
- -->
-			    <!-- ------------------------------------------------------------------------------------- -->
 			</vs-tabs>	
-			  <!-- </div>
-			</div> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
+
 		</div>
 
 		<div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>	
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- MODAL DETALLE PRODUCTO -->
+
+		<producto-detalle ref="detalle_producto" :codigo="codigo_producto"></producto-detalle>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -696,6 +770,7 @@
           codigo_real: '',
           descripcion: '',
           seleccion_categoria: 'null',
+          seleccion_categoria_marca: 'null',
           seleccion_sub_categoria: 'null',
           seleccion_color: 'null',
           seleccion_tela: 'null',
@@ -706,7 +781,12 @@
           seleccion_moneda: 'null',
           seleccion_proveedor: 'null',
           seleccion_gondola: [{}],
+          seleccion_gondola_modificar: [{}],
           seleccion_presentacion: 'UNIDADES',
+          seleccion: {
+          	temporada: '0',
+          	periodo: '0'
+          },
           observacion: '',
           iva: '10',
           descuento_maximo: 0,
@@ -727,7 +807,13 @@
           mostrar_talle: false,
           mostrar_genero: false,
           mostrar_marca: false,
+          mostrar: {
+          	temporada: false,
+          	detalle: false
+          },
           checked_codigo_real: false,
+          checked_vencimiento: false,
+          checked_auto_descripcion: true,
           descri_color: '',
           descri_tela: '',
           descri_talle: '',
@@ -752,6 +838,10 @@
           validar_precio_mayorista: false,
           validar_precio_costo: false,
           validar_codigo_real: false,
+          validar: {
+          	temporada: false,
+          	periodo: false
+          },
           mostrar_error: false,
           mensaje: '',
           estado_boton: {
@@ -759,6 +849,12 @@
           		boton_primary: true,
           		boton_warning: false,
           		mostrar_nuevo: false,
+          },
+          validar: {
+          	periodo: false
+          },
+          deshabilitar: {
+          	subCategoria: true
           },
           datos: []
         }
@@ -775,7 +871,7 @@
             	// ------------------------------------------------------------------------
 
             	// OBTENER CODIGO GENARADO 
-
+            	
             	Common.obtenerProductoCommon(this.codigo_producto, 1).then(data => {
 
             		// ------------------------------------------------------------------------
@@ -792,7 +888,8 @@
 
             		this.codigo_producto = data.producto.CODIGO;
                     this.codigo_interno = data.producto.CODIGO_INTERNO; 
-                    this.descripcion = data.producto.DESCRIPCION; 
+                    this.descripcion = data.producto.DESCRIPCION;
+                    this.checked_auto_descripcion = data.producto.AUTODESCRIPCION; 
                     this.iva = data.producto.IVA; 
                     this.seleccion_categoria = data.producto.LINEA.toString();
                     this.seleccion_sub_categoria = data.producto.SUBLINEA.toString();
@@ -809,9 +906,13 @@
                     this.precio_vip = data.producto.PREVIP;
                     this.precio_costo = data.producto.PRECOSTO;
                     this.stock_minimo = data.producto.STOCK_MIN;
-                    this.seleccion_gondola = data.producto.FK_GONDOLA;
                     this.observacion = data.producto.OBSERVACION;
                     this.seleccion_moneda = data.producto.MONEDA.toString();
+                    this.seleccion_gondola_modificar = data.producto.GONDOLAS;
+                    this.seleccion_proveedor = data.producto.PROVEEDOR.toString();
+                    this.seleccion.temporada = data.producto.TEMPORADA;
+                    this.seleccion.periodo = data.producto.PERIODO;
+                    this.mostrar.detalle = true;
 
                     // ------------------------------------------------------------------------
 
@@ -848,7 +949,42 @@
            		});
 
            		// ------------------------------------------------------------------------
-            }, 
+
+            }, convertDataURIToBinary(dataURI) {
+            		
+	              var BASE64_MARKER = ';base64,';
+				  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+				  var base64 = dataURI.substring(base64Index);
+				  var raw = window.atob(base64);
+				  var rawLength = raw.length;
+				  var array = new Uint8Array(new ArrayBuffer(rawLength));
+				  for(i = 0; i < rawLength; i++) {
+				    array[i] = raw.charCodeAt(i);
+				  }
+				  return array;
+			}, b64toBlob(b64Data, contentType, sliceSize) {
+                contentType = contentType || '';
+                sliceSize = sliceSize || 512;
+
+                var byteCharacters = atob(b64Data);
+                var byteArrays = [];
+
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+
+                    var byteArray = new Uint8Array(byteNumbers);
+
+                    byteArrays.push(byteArray);
+                }
+
+              var blob = new Blob(byteArrays, {type: contentType});
+              return blob;
+            },
             cambiarImagen(f){
 
             	let me = this;
@@ -858,11 +994,15 @@
 						var r = new FileReader();
 						r.onload = function(e) { 
 							var base64Img = e.target.result;
-							// var binaryImg = convertDataURIToBinary(base64Img);
-							// var blob = new Blob([binaryImg], {type: f.type});
+							// var binaryImg = me.convertDataURIToBinary(base64Img);
+							 //var blob = new Blob([binaryImg], {type: f.type});
 							// blobURL = window.URL.createObjectURL(blob);
 							me.fileName = f.name;
 							me.rutaImagen = base64Img;
+
+							// -------------------------------------------------------------------------------------
+
+							
 						}
 						r.readAsDataURL(f);
 
@@ -1039,19 +1179,35 @@
 
 	            // ------------------------------------------------------------------------
 
+	            if (valor.length === 0) {
+	            	me.deshabilitar.subCategoria = true;
+	            	return;
+	            }
+
+	            me.deshabilitar.subCategoria = false;
+
+	            // ------------------------------------------------------------------------
+
 	            // CONVERTIR VALOR 1 Y O EN BOOLEANO
 
-	            me.mostrar_color = !!+valor.ATRIBCOLOR;
-	            me.mostrar_tela = !!+valor.ATRIBTELA;
-	            me.mostrar_talle = !!+valor.ATRIBTALLE;
-	            me.mostrar_genero = !!+valor.ATRIBGENERO;
-	            me.mostrar_marca = !!+valor.ATRIBMARCA;
+	            me.mostrar_color = !!+valor[0].ATRIBCOLOR;
+	            me.mostrar_tela = !!+valor[0].ATRIBTELA;
+	            me.mostrar_talle = !!+valor[0].ATRIBTALLE;
+	            me.mostrar_genero = !!+valor[0].ATRIBGENERO;
+	            me.mostrar_marca = !!+valor[0].ATRIBMARCA;
+	            me.mostrar.temporada = !!+valor[0].ATRIBTEMPORADA;
+
+	            // ------------------------------------------------------------------------
+
+	            // SELECCION CATEGORIA MARCA 
+
+	            me.$refs.componente_select_marca.obtenerMarca(me.seleccion_categoria);
 
 	            // ------------------------------------------------------------------------
 
 	            // CARGAR DESCRIPCION
 
-	            me.descri_categoria = valor.DESCRIPCION;
+	            me.descri_categoria = valor[0].DESCRIPCION;
 
 	            // ------------------------------------------------------------------------
 
@@ -1140,6 +1296,14 @@
            		// ------------------------------------------------------------------------
 
             }, generarDescripcion() {
+
+            	// ------------------------------------------------------------------------
+
+            	// REVISAR SI ESTA ACTIVADO AUTO DESCRIPCION 
+
+            	if (this.checked_auto_descripcion === false) {
+            		return;
+            	}
 
             	// ------------------------------------------------------------------------
 
@@ -1285,6 +1449,13 @@
             	} else {
             		this.validar_marca = false;
             	}
+            	
+            	if (this.mostrar.temporada === true && this.seleccion.temporada === '0') {
+            		retornar = true;
+            		this.validar.temporada = true;
+            	} else {
+            		this.validar.temporada = false;
+            	}
 
             	if (this.seleccion_proveedor === 'null' || this.seleccion_proveedor === '') {
             		retornar = true;
@@ -1326,6 +1497,13 @@
             		this.validar_precio_costo = true;
             	} else {
             		this.validar_precio_costo = false;
+            	}
+
+            	if (this.seleccion.periodo === "0") {
+            		retornar = true;
+            		this.validar.periodo = true;
+            	} else {
+            		this.validar.periodo = false;
             	}
 
             	// ------------------------------------------------------------------------
@@ -1451,6 +1629,8 @@
             	// INICIAR VARIABLES 
 
             	let me = this;
+            	var textRegistro = '';
+            	var textTitulo = '';
 
             	// ------------------------------------------------------------------------
 
@@ -1464,8 +1644,8 @@
 
             	// REVISAR RUTA IMAGEN 
 
-            	if (this.rutaImagen === '/images/SinImagen.png?343637be705e4033f95789ab8ec70808') {
-            		this.rutaImagen === '';
+            	if (this.rutaImagen.includes('SinImagen') === true) {
+            		me.rutaImagen = '';
             	}
 
             	// ------------------------------------------------------------------------
@@ -1484,6 +1664,7 @@
             		talle: this.seleccion_talle,
             		genero: this.seleccion_genero,
             		marca: this.seleccion_marca,
+            		temporada: this.seleccion.temporada,
             		proveedor: this.seleccion_proveedor,
             		presentacion: this.seleccion_presentacion,
             		iva: this.iva,
@@ -1497,16 +1678,26 @@
             		gondola: this.seleccion_gondola,
             		observacion: this.observacion,
             		imagen: this.rutaImagen,
-            		generado: this.generado
+            		generado: this.generado,
+            		modificar: this.estado_boton.boton_warning,
+            		vencimiento: this.checked_vencimiento,
+            		periodo: this.seleccion.periodo
             	}
+
+            	// ------------------------------------------------------------------------
+
+            	// CAMBIAR TEXTO DE ACUERDO A MODIFICAR O GUARDAR 
+
+            	textRegistro = this.estado_boton.boton_warning ? "Modificar el producto " + me.codigo_producto + " !" : "Guardar el producto " + me.codigo_producto + " !";
+            	textTitulo = this.estado_boton.boton_warning ? "Modificar" : "Guardar";
 
             	// ------------------------------------------------------------------------
 
             	// GUARDAR PRODUCTO
 
             	Swal.fire({
-				  title: '¿ Guardar ?',
-				  text: "Guardar el producto " + me.codigo_producto + " !",
+				  title: '¿ '+textTitulo+' ?',
+				  text: textRegistro,
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -1586,6 +1777,8 @@
 	          	this.seleccion_proveedor = 'null';
 	          	this.seleccion_gondola = 'null';
 	          	this.seleccion_presentacion = 1;
+	          	this.seleccion.temporada = '0';
+	          	this.seleccion.periodo = '0';
 	          	this.observacion = '';
 	          	this.iva = '10';
 	          	this.descuento_maximo = 0;
@@ -1606,6 +1799,7 @@
 	          	this.mostrar_genero = false;
 	          	this.mostrar_marca = false;
 	          	this.checked_codigo_real = false;
+	          	this.checked_vencimiento = false;
 	          	this.descri_color = '';
 	          	this.descri_tela = '';
 	          	this.descri_talle = '';
@@ -1630,9 +1824,32 @@
 	          	this.validar_precio_mayorista = false;
 	          	this.validar_precio_costo = false;
 	          	this.validar_codigo_real = false;
+	          	this.validar.temporada = false;
+	          	this.validar.periodo = false;
+	          	this.checked_auto_descripcion = true;
+	          	this.mostrar.detalle = false;
 
 	          	// ------------------------------------------------------------------------
 
+            }, onChangeAutoDescripcion(){
+
+            	// ------------------------------------------------------------------------
+
+            	// AL CAMBIAR AL SWITCH LLAMAR AUTO DESCRIPCION 
+
+            	this.generarDescripcion();
+
+            	// ------------------------------------------------------------------------
+
+            }, detalle() {
+
+            	// ------------------------------------------------------------------------
+
+            	// MOSTRAR DETALLE PRODUCTO 
+
+            	this.$refs.detalle_producto.mostrar();
+
+            	// ------------------------------------------------------------------------
             }
       },
         mounted() {
@@ -1654,11 +1871,11 @@
 
         	// NAV LINK 
 
-           	$(".nav .nav-link").on("click", function(){
-			   $(".nav").find(".active").removeClass("active");
-			   $(this).addClass("active");
-			   me.nav = $(this).attr('value');
-			});
+   //         	$(".nav .nav-link").on("click", function(){
+			//    $(".nav").find(".active").removeClass("active");
+			//    $(this).addClass("active");
+			//    me.nav = $(this).attr('value');
+			// });
 
 			// -------------------------------------------------------------------------------------
         }

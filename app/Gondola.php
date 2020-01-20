@@ -6,19 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 use App\Producto;
 class Gondola extends Model
 {
-        protected $connection = 'retail';
+
+    protected $connection = 'retail';
     protected $table = 'gondolas';
     protected $primaryKey='Codigo';
     const CREATED_AT='FECALTAS';
     const UPDATED_AT='FECMODIF';
+
      public static function obtener_gondolas()
     {
 
-    	/*  --------------------------------------------------------------------------------- */
+        /*  --------------------------------------------------------------------------------- */
 
-    	// OBTENER TODAS LAS GONDOLAS
+        // OBTENER TODAS LAS GONDOLAS
 
-    	$gondolas = DB::connection('retail')
+        $gondolas = DB::connection('retail')
         ->table('GONDOLAS')
         ->select(DB::raw('CODIGO, DESCRIPCION'))
         ->get();
@@ -28,9 +30,9 @@ class Gondola extends Model
         // RETORNAR EL VALOR
 
         if ($gondolas) {
-        	return ['gondolas' => $gondolas];
+            return ['gondolas' => $gondolas];
         } else {
-        	return ['gondolas' => 0];
+            return ['gondolas' => 0];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -299,4 +301,35 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function obtener_gondolas_por_producto($codigo)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS GONDOLAS
+
+        $gondolas = Gondola::select(DB::raw('GONDOLAS.ID, CODIGO, DESCRIPCION, GONDOLA_TIENE_PRODUCTOS.FECALTAS'))
+        ->rightjoin('GONDOLA_TIENE_PRODUCTOS', 'GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA', '=', 'GONDOLAS.ID')
+        ->where('GONDOLAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD', '=', $codigo)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+       
+        // RETORNAR EL VALOR
+
+        return ['response' => true, 'gondolas' => $gondolas];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    
 }

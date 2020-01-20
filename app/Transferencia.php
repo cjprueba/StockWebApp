@@ -1892,15 +1892,18 @@ class Transferencia extends Model
         // OBTENER TODOS LOS PRODUCTOS 
 
         $transferencia_det = DB::connection('retail')
-        ->table('transferencias_det')
+        ->table('TRANSFERENCIAS_DET')
+        ->leftjoin('TRANSFERENCIADET_TIENE_LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA', '=', 'TRANSFERENCIAS_DET.ID')
+        ->leftjoin('LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE', '=', 'LOTES.ID')
         ->select(DB::raw(
-                        'ID,
-                        CODIGO_PROD, 
-                        CANTIDAD, 
-                        PRECIO'
+                        'TRANSFERENCIAS_DET.ID,
+                        TRANSFERENCIAS_DET.CODIGO_PROD, 
+                        TRANSFERENCIAS_DET.CANTIDAD, 
+                        TRANSFERENCIAS_DET.PRECIO,
+                        LOTES.FECHA_VENC AS VENCIMIENTO'
                     ))
-        ->where('ID_SUCURSAL','=', $codigo_origen)
-        ->where('CODIGO','=', $codigo)
+        ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
+        ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
         ->get();
         
         /*  --------------------------------------------------------------------------------- */
@@ -1908,7 +1911,6 @@ class Transferencia extends Model
         // RECORRER TODOS LOS PRODUCTOS 
 
         foreach ($transferencia_det as $td) {
-            
 
             /*  --------------------------------------------------------------------------------- */
             
@@ -1992,7 +1994,7 @@ class Transferencia extends Model
 
             // CREAR LOTE DEL PRODUCTO 
 
-            $lote = Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere);
+            $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere, $td->VENCIMIENTO))["id"];
 
             /*  --------------------------------------------------------------------------------- */
 

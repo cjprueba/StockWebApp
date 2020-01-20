@@ -109,6 +109,37 @@ function restarCommon(valor_a, valor_b, candec){
 
 }
 
+function sumarCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			var suma = 0;
+
+			// ------------------------------------------------------------------------
+
+			// QUITAR COMAS 
+
+			valor_a = quitarComaCommon(valor_a);
+			valor_b = quitarComaCommon(valor_b);
+
+			// ------------------------------------------------------------------------
+
+			// REALIZAR SUMA 
+
+			suma = parseFloat(valor_a) + parseFloat(valor_b);
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR VALOR
+
+			return darFormatoCommon(suma, candec);
+
+			// ------------------------------------------------------------------------
+
+}
+
 function multiplicarCommon(valor_a, valor_b, candec){
 
 			// ------------------------------------------------------------------------
@@ -140,6 +171,69 @@ function multiplicarCommon(valor_a, valor_b, candec){
 
 }
 
+function dividirCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			var division = 0;
+
+			// ------------------------------------------------------------------------
+
+			// QUITAR COMAS 
+
+			valor_a = quitarComaCommon(valor_a);
+			valor_b = quitarComaCommon(valor_b);
+
+			// ------------------------------------------------------------------------
+
+			// REALIZAR RESTA 
+
+			division = valor_a / valor_b;
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR VALOR
+
+			return darFormatoCommon(division, candec);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function saldoCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			var resta = 0;
+
+			// ------------------------------------------------------------------------
+
+			// RESTAR 
+
+			resta = restarCommon(valor_a, valor_b, candec);
+
+			// ------------------------------------------------------------------------
+
+			// QUITAR COMA 
+
+			resta = quitarComaCommon(resta);
+
+			// ------------------------------------------------------------------------
+
+			if (resta > 0) {
+				return darFormatoCommon(resta, candec);
+			} else {
+				return darFormatoCommon(0, candec);
+			}
+
+			// ------------------------------------------------------------------------
+
+}
+
 function ocultarBoton(valor){
 
 			// ------------------------------------------------------------------------
@@ -148,6 +242,69 @@ function ocultarBoton(valor){
 
 			document.getElementById(''+valor+'').disabled = true;
 			//document.getElementById(''+valor+'').style.visibility = 'disabled';
+
+			// ------------------------------------------------------------------------
+
+}
+
+function formatDateCommon(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function formulaCommon(formula, a, b, candec, moneda_principal, moneda_valor){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			let me = this;
+			var valor = 0;
+
+			// ------------------------------------------------------------------------
+
+			if (moneda_principal === moneda_valor) {
+				valor = darFormatoCommon(a, candec);
+			} else if (formula === '*') {
+				valor = me.multiplicarCommon(a, b, candec);
+			} else if (formula === '/') {
+				valor = me.dividirCommon(a, b, candec);
+			}
+
+			// ------------------------------------------------------------------------
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
+function calcularCotizacionRestaCommon(a, b, candec, moneda_principal, moneda_valor, cotizacion) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			let me = this;
+			var valor = 0; 
+
+			if (moneda_principal === moneda_valor) {
+				console.log("entre");
+				console.log(a+' '+b+' '+candec);
+				valor = me.restarCommon(a, b, candec);
+				console.log(valor);
+			} 
+
+			return valor;
 
 			// ------------------------------------------------------------------------
 
@@ -187,6 +344,7 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 				    	if (tipo_respuesta === 1) {
 				    		valor = { 'respuesta': true };
 				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
 				    		valor =  {
 				    			'respuesta': true,
 				    			'cantidad': data['CANTIDAD'],
@@ -195,6 +353,14 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 				    			'stock': data['STOCK'],
 				    			'row': tabla.row( this )
 				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
 				    	}
 				    	
 				    } 
@@ -276,6 +442,26 @@ function filtrarUsuariosCommon(codigo){
 }
 
 
+function obtenerProductoDetalleCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/productoDetalle', {'codigo': codigo}).then(function (response) {
+						return response.data;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 function codigoInternoCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -352,6 +538,68 @@ function obtenerProductoCommon(codigo, tipo){
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
 			return axios.post('/productoObtener', {'codigo': codigo, 'tipo': tipo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerProveedoresProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/productoConProveedor', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerTransferenciaProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/transferencia', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function eliminarProductoCommon(codigo) {
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/eliminar', {'codigo': codigo}).then(function (response) {
+				return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerProductoCompraCommon(codigo, moneda){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/productoCompra', {'codigo': codigo, 'moneda': moneda}).then(function (response) {
 					return response.data;
 			});
 
@@ -699,6 +947,112 @@ function obtenerProductosComprasDetCommon(nro_caja){
 
 }
 
+function guardarModificarCompraCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/compra/guardar-modificar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerCodigoCompraCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.get('/compra/codigo').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function eliminarCompraCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// ELIMINAR LA COMPRA, ENVIAR OPCION 1 PARA ELIMINAR EL REGISTRO DE LA TABLA COMPRA - 2 PARA ELIMINAR SOLO COMPRASDET
+			
+			return axios.post('/compra/eliminar', {'data': data, 'opcion': 1}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarRptPdfCompraCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'compra/pdf', method: 'post', responseType: 'blob', data: {'codigo': codigo}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerCabeceraCompraCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE COMPRA
+			
+			return axios.post('/compra/cabecera', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerCuerpoCompraCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE COMPRA
+			
+			return axios.post('/compra/cuerpo', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -735,7 +1089,7 @@ function obtenerCategoriasCommon(){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function obtenerSubCategoriaCommon(){
+function obtenerSubCategoriaCommon(categoria){
 
 			// ------------------------------------------------------------------------
 
@@ -747,7 +1101,7 @@ function obtenerSubCategoriaCommon(){
 
 			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
 
-			return axios.get('/subCategoria').then(function (response) {
+			return axios.post('/subCategoria', {categoria: categoria}).then(function (response) {
 					return response.data.subCategorias;
 				});
 
@@ -875,7 +1229,7 @@ function obtenerGeneroCommon(){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function obtenerMarcaCommon(){
+function obtenerMarcaCommon(categoria){
 
 			// ------------------------------------------------------------------------
 
@@ -887,7 +1241,7 @@ function obtenerMarcaCommon(){
 
 			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
 
-			return axios.get('/marca').then(function (response) {
+			return axios.post('/marca', {categoria: categoria}).then(function (response) {
 					return response.data.marcas;
 				});
 
@@ -923,6 +1277,25 @@ function obtenerProveedorCommon(){
 
 }
 
+function guardarPagoProveedorCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/proveedor/pago', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -949,6 +1322,19 @@ function obtenerGondolaCommon(){
 
 			// ------------------------------------------------------------------------
 
+}
+
+function obtenerGondolasProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/gondola/producto', {'codigo': codigo}).then(function (response) {
+					return response.data.gondolas;
+			});
+
+			// ------------------------------------------------------------------------
 }
 
 // ------------------------------------------------------------------------
@@ -1128,6 +1514,24 @@ function filtrarPermisosCommon(id){
 					return response.data;
 			});
 
+}
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      LOTES
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerLotesConCantidadCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/lotesConCantidad', {'codigo': codigo}).then(function (response) {
+					return response.data.lote;
+			});
 
 			// ------------------------------------------------------------------------
 
@@ -1151,6 +1555,14 @@ function filtrarMarcasCommon(id){
 			// ------------------------------------------------------------------------
 
 }
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      ROLES
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 function guardarRolCommon(nombre,descripcion,permisos,existe,id){
 
@@ -1727,6 +2139,89 @@ function eliminarGondolaCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 							 	CUENTAS
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function datosNotaCuentaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/deuda/datosNota', {'codigo': codigo}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							 PAGOS PROVEEDOR
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function datosPagoUnicoCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/pagos_prov/pagoUnico', {'id': id}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    FORMAS PAGO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function cotizacionyMonedaFormaPagoCommon() {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// OBTENER COTIZACION DE COMPRA
+
+			return axios.get('/cotizacion/compra-dia').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1784,6 +2279,12 @@ export {
 		guardarPermisoCommon,
 		guardarUsuarioCommon,
 		cantidadSuperadaCommon,
+		obtenerProductoDetalleCommon,
+		obtenerLotesConCantidadCommon,
+		obtenerProveedoresProductoCommon,
+		obtenerTransferenciaProductoCommon,
+		obtenerGondolasProductoCommon,
+		eliminarProductoCommon,
 		generarPdfFacturaTransferenciaCommon,
 		generarRptPdfTransferenciaCommon,
 		nuevaMarcaCommon,
@@ -1812,5 +2313,22 @@ export {
 		filtrarGondolasCommon,
 		nuevaGondolaCommon,
 		guardarGondolaCommon,
-		eliminarGondolaCommon
+		eliminarGondolaCommon,
+		obtenerProductoCompraCommon,
+		guardarModificarCompraCommon,
+		dividirCommon,
+		sumarCommon,
+		obtenerCodigoCompraCommon,
+		eliminarCompraCommon,
+		generarRptPdfCompraCommon,
+		obtenerCabeceraCompraCommon,
+		obtenerCuerpoCompraCommon,
+		formatDateCommon,
+		datosNotaCuentaCommon,
+		cotizacionyMonedaFormaPagoCommon,
+		formulaCommon,
+		calcularCotizacionRestaCommon,
+		saldoCommon,
+		guardarPagoProveedorCommon,
+		datosPagoUnicoCommon
 		};

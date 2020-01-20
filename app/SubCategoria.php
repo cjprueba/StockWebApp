@@ -6,21 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubCategoria extends Model
 {
+
     protected $connection = 'retail';
     protected $table = 'sublineas';
     protected $primaryKey='Codigo';
     const CREATED_AT='FECALTAS';
     const UPDATED_AT='FECMODIF';
-    public static function obtener_subCategorias()
+
+    /*  --------------------------------------------------------------------------------- */
+
+    public static function obtener_subCategorias($categoria)
     {
+        
+        /*  --------------------------------------------------------------------------------- */
 
-    	/*  --------------------------------------------------------------------------------- */
+        // OBTENER TODAS LAS SUB CATEGORIAS
 
-    	// OBTENER TODAS LAS SUB CATEGORIAS
-
-    	$subCategorias = DB::connection('retail')
-        ->table('SUBLINEAS')
-        ->select(DB::raw('CODIGO, DESCRIPCION'))
+        $subCategorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->leftjoin('LINEAS_TIENE_SUBLINEAS', 'LINEAS_TIENE_SUBLINEAS.FK_COD_SUBLINEA', '=', 'SUBLINEAS.CODIGO')
+        ->where('LINEAS_TIENE_SUBLINEAS.FK_COD_LINEA', '=', $categoria)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -28,14 +32,15 @@ class SubCategoria extends Model
         // RETORNAR EL VALOR
 
         if ($subCategorias) {
-        	return ['subCategorias' => $subCategorias];
+            return ['subCategorias' => $subCategorias];
         } else {
-        	return ['subCategorias' => 0];
+            return ['subCategorias' => 0];
         }
 
         /*  --------------------------------------------------------------------------------- */
 
     }
+
                 public static function filtrar_sub_categoria($datos)
     {
         $marcados=[];
