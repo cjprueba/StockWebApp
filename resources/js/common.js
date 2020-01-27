@@ -376,6 +376,65 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 
 }
 
+
+function existeProductoLoteDataTableCommon(tabla, codigo, lote, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo && data['LOTE'] === lote) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
 function cantidadSuperadaCommon(a, b){
 
 			// ------------------------------------------------------------------------
@@ -1292,6 +1351,26 @@ function guardarPagoProveedorCommon(data) {
 			return axios.post('/proveedor/pago', {data: data}).then(function (response) {
 					return response.data;
 				});
+
+			// ------------------------------------------------------------------------
+}
+
+
+function guardarDevolucionProveedorCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/proveedor/devolucion', {data: data}).then(function (response) {
+					return response.data;
+			});
 
 			// ------------------------------------------------------------------------
 }
@@ -2330,5 +2409,7 @@ export {
 		calcularCotizacionRestaCommon,
 		saldoCommon,
 		guardarPagoProveedorCommon,
-		datosPagoUnicoCommon
+		datosPagoUnicoCommon,
+		guardarDevolucionProveedorCommon,
+		existeProductoLoteDataTableCommon
 		};

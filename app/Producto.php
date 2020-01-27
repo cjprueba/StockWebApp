@@ -1817,7 +1817,7 @@ class Producto extends Model
         ->get();
 
         if (count($ventas_det) > 0) {
-            return ["response" => false];
+            return ["response" => false, "statusText" => "Este producto posee ventas !"];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -1832,7 +1832,7 @@ class Producto extends Model
         ->get();
 
         if (count($compras_det) > 0) {
-            return ["response" => false];
+            return ["response" => false, "statusText" => "Este producto posee compras !"];
         }
 
         /*  --------------------------------------------------------------------------------- */

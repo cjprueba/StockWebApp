@@ -70,4 +70,56 @@ class ProveedorController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function loteProducto(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::loteProducto($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function devolucion(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // REALIZAR PAGO
+
+        $proveedor = Proveedor::devolucion($request->all());
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function devolucionMostrar(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::devolucionMostrar($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
+    public function devolucionDetalle(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::devolucionDetalle($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

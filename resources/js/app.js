@@ -136,10 +136,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag )
 
 
 /* ********************************************* */
@@ -198,7 +198,8 @@ Vue.component('Inventario-General', require('./components/Inventario/busqueda/In
 
 // PROVEEDOR
 
-Vue.component('producto-proveedor', require('./components/Proveedor/busqueda/ProveedorGeneral.vue').default);
+Vue.component('producto-proveedor', require('./components/proveedor/busqueda/ProveedorGeneral.vue').default);
+Vue.component('modal-detalle-proveedor-devolucion', require('./components/proveedor/modal/ModalDetalleDevolucion.vue').default);
 
 /* ********************************************* */
 
@@ -259,7 +260,7 @@ Vue.component('gondola-nombre', require('./components/textboxs/Gondolas/Gondolas
 Vue.component('categoria-nombre', require('./components/textboxs/Atributos/CategoriaTextbox.vue').default);
 Vue.component('subcategoria-nombre', require('./components/textboxs/Atributos/SubCategoriaTextbox.vue').default);
 Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoTextbox.vue').default);
-
+Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vue').default);
 
 /* ********************************************* */
 

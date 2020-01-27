@@ -32,10 +32,10 @@
           <!-- Content Row -->
           <div class="row">
 
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <caja-lote></caja-lote>
             </div>
-            <div class="col-lg-6" v-if="1 === 0">
+            <div class="col-lg-5" v-if="1 === 0">
                 <caja-periodo></caja-periodo>
             </div>
 

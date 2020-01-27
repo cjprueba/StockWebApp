@@ -97,6 +97,7 @@ Route::post('subCategoriasDatatable', 'SubCategoriaController@subCategoriaDatata
 /* -------------------------------------------------------------------------- */
 
 // COLOR
+
 Route::get('nuevoColor','ColorController@obtenerCodigo');
 Route::get('color', 'ColorController@obtenerColores');
 Route::post('coloresDatatable', 'ColorController@ColoresDatatable');
@@ -114,6 +115,7 @@ Route::post('telaFiltrar', 'TelaController@filtrarTela');
 Route::get('nuevaTela','TelaController@obtenerCodigo');
 Route::post('telaGuardar', 'TelaController@telaGuardar');
 Route::post('telaEliminar', 'TelaController@telaEliminar');
+
 /* -------------------------------------------------------------------------- */
 
 // TALLE
@@ -124,6 +126,7 @@ Route::post('talleFiltrar', 'TalleController@filtrarTalle');
 Route::post('talleEliminar', 'TalleController@talleEliminar');
 Route::get('nuevoTalle','TalleController@obtenerCodigo');
 Route::post('talleGuardar', 'TalleController@talleGuardar');
+
 /* -------------------------------------------------------------------------- */
 
 // GENERO
@@ -162,6 +165,10 @@ Route::get('proveedor', 'ProveedorController@obtenerProveedores');
 Route::post('proveedores', 'ProveedorController@mostrar');
 Route::post('proveedor/pago', 'ProveedorController@pago');
 Route::get('proveedor/datatable', 'ProveedorController@datatable');
+Route::post('proveedor/lote', 'ProveedorController@loteProducto');
+Route::post('proveedor/devolucion', 'ProveedorController@devolucion');
+Route::get('proveedor/devolucion/mostrar', 'ProveedorController@devolucionMostrar');
+Route::get('proveedor/devolucion/detalle', 'ProveedorController@devolucionDetalle');
 
 /* -------------------------------------------------------------------------- */
 
@@ -256,7 +263,7 @@ Route::get('parametro', 'ParametroController@mostrar');
 //	LOTES
 
 Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
-Route::get('lote/vencidos', 'StockController@vencidos');
+Route::post('lote/vencidos', 'StockController@vencidos');
 
 /* -------------------------------------------------------------------------- */
 
@@ -303,11 +310,13 @@ Route::post('rolAsignar', 'UserController@asignarRol');
 /* -------------------------------------------------------------------------- */
 
 // PERMISOS
+
 Route::get('permisoTraer', 'UserController@obtenerPermisos');
 Route::post('permisoFiltrar', 'UserController@filtrarPermiso');
 Route::post('permisosDatatable', 'UserController@permisosDatatable');
 Route::post('PermisoGuardar', 'UserController@guardarPermiso');
 Route::post('permisoAsignar', 'UserController@asignarPermiso');
+
 /* -------------------------------------------------------------------------- */
 // ARTICULOS 
 

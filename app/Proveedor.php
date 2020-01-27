@@ -3,8 +3,12 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Common;
 use App\Pagos_Prov;
 use App\Pagos_Prov_Det;
+use App\Compra;
+use App\DevolucionProv;
+use App\DevolucionProvDet;
 
 class Proveedor extends Model
 {
@@ -711,5 +715,644 @@ class Proveedor extends Model
        return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function loteProducto($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $request->input('codigo');
+        $proveedor = $request->input('proveedor');
+        $moneda = $request->input('moneda');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'COD_PROD', 
+                            1 => 'COSTO',
+                            2 => 'INICIAL',
+                            3 => 'STOCK',
+                            4 => 'VENCIMIENTO',
+                            5 => 'LOTE',
+                            6 => 'MONEDA',
+                            7 => 'DECIMAL',
+                            8 => 'DESCRIPCION',
+                            9 => 'LOTE_ID'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = Compra::
+                    leftJoin('COMPRASDET', function($join){
+                        $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                             ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                             ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                    })
+                    ->where([
+                        'COMPRAS.PROVEEDOR' => $proveedor,
+                        'COMPRASDET.COD_PROD' => $codigo,
+                        'COMPRAS.MONEDA' => $moneda,
+                        'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                    ->count(); 
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Compra::select(DB::raw('COMPRASDET.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, COMPRAS.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('COMPRASDET', function($join){
+                        $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                             ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                             ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'COMPRAS.MONEDA')
+                    ->where([
+                        'COMPRAS.PROVEEDOR' => $proveedor,
+                        'COMPRASDET.COD_PROD' => $codigo,
+                        'COMPRAS.MONEDA' => $moneda,
+                        'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Compra::select(DB::raw('COMPRASDET.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, COMPRAS.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('COMPRASDET', function($join){
+                        $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                             ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                             ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                    })
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'COMPRAS.MONEDA')
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')
+                    ->where([
+                        'COMPRAS.PROVEEDOR' => $proveedor,
+                        'COMPRASDET.COD_PROD' => $codigo,
+                        'COMPRAS.MONEDA' => $moneda,
+                        'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                      ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order,$dir)
+                    ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Compra::leftJoin('COMPRASDET', function($join){
+                                $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                                     ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                            })
+                            ->leftJoin('LOTES', function($join){
+                                $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                                     ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                                     ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                            })
+                            ->where([
+                                'COMPRAS.PROVEEDOR' => $proveedor,
+                                'COMPRASDET.COD_PROD' => $codigo,
+                                'COMPRAS.MONEDA' => $moneda,
+                                'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                            ])
+                            ->where('LOTES.CANTIDAD', '>', 0)
+                            ->where(function ($query) use ($search) {
+                                    $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                    ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['COSTO'] = Common::formato_precio($post->COSTO, $post->CANDEC);
+                $nestedData['INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->CANTIDAD;
+
+                if ($post->VENCIMIENTO === 1) {
+                    $nestedData['VENCIMIENTO'] = $post->FECHA_VENC;
+                } else {
+                    $nestedData['VENCIMIENTO'] = 'N/A';
+                }
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['DECIMAL'] = $post->CANDEC;
+                $nestedData['LOTE_ID'] = $post->LOTE_ID;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function devolucion($data) {
+
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // GUARDAR DEVOLUCION PROVEEDOR 
+
+            $devolucionProv = DevolucionProv::guardar([
+                'FK_PROVEEDOR' => $data['data']['proveedor'],
+                'OBSERVACION' => $data['data']['observacion'],
+                'FK_MONEDA' => $data['data']['moneda'],
+                'TOTAL' => Common::quitar_coma($data['data']['total'], 2)
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // GUARDAR DEVOLUCION PROVEEDOR DETALLE 
+
+            if ($devolucionProv["response"] === true) {
+                DevolucionProvDet::guardar($data['data']['productos'], $devolucionProv["id"]);
+            } else {
+                return $devolucionProv;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha realizado con éxito la devolución"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ERROR 
+
+            Log::error('Devolucion Prov: Error al guardar.', ['PROVEEDOR' => $data["FK_PROVEEDOR"]]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => false, "statusText" => "Error al guardar devolución proveedor"];
+
+            /*  --------------------------------------------------------------------------------- */
+        }
+
+    }
+
+    public static function devolucionMostrar($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            1 => 'PROVEEDOR',
+                            2 => 'OBSERVACION',
+                            3 => 'TOTAL',
+                            4 => 'CREACION',
+                            5 => 'ACCION',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = DevolucionProv::
+                     where('ID_SUCURSAL', '=', $user->id_sucursal)
+                     ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = DevolucionProv::select(DB::raw('DEVOLUCION_PROV.CODIGO, PROVEEDORES.NOMBRE, DEVOLUCION_PROV.OBSERVACION, DEVOLUCION_PROV.TOTAL, DEVOLUCION_PROV.FECALTAS,  DEVOLUCION_PROV.FK_MONEDA AS MONEDA'))
+                         ->leftjoin('PROVEEDORES', 'DEVOLUCION_PROV.FK_PROVEEDOR', '=', 'PROVEEDORES.CODIGO')
+                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  DevolucionProv::select(DB::raw('DEVOLUCION_PROV.CODIGO, PROVEEDORES.NOMBRE, DEVOLUCION_PROV.OBSERVACION, DEVOLUCION_PROV.TOTAL, DEVOLUCION_PROV.FECALTAS,  DEVOLUCION_PROV.FK_MONEDA AS MONEDA'))
+                         ->leftjoin('PROVEEDORES', 'DEVOLUCION_PROV.FK_PROVEEDOR', '=', 'PROVEEDORES.CODIGO')
+                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->where(function ($query) use ($search) {
+                                $query->where('DEVOLUCION_PROV.CODIGO','LIKE',"{$search}%")
+                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = DevolucionProv::leftjoin('PROVEEDORES', 'DEVOLUCION_PROV.FK_PROVEEDOR', '=', 'PROVEEDORES.CODIGO')
+                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->where(function ($query) use ($search) {
+                                $query->where('DEVOLUCION_PROV.CODIGO','LIKE',"{$search}%")
+                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['PROVEEDOR'] = $post->NOMBRE;
+                $nestedData['OBSERVACION'] = $post->OBSERVACION;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+                $nestedData['CREACION'] = $post->FECALTAS;
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>";
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+
+    public static function devolucionDetalle($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $request->input('codigo');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'COD_PROD', 
+                            1 => 'COSTO',
+                            2 => 'INICIAL',
+                            3 => 'STOCK',
+                            4 => 'VENCIMIENTO',
+                            5 => 'LOTE',
+                            6 => 'MONEDA',
+                            7 => 'DECIMAL',
+                            8 => 'DESCRIPCION',
+                            9 => 'LOTE_ID'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = DevolucionProvDet::
+                    leftjoin('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+                    ->where([
+                        'DEVOLUCION_PROV.ID_SUCURSAL' => $user->id_sucursal,
+                        'DEVOLUCION_PROV.CODIGO' => $codigo
+                    ])
+                    ->count(); 
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = DevolucionProvDet::select(DB::raw('DEVOLUCION_PROV_DET.COD_PROD, PROVEEDORES.NOMBRE, DEVOLUCION_PROV.OBSERVACION, DEVOLUCION_PROV.TOTAL, DEVOLUCION_PROV.FECALTAS'))
+                ->leftjoin('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+                    ->where([
+                        'DEVOLUCION_PROV.ID_SUCURSAL' => $user->id_sucursal,
+                        'DEVOLUCION_PROV.CODIGO' => $codigo
+                    ])
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Compra::select(DB::raw('COMPRASDET.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, COMPRAS.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('COMPRASDET', function($join){
+                        $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                             ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                             ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                    })
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'COMPRAS.MONEDA')
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')
+                    ->where([
+                        'COMPRAS.PROVEEDOR' => $proveedor,
+                        'COMPRASDET.COD_PROD' => $codigo,
+                        'COMPRAS.MONEDA' => $moneda,
+                        'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                      ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order,$dir)
+                    ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Compra::leftJoin('COMPRASDET', function($join){
+                                $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                                     ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                            })
+                            ->leftJoin('LOTES', function($join){
+                                $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
+                                     ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
+                                     ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
+                            })
+                            ->where([
+                                'COMPRAS.PROVEEDOR' => $proveedor,
+                                'COMPRASDET.COD_PROD' => $codigo,
+                                'COMPRAS.MONEDA' => $moneda,
+                                'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                            ])
+                            ->where('LOTES.CANTIDAD', '>', 0)
+                            ->where(function ($query) use ($search) {
+                                    $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                    ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['COSTO'] = Common::formato_precio($post->COSTO, $post->CANDEC);
+                $nestedData['INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->CANTIDAD;
+
+                if ($post->VENCIMIENTO === 1) {
+                    $nestedData['VENCIMIENTO'] = $post->FECHA_VENC;
+                } else {
+                    $nestedData['VENCIMIENTO'] = 'N/A';
+                }
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['DECIMAL'] = $post->CANDEC;
+                $nestedData['LOTE_ID'] = $post->LOTE_ID;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

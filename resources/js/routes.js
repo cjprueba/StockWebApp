@@ -173,6 +173,16 @@ export default new Router({
 			path: '/pro2',
 			name: 'proveedorPago',
 			component: require('./components/proveedor/PagoProveedor.vue').default
+		},
+		{
+			path: '/pro3',
+			name: 'proveedorDevolucion',
+			component: require('./components/proveedor/DevolucionProveedor.vue').default
+		},
+		{
+			path: '/pro4',
+			name: 'proveedorDevolucionMostrar',
+			component: require('./components/proveedor/DevolucionProveedorMostrar.vue').default
 		}
 
 	],

@@ -4,6 +4,7 @@ namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use App\Lotes_tiene_TransferenciaDet;
+use Illuminate\Support\Facades\Log;
 
 class Stock extends Model
 {
@@ -400,6 +401,62 @@ class Stock extends Model
 
     }
 
+    public static function restar_stock_id_lote($id_lote, $cantidad)
+    {
+
+    	try {
+
+	    	/*  --------------------------------------------------------------------------------- */
+
+	    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+	    	$user = auth()->user();
+
+	    	/*  --------------------------------------------------------------------------------- */
+
+	        // INICIAR VARIABLES
+
+	    	$dia = date('Y-m-d');
+	    	$hora = date('H:i:s');
+
+	        /*  --------------------------------------------------------------------------------- */
+
+	        // SI CANTIDAD A SUMAR POSEE LOTE 
+
+	        $stock = Stock::where('ID','=', $id_lote)
+	        ->update(['FECMODIF' => date('Y-m-d'), 
+	        		  'CANTIDAD' => \DB::raw('CANTIDAD - '.$cantidad.''), 
+	        		  'FK_USER_MD' => $user->id]);
+
+		    /*  --------------------------------------------------------------------------------- */
+
+		    Log::info('Lote Restar: Éxito al modificar.', ['ID LOTE' => $id_lote, 'CANTIDAD' => $cantidad]);
+
+		    /*  --------------------------------------------------------------------------------- */
+
+	        // RETORNAR VALOR 
+
+	        return true;
+
+	        /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+			/*  --------------------------------------------------------------------------------- */
+
+			// ERROR 
+
+			Log::error('Lote Restar: Error al modificar.', ['ID LOTE' => $id_lote, 'CANTIDAD' => $cantidad]);
+
+			/*  --------------------------------------------------------------------------------- */
+
+			// RETORNAR 
+
+			return ["response" => false, "statusText" => "No se pudo modificar el lote"];
+
+			/*  --------------------------------------------------------------------------------- */
+		}
+    }
 
     public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere, $vencimiento)
     {
