@@ -2,59 +2,71 @@
 <template>
 	
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('gondola.crear')">
 
-  <!-- ------------------------------------------------------------------------------------- -->
-      
-     <div class="offset-md-2 col-6">
-    <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Gondolas</h5>
-      <div class="card-body">
-       
-        <div class="row">
+    <!-- ------------------------------------------------------------------ -->
 
-          <div class="col-12">
-            <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' @id='enviar_id' @descripcion='traer_descripcion'></gondola-nombre>
-          </div>   
-            <div class="col-12">
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+        
+    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-                 <hr>
+    <!-- ------------------------------------------------------------------------------------- -->
+        
+       <div class="offset-md-2 col-6">
+          <div class="card mt-3 shadow-sm">
+            <h5 class="card-header">Gondolas</h5>
+            <div class="card-body">
+             
+              <div class="row">
 
-                   <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Descripcion</label>
-                    <textarea v-model="descripcionTela" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-                    </div>
-            </div>
-                <hr>
-                  <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="nuevaGondola" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+                <div class="col-12">
+                  <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' @id='enviar_id' @descripcion='traer_descripcion'></gondola-nombre>
+                </div>   
+                  <div class="col-12">
+
+                       <hr>
+
+                         <div class="form-group">
+                              <label for="exampleFormControlTextarea1">Descripcion</label>
+                          <textarea v-model="descripcionTela" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
+                          </div>
                   </div>
+                      <hr>
+                        <div  class="col-3 mt-3 text-right">
+                           <button v-on:click="nuevaGondola" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+                        </div>
 
-                 <div class="col-4">
-                   
+                       <div class="col-4">
+                         
+                          
+                        <div v-if='guardar' class="col-3 mt-3 text-right">
+                           <button v-on:click="guardarGondola" type="submit" class="btn btn-primary">Guardar(F3)</button>
+                        </div>
+                         <div v-else class="col-3 mt-3 text-right">
+                           <button v-on:click="guardarGondola" type="submit" class="btn btn-warning">Actualizar(F3)</button>
+                        </div>
                     
-                  <div v-if='guardar' class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarGondola" type="submit" class="btn btn-primary">Guardar(F3)</button>
-                  </div>
-                   <div v-else class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarGondola" type="submit" class="btn btn-warning">Actualizar(F3)</button>
-                  </div>
-              
 
-             </div>
-                    <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="eliminarGondola" type="submit" class="btn btn-danger">Eliminar(F6)</button>
-                  </div>
+                   </div>
+                          <div  class="col-3 mt-3 text-right">
+                           <button v-on:click="eliminarGondola" type="submit" class="btn btn-danger">Eliminar(F6)</button>
+                        </div>
 
-    </div>
+          </div>
+        </div>
+      </div>
+       </div>
+
   </div>
-</div>
-     </div>
 
+  <!-- ------------------------------------------------------------------------ -->
+
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
+  <!-- ------------------------------------------------------------------------ -->
 
 </div>
 

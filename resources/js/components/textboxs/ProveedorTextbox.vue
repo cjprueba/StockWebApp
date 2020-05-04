@@ -4,7 +4,7 @@
                 <label for="validationTooltip01">Proveedor</label>
             </div>
 
-            <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_proveedor }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
+            <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_proveedor }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
                     <option :value="null">SELECCIONAR</option>
                     <option v-for="proveedor in proveedores" :selected="proveedor.CODIGO === parseInt(value)" :value="proveedor.CODIGO">{{ proveedor.DESCRIPCION }}</option>
             </select>
@@ -19,7 +19,8 @@
         'value': String,
         'shadow': Boolean,
         'validar_proveedor': Boolean,
-        'deshabilitar': Boolean
+        'deshabilitar': Boolean,
+        'tabIndexPadre': Number
       },
       data(){
         return {

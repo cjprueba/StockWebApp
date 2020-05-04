@@ -109,6 +109,28 @@ function restarCommon(valor_a, valor_b, candec){
 
 }
 
+function descuentoCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			var valor = 0;
+
+			// ------------------------------------------------------------------------
+
+			valor = dividirCommon(multiplicarCommon(valor_a, valor_b, candec), 100, candec);
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR VALOR
+
+			return darFormatoCommon(valor, candec);
+
+			// ------------------------------------------------------------------------
+
+}
+
 function sumarCommon(valor_a, valor_b, candec){
 
 			// ------------------------------------------------------------------------
@@ -480,6 +502,27 @@ function filtrarProductosCommon(codigo){
 			// ------------------------------------------------------------------------
 
 }
+
+function darDeBajaProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// DAR DE BAJA DEL PRODUCTO
+
+			return axios.post('/producto/baja', {'codigo': codigo}).then(function (response) {
+						return response.data;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 function filtrarUsuariosCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -666,6 +709,47 @@ function obtenerProductoCompraCommon(codigo, moneda){
 
 }
 
+
+function obtenerProductoPOSCommon(codigo, moneda){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/producto/POS', {'codigo': codigo, 'moneda': moneda}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function existeProductoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/producto/existe', {'codigo': codigo}).then(function (response) {
+						return response.data;
+					});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -748,7 +832,7 @@ function generarPdfFacturaTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data}}).then( 
+			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data, 'codigo_origen': 0}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -761,6 +845,102 @@ function generarPdfFacturaTransferenciaCommon(data){
 				},
 				(error) => { return error }
 			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfFacturaVentaCommon(codigo, caja){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfTicketVentaCommon(codigo, caja){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfTicketVentaTestCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/ticket', method: 'post', responseType: 'blob'}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
 
 			// ------------------------------------------------------------------------
 
@@ -887,7 +1067,7 @@ function importarTransferenciaCommon(codigo, codigo_origen){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function obtenerCotizacionDia(codigo){
+function obtenerCotizacionDia(){
 
 			// ------------------------------------------------------------------------
 
@@ -1168,6 +1348,26 @@ function obtenerSubCategoriaCommon(categoria){
 
 }
 
+function obtenerSubCategoriaDetalleCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/subCategoriaDetalle').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1308,6 +1508,26 @@ function obtenerMarcaCommon(categoria){
 
 }
 
+function obtenerMarcaCategoriaCommon(categoria, marca){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/marca/categoria/seleccion', {categoria: categoria, marca: marca}).then(function (response) {
+					return response.data.marcas;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1355,6 +1575,63 @@ function guardarPagoProveedorCommon(data) {
 			// ------------------------------------------------------------------------
 }
 
+function guardarVentaCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/guardar', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function numeracionVentaCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/numeracion', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+
+function inicioVentaCommon() {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/inicio').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 
 function guardarDevolucionProveedorCommon(data) {
 
@@ -1594,6 +1871,29 @@ function filtrarPermisosCommon(id){
 			});
 
 }
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      UBICACION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerUbicacionCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA UBICACION
+			
+			return axios.post('/producto/ubicacion', {'codigo': codigo}).then(function (response) {
+					return response.data.ubicacion;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -1813,8 +2113,30 @@ function filtrarColoresCommon(id){
 			// ------------------------------------------------------------------------
 
 }
+
+function filtrarNombresCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR ROL
+			return axios.post('/subCategoriaDetalle/filtrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+
 function nuevoColorCommon(){
-	// ------------------------------------------------------------------------
+
+			// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
 
@@ -1830,8 +2152,29 @@ function nuevoColorCommon(){
 
 			// ------------------------------------------------------------------------
 }
+
+function nuevoNombreCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/subCategoriaDetalle/nuevo').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 function guardarColorCommon(data){
-	// ------------------------------------------------------------------------
+
+			// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
 
@@ -1847,8 +2190,29 @@ function guardarColorCommon(data){
 
 			// ------------------------------------------------------------------------
 }
+
+function guardarNombreCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR NOMBRE
+
+			return axios.post('/subCategoriaDetalle/guardar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+}
+
 function eliminarColorCommon(data){
-	// ------------------------------------------------------------------------
+
+			// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
 
@@ -1864,6 +2228,26 @@ function eliminarColorCommon(data){
 
 			// ------------------------------------------------------------------------
 }
+
+function eliminarNombreCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/subCategoriaDetalle/eliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 function filtrarTallesCommon(id){
 
 			// ------------------------------------------------------------------------
@@ -2411,5 +2795,22 @@ export {
 		guardarPagoProveedorCommon,
 		datosPagoUnicoCommon,
 		guardarDevolucionProveedorCommon,
-		existeProductoLoteDataTableCommon
+		existeProductoLoteDataTableCommon,
+		darDeBajaProductoCommon,
+		obtenerSubCategoriaDetalleCommon,
+		obtenerProductoPOSCommon,
+		guardarVentaCommon,
+		numeracionVentaCommon,
+		descuentoCommon,
+		inicioVentaCommon,
+		generarPdfFacturaVentaCommon,
+		filtrarNombresCommon,
+		nuevoNombreCommon,
+		guardarNombreCommon,
+		eliminarNombreCommon,
+		obtenerUbicacionCommon,
+		obtenerMarcaCategoriaCommon,
+		existeProductoCommon,
+		generarPdfTicketVentaCommon,
+		generarPdfTicketVentaTestCommon
 		};

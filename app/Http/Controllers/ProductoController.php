@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Common;
 use App\ProductosAux;
 use App\Imagen;
+use App\Http\Requests\ValidarApiProductosListar;
 
 class ProductoController extends Controller
 {
@@ -17,6 +18,22 @@ class ProductoController extends Controller
 
 	private $search = '';
     
+    /*  --------------------------------------------------------------------------------- */
+
+    // CONSTRUCT 
+
+    public function __construct(){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODHIBIR ACCESO A API SIN CREDENCIALES
+
+        //$this->middleware('client-credentials')->only('apiListarProductos');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
     /*  --------------------------------------------------------------------------------- */
 
     public function mostrar(Request $request)
@@ -341,5 +358,88 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function minimo(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::minimo($request);
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     
+    public function baja(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::baja($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function obtenerProductoPOS(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::obtener_producto_POS($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function ubicacion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::ubicacion($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function existe(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::existe($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function apiListarProductos(ValidarApiProductosListar $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::apiListarProductos($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

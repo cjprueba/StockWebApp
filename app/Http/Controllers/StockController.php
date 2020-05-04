@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Stock;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StockExport;
 
 class StockController extends Controller
 {
@@ -37,4 +39,16 @@ class StockController extends Controller
 
     }
 
+    public function descargar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        return Excel::download(new StockExport($request->all()), 'Stock.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

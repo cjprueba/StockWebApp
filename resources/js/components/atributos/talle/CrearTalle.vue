@@ -2,59 +2,71 @@
 <template>
 	
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('talle.crear')">
 
-  <!-- ------------------------------------------------------------------------------------- -->
-      
-     <div class="offset-md-2 col-6">
-    <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Talles</h5>
-      <div class="card-body">
-       
-        <div class="row">
+      <!-- ------------------------------------------------------------------ -->
 
-          <div class="col-12">
-            <talle-nombre ref="componente_textbox_Talle" @nombre_talle='enviar_nombre' @existe_talle='existe' :nombre='nombreTalle' :validarTalle='validarTalle' @id='enviar_id' @descripcion='traer_descripcion'></talle-nombre>
-          </div>   
-            <div class="col-12">
+      <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+          
+      <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-                 <hr>
+      <!-- ------------------------------------------------------------------------------------- -->
+          
+         <div class="offset-md-2 col-6">
+        <div class="card mt-3 shadow-sm">
+          <h5 class="card-header">Talles</h5>
+          <div class="card-body">
+           
+            <div class="row">
 
-                   <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Descripcion</label>
-                    <textarea v-model="descripcionTalle" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-                    </div>
-            </div>
-                <hr>
-                  <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="nuevoTalle" type="submit" class="btn btn-primary">Nuevo(F2)</button>
-                  </div>
+              <div class="col-12">
+                <talle-nombre ref="componente_textbox_Talle" @nombre_talle='enviar_nombre' @existe_talle='existe' :nombre='nombreTalle' :validarTalle='validarTalle' @id='enviar_id' @descripcion='traer_descripcion'></talle-nombre>
+              </div>   
+                <div class="col-12">
 
-                 <div class="col-4">
-                   
-                    
-                  <div v-if='guardar' class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarTalle" type="submit" class="btn btn-primary">Guardar(F3)</button>
-                  </div>
-                   <div v-else class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarTalle" type="submit" class="btn btn-warning">Actualizar(F3)</button>
-                  </div>
-              
+                     <hr>
 
-             </div>
-                    <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="eliminarTalle" type="submit" class="btn btn-danger">Eliminar(F6)</button>
-                  </div>
+                       <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Descripcion</label>
+                        <textarea v-model="descripcionTalle" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
+                        </div>
+                </div>
+                    <hr>
+                      <div  class="col-3 mt-3 text-right">
+                         <button v-on:click="nuevoTalle" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+                      </div>
 
+                     <div class="col-4">
+                       
+                        
+                      <div v-if='guardar' class="col-3 mt-3 text-right">
+                         <button v-on:click="guardarTalle" type="submit" class="btn btn-primary">Guardar(F3)</button>
+                      </div>
+                       <div v-else class="col-3 mt-3 text-right">
+                         <button v-on:click="guardarTalle" type="submit" class="btn btn-warning">Actualizar(F3)</button>
+                      </div>
+                  
+
+                 </div>
+                        <div  class="col-3 mt-3 text-right">
+                         <button v-on:click="eliminarTalle" type="submit" class="btn btn-danger">Eliminar(F6)</button>
+                      </div>
+
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-     </div>
+         </div>
 
+  </div>
+
+  <!-- ------------------------------------------------------------------------ -->
+
+  <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
+  <!-- ------------------------------------------------------------------------ -->
 
 </div>
 

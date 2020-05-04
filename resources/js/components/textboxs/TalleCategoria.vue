@@ -1,7 +1,7 @@
 <template>
 	<div>
             <label for="validationTooltip01">Talle</label>
-            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_talle }" @input="$emit('input', $event.target.value)">
+            <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_talle }" @input="$emit('input', $event.target.value)">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="talle in talles" :selected="talle.CODIGO === parseInt(value)" :value="talle.CODIGO">{{ talle.CODIGO }} - {{ talle.DESCRIPCION }}</option>
             </select>
@@ -13,7 +13,8 @@
       props: {
         'value': String,
         'shadow': Boolean,
-        'validar_talle': Boolean
+        'validar_talle': Boolean,
+        'tabIndexPadre': Number
       },
       data(){
         return {

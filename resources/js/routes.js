@@ -183,6 +183,21 @@ export default new Router({
 			path: '/pro4',
 			name: 'proveedorDevolucionMostrar',
 			component: require('./components/proveedor/DevolucionProveedorMostrar.vue').default
+		},
+		{
+			path: '/rpt10',
+			name: 'rptStock',
+			component: require('./components/reportes/stock/busqueda/stock.vue').default
+		},
+		{
+			path: '/vt2',
+			name: 'ventaRealizar',
+			component: require('./components/venta/RealizarVenta.vue').default
+		},
+		{
+			path: '/nom1',
+			name: 'nombreCrear',
+			component: require('./components/Atributos/nombre/CrearNombre.vue').default
 		}
 
 	],

@@ -2,103 +2,106 @@
 <template>
 	
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('categoria.crear')">
 
-  <!-- ------------------------------------------------------------------------------------- -->
-      
-     <div class="offset-md-2 col-6">
-    <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Categorias</h5>
-      <div class="card-body">
-       
-        <div class="row">
+    <!-- ------------------------------------------------------------------ -->
 
-          <div class="col-12">
-            <categoria-nombre ref="componente_textbox_categoria" @nombre_categoria='enviar_nombre' @existe_categoria='existe' :nombre='nombreCategoria' :validarCategoria='validarCategoria' @marcados_traer='marcados_traer' @marcaMarcados_traer='marcadosMarca_traer' @id='enviar_id' @descripcion='traer_descripcion'></categoria-nombre>
-          </div>   
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+        
+    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+
+    <!-- ------------------------------------------------------------------------------------- -->
+        
+       <div class="offset-md-2 col-6">
+      <div class="card mt-3 shadow-sm">
+        <h5 class="card-header">Categorias</h5>
+        <div class="card-body">
+         
+          <div class="row">
+
             <div class="col-12">
+              <categoria-nombre ref="componente_textbox_categoria" @nombre_categoria='enviar_nombre' @existe_categoria='existe' :nombre='nombreCategoria' :validarCategoria='validarCategoria' @marcados_traer='marcados_traer' @marcaMarcados_traer='marcadosMarca_traer' @id='enviar_id' @descripcion='traer_descripcion'></categoria-nombre>
+            </div>   
+              <div class="col-12">
 
-                 <hr>
+                   <hr>
 
-                   <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Descripcion</label>
-                    <textarea v-model="descripcionCategoria" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-                    </div>
-            </div>
-            <hr>
+                     <div class="form-group">
+                          <label for="exampleFormControlTextarea1">Descripcion</label>
+                      <textarea v-model="descripcionCategoria" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
+                      </div>
+              </div>
+              <hr>
 
-         <div class="modal fade subcategoria-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalCenterTitle">Categorias: </small></h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
+           <div class="modal fade subcategoria-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Categorias: </small></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                      <table id="subcategorias" class="table table-striped table-bordered" style="width:30%"> 
+
+                                <thead>
+
+                                 <tr>
+                                   <th>CODIGO</th>
+                                   <th>DESCRIPCION</th>
+                                   <th>FECHA CREACION</th>
+                                 </tr>
+                                </thead>
+                         <tbody>
+                            <tr>
+                              <td></td>
+                              <td v-on:click="() => alert('hola')"></td>
+                            </tr>
+                         </tbody>
+                    </table>    
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                          </div>
                         </div>
-                        <div class="modal-body">
-                    <table id="subcategorias" class="table table-striped table-bordered" style="width:30%"> 
+                      </div>
+                    </div>  
+                    <div class="modal fade Marca-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Categorias: </small></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                      <table id="Marcas" class="table table-striped table-bordered" style="width:30%"> 
 
-                              <thead>
+                                <thead>
 
-                               <tr>
-                                 <th>CODIGO</th>
-                                 <th>DESCRIPCION</th>
-                                 <th>FECHA CREACION</th>
-                               </tr>
-                              </thead>
-                       <tbody>
-                          <tr>
-                            <td></td>
-                            <td v-on:click="() => alert('hola')"></td>
-                          </tr>
-                       </tbody>
-                  </table>    
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                 <tr>
+                                   <th>CODIGO</th>
+                                   <th>DESCRIPCION</th>
+                                   <th>FECHA CREACION</th>
+                                 </tr>
+                                </thead>
+                         <tbody>
+                            <tr>
+                              <td></td>
+                              <td v-on:click="() => alert('hola')"></td>
+                            </tr>
+                         </tbody>
+                    </table>    
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>  
-<div class="modal fade Marca-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalCenterTitle">Categorias: </small></h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                    <table id="Marcas" class="table table-striped table-bordered" style="width:30%"> 
-
-                              <thead>
-
-                               <tr>
-                                 <th>CODIGO</th>
-                                 <th>DESCRIPCION</th>
-                                 <th>FECHA CREACION</th>
-                               </tr>
-                              </thead>
-                       <tbody>
-                          <tr>
-                            <td></td>
-                            <td v-on:click="() => alert('hola')"></td>
-                          </tr>
-                       </tbody>
-                  </table>    
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
 
 
@@ -106,47 +109,56 @@
 
 
 
-                <hr>
-<div  class="col-3 mt-3 text-right">
-                <div class="btn-group" role="group">
-               
+                  <hr>
+  <div  class="col-3 mt-3 text-right">
+                  <div class="btn-group" role="group">
                  
-               
-    <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" v-bind:class="{ 'text-danger': validarMarcados}"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-     Asignar
-    </button>
-    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-      <a class="dropdown-item" href="#" data-toggle="modal" data-target=".subcategoria-modal" v-bind:class="{ 'text-danger': validarSubMarcados }">Subcategorias</a>
-      <a class="dropdown-item" href="#" data-toggle="modal" data-target=".Marca-modal" v-bind:class="{ 'text-danger': validarMarcaMarcados }">Marcas</a>
-    </div>
-  </div>
-       </div>           <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="nuevaCategoria" type="submit" class="btn btn-primary">Nuevo(F2)</button>
-                  </div>
                    
-                    
-                  <div v-if='guardar' class="col-3 mt-3 float-center">
-                     <button v-on:click="guardarCategoria" type="submit" class="btn btn-primary">Guardar(F3)</button>
-                  </div>
-                   <div v-else class="col-3 mt-3 float-center">
-                     <button v-on:click="guardarCategoria" type="submit" class="btn btn-warning">Editar(F3)</button>
-                  </div>
-              
-
-                    <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="eliminarCategoria" type="submit" class="btn btn-danger">Eliminar(F6)</button>
-                  </div>
-                   
-
-
-
-
+                 
+      <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" v-bind:class="{ 'text-danger': validarMarcados}"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+       Asignar
+      </button>
+      <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target=".subcategoria-modal" v-bind:class="{ 'text-danger': validarSubMarcados }">Subcategorias</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target=".Marca-modal" v-bind:class="{ 'text-danger': validarMarcaMarcados }">Marcas</a>
+      </div>
     </div>
+         </div>           <div  class="col-3 mt-3 text-right">
+                       <button v-on:click="nuevaCategoria" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+                    </div>
+                     
+                      
+                    <div v-if='guardar' class="col-3 mt-3 float-center">
+                       <button v-on:click="guardarCategoria" type="submit" class="btn btn-primary">Guardar(F3)</button>
+                    </div>
+                     <div v-else class="col-3 mt-3 float-center">
+                       <button v-on:click="guardarCategoria" type="submit" class="btn btn-warning">Editar(F3)</button>
+                    </div>
+                
+
+                      <div  class="col-3 mt-3 text-right">
+                       <button v-on:click="eliminarCategoria" type="submit" class="btn btn-danger">Eliminar(F6)</button>
+                    </div>
+                     
+
+
+
+
+      </div>
+     </div>
    </div>
- </div>
+  </div>
+
+
 </div>
 
+  <!-- ------------------------------------------------------------------------ -->
 
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
+  <!-- ------------------------------------------------------------------------ -->
 </div>
 
 </template>

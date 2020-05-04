@@ -112,7 +112,7 @@ class ComprasDet extends Model
             // COTIZACION 
 
             if ($monedaSistema !== $value->MONEDA) {
-                $precio = Cotizacion::CALMONED(["monedaSistema" => $monedaSistema, "monedaProducto" => $value->MONEDA, "precio" => $value->PRECIO, "decSistema" => $candecSistem, "tab_unica" => $tab_unica]);
+                $precio = Cotizacion::CALMONED(["monedaSistema" => $monedaSistema, "monedaProducto" => $value->MONEDA, "precio" => $value->PRECIO, "decSistema" => $candecSistem, "tab_unica" => $tab_unica, "id_sucursal" => $user->id_sucursal]);
 
                 $comprasdet[$key]->PRECIO = Common::quitar_coma($precio["valor"], $candecSistem);
 

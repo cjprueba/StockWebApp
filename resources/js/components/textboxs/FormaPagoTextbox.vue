@@ -380,12 +380,14 @@
                         <!-- FOOTER -->
 
                         <div class="modal-footer">
-                          <div class="col-md-6 mb-3">
-                              <button type="button" class="btn btn-primary btn-lg btn-block" v-on:click="aceptar">Aceptar</button>
-                          </div>
+                          <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" v-on:click="aceptar">Aceptar</button>
+                            </div>
 
-                          <div class="col-md-6 mb-3">
-                              <button type="button" class="btn btn-secondary btn-lg btn-block" data-dismiss="modal">Cancelar</button>
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-secondary btn-lg btn-block" data-dismiss="modal">Cancelar</button>
+                            </div>
                           </div> 
                         </div>
 
@@ -397,6 +399,101 @@
 
                   <tarjeta-modal ref="compontente_modal_tarjeta" @codigo="codigoTarjeta" @descripcion="descripcionTarjeta"></tarjeta-modal> 
                   <cheque-modal ref="compontente_modal_cheque" @data="sumarCheques" :cotizacion="cotizacion" :moneda_principal="moneda"></cheque-modal> 
+
+                  <!-- ------------------------------------------------------------------------ -->
+
+                  <!-- MODAL IMPRESORA - TICKET - VUELTO -->
+
+                  <div class="modal fade" id="modalImpresion" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Opciones</h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="row">
+                          <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
+                          <div class="col-sm-10">
+                            <div class="form-check form-check-inline">
+                              <input v-model="radio.impresion" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion1" value="1">
+                              <label class="form-check-label" for="radioImpresion1">
+                                Ticket
+                              </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input v-model="radio.impresion" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
+                              <label class="form-check-label" for="radioImpresion2">
+                                Factura / Ticket
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-md-12">
+                            <hr>
+                          </div>
+                        </div>  
+                        <div class="row">
+                          <legend class="col-form-label col-sm-2 pt-0">Vuelto</legend>
+                          <div class="col-sm-10">
+                            <div class="form-check form-check-inline">
+                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                              <label class="form-check-label" for="gridRadios1">
+                                Guaranies
+                              </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                              <label class="form-check-label" for="gridRadios2">
+                                Dolares
+                              </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                              <label class="form-check-label" for="gridRadios3">
+                                Reales
+                              </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                              <label class="form-check-label" for="gridRadios4">
+                                Pesos
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="enviar">Aceptar</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- ------------------------------------------------------------------------ -->
+
+                  <!-- TOAST MONTO INSUFICIENTE -->
+
+                  <b-toast id="toast-monto-insuficiente" variant="warning" solid>
+                      <template v-slot:toast-title>
+                        <div class="d-flex flex-grow-1 align-items-baseline">
+                          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+                          <strong class="mr-auto">Error !</strong>
+                          <small class="text-muted mr-2">insuficiente</small>
+                        </div>
+                      </template>
+                      El total supera al pago ingresado !
+                  </b-toast>
+
+                  <!-- ------------------------------------------------------------------------ -->
+
 	</div>	
 </template>
 <script>
@@ -478,10 +575,43 @@
             mostrar: {
               TARJETA_SELECCION: false
             },
-            cheque: ''
+            cheque: '',
+            seleccion: {
+              impresion: '1',
+              vuelto: '1'
+            },
+            radio: {
+              impresion: '1',
+              vuelto: '1'
+            }, respuesta: {
+              EFECTIVO: '',
+              CODIGO_TARJETA: '',
+              TARJETA: '',
+              VUELTO: '',
+              SALDO: '',
+              GUARANIES: '',
+              DOLARES: '',
+              PESOS: '',
+              REALES: '',
+              CHEQUE: '',
+              TIPO_IMPRESION: '',
+              OPCION_VUELTO: ''
+            }
         }
       }, 
       methods: {
+          seleccionar(){
+
+            // ------------------------------------------------------------------------
+
+            // SELECCIONAR 
+
+            this.respuesta.TIPO_IMPRESION = this.radio.impresion;
+            this.respuesta.OPCION_VUELTO = this.radio.vuelto;
+
+            // ------------------------------------------------------------------------
+
+          },
       		llamarPadre(valor){
 
               // ------------------------------------------------------------------------
@@ -860,39 +990,79 @@
 
             // ------------------------------------------------------------------------
 
-          }, aceptar(){
+          }, enviar(){
 
             // ------------------------------------------------------------------------
 
             let me = this;
             
+            me.$emit('datos', me.respuesta);
+            me.limpiar();
+            $('#modalImpresion').modal('hide');
+
+            // ------------------------------------------------------------------------
+
+          }, aceptar(){
+
+            // ------------------------------------------------------------------------
+
+            let me = this;
+            var total = 0;
+            var medios = 0;
+            
             // ------------------------------------------------------------------------
 
             // ENVIAR DATOS
             
-            this.respuesta = {
-              EFECTIVO: this.medios.EFECTIVO,
-              CODIGO_TARJETA: this.tarjeta.codigo,
-              TARJETA: this.medios.TARJETA,
-              VUELTO: this.medios.VUELTO,
-              SALDO: this.medios.SALDO,
-              GUARANIES: this.monedas.GUARANIES,
-              DOLARES: this.monedas.DOLARES,
-              PESOS: this.monedas.PESOS,
-              REALES: this.monedas.REALES,
-              CHEQUE: this.cheque
+            me.respuesta = {
+              EFECTIVO: me.medios.EFECTIVO,
+              CODIGO_TARJETA: me.tarjeta.codigo,
+              TARJETA: me.medios.TARJETA,
+              VUELTO: me.vuelto,
+              SALDO: me.medios.SALDO,
+              GUARANIES: me.monedas.GUARANIES,
+              DOLARES: me.monedas.DOLARES,
+              PESOS: me.monedas.PESOS,
+              REALES: me.monedas.REALES,
+              CHEQUE: me.cheque,
+              TIPO_IMPRESION: me.seleccion.impresion,
+              OPCION_VUELTO: me.seleccion.vuelto
             }
-
+            
             // ------------------------------------------------------------------------
 
             // EMITIR DATOS 
 
-            if (me.medios.EFECTIVO !== '0') {
-              this.$emit('datos', this.respuesta);
-              this.limpiar();
+            if (me.medios.MEDIOS !== '0') {
+
+              total = parseFloat(Common.quitarComaCommon(me.total));
+              medios = parseFloat(Common.quitarComaCommon(me.medios.MEDIOS));
+
+              // ------------------------------------------------------------------------
+
+              // REVISAR SI EL PAGO ES MAYOR AL TOTAL 
+
+              if (total > medios) {
+                this.$bvToast.show('toast-monto-insuficiente');
+                return;
+              }
+
+              // ------------------------------------------------------------------------
+
               $('#staticBackdrop').modal('hide');
+              $('#modalImpresion').modal('show');
+
+              // ------------------------------------------------------------------------
+
             } else {
-              alert("NO HAY NADA");
+              
+              // ------------------------------------------------------------------------
+
+              this.$bvToast.show('toast-monto-insuficiente');
+              return;
+
+              // ------------------------------------------------------------------------
+
             }
 
             // ------------------------------------------------------------------------

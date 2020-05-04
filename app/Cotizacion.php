@@ -56,9 +56,9 @@ class Cotizacion extends Model
 	        ->where('CODMON1', '=', $data['monedaSistema'])
 	        ->where('MES', '=', '0')
 	        ->where('ANO', '=', $ano)
-	        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+	        ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
 	        ->get();
-
+            
     	} else {
 
     		$cotizaciones = DB::connection('retail')
@@ -68,7 +68,7 @@ class Cotizacion extends Model
 	        ->where('CODMON1', '=', $data['monedaSistema'])
 	        ->where('MES', '=', $mes)
 	        ->where('ANO', '=', $ano)
-	        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+	        ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
 	        ->get();
 
     	}

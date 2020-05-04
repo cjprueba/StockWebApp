@@ -12,9 +12,11 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB;
+use Laravel\Passport\HasApiTokens;
+
 class User extends Authenticatable
 {
-    use Notifiable, HasRoles;
+    use Notifiable, HasRoles, HasApiTokens;
     protected $appends = ['all_permissions','can'];
     /**
      * The attributes that are mass assignable.

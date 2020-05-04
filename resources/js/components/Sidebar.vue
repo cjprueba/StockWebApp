@@ -74,6 +74,7 @@
              <router-link class="collapse-item" :to="{name: 'rptProveedor'}">Proveedores</router-link>
              <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventarios</router-link>
              <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
           </div>
         </div>
       </li>
@@ -126,7 +127,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
-            <router-link class="collapse-item" :to="{name: 'venta'}">Realizar Venta</router-link>
+            <router-link class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link>
           </div>
         </div>
@@ -220,6 +221,7 @@
             <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
             <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
             <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+            <router-link class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
           </div>
         </div>
       </li>

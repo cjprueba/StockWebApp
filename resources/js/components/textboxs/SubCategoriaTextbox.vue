@@ -4,7 +4,7 @@
                 <label for="validationTooltip01">Sub Categoria</label>
             </div>
 
-            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_sub_categoria }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
+            <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_sub_categoria }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="subCategoria in subCategorias" :selected="subCategoria.CODIGO === parseInt(value)" :value="subCategoria.CODIGO">{{ subCategoria.CODIGO }} - {{ subCategoria.DESCRIPCION }}</option>
             </select>
@@ -18,7 +18,8 @@
               'shadow',
               'validar_sub_categoria',
               'deshabilitar',
-              'categoria'
+              'categoria',
+              'tabIndexPadre'
             ],
       data(){
         return {

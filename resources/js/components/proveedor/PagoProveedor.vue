@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-3">
-		<div class="row">
+		<div class="row" v-if="$can('proveedor.pago')">
 				<div class="col-md-12">
 					<div class="card border-bottom-info mb-3">
 					  <div class="card-header">
@@ -480,6 +480,15 @@
 
 			
 		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+		
+		<!-- ------------------------------------------------------------------------ -->
+		
 	</div>	
 </template>
 <script>

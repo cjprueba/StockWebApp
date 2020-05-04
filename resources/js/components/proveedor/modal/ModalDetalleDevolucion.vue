@@ -10,7 +10,7 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
-		        <table id="CompraProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+		        <table id="devolucionProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
 					            <thead>
 					                <tr>
 					                    <th>Item</th>
@@ -52,7 +52,7 @@
       			// ------------------------------------------------------------------------
 
       			// LLAMAR AJAX PARA CARGAR DATATABLE 
-
+      			
       			this.obtenerDatosDelucionProveedor(codigo);
 
       			// ------------------------------------------------------------------------

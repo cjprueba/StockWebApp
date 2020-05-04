@@ -7,6 +7,11 @@ use App\Task;
 
 class TaskController extends Controller
 {
+
+    public function __construct(){
+        $this->middleware('client-credentials')->only('index');
+    }
+
     public function index(){
     	return Task::all();
     }

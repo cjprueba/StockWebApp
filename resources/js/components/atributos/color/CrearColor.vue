@@ -2,60 +2,71 @@
 <template>
 	
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('color.crear')">
+  
+      <!-- ------------------------------------------------------------------ -->
 
-  <!-- ------------------------------------------------------------------------------------- -->
-      
-     <div class="offset-md-2 col-6">
-    <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Colores</h5>
-      <div class="card-body">
-       
-        <div class="row">
+      <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+          
+      <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-          <div class="col-12">
-            <color-nombre ref="componente_textbox_Color" @nombre_marca='enviar_nombre' @existe_color='existe' :nombre='nombreColor' :validarColor='validarColor' @id='enviar_id' @descripcion='traer_descripcion'></color-nombre>
-          </div>   
-            <div class="col-12">
+      <!-- ------------------------------------------------------------------------------------- -->
+          
+         <div class="offset-md-2 col-6">
+        <div class="card mt-3 shadow-sm">
+          <h5 class="card-header">Colores</h5>
+          <div class="card-body">
+           
+            <div class="row">
 
-                 <hr>
+              <div class="col-12">
+                <color-nombre ref="componente_textbox_Color" @nombre_marca='enviar_nombre' @existe_color='existe' :nombre='nombreColor' :validarColor='validarColor' @id='enviar_id' @descripcion='traer_descripcion'></color-nombre>
+              </div>   
+                <div class="col-12">
 
-                   <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Descripcion</label>
-                    <textarea v-model="descripcionColor" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-                    </div>
-            </div>
-                <hr>
-                  <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="nuevoColor" type="submit" class="btn btn-primary">Nuevo(F2)</button>
-                  </div>
+                     <hr>
 
-                 <div class="col-4">
-                   
-                    
-                  <div v-if='guardar' class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarColor" type="submit" class="btn btn-primary">Guardar(F3)</button>
-                  </div>
-                   <div v-else class="col-3 mt-3 text-right">
-                     <button v-on:click="guardarColor" type="submit" class="btn btn-warning">Actualizar(F3)</button>
-                  </div>
-              
+                       <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Descripcion</label>
+                        <textarea v-model="descripcionColor" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
+                        </div>
+                </div>
+                    <hr>
+                      <div  class="col-3 mt-3 text-right">
+                         <button v-on:click="nuevoColor" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+                      </div>
 
-             </div>
-                    <div  class="col-3 mt-3 text-right">
-                     <button v-on:click="eliminarColor" type="submit" class="btn btn-danger">Eliminar(F6)</button>
-                  </div>
+                     <div class="col-4">
+                       
+                        
+                      <div v-if='guardar' class="col-3 mt-3 text-right">
+                         <button v-on:click="guardarColor" type="submit" class="btn btn-primary">Guardar(F3)</button>
+                      </div>
+                       <div v-else class="col-3 mt-3 text-right">
+                         <button v-on:click="guardarColor" type="submit" class="btn btn-warning">Actualizar(F3)</button>
+                      </div>
+                  
 
+                 </div>
+                        <div  class="col-3 mt-3 text-right">
+                         <button v-on:click="eliminarColor" type="submit" class="btn btn-danger">Eliminar(F6)</button>
+                      </div>
+
+        </div>
+      </div>
     </div>
+         </div>
+
   </div>
-</div>
-     </div>
 
+  <!-- ------------------------------------------------------------------------ -->
 
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
+  <!-- ------------------------------------------------------------------------ -->
 </div>
 
 </template>

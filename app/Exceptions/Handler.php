@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use \Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -45,7 +46,12 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
-    {
+    {   
+
+        if ($exception instanceof AuthenticationException) {
+            return response()->json(['error' => 'Error de autenticación', 'codigo' => 401], 401);
+        }
+
         return parent::render($request, $exception);
     }
 }

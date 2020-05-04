@@ -2,14 +2,7 @@
 
 	<div class="container mt-4">
 
-		<div class="alert alert-danger mt-3 mb-3" role="alert" v-if="$can('products.index')">
-				 <i class="fa fa-exclamation-triangle"></i> HOLAAAAAA<strong></strong>
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-					</button>  
-			</div>
-
-		<div class="row">
+		<div class="row" v-if="$can('inventario.crear')">
 
 			<div class="col-md-12">
 
@@ -156,6 +149,14 @@
 			</div>
 
 		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+		
+		<!-- ------------------------------------------------------------------------ -->
 	</div>
 </template>
 

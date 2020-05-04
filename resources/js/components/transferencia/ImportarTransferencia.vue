@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row">
+		<div class="row" v-if="$can('transferencia.importar')">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -26,7 +26,7 @@
 			<!-- ------------------------------------------------------------------------------------- -->
 
 			<div class="col-md-12">
-				<table id="tablaImportarTransferencia" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
+				<table id="tablaImportarTrans" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
 		                    <th>Codigo</th>
@@ -47,6 +47,10 @@
 			</div>	
 		</div>
 
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+		
 		<!-- ------------------------------------------------------------------------ -->
 
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
@@ -56,7 +60,13 @@
 		></modal-detalle-transferencia>
 
 		<!-- ------------------------------------------------------------------------ -->
+
+		
+
 	</div>
+
+	
+
 </template>
 <script>
 	 export default {
@@ -93,7 +103,7 @@
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaImportarTransferencia').DataTable();
+      			var tableTransferencia = $('#tablaImportarTrans').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -149,7 +159,7 @@
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaImportarTransferencia').DataTable();
+      			var tableTransferencia = $('#tablaImportarTrans').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -209,17 +219,19 @@
 
             		// PREPARAR DATATABLE 
 
-	 				var tableImportarTransferencia = $('#tablaImportarTransferencia').DataTable({
+	 				var tableImportarTransferencia = $('#tablaImportarTrans').DataTable({
                         "processing": true,
                         "serverSide": true,
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
                         "ajax":{
-                                 "url": "/transferenciaMostrarImportar",
+                        		 "data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
+                                 "url": "/transferencia/mostrar/importar",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },       
                         "columns": [
                             { "data": "CODIGO" },
@@ -238,7 +250,7 @@
 
                 	// EDITAR TRANSFERENCIA
 
-                    $('#tablaImportarTransferencia').on('click', 'tbody tr #mostrarTransferencia', function() {
+                    $('#tablaImportarTrans').on('click', 'tbody tr #mostrarTransferencia', function() {
 
 	                    // *******************************************************************
 
@@ -255,7 +267,7 @@
 
                     // ELIMINAR TRANSFERENCIA
 
-                    $('#tablaImportarTransferencia').on('click', 'tbody tr #rechazarTransferencia', function() {
+                    $('#tablaImportarTrans').on('click', 'tbody tr #rechazarTransferencia', function() {
 
 	                    // *******************************************************************
 
@@ -272,7 +284,7 @@
 
                     // IMPORTAR TRANSFERENCIA
 
-                    $('#tablaImportarTransferencia').on('click', 'tbody tr #importarTransferencia', function() {
+                    $('#tablaImportarTrans').on('click', 'tbody tr #importarTransferencia', function() {
 
 	                    // *******************************************************************
 
@@ -289,7 +301,7 @@
 
                     // GENERAR REPORTE PDF
 
-                    $('#tablaImportarTransferencia').on('click', 'tbody tr #imprimirReporte', function() {
+                    $('#tablaImportarTrans').on('click', 'tbody tr #imprimirReporte', function() {
 
 	                    // *******************************************************************
 

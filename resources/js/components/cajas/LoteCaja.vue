@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="card">
+    <div class="card border-bottom-info">
       <div class="card-body">
         <h5 class="card-title">Lotes</h5>
         <h6 class="card-subtitle mb-2 text-muted">Estos son los lotes que estan vencidos o por vencer</h6>
 
-          <table id="tablaLote" class="table table-sm">
+          <table id="tablaLote" class="table table-sm" style="width:100%">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -15,6 +15,7 @@
                 <th scope="col">Cant.</th>
                 <th scope="col">Venc.</th>
                 <th scope="col">Imagen</th>
+                <th scope="col">Estatus</th>
                 <th scope="col">Accion</th>
               </tr>
             </thead>
@@ -26,6 +27,9 @@
         <a href="#" class="card-link">Another link</a> -->
       </div>
     </div>
+
+    <!-- ------------------------------------------------------------------------ -->
+
   </div>  
 </template>
 <script>
@@ -33,12 +37,16 @@
      
       data(){
         return {
+            codigo_producto: ''
         }
       }, 
       methods: {
       },  
         mounted() {
 
+          // ------------------------------------------------------------------------
+            
+          let me = this;
 
           // ------------------------------------------------------------------------
 
@@ -50,6 +58,7 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "lengthMenu": [[5, 10, 25, 50], [5, 10, 25, 50]],
                         "ajax":{
                                  "data": {
                                     "_token": $('meta[name="csrf-token"]').attr('content')
@@ -66,19 +75,22 @@
                             { "data": "CANTIDAD" },
                             { "data": "VENCIMIENTO" },
                             { "data": "IMAGEN" },
-                            { "data": "ACCION" },
-                            { "data": "ESTATUS" }
-                        ],
-                        "columnDefs": [
-                            {
-                                "targets": [ 8 ],
-                                "visible": false,
-                                "searchable": false
-                            }
-                        ],
-                        "createdRow": function( row, data, dataIndex){
-                              $(row).addClass(data['ESTATUS']);
-                        }      
+                            { "data": "ESTATUS" },
+                            { "data": "ACCION" }
+                        ]
+
+                        // PARA COLOREAR UNA FILA 
+                        // ,
+                        // "columnDefs": [
+                        //     {
+                        //         "targets": [ 8 ],
+                        //         "visible": false,
+                        //         "searchable": false
+                        //     }
+                        // ],
+                        // "createdRow": function( row, data, dataIndex){
+                        //       $(row).addClass(data['ESTATUS']);
+                        // }      
           });
                     
           // ------------------------------------------------------------------------
@@ -87,6 +99,20 @@
 
           $("#tablaLote").css("font-size", 12);
           tableLote.columns.adjust().draw();
+
+          // ------------------------------------------------------------------------
+
+          $('#tablaLote').on('click', 'tbody tr #mostrarDetalle', function() {
+
+            // *******************************************************************
+
+            // OBTENER COSTO DEL PRODUCTO DE LA TABLA 
+
+            me.$emit('codigo_producto', tableLote.row($(this).parents('tr')).data().CODIGO);
+
+            // *******************************************************************
+
+          });
 
           // ------------------------------------------------------------------------
 

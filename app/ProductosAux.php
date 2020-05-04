@@ -10,5 +10,6 @@ class ProductosAux extends Model
 
     protected $connection = 'retail';
 	protected $table = 'productos_aux';
-	
+	const CREATED_AT = 'FECALTAS';
+	const UPDATED_AT = 'FECMODIF';	
 }

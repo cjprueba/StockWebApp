@@ -4,7 +4,7 @@
                 <label for="validationTooltip01">Categoria</label>
             </div>
 
-            <select class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_categoria }" @input="$emit('input', $event.target.value)" v-on:change="enviarOpcionesPadre($event.target.value)">
+            <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_categoria }" @input="$emit('input', $event.target.value)" v-on:change="enviarOpcionesPadre($event.target.value)">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="categoria in categorias" :selected="categoria.CODIGO === parseInt(value)" :value="categoria.CODIGO">{{ categoria.CODIGO }} - {{ categoria.DESCRIPCION }}</option>
             </select>
@@ -16,7 +16,8 @@
       props: {
         'value': String,
         'shadow': Boolean,
-        'validar_categoria': Boolean
+        'validar_categoria': Boolean,
+        'tabIndexPadre': Number
       },
       data(){
         return {

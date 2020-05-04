@@ -1995,7 +1995,7 @@ pre code {
 .form-control:focus {
   color: #6e707e;
   background-color: #fff;
-  border-color: #bac8f3;
+  border-color: #4e73df;
   outline: 0;
   -webkit-box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
   box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
@@ -3554,7 +3554,7 @@ input[type="button"].btn-block {
   box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
 }
 .custom-control-input:focus:not(:checked) ~ .custom-control-label::before {
-  border-color: #bac8f3;
+  border-color: #4e73df;
 }
 .custom-control-input:not(:disabled):active ~ .custom-control-label::before {
   color: #fff;
@@ -3676,7 +3676,7 @@ input[type="button"].btn-block {
   appearance: none;
 }
 .custom-select:focus {
-  border-color: #bac8f3;
+  border-color: #4e73df;
   outline: 0;
   -webkit-box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
   box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
@@ -3727,7 +3727,7 @@ input[type="button"].btn-block {
   opacity: 0;
 }
 .custom-file-input:focus ~ .custom-file-label {
-  border-color: #bac8f3;
+  border-color: #4e73df;
   -webkit-box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
   box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
 }

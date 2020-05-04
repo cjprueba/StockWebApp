@@ -2,81 +2,90 @@
 <template>
 	
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('user.rol')"> 
 
-  <!-- ------------------------------------------------------------------------------------- -->
-	<div class="card mt-3 shadow-sm">
-  		<h5 class="card-header">Roles</h5>
-  		<div class="card-body">
-         
-  			<div class="row">
+    <!-- ------------------------------------------------------------------ -->
 
-  			 	<div class="col-12">
-            <rol-nombre @nombre_rol='enviar_nombre' @existe_rol='existe' :nombre='nombreRol' :validarRol='validarRol' @id='enviar_id' @permisos='traer_permisos' @roles='traer_descripcion'></rol-nombre>
-          </div>   
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+        
+    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-  			    <div class="col-12">
+    <!-- ------------------------------------------------------------------------------------- -->
+  	<div class="card mt-3 shadow-sm">
+    		<h5 class="card-header">Roles</h5>
+    		<div class="card-body">
+           
+    			<div class="row">
 
-                 <hr>
+    			 	<div class="col-12">
+              <rol-nombre @nombre_rol='enviar_nombre' @existe_rol='existe' :nombre='nombreRol' :validarRol='validarRol' @id='enviar_id' @permisos='traer_permisos' @roles='traer_descripcion'></rol-nombre>
+            </div>   
 
-  			     	
-	                 <div class="form-group">
-	                      <label for="exampleFormControlTextarea1">Descripcion</label>
-	    		          <textarea v-model="descripcionRol" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-	                  </div>
-  			    </div>
-	             
-	             
+    			    <div class="col-12">
 
-                 <div class="col-12">
-                 	 <hr>
+                   <hr>
 
-	                 <h5>Permiso especial</h5>
-		 		     <div class="form-check form-check-inline">
-		                  <input v-model="radioPermisos"  v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1">
-		                  <label class="form-check-label" for="inlineRadio1">Acceso total</label>
-		             </div>
+    			     	
+  	                 <div class="form-group">
+  	                      <label for="exampleFormControlTextarea1">Descripcion</label>
+  	    		          <textarea v-model="descripcionRol" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
+  	                  </div>
+    			    </div>
+  	             
+  	             
 
-		             <div class="form-check form-check-inline">
-		                  <input v-model="radioPermisos" v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="2">
-		                  <label class="form-check-label" for="inlineRadio2">Ningun acceso</label>
-		             </div>
+                   <div class="col-12">
+                   	 <hr>
 
-		             <div class="form-check form-check-inline">
-		                  <input  v-model="radioPermisos"  v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="3">
-		                  <label class="form-check-label" for="inlineRadio3">Personalizado</label>
-		             </div>
+  	                 <h5>Permiso especial</h5>
+  		 		     <div class="form-check form-check-inline">
+  		                  <input v-model="radioPermisos"  v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1">
+  		                  <label class="form-check-label" for="inlineRadio1">Acceso total</label>
+  		             </div>
 
-                 </div>
-	 		     
+  		             <div class="form-check form-check-inline">
+  		                  <input v-model="radioPermisos" v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="2">
+  		                  <label class="form-check-label" for="inlineRadio2">Ningun acceso</label>
+  		             </div>
 
-	             
-                  <div class="col-12">
-                  	 <hr>
+  		             <div class="form-check form-check-inline">
+  		                  <input  v-model="radioPermisos"  v-on:change="Accesos" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="3">
+  		                  <label class="form-check-label" for="inlineRadio3">Personalizado</label>
+  		             </div>
 
-	                 <h5>Lista de permisos</h5>
-                      
-		             <div v-if="mostrarPermisos" v-for="permiso in permisos" class="form-check " >
-		               	   <input v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }" class="form-check-input" type="checkbox" :value="permiso.id" :id="permiso.id" >
-		               	   <label class="form-check-label" :for="permiso.id">{{permiso.name}}</label>
-		             </div>
-                  </div>
+                   </div>
+  	 		     
 
-                  <div v-if='guardar' class="col-12 mt-3 text-right">
-                  	 <button v-on:click="guardarRol" type="submit" class="btn btn-primary">Guardar</button>
-                  </div>
-                   <div v-else class="col-12 mt-3 text-right">
-                     <button v-on:click="guardarRol" type="submit" class="btn btn-warning">Actualizar</button>
-                  </div>
-	            
+  	             
+                    <div class="col-12">
+                    	 <hr>
 
-             </div>
- 		</div>
-	</div>
+  	                 <h5>Lista de permisos</h5>
+                        
+  		             <div v-if="mostrarPermisos" v-for="permiso in permisos" class="form-check " >
+  		               	   <input v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }" class="form-check-input" type="checkbox" :value="permiso.id" :id="permiso.id" >
+  		               	   <label class="form-check-label" :for="permiso.id">{{permiso.name}}</label>
+  		             </div>
+                    </div>
+
+                    <div v-if='guardar' class="col-12 mt-3 text-right">
+                    	 <button v-on:click="guardarRol" type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                     <div v-else class="col-12 mt-3 text-right">
+                       <button v-on:click="guardarRol" type="submit" class="btn btn-warning">Actualizar</button>
+                    </div>
+  	            
+
+               </div>
+   		</div>
+  	</div>
+  </div>
+
+  <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
 </div>
 
 </template>

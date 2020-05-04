@@ -1,7 +1,7 @@
 <template>
 	<div>
             <label for="validationTooltip01">Color</label>
-            <select class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_color }" @input="$emit('input', $event.target.value)">
+            <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-on:change="llamarPadre($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_color }" @input="$emit('input', $event.target.value)" :disabled="deshabilitar">
                     <option :value="null">0 - Seleccionar</option>
                     <option v-for="color in colores" :selected="color.CODIGO === parseInt(value)" :value="color.CODIGO">{{ color.CODIGO }} - {{ color.DESCRIPCION }}</option>
             </select>
@@ -13,7 +13,9 @@
       props: {
         'value': String,
         'shadow': Boolean,
-        'validar_color': Boolean
+        'deshabilitar': Boolean,
+        'validar_color': Boolean,
+        'tabIndexPadre': Number
       },
       data(){
         return {

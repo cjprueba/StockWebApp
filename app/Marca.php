@@ -464,4 +464,31 @@ class Marca extends Model
        return $json_data; 
 
     }
+
+    public static function marca_categoria_seleccion($data)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS CATEGORIAS
+
+        $marca = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->leftjoin('LINEAS_TIENE_MARCAS', 'LINEAS_TIENE_MARCAS.FK_COD_MARCA', '=', 'MARCA.CODIGO')
+        ->where('LINEAS_TIENE_MARCAS.FK_COD_LINEA_LINEAS_TIENE_MARCAS', '=', $data['categoria'])
+        ->where('LINEAS_TIENE_MARCAS.FK_COD_MARCA', '=', $data['marca'])
+        ->get();
+      
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if (count($marca) > 0) {
+            return ['marcas' => $marca[0]];
+        } else {
+            return ['marcas' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

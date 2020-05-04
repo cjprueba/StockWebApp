@@ -2,76 +2,84 @@
 <template>
   
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('user.crear')">
 
-  <!-- ------------------------------------------------------------------------------------- -->
+    <!-- ------------------------------------------------------------------ -->
 
-  <div class="row">
-    <div class="col-auto"></div>
-     <div class="offset-md-2 col-6">
-        <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Registro de Usuario</h5>
-      <div class="card-body">
-         
-        <div class="row">
-          <div class="col-12">
-          
-         
-           <label for="NameUser" >Nombre</label>
-            <input v-model="nombreUsuario" type="text" class="form-control" id="NameUser" v-bind:class="{ 'is-invalid': validarNombre }">
-          
-          
-           </div>
-            <div class="col-12">
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+        
+    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
 
-              <hr>
+    <!-- ------------------------------------------------------------------------------------- -->
 
-              
-              
-               <label for="EmailUser" >E-mail</label>
-            <input v-model="EmailUsuario" type="text" class="form-control" id="EmailUser" v-bind:class="{ 'is-invalid': validarEmail }" >
-          
-          
-            </div>
-               
-               
-
-                 <div class="col-12">
-                   <hr>
-
-                 <label for="NameUser" >Contraseña</label>
-               <label for="inputPassword2" class="sr-only">Password</label>
-              <input v-model="Contraseña" type="password" class="form-control" id="inputPassword2" placeholder="Password" v-bind:class="{ 'is-invalid': validarContraseña }">
-
-                 </div>
+    <div class="row">
+      <div class="col-auto"></div>
+       <div class="offset-md-2 col-6">
+          <div class="card mt-3 shadow-sm">
+        <h5 class="card-header">Registro de Usuario</h5>
+        <div class="card-body">
            
-
-               
-                  <div class="col-12">
-                     <hr>
-                 <label for="NameUser" >Confirmar Contraseña</label>
-                  <label for="inputPassword3" class="sr-only">Confirm Password</label>
-                 <input v-model="ConfirmContraseña" type="password" class="form-control" id="inputPassword3" placeholder="Confirm Password" v-bind:class="{ 'is-invalid': validarConfirmContraseña }">
-
-                  </div>
-
-                  <div  class="col-12 mt-3 text-right">
-                     <button v-on:click="guardarUsuario" type="submit" class="btn btn-primary">Guardar</button>
-                  </div>
-
-              
-
+          <div class="row">
+            <div class="col-12">
+            
+           
+             <label for="NameUser" >Nombre</label>
+              <input v-model="nombreUsuario" type="text" class="form-control" id="NameUser" v-bind:class="{ 'is-invalid': validarNombre }">
+            
+            
              </div>
+              <div class="col-12">
+
+                <hr>
+
+                
+                
+                 <label for="EmailUser" >E-mail</label>
+              <input v-model="EmailUsuario" type="text" class="form-control" id="EmailUser" v-bind:class="{ 'is-invalid': validarEmail }" >
+            
+            
+              </div>
+                 
+                 
+
+                   <div class="col-12">
+                     <hr>
+
+                   <label for="NameUser" >Contraseña</label>
+                 <label for="inputPassword2" class="sr-only">Password</label>
+                <input v-model="Contraseña" type="password" class="form-control" id="inputPassword2" placeholder="Password" v-bind:class="{ 'is-invalid': validarContraseña }">
+
+                   </div>
+             
+
+                 
+                    <div class="col-12">
+                       <hr>
+                   <label for="NameUser" >Confirmar Contraseña</label>
+                    <label for="inputPassword3" class="sr-only">Confirm Password</label>
+                   <input v-model="ConfirmContraseña" type="password" class="form-control" id="inputPassword3" placeholder="Confirm Password" v-bind:class="{ 'is-invalid': validarConfirmContraseña }">
+
+                    </div>
+
+                    <div  class="col-12 mt-3 text-right">
+                       <button v-on:click="guardarUsuario" type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+
+                
+
+               </div>
+      </div>
+    </div>
+       </div>
+        <div class="col-auto"></div>
     </div>
   </div>
-     </div>
-      <div class="col-auto"></div>
+
+  <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
   </div>
- 
+
 </div>
 
 </template>

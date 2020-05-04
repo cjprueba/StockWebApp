@@ -8,12 +8,12 @@
                     <option v-for="gondola in gondolas" :selected="gondola.CODIGO === parseInt(value)" :value="gondola.CODIGO">{{ gondola.CODIGO }} - {{ gondola.DESCRIPCION }}</option>
             </select> -->
 			      
-            <multiselect @input="$emit('input', seleccionGondola)" v-model="seleccionGondola" :options="gondolas" label="DESCRIPCION" track-by="ID" v-bind:class="{ 'shadow-sm': true }" :multiple="true"></multiselect> 
+            <multiselect :tabindex="tabIndexPadre" @input="$emit('input', seleccionGondola)" v-model="seleccionGondola" :options="gondolas" label="DESCRIPCION" track-by="ID" v-bind:class="{ 'shadow-sm': true }" :multiple="true"></multiselect> 
 	</div>	
 </template>
 <script>
 	export default {
-      props: ['shadow', 'selecciones'],
+      props: ['shadow', 'selecciones', 'tabIndexPadre'],
       data(){
         return {
           	seleccionGondola: [],

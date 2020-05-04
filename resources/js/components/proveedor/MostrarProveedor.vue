@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row">
+		<div class="row" v-if="$can('proveedor.mostrar')">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -34,7 +34,6 @@
 		                    <th>Nombre</th>
 		                    <th>Dirección</th>
 		                    <th>Telefono</th>
-		                    <th>Contacto</th>
 		                    <th>Email</th>
 		                    <th>Acción</th>
 		                </tr>
@@ -48,6 +47,12 @@
 			</div>	
 		</div>
 
+		<!-- ------------------------------------------------------------------------ -->
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+		
 		<!-- ------------------------------------------------------------------------ -->
 
 	</div>

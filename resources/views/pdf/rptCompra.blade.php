@@ -160,7 +160,7 @@
         <div><span>PROVEEDOR</span> {{ $proveedor }}</div>
         <div><span>FECHA FACTURA</span> {{ $fec_factura }}</div>
         <div><span>FECHA CREACION</span> {{ $fecaltas }}</div>
-        <div><span>NRO. FACTURA</span> {{ $nro_factura }}</div>
+        <div><span>NRO. CAJA</span> {{ $nro_factura }}</div>
         <div><span>TIPO</span> {{ $tipo }}</div>
         <div><span>PLAN PAGO</span> {{ $plan_pago }}</div>
       </div>

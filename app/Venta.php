@@ -3,6 +3,13 @@
 namespace App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Mpdf\Mpdf;
+use Fpdf\Fpdf;
+use NumeroALetras\NumeroALetras;
+use App\Ticket;
+use App\Ventas_det;
+use App\Cliente;
+use App\Ventas_det_Descuento;
 
 class Venta extends Model
 {
@@ -1563,5 +1570,1279 @@ class Venta extends Model
         return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+
+    public static function guardar($data)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER CANDEC 
+
+        $moneda = $data["data"]["moneda"];
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
+        if ($guaranies === '') {
+            $guaranies = 0;
+        } 
+
+        $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
+        if ($dolares === '') {
+            $dolares = 0;
+        } 
+
+        $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
+        if ($pesos === '') {
+            $pesos = 0;
+        } 
+
+        $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
+        if ($reales === '') {
+            $reales = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR DINERO Y QUITARLE VUELTO 
+
+        $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
+        
+        if ($opcion_vuelto === '1') {
+            $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
+        } else if ($opcion_vuelto === '2') {
+            $dolares = $dolares - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , 2);
+        } else if ($opcion_vuelto === '3') {
+            $reales = $reales - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2);
+        } else if ($opcion_vuelto === '4') {
+            $pesos = $pesos - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2);
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VUELTO PRINCIPAL 
+
+        if($moneda === 1) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec);
+        } else if ($moneda === 2) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , $candec);
+        } else if ($moneda === 3) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , $candec);
+        } else if ($moneda === 4) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , $candec);
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $numero_caja = 'CA'.'01';
+        $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
+        $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
+        $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
+        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
+        $codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
+        $caja = $data["data"]["caja"]["CODIGO"];
+        $cliente = $data["data"]["cliente"]["CODIGO"];
+        $vendedor = $data["data"]["vendedor"]["CODIGO"];
+        $cheques = $data["data"]["pago"]["CHEQUE"];
+        $opcion_impresion = $data["data"]["pago"]["TIPO_IMPRESION"];
+        $total = 0;
+        $dia = date('Y-m-d');
+        $hora = date("H:i:s");
+        $codigo = 0;
+        $c = 0;
+        $total_total = 0;
+        $total_iva = 0;
+        $total_base5 = 0;
+        $total_base10 = 0;
+        $total_gravadas = 0;
+        $total_exentas = 0;
+        $descuento = 0;
+        $descuento_total = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS 
+
+        $filas = count($data["data"]["productos"]);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTALES 
+
+        $gravadas = Common::quitar_coma($data["data"]["cabecera"]["GRAVADAS"], $candec);
+        $impuesto = Common::quitar_coma($data["data"]["cabecera"]["IMPUESTO"], $candec);
+        $total = Common::quitar_coma($data["data"]["cabecera"]["TOTAL"], $candec);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI YA EXISTE VENTA 
+
+        $codigo = Venta::existe_codigo($data["data"]["cabecera"]["CODIGO"], $data["data"]["caja"]["CODIGO"]);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RECORRER VENTAS
+
+        while($c < $filas) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR DATOS 
+
+            $cod_prod = $data["data"]["productos"][$c]["CODIGO"];
+            $cantidad = Common::quitar_coma($data["data"]["productos"][$c]["CANTIDAD"], $candec);
+            $cantidad_total = $cantidad;
+            $precio = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO"], $candec);
+            $impuesto = Common::quitar_coma($data["data"]["productos"][$c]["IMPUESTO"], $candec);
+            $porcentaje = Common::quitar_coma($data["data"]["productos"][$c]["IVA"], $candec);
+            $descuento = Common::quitar_coma($data["data"]["productos"][$c]["DESCUENTO_TOTAL"], $candec);
+            $descuento_porcentaje = (int)$data["data"]["productos"][$c]["DESCUENTO"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REALIZAR CALCULOS 
+            
+            $total = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO_TOTAL"], $candec);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER DATOS FALTANTES 
+
+            $producto = Producto::datosVariosProducto($cod_prod);
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // RESTAR STOCK DEL PRODUCTO
+
+            $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
+                    
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
+
+            if ($respuesta_resta["datos"]) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
+
+                $cantidad_guardada = 0;
+
+                foreach ($respuesta_resta["datos"] as $key => $value) {
+                    $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
+
+                if ($cantidad !== $cantidad_guardada) {
+                    $total = $precio * $cantidad_guardada;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CALCULAR IVA
+                
+                $impuesto = Common::calculo_iva((int)$porcentaje, $total, $candec);
+                        
+                /*  --------------------------------------------------------------------------------- */
+
+                // TOTALES 
+
+                $total_total = $total_total + $total;
+                
+                $total_iva = $total_iva + $impuesto["impuesto"];
+                $total_base10 = $total_base10 + $impuesto["base10"];
+                $total_base5 = $total_base5 + $impuesto["base5"];
+                $total_exentas = $total_exentas + $impuesto["exentas"];
+                $total_gravadas = $total_gravadas + $impuesto["gravadas"];
+                $descuento_total = $descuento_total + $descuento;
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // INSERTAR TRANSFERENCIA DET 
+
+                $id_ventas_det = Ventas_det::insertGetId(
+                    [
+                    'CODIGO' => $codigo, 
+                    'CAJA' => $caja, 
+                    'ITEM' => $c + 1, 
+                    'COD_PROD' => $cod_prod, 
+                    'DESCRIPCION' => $data["data"]["productos"][$c]["DESCRIPCION"], 
+                    'LOTE' => 0, 
+                    'CANTIDAD' => $cantidad_guardada, 
+                    'GRAVADA' => $impuesto["gravadas"],
+                    'IVA' => $impuesto["impuesto"],
+                    'EXENTA' => $impuesto["exentas"],
+                    'DESCUENTO' => '', 
+                    'PRECIO' => $total, 
+                    'PRECIO_UNIT' => $precio, 
+                    'BASE5' => $impuesto["base5"],
+                    'BASE10' =>  $impuesto["base10"],
+                    'TIVA' => '', 
+                    'USER' => $user->name, 
+                    'FECALTAS' => $dia, 
+                    'HORALTAS' => $hora, 
+                    'ID_SUCURSAL' => $user->id_sucursal, 
+                    'CODIGO_CA' => '', 
+                    'ANULADO' => 0
+                    ]
+                );
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // INSERTAR DESCUENTO 
+
+                if ($descuento_porcentaje > 0) {
+                    Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod);
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
+
+            foreach ($respuesta_resta["datos"] as $key => $value) {
+                VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"]);
+            }
+                    
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
+
+            if ($respuesta_resta["response"] === false){
+                $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+                    
+            // AUMENTAR CONTADOR 
+
+            $c++;
+                    
+            /*  --------------------------------------------------------------------------------- */
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR VENTA 
+
+        $venta = Venta::insertGetId(
+            [
+                "CODIGO" => $codigo, 
+                "FECHA" => $dia, 
+                "HORA" => $hora, 
+                //"FACTURA" => '', 
+                "CAJA" => $caja, 
+                "CLIENTE" => $cliente, 
+                "VENDEDOR" => $vendedor, 
+                "TIPO" => 'CO', 
+                //"FORMA_PAGO" => '', 
+                "PLAN_PAGO" => 0, 
+                "TARJETA" => 0, 
+                "DESCUENTO" => $descuento_total, 
+                "GRAVADAS" => $total_gravadas, 
+                "IMPUESTOS" => $total_iva, 
+                "EXENTAS" => $total_exentas, 
+                "BASE5" => $total_base5, 
+                "BASE10" => $total_base10, 
+                "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
+                "TOTAL" => $total, 
+                "EFECTIVO" => $efectivo, 
+                "CHEQUE" => 0, 
+                "VALE" => 0, 
+                "DONACION" => 0, 
+                "VUELTO" => $vuelto, 
+                "GIROS" => 0, 
+                "MONEDA" => $moneda, 
+                "MONEDA1" => $dolares, 
+                "MONEDA2" => $reales, 
+                "MONEDA3" => $guaranies, 
+                "MONEDA4" => $pesos, 
+                "OPCION_IMPRESION" => $opcion_impresion, 
+                "USER" => $user->name, 
+                "FECALTAS" => $dia, 
+                "HORALTAS" => $hora, 
+                "ID_SUCURSAL" => $user->id_sucursal, 
+                "CODIGO_CA" => $codigo_caja, 
+                //"TIPO_PRECIO" =>
+            ]
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR PAGO TARJETA
+
+        if ($codigo_tarjeta !== '0') {
+            if ($codigo_tarjeta !== '') {
+                $pago_tarjeta = VentaTarjeta::guardar_referencia([
+                    'FK_TARJETA' => $codigo_tarjeta,
+                    'FK_VENTA' => $venta,
+                    'MONTO' => $tarjeta,
+                    'MONEDA' => 1
+                ]);
+            } 
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR PAGO CHEQUES 
+
+        $pago_cheque = VentaCheque::guardar_referencia($cheques, $venta);
+
+        if ($pago_cheque["response"] === false) {
+            return $pago_cheque;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ACTUALIZAR NUMERO TICKET 
+
+        Ticket::actualizar_numero($venta, $codigo_caja, $numero_caja, $dia, $hora);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function existe_codigo($codigo, $caja){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $existe = 1;
+
+        while ($existe > 0) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $existe = Venta::where('CODIGO', '=', $codigo)
+            ->where('CAJA', '=', $caja)
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->count();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI EXISTE EL CODIGO SUMAS + 1 Y VOLVER A RECORRER 
+            
+            if($existe > 0) {
+                $codigo = $codigo + 1;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        return $codigo;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function numeracion() {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $dia = date('Y-m-d');
+        $hora = date("H:i:s");
+        $numero_caja = 1;
+        $caja = 'CA'.'01';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // NUMERO TICKET 
+
+        $ticket = Ticket::numero_caja($caja, $dia, $hora);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // VER SI EXISTE NUMERO DE VENTA 
+
+        $codigo = Venta::where('CODIGO','=', 1)
+        ->where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($codigo === 0) {
+            $codigo = 1;
+        } else {
+            $codigo = $ticket[0]["NUMERO"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */ 
+
+        $ticket = $ticket[0]["CAJA"];
+
+        /*  --------------------------------------------------------------------------------- */ 
+
+        $numero = Venta::select(DB::raw('(CODIGO) AS CODIGO'))
+        ->whereRaw('LENGTH(CODIGO) < 8')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('CAJA', '=', $numero_caja)
+        ->orderBy('CODIGO', 'desc')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */ 
+
+        // RETORNAR VALOR 
+
+        return ['CODIGO' => $numero[0]['CODIGO'], 'CODIGO_CAJA' => $ticket];
+
+        /*  --------------------------------------------------------------------------------- */ 
+
+    }
+
+
+    public static function inicio(){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER CLIENTE 
+
+        $cliente = Cliente::select(DB::raw('CODIGO, NOMBRE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->orderBy('CODIGO', 'asc')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $empleado = Empleado::select(DB::raw('CODIGO, NOMBRE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->orderBy('CODIGO', 'asc')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETRO
+
+        $parametro = Parametro::select(DB::raw('MONEDA'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANDEC
+
+        $candec = Parametro::candec($parametro[0]['MONEDA']);
+        $candec["CODIGO"] = $parametro[0]['MONEDA'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function mostrar_cabecera($data)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+         
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $data['codigo'];
+        $caja = $data['caja'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $venta = Venta::select(DB::raw(
+                        'VENTAS.CODIGO,
+                        VENTAS.FECALTAS,  
+                        CLIENTES.NOMBRE AS CLIENTE,
+                        CLIENTES.DIRECCION,
+                        CLIENTES.RUC,
+                        VENTAS.TIPO'
+                    ))
+        ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+        })
+        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.CODIGO','=', $codigo)
+        ->where('VENTAS.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VENTA 
+
+        return $venta[0];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function mostrar_cuerpo($data)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+         
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $data['codigo'];
+        $caja = $data['caja'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $ventas_det = Ventas_det::select(DB::raw(
+                        'VENTASDET.ITEM, 
+                        VENTASDET.COD_PROD, 
+                        VENTASDET.DESCRIPCION, 
+                        VENTASDET.CANTIDAD, 
+                        VENTASDET.PRECIO_UNIT,
+                        VENTASDET.IVA,
+                        VENTASDET.EXENTA AS EXENTAS,
+                        VENTASDET.BASE5,
+                        VENTASDET.BASE10,
+                        VENTASDET.PRECIO,
+                        VENTAS.MONEDA,
+                        0 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+                                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
+                            })
+        ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTASDET.CODIGO','=', $codigo)
+        ->where('VENTASDET.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($ventas_det as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR IVA PRODUCTO
+
+            $producto = DB::connection('retail')
+            ->table('PRODUCTOS')
+            ->select(DB::raw('IMPUESTO'))
+            ->where('CODIGO', '=', $value->COD_PROD)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR PORCENTAJE IVA IVA 
+
+            $ventas_det[$key]->IVA_PORCENTAJE = $producto[0]->IMPUESTO;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $ventas_det[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $ventas_det[$key]->PRECIO_UNIT = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
+            $ventas_det[$key]->IVA = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
+            $ventas_det[$key]->PRECIO = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return $ventas_det;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function ticket_pdf_ejemplo($dato) {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        define('EURO',chr(128));
+        $pdf = new FPDF('P','mm',array(80,150));
+        $pdf->AddPage();
+         
+        // CABECERA
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(60,4,'Lacodigoteca.com',0,1,'C');
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4,'C.I.F.: 01234567A',0,1,'C');
+        $pdf->Cell(60,4,'C/ Arturo Soria, 1',0,1,'C');
+        $pdf->Cell(60,4,'C.P.: 28028 Madrid (Madrid)',0,1,'C');
+        $pdf->Cell(60,4,'999 888 777',0,1,'C');
+        $pdf->Cell(60,4,'alfredo@lacodigoteca.com',0,1,'C');
+         
+        // DATOS FACTURA        
+        $pdf->Ln(5);
+        $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
+        $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
+        $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
+         
+        // COLUMNAS
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(30, 10, 'Articulo', 0);
+        $pdf->Cell(5, 10, 'Ud',0,0,'R');
+        $pdf->Cell(10, 10, 'Precio',0,0,'R');
+        $pdf->Cell(15, 10, 'Total',0,0,'R');
+        $pdf->Ln(8);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(0);
+         
+        // PRODUCTOS
+        $pdf->SetFont('Helvetica', '', 7);
+        $pdf->MultiCell(30,4,'Manzana golden 1Kg',0,'L'); 
+        $pdf->Cell(35, -5, '2',0,0,'R');
+        $pdf->Cell(10, -5, number_format(round(3,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Cell(15, -5, number_format(round(2*3,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->MultiCell(30,4,'Malla naranjas 3Kg',0,'L'); 
+        $pdf->Cell(35, -5, '1',0,0,'R');
+        $pdf->Cell(10, -5, number_format(round(1.25,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Cell(15, -5, number_format(round(1.25,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->MultiCell(30,4,'Uvas',0,'L'); 
+        $pdf->Cell(35, -5, '5',0,0,'R');
+        $pdf->Cell(10, -5, number_format(round(1,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Cell(15, -5, number_format(round(1*5,2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);
+         
+        // SUMATORIO DE LOS PRODUCTOS Y EL IVA
+        $pdf->Ln(6);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);    
+        $pdf->Cell(25, 10, 'TOTAL SIN I.V.A.', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round((round(12.25,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);    
+        $pdf->Cell(25, 10, 'I.V.A. 21%', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round((round(12.25,2)),2)-round((round(2*3,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);    
+        $pdf->Cell(25, 10, 'TOTAL', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round(12.25,2), 2, ',', ' ').EURO,0,0,'R');
+         
+        // PIE DE PAGINA
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'EL PERIODO DE DEVOLUCIONES',0,1,'C');
+        $pdf->Ln(3);
+        $pdf->Cell(60,0,'CADUCA EL DIA  01/11/2019',0,1,'C');
+         
+        $pdf->Output('ticket.pdf','i');
+
+    }
+
+    public static function ticket_pdf($dato) {
+
+        $dato = ['codigo' => 9123470, 'caja' => 4];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $ventas = Venta::mostrar_cabecera($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $ventas_det = Venta::mostrar_cuerpo($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = 0;
+        $moneda = 1;
+        $monedaVenta = $ventas->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $user->id_sucursal]);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $codigo = $ventas->CODIGO;
+        $cliente = $ventas->CLIENTE;
+        $direccion = $ventas->DIRECCION;
+        $ruc = $ventas->RUC;
+        $tipo = $ventas->TIPO;
+        $fecha = $ventas->FECALTAS;
+        $nombre = 'Venta_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        define('EURO',chr(128));
+        $pdf = new FPDF('P','mm',array(80,150));
+        $pdf->AddPage();
+         
+        // CABECERA
+
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4, $ventas->CODIGO ,0,1,'C');
+        $pdf->Cell(60,4,'C/ Arturo Soria, 1',0,1,'C');
+        $pdf->Cell(60,4,'C.P.: 28028 Madrid (Madrid)',0,1,'C');
+        $pdf->Cell(60,4,'999 888 777',0,1,'C');
+        $pdf->Cell(60,4,'alfredo@lacodigoteca.com',0,1,'C');
+         
+        // DATOS FACTURA
+
+        $pdf->Ln(5);
+        $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
+        $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
+        $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
+         
+        // COLUMNAS
+
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(15, 10, 'Articulo', 0);
+        $pdf->Cell(15, 10, 'Descrip.', 0);
+        $pdf->Cell(5, 10, 'Ud',0,0,'R');
+        $pdf->Cell(10, 10, 'Precio',0,0,'R');
+        $pdf->Cell(15, 10, 'Total',0,0,'R');
+        $pdf->Ln(8);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(0);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS
+        
+        foreach ($ventas_det as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
+            
+            if ($value->MONEDA <> 1) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PRECIO 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $articulos["precio"] = $cotizacion["valor"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // TOTAL 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $articulos["total"] = $cotizacion["valor"];
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $exentas = $exentas + Common::quitar_coma($articulos["total"], $candec);
+                $total = $total + Common::quitar_coma($articulos["total"], $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+                
+                $articulos["precio"] = $value->PRECIO_UNIT;
+                $articulos["total"] = $value->PRECIO;
+                $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
+                $total = $total + Common::quitar_coma($value->PRECIO, $candec);
+
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $articulos["cantidad"] = $value->CANTIDAD;
+            $articulos["cod_prod"] = $value->COD_PROD;
+            $articulos["descripcion"] = substr($value->DESCRIPCION, 0,5);
+            $cantidad = $cantidad + $value->CANTIDAD;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE EXENTAS 
+
+            if ($value->EXENTAS > 0) {
+                $articulos["exentas"] = $articulos["total"];
+            } else {
+                $articulos["exentas"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE BASE5 O BASE10
+
+            if ($value->BASE5 > 0) {
+                $articulos["base10"] = '';
+                $articulos["base5"] = $articulos["total"];
+                $base5 = $base5 + Common::quitar_coma($articulos["total"], $candec);
+            } else if ($value->BASE10 > 0) {
+                $articulos["base5"] = '';
+                $articulos["base10"] = $articulos["total"];
+                $base10 = $base10 + Common::quitar_coma($articulos["total"], $candec);
+            } else {
+                $articulos["base5"] = '';
+                $articulos["base10"] = '';
+            }
+                
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR PRODUCTOS 
+
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,$articulos["cod_prod"],0,'L'); 
+            $pdf->Cell(15, 4, $articulos["descripcion"],0,0,'R');
+            $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+            $pdf->Cell(10, 4, $articulos["precio"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+            $pdf->Ln(3);
+            $pdf->Cell(60,4,$articulos["descripcion"],0,1,'C');
+
+            /*  --------------------------------------------------------------------------------- */
+        }
+
+        
+         
+        // SUMATORIO DE LOS PRODUCTOS Y EL IVA
+        $pdf->Ln(6);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);    
+        $pdf->Cell(25, 10, 'TOTAL SIN I.V.A.', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round((round(12.25,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);    
+        $pdf->Cell(25, 10, 'I.V.A. 21%', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round((round(12.25,2)),2)-round((round(2*3,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
+        $pdf->Ln(3);    
+        $pdf->Cell(25, 10, 'TOTAL', 0);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, number_format(round(12.25,2), 2, ',', ' ').EURO,0,0,'R');
+         
+        // PIE DE PAGINA
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'EL PERIODO DE DEVOLUCIONES',0,1,'C');
+        $pdf->Ln(3);
+        $pdf->Cell(60,0,'CADUCA EL DIA  01/11/2019',0,1,'C');
+         
+        $pdf->Output('ticket.pdf','i');
+
+    }
+
+    public static function factura_pdf($dato)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $ventas = Venta::mostrar_cabecera($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $ventas_det = Venta::mostrar_cuerpo($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = 0;
+        $moneda = 1;
+        $monedaVenta = $ventas->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $c_rows = 0;
+        $c_rows_array = count($ventas_det);
+        $c_filas_total = count($ventas_det);
+        $codigo = $ventas->CODIGO;
+        $cliente = $ventas->CLIENTE;
+        $direccion = $ventas->DIRECCION;
+        $ruc = $ventas->RUC;
+        $tipo = $ventas->TIPO;
+        $fecha = $ventas->FECALTAS;
+        $nombre = 'Venta_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES 
+        
+        $data['codigo'] = $codigo;
+        $data['cliente'] = $cliente;
+        $data['direccion'] = $direccion;
+        $data['ruc'] = $ruc;
+        $data['fecha'] = $fecha;
+        $data['nombre'] = $nombre;
+        $data['c'] = $c;
+        $data['tipo'] = 'fisico';
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // INICIAR MPDF 
+
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+         
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        $mpdf = new Mpdf([
+            'fontDir' => array_merge($fontDirs, [
+                public_path() . '/fonts',
+            ]),
+            'fontdata' => $fontData + [
+                'arial' => [
+                    'R' => 'arial.ttf',
+                    'B' => 'arialbd.ttf',
+                ],
+            ],
+            'default_font' => 'arial',
+            "format" => [240,140],
+        ]);
+
+        $mpdf->SetDisplayMode('fullpage');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR DETALLE DE TRANSFERENCIA DET 
+        
+        foreach ($ventas_det as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
+            
+            if ($value->MONEDA <> 1) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PRECIO 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $articulos[$c_rows]["precio"] = $cotizacion["valor"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // TOTAL 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $articulos[$c_rows]["total"] = $cotizacion["valor"];
+
+                // SI NO ENCUENTRA COTIZACION RETORNAR
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+
+                $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+                $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+                
+                $articulos[$c_rows]["precio"] = $value->PRECIO_UNIT;
+                $articulos[$c_rows]["total"] = $value->PRECIO;
+                $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
+                $total = $total + Common::quitar_coma($value->PRECIO, $candec);
+            }
+
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $articulos[$c_rows]["cantidad"] = $value->CANTIDAD;
+            $articulos[$c_rows]["cod_prod"] = $value->COD_PROD;
+            $articulos[$c_rows]["descripcion"] = substr($value->DESCRIPCION, 0,30);
+            $cantidad = $cantidad + $value->CANTIDAD;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE EXENTAS 
+
+            if ($value->EXENTAS > 0) {
+                $articulos[$c_rows]["exentas"] = $articulos[$c_rows]["total"];
+            } else {
+                $articulos[$c_rows]["exentas"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE BASE5 O BASE10
+
+            if ($value->BASE5 > 0) {
+                $articulos[$c_rows]["base10"] = '';
+                $articulos[$c_rows]["base5"] = $articulos[$c_rows]["total"];
+                $base5 = $base5 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            } else if ($value->BASE10 > 0) {
+                $articulos[$c_rows]["base5"] = '';
+                $articulos[$c_rows]["base10"] = $articulos[$c_rows]["total"];
+                $base10 = $base10 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            } else {
+                $articulos[$c_rows]["base5"] = '';
+                $articulos[$c_rows]["base10"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+            
+            // CONTAR CANTIDAD DE FILAS DE HOJAS 
+
+            $c_rows = $c_rows + 1;    
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CONTAR LA CANTIDAD DE FILAS 
+
+            $c = $c + 1;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
+
+            if ($c_rows === 10){
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // AGREGAR ARTICULOS 
+
+                $data['articulos'] = $articulos;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // RESTAR LAS CANTIDADES CARGADAS 
+
+                $c_rows_array = $c_rows_array - 10;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PONER TRUE SWITCH YA QUE CREO UNA PAGINA 
+
+                $switch_hojas = true;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR SUB TOTALES POR HOJA
+
+                $data['cantidad'] = $cantidad;
+                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
+                $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
+                $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
+                $data['base10'] = Common::precio_candec_sin_letra($base10 / 11, $moneda);
+                $data['iva'] = Common::precio_candec_sin_letra(($base5 / 21) + ($base10 / 11), $moneda);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $html = view('pdf.facturaVenta', $data)->render();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($c !== 10) {
+                    $mpdf->AddPage();
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CERAR CONTADOR DE FILAS CARGADAS POR HOJAS Y ARTICULOS
+
+                $c_rows = 0;
+                $exentas = 0;
+                $base5 = 0;
+                $base10 = 0;
+                $total = 0;
+                $data['articulos'] = [];
+                $articulos = [];
+
+                /*  --------------------------------------------------------------------------------- */
+                    
+                $mpdf->WriteHTML($html);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else if ($c_rows_array < 10 && $c_filas_total === $c) {
+               
+                /*  --------------------------------------------------------------------------------- */
+                
+                // AGREGAR ARTICULOS 
+                
+                $data['articulos'] = $articulos;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR SUB TOTALES POR HOJA
+
+                $data['cantidad'] = $cantidad;
+                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
+                $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
+                $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
+                $data['base10'] = Common::precio_candec_sin_letra($base10 / 11, $moneda);
+                $data['iva'] = Common::precio_candec_sin_letra(($base5 / 21) + ($base10 / 11), $moneda);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CREAR HOJA 
+
+                $html = view('pdf.facturaVenta', $data)->render();
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($switch_hojas === true) {
+                    $mpdf->AddPage();
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+                    
+                $mpdf->WriteHTML($html);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output($namefile,"D");
+
+        /*  --------------------------------------------------------------------------------- */
+        
     }
 }

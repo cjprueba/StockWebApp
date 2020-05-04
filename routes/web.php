@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes(['register' => true]);
+Auth::routes(['register' => false]);
 /* Auth::routes(); */
  	
 
@@ -39,7 +39,11 @@ Route::apiResource('busquedas', 'BusquedaController');
 
 Route::post('ventas', 'VentaController@mostrar');
 Route::get('ventas/periodos', 'VentaController@periodos_superados');
-// Route::apiResource('ventas', 'VentaController');
+Route::post('venta/guardar', 'VentaController@guardar');
+Route::post('venta/numeracion', 'VentaController@numeracion');
+Route::post('venta/inicio', 'VentaController@inicio');
+Route::post('venta/factura', 'VentaController@factura');
+Route::post('venta/ticket', 'VentaController@ticket');
 
 /* -------------------------------------------------------------------------- */
 
@@ -53,7 +57,7 @@ Route::post('transferenciaEliminar', 'TransferenciaControler@eliminarTransferenc
 Route::post('transferenciaEnviar', 'TransferenciaControler@enviarTransferencia');
 Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
-Route::get('transferenciaMostrarImportar', 'TransferenciaControler@mostrarImportar');
+Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
 Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
@@ -86,13 +90,24 @@ Route::post('categoriaGuardar', 'CategoriaController@categoriaGuardar');
 
 // SUB CATEGORIA
 
-Route::get('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
+Route::post('subCategoria', 'SubCategoriaController@obtenerSubCategorias');
 Route::post('subCategoriaFiltrar', 'SubCategoriaController@filtrarSubCategoria');
 Route::get('nuevaSubCategoria','SubCategoriaController@obtenerCodigo');
 Route::post('subCategoriaEliminar', 'SubCategoriaController@subCategoriaEliminar');
 Route::post('subCategoriaGuardar', 'SubCategoriaController@subCategoriaGuardar');
 Route::post('subCategoriaDatatable', 'SubCategoriaController@subCategoriasDatatable');
 Route::post('subCategoriasDatatable', 'SubCategoriaController@subCategoriaDatatable');
+
+/* -------------------------------------------------------------------------- */
+
+// SUB CATEGORIA DETALLE
+
+Route::post('subCategoriaDetalle', 'SubCategoriaDetalleController@obtenerSubCategoriasDetalle');
+Route::post('subCategoriaDetalle/datatable', 'SubCategoriaDetalleController@datatableSubCategoriaDetalle');
+Route::post('subCategoriaDetalle/filtrar', 'SubCategoriaDetalleController@filtrarSubCategoriaDetalle');
+Route::get('subCategoriaDetalle/nuevo', 'SubCategoriaDetalleController@nuevoSubCategoriaDetalle');
+Route::post('subCategoriaDetalle/guardar', 'SubCategoriaDetalleController@guardarSubCategoriaDetalle');
+Route::post('subCategoriaDetalle/eliminar', 'SubCategoriaDetalleController@eliminarSubCategoriaDetalle');
 
 /* -------------------------------------------------------------------------- */
 
@@ -137,13 +152,14 @@ Route::get('genero', 'GeneroController@obtenerGeneros');
 
 // MARCA
 
-Route::get('marca','MarcaController@obtenerMarcas');
+Route::post('marca','MarcaController@obtenerMarcas');
 Route::get('nuevaMarca','MarcaController@obtenerCodigo');
 Route::post('marcaFiltrar', 'MarcaController@filtrarMarca');
 Route::post('marcaGuardar', 'MarcaController@marcaGuardar');
 Route::post('marcaEliminar', 'MarcaController@marcaEliminar');
 Route::post('marcasDatatable', 'MarcaController@MarcasDatatable');
 Route::post('MarcasPorCategoriaDatatable', 'MarcaController@MarcasPorCategoriaDatatable');
+Route::post('marca/categoria/seleccion','MarcaController@marcaCategoriaSeleccion');
 
 /* -------------------------------------------------------------------------- */
 
@@ -201,6 +217,7 @@ Route::get('banco/datatable', 'BancoController@datatable');
 
 Route::post('devendedores', 'DevolucionController@mostrar');
 Route::post('vendedores', 'VendedorController@mostrar');
+Route::post('/vendedor/datatable', 'VendedorController@datatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -251,6 +268,11 @@ Route::post('productoConProveedor', 'ProductoController@productoProveedor');
 Route::post('producto/transferencia', 'ProductoController@productoTransferencia');
 Route::post('producto/eliminar', 'ProductoController@eliminar');
 Route::post('productoCompra', 'ProductoController@obtenerProductoCompra');
+Route::post('producto/minimo', 'ProductoController@minimo');
+Route::post('producto/baja', 'ProductoController@baja');
+Route::post('producto/POS', 'ProductoController@obtenerProductoPOS');
+Route::post('producto/ubicacion', 'ProductoController@ubicacion');
+Route::post('producto/existe', 'ProductoController@existe');
 
 /* -------------------------------------------------------------------------- */
 
@@ -327,7 +349,8 @@ Route::post('CantidadArticulos', 'ArticulosController@PorCantidad');
 
 // CLIENTES 
 
-Route::post('clientes', 'ClientesController@mostrar');
+Route::post('clientes', 'ClienteController@mostrar');
+Route::post('/cliente/datatable', 'ClienteController@datatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -354,6 +377,7 @@ Route::post('stock', 'Stock@mostrar');
 Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
 Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
 Route::post('exportCompra', 'CompraController@Descargar');
+Route::post('export/Stock', 'StockController@descargar');
 
 /* -------------------------------------------------------------------------- */
 

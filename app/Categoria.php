@@ -521,4 +521,33 @@ class Categoria extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function categorias_cantidad()
+    {
+
+      /*  --------------------------------------------------------------------------------- */
+
+     $categoria =DB::connection('retail')->table('Lineas')
+      ->leftjoin('PRODUCTOS', 'PRODUCTOS.LINEA', '=', 'LINEAS.CODIGO')
+            ->select(
+            DB::raw('LINEAS.CODIGO'),
+            DB::raw('LINEAS.DESCRIPCION'),
+          DB::raw("COUNT(PRODUCTOS.CODIGO) as CANTIDAD")
+      )  
+            ->where([
+                ['LINEAS.codigo', '>', 20],
+                 ['LINEAS.ID_SUCURSAL', '=', 9]
+            ])
+            ->GROUPBY("lineas.codigo")
+            ->get()
+            ->toArray(); 
+
+
+        // RETORNAR VALOR 
+
+        return $categoria;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

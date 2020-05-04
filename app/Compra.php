@@ -9,6 +9,7 @@ use App\ComprasDet;
 use App\Lotes_tiene_ComprasDet;
 use App\Deuda;
 use App\Pagos_Prov_Det;
+use App\CompraUser;
 
 class Compra extends Model
 {
@@ -30,6 +31,7 @@ class Compra extends Model
     	// INIICAR VARIABLES 
 
     	$c = 0;
+        $diaHora = date('Y-m-d H:i:s');
     	$dia = date('Y-m-d');
     	$hora = date("H:i:s");
     	$lote = '';
@@ -69,11 +71,14 @@ class Compra extends Model
     		$compra->TIPO = $data->data["tipo_compra"];
 
     		if ($data->data["tipo_compra"] === 'CO') {
-    			$compra->PLAN_PAGO = $data->data["cuotas"];
-    		} else if ($data->data["tipo_compra"] === 'CR') {
     			$compra->PLAN_PAGO = 0;
+                $compra->CUOTAS = 0;
+    		} else if ($data->data["tipo_compra"] === 'CR') {
+    			$compra->PLAN_PAGO = $data->data["credito"]["dias"]; 
+                $compra->CUOTAS = $data->data["cuotas"];
     		} else if ($data->data["tipo_compra"] === 'CS') {
     			$compra->PLAN_PAGO = 0;
+                $compra->CUOTAS = 0;
     		}
     		
     		/*  --------------------------------------------------------------------------------- */
@@ -84,7 +89,7 @@ class Compra extends Model
     		$compra->CANCELADO = 'NO';
     		$compra->ID_SUCURSAL = $user->id_sucursal;
     		$compra->PEDIDO = $data->data["nro_pedido"];
-    		$compra->FK_USER_CR = $user->id;
+    		//$compra->FK_USER_CR = $user->id;
     		$compra->save();
     		
     		/*  --------------------------------------------------------------------------------- */
@@ -146,6 +151,12 @@ class Compra extends Model
     		}
 
     		/*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR USER REFERENCIA
+
+            CompraUser::guardar_referencia($user->id, 1, $compra->id, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
 
     		// RETORNAR VALOR 
 
@@ -366,9 +377,9 @@ class Compra extends Model
         /*  --------------------------------------------------------------------------------- */
     }
 
-    public static function verificar_eliminacion($codigo) {
+    public static function verificar_modificacion($codigo) {
 
-    	/*  --------------------------------------------------------------------------------- */
+        /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
@@ -379,7 +390,6 @@ class Compra extends Model
         // INICIAR VARIABLES 
 
         $codigo = $codigo["data"];
-        $modificado = false;
 
         /*  --------------------------------------------------------------------------------- */
         
@@ -389,44 +399,6 @@ class Compra extends Model
         ->where('ID_SUCURSAL','=', $user->id_sucursal)
         ->where('CODIGO','=', $codigo)
         ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER LOS LOTES A ELIMINAR
-
-		$compradet = ComprasDet::select(DB::raw(
-                        'COMPRASDET.ID AS COMPRA_ID, LOTES.ID AS LOTE_ID, LOTES.COD_PROD, LOTES.USERM, FK_USER_MD'
-                    ))
-        ->rightJoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
-        ->leftJoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
-        ->where('COMPRASDET.ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('COMPRASDET.CODIGO','=', $codigo)
-        ->get();      	  
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // SI NO ENCUENTRA REGISTROS EN LAS CLAVES FORANEAS PROHIBIR ELIMINAR 
-
-        if(count($compradet) <= 0) {
-        	return ["response" => false, "statusText" => "Esta compra no se podra eliminar o modificar a través de esta plataforma !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        foreach ($compradet as $key => $value) {
-        	if($value->FK_USER_MD !== 0 or $value->USERM !== null) {
-        		$modificado = true;
-        		break;
-        	}
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // SI ES TRUE MODIFICADO SE RECHAZA LA ELIMINACION
-        
-        if($modificado === true) {
-        	return ["response" => false, "statusText" => "Esta compra tiene lotes ya modificados"];
-        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -448,6 +420,90 @@ class Compra extends Model
 
         // RETORNAR TRUE SI NO SE PUEDE ELIMINAR 
 
+        return ["response" => true, "statusText" => "Se puede eliminar", "ID_COMPRA" => $id_compra[0]["ID"]];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function verificar_eliminacion($codigo) {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $codigo = $codigo["data"];
+        $modificado = false;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS LOTES A ELIMINAR
+
+		$compradet = ComprasDet::select(DB::raw(
+                        'COMPRASDET.ID AS COMPRA_ID, LOTES.ID AS LOTE_ID, LOTES.COD_PROD'
+                    ))
+        ->rightJoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+        ->leftJoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
+        ->where('COMPRASDET.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('COMPRASDET.CODIGO','=', $codigo)
+        ->get();      	  
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SI NO ENCUENTRA REGISTROS EN LAS CLAVES FORANEAS PROHIBIR ELIMINAR 
+
+        if(count($compradet) <= 0) {
+        	return ["response" => false, "statusText" => "Esta compra no se podra eliminar o modificar a través de esta plataforma !"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LOTE HA SIDO MODIFICADO 
+
+        foreach ($compradet as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // LOTE USER - REVISAR SI EL ESTA EDITADO
+
+            $lote_user = LoteUser::select(DB::raw(
+                            'ID'
+                        ))
+            ->where('FK_LOTE','=', $value->LOTE_ID)
+            ->where('ACCION','=', 2)
+            ->get();  
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI ENCONTRAMOS LOTES EDITADOS DETENER EL FOREACH
+
+            if(count($lote_user) > 0) {
+                $modificado = true;
+                break;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    
+        // SI ES TRUE MODIFICADO SE RECHAZA LA ELIMINACION
+        
+        if($modificado === true) {
+        	return ["response" => false, "statusText" => "Esta compra tiene lotes ya modificados"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR TRUE SI NO SE PUEDE ELIMINAR 
+
         return ["response" => true, "statusText" => "Se puede eliminar", "data" => $compradet];
 
         /*  --------------------------------------------------------------------------------- */
@@ -462,11 +518,17 @@ class Compra extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
+        $diaHora = date('Y-m-d H:i:s');
+        $id_compra = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
+        // VERIFICAR ELIMINACION 
+
         $verificacion = Compra::verificar_eliminacion($codigo);
         
+        /*  --------------------------------------------------------------------------------- */
+
         if ($verificacion["response"] === false) {
         	return $verificacion;
         } else {
@@ -511,6 +573,20 @@ class Compra extends Model
 
         if ($codigo["opcion"] === 1) {
 
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $id_compra = Compra::select('ID')
+            ->where('ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('CODIGO','=', $codigo["data"])
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR USER REFERENCIA
+
+            CompraUser::guardar_referencia($user->id, 3, $id_compra[0]["ID"], $diaHora);
+
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI HAY DEUDA
@@ -522,6 +598,15 @@ class Compra extends Model
             /*  --------------------------------------------------------------------------------- */
         }
         
+        /*  --------------------------------------------------------------------------------- */
+
+        // ELIMINAR DEUDAS 
+        
+        // OBTENER ID COMPRA 
+
+        Deuda::where('FK_COMPRA','=', $id_compra[0]->ID)
+            ->delete();
+
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
@@ -727,16 +812,27 @@ class Compra extends Model
                         COMPRAS.NRO_FACTURA,
                         COMPRAS.TIPO,
                         COMPRAS.PLAN_PAGO,
-                        COMPRAS.FK_USER_CR,
+                        COMPRAS.CUOTAS,
                         COMPRAS.MONEDA,
                         COMPRAS.PROVEEDOR,
                         COMPRAS.TOTAL,
+                        DEUDAS.TIPO AS DEUDA_TIPO,
                         COMPRAS.EXENTAS'
                     ))
         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+        ->leftjoin('DEUDAS', 'DEUDAS.FK_COMPRA', '=', 'COMPRAS.ID')
         ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('COMPRAS.CODIGO','=', $codigo)
         ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR DEUDAS TIPO ESTA NULL PARA DEVOLVER EL VALOR 1 EN LA OPCION SI ES QUE EL USUARIO 
+        // HABILITA LA VENTA A CREDITO 
+
+        if ($compra[0]["DEUDA_TIPO"] === null) {
+            $compra[0]["DEUDA_TIPO"] = 1;
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -971,11 +1067,17 @@ class Compra extends Model
     	// INIICAR VARIABLES 
 
     	$c = 0;
+        $diaHora = date('Y-m-d H:i:s');
     	$dia = date('Y-m-d');
     	$hora = date("H:i:s");
     	$lote = '';
     	$plan_pago = 0;
+        $cuotas = 0;
     	$codigo = $data->data["codigo"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VERIFICAR ELIMINACION 
 
     	/*  --------------------------------------------------------------------------------- */
 
@@ -993,14 +1095,29 @@ class Compra extends Model
     		// PLAN PAGO 
 
     		if ($data->data["tipo_compra"] === 'CO') {
-    			$plan_pago = $data->data["cuotas"];
-    		} else if ($data->data["tipo_compra"] === 'CR') {
     			$plan_pago = 0;
+    		} else if ($data->data["tipo_compra"] === 'CR') {
+                $cuotas = $data->data["cuotas"];
+                $plan_pago = $data->data["credito"]["dias"];
     		} else if ($data->data["tipo_compra"] === 'CS') {
     			$plan_pago = 0;
     		}
 
+            /*  --------------------------------------------------------------------------------- */
+
+            // VERIFICAR MODIFICACION 
+
+            $verificacion = Compra::verificar_modificacion(["data" => $codigo]);
+
     		/*  --------------------------------------------------------------------------------- */
+
+            if ($verificacion["response"] === false) {
+                return $verificacion;
+            } else {
+                $verificacion = $verificacion["ID_COMPRA"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
 
     		Compra::
     		where([
@@ -1010,15 +1127,15 @@ class Compra extends Model
     		->update([
     			'PROVEEDOR' => $data->data["proveedor"],
     			'NRO_FACTURA' => $data->data["nro_caja"],
-    			'FEC_FACTURA' => $data->data["nro_caja"],
+    			'FEC_FACTURA' => $data->data["fecha"],
     			'PLAN_PAGO' => $plan_pago,
     			'TIPO' => $data->data["tipo_compra"],
     			'TOTAL' => Common::quitar_coma($data->data["total_compra"], $candec),
     			'EXENTAS' => Common::quitar_coma($data->data["exentas"], $candec),
     			'MONEDA' => $data->data["moneda"],
     			'CANCELADO' => 'NO',
-    			'PEDIDO' => $data->data["nro_pedido"],
-    			'FK_USER_MD' => $user->id
+                'CUOTAS' => $cuotas,
+    			'PEDIDO' => $data->data["nro_pedido"]
     		]);
     		
     		/*  --------------------------------------------------------------------------------- */
@@ -1083,7 +1200,29 @@ class Compra extends Model
     		DB::commit();
 
     		/*  --------------------------------------------------------------------------------- */
-    	
+
+            $id = Compra::select(DB::raw('ID'))
+            ->where('CODIGO','=', $codigo)
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+    	    // INSERTAR USER REFERENCIA
+
+            CompraUser::guardar_referencia($user->id, 2, $id[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR DEUDA 
+
+            if ($data->data["tipo_compra"] === 'CR') {
+                Deuda::insertar($data->data, $candec, $verificacion);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+
     		// RETORNAR VALOR 
 
     		return ["response" => true, "codigo" => $codigo];

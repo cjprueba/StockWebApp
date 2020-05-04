@@ -8,9 +8,9 @@ use App\Categoria;
 class CategoriaController extends Controller
 {
 
-    public function __construct(){
-        $this->middleware('auth');
-    }
+    // public function __construct(){
+    //     $this->middleware('auth');
+    // }
     /**
      * Display a listing of the resource.
      *
@@ -100,6 +100,20 @@ class CategoriaController extends Controller
 
         $Categoria = Categoria::Categoria_eliminar($request->all());
         return response()->json($Categoria);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function CategoriasCantidad()
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $categoria = Categoria::categorias_cantidad();
+        return response()->json($categoria);
         
         /*  --------------------------------------------------------------------------------- */
 

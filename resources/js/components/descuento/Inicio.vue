@@ -1,63 +1,75 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="mb-3">
-			<label for="validationTooltip01">Seleccione Reporte descuentos</label>
-			<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
-				<option selected>Seleccionar</option>
-				<option value="3">Descuento por Marca y Categoria</option>
-			</select>			
-		</div>
 
-		<!-- VENTA POR MARCA -->
-	<transition name="fade">	
-		<div class="card" v-if="reporte === '2'" id="reporte2">
-		  	<div class="card-header">DESCUENTO POR MARCA</div>
-			<div class="card-body">
-			  	<div class="form-row">
-			  		<div class="col-md-4 mb-3">
-
-
-
-			  
-					  	<label for="validationTooltip01">Seleccione Reporte</label>
-						<select class="custom-select custom-select-sm">
-							 <option selected>Seleccionar</option>
-							 <option value="1">Listar Marcas</option>
-							 <option value="2">Descuentos por Marca</option>
-							 <option value="3">Descuentos por Marca y Categoria</option>
-						</select>
-
-						<label class="mt-3" for="validationTooltip01">Seleccione Reporte 2</label>
-						<select class="custom-select custom-select-sm">
-							 <option selected>Seleccionar</option>
-							 <option value="1">Listar Marcas</option>
-							 <option value="2">Descuentos por Marca</option>
-							 <option value="3">Descuentos por Marca y Categoria</option>
-						</select>
-						
-					</div>
-
-					<div class="col-md-4">
-						<label for="validationTooltip01">Seleccione Marcas</label> 
-						<select multiple class="form-control" size="4">
-						  <option selected>Open this select menu</option>
-						  <option value="1">One</option>
-						  <option value="2">Two</option>
-						  <option value="3">Three</option>
-						</select>
-					</div>
-
+		<div v-if="$can('reporte.descuento')">
+				
+				<div class="mb-3">
+					<label for="validationTooltip01">Seleccione Reporte descuentos</label>
+					<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
+						<option selected>Seleccionar</option>
+						<option value="3">Descuento por Marca y Categoria</option>
+					</select>			
 				</div>
-				<button class="btn btn-dark btn-sm" type="submit"><font-awesome-icon icon="download" /> Descargar</button>
-			    <button class="btn btn-primary btn-sm" type="submit">Generar</button>
-			</div>
+
+				<!-- VENTA POR MARCA -->
+			<transition name="fade">	
+				<div class="card" v-if="reporte === '2'" id="reporte2">
+				  	<div class="card-header">DESCUENTO POR MARCA</div>
+					<div class="card-body">
+					  	<div class="form-row">
+					  		<div class="col-md-4 mb-3">
+
+
+
+					  
+							  	<label for="validationTooltip01">Seleccione Reporte</label>
+								<select class="custom-select custom-select-sm">
+									 <option selected>Seleccionar</option>
+									 <option value="1">Listar Marcas</option>
+									 <option value="2">Descuentos por Marca</option>
+									 <option value="3">Descuentos por Marca y Categoria</option>
+								</select>
+
+								<label class="mt-3" for="validationTooltip01">Seleccione Reporte 2</label>
+								<select class="custom-select custom-select-sm">
+									 <option selected>Seleccionar</option>
+									 <option value="1">Listar Marcas</option>
+									 <option value="2">Descuentos por Marca</option>
+									 <option value="3">Descuentos por Marca y Categoria</option>
+								</select>
+								
+							</div>
+
+							<div class="col-md-4">
+								<label for="validationTooltip01">Seleccione Marcas</label> 
+								<select multiple class="form-control" size="4">
+								  <option selected>Open this select menu</option>
+								  <option value="1">One</option>
+								  <option value="2">Two</option>
+								  <option value="3">Three</option>
+								</select>
+							</div>
+
+						</div>
+						<button class="btn btn-dark btn-sm" type="submit"><font-awesome-icon icon="download" /> Descargar</button>
+					    <button class="btn btn-primary btn-sm" type="submit">Generar</button>
+					</div>
+				</div>
+			</transition>
+				<!-- FIN DE VENTA POR MARCA -->
+			<transition name="slide-fade">	
+				<descuento-marca-categoria v-if="reporte === '3'" id="reporte2"></descuento-marca-categoria>
+			</transition>
 		</div>
-	</transition>
-		<!-- FIN DE VENTA POR MARCA -->
-	<transition name="slide-fade">	
-		<descuento-marca-categoria v-if="reporte === '3'" id="reporte2"></descuento-marca-categoria>
-	</transition>
-		
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+			
 	</div>
 </template>
 

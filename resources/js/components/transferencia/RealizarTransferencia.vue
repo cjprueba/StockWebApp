@@ -1,606 +1,631 @@
 <template>
 	<div class="container-fluid mt-4">
 
-		<!-- ------------------------------------------------------------------------------------- -->
+		<div v-if="$can('transferencia.crear')">
 
-		<!-- TITULO  -->
+			<!-- ------------------------------------------------------------------------------------- -->
+
+			<!-- TITULO  -->
+			
+			<vs-divider>
+				Realizar Transferencia
+			</vs-divider>
 		
-		<vs-divider>
-			Realizar Transferencia
-		</vs-divider>
-	
-        <!-- ------------------------------------------------------------------------------------- -->
+	        <!-- ------------------------------------------------------------------------------------- -->
 
-        <!-- UN PRODUCTO -->
+	        <!-- UN PRODUCTO -->
 
-        <div class="col-12">
-		   	<div class="my-1 mb-3">
-				<div class="custom-control custom-switch mr-sm-2">
-					<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
-					<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
+	        <div class="col-12">
+			   	<div class="my-1 mb-3">
+					<div class="custom-control custom-switch mr-sm-2">
+						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
+						<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
+					</div>
 				</div>
 			</div>
-		</div>
-		
-		<!-- ------------------------------------------------------------------------------------- -->
+			
+			<!-- ------------------------------------------------------------------------------------- -->
 
-	   	<vs-divider position="left">
-		 	Transferencia
-	   	</vs-divider>
+		   	<vs-divider position="left">
+			 	Transferencia
+		   	</vs-divider>
 
-       	<!-- ------------------------------------------------------------------------------------- -->
+	       	<!-- ------------------------------------------------------------------------------------- -->
 
-		<!-- FORMULARIO  -->
+			<!-- FORMULARIO  -->
 
-		<div class="col-12">
+			<div class="col-12">
 
-		  <div class="mt-3">
+			  <div class="mt-3">
 
-			<div class="row">
-
-                <!-- ******************************************************************* -->
-
-				<!-- ORIGEN  -->
-
-				<div class="col-md-1">
-						<label for="validationTooltip01">Origen</label>
-						<div class="input-group ">
-							<div class="input-group-prepend">
-								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(1)"><font-awesome-icon icon="search"/></button>
-							</div>
-							<input class="form-control form-control-sm" type="text" v-model="codigoOrigen" v-on:blur="cargarSucursales(2, 1)" disabled>
-						</div>
-				</div>	
-
-				<div class="col-md-5">
-					<label for="validationTooltip01" >Descripción</label>
-					<input class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validarOrigen }" type="text"  v-model="descripcionOrigen" disabled>
-				</div>
-
-				<!-- FIN ORIGEN -->
-
-                <!-- ******************************************************************* -->
-
-				<!-- DESTINO -->
-
-				<div class="col-md-1">
-					<label for="validationTooltip01">Destino</label>
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(2)"><font-awesome-icon icon="search"/></button>
-						</div>
-						<input class="form-control form-control-sm" v-model="codigoDestino" v-on:blur="cargarSucursales(2, 2)" type="text" >
-					</div>
-				</div>	
-
-				<div class="col-md-5">
-					<label  for="validationTooltip01">Descripción</label>
-					<input class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validarDestino }" type="text" v-model="descripcionDestino" disabled>
-				</div>
-
-				<!-- FIN DESTINO -->
-
-                <!-- ******************************************************************* -->
-
-			</div>
-
-			<div class="row">
-
-                <!-- ******************************************************************* -->
-
-				<!-- ENVIA -->
-
-				<div class="col-md-1">
-					<label class="mt-1" for="validationTooltip01">Envia</label>
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".empleado-modal" v-on:click="activarBuscarEmpleado(1)"><font-awesome-icon icon="search"/></button>
-						</div>
-						<input class="form-control form-control-sm" v-model="codigoEnvia" type="text" v-on:blur="cargarEmpleados(1)">
-					</div>
-				</div>	
-
-				<div class="col-md-5">
-					<label class="mt-1" for="validationTooltip01">Descripción</label>
-					<input class="form-control form-control-sm" type="text"  v-model="descripcionEnvia" disabled>
-				</div>
-
-				<!-- FIN ENVIA -->
-
-                <!-- ******************************************************************* -->
-
-				<!-- TRANSPORTA -->
-
-				<div class="col-md-1">
-					<label class="mt-1" for="validationTooltip01">Transporta</label>
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(2)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
-						</div>
-						<input class="form-control form-control-sm" v-model="codigoTransporta" type="text" v-on:blur="cargarEmpleados(2)">
-					</div>
-				</div>	
-
-				<div class="col-md-5">
-					<label class="mt-1" for="validationTooltip01">Descripción</label>
-					<input class="form-control form-control-sm" type="text" v-model="descripcionTransporta"  disabled>
-				</div>
-
-				<!-- FIN TRANSPORTA -->
-
-                <!-- ******************************************************************* -->
-
-			</div>
-
-			<div class="row">
-
-				<div class="col-md-1">
-					<label class="mt-1" for="validationTooltip01">Recibe</label>
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(3)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
-						</div>
-						<input class="form-control form-control-sm" v-model="codigoRecibe" type="text" v-on:blur="cargarEmpleados(3)">
-					</div>
-				</div>	
-
-				<div class="col-md-5">
-					<label class="mt-1" for="validationTooltip01">Descripción</label>
-					<input class="form-control form-control-sm" type="text" v-model="descripcionRecibe"  disabled>
-				</div>	
-
-				<div class="col-md-6">
-					<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
-					<input class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
-				</div>
-
-			</div>
-
-				</div>
-		</div>
-
-		<!-- FINAL DE FORMULARIO -->
-
-	   <!-- ------------------------------------------------------------------------------------- -->
-
-	   <vs-divider position="left">
-		 	Agregar Producto
-	   </vs-divider>
-
-	   <!-- ------------------------------------------------------------------------------------- -->
-	   
-	   <!-- AGREGAR PRODUCTO -->
-
-		<div class="col-12">
-	
-			<div class="mt-3">	
 				<div class="row">
-					<div class="col-md-2">
-						
-							
-							<codigo-producto @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="codigoProducto"></codigo-producto >
 
-						<!-- </div> -->
+	                <!-- ******************************************************************* -->
+
+					<!-- ORIGEN  -->
+
+					<div class="col-md-1">
+							<label for="validationTooltip01">Origen</label>
+							<div class="input-group ">
+								<div class="input-group-prepend">
+									<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(1)"><font-awesome-icon icon="search"/></button>
+								</div>
+								<input class="form-control form-control-sm" type="text" v-model="codigoOrigen" v-on:blur="cargarSucursales(2, 1)" disabled>
+							</div>
 					</div>	
 
-					<div class="col-md-4">
-						<label for="validationTooltip01">Descripción</label>
-						<input class="form-control form-control-sm" type="text" v-model="descripcionProducto" v-bind:class="{ 'is-invalid': validarDescripcionProducto }" disabled>
+					<div class="col-md-5">
+						<label for="validationTooltip01" >Descripción</label>
+						<input class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validarOrigen }" type="text"  v-model="descripcionOrigen" disabled>
 					</div>
 
-					<div class="col-md-2">
-						<label for="validationTooltip01">Precio Unitario</label>
-						<input class="form-control form-control-sm" type="text" v-model="precioProducto" v-bind:class="{ 'is-invalid': validarPrecioUnitario }" disabled>
+					<!-- FIN ORIGEN -->
+
+	                <!-- ******************************************************************* -->
+
+					<!-- DESTINO -->
+
+					<div class="col-md-1">
+						<label for="validationTooltip01">Destino</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(2)"><font-awesome-icon icon="search"/></button>
+							</div>
+							<input tabindex="2" class="form-control form-control-sm" v-model="codigoDestino" v-on:blur="cargarSucursales(2, 2)" type="text" >
+						</div>
+					</div>	
+
+					<div class="col-md-5">
+						<label  for="validationTooltip01">Descripción</label>
+						<input class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validarDestino }" type="text" v-model="descripcionDestino" disabled>
 					</div>
 
-					<div class="col-md-2">
-						<label for="validationTooltip01">Cantidad</label>
-						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-on:keyup.prevent.13="agregarProductoTransferencia()" v-model="cantidadProducto">
-					</div>
+					<!-- FIN DESTINO -->
 
+	                <!-- ******************************************************************* -->
 
- 					<!-- <div class="col-md-2">
-						<label for="validationTooltip01">Cantidad</label>
-						<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
-					</div> -->
-
-
-					<div class="col-md-2">
-						<label for="validationTooltip01">Stock</label>
-						<input class="form-control form-control-sm" type="text" v-model="stockProducto" disabled>
-					</div>
 				</div>
-			</div>	
-		</div>		
 
-		<!-- FINAL AGREGAR PRODUCTO -->
-		
-		<!-- ------------------------------------------------------------------------------------- -->
+				<div class="row">
 
-		<hr>
-		
-		<!-- ------------------------------------------------------------------------------------- -->
+	                <!-- ******************************************************************* -->
 
-	    <!-- MOSTRAR LOADING -->
+					<!-- ENVIA -->
 
-	    <div class="col-md-12">
-			<div v-if="procesar" class="d-flex justify-content-center mt-3">
-				Guardando...
-	            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
-	        </div>
-        </div>
+					<div class="col-md-1">
+						<label class="mt-1" for="validationTooltip01">Envia</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".empleado-modal" v-on:click="activarBuscarEmpleado(1)"><font-awesome-icon icon="search"/></button>
+							</div>
+							<input tabindex="3" class="form-control form-control-sm" v-model="codigoEnvia" type="text" v-on:blur="cargarEmpleados(1)">
+						</div>
+					</div>	
 
-		<!-- ------------------------------------------------------------------------ -->
+					<div class="col-md-5">
+						<label class="mt-1" for="validationTooltip01">Descripción</label>
+						<input class="form-control form-control-sm" type="text"  v-model="descripcionEnvia" disabled>
+					</div>
 
-        <!-- TABLA TRANSFERENCIA -->
+					<!-- FIN ENVIA -->
 
-		<div class="col-md-12 mt-4">
-			<table id="tablaTransferencia" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th class="codigoDeclarados">Codigo Producto</th>
-                        <th>Descripción</th>
-                        <th class="cantidadColumna">Cantidad</th>
-                        <th class="precioColumna">Precio</th>
-                        <th class="ivaColumna">IVA</th>
-                        <th class="totalColumna">Total</th>
-                        <th>Acción</th>
-                        <th>IVA-PORCENTAJE</th>
-                        <th>STOCK</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                </tbody>
-                <tfoot>
-                	<tr>
-                		<th></th>
-                		<th></th>
-                		<th>TOTALES</th>
-	                	<th></th>
-	                	<th></th>
-	                	<th></th>
-	                	<th></th>
-	                	<th></th>
-                	</tr>
-                </tfoot>	
-            </table>
-		</div>
+	                <!-- ******************************************************************* -->
 
-		<!-- ******************************************************************* -->
+					<!-- TRANSPORTA -->
 
-		<!-- SEPARADOR -->
+					<div class="col-md-1">
+						<label class="mt-1" for="validationTooltip01">Transporta</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(2)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
+							</div>
+							<input tabindex="4" class="form-control form-control-sm" v-model="codigoTransporta" type="text" v-on:blur="cargarEmpleados(2)">
+						</div>
+					</div>	
 
-		<hr>
-		
-		<!-- ******************************************************************* -->
+					<div class="col-md-5">
+						<label class="mt-1" for="validationTooltip01">Descripción</label>
+						<input class="form-control form-control-sm" type="text" v-model="descripcionTransporta"  disabled>
+					</div>
 
-		<!-- BOTONES ABM -->
+					<!-- FIN TRANSPORTA -->
 
-		<div class="col-md-12 mt-3 mb-3">
-				<div class="text-right" v-if="btnguardar">
-					<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
+	                <!-- ******************************************************************* -->
+
 				</div>
-				<div class="text-right" v-else>
-					<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
-				</div>	
-		</div>
 
-		<!-- ******************************************************************* -->
+				<div class="row">
 
-		<!-- ------------------------------------------------------------------------ -->
+					<div class="col-md-1">
+						<label class="mt-1" for="validationTooltip01">Recibe</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(3)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
+							</div>
+							<input tabindex="5" class="form-control form-control-sm" v-model="codigoRecibe" type="text" v-on:blur="cargarEmpleados(3)">
+						</div>
+					</div>	
 
-		<!-- MODALES -->
+					<div class="col-md-5">
+						<label class="mt-1" for="validationTooltip01">Descripción</label>
+						<input class="form-control form-control-sm" type="text" v-model="descripcionRecibe"  disabled>
+					</div>	
 
-		<!-- ******************************************************************* -->
+					<div class="col-md-6">
+						<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+						<input tabindex="6" class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
+					</div>
 
-		<!-- MODAL ORIGEN -->
+				</div>
 
-				<div class="modal fade origen-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">Sucursales: </small></h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        	<table id="tablaModal" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
-						        <thead>
-						            <tr>
-						                <th>Codigo</th>
-						                <th>Nombre Sucursal</th>
-						                <th>Razon Social</th>
-						                <th>Dirección</th>
-						                <th>RUC</th>
-						            </tr>
-						        </thead>
-						        <tbody>
-						            <tr v-for="(sucursal, index) in sucursales" v-on:click="seleccionOrigen(sucursal)" data-dismiss="modal">
-						                <td href="#">{{sucursal.CODIGO}}</td>
-						                <td href="#">{{sucursal.DESCRIPCION}}</td>
-						                <td href="#">{{sucursal.RAZON_SOCIAL}}</td>
-						                <td href="#">{{sucursal.DIRECCION}}</td>
-						                <td href="#">{{sucursal.RUC}}</td>
-						            </tr>
-						        </tbody>
-						    </table>        
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>	
+					</div>
+			</div>
 
-		<!-- ******************************************************************* -->
+			<!-- FINAL DE FORMULARIO -->
 
-		<!-- MODAL EMPLEADOS -->
+		   <!-- ------------------------------------------------------------------------------------- -->
 
-				<div class="modal fade empleado-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">Empleados: </small></h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        	<table id="tablaModalEmpleados" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
-						        <thead>
-						            <tr>
-						                <th>Codigo</th>
-						                <th>Nombre</th>
-						                <th>CI</th>
-						                <th>Dirección</th>
-						                <th>SUCURSAL</th>
-						            </tr>
-						        </thead>
-                                <tbody>
-                                    <td></td>
-                                </tbody>
-						    </table>        
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>	
+		   <vs-divider position="left">
+			 	Agregar Producto
+		   </vs-divider>
 
-        <!-- ******************************************************************* -->
+		   <!-- ------------------------------------------------------------------------------------- -->
+		   
+		   <!-- AGREGAR PRODUCTO -->
 
-        <!-- MODAL EDITAR PRODUCTO TRANSFERENCIA -->
-
-                <div class="modal fade editar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label>Precio Unitario</label>
-                                    <input type="text" name="" v-model="editarPrecio" class="form-control form-control-sm" disabled>
-                                </div>
-                                <div class="col-md-12 mt-3">
-                                    <label>Cantidad</label>
-                                    <input type="text" name="" v-model="editarCantidad" v-on:blur="formatoEditarPrecio()" class="form-control form-control-sm">
-                                </div>
-                            </div>      
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" id="editarFila">Editar</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>  
-
-        <!-- ******************************************************************* -->
-
-        <!-- MODAL ELIMINAR PRODUCTO TRANSFERENCIA -->
-
-                <div class="modal fade eliminar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" >¿ Eliminar <font-awesome-icon icon="barcode"/> {{editarCodigo}} ?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body text-center">
-                            <button type="button" class="btn btn-danger" id="eliminarFila" data-dismiss="modal">Eliminar</button>
-                        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-        <!-- ******************************************************************* -->
-
-        <!-- MODAL MOSTRAR PRODUCTO TRANSFERENCIA -->
-
-                <div class="modal fade mostrar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                          <div class="card" >
-							  <img  :src="productoImagen[0].IMAGEN" class="card-img-top" alt="">
-							  <div class="card-body">
-							    <p class="card-text text-center">{{productoImagen[0].DESCRIPCION}}</p>
-							  </div>
-							  <ul class="list-group list-group-flush">
-							    <li class="list-group-item"><span class="text-primary text-left">Stock: </span> <span class="float-right">{{productoImagen[0].STOCK}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Costo: </span> <span class="float-right">{{productoImagen[0].PRECOSTO}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Venta: </span> <span class="float-right">{{productoImagen[0].PREC_VENTA}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Mayorista: </span> <span class="float-right">{{productoImagen[0].PREMAYORISTA}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio VIP: </span> <span class="float-right">{{productoImagen[0].PREVIP}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Última Compra: </span> <span class="float-right">{{productoImagen[0].FECHULT_C}}</span></li>
-							  </ul>
-							  
-							</div>  
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>            
-
-        <!-- ******************************************************************* -->
-
-        <!-- MODAL PRODUCTOS SIN REGISTRAR -->
-
-        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-		  <div class="modal-dialog modal-dialog-scrollable" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		          <span aria-hidden="true">&times;</span>
-		        </button>
-		      </div>
-		      <div class="modal-body">
-		        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
-				  <thead class="thead-light">
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Código</th>
-				      <th scope="col">Cantidad</th>
-				      <th scope="col">Guardado</th>
-				      <th scope="col">No guardado</th>
-				    </tr>
-				  </thead>
-				  <tbody>
-				    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
-				      <th scope="row">{{index+1}}</th>
-				      <td>{{no_registrado.cod_prod}}</td>
-				      <td>{{no_registrado.cantidad}}</td>
-				      <td>{{no_registrado.guardado}}</td>
-				      <td>{{no_registrado.restante}}</td>
-				    </tr>
-				  </tbody>
-				</table>
-		      </div>
-		      <div class="modal-footer">
-		        <button type="button" class="btn btn-secondary" v-on:click="mostrarTransferencias" data-dismiss="modal">Cerrar</button>
-		      </div>
-		    </div>
-		  </div>
-		</div>
+			<div class="col-12">
 		
-		<!-- ******************************************************************* -->
+				<div class="mt-3">	
+					<div class="row">
+						<div class="col-md-2">
+							
+								
+								<codigo-producto tabIndexPadre=7 @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="codigoProducto"></codigo-producto >
 
-		<!-- FINAL MODALES --> 
+							<!-- </div> -->
+						</div>	
 
-		<!-- ------------------------------------------------------------------------ -->
+						<div class="col-md-4">
+							<label for="validationTooltip01">Descripción</label>
+							<input class="form-control form-control-sm" type="text" v-model="descripcionProducto" v-bind:class="{ 'is-invalid': validarDescripcionProducto }" disabled>
+						</div>
 
-		<!-- TOASTS -->
+						<div class="col-md-2">
+							<label for="validationTooltip01">Precio Unitario</label>
+							<input class="form-control form-control-sm" type="text" v-model="precioProducto" v-bind:class="{ 'is-invalid': validarPrecioUnitario }" disabled>
+						</div>
 
-		<!-- ******************************************************************* -->
+						<div class="col-md-2">
+							<label for="validationTooltip01">Cantidad</label>
+							<input tabindex="8" class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="agregarProductoTransferencia()" v-bind:class="{ 'is-invalid': validarCantidad }" v-on:keyup.prevent.13="agregarProductoTransferencia()" v-model="cantidadProducto">
+						</div>
 
-		<!-- TOAST CODIGO PRODUCTO REPETIDO -->
 
-		<b-toast id="toast-codigo-repetido" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">Error !</strong>
-	          <small class="text-muted mr-2">repetido</small>
+	 					<!-- <div class="col-md-2">
+							<label for="validationTooltip01">Cantidad</label>
+							<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad" v-on:blur="" v-bind:class="{ 'is-invalid': validarCantidad }" v-model="cantidadProducto">
+						</div> -->
+
+
+						<div class="col-md-2">
+							<label for="validationTooltip01">Stock</label>
+							<input class="form-control form-control-sm" type="text" v-model="stockProducto" disabled>
+						</div>
+					</div>
+				</div>	
+			</div>		
+
+			<!-- FINAL AGREGAR PRODUCTO -->
+			
+			<!-- ------------------------------------------------------------------------------------- -->
+
+			<hr>
+			
+			<!-- ------------------------------------------------------------------------------------- -->
+
+		    <!-- MOSTRAR LOADING -->
+
+		    <div class="col-md-12">
+				<div v-if="procesar" class="d-flex justify-content-center mt-3">
+					Guardando...
+		            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
+		        </div>
 	        </div>
-	      </template>
-	      Este producto ya existe en la tabla, favor de elegir otro o modificarlo !
-	    </b-toast>
 
-	    <!-- ******************************************************************* -->
+			<!-- ------------------------------------------------------------------------ -->
 
-	    <!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
+	        <!-- TABLA TRANSFERENCIA -->
 
-		<b-toast id="toast-producto-transferencia-modificado" variant="success" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <strong class="mr-auto">Éxito !</strong>
-	          <small class="text-muted mr-2">modificado</small>
-	        </div>
-	      </template>
-	      Este producto ha sido modificado con éxito !
-	    </b-toast>
+			<div class="col-md-12 mt-4">
+				<table id="tablaTransferencia" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
+	                <thead>
+	                    <tr>
+	                        <th>ITEM</th>
+	                        <th class="codigoDeclarados">Codigo Producto</th>
+	                        <th>Descripción</th>
+	                        <th class="cantidadColumna">Cantidad</th>
+	                        <th class="precioColumna">Precio</th>
+	                        <th class="ivaColumna">IVA</th>
+	                        <th class="totalColumna">Total</th>
+	                        <th>Acción</th>
+	                        <th>IVA-PORCENTAJE</th>
+	                        <th>STOCK</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    
+	                </tbody>
+	                <tfoot>
+	                	<tr>
+	                		<th></th>
+	                		<th></th>
+	                		<th>TOTALES</th>
+		                	<th></th>
+		                	<th></th>
+		                	<th></th>
+		                	<th></th>
+		                	<th></th>
+	                	</tr>
+	                </tfoot>	
+	            </table>
+			</div>
 
-	    <!-- ******************************************************************* -->
+			<!-- ******************************************************************* -->
 
-	    <!-- TOAST CODIGO PRODUCTO REPETIDO -->
+			<!-- SEPARADOR -->
 
-		<b-toast id="toast-editar-cero" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">Error !</strong>
-	          <small class="text-muted mr-2">cero</small>
-	        </div>
-	      </template>
-	      La cantidad y el precio no deben ser cero !
-	    </b-toast>
+			<hr>
+			
+			<!-- ******************************************************************* -->
 
-	    <!-- ******************************************************************* -->
+			<!-- BOTONES ABM -->
 
-	    <!-- TOAST CODIGO PRODUCTO REPETIDO -->
+			<div class="col-md-12 mt-3 mb-3">
+					<div class="text-right" v-if="btnguardar">
+						<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
+					</div>
+					<div class="text-right" v-else>
+						<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
+					</div>	
+			</div>
 
-		<b-toast id="toast-cantidad-superada" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">Error !</strong>
-	          <small class="text-muted mr-2">superada</small>
-	        </div>
-	      </template>
-	      La cantidad ha superado el stock !
-	    </b-toast>
+			<!-- ******************************************************************* -->
 
-	    <!-- ******************************************************************* -->
+			<!-- ------------------------------------------------------------------------ -->
 
-	    <!-- TOAST COMPLETAR CABECERA -->
+			<!-- MODALES -->
 
-		<b-toast id="toast-completar-cabecera" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">Error !</strong>
-	          <small class="text-muted mr-2">incompleto</small>
-	        </div>
-	      </template>
-	      Complete todos los datos correctamente !
-	    </b-toast>
+			<!-- ******************************************************************* -->
 
-	    <!-- ******************************************************************* -->
+			<!-- MODAL ORIGEN -->
 
-		<!-- ------------------------------------------------------------------------ -->
+					<div class="modal fade origen-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h5 class="modal-title" id="exampleModalCenterTitle">Sucursales: </small></h5>
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+					      </div>
+					      <div class="modal-body">
+					        	<table id="tablaModal" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+							        <thead>
+							            <tr>
+							                <th>Codigo</th>
+							                <th>Nombre Sucursal</th>
+							                <th>Razon Social</th>
+							                <th>Dirección</th>
+							                <th>RUC</th>
+							            </tr>
+							        </thead>
+							        <tbody>
+							            <tr v-for="(sucursal, index) in sucursales" v-on:click="seleccionOrigen(sucursal)" data-dismiss="modal">
+							                <td href="#">{{sucursal.CODIGO}}</td>
+							                <td href="#">{{sucursal.DESCRIPCION}}</td>
+							                <td href="#">{{sucursal.RAZON_SOCIAL}}</td>
+							                <td href="#">{{sucursal.DIRECCION}}</td>
+							                <td href="#">{{sucursal.RUC}}</td>
+							            </tr>
+							        </tbody>
+							    </table>        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>	
 
-		<!-- MENU COTIZACION TRANSFERENCIA -->
+			<!-- ******************************************************************* -->
 
-		<cotizacionEnviarTransferencia 
-		@mostrar-cotizacion-enviar="funcionMostrarCerrarCotizacion" 
-		ref="cotizacionEnviarTransferencia" 
-		@moneda_enviar="seleccionarMonedaEnviar"
-		v-bind:moneda_codigo="monedaCodigo"
-		></cotizacionEnviarTransferencia>
+			<!-- MODAL EMPLEADOS -->
 
-		<!-- ------------------------------------------------------------------------ -->
+					<div class="modal fade empleado-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h5 class="modal-title" id="exampleModalCenterTitle">Empleados: </small></h5>
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+					      </div>
+					      <div class="modal-body">
+					        	<table id="tablaModalEmpleados" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+							        <thead>
+							            <tr>
+							                <th>Codigo</th>
+							                <th>Nombre</th>
+							                <th>CI</th>
+							                <th>Dirección</th>
+							                <th>SUCURSAL</th>
+							            </tr>
+							        </thead>
+	                                <tbody>
+	                                    <td></td>
+	                                </tbody>
+							    </table>        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>	
+
+	        <!-- ******************************************************************* -->
+
+	        <!-- MODAL EDITAR PRODUCTO TRANSFERENCIA -->
+
+	                <div class="modal fade editar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+	                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+	                    <div class="modal-content">
+	                      <div class="modal-header">
+	                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
+	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                          <span aria-hidden="true">&times;</span>
+	                        </button>
+	                      </div>
+	                      <div class="modal-body">
+	                            <div class="row">
+	                                <div class="col-md-12">
+	                                    <label>Precio Unitario</label>
+	                                    <input type="text" name="" v-model="editarPrecio" class="form-control form-control-sm" disabled>
+	                                </div>
+	                                <div class="col-md-12 mt-3">
+	                                    <label>Cantidad</label>
+	                                    <input type="text" name="" v-model="editarCantidad" v-on:blur="formatoEditarPrecio()" class="form-control form-control-sm">
+	                                </div>
+	                            </div>      
+	                      </div>
+	                      <div class="modal-footer">
+	                        <button type="button" class="btn btn-warning" id="editarFila">Editar</button>
+	                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+	                      </div>
+	                    </div>
+	                  </div>
+	                </div>  
+
+	        <!-- ******************************************************************* -->
+
+	        <!-- MODAL ELIMINAR PRODUCTO TRANSFERENCIA -->
+
+	                <div class="modal fade eliminar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+	                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+	                    <div class="modal-content">
+	                      <div class="modal-header">
+	                        <h5 class="modal-title text-primary text-center" >¿ Eliminar <font-awesome-icon icon="barcode"/> {{editarCodigo}} ?</h5>
+	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                          <span aria-hidden="true">&times;</span>
+	                        </button>
+	                      </div>
+	                      <div class="modal-body text-center">
+	                            <button type="button" class="btn btn-danger" id="eliminarFila" data-dismiss="modal">Eliminar</button>
+	                        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+	                      </div>
+	                    </div>
+	                  </div>
+	                </div>
+
+	        <!-- ******************************************************************* -->
+
+	        <!-- MODAL MOSTRAR PRODUCTO TRANSFERENCIA -->
+
+	                <div class="modal fade mostrar-producto-transferencia-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+	                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+	                    <div class="modal-content">
+	                      <div class="modal-header">
+	                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
+	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                          <span aria-hidden="true">&times;</span>
+	                        </button>
+	                      </div>
+	                      <div class="modal-body">
+	                          <div class="card" >
+								  <img  :src="productoImagen[0].IMAGEN" class="card-img-top" alt="">
+								  <div class="card-body">
+								    <p class="card-text text-center">{{productoImagen[0].DESCRIPCION}}</p>
+								  </div>
+								  <ul class="list-group list-group-flush">
+								    <li class="list-group-item"><span class="text-primary text-left">Stock: </span> <span class="float-right">{{productoImagen[0].STOCK}}</span></li>
+								    <li class="list-group-item"><span class="text-primary text-left">Precio Costo: </span> <span class="float-right">{{productoImagen[0].PRECOSTO}}</span></li>
+								    <li class="list-group-item"><span class="text-primary text-left">Precio Venta: </span> <span class="float-right">{{productoImagen[0].PREC_VENTA}}</span></li>
+								    <li class="list-group-item"><span class="text-primary text-left">Precio Mayorista: </span> <span class="float-right">{{productoImagen[0].PREMAYORISTA}}</span></li>
+								    <li class="list-group-item"><span class="text-primary text-left">Precio VIP: </span> <span class="float-right">{{productoImagen[0].PREVIP}}</span></li>
+								    <li class="list-group-item"><span class="text-primary text-left">Última Compra: </span> <span class="float-right">{{productoImagen[0].FECHULT_C}}</span></li>
+								  </ul>
+								  
+								</div>  
+	                      </div>
+	                      <div class="modal-footer">
+	                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+	                      </div>
+	                    </div>
+	                  </div>
+	                </div>            
+
+	        <!-- ******************************************************************* -->
+
+	        <!-- MODAL PRODUCTOS SIN REGISTRAR -->
+
+	        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
+					  <thead class="thead-light">
+					    <tr>
+					      <th scope="col">#</th>
+					      <th scope="col">Código</th>
+					      <th scope="col">Cantidad</th>
+					      <th scope="col">Guardado</th>
+					      <th scope="col">No guardado</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+					    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
+					      <th scope="row">{{index+1}}</th>
+					      <td>{{no_registrado.cod_prod}}</td>
+					      <td>{{no_registrado.cantidad}}</td>
+					      <td>{{no_registrado.guardado}}</td>
+					      <td>{{no_registrado.restante}}</td>
+					    </tr>
+					  </tbody>
+					</table>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" v-on:click="mostrarTransferencias" data-dismiss="modal">Cerrar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			
+			<!-- ******************************************************************* -->
+
+			<!-- FINAL MODALES --> 
+
+			<!-- ------------------------------------------------------------------------ -->
+
+			<!-- TOASTS -->
+
+			<!-- ******************************************************************* -->
+
+			<!-- TOAST CODIGO PRODUCTO REPETIDO -->
+
+			<b-toast id="toast-codigo-repetido" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">repetido</small>
+		        </div>
+		      </template>
+		      Este producto ya existe en la tabla, favor de elegir otro o modificarlo !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+		    <!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
+
+			<b-toast id="toast-producto-transferencia-modificado" variant="success" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <strong class="mr-auto">Éxito !</strong>
+		          <small class="text-muted mr-2">modificado</small>
+		        </div>
+		      </template>
+		      Este producto ha sido modificado con éxito !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+		    <!-- TOAST CODIGO PRODUCTO REPETIDO -->
+
+			<b-toast id="toast-editar-cero" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">cero</small>
+		        </div>
+		      </template>
+		      La cantidad y el precio no deben ser cero !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+		    <!-- TOAST CODIGO PRODUCTO NO EXISTE -->
+
+			<b-toast id="toast-no-existe" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">Sin existencia</small>
+		        </div>
+		      </template>
+		      No existe ese producto !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+		    <!-- TOAST CODIGO PRODUCTO REPETIDO -->
+
+			<b-toast id="toast-cantidad-superada" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">superada</small>
+		        </div>
+		      </template>
+		      La cantidad ha superado el stock !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+		    <!-- TOAST COMPLETAR CABECERA -->
+
+			<b-toast id="toast-completar-cabecera" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">incompleto</small>
+		        </div>
+		      </template>
+		      Complete todos los datos correctamente !
+		    </b-toast>
+
+		    <!-- ******************************************************************* -->
+
+			<!-- ------------------------------------------------------------------------ -->
+
+			<!-- MENU COTIZACION TRANSFERENCIA -->
+
+			<cotizacionEnviarTransferencia 
+			@mostrar-cotizacion-enviar="funcionMostrarCerrarCotizacion" 
+			ref="cotizacionEnviarTransferencia" 
+			@moneda_enviar="seleccionarMonedaEnviar"
+			v-bind:moneda_codigo="monedaCodigo"
+			></cotizacionEnviarTransferencia>
+
+			<!-- ------------------------------------------------------------------------ -->
+
 		</div>
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+
+	</div>
+
 </template>
 <script>
 	export default {
@@ -657,7 +682,8 @@
             no_registrados: [],
             btnguardar: true,
             switch_un_producto: false,
-            procesar: false
+            procesar: false,
+            cantidad_row: 0
         }
       }, 
       methods: {
@@ -933,8 +959,14 @@
                         me.descripcionProducto = '';
                         me.precioProducto = '';
                         me.stockProducto = '';
-                        em.monedaProducto = '';
+                        me.monedaProducto = '';
                         me.ivaProducto = '';
+
+                        // *******************************************************************
+
+                        // NO EXISTE PRODUCTO 
+
+                        me.$bvToast.show('toast-no-existe');
 
                         // *******************************************************************
 
@@ -1035,9 +1067,15 @@
 
             // ------------------------------------------------------------------------
 
+            // AGREGAR ITEM A FILA 
+
+            me.cantidad_row = me.cantidad_row + 1;
+
+            // ------------------------------------------------------------------------
+
             // CARGAR DATO EN TABLA TRANSFERENCIAS
 
-            me.agregarFilaTabla(me.codigoProducto, me.descripcionProducto, me.cantidadProducto, me.precioProducto, iva, precio, me.ivaProducto, me.stockProducto);
+            me.agregarFilaTabla(me.cantidad_row, me.codigoProducto, me.descripcionProducto, me.cantidadProducto, me.precioProducto, iva, precio, me.ivaProducto, me.stockProducto);
 
             // ------------------------------------------------------------------------
 
@@ -1456,10 +1494,16 @@
 					   stock = parseFloat(x.STOCK) + parseFloat(x.CANTIDAD);
 
         			   // ------------------------------------------------------------------------
-        			   	
+        			   
+        			   // SUMAR LA CANTIDAD DE NUMERACION 
+        			   
+        			   me.cantidad_row = x.ITEM;
+
+        			   // ------------------------------------------------------------------------
+
 					   // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
 
-					   me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, stock);
+					   me.agregarFilaTabla(x.ITEM, x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, stock);
 					  
 					   // ------------------------------------------------------------------------
 
@@ -1482,7 +1526,7 @@
 
         	// ------------------------------------------------------------------------
 
-        }, agregarFilaTabla(codigo, descripcion, cantidad, precio, iva, total, iva_porcentaje, stock){
+        }, agregarFilaTabla(item, codigo, descripcion, cantidad, precio, iva, total, iva_porcentaje, stock){
 
         	// ------------------------------------------------------------------------
 
@@ -1548,10 +1592,16 @@
 
             // ------------------------------------------------------------------------
 
+            // SUMAR LA CANTIDAD DE FILAS 
+
+            
+
+            // ------------------------------------------------------------------------
+
         	// AGREGAR FILAS 
 
         	 tableTransferencia.rows.add( [ {
-		                    "ITEM": '',
+		                    "ITEM": item,
 		                    "CODIGO":   codigo,
 		                    "DESCRIPCION":     descripcion,
 		                    "CANTIDAD": cantidad,
@@ -1568,11 +1618,11 @@
 
             // AGREGAR INDEX A LA TABLA TRANSFERNCIAS
 
-            tableTransferencia.on( 'order.dt search.dt', function () {
-                tableTransferencia.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                    cell.innerHTML = i+1;
-                } );
-            } ).draw();
+            // tableTransferencia.on( 'search.dt', function () {
+            //     tableTransferencia.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            //         cell.innerHTML = i+1;
+            //     } );
+            // } ).draw();
 
             // ------------------------------------------------------------------------
 
@@ -1714,10 +1764,16 @@
 			        		data.datos.map(function(x) {
 
 			        			  // ------------------------------------------------------------------------
-			        			   	
+			        			  
+			        			  // SUMAR LAS CANTIDADES DE FILAS 
+
+			        			  me.cantidad_row = me.cantidad_row + 1;
+
+			        			  // ------------------------------------------------------------------------
+
 								  // EMPEZAR A CARGAR PRODUCTOS EN TRANSFERENCIA 
 
-								  me.agregarFilaTabla(x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, x.STOCK);
+								  me.agregarFilaTabla(me.cantidad_row, x.CODIGO_PROD, x.DESCRIPCION, x.CANTIDAD, x.PRECIO, x.IVA, x.TOTAL, x.IVA_PORCENTAJE, x.STOCK);
 								  
 								  // ------------------------------------------------------------------------
 
@@ -2358,6 +2414,31 @@
 			});  
 
             // ------------------------------------------------------------------------
+
+            // ENFOCAR 
+            // CODIGO PARA CAMBIAR EL FOCUS CON ENTER EN INPUT
+        	
+        	$(document).on('keypress', 'input', function(e) {
+        		
+			  if(e.keyCode == 13 ) {
+			           
+			           me.cb = parseInt($(this).attr('tabindex'));
+			    	   
+			           if ($(':input[tabindex=\'' + (me.cb + 1) + '\']') != null) {
+
+			               $(':input[tabindex=\'' + (me.cb + 1) + '\']').focus();
+			               $(':input[tabindex=\'' + (me.cb + 1) + '\']').select();
+			               e.preventDefault();
+			    
+			               return false;
+			           }
+			  }
+
+			});
+			
+
+			// -------------------------------------------------------------------------------------
+
         }
     }
 </script>

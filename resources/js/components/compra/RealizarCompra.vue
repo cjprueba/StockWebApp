@@ -1,16 +1,18 @@
 <template>
 	<div class="container-fluid mt-4">
 
-		<!-- ------------------------------------------------------------------------------------- -->
-
-		<!-- TITULO  -->
 		
-		<vs-divider>
-			Realizar Compra
-		</vs-divider>
 		
-		<div class="row">
+		<div class="row" v-if="$can('compra.crear')">
 
+			<!-- ------------------------------------------------------------------------------------- -->
+
+			<!-- TITULO  -->
+			
+			<vs-divider>
+				Realizar Compra
+			</vs-divider>
+			
 	        <!-- ------------------------------------------------------------------------------------- -->
 
 	        <!-- UN PRODUCTO -->
@@ -46,7 +48,7 @@
 									<div class="input-group-prepend">
 										<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click=""><font-awesome-icon icon="search"/></button>
 									</div>
-									<input class="form-control form-control-sm" type="text" v-model="codigoCompra" v-on:blur="">
+									<input tabindex="1" class="form-control form-control-sm" type="text" v-model="codigoCompra" v-on:blur="">
 								</div>
 						</div>
 
@@ -58,7 +60,7 @@
 								<div class="input-group-prepend ">
 									    <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="calendar" /></span>
 								</div>
-								<input v-bind:class="{ 'is-invalid': validar.FECHA }" type="text" class="input-sm form-control form-control-sm" id="fecha" v-model="factura.FECHA" data-date-format="yyyy-mm-dd"/>
+								<input tabindex="2" v-bind:class="{ 'is-invalid': validar.FECHA }" type="text" class="input-sm form-control form-control-sm" id="fecha" v-model="factura.FECHA" data-date-format="yyyy-mm-dd"/>
 							</div>
 						</div>
 
@@ -67,7 +69,7 @@
 						<!-- PROVEEDOR  -->
 
 						<div class="col-4">
-							<select-proveedor v-model="proveedor" :validar_proveedor="validar.PROVEEDOR"></select-proveedor>
+							<select-proveedor :tabIndexPadre=3 v-model="proveedor" :validar_proveedor="validar.PROVEEDOR"></select-proveedor>
 						</div>
 
 						<!-- FIN PROVEEDOR -->
@@ -77,7 +79,7 @@
 						<!-- MONEDA -->
 
 						<div class="col-4">
-							<select-moneda v-model="moneda.CODIGO" :deshabilitar="moneda.DESHABILITAR" @descripcion_moneda="descripcionMoneda" @cantidad_decimales="cantidadDecimal"></select-moneda>
+							<select-moneda :tabIndexPadre=4 v-model="moneda.CODIGO" :deshabilitar="moneda.DESHABILITAR" @descripcion_moneda="descripcionMoneda" @cantidad_decimales="cantidadDecimal"></select-moneda>
 						</div>
 
 						<!-- FIN MONEDA -->
@@ -94,7 +96,7 @@
 
 						<div class="col-4">
 							<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
-							<input class="form-control form-control-sm" type="text"  v-model="factura.NRO_CAJA">
+							<input tabindex="5" class="form-control form-control-sm" type="text"  v-model="factura.NRO_CAJA">
 						</div>
 
 						<!-- FIN NRO. CAJA -->
@@ -105,7 +107,7 @@
 
 						<div class="col-4">
 								<label class="mt-1" for="validationTooltip01">Nro. Pedido</label>
-								<input class="form-control form-control-sm" type="text" v-model="factura.NRO_PEDIDO" v-on:blur="">
+								<input tabindex="6" class="form-control form-control-sm" type="text" v-model="factura.NRO_PEDIDO" v-on:blur="">
 						</div>	
 
 						<!-- FIN NRO. PEDIDO -->
@@ -116,7 +118,7 @@
 
 						<div class="col-4">
 						    <label class="mt-1">Tipo Compra</label>
-						    <select class="custom-select custom-select-sm" v-model="tipo_compra" v-on:change="change_tipo" >
+						    <select tabindex="7" class="custom-select custom-select-sm" v-model="tipo_compra" v-on:change="change_tipo" >
 							    <option value="CO">1 - CONTADO</option>
 							    <option value="CR">2 - CREDITO</option>
 							    <option value="CS">3 - CONSIGNACION</option>
@@ -141,7 +143,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.TOTAL_COMPRA }" class="form-control form-control-sm" v-on:blur="formatoTotalFactura" type="text" v-model="factura.TOTAL">
+					    		<input tabindex="8" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.TOTAL_COMPRA }" class="form-control form-control-sm" v-on:blur="formatoTotalFactura" type="text" v-model="factura.TOTAL">
 							</div>
 						</div>
 
@@ -155,7 +157,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.EXENTAS }" class="form-control form-control-sm" type="text" v-on:blur="formatoExentaFactura" v-model="factura.EXENTAS">
+					    		<input tabindex="9" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.EXENTAS }" class="form-control form-control-sm" type="text" v-on:blur="formatoExentaFactura" v-model="factura.EXENTAS">
 							</div>
 						</div>
 
@@ -247,12 +249,12 @@
 				<div class="mt-3">	
 					<div class="row">
 						<div class="col-2">
-							<codigo-producto :validar_codigo_producto="validar.COD_PROD" @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="producto.CODIGO"></codigo-producto >
+							<codigo-producto tabIndexPadre="10" :validar_codigo_producto="validar.COD_PROD" @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="producto.CODIGO"></codigo-producto >
 						</div>	
 
 						<div class="col-1">
 							<label for="validationTooltip01">Cantidad</label>
-							<input class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad"  v-bind:class="{ 'is-invalid': validar.CANTIDAD }" v-on:keyup.prevent.13="" v-model="producto.CANTIDAD">
+							<input tabindex="11" class="form-control form-control-sm" type="text" v-on:keyup="formatoCantidad"  v-bind:class="{ 'is-invalid': validar.CANTIDAD }" v-on:keyup.prevent.13="" v-model="producto.CANTIDAD">
 						</div>
 
 						<div class="col-2">
@@ -261,13 +263,13 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input class="form-control form-control-sm" type="text" v-on:blur="formatoCostoUnitario"  v-bind:class="{ 'is-invalid': validar.COSTO_UNITARIO }" v-on:keyup.prevent.13="" v-model="producto.COSTO">
+					    		<input tabindex="12" class="form-control form-control-sm" type="text" v-on:blur="formatoCostoUnitario"  v-bind:class="{ 'is-invalid': validar.COSTO_UNITARIO }" v-on:keyup.prevent.13="" v-model="producto.COSTO">
 							</div>
 						</div>
 
 						<div class="col-md-1">
 							<label for="validationTooltip01">%</label>
-							<input class="form-control form-control-sm" type="text" v-on:blur="formatoPorcentaje"  v-on:keyup.prevent.13="" v-model="producto.PORCENTAJE">
+							<input tabindex="13" class="form-control form-control-sm" type="text" v-on:blur="formatoPorcentaje"  v-on:keyup.prevent.13="" v-model="producto.PORCENTAJE">
 						</div>
 
 						<div class="col-md-2">
@@ -286,7 +288,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio" v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
+					    		<input tabindex="14" class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio" v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
 							</div>
 						</div>
 
@@ -296,7 +298,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input class="form-control form-control-sm" type="text" v-on:blur="agregarProducto(), formatoPreMayorista" v-model="producto.PREMAYORISTA">
+					    		<input tabindex="15" class="form-control form-control-sm" type="text" v-on:blur="agregarProducto(), formatoPreMayorista" v-model="producto.PREMAYORISTA" v-on:keyup.prevent.13="agregarProducto(), formatoPreMayorista">
 							</div>
 						</div>
 					</div>
@@ -400,6 +402,15 @@
 		    <!-- ------------------------------------------------------------------------ -->
 
 		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
     </div>   	
 </template>
 <script>
@@ -499,6 +510,9 @@
         		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
 
         		Common.obtenerCabeceraCompraCommon(codigo).then(data => {
+
+        			// ------------------------------------------------------------------------
+
         			me.factura.FECHA = data.FEC_FACTURA;
         			me.proveedor = data.PROVEEDOR.toString();
         			me.moneda.CODIGO = data.MONEDA.toString();
@@ -506,7 +520,19 @@
         			me.tipo_compra = data.TIPO;
         			me.factura.TOTAL = data.TOTAL;
         			me.factura.EXENTAS = data.EXENTAS;
-        			me.cuotas = data.PLAN_PAGO;
+        			me.cuotas = data.CUOTAS;
+        			me.credito.CANTIDAD = data.PLAN_PAGO;
+        			me.credito.OPCIONES = data.DEUDA_TIPO;
+
+        			// ------------------------------------------------------------------------
+
+        			// MOSTRAR OPCIONES DE CREDITO Y GENERAR FECHA
+
+        			me.change_tipo();
+        			me.formatoDias();
+
+        			// ------------------------------------------------------------------------
+
         		});
 
         		// ------------------------------------------------------------------------
@@ -1223,16 +1249,16 @@
         	var tableCompra = $('#tablaCompra').DataTable();
 
         	// ------------------------------------------------------------------------
-
+        	
         	// ESPERAR VALOR 
 
         	// var credito = await me.creditoFunction();
 
         	// ------------------------------------------------------------------------
 
-        	if (credito === false) {
-        		return;
-        	}
+        	// if (credito === false) {
+        	// 	return;
+        	// }
 
         	// ------------------------------------------------------------------------
 
@@ -1833,7 +1859,56 @@
                 });
 
                 // ------------------------------------------------------------------------
-	 			
+
+                // ENFOCAR 
+
+                // CODIGO PARA CAMBIAR EL FOCUS CON ENTER EN INPUT
+        	
+	        	$(document).on('keypress', 'input', function(e) {
+	        		
+				  if(e.keyCode == 13 ) {
+				           
+				           me.cb = parseInt($(this).attr('tabindex'));
+				    	   
+				           if ($(':input[tabindex=\'' + (me.cb + 1) + '\']') != null) {
+
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').focus();
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').select();
+				               e.preventDefault();
+				    
+				               return false;
+				           }
+				  }
+
+				});
+
+				// -------------------------------------------------------------------------------------
+
+				// CODIGO PARA CAMBIAR EL FOCUS CON ENTER EN SELECT
+	        	
+	        	$(document).on('keypress', 'select', function(e) {
+	        		
+	        	  
+
+				  if(e.keyCode == 13 ) {
+				           me.cb = parseInt($(this).attr('tabindex'));
+
+				           if ($(':input[tabindex=\'' + (me.cb + 1) + '\']') != null) {
+				           	   
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').focus();
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').select();
+				               e.preventDefault();
+				               return false;
+				               
+				           }
+
+
+				  }
+
+				});
+
+
+	 			// ------------------------------------------------------------------------
         }
     }
 </script>

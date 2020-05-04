@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row">
+		<div class="row" v-if="$can('transferencia.mostrar')">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -50,6 +50,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+		
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
 		<modal-detalle-transferencia 

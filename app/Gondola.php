@@ -17,12 +17,17 @@ class Gondola extends Model
     {
 
         /*  --------------------------------------------------------------------------------- */
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
 
         // OBTENER TODAS LAS GONDOLAS
 
         $gondolas = DB::connection('retail')
         ->table('GONDOLAS')
-        ->select(DB::raw('CODIGO, DESCRIPCION'))
+        ->select(DB::raw('ID, CODIGO, DESCRIPCION'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -41,7 +46,8 @@ class Gondola extends Model
         public static function filtrar_gondola($datos)
     {
         /*  --------------------------------------------------------------------------------- */
-       $user = auth()->user();
+        
+        $user = auth()->user();
         // OBTENER TODOS LOS DATOS DEL TALLE
         $gondolas = Gondola::select(DB::raw('CODIGO, DESCRIPCION'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('CODIGO','=',$datos['id'])->get()->toArray();
         if(count($gondolas)<=0){
@@ -231,7 +237,7 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         $hora = date("H:i:s");
         $codigo_gondola=$datos['data']['Codigo'];
         $limite_menor=$user->id_sucursal*1000;
-        $limite_mayor=$limite_menor+999;
+        $limite_mayor=$limite_menor+99999;
         if($codigo_gondola<$limite_menor || $codigo_gondola>$limite_mayor){
              return ["response"=>false,'statusText'=>'Esta Codigo de gondola no puede ser registrada (PRESIONE F2 o el boton NUEVO para crear un codigo)!!'];
             //var_dump($datos['data']['Marcados']);

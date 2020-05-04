@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row">
+		<div class="row" v-if="$can('proveedor.mostrar.devolucion')">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -37,6 +37,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+		
+		<!-- ------------------------------------------------------------------------ -->
+		
 		<modal-detalle-proveedor-devolucion ref="ModalMostrarDetalleDevolucion"></modal-detalle-proveedor-devolucion>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -57,7 +63,7 @@
       			// ------------------------------------------------------------------------
 
       			// LLAMAR EL METODO DEL COMPONENTE HIJO
-
+      			
       			this.$refs.ModalMostrarDetalleDevolucion.mostrarModal(codigo);
 
       			// ------------------------------------------------------------------------
@@ -220,7 +226,7 @@
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 
 	                   	 var row  = $(this).parents('tr')[0];
-	                   	 me.mostrarModalTranferencia(tableDevolucion.row( row ).data().CODIGO);
+	                   	 me.mostrarModalDetalle(tableDevolucion.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 

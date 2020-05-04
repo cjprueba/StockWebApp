@@ -50,5 +50,68 @@ class VentaController extends Controller
         $ventas = Venta::periodos_superados($request);
         return response()->json($ventas);
     }
-   
+
+    public function guardar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR DATATABLE
+
+        $venta = Venta::guardar($request->all());
+        return response()->json($venta);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function numeracion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR DATATABLE
+
+        $venta = Venta::numeracion($request->all());
+        return response()->json($venta);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function inicio(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR DATATABLE
+
+        $venta = Venta::inicio($request->all());
+        return response()->json($venta);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function factura(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return Venta::factura_pdf($request->all());
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function ticket(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return Venta::ticket_pdf($request->all());
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

@@ -1162,6 +1162,7 @@ class Proveedor extends Model
         // INICIAR VARIABLES
 
         $codigo = $request->input('codigo');
+        $c = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1213,8 +1214,10 @@ class Proveedor extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = DevolucionProvDet::select(DB::raw('DEVOLUCION_PROV_DET.COD_PROD, PROVEEDORES.NOMBRE, DEVOLUCION_PROV.OBSERVACION, DEVOLUCION_PROV.TOTAL, DEVOLUCION_PROV.FECALTAS'))
+            $posts = DevolucionProvDet::select(DB::raw('0 AS ITEM, DEVOLUCION_PROV_DET.COD_PROD, PRODUCTOS.DESCRIPCION, DEVOLUCION_PROV_DET.CANTIDAD, DEVOLUCION_PROV_DET.COSTO, DEVOLUCION_PROV_DET.COSTO_TOTAL, LOTES.LOTE'))
                 ->leftjoin('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+                ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'DEVOLUCION_PROV_DET.COD_PROD')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'DEVOLUCION_PROV_DET.FK_ID_LOTE')
                     ->where([
                         'DEVOLUCION_PROV.ID_SUCURSAL' => $user->id_sucursal,
                         'DEVOLUCION_PROV.CODIGO' => $codigo
@@ -1238,28 +1241,17 @@ class Proveedor extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Compra::select(DB::raw('COMPRASDET.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, COMPRAS.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
-                    ->leftJoin('COMPRASDET', function($join){
-                        $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
-                             ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
-                    })
-                    ->leftJoin('LOTES', function($join){
-                        $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
-                             ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
-                             ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
-                    })
-                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'COMPRAS.MONEDA')
-                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')
+            $posts = DevolucionProvDet::select(DB::raw('0 AS ITEM, DEVOLUCION_PROV_DET.COD_PROD, PRODUCTOS.DESCRIPCION, DEVOLUCION_PROV_DET.CANTIDAD, DEVOLUCION_PROV_DET.COSTO, DEVOLUCION_PROV_DET.COSTO_TOTAL, LOTES.LOTE'))
+                ->leftjoin('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+                ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'DEVOLUCION_PROV_DET.COD_PROD')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'DEVOLUCION_PROV_DET.FK_ID_LOTE')
                     ->where([
-                        'COMPRAS.PROVEEDOR' => $proveedor,
-                        'COMPRASDET.COD_PROD' => $codigo,
-                        'COMPRAS.MONEDA' => $moneda,
-                        'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
+                        'DEVOLUCION_PROV.ID_SUCURSAL' => $user->id_sucursal,
+                        'DEVOLUCION_PROV.CODIGO' => $codigo
                     ])
-                    ->where('LOTES.CANTIDAD', '>', 0)
                             ->where(function ($query) use ($search) {
-                                $query->where('LOTES.LOTE','LIKE',"{$search}%")
-                                      ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                                $query->where('DEVOLUCION_PROV_DET.COD_PROD','LIKE',"{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"{$search}%");
                             })
                     ->offset($start)
                     ->limit($limit)
@@ -1270,25 +1262,16 @@ class Proveedor extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = Compra::leftJoin('COMPRASDET', function($join){
-                                $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
-                                     ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
-                            })
-                            ->leftJoin('LOTES', function($join){
-                                $join->on('LOTES.COD_PROD', '=', 'COMPRASDET.COD_PROD')
-                                     ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
-                                     ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
-                            })
-                            ->where([
-                                'COMPRAS.PROVEEDOR' => $proveedor,
-                                'COMPRASDET.COD_PROD' => $codigo,
-                                'COMPRAS.MONEDA' => $moneda,
-                                'COMPRAS.ID_SUCURSAL' => $user->id_sucursal,
-                            ])
-                            ->where('LOTES.CANTIDAD', '>', 0)
+            $totalFiltered = DevolucionProvDet::leftjoin('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+                ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'DEVOLUCION_PROV_DET.COD_PROD')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'DEVOLUCION_PROV_DET.FK_ID_LOTE')
+                    ->where([
+                        'DEVOLUCION_PROV.ID_SUCURSAL' => $user->id_sucursal,
+                        'DEVOLUCION_PROV.CODIGO' => $codigo
+                    ])
                             ->where(function ($query) use ($search) {
-                                    $query->where('LOTES.LOTE','LIKE',"{$search}%")
-                                    ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                                $query->where('DEVOLUCION_PROV_DET.COD_PROD','LIKE',"{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"{$search}%");
                             })
                             ->count();
 
@@ -1311,22 +1294,14 @@ class Proveedor extends Model
 
                 // CARGAR EN LA VARIABLE 
 
+                $c = $c + 1;
+                $nestedData['ITEM'] = $c;
                 $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
                 $nestedData['COSTO'] = Common::formato_precio($post->COSTO, $post->CANDEC);
-                $nestedData['INICIAL'] = $post->CANTIDAD_INICIAL;
-                $nestedData['STOCK'] = $post->CANTIDAD;
-
-                if ($post->VENCIMIENTO === 1) {
-                    $nestedData['VENCIMIENTO'] = $post->FECHA_VENC;
-                } else {
-                    $nestedData['VENCIMIENTO'] = 'N/A';
-                }
-                
+                $nestedData['COSTO_TOTAL'] = Common::formato_precio($post->COSTO_TOTAL, $post->CANDEC);
                 $nestedData['LOTE'] = $post->LOTE;
-                $nestedData['MONEDA'] = $post->MONEDA;
-                $nestedData['DECIMAL'] = $post->CANDEC;
-                $nestedData['LOTE_ID'] = $post->LOTE_ID;
 
                 $data[] = $nestedData;
 

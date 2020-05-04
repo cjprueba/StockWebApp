@@ -1,21 +1,34 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="mb-3">
-			<label for="validationTooltip01">Seleccione Reporte Ventas</label>
-			<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
-				<option selected>Seleccionar</option>
-				<option value="1">Reporte de Proveedores </option>
 
-			</select>			
+    <div v-if="$can('reporte.inventarios')">
+
+  		<div class="mb-3">
+  			<label for="validationTooltip01">Seleccione Reporte Ventas</label>
+  			<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
+  				<option selected>Seleccionar</option>
+  				<option value="1">Reporte de Proveedores </option>
+
+  			</select>			
+  		</div>
+
+  		<!-- VENTA POR MARCA -->
+
+  		<!-- FIN DE VENTA POR MARCA -->
+    	<transition name="slide-fade">	
+    		<articulo-marca v-if="reporte === '1'" id="reporte2"></articulo-marca>
+    	</transition>
+
 		</div>
 
-		<!-- VENTA POR MARCA -->
+    <!-- ------------------------------------------------------------------------ -->
 
-		<!-- FIN DE VENTA POR MARCA -->
-	<transition name="slide-fade">	
-		<articulo-marca v-if="reporte === '1'" id="reporte2"></articulo-marca>
-	</transition>
-		
+    <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
+
+    <!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 

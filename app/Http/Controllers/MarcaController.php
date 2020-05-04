@@ -94,4 +94,19 @@ class MarcaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function marcaCategoriaSeleccion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DE LA MARCA
+
+        $marcas = Marca::marca_categoria_seleccion($request->all());
+        return response()->json($marcas);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 }

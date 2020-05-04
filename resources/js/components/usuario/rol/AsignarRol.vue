@@ -2,48 +2,57 @@
 <template>
   
 <div class="container">
-  <!-- ------------------------------------------------------------------ -->
 
-  <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-      
-  <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+  <div v-if="$can('user.rol.user')"> 
 
-  <!-- ------------------------------------------------------------------------------------- -->
-  <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Asignar Rol</h5>
-      <div class="card-body">
-         
-        <div class="row">
-          
-            <div class="col-12">
-               <usuario-nombre @nombre_usuario='enviar_nombre' :nombre='nombreUsuario' @id='enviar_id' @roles='traer_roles'></usuario-nombre>
-            </div>
-               
-               
+    <!-- ------------------------------------------------------------------ -->
+
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
+        
+    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+
+    <!-- ------------------------------------------------------------------------------------- -->
+    <div class="card mt-3 shadow-sm">
+        <h5 class="card-header">Asignar Rol</h5>
+        <div class="card-body">
+           
+          <div class="row">
+            
+              <div class="col-12">
+                 <usuario-nombre @nombre_usuario='enviar_nombre' :nombre='nombreUsuario' @id='enviar_id' @roles='traer_roles'></usuario-nombre>
+              </div>
+                 
+                 
+
+                   
+             
 
                  
-           
+                    <div class="col-12">
+                       <hr>
 
-               
-                  <div class="col-12">
-                     <hr>
+                     <h5>Lista de Roles</h5>
+                        
+                   <div v-if="mostrarRol" v-for="permiso in permisos" class="form-check " >
+                         <input v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }" class="form-check-input" type="checkbox" :value="permiso.id" :id="permiso.id" >
+                         <label class="form-check-label" :for="permiso.id">{{permiso.name}}</label>
+                   </div>
+                    </div>
 
-                   <h5>Lista de Roles</h5>
-                      
-                 <div v-if="mostrarRol" v-for="permiso in permisos" class="form-check " >
-                       <input v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }" class="form-check-input" type="checkbox" :value="permiso.id" :id="permiso.id" >
-                       <label class="form-check-label" :for="permiso.id">{{permiso.name}}</label>
-                 </div>
-                  </div>
+                    <div class="col-12 mt-3 text-right">
+                       <button v-on:click="asignarRol" class="btn btn-primary">Guardar</button>
+                    </div>
+                
 
-                  <div class="col-12 mt-3 text-right">
-                     <button v-on:click="asignarRol" class="btn btn-primary">Guardar</button>
-                  </div>
-              
-
-             </div>
+               </div>
+      </div>
     </div>
   </div>
+  
+  <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
 </div>
 
 </template>

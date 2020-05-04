@@ -48,6 +48,27 @@ Vue.use(BootstrapVue)
 
 /* ********************************************* */
 
+// QUAGGA
+
+import adapter from 'webrtc-adapter';
+window.Quagga = require('quagga');
+
+/* ********************************************* */
+
+// import * as qz from 'qz-tray';
+// Vue.use(qz)
+
+window.shajs = require('sha.js');
+window.qz = require('qz-tray');
+window.RSVP = require('rsvp');
+window.sha256 = require('js-sha256');
+
+qz.api.setSha256Type(function (data) {
+    return shajs('sha256').update(data).digest('hex')
+});
+
+/* ********************************************* */
+
 // VUE SELECT 
 
 import Vue from 'vue'
@@ -136,10 +157,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera )
 
 
 /* ********************************************* */
@@ -233,6 +254,7 @@ Vue.component('table-categorias', require('./components/tables/tableCategoria.vu
 Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
 Vue.component('caja-lote', require('./components/cajas/LoteCaja.vue').default);
 Vue.component('caja-periodo', require('./components/cajas/PeriodoCaja.vue').default);
+Vue.component('caja-minimo', require('./components/cajas/MinimoCaja.vue').default);
 
 /* ********************************************* */
 
@@ -250,6 +272,7 @@ Vue.component('codigo-producto', require('./components/textboxs/CodigoProducto.v
 Vue.component('usuario-nombre', require('./components/textboxs/UsuarioTextbox.vue').default);
 Vue.component('selected-categoria', require('./components/textboxs/CategoriaTextbox.vue').default);
 Vue.component('selected-sub-categoria', require('./components/textboxs/SubCategoriaTextbox.vue').default);
+Vue.component('selected-sub-categoria-detalle', require('./components/textboxs/SubCategoriaDetalleTextbox.vue').default);
 Vue.component('precio-textbox', require('./components/textboxs/PrecioTextbox.vue').default);
 Vue.component('select-color', require('./components/textboxs/ColorCategoria.vue').default);
 Vue.component('talle-nombre', require('./components/textboxs/Atributos/TalleTextbox.vue').default);
@@ -259,8 +282,16 @@ Vue.component('tela-nombre', require('./components/textboxs/Atributos/TelaTextbo
 Vue.component('gondola-nombre', require('./components/textboxs/Gondolas/GondolasTextbox.vue').default);
 Vue.component('categoria-nombre', require('./components/textboxs/Atributos/CategoriaTextbox.vue').default);
 Vue.component('subcategoria-nombre', require('./components/textboxs/Atributos/SubCategoriaTextbox.vue').default);
+Vue.component('nombre-textbox', require('./components/textboxs/Atributos/NombreTextbox.vue').default);
 Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoTextbox.vue').default);
 Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vue').default);
+Vue.component('search-marca', require('./components/textboxs/MarcaSearch.vue').default);
+
+/* ********************************************* */
+
+// CAMARA
+
+Vue.component('camara-bardcode', require('./components/camara/camara-barcode.vue').default);
 
 /* ********************************************* */
 
@@ -362,6 +393,18 @@ Vue.component('pie-pagina', require('./components/utiles/Footer.vue').default);
 
 Vue.component('compras-marca', require('./components/compra/busqueda/CompraGeneral.vue').default);
 Vue.component('modal-detalle-compra', require('./components/compra/modal/ModalDetalleCompra.vue').default);
+
+/* ********************************************* */
+
+// CLIENTES
+
+Vue.component('busqueda-cliente-modal', require('./components/cliente/BusquedaCliente.vue').default);
+
+/* ********************************************* */
+
+// VENDEDORES
+
+Vue.component('busqueda-vendedor-modal', require('./components/vendedor/BusquedaVendedor.vue').default);
 
 /* ********************************************* */
 

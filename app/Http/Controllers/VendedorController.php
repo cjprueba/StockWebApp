@@ -36,4 +36,18 @@ class VendedorController extends Controller
         //return response()->json([$request->all()]);
     }
 
+    public function datatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Colores
+
+        $color = Vendedores::vendedor_datatable($request);
+        return response()->json($color);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

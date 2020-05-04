@@ -1,24 +1,35 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="mb-3">
-			<label for="validationTooltip01">Seleccione Reporte Ventas</label>
-			<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
-				<option selected>Seleccionar</option>
-				<option value="1">Ventas por vendedores </option>
-				<option value="2">Devolucion por vendedores </option>
 
-			</select>			
+    <div v-if="$can('reporte.vendedor')">
+    		<div class="mb-3">
+    			<label for="validationTooltip01">Seleccione Reporte Ventas</label>
+    			<select class="custom-select custom-select-sm" v-on:change="cambioReporte">
+    				<option selected>Seleccionar</option>
+    				<option value="1">Ventas por vendedores </option>
+    				<option value="2">Devolucion por vendedores </option>
+
+    			</select>			
+    		</div>
+
+    		<!-- VENTA POR MARCA -->
+    	<transition name="fade">	
+    		<devolucion-vendedor v-if="reporte === '2'" id="reporte2"></devolucion-vendedor>
+    	</transition>
+    		<!-- FIN DE VENTA POR MARCA -->
+    	<transition name="slide-fade">	
+    		<vendedor-general v-if="reporte === '1'" id="reporte2"></vendedor-general>
+    	</transition>
 		</div>
 
-		<!-- VENTA POR MARCA -->
-	<transition name="fade">	
-		<devolucion-vendedor v-if="reporte === '2'" id="reporte2"></devolucion-vendedor>
-	</transition>
-		<!-- FIN DE VENTA POR MARCA -->
-	<transition name="slide-fade">	
-		<vendedor-general v-if="reporte === '1'" id="reporte2"></vendedor-general>
-	</transition>
-		
+    <!-- ------------------------------------------------------------------------ -->
+
+    <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
+
+    <!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 

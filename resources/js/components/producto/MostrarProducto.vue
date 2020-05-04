@@ -1,6 +1,23 @@
 <template>
 	<div class="container-fluid">
-		<div class="mt-3">
+		
+    <div class="row">
+
+      <div class="col-md-12 text-right">
+
+      <!-- ------------------------------------------------------------------------ -->
+
+      <!-- BOTON CAMARA -->
+
+      <camara-bardcode @codigo_camara="codigo_camara"></camara-bardcode>
+      
+      <!-- ------------------------------------------------------------------------ -->
+
+      </div>
+    
+    </div>
+    
+    <div class="mt-3" v-if="$can('producto.mostrar')">
 			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		        <thead>
 		            <tr>
@@ -18,12 +35,20 @@
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
-		
+
+		<div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
+
+    <!-- ------------------------------------------------------------------------ -->
+
 		<!-- MODAL DETALLE PRODUCTO -->
 
 		<producto-detalle ref="detalle_producto" :codigo="codigo"></producto-detalle>
 
 		<!-- ------------------------------------------------------------------------ -->
+
+    
 
 	</div>
 </template>
@@ -36,17 +61,30 @@
         }
       }, 
       methods: {
+        codigo_camara(codigo){
+
+          // ------------------------------------------------------------------------
+
+          // CODIGO DE CAMARA RECIBIDO DEL COMPONENTE
+
+          this.codigo = codigo;
+          this.$refs.detalle_producto.mostrar();
+
+          // ------------------------------------------------------------------------
+
+        }
       },
         mounted() {
         	
+          
         	// ------------------------------------------------------------------------
 
         	// INICIAR VARIABLES 
 
         	let me = this;
 
-        	// ------------------------------------------------------------------------
-        	
+          // ------------------------------------------------------------------------
+          
         	$(document).ready( function () {
 
         	 	// ------------------------------------------------------------------------
@@ -126,6 +164,14 @@
 
                 // ------------------------------------------------------------------------
 
+                // EDITAR PRODUCTO 
+
+                $('#tablaModalProductos').on('click', 'tbody tr #editarProducto', function() {
+                  me.$router.push('/pr2/'+ tableProductos.row($(this).parents('tr')).data().CODIGO + '');
+                });
+
+                // ------------------------------------------------------------------------
+
                 // MOSTRAR MODAL PRODUCTO
 
                 $('#tablaModalProductos').on('click', 'tbody tr #eliminarProducto', function() {
@@ -192,4 +238,3 @@
         }
     }
 </script>
-

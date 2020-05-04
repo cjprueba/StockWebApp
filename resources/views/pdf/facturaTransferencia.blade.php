@@ -4,7 +4,7 @@
     <title>BOLETA DE VENTA</title>
     <style type="text/css">
     body{
-        font-size: 16px;
+        font-size: 12px;
         font-family: "Arial";
     }
     table{
@@ -12,7 +12,7 @@
     }
     td{
         padding: 2.8px 5px;
-        font-size: 12px;
+        font-size: 8px;
     }
     .h1{
         font-size: 21px;
@@ -26,12 +26,13 @@
         margin-bottom: 3px;
     }
     .tabla2 {
-        padding-top: 100px;
+        padding-top: 80px;
         margin-bottom: 0px;
         padding-bottom: 0px;
     }
     .tabla3{
-        margin-top: 70px;
+        border: 1px solid #000;
+        margin-top: 55px;
     }
     .tabla3 td{
         border: 1px solid #fff;
@@ -158,19 +159,21 @@
             <tr>
                 <td width="11%" align="center"><span class="text">{{ $articulos[$i]['cod_prod']}}</span></td>
                 <td width="6%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="41%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
-                <td width="11%" align="center"><span class="text">{{ $articulos[$i]['exentas'] }}</span></td>
+                <td width="31%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td width="10%" align="left"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
+                <td width="10%" align="center"><span class="text">{{ $articulos[$i]['exentas'] }}</span></td>
                 <td width="11%" align="center"><span class="text">{{ $articulos[$i]['base5'] }}</span></td>
-                <td width="20%" align="left"><span class="text">{{ $articulos[$i]['base10'] }}</span></td>
+                <td width="21%" align="left"><span class="text">{{ $articulos[$i]['base10'] }}</span></td>
             </tr>
             @else
             <tr>
                 <td width="11%">&nbsp;</td>
                 <td width="6%">&nbsp;</td>
-                <td width="41%">&nbsp;</td>
-                <td width="11%">&nbsp;</td>
+                <td width="31%">&nbsp;</td>
+                <td width="10%">&nbsp;</td>
+                <td width="10%">&nbsp;</td>
                 <td width="11%" align="left">&nbsp;</td>
-                <td width="20%" align="left">&nbsp;</td>
+                <td width="21%" align="left">&nbsp;</td>
             </tr>
             @endif
             @endfor

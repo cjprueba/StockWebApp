@@ -12,6 +12,7 @@ use App\Parametro;
 use App\Sucursal;
 use App\TransferenciaDet_tiene_Lotes;
 use NumeroALetras\NumeroALetras;
+use App\TransferenciaUser;
 
 class Transferencia extends Model
 {
@@ -471,6 +472,7 @@ class Transferencia extends Model
 
         // INICIAR VARIABLES 
         
+        $diaHora = date("Y-m-d H:i:s");
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
 
@@ -488,6 +490,7 @@ class Transferencia extends Model
         $total = 0;
         $sin_stock = [];
         $porcentaje = 0;
+        $transferencia = 0;
 
         $respuesta_FK_CD = [];
         $cantidad_FK_CD = 1;
@@ -528,9 +531,9 @@ class Transferencia extends Model
 
         if ($opcion === 1) {
 
-            $transferencias_det = DB::connection('retail')
+            $transferencia = DB::connection('retail')
             ->table('transferencias')
-            ->insert(
+            ->insertGetId(
                 [
                 'CODIGO' => $codigo, 
                 'SUCURSAL_ORIGEN' => $datos["cabecera"]["origen"],
@@ -742,6 +745,12 @@ class Transferencia extends Model
 
             /*  --------------------------------------------------------------------------------- */ 
 
+            // INSERTAR USER REFERENCIA
+
+            TransferenciaUser::guardar_referencia($user->id, 1, $transferencia, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+
             // MODIFICAR TRANSFERENCIA RECIEN GUARDADA 
 
             $transferencia = DB::connection('retail')
@@ -756,9 +765,24 @@ class Transferencia extends Model
             
             /*  --------------------------------------------------------------------------------- */ 
 
+            
+
         } else if ($opcion === 2) {
 
-            /*  --------------------------------------------------------------------------------- */ 
+            /*  --------------------------------------------------------------------------------- */
+
+            $transferencia = Transferencia::select(DB::raw('ID'))
+            ->where('CODIGO','=', $codigo)
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR USER REFERENCIA
+
+            TransferenciaUser::guardar_referencia($user->id, 2, $transferencia[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
 
             // MODIDIFICAR TRANSFERENCIA 
 
@@ -1078,7 +1102,8 @@ class Transferencia extends Model
 
         $codigo = $codigo["data"];
         $estatus = '';
-
+        $diaHora = date("Y-m-d H:i:s");
+        
         /*  --------------------------------------------------------------------------------- */
 
         // VERIFICAR SI EXISTE
@@ -1160,6 +1185,21 @@ class Transferencia extends Model
         // ELIMINAR TODA TRANSFERENIA
 
         if ($opcion === 1) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $transferencia = Transferencia::select(DB::raw('ID'))
+            ->where('CODIGO','=', $codigo)
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR USER REFERENCIA
+
+            TransferenciaUser::guardar_referencia($user->id, 3, $transferencia[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
 
            $transferencias = DB::connection('retail')
            ->table('transferencias')
@@ -1904,6 +1944,7 @@ class Transferencia extends Model
                     ))
         ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
         ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
+        ->groupBy('TRANSFERENCIAS_DET.ID')
         ->get();
         
         /*  --------------------------------------------------------------------------------- */
@@ -2423,6 +2464,7 @@ class Transferencia extends Model
 
     public static function factura_pdf($dato)
     {
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -2535,7 +2577,7 @@ class Transferencia extends Model
                 ],
             ],
             'default_font' => 'arial',
-            "format" => [240,180],
+            "format" => [240,140],
         ]);
 
         $mpdf->SetDisplayMode('fullpage');
@@ -2556,7 +2598,7 @@ class Transferencia extends Model
 
                 // PRECIO 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -2571,7 +2613,7 @@ class Transferencia extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
@@ -2599,7 +2641,7 @@ class Transferencia extends Model
 
             $articulos[$c_rows]["cantidad"] = $value->CANTIDAD;
             $articulos[$c_rows]["cod_prod"] = $value->CODIGO_PROD;
-            $articulos[$c_rows]["descripcion"] = substr($value->DESCRIPCION, 0,32);
+            $articulos[$c_rows]["descripcion"] = substr($value->DESCRIPCION, 0,30);
             $cantidad = $cantidad + $value->CANTIDAD;
 
             /*  --------------------------------------------------------------------------------- */

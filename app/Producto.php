@@ -8,6 +8,7 @@ use App\Common;
 use App\Parametro;
 use App\ProductosAux;
 use App\Imagen;
+use App\ImagenesWeb;
 use App\Moneda;
 use App\Compra;
 use App\Transferencia;
@@ -78,7 +79,8 @@ class Producto extends Model
                                 'monedaSistema' => $data['data']['monedaSistema'],
                                 'precio' => $value->PREC_VENTA,
                                 'tab_unica' => $data['data']['tab_unica'],
-                                'decSistema' => $data['data']['candec']]);
+                                'decSistema' => $data['data']['candec'],
+                                "id_sucursal" => $user->id_sucursal]);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -362,15 +364,15 @@ class Producto extends Model
         $producto = Producto::select(DB::raw('MAX(PRODUCTOS.CODIGO_INTERNO) AS CODIGO_INTERNO'))
         ->where('PRODUCTOS.CODIGO_INTERNO', 'LIKE', ''.$user->id_sucursal.''.$parametro->SEPARADOR.'%')
         ->where('PRODUCTOS.GENERADO', '=', 1)
-        ->whereRaw('CHAR_LENGTH(PRODUCTOS.GENERADO) = 7')
+        ->whereRaw('CHAR_LENGTH(PRODUCTOS.CODIGO_INTERNO) = 7')
         ->get();
-
+		
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI ES NULO EL CODIGO 
 
         if ($producto[0]->CODIGO_INTERNO === null) {
-
+			
             /*  --------------------------------------------------------------------------------- */
 
             // CARGAR CODIGO INTERNO 
@@ -426,9 +428,10 @@ class Producto extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // OBTENER NUMERACION 
-
-            $numeracion = (int)substr($producto[0]->CODIGO_INTERNO, -2, 5);
-
+			//var_dump("entre");
+			//var_dump($producto[0]->CODIGO_INTERNO);
+            $numeracion = (int)substr($producto[0]->CODIGO_INTERNO, -5, 10);
+			//var_dump($numeracion);
             /*  --------------------------------------------------------------------------------- */
 
             if($numeracion < 99999) {
@@ -741,6 +744,7 @@ class Producto extends Model
             'DESCRIPCION' => $datos["descripcion"],
             'LINEA' => $datos["categoria"],
             'SUBLINEA' => $datos["subCategoria"],
+            'SUBLINEADET' => $datos["subCategoriaDet"],
             'COLOR' => $datos["color"],
             'TELA' => $datos["tela"],
             'TALLE' => $datos["talle"],
@@ -750,6 +754,7 @@ class Producto extends Model
             'PRESENTACION' => $datos["presentacion"],
             'IMPUESTO' => $datos["iva"],
             'DESCUENTO' => $datos["descuentoMaximo"],
+            'PORCENTAJE' => 0,
             'MONEDA' => $datos["moneda"],
             'PREC_VENTA' => $datos["precioVenta"],
             'PREMAYORISTA' => $datos["precioMayorista"],
@@ -817,15 +822,16 @@ class Producto extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO INTERNO 
-
+		
         if (Producto::existeProductoCodigoInterno($datos["codigo_interno"]) === true) {
-
+			
             /*  --------------------------------------------------------------------------------- */
 
             // GENERAR NUEVAMENTE CODIGO INTERNO 
 
             $codigo_interno = Producto::generar_ci();
-
+			$datos["codigo_interno"] = $codigo_interno["codigo_interno"];
+			
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR DE VUELTA SI EXISTO CODIGO INTERNO 
@@ -872,6 +878,7 @@ class Producto extends Model
             'DESCRIPCION' => $datos["descripcion"],
             'LINEA' => $datos["categoria"],
             'SUBLINEA' => $datos["subCategoria"],
+            'SUBLINEADET' => $datos["subCategoriaDet"],
             'COLOR' => $datos["color"],
             'TELA' => $datos["tela"],
             'TALLE' => $datos["talle"],
@@ -969,6 +976,7 @@ class Producto extends Model
                           PRODUCTOS.IMPUESTO AS IVA, 
                           PRODUCTOS.LINEA,
                           PRODUCTOS.SUBLINEA,
+                          PRODUCTOS.SUBLINEADET,
                           PRODUCTOS_AUX.PROVEEDOR,
                           PRODUCTOS.COLOR,
                           PRODUCTOS.TELA,
@@ -982,13 +990,13 @@ class Producto extends Model
                           PRODUCTOS_AUX.PREVIP,
                           PRODUCTOS_AUX.PRECOSTO,
                           PRODUCTOS_AUX.STOCK_MIN,
-                          PRODUCTOS_AUX.FK_GONDOLA,
                           PRODUCTOS_AUX.OBSERVACION,
                           PRODUCTOS_AUX.MONEDA,
                           0 AS GONDOLAS,
                           0 AS AUTODESCRIPCION,
                           PRODUCTOS.PERIODO, 
-                          PRODUCTOS.TEMPORADA'))
+                          PRODUCTOS.TEMPORADA,
+                          PRODUCTOS.VENCIMIENTO'))
         ->where($filtro, '=', $codigo)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
@@ -1269,6 +1277,7 @@ class Producto extends Model
                 PRODUCTOS_AUX.FECHULT_C,
                 PRODUCTOS_AUX.FECHULT_V,
                 PRODUCTOS_AUX.STOCK_MIN,
+                PRODUCTOS_AUX.BAJA,
                 PRODUCTOS.TEMPORADA,
                 PRODUCTOS.PERIODO'),
         DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
@@ -1299,6 +1308,16 @@ class Producto extends Model
             ->get();
 
             $dato["MONEDA"] = $moneda[0]["DESCRIPCION_LARGA"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // BAJA
+
+            if ($value->BAJA === 'NO') {
+                $dato["BAJA"] = '<span class="badge badge-success">Activo</span>';
+            } else if ($value->BAJA === 'SI') {
+                $dato["BAJA"] = '<span class="badge badge-danger">Baja</span>';
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1412,6 +1431,17 @@ class Producto extends Model
         } else {
             $tab_unica = false;
         }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CODIGO INTERNO 
+
+        $codigo = Producto::codigoInterno(['codigo' => $dato["codigo"]]);
+       
+        if ($codigo["producto"] !== 0) {
+            $dato["codigo"] = $codigo["producto"][0]["CODIGO"]; 
+        }      
+
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
@@ -1455,7 +1485,7 @@ class Producto extends Model
 
             // PRECIO VENTA 
 
-            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica]);
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
 
             if ($valor["response"] === false) {
                 return $valor;
@@ -1465,7 +1495,7 @@ class Producto extends Model
 
             // PRECIO MAYORISTA 
 
-            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica]);
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
 
             if ($valor["response"] === false) {
                 return $valor;
@@ -1858,5 +1888,691 @@ class Producto extends Model
         return ["response" => true];
 
         /*  --------------------------------------------------------------------------------- */
-    }    
+    }
+
+    public static function minimo($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 =>'CODIGO', 
+                            1 =>'DESCRIPCION',
+                            2 => 'PREC_VENTA',
+                            3 => 'PRECOSTO',
+                            4 => 'PREMAYORISTA',
+                            5 => 'STOCK',
+                            6 => 'IMAGEN',
+                            7 => 'MINIMO'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+        
+        $totalData = ProductosAux::
+        whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+        ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
+        ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $imagen_producto = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.STOCK_MIN'),
+                DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK')
+            )
+            ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
+            ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
+            ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.STOCK_MIN'),
+                DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK')
+            )
+            ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
+            ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
+            ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where(function ($query) use ($search) {
+                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"{$search}%")
+                ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+            })
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = ProductosAux::
+            leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
+            ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
+            ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)   
+                             ->where(function ($query) use ($search) {
+                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                             })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->CODIGO)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                //$nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+                $nestedData['MINIMO'] = Common::formato_precio($post->STOCK_MIN, 0);
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='Detalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='Baja' title='Dar de Baja'><i class='fa fa-arrow-down text-danger'  aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                if (count($imagen) > 0) {
+
+                    foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+
+                } else {
+
+                    $imagen_producto = $dataDefaultImage;
+
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:30px;height:30px;'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function baja($codigo){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // COMPROBAR STOCK 
+
+        $comprobar = Stock::comprobar_si_hay_stock_producto($codigo["codigo"]);
+
+        if ($comprobar === true) {
+            return ["response" => false, "statusText" => "Todavia contiene stock, no se puede dar de baja !"];
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        ProductosAux::where('ID_SUCURSAL', $user->id_sucursal)
+        ->where('CODIGO', $codigo["codigo"])
+        ->update(['BAJA' => 'SI']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true, "statusText" => "Ha sido de baja !"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function obtener_producto_POS($dato){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // USUARIO 
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $data = [];
+        $valor = 0;
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CODIGO INTERNO 
+
+        $codigo = Producto::codigoInterno(['codigo' => $dato["codigo"]]);
+       
+        if ($codigo["producto"] !== 0) {
+            $dato["codigo"] = $codigo["producto"][0]["CODIGO"]; 
+        }      
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
+
+        $producto = ProductosAux::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
+                          PRODUCTOS.DESCRIPCION, 
+                          PRODUCTOS_AUX.PREC_VENTA,
+                          PRODUCTOS_AUX.MONEDA,
+                          PRODUCTOS_AUX.PREMAYORISTA,
+                          PRODUCTOS.IMPUESTO,
+                          PRODUCTOS.MARCA,
+                          PRODUCTOS.VENCIMIENTO')
+        , DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        foreach ($producto as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $data["CODIGO"] = $value->CODIGO;
+            $data["DESCRIPCION"] = $value->DESCRIPCION;
+            $data["IMPUESTO"] = $value->IMPUESTO;
+            $data["VENCIMIENTO"] = $value->VENCIMIENTO;
+            $data["STOCK"] = $value->STOCK;
+            $data["MARCA"] = $value->MARCA;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOTE
+
+            $lote = Stock::ultimo_lote($value->CODIGO);
+            $data["LOTE"] = $lote + 1;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // COTIZAR LOS PRECIOS 
+            
+            $candec = Parametro::candec((int)$dato["moneda"]);
+
+            // PRECIO VENTA 
+
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREC_VENTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+
+            if ($valor["response"] === false) {
+                return $valor;
+            } else {
+                $data["PREC_VENTA"] = $valor["valor"];
+            }
+
+            // PRECIO MAYORISTA 
+
+            $valor = Cotizacion::CALMONED(['monedaProducto' => $value->MONEDA, 'monedaSistema' => (int)$dato["moneda"], 'precio' => $value->PREMAYORISTA, 'decSistema' => $candec['CANDEC'], 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+
+            if ($valor["response"] === false) {
+                return $valor;
+            } else {
+                $data["PREMAYORISTA"] = $valor["valor"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR DESCUENTO POR MARCA 
+
+        $descuento_marca = MarcaAux::
+        select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
+        ->where('CODIGO_MARCA', '=', $data["MARCA"])
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where([
+            ['FECHAINI', '<=', $dia],
+            ['FECHAFIN', '>=', $dia]
+            ])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN FALSE DESCUENTO POR MARCA 
+        
+        if (count($descuento_marca) === 0) {
+            $descuento_marca = false;
+        } else {
+            $descuento_marca = $descuento_marca[0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function ubicacion($codigo)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $data = [];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONSEGUIR LOTE 
+
+        $ubicacion = Shelf::select(DB::raw('SHELF, LINE, POSITION, OCCUPATION, WAY, MAIN_CATEGORY'))
+        ->where('COD_PROD','=', $codigo["codigo"])
+        //->where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR  
+
+        if (count($ubicacion) > 0) {
+            return ["ubicacion" => $ubicacion[0]];
+        } else {
+            return ["ubicacion" => false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    } 
+
+    public static function existe($data)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+           
+        // OBTENER EL PRODUCTO
+
+        $producto = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO'))
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+        
+        if (count($producto) > 0) {
+            return ['response' => true, 'codigo' => $data['codigo']];
+        } else {
+            return ['response' => false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function apiListarProductos($datos){
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // INICIAR VARIABLES 
+
+        $id_sucursal = 9;
+        $dir = $datos["dir"];
+        $orderBy = $datos["orderBy"];
+        $fromPrice = (float)$datos["fromPrice"];
+        $toPrice = (float)$datos["toPrice"];
+        $name = $datos["name"];
+        $limit = (int)$datos["limit"];
+        $offset = (int)$datos["offset"];
+        $category = (int)$datos["category"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MANTENER LIMITE IGUAL 50
+
+        if($limit > 50) {
+            $limit = 50;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ORDEN 
+
+        if ($dir === "1") {
+            $dir = 'asc';
+        } else {
+            $dir = 'desc';
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MONEDA PARAMETRO GUARANIES
+
+        $parametro = Parametro::candec(1);
+        $candec = $parametro["CANDEC"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SI LA TABLA DE MONEDAS ES UNICA 
+
+        $tab_unica = Parametro::select(DB::raw('TAB_UNICA'))
+        ->where('ID_SUCURSAL','=', $id_sucursal)
+        ->get();
+        $tab_unica = $tab_unica[0]->TAB_UNICA;
+
+        if($tab_unica === 'SI') {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL DATA 
+
+        $totalData = ProductosAux::where('PRODUCTOS_AUX.ID_SUCURSAL','=', $id_sucursal)
+                     ->count();  
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // FROM PRICE TO DOLAR 
+
+        $cotizacion = Cotizacion::CALMONED(['monedaProducto' => 1, 'monedaSistema' => 2, 'precio' => Common::quitar_coma($fromPrice, 0), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $id_sucursal]);
+
+        if ($cotizacion["response"] === false) {
+            return $cotizacion;
+        } else {
+            $fromPrice = (float)$cotizacion["valor"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TO PRICE TO DOLAR 
+
+        $cotizacion = Cotizacion::CALMONED(['monedaProducto' => 1, 'monedaSistema' => 2, 'precio' => Common::quitar_coma($toPrice, 0), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $id_sucursal]);
+
+        if ($cotizacion["response"] === false) {
+            return $cotizacion;
+        } else {
+            $toPrice = (float)$cotizacion["valor"];
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PRODUCTOS
+
+        $query = ProductosAux::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->leftjoin('SUBLINEA_DET', 'PRODUCTOS.SUBLINEADET', '=', 'SUBLINEA_DET.CODIGO')
+        //->leftjoin('IMAGENES', 'PRODUCTOS_AUX.CODIGO', '=', 'IMAGENES.COD_PROD')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO as code,
+                          SUBLINEA_DET.DESCRIPCION AS name, 
+                          PRODUCTOS_AUX.PREC_VENTA as price,
+                          PRODUCTOS_AUX.MONEDA AS currency,
+                          0 AS image,
+                          0 AS inStock'
+                      ),
+                DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS stock'))
+        //->where('PRODUCTOS.CODIGO', '=', $codigo)
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $id_sucursal);
+
+        if($name !== null && $name !== '' && $name !== 'null') {
+            $query->where('SUBLINEA_DET.DESCRIPCION', 'LIKE', '%'.$name.'%');
+        }
+
+        if($category !== null && $category !== '' && $category !== 0) {
+            $query->where('PRODUCTOS.LINEA', '=', $category);
+        }
+
+        if($fromPrice < $toPrice) {
+            $query->whereBetween('PRODUCTOS_AUX.PREC_VENTA', [$fromPrice, $toPrice]);
+        } else if(($fromPrice === $toPrice) and $toPrice > 0) {
+            $query->where('PRODUCTOS_AUX.PREC_VENTA','=', $toPrice);
+        }
+
+        if($orderBy === "1") {
+            $query->orderBy('SUBLINEA_DET.DESCRIPCION', $dir);
+        }
+        
+        if($orderBy === "2") {
+            $query->orderBy('PRODUCTOS_AUX.PREC_VENTA', $dir);
+        }
+        
+        if($orderBy === "3") {
+            $query->orderBy('PRODUCTOS_AUX.PREC_VENTA', $dir);
+        }
+
+        $query->limit($limit);
+
+        $totalFiltered =  $query->count();
+        $query->offset($offset);
+        $producto = $query->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+        
+        
+        foreach ($producto as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+            
+            $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $value->currency, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->price, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $id_sucursal]);
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+            if ($cotizacion["response"] === false) {
+                return $cotizacion;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // PRECIO VENTA A GUARANIES
+
+            $producto[$key]->price = $cotizacion['valor'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR CNATIDAD
+            
+            if ($producto[$key]->stock > 0) {
+                $producto[$key]->inStock = true;
+            } else {
+                $producto[$key]->inStock = false;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CAMBIAR MONEDA A GUARANIESE 
+
+            $producto[$key]->currency = 1;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // IMAGEN 
+            
+            $producto[$key]->image =  ImagenesWeb::obtenerImagenCarpeta($producto[$key]->code)["imagen"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        
+
+                
+
+        // if (count($producto) > 0) {
+
+        //     /*  --------------------------------------------------------------------------------- */
+
+        //     $producto[0]["AUTODESCRIPCION"] = false;
+
+        //     /*  --------------------------------------------------------------------------------- */
+
+        //     // IMAGEN 
+
+             //$producto[0]["IMAGE"] =  Imagen::obtenerImagen($codigo)["imagen"];
+
+        //     /*  --------------------------------------------------------------------------------- */
+
+        //     // RETORNAR VALOR 
+
+        //     return ["producto" => $producto[0]];
+
+        //     /*  --------------------------------------------------------------------------------- */
+
+        // } else {
+        //     return ["response" => false];
+        // }
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "currencyDescription" => $parametro["DESCRIPCION"],  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $producto  
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }   
 }

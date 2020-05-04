@@ -16,7 +16,7 @@
 				        	<div class="row">
 			                    <div class="col-md-4">
 			                        <div class="profile-img">
-			                            <img :src="producto.IMAGEN" alt="" class="img-thumbnail"/>
+			                            <img id="myImg" :src="producto.IMAGEN" alt="" class="img-thumbnail"/>
 			                        </div>
 			                        <div class="row">
 			                        	<div class="col-md-12">
@@ -46,10 +46,13 @@
 			                                    <h6>
 			                                        {{producto.DESCRIPCION}}
 			                                    </h6>
+			                                    <h6>
+			                                       <span v-html="producto.BAJA"></span>
+			                                    </h6>
 			                                    <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span></p>
 			                            <ul class="nav nav-tabs" id="myTab" role="tablist">
 			                                <li class="nav-item">
-			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Información</a>
+			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Info</a>
 			                                </li>
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="lotes-tab" data-toggle="tab" href="#lotes" role="tab" aria-controls="lotes" aria-selected="true" v-on:click="obtenerLotes" :selected="seleccion.lotes">Lotes</a>
@@ -60,8 +63,11 @@
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="true" v-on:click="obtenerProveedores">Compras</a>
 			                                </li>
-			                                <li class="nav-item">
+			                                <!-- <li class="nav-item">
 			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>
+			                                </li> -->
+			                                <li class="nav-item">
+			                                    <a class="nav-link" id="ubicacion-tab" data-toggle="tab" href="#ubicacion" role="tab" aria-controls="ubicacion" aria-selected="true" v-on:click="obtenerUbicacion">Ubicación</a>
 			                                </li>
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
@@ -363,6 +369,77 @@
 
 						                            </div>
 
+						                            
+						                            <div class="tab-pane fade show " id="ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
+
+						                            			<div v-if="loading.ubicacion" class="d-flex justify-content-center">
+														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
+																</div>
+
+						                                        <div class="row" v-if="ubicacion !== false">
+						                                            <div class="col-md-6">
+						                                                <label>Shelf</label>
+						                                            </div>
+						                                            <div class="col-md-6">
+						                                                <p>{{ubicacion.SHELF}}</p>
+						                                            </div>
+
+						                                            <div class="col-md-12">
+						                                            	<hr>
+						                                            </div>
+						                                            	
+						                                            <div class="col-md-6">
+						                                                <label>Linea</label>
+						                                            </div>
+						                                            <div class="col-md-6">
+						                                                <p>{{ubicacion.LINE}}</p>
+						                                            </div>
+
+						                                            <div class="col-md-12">
+						                                            	<hr>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <label>Posición</label>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <p>{{ubicacion.POSITION}}</p>
+						                                            </div>
+
+						                                            <div class="col-md-12">
+						                                            	<hr>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <label>Ocupación</label>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <p>{{ubicacion.OCCUPATION}}</p>
+						                                            </div>
+
+						                                            <div class="col-md-12">
+						                                            	<hr>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <label>Way of Display</label>
+						                                            </div>
+
+						                                            <div class="col-md-6">
+						                                                <p>{{ubicacion.WAY}}</p>
+						                                            </div>
+						                                        </div>
+
+						                                        <div v-if="ubicacion === false">
+																	<div class="alert alert-primary" role="alert">
+																	  <font-awesome-icon icon="info-circle" /> No hay ubicaciones designadas
+																	</div>
+																</div>
+						                                        
+						                            </div>
+						                        	
 						                        </div>
 						                    </div>
 			                            </div>	
@@ -374,12 +451,24 @@
 			                    
 			                </div>     
 				      </div>
+
+				      
+
 				      <div class="modal-footer">
 				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 				      </div>
 				    </div>
 				  </div>
-				</div>	
+				</div>
+
+				<!-- The Modal PARA LA IMAGEN -->
+
+				<div id="myModal" class="modal modal-imagen">
+					<span class="close-imagen">&times;</span>
+					<img class="modal-content modal-content-imagen" id="img01">
+					<div id="caption"></div>
+				</div>
+
 		</div>
 		<!-- ******************************************************************* -->	
 </template>
@@ -409,7 +498,8 @@
                 DESCUENTO: '',
                 OBSERVACION: '',
                 STOCK_MIN: '',
-                CANT_MAYORISTA: '' 
+                CANT_MAYORISTA: '',
+                BAJA: ''
           	},
           	lotes: {
           		LOTE: '', 
@@ -445,7 +535,15 @@
           		compras: false,
           		transferencias: false,
           		lotes: false,
-          		gondolas: false
+          		gondolas: false,
+          		ubicacion: false
+          	}, ubicacion: {
+          		SHELF: '', 
+          		LINE: '',
+          		POSITION: '',
+          		OCCUPATION: '',
+          		WAY: '',
+          		MAIN_CATEGORY: ''
           	}      
          }
       },
@@ -577,7 +675,27 @@
 
       		// ------------------------------------------------------------------------
 
-      	}
+      	}, obtenerUbicacion(){
+
+      		// ------------------------------------------------------------------------
+
+      		let me = this;
+      		me.loading.ubicacion = true;
+
+      		// ------------------------------------------------------------------------
+
+      		// LLAMAR DATOS 
+
+      		Common.obtenerUbicacionCommon(me.codigo).then(data => {
+      			me.loading.ubicacion = false;
+           		me.ubicacion = data; 
+           	}).catch((err) => {
+           		
+           	});
+
+      		// ------------------------------------------------------------------------
+
+      	},
       },
         mounted() {
         	
@@ -585,13 +703,122 @@
 
         	// ABRIR EL MODAL
 
-            
+            // Get the modal
+			var modal = document.getElementById("myModal");
+
+			// Get the image and insert it inside the modal - use its "alt" text as a caption
+			var img = document.getElementById("myImg");
+			var modalImg = document.getElementById("img01");
+			var captionText = document.getElementById("caption");
+			img.onclick = function(){
+			  modal.style.display = "block";
+			  modalImg.src = this.src;
+			  captionText.innerHTML = this.alt;
+			}
+
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("close-imagen")[0];
+
+			// When the user clicks on <span> (x), close the modal
+			span.onclick = function() { 
+			  modal.style.display = "none";
+			}
 
             // ------------------------------------------------------------------------   
         }
     }
 </script>
 <style>
+
+/* IMAGEN ABRE S*/
+#myImg {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#myImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal-imagen {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (image) */
+.modal-content-imagen {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+}
+
+/* Caption of Modal Image */
+#caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation */
+.modal-content-imagen, #caption {  
+  -webkit-animation-name: zoom;
+  -webkit-animation-duration: 0.6s;
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+  from {-webkit-transform:scale(0)} 
+  to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close-imagen {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close-imagen:hover,
+.close-imagen:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  .modal-content-imagen {
+    width: 100%;
+  }
+}
+
+/* IMAGEN CIERRA */
+
 .emp-profile{
     padding: 3%;
     margin-top: 3%;

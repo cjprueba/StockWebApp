@@ -32,9 +32,14 @@
           <!-- Content Row -->
           <div class="row">
 
-            <div class="col-md-7">
-                <caja-lote></caja-lote>
+            <div class="col-md-12" v-if="$can('inicio.lotes.vencidos')">
+                <caja-lote @codigo_producto="detalle"></caja-lote>
             </div>
+
+            <div class="col-md-12 mt-3" v-if="$can('inicio.stock.minimo')">
+                <caja-minimo @codigo_producto="detalle"></caja-minimo>
+            </div>
+
             <div class="col-lg-5" v-if="1 === 0">
                 <caja-periodo></caja-periodo>
             </div>
@@ -48,7 +53,10 @@
       </div>
       <!-- End of Main Content -->
 
+      <!-- ------------------------------------------------------------------------ -->
+
       <!-- Footer -->
+
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
@@ -56,10 +64,43 @@
           </div>
         </div>
       </footer>
+
       <!-- End of Footer -->
+
+      <!-- ------------------------------------------------------------------------ -->
+
+      <!-- MODAL DETALLE PRODUCTO -->
+
+      <producto-detalle ref="detalle_producto" :codigo="codigo_producto"></producto-detalle>
+
+      <!-- ------------------------------------------------------------------------ -->
 
     </div>
 </template>
+
 <script>
-	
+    export default {
+     
+      data(){
+        return {
+            codigo_producto: ''
+        }
+      }, 
+      methods: {
+            detalle(valor) {
+
+              // ------------------------------------------------------------------------
+
+              // MOSTRAR DETALLE PRODUCTO 
+
+              this.codigo_producto = valor;
+              this.$refs.detalle_producto.mostrar();
+
+              // ------------------------------------------------------------------------
+            }
+      },  
+        mounted() {
+
+        }
+    }
 </script>
