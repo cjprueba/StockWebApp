@@ -86,6 +86,13 @@
 								
 								<!-- ------------------------------------------------------------------ -->
 
+								<div class="my-4">
+									  <div class="custom-control custom-switch mr-sm-2">
+									   <input type="checkbox" class="custom-control-input" id="switchOnline" v-model="checked_online" v-on:change="onDetalleWeb">
+									   <label class="custom-control-label" for="switchOnline">Online</label>
+									 </div>
+								</div>
+
 							</form>
 
 							<!-- ------------------------------------------------------------------ -->
@@ -135,7 +142,7 @@
 
 					    			<div class="col-6">
 					    				<label>Código Interno</label>
-					    				<input tabindex=1 type="text" id="codigo_interno" class="form-control form-control-sm" v-model="codigo_interno" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_interno }"  v-on:change="() => generado = false">
+					    				<input tabindexPadre=1 type="text" id="codigo_interno" class="form-control form-control-sm" v-model="codigo_interno" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_codigo_interno }"  v-on:change="() => generado = false">
 					    			</div>	
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -212,8 +219,21 @@
 					    			<!-- SUB CATEGORIA -->
 
 					    			<div class="col-md-6">
+
+						    			<div class="text-left"> 
+							                <label for="validationTooltip01">Sub Categoria</label>
+							            </div>
+
+							            <select :tabindex=3 class="custom-select custom-select-sm" v-on:change="llamarSubCategoria($event.target.value, subCategorias)" v-bind:shadow="shadow, validar_sub_categoria" :disabled="deshabilitar.subCategoria">
+							                    <option :value="null">0 - Seleccionar</option>
+							                    <option v-for="subCategoria in subCategorias" :selected="subCategoria.CODIGO === parseInt(seleccion_sub_categoria)" :value="subCategoria.CODIGO">{{ subCategoria.CODIGO }} - {{ subCategoria.DESCRIPCION }}</option>
+							            </select>
+
+						            </div>
+
+					    			<!-- <div class="col-md-6">
 					    				<selected-sub-categoria :tabIndexPadre=3 v-model="seleccion_sub_categoria" v-bind:shadow="shadow, validar_sub_categoria" @descripcion_sub_categoria="descripcionSubCategoria" :deshabilitar="deshabilitar.subCategoria" :categoria="seleccion_categoria"></selected-sub-categoria>
-					    			</div>	
+					    			</div>	 -->
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -315,6 +335,7 @@
 
 				    			</div>
 
+
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- FORM ROW MARCA -->
@@ -337,6 +358,13 @@
 					    			<!-- ------------------------------------------------------------------ -->
 
 				    			</div>
+
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- SALTO DE LINEA -->
+				    			
+				    			<hr>
 
 				    			<!-- ------------------------------------------------------------------ -->
 
@@ -426,6 +454,166 @@
 
 				    			<!-- ------------------------------------------------------------------ -->
 
+				    			<!-- FORM CHECKED DETALLES WEB -->
+
+				    			<div class="form-row mt-3">
+
+						    		<div class="my-4">
+										  <div class="custom-control custom-switch mr-sm-2">
+										   <input type="checkbox" class="custom-control-input" id="switchDetalleWeb" v-model="checked_detalleWeb" :disabled="checked_online">
+										   <label class="custom-control-label" for="switchDetalleWeb">Detalle Web</label>
+										 </div>
+									</div>
+
+									<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW NOMBRE WEB -->
+
+				    			<div class="form-row mt-3" v-if="checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- NOMBRE -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Nombre Específico Web</label>
+					    				</div>
+					    				<input :tabindex=13 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_nombreWeb }" v-model="web.nombre">
+					    			</div>
+					    			<hr>
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW DESCRIPCION WEB -->
+
+				    			<div class="form-row mt-3" v-if="checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- DESCRIPCION -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Descripcion Breve Web</label>
+					    				</div>
+					    				<textarea :tabindex=14 id="descripcionweb" class="form-control" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_descripcionWeb }" v-model="web.descripcion" rows="3"></textarea>
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW PESO WEB -->
+
+				    			<div class="form-row mt-3" v-if="checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- PESO -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Peso Web</label>
+					    				</div>
+					    				<input :tabindex=15 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_pesoWeb }" v-model="web.peso" v-on:blur="formatoPeso">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+					    		<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM CHECKED DIMENSIONES -->
+
+				    			<div class="form-row mt-3" v-if="checked_detalleWeb">
+
+						    		<div class="my-4">
+										  <div class="custom-control custom-switch mr-sm-2">
+										   <input type="checkbox" class="custom-control-input" id="switchDimension" v-model="checked_dimension">
+										   <label class="custom-control-label" for="switchDimension">Agregar Dimensiones</label>
+										 </div>
+									</div>
+
+									<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+
+				    			<!-- ------------------------------------------------------------------ -->
+
+				    			<!-- FORM ROW LONGITUD WEB -->
+				    			
+				    			<div class="form-row mt-3" v-if="checked_dimension && checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- LONGITUD -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Longitud Web</label>
+					    				</div>
+					    				<input :tabindex=16 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="web.longitud" v-on:blur="formatoLongitud">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+					    		
+				    			<!-- ------------------------------------------------------------------ -->
+				    			
+				    			<!-- FORM ROW ANCHO WEB -->
+
+				    			<div class="form-row mt-3" v-if="checked_dimension && checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- ANCHO -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Anchura Web</label>
+					    				</div>
+					    				<input :tabindex=17 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="web.ancho" v-on:blur="formatoAncho">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+					    		
+				    			<!-- ------------------------------------------------------------------ -->
+				    			
+				    			<!-- FORM ROW ALTURA WEB -->				    			
+
+				    			<div class="form-row mt-3" v-if="checked_dimension && checked_detalleWeb">
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- ALTURA -->
+
+					    			<div class="col-md-12">
+					    				<div class="text-left">
+					    					<label>Altura Web</label>
+					    				</div>
+					    				<input :tabindex=18 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="web.altura" v-on:blur="formatoAltura">
+					    			</div>
+
+					    			<!-- ------------------------------------------------------------------ -->
+
+					    		</div>
+					    		
+				    			<!-- ------------------------------------------------------------------ -->
+
 				    		</div>		
 				    	</div>
 
@@ -455,7 +643,7 @@
 					    			<div class="col-md-4">
 					    				<label for="inlineFormInputGroupUsername">I.V.A.</label>
 					    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
-						    				<input :tabindex=13 type="text" class="form-control form-control-sm" id="inlineFormInputGroupUsername" v-model="iva" v-on:blur="formatoIVA"  >
+						    				<input :tabindex=19 type="text" class="form-control form-control-sm" id="inlineFormInputGroupUsername" v-model="iva" v-on:blur="formatoIVA"  >
 						    				<div class="input-group-append">
 									          <div class="input-group-text">%</div>
 									        </div>
@@ -469,7 +657,7 @@
 					    			<div class="col-md-4">
 					    				<label>Descuento Máximo</label>
 					    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
-					    					<input :tabindex=14 type="text" ref="prueba" class="form-control form-control-sm" v-model="descuento_maximo" v-on:blur="formatoDescuento">
+					    					<input :tabindex=20 type="text" ref="prueba" class="form-control form-control-sm" v-model="descuento_maximo" v-on:blur="formatoDescuento">
 					    					<div class="input-group-append">
 									          <div class="input-group-text">%</div>
 									        </div>
@@ -481,7 +669,7 @@
 					    			<!-- MONEDA -->
 
 					    			<div class="col-md-4">
-					    				<select-moneda :tabIndexPadre=15 v-model="seleccion_moneda" ref="moneda" v-bind:shadow="shadow, validar_moneda" @descripcion_moneda="llamarPrecios" @cantidad_decimales="cantidad_decimal"></select-moneda>
+					    				<select-moneda :tabIndexPadre=21 v-model="seleccion_moneda" ref="moneda" v-bind:shadow="shadow, validar_moneda" @descripcion_moneda="llamarPrecios" @cantidad_decimales="cantidad_decimal"></select-moneda>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -510,11 +698,11 @@
 					    					<div class="input-group-prepend">
 											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
 											</div>
-					    					<input :tabindex=16 type="text" v-bind:class="{ 'is-invalid': validar_precio_venta }" class="form-control form-control-sm" v-model="precio_venta" v-on:blur="formatoPrecioVenta">
+					    					<input :tabindex=22 type="text" v-bind:class="{ 'is-invalid': validar_precio_venta }" class="form-control form-control-sm" v-model="precio_venta" v-on:blur="formatoPrecioVenta">
 					    				</div>
 					    			</div>
 
-					    			<!-- ------------------------------------------------------------------ -->
+					    			<!-- ------O------------------------------------------------------------ -->
 
 					    			<!-- PRECIO MAYORISTA -->
 
@@ -524,7 +712,7 @@
 					    					<div class="input-group-prepend">
 											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
 											</div>
-					    					<input :tabindex=17 type="text" v-bind:class="{ 'is-invalid': validar_precio_mayorista }" class="form-control form-control-sm" v-model="precio_mayorista" v-on:blur="formatoPrecioMayorista">
+					    					<input :tabindex=23 type="text" v-bind:class="{ 'is-invalid': validar_precio_mayorista }" class="form-control form-control-sm" v-model="precio_mayorista" v-on:blur="formatoPrecioMayorista">
 					    				</div>	
 					    			</div>
 
@@ -548,7 +736,7 @@
 					    					<div class="input-group-prepend">
 											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
 											</div>
-					    					<input :tabindex=18 type="text" class="form-control form-control-sm" v-model="precio_vip" v-on:blur="formatoPrecioVIP">
+					    					<input :tabindex=24 type="text" class="form-control form-control-sm" v-model="precio_vip" v-on:blur="formatoPrecioVIP">
 					    				</div>	
 					    			</div>
 
@@ -562,7 +750,7 @@
 					    					<div class="input-group-prepend">
 											    <span class="input-group-text" id="inputGroup-sizing-sm">{{descripcion_precio}}</span>
 											</div>
-					    					<input :tabindex=19 type="text" v-bind:class="{ 'is-invalid': validar_precio_costo }" class="form-control form-control-sm" v-model="precio_costo" v-on:blur="formatoPrecioCosto">
+					    					<input :tabindex=25 type="text" v-bind:class="{ 'is-invalid': validar_precio_costo }" class="form-control form-control-sm" v-model="precio_costo" v-on:blur="formatoPrecioCosto">
 					    				</div>	
 					    			</div>
 
@@ -590,7 +778,7 @@
 					    				<div class="text-left">
 					    					<label>Stock Mínimo</label>
 					    				</div>
-					    				<input :tabindex=20 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="stock_minimo" v-on:blur="formatoStockMinimo">
+					    				<input :tabindex=26 type="text" class="form-control form-control-sm" v-bind:class="{ 'shadow-sm': shadow }" v-model="stock_minimo" v-on:blur="formatoStockMinimo">
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -611,7 +799,7 @@
 					    				<div class="text-left">
 					    					<label>Periodo</label>
 					    				</div>
-					    				<select :tabindex=21 class="custom-select custom-select-sm" v-model="seleccion.periodo" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.periodo }">
+					    				<select :tabindex=27 class="custom-select custom-select-sm" v-model="seleccion.periodo" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.periodo }">
 					    					<option value="0">SELECCIONAR</option>
 						                    <option value="1">1 - UN MES</option>
 						                    <option value="2">2 - DOS MESES</option>
@@ -637,7 +825,7 @@
 					    			<!-- GONDOLA -->
 
 					    			<div class="col-md-12">
-					    				<select-gondola :tabIndexPadre=22 v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar" v-bind:shadow="shadow"></select-gondola>
+					    				<select-gondola :tabIndexPadre=28 v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar" v-bind:shadow="shadow"></select-gondola>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -656,7 +844,7 @@
 
 					    			<div class="col-md-12">
 					    				<label for="exampleFormControlTextarea1">Observación</label>
-						  				<textarea :tabindex=23 id="observacion" class="form-control" v-bind:class="{ 'shadow-sm': shadow }"    v-model="observacion" rows="3"></textarea>
+						  				<textarea :tabindex=29 id="observacion" class="form-control" v-bind:class="{ 'shadow-sm': shadow }"    v-model="observacion" rows="3"></textarea>
 					    			</div>
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -740,7 +928,7 @@
 				    				<!-- GUARDAR, EDITAR -->
 
 				    				<div class="form-group">
-				    					<button tabindex=25 v-on:click="guardar" v-bind:class="{ 'btn btn-primary': estado_boton.boton_primary, 'btn btn-warning': estado_boton.boton_warning }" class="btn btn-primary"><font-awesome-icon icon="save" /> {{estado_boton.boton}} </button>
+				    					<button tabindex=30 v-on:click="guardar" v-bind:class="{ 'btn btn-primary': estado_boton.boton_primary, 'btn btn-warning': estado_boton.boton_warning }" class="btn btn-primary"><font-awesome-icon icon="save" /> {{estado_boton.boton}} </button>
 				    				</div>
 				    				
 				    				<!-- ------------------------------------------------------------------ -->	
@@ -838,6 +1026,9 @@
           checked_codigo_real: false,
           checked_vencimiento: false,
           checked_auto_descripcion: true,
+          checked_detalleWeb: false,
+          checked_dimension: false,
+          checked_online: false,
           descri_color: '',
           descri_tela: '',
           descri_talle: '',
@@ -863,6 +1054,9 @@
           validar_precio_mayorista: false,
           validar_precio_costo: false,
           validar_codigo_real: false,
+          validar_nombreWeb: false,
+          validar_descripcionWeb: false,
+          validar_pesoWeb: false,
           validar: {
           	temporada: false,
           	periodo: false
@@ -881,9 +1075,18 @@
           deshabilitar: {
           	subCategoria: true
           },
+          subCategorias: '',
           datos: [],
           cb: -2,
-          marcas: []
+          marcas: [],
+          web: {
+          	nombre: '',
+          	descripcion: '',
+          	peso: 0,
+          	longitud: 0,
+          	ancho: 0,
+          	altura: 0
+          }
         }
       }, 
       methods: {
@@ -943,6 +1146,24 @@
                     this.seleccion.periodo = data.producto.PERIODO;
                     this.mostrar.detalle = true;
 
+
+                    // FILTRAR LOS DATOS DE DETALLE WEB
+
+                    if(data.online !== 0){
+
+	                    this.checked_detalleWeb = true;
+	                    this.web.nombre = data.online.NOMBRE;
+		                this.web.descripcion = data.online.DESCRIPCION;
+		                this.web.peso = data.online.PESO;
+		                this.web.longitud = data.online.LONGITUD;
+		                this.web.ancho = data.online.ANCHURA;
+		                this.web.altura = data.online.ALTURA;
+
+                    }else{
+
+                    	this.checked_detalleWeb = false;
+                    }
+                    
                     // ------------------------------------------------------------------------
 
                     // CARGAR CODIGO REAL 
@@ -961,6 +1182,22 @@
             		} else {
             			this.rutaImagen = data.imagen;
             		}
+
+            		// ------------------------------------------------------------------------
+
+            		// ACTIVAR ONLINE
+					
+					if(data.producto.ONLINE === 1){
+
+                    	this.checked_online = true;
+                    	this.checked_detalleWeb = true;
+
+                    }else{
+
+                    	this.checked_online = false;
+                    	this.checked_detalleWeb = false;
+                    }
+                    
             		// ------------------------------------------------------------------------
 
             		// CAMBIAR BOTON 
@@ -978,6 +1215,7 @@
            		});
 
            		//$("#codigo_interno").focus();
+
 
            		// ------------------------------------------------------------------------
 
@@ -1077,7 +1315,6 @@
             	this.formatoPrecioMayorista();
             	this.formatoPrecioVIP();
             	this.formatoPrecioCosto();
-            	
             	// -------------------------------------------------------------------------------------
 
             },formatoPrecioVenta(){
@@ -1200,7 +1437,77 @@
 
 	            // ------------------------------------------------------------------------
 
-            }, opcionesCategoria(valor){
+            },
+
+            formatoPeso(){
+
+                // ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A PRECIO
+
+	            me.web.peso = Common.darFormatoCommon(me.web.peso, 2);
+
+	            // ------------------------------------------------------------------------
+	        },
+
+	        formatoLongitud(){
+
+                // ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A PRECIO
+
+	            me.web.longitud = Common.darFormatoCommon(me.web.longitud, 2);
+
+	            // ------------------------------------------------------------------------
+	        },
+
+	        formatoAncho(){
+
+                // ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A PRECIO
+
+	            me.web.ancho = Common.darFormatoCommon(me.web.ancho, 2);
+
+	            // ------------------------------------------------------------------------
+	        },
+
+	        formatoAltura(){
+
+                // ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A PRECIO
+
+	            me.web.altura = Common.darFormatoCommon(me.web.altura, 2);
+
+	            // ------------------------------------------------------------------------
+	        },
+
+            opcionesCategoria(valor){
 
             	// ------------------------------------------------------------------------
 
@@ -1239,6 +1546,8 @@
 	            // SELECCION CATEGORIA MARCA 
 
 	            me.obtenerMarca(me.seleccion_categoria);
+	            me.obtenerSubCategorias(me.seleccion_categoria);
+
 	            //me.$refs.componente_select_marca.obtenerMarca(me.seleccion_categoria);
 
 	            // ------------------------------------------------------------------------
@@ -1249,7 +1558,21 @@
 
 	            // ------------------------------------------------------------------------
 
-            }, actualizarCodigo(){
+            }, obtenerSubCategorias(categoria){
+
+      				// ------------------------------------------------------------------------
+
+      				// LLAMAR LAS SUB CATEGORIAS
+
+      				Common.obtenerSubCategoriaCommon(categoria).then(data => {
+      				  this.subCategorias = data;
+      				  this.llamarSubCategoria(this.seleccion_sub_categoria, data);
+      				});
+      				
+
+      				// ------------------------------------------------------------------------
+
+      			}, actualizarCodigo(){
 
             	// ------------------------------------------------------------------------
 
@@ -1460,6 +1783,7 @@
             		this.validar_sub_categoria = false;
             	}
 
+
             	if (this.mostrar_color === true && (this.seleccion_color === 'null' || this.seleccion_color === '')) {
             		retornar = true;
             		this.validar_color = true;
@@ -1549,6 +1873,27 @@
             		this.validar.periodo = true;
             	} else {
             		this.validar.periodo = false;
+            	}
+
+            	if (this.web.nombre === '' && this.checked_detalleWeb === true) {
+            		retornar = true;
+            		this.validar_nombreWeb = true;
+            	} else {
+            		this.validar_nombreWeb = false;
+            	}
+
+            	if (this.web.descripcion === '' && this.checked_detalleWeb === true) {
+            		retornar = true;
+            		this.validar_descripcionWeb = true;
+            	} else {
+            		this.validar_descripcionWeb = false;
+            	}
+
+            	if (this.web.peso === '0' || this.web.peso === "0.00" && this.checked_detalleWeb === true) {
+            		retornar = true;
+            		this.validar_pesoWeb = true;
+            	} else {
+            		this.validar_pesoWeb = false;
             	}
 
             	// ------------------------------------------------------------------------
@@ -1648,7 +1993,7 @@
             	// CARGAR DESCRIPCION COLOR 
 
             	this.descri_sub_categoria = valor;
-
+            	
             	// ------------------------------------------------------------------------
 
             	// GENERAR DESCRIPCION 
@@ -1664,6 +2009,8 @@
             	// CARGAR DESCRIPCION COLOR 
 
             	this.descri_sub_categoria_detalle = valor;
+
+
 
             	// ------------------------------------------------------------------------
 
@@ -1692,6 +2039,7 @@
             	let me = this;
             	var textRegistro = '';
             	var textTitulo = '';
+            	var online='';
 
             	// ------------------------------------------------------------------------
 
@@ -1710,6 +2058,11 @@
             	}
 
             	// ------------------------------------------------------------------------
+
+            	if (this.checked_online===true){
+
+            		this.online=1;
+            	}
 
             	// PREPARAR DATOS
             	
@@ -1743,7 +2096,19 @@
             		generado: this.generado,
             		modificar: this.estado_boton.boton_warning,
             		vencimiento: this.checked_vencimiento,
-            		periodo: this.seleccion.periodo
+            		periodo: this.seleccion.periodo,
+            		online: this.online,
+            		nombreWeb: this.web.nombre,
+            		descripcionWeb: this.web.descripcion,
+            		pesoWeb: this.web.peso,
+            		longitudWeb: this.web.longitud,
+            		anchoWeb: this.web.ancho,
+            		alturaWeb: this.web.altura,
+            		categoria1Web: this.descri_categoria,
+            		categoria2Web: this.descri_sub_categoria,
+            		habilitadoWeb: this.checked_online,
+            		marcaWeb: this.descri_marca,
+            		detalleWeb: this.checked_detalleWeb
             	}
 
             	// ------------------------------------------------------------------------
@@ -1891,6 +2256,15 @@
 	          	this.validar.periodo = false;
 	          	this.checked_auto_descripcion = true;
 	          	this.mostrar.detalle = false;
+	          	this.checked_online = false;
+	          	this.checked_dimension = false;
+	          	this.checked_detalleWeb = false;
+	          	this.web.nombre = '';
+	          	this.web.descripcion = '';
+	          	this.web.peso = 0;
+	          	this.web.longitud = 0;
+	          	this.web.ancho = 0;
+	          	this.web.altura = 0;
 
 	          	// ------------------------------------------------------------------------
 
@@ -1952,7 +2326,31 @@
       			
       			// -------------------------------------------------------------------------------------
 
-      		}
+      		},
+
+      		onDetalleWeb(){
+
+      			if(this.checked_online === true){
+
+      				this.checked_detalleWeb=true;
+      	
+      			}
+      		},
+
+      		llamarSubCategoria(valor, subCategorias){
+
+              // ------------------------------------------------------------------------
+
+              // ENVIAR DESCRIPCION TELA A PADRE
+
+              var seleccion = '';
+              seleccion = (Common.filtrarCommon(subCategorias, parseInt(valor)));
+              this.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+              
+
+              // ------------------------------------------------------------------------
+
+            }
       },
         mounted() {
 

@@ -2,8 +2,11 @@
 
 namespace App;
 
+
+use vendor\autoload;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Automattic\WooCommerce\Client;
 use App\Common;
 use App\Parametro;
 use App\ProductosAux;
@@ -16,6 +19,7 @@ use App\Gondola_tiene_Productos;
 use App\Ventas_det;
 use App\ComprasDet;
 use App\Cotizacion;
+use App\LineasDescuento;
 
 class Producto extends Model
 {
@@ -676,6 +680,18 @@ class Producto extends Model
 
     public static function modificar($datos){
 
+        $woocommerce = new Client(
+            'https://www.calbea.com.py', // Your store URL
+            'ck_14760e0d817b4c57551d17de6404aac61ebff682', // Your consumer key
+            'cs_91baae6016d43f30e19d95b8259c3098abccfa9e', // Your consumer secret
+            [
+                'wp_json' => true, // Enable the WP REST API integration
+                'wp_api' => true, // Enable the WP REST API integration
+                'version' => 'wc/v3',// WooCommerce WP REST API version
+                'query_string_auth' => true 
+            ]
+        );
+
 
         /*  --------------------------------------------------------------------------------- */
         // IMPORTANTE
@@ -770,11 +786,180 @@ class Producto extends Model
             'PERIODO' => $datos["periodo"],
             'TEMPORADA' => $datos["temporada"],
             'VENCIMIENTO' => $datos["vencimiento"],
+            'ONLINE' => $datos["online"],
             'ID_SUCURSAL' => $user->id_sucursal
             ]
         );
 
-        /*  --------------------------------------------------------------------------------- */
+        //ACTUALIZAR EN PRODUCTOS AUX
+
+        $pro_aux = ProductosAux::where('CODIGO', '=', $datos["codigo_producto"])
+                    ->update(['ONLINE' => $datos["online"]]);
+
+        //OBTENER ID WEB DE CATEGORIA Y SUBCATEGORIA
+
+        $cate=DB::connection('retail')->table('LINEAS')->select(DB::raw('ID_WEB'))
+                    ->where('LINEAS.CODIGO', '=', $datos["categoria"])
+                    ->get()
+                    ->toArray();
+
+        $subcate=DB::connection('retail')->table('SUBLINEAS')->select(DB::raw('ID_WEB'))
+                    ->where('SUBLINEAS.CODIGO', '=', $datos["subCategoria"])
+                    ->get()
+                    ->toArray();
+
+        if($datos["online"] == 1){
+
+            //BUSCAR PRODUCTO EN BASE DE DATOS WEB SI EXISTE
+
+            if($datos["longitudWeb"]=="0.00" || $datos["longitudWeb"]=="0"){
+                $datos["longitudWeb"]="";
+            }
+
+            if($datos["anchoWeb"]=="0.00" || $datos["longitudWeb"]=="0"){
+                $datos["anchoWeb"]="";
+            }
+               
+            if($datos["alturaWeb"]=="0.00" || $datos["longitudWeb"]=="0"){
+                $datos["alturaWeb"]="";
+            }
+
+            $item=$woocommerce->get('products',$parameters=["sku"=>$datos["codigo_interno"]]);
+
+            //ACTUALIZACION DE LOS PRODUCTOS EN WEB
+
+            if(count($item)>0){
+
+                //CARGA DATOS EN UNA VARIABLE
+
+                $data = [
+                    'name'=>$datos["nombreWeb"],
+                    'price'=> $datos["precioVenta"],
+                    'regular_price'=> $datos["precioVenta"],
+                    'description'=> $datos["descripcionWeb"],
+                    'categories'=> [
+                        [
+                        'id'=> $cate["0"]->ID_WEB
+                        ],
+                        [
+                        'id'=> $subcate["0"]->ID_WEB
+                        ]
+
+                    ],
+                    'weight'=> $datos["pesoWeb"],
+                    'dimensions'=> [
+                        'length' => $datos["longitudWeb"],
+                        'width' => $datos["anchoWeb"],
+                        'height' => $datos["alturaWeb"],
+                    ]
+                ];
+
+                //ACTUALIZACION DE LOS PRODUCTOS EN WOOCOMMERCE
+
+                $woocommerce->put('products/'.$item["0"]->id.'',$data);
+    
+            }else{
+
+                //OBTENER EL STOCK DEL PRODUCTO
+
+                $cantidad = DB::connection('retail')->table('LOTES')->select(DB::raw('sum(CANTIDAD) as CANTIDAD'))
+                            ->where('LOTES.ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->where('LOTES.COD_PROD', '=', $datos["codigo_producto"])
+                            ->groupBy("LOTES.COD_PROD")
+                            ->get()
+                            ->toArray();
+
+                //CARGAR DATOS EN UNA VARIABLE
+
+                $data = [
+                    'sku' => $datos["codigo_interno"],
+                    'name'=>$datos["nombreWeb"],
+                    'regular_price'=> $datos["precioVenta"],
+                    'price'=> $datos["precioVenta"],
+                    'description'=> $datos["descripcionWeb"],
+                    'stock_quantity' => $cantidad["0"]->CANTIDAD,
+                    'categories'=> [
+                        [
+                            'id'=> $cate["0"]->ID_WEB
+                        ],
+                        [
+                            'id'=> $subcate["0"]->ID_WEB
+                        ]
+
+                    ],
+                    'weight'=> $datos["pesoWeb"],
+                    'dimensions'=> [
+                        'length' => $datos["longitudWeb"],
+                        'width' => $datos["anchoWeb"],
+                        'height' => $datos["alturaWeb"]
+                    ]
+                ];
+
+                //CARGAR EL PRODUCTO EN WOOCOMMERCE
+
+                $woocommerce->post('products', $data);
+
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+         //ACTUALIZACION DE LOS PRODUCTOS EN DB DETALLE_WEB
+
+        if($datos["detalleWeb"] == true){
+
+             //BUSCAR CODIGO INTERNO
+
+            $interno=DB::connection('retail')->table('DETALLE_WEB')->select(DB::raw('ID'))
+                    ->where('CODIGO_INTERNO', '=', $datos["codigo_interno"])
+                    ->get()
+                    ->toArray();
+
+             //SI ENCUENTRA CODIGO INTERNO ACTUALIZA
+
+            if($interno!=NULL || count($interno)>0){
+
+                $actualizar = DB::connection('retail')->table('DETALLE_WEB')->where('ID_SUCURSAL', $user->id_sucursal)
+                                ->where('CODIGO_INTERNO', $datos["codigo_interno"])
+                                ->update(
+                                    ['NOMBRE' => $datos["nombreWeb"]], 
+                                    ['DESCRIPCION' => $datos["descripcionWeb"]], 
+                                    ['CATEGORIA_1' => $datos["categoria1Web"]], 
+                                    ['CATEGORIA_2' => $datos["categoria2Web"]], 
+                                    ['PESO' => $datos["pesoWeb"]],
+                                    ['HABILITADO' => $datos["habilitadoWeb"]],
+                                    ['LONGITUD' => $datos["longitudWeb"]],
+                                    ['ANCHURA' => $datos["anchoWeb"]],
+                                    ['ALTURA' => $datos["alturaWeb"]],
+                                    ['MARCA' => $datos["marcaWeb"]],
+                                    ['ID_WEB_LINEA' => $cate["0"]->ID_WEB],
+                                    ['ID_WEB_SUBLINEA' => $subcate["0"]->ID_WEB]
+                                );    
+
+            }else{
+
+                //CARGA LOS DATOS EN LA DB
+
+                $cargar=DB::connection('retail')->table('DETALLE_WEB')
+                                ->insertGetId([
+                                    'CODIGO_INTERNO' => $datos["codigo_interno"],
+                                    'NOMBRE' => $datos["nombreWeb"], 
+                                    'DESCRIPCION' => $datos["descripcionWeb"], 
+                                    'CATEGORIA_1' => $datos["categoria1Web"], 
+                                    'CATEGORIA_2' => $datos["categoria2Web"], 
+                                    'PESO' => $datos["pesoWeb"],
+                                    'HABILITADO' => $datos["habilitadoWeb"],
+                                    'LONGITUD' => $datos["longitudWeb"],
+                                    'ANCHURA' => $datos["anchoWeb"],
+                                    'ALTURA' => $datos["alturaWeb"],
+                                    'MARCA' => $datos["marcaWeb"],
+                                    'ID_SUCURSAL' => $user->id_sucursal,
+                                    'ID_WEB_LINEA' => $cate["0"]->ID_WEB,
+                                    'ID_WEB_SUBLINEA' => $subcate["0"]->ID_WEB]
+                                );
+            }
+        }
 
         // INSERTAR IMAGEN 
         
@@ -903,7 +1088,8 @@ class Producto extends Model
             'GENERADO' => $datos["generado"],
             'VENCIMIENTO' => $datos["vencimiento"],
             'TEMPORADA' => $datos["temporada"],
-            'PERIODO' => $datos["periodo"]
+            'PERIODO' => $datos["periodo"],
+            'ONLINE' => $datos["online"]
             ]
         );
 
@@ -936,9 +1122,7 @@ class Producto extends Model
         /*  --------------------------------------------------------------------------------- */
     }
 
-
-    public static function obtener_datos($datos)
-    {
+    public static function obtener_datos($datos){
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -996,10 +1180,20 @@ class Producto extends Model
                           0 AS AUTODESCRIPCION,
                           PRODUCTOS.PERIODO, 
                           PRODUCTOS.TEMPORADA,
+                          PRODUCTOS_AUX.ONLINE,
                           PRODUCTOS.VENCIMIENTO'))
         ->where($filtro, '=', $codigo)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
+
+
+        // OBTENER DATOS WEB
+
+        $online= DB::connection('retail')
+                ->table('DETALLE_WEB')
+                ->select(DB::raw('NOMBRE, DESCRIPCION, PESO, ALTURA, ANCHURA, LONGITUD'))
+                ->where("CODIGO_INTERNO","=", $producto[0]["CODIGO_INTERNO"])
+                ->get()->toArray();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1025,8 +1219,16 @@ class Producto extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // RETORNAR VALOR 
+            if(count($online)== 0){
+               // var_dump("entre 1");
 
-            return ["response" => true, "producto" => $producto[0], "imagen" => $imagen["imagen"]];
+                return ["response" => true, "producto" => $producto[0], "online" => 0, "imagen" => $imagen["imagen"]];
+            }else{
+               // var_dump("entre 2");
+                return ["response" => true, "producto" => $producto[0], "online" => $online[0], "imagen" => $imagen["imagen"]];
+            }
+
+            
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2180,7 +2382,9 @@ class Producto extends Model
                           PRODUCTOS_AUX.PREMAYORISTA,
                           PRODUCTOS.IMPUESTO,
                           PRODUCTOS.MARCA,
-                          PRODUCTOS.VENCIMIENTO')
+                          PRODUCTOS.LINEA,
+                          PRODUCTOS.VENCIMIENTO,
+                          PRODUCTOS_AUX.CODIGO_REAL')
         , DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
@@ -2198,6 +2402,8 @@ class Producto extends Model
             $data["VENCIMIENTO"] = $value->VENCIMIENTO;
             $data["STOCK"] = $value->STOCK;
             $data["MARCA"] = $value->MARCA;
+            $data["LINEA"] = $value->LINEA;
+            $data["CODIGO_REAL"] = $value->CODIGO_REAL;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2238,6 +2444,12 @@ class Producto extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
+        // DESCUENTO CATEGORIA 
+
+        $descuento_categoria = LineasDescuento::obtener_descuento($data["LINEA"], $user->id_sucursal);
+
+        /*  --------------------------------------------------------------------------------- */
+
         // REVISAR DESCUENTO POR MARCA 
 
         $descuento_marca = MarcaAux::
@@ -2264,7 +2476,7 @@ class Producto extends Model
 
         // RETORNAR VALOR 
 
-        return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca];
+        return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2575,4 +2787,163 @@ class Producto extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }   
+
+    public static function guardar_img(){
+
+        $directory="C:\Users\xsinx\Desktop\gg";
+        $dirint = dir($directory);
+        $secundario=1;
+        // $aux=0;
+        // $codigo=0;
+        // $c=0;
+        // $woocommerce = new Client(
+        //     'https://www.calbea.com.py', // Your store URL
+        //     'ck_14760e0d817b4c57551d17de6404aac61ebff682', // Your consumer key
+        //     'cs_91baae6016d43f30e19d95b8259c3098abccfa9e', // Your consumer secret
+        //     [
+        //         'wp_json' => true, // Enable the WP REST API integration
+        //         'wp_api' => true, // Enable the WP REST API integration
+        //         'version' => 'wc/v3',// WooCommerce WP REST API version
+        //         'query_string_auth' => true 
+        //     ]
+        // );
+        while (($archivo = $dirint->read()) !== false){
+        
+            //echo '<img src="'.$directory."/".$archivo.'">'.strlen($archivo)."\n";
+            if( strlen($archivo)>2){
+
+                $image = "";
+                $imagenBase64 = "";
+                $imge = "";
+                $cod_prod = substr($archivo,0,-4);
+                   
+                if(strlen($cod_prod) == 10 || strlen($cod_prod) == 15){
+                    $codigo=substr($cod_prod,0,-2);
+                    // var_dump($cod_prod);
+                    $secundario=2;
+                
+                }else{
+                    
+                    $secundario=1;
+                    $codigo=$cod_prod;
+                        $producto = DB::connection('retail')->table('PRODUCTOS_AUX')->where('CODIGO', '=', $codigo)
+                        ->update(['ONLINE' => 1]);
+
+                         // var_dump($codigo);
+                }
+              
+            //         if($aux!=$codigo ){
+
+
+            //             $producto = Producto::select(DB::raw('PRODUCTOS.CODIGO_INTERNO'))
+            //             ->where('PRODUCTOS.CODIGO', '=', $codigo)
+            //             ->where('PRODUCTOS.ID_SUCURSAL', '=', 9)
+            //             ->get()->toArray();
+            //             //var_dump($producto["0"]["CODIGO_INTERNO"]);
+
+            //             if(count($producto)>0){
+                                 
+            //                 //CONVERTIR JSON
+
+            //                 $item=$woocommerce->get('products',$parameters=["sku"=>$producto["0"]["CODIGO_INTERNO"]]);
+            //                    // var_dump($item["0"]->id);
+
+
+            //                  //ACTUALIZACION DE LOS PRODUCTOS EN WEB
+
+            //                 if(count($item)>0){
+            //                     $data = [
+            //                         'name'=>$item["0"]->name,
+            //                         'images'=> [
+            //                             [
+            //                                 'name'=> $codigo, 
+            //                                 'src'=>'https://www.calbea.com.py/wp-content/fotos3/'.$codigo.'.jpg'
+            //                             ]
+
+            //                         ]
+            //                     ];
+
+            //                     $woocommerce->put('products/'.$item["0"]->id.'',$data);
+                                     
+            //                 }
+            //             }
+            //         }
+            //     }
+
+            //      $aux=$codigo;
+            }
+        }
+        
+        $dirint->close();
+    }
+
+    public static function guardar_img_principal(){
+
+        // INDICA LA DIRECCION DEL ARCHIVO
+
+        $directory="C:\Users\xsinx\Desktop\gg";
+        $dirint = dir($directory);
+        $secundario=1;
+
+        // LEE TODO LOS DATOS DEL ARCHIVO
+
+        while (($archivo = $dirint->read()) !== false){
+        
+            //echo '<img src="'.$directory."/".$archivo.'">'.strlen($archivo)."\n";
+            if( strlen($archivo)>2){
+
+                $image = "";
+                $imagenBase64 = "";
+                $imge = "";
+
+                // SACA EL .JPG
+                $cod_prod = substr($archivo,0,-4);
+
+                if(strlen($cod_prod) == 10 || strlen($cod_prod) == 15){
+
+                    // SACA EL - 
+                    $codigo=substr($cod_prod,0,-2);
+                    // var_dump($cod_prod);
+                    $secundario=2;
+                
+                }else{
+                    $secundario=1;
+                    $codigo=$cod_prod;
+
+                    // UNE LA UBICACION DEL ARCHIVO CON EL NOMBRE DE LA IMAGEN
+                    
+                    $image= $directory."/".$archivo;
+
+                    //$contenidoImagen = file_get_contents("gg/45126352.jpg");
+
+                    $imagenBase64 = chunk_split(base64_encode(file_get_contents($image)));
+
+                    $imge = preg_replace('#^data:image/[^;]+;base64,#', '', $imagenBase64);
+
+                    // OBTINE EL CODIGO INTERNO DEL PRODUCTO
+
+                    $interno = DB::connection('retail')
+                        ->table('Productos')
+                        ->select(DB::raw('CODIGO_INTERNO'))
+                        ->where("CODIGO","=",$codigo)
+                        ->get();
+                        
+                    foreach ($interno as $key => $internos) {
+
+                            Imagen::guardar([
+                                'COD_PROD' => $codigo,
+                                'CODIGO_INTERNO'=> $internos->CODIGO_INTERNO,
+                                'PICTURE' => $imge
+                            ]);
+                    }
+                }
+                // var_dump($imge);
+
+                // $aleluya = chunk_split (base64_encode(file_get_contents($image)));
+                // var_dump(base64_decode($aleluya));  
+            }
+        }
+
+        $dirint->close();
+    }  
 }

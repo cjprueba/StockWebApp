@@ -44,6 +44,8 @@ Route::post('venta/numeracion', 'VentaController@numeracion');
 Route::post('venta/inicio', 'VentaController@inicio');
 Route::post('venta/factura', 'VentaController@factura');
 Route::post('venta/ticket', 'VentaController@ticket');
+Route::post('venta/resumen', 'VentaController@resumen');
+Route::get('venta/datatable', 'VentaController@datatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -351,6 +353,10 @@ Route::post('CantidadArticulos', 'ArticulosController@PorCantidad');
 
 Route::post('clientes', 'ClienteController@mostrar');
 Route::post('/cliente/datatable', 'ClienteController@datatable');
+Route::post('clienteFiltrar', 'ClienteController@filtrarCliente');
+Route::post('cliente/clienteDatatable', 'ClienteController@clienteDatatable');
+Route::post('clienteGuardar', 'ClienteController@guardarCliente');
+Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 
 /* -------------------------------------------------------------------------- */
 

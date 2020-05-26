@@ -1,5 +1,82 @@
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 							    FILTRAR CLIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function filtrarClienteCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/clienteFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    GUARDAR CLIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function guardarClienteCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/clienteGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    ELIMINAR CLIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function eliminarClienteCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/clienteEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 								   UTILES
 // ------------------------------------------------------------------------
@@ -285,6 +362,11 @@ function formatDateCommon(date) {
 
 function formulaCommon(formula, a, b, candec, moneda_principal, moneda_valor){
 
+			// if (moneda_valor === 1) {
+			// 	alert(a);
+			// 	alert(b);
+			// }
+			
 			// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES 
@@ -398,6 +480,86 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 
 }
 
+function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista, cantidad, decimal) {
+
+				// ------------------------------------------------------------------------
+
+				var precio_total = 0;
+
+	        	// ------------------------------------------------------------------------
+
+	        	// CONTAR LA CANTIDAD DE PRODUCTOS CON CODIGO REAL
+
+	        	tabla.rows().every(function(){
+
+					var data = this.data();
+				    if (data['CODIGO_REAL'] === codigo_real && codigo_real !== '' && codigo_real !== 0 && codigo_real !== null && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00)) {
+				    	cantidad = parseInt(data['CANTIDAD']) + parseInt(cantidad);
+				    }
+
+				});
+
+	        	// ------------------------------------------------------------------------
+
+	        	// APLICAR VALIDAR MAYORISTA 
+
+				if ((cantidad >= limite_mayorista) && precio_mayorista !== '' && precio_mayorista !== null) {
+
+					// ------------------------------------------------------------------------
+
+					// EMPEZAR A ACTUALIZAR PRECIO MAYORISTA DE TODOS LOS PRODUCTOS 
+
+					tabla.rows().every(function(){
+						var data = this.data();
+					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00") {
+
+					    	// ------------------------------------------------------------------------
+
+					    	// PRECIO 
+
+					    	tabla.cell(tabla.row( this ), 8).data(data['PREMAYORISTA']).draw();
+
+					    	// ------------------------------------------------------------------------
+
+				            //  QUITAR COMA DE PRECIO
+
+				            precio_total = Common.multiplicarCommon(data['CANTIDAD'], data['PREMAYORISTA'], decimal);
+				         
+				            // ------------------------------------------------------------------------
+
+				            //  DAR FORMATO AL RESULTADO FINAL PARA MOSTRAR EN DATATABLE 
+
+				            precio_total = Common.darFormatoCommon(precio_total, decimal);
+
+				            // ------------------------------------------------------------------------
+
+				            // PRECIO TOTAL
+
+				            tabla.cell(tabla.row( this ), 9).data(precio_total).draw();
+
+				            // ------------------------------------------------------------------------
+
+				            // CALCULAR IVA
+
+				            tabla.cell(tabla.row( this ), 7).data(Common.calcularIVACommon(precio_total, data['IVA'], decimal)).draw();
+			            	
+			            	// ------------------------------------------------------------------------
+
+					    }
+					});
+
+					// ------------------------------------------------------------------------
+
+					return true;
+
+					// ------------------------------------------------------------------------
+
+				} else {
+					return false;
+				}
+
+	        	// ------------------------------------------------------------------------
+}
 
 function existeProductoLoteDataTableCommon(tabla, codigo, lote, tipo_respuesta){
 
@@ -850,7 +1012,7 @@ function generarPdfFacturaTransferenciaCommon(data){
 
 }
 
-function generarPdfFacturaVentaCommon(codigo, caja){
+function generarPdfFacturaVentaVisualizarCommon(codigo, caja){
 
 			// ------------------------------------------------------------------------
 
@@ -872,6 +1034,78 @@ function generarPdfFacturaVentaCommon(codigo, caja){
 					// document.body.appendChild(link);
 					link.target = '_blank'
 					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfTicketVentaVisualizarCommon(codigo, caja){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfFacturaVentaCommon(codigo, caja){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
 				},
 				(error) => { return error }
 			);
@@ -914,6 +1148,36 @@ function generarPdfTicketVentaCommon(codigo, caja){
 					//     };
 					//     reader.readAsDataURL(blob);
 					// };
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfResumenCajaVentaCommon(codigo, caja){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'venta/resumen', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
 				},
 				(error) => { return error }
 			);
@@ -2812,5 +3076,12 @@ export {
 		obtenerMarcaCategoriaCommon,
 		existeProductoCommon,
 		generarPdfTicketVentaCommon,
-		generarPdfTicketVentaTestCommon
+		generarPdfTicketVentaTestCommon,
+		mayoristaCommon,
+		generarPdfFacturaVentaVisualizarCommon,
+		generarPdfTicketVentaVisualizarCommon,
+		filtrarClienteCommon,
+		guardarClienteCommon,
+		eliminarClienteCommon,
+		generarPdfResumenCajaVentaCommon
 		};

@@ -22,4 +22,42 @@ class ClienteController extends Controller
 
     }
 
+    /*  ---------------------------------FILTRAR---------------------------------------- */
+
+    public function filtrarCliente(Request $request){
+
+        $cliente = Cliente::filtrarClientes($request->all());
+        return response()->json($cliente);
+    }
+    
+    /*  --------------------------------------------------------------------------------- */
+
+    public function clienteDatatable(Request $request){
+
+
+       // OBTENER TODOS LOS DATOS DE lAS SUCURSALES
+
+         $cliente = Cliente::clientesDatatable($request);
+        return response()->json($cliente);
+
+    }
+
+    /*  ---------------------------------GUARDAR---------------------------------------- */
+
+    public function guardarCliente(Request $request){
+       
+        $cliente = Cliente::guardarClientes($request->all());
+        return response()->json($cliente);
+    
+    }
+
+    /*  ---------------------------------ELIMINAR---------------------------------------- */
+
+    public function eliminarCliente(Request $request){
+
+        $cliente = Cliente::eliminarClientes($request->all());
+        return response()->json($cliente);
+        
+    }
+
 }

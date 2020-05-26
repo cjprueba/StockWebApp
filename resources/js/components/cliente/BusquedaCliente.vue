@@ -60,13 +60,13 @@
         }
       }, 
       methods: {
-      	  enviarPadre(cedula, nombre){
+      	  enviarPadre(codigo, nombre){
 
 				// ------------------------------------------------------------------------
 
-				// ENVIAR CEDULA
+				// ENVIAR CODIGO
 
-				this.$emit('ci', cedula);
+				this.$emit('codigo', codigo);
                 this.$emit('nombre', nombre);
 
 				// ------------------------------------------------------------------------

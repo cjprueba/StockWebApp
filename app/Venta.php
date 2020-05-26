@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Mpdf\Mpdf;
 use Fpdf\Fpdf;
-use NumeroALetras\NumeroALetras;
+use Luecano\NumeroALetras\NumeroALetras;
 use App\Ticket;
 use App\Ventas_det;
 use App\Cliente;
@@ -1618,7 +1618,7 @@ class Venta extends Model
         // REVISAR DINERO Y QUITARLE VUELTO 
 
         $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
-        
+
         if ($opcion_vuelto === '1') {
             $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
         } else if ($opcion_vuelto === '2') {
@@ -1730,6 +1730,7 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */ 
 
             // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
+            var_dump($respuesta_resta);
 
             if ($respuesta_resta["datos"]) {
 
@@ -1862,7 +1863,7 @@ class Venta extends Model
                 "BASE5" => $total_base5, 
                 "BASE10" => $total_base10, 
                 "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                "TOTAL" => $total, 
+                "TOTAL" => $total_total, 
                 "EFECTIVO" => $efectivo, 
                 "CHEQUE" => 0, 
                 "VALE" => 0, 
@@ -1888,7 +1889,7 @@ class Venta extends Model
 
         // INSERTAR PAGO TARJETA
 
-        if ($codigo_tarjeta !== '0') {
+        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '0.00') {
             if ($codigo_tarjeta !== '') {
                 $pago_tarjeta = VentaTarjeta::guardar_referencia([
                     'FK_TARJETA' => $codigo_tarjeta,
@@ -1919,7 +1920,7 @@ class Venta extends Model
 
         // RETORNAR VALOR 
 
-        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja];
+        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja, "SIN_STOCK" => $sin_stock];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1989,7 +1990,7 @@ class Venta extends Model
         $codigo = Venta::where('CODIGO','=', 1)
         ->where('ID_SUCURSAL','=', $user->id_sucursal)
         ->count();
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         if ($codigo === 0) {
@@ -2053,7 +2054,7 @@ class Venta extends Model
 
         // OBTENER PARAMETRO
 
-        $parametro = Parametro::select(DB::raw('MONEDA'))
+        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -2068,7 +2069,7 @@ class Venta extends Model
 
         // RETORNAR VALOR 
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec];
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'EPSON LX-350 ESC/P (Copy 3)'];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2098,16 +2099,49 @@ class Venta extends Model
                         CLIENTES.NOMBRE AS CLIENTE,
                         CLIENTES.DIRECCION,
                         CLIENTES.RUC,
-                        VENTAS.TIPO'
+                        CLIENTES.CI,
+                        VENTAS.TIPO,
+                        VENTAS.HORALTAS,
+                        VENTAS.CAJA,
+                        EMPLEADOS.NOMBRE AS VENDEDOR,
+                        VENTAS.USER AS CAJERO,
+                        VENTAS.EFECTIVO AS PAGO,
+                        VENTAS.VUELTO,
+                        VENTAS.DESCUENTO,
+                        VENTAS.CODIGO_CA,
+                        VENTAS.TIPO,
+                        VENTAS.MONEDA'
                     ))
         ->leftJoin('CLIENTES', function($join){
                                 $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
                                      ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
         })
+        ->leftJoin('EMPLEADOS', function($join){
+                                $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                                     ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+        })
         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTAS.CODIGO','=', $codigo)
         ->where('VENTAS.CAJA','=', $caja)
         ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TIPO FACTURA 
+
+        if ($venta[0]->TIPO === 'CO') {
+            $venta[0]->TIPO = 'CONTADO';
+        } else if ($venta[0]->TIPO === 'CR') {
+            $venta[0]->TIPO = 'CRÉDITO';
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RUC / CI
+
+        if ($venta[0]->RUC === '' || $venta[0]->RUC === null) {
+            $venta[0]->RUC = $venta[0]->CI;
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2138,7 +2172,8 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $ventas_det = Ventas_det::select(DB::raw(
-                        'VENTASDET.ITEM, 
+                        'VENTASDET.ID,
+                        VENTASDET.ITEM, 
                         VENTASDET.COD_PROD, 
                         VENTASDET.DESCRIPCION, 
                         VENTASDET.CANTIDAD, 
@@ -2278,9 +2313,362 @@ class Venta extends Model
 
     }
 
+    public static function resumen_pdf($dato) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $fecha = date('Y-m-d');
+        $hora = date('H:i:s');
+        $dato = ['codigo' => 820671264471, 'caja' => 1];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
+
+        $ventas = Venta::select('CODIGO')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE VENTAS 
+
+        if ($ventas === 0) {
+            return ["response" => false, "statusText" => "No se ha encontrado ningúna venta !"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER EL PRIMER TICKET 
+
+        $primer_ticket = Venta::select('CODIGO_CA')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->orderBy('CODIGO_CA', 'ASC')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $ultimo_ticket = Venta::select('CODIGO_CA')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->orderBy('CODIGO_CA', 'DESC')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES CONTADO
+
+        $contado = Venta::select(DB::raw('SUM(EFECTIVO) AS T_EFECTIVO, SUM(TARJETAS) AS T_TARJETAS, SUM(VALE) AS T_VALES, SUM(CHEQUE) AS T_CHEQUE, SUM(DONACION) AS T_DONACION, SUM(GIROS) AS T_GIROS, SUM(VUELTO) AS T_VUELTOS, SUM(BASE5) AS T_BASE5, SUM(BASE10) AS T_BASE10, SUM(EXENTAS) AS T_EXENTAS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('TIPO', '=', 'CO')
+        ->where('CAJA', '=', $dato['caja'])
+        ->where('TOTAL', '<>', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES CREDITO
+
+        $credito = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('TIPO', '=', 'CR')
+        ->where('CAJA', '=', $dato['caja'])
+        ->where('TOTAL', '<>', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR ANULADOS
+
+        $anulados = Venta::select('CODIGO')
+        ->where('TOTAL', '=', 0)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PARAMETROS 
+
+        $parametro = Parametro::select(DB::raw('EMPRESA, PROPIETARIO, DIRECCION, CIUDAD, ACTIVIDAD, RUC, MONEDA'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // HABILITACION CAJA
+
+        $habilitacion = Venta::select(DB::raw('USER, HORALTAS'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->orderBy('CODIGO', 'ASC')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CIERRE CAJA
+
+        $cierre = Venta::select(DB::raw('USER, HORALTAS'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->orderBy('CODIGO', 'DESC')
+        ->limit(1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = 0;
+        $moneda = 1;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        //$nombre = 'Venta_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $pdf = new FPDF('P','mm',array(80,190));
+        $pdf->AddPage();
+         
+        // CABECERA
+
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(60,4, $parametro[0]->EMPRESA,0,1,'C');
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4, 'RESUMEN DE CAJA',0,1,'C');
+        $pdf->Cell(30,4, 'Fecha: '.$fecha ,0,0,'L');
+        $pdf->Cell(30,4, 'Hora: '.$hora ,0,1,'R');
+        $pdf->Cell(60,4, 'Caja: '.$dato['caja'] ,0,1,'C');
+          
+        $pdf->Cell(25, 4, 'Cajero:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $user->name,0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Intervalo Ticket:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $primer_ticket[0]->CODIGO_CA.' - '.$ultimo_ticket[0]->CODIGO_CA,0,0,'R');
+
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS 
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, 'Dolares:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->DOLARES, 2),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Reales:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->REALES, 4),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Guaranies:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->GUARANIES, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Pesos:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->PESOS, 3),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS 
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, utf8_decode('Dotación:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Efectivo:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_EFECTIVO, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Tarjetas:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TARJETAS, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Cheques:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_CHEQUE, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Vales:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VALES, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Giros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_GIROS, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Donación:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Retiros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION , $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Vuelto:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VUELTOS, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Gastos:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Total Ventas:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Total Efectivo:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(($contado[0]->T_EFECTIVO + $contado[0]->T_CHEQUE + $contado[0]->T_VALES + $contado[0]->T_GIROS), $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, utf8_decode('Ventas Crédito:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $credito[0]->T_TOTAL,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $anulados,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL GRAVADAS 10%:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $contado[0]->T_BASE10,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL GRAVADAS 5%:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $contado[0]->T_BASE5,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL EXENTAS:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $contado[0]->T_EXENTAS,0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Ln(6);
+
+        $pdf->Cell(25, 4, utf8_decode('HABILITACIÓN CAJA:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $habilitacion[0]["USER"],0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'HORA:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $habilitacion[0]["HORALTAS"],0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 10, utf8_decode('HABILITACIÓN CAJA:'), 0);
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cierre[0]["USER"],0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 10, 'HORA:', 0);
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cierre[0]["HORALTAS"],0,0,'R');
+        $pdf->Ln(4);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Output('ticket.pdf','i');
+
+    }
+
     public static function ticket_pdf($dato) {
 
-        $dato = ['codigo' => 9123470, 'caja' => 4];
+        //$dato = ['codigo' => 820671264471, 'caja' => 1];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2304,9 +2692,16 @@ class Venta extends Model
 
         // CANTIDAD DE DECIMALES Y MONEDA
 
-        $candec = 0;
-        $moneda = 1;
+        $candec = (Parametro::candec($ventas->MONEDA))["CANDEC"];
         $monedaVenta = $ventas->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PARAMETROS 
+
+        $mensaje = Parametro::select(DB::raw('MENSAJE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2334,7 +2729,17 @@ class Venta extends Model
         $direccion = $ventas->DIRECCION;
         $ruc = $ventas->RUC;
         $tipo = $ventas->TIPO;
-        $fecha = $ventas->FECALTAS;
+        $fecha = substr($ventas->FECALTAS,0,10);
+        $hora = $ventas->HORALTAS;
+        $caja = $ventas->CAJA;
+        $vendedor = $ventas->VENDEDOR;
+        $cajero = $ventas->CAJERO;
+        $pago = $ventas->PAGO;
+        $vuelto = $ventas->VUELTO;
+        $descuento = $ventas->DESCUENTO;
+        $ticket = $ventas->CODIGO_CA;
+        $tipo = $ventas->TIPO;
+        $documento = $ventas->RUC;
         $nombre = 'Venta_'.$codigo.'_'.time().'';
         $articulos = [];
         $cantidad = 0;
@@ -2349,8 +2754,7 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
         
-        define('EURO',chr(128));
-        $pdf = new FPDF('P','mm',array(80,150));
+        $pdf = new FPDF('P','mm',array(75,150));
         $pdf->AddPage();
          
         // CABECERA
@@ -2358,30 +2762,37 @@ class Venta extends Model
         $pdf->SetFont('Helvetica','',12);
         $pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
         $pdf->SetFont('Helvetica','',8);
-        $pdf->Cell(60,4, $ventas->CODIGO ,0,1,'C');
-        $pdf->Cell(60,4,'C/ Arturo Soria, 1',0,1,'C');
-        $pdf->Cell(60,4,'C.P.: 28028 Madrid (Madrid)',0,1,'C');
-        $pdf->Cell(60,4,'999 888 777',0,1,'C');
-        $pdf->Cell(60,4,'alfredo@lacodigoteca.com',0,1,'C');
-         
+        $pdf->Cell(30,4, 'Fecha: '.$fecha ,0,0,'L');
+        $pdf->Cell(30,4, 'Hora: '.$hora ,0,1,'R');
+        $pdf->Cell(30,4, 'Caja: '.$caja ,0,0,'L');
+        $pdf->Cell(30,4, 'Ticket: '.$ticket ,0,1,'R');
+
+        $pdf->Cell(25, 4, 'Vendedor:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $vendedor,0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Cajero:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $cajero,0,0,'R');
+        $pdf->Ln(5);
+
         // DATOS FACTURA
 
-        $pdf->Ln(5);
-        $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
-        $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
-        $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
+        // $pdf->Ln(5);
+        // $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
+        // $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
+        // $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
          
         // COLUMNAS
 
         $pdf->SetFont('Helvetica', 'B', 7);
-        $pdf->Cell(15, 10, 'Articulo', 0);
-        $pdf->Cell(15, 10, 'Descrip.', 0);
-        $pdf->Cell(5, 10, 'Ud',0,0,'R');
-        $pdf->Cell(10, 10, 'Precio',0,0,'R');
+        $pdf->Cell(25, 10, 'Articulo', 0);
+        $pdf->Cell(5, 10, 'Cant.',0,0,'R');
+        $pdf->Cell(15, 10, 'Precio',0,0,'R');
         $pdf->Cell(15, 10, 'Total',0,0,'R');
         $pdf->Ln(8);
         $pdf->Cell(60,0,'','T');
-        $pdf->Ln(0);
+        $pdf->Ln(2);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2390,53 +2801,11 @@ class Venta extends Model
         foreach ($ventas_det as $key => $value) {
             
             /*  --------------------------------------------------------------------------------- */
-
-            // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
-            
-            if ($value->MONEDA <> 1) {
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // PRECIO 
-
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
-
-                // SI NO ENCUENTRA COTIZACION RETORNAR 
-
-                if ($cotizacion["response"] === false) {
-                    header('HTTP/1.1 500 Internal Server Error');
-                    exit;
-                }
-
-                $articulos["precio"] = $cotizacion["valor"];
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // TOTAL 
-
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
-                $articulos["total"] = $cotizacion["valor"];
-
-                // SI NO ENCUENTRA COTIZACION RETORNAR
-
-                if ($cotizacion["response"] === false) {
-                    header('HTTP/1.1 500 Internal Server Error');
-                    exit;
-                }
-
-                $exentas = $exentas + Common::quitar_coma($articulos["total"], $candec);
-                $total = $total + Common::quitar_coma($articulos["total"], $candec);
-
-                /*  --------------------------------------------------------------------------------- */
-
-            } else {
                 
-                $articulos["precio"] = $value->PRECIO_UNIT;
-                $articulos["total"] = $value->PRECIO;
-                $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
-                $total = $total + Common::quitar_coma($value->PRECIO, $candec);
-
-            }
+            $articulos["precio"] = $value->PRECIO_UNIT;
+            $articulos["total"] = $value->PRECIO;
+            $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
+            $total = $total + Common::quitar_coma($value->PRECIO, $candec);
             
             /*  --------------------------------------------------------------------------------- */
 
@@ -2444,7 +2813,7 @@ class Venta extends Model
 
             $articulos["cantidad"] = $value->CANTIDAD;
             $articulos["cod_prod"] = $value->COD_PROD;
-            $articulos["descripcion"] = substr($value->DESCRIPCION, 0,5);
+            $articulos["descripcion"] = utf8_decode(substr($value->DESCRIPCION, 0,38));
             $cantidad = $cantidad + $value->CANTIDAD;
 
             /*  --------------------------------------------------------------------------------- */
@@ -2479,40 +2848,108 @@ class Venta extends Model
             // CARGAR PRODUCTOS 
 
             $pdf->SetFont('Helvetica', '', 7);
-            $pdf->Cell(15,4,$articulos["cod_prod"],0,'L'); 
-            $pdf->Cell(15, 4, $articulos["descripcion"],0,0,'R');
+            $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
             $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
-            $pdf->Cell(10, 4, $articulos["precio"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["precio"],0,0,'R');
             $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
             $pdf->Ln(3);
-            $pdf->Cell(60,4,$articulos["descripcion"],0,1,'C');
+            $pdf->Cell(60,4,$articulos["descripcion"],0,1,'L');
+            $pdf->Ln(2);
 
             /*  --------------------------------------------------------------------------------- */
-        }
 
-        
+            // BUSCAR DESCUENTOS 
+
+            $descuento_producto = Ventas_det_Descuento::select(DB::raw('PORCENTAJE, TOTAL'))
+            ->WHERE('FK_VENTASDET', '=', $value->ID)
+            ->WHERE('FK_COD_PROD', '=', $value->COD_PROD)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if (count($descuento_producto) > 0) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->SetFont('Helvetica', '', 7);
+                $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
+                $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+                $pdf->Cell(15, 4, '',0,0,'R');
+                $pdf->Cell(15, 4, $descuento_producto[0]->TOTAL ,0,0,'R');
+                $pdf->Ln(3);
+                $pdf->Cell(60,4,'DESCUENTO '.$descuento_producto[0]->PORCENTAJE.'%',0,1,'L');
+                $pdf->Ln(2);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
          
         // SUMATORIO DE LOS PRODUCTOS Y EL IVA
-        $pdf->Ln(6);
+
+        $pdf->Ln(1);
         $pdf->Cell(60,0,'','T');
-        $pdf->Ln(2);    
-        $pdf->Cell(25, 10, 'TOTAL SIN I.V.A.', 0);    
+        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, number_format(round((round(12.25,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
-        $pdf->Ln(3);    
-        $pdf->Cell(25, 10, 'I.V.A. 21%', 0);    
-        $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, number_format(round((round(12.25,2)),2)-round((round(2*3,2)/1.21),2), 2, ',', ' ').EURO,0,0,'R');
-        $pdf->Ln(3);    
-        $pdf->Cell(25, 10, 'TOTAL', 0);    
-        $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, number_format(round(12.25,2), 2, ',', ' ').EURO,0,0,'R');
-         
-        // PIE DE PAGINA
-        $pdf->Ln(10);
-        $pdf->Cell(60,0,'EL PERIODO DE DEVOLUCIONES',0,1,'C');
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($total, $monedaVenta),0,0,'R');
         $pdf->Ln(3);
-        $pdf->Cell(60,0,'CADUCA EL DIA  01/11/2019',0,1,'C');
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'DESCUENTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($descuento, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL A PAGAR:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra(($total - $descuento), $monedaVenta),0,0,'R');
+        
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'PAGO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($pago, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'VUELTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($vuelto, $monedaVenta),0,0,'R');
+
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'CLIENTE:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cliente,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(25, 10, 'R.U.C./C.I.:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $documento,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);     
+        $pdf->Cell(25, 10, 'TIPO VENTA:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $tipo,0,0,'R');
+
+        // PIE DE PAGINA
+
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,$mensaje[0]->MENSAJE,0,1,'C');
          
         $pdf->Output('ticket.pdf','i');
 
@@ -2526,6 +2963,7 @@ class Venta extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
+        $formatter = new NumeroALetras;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2597,7 +3035,7 @@ class Venta extends Model
         $data['nombre'] = $nombre;
         $data['c'] = $c;
         $data['tipo'] = 'fisico';
-
+        
         /*  --------------------------------------------------------------------------------- */
         
         // INICIAR MPDF 
@@ -2640,7 +3078,7 @@ class Venta extends Model
 
                 // PRECIO 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -2756,7 +3194,8 @@ class Venta extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
                 $data['cantidad'] = $cantidad;
-                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                //$data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['letra'] = 'Son Guaranies: '.($formatter->toMoney($total, 0, 'guaranies'));
                 $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
                 $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
                 $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
@@ -2806,7 +3245,8 @@ class Venta extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
                 $data['cantidad'] = $cantidad;
-                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                //$data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['letra'] = 'Son Guaranies: '.($formatter->toMoney($total, 0, 'guaranies'));
                 $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
                 $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
                 $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
@@ -2845,4 +3285,157 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
         
     }
+
+    /*  --------------------------------------------------------------------------------- */
+
+    public static function datatable_venta($request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            3 => 'FECHA',
+                            4 => 'IVA',
+                            5 => 'TOTAL',
+                            6 => 'ESTATUS',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal)
+                     ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.FECHA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA'))
+                         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.FECHA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA'))
+                         // ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
+                         // ->leftjoin('SUCURSALES AS DESTINO', 'DESTINO.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
+                         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('VENTAS.FECHA', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Venta::where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('VENTAS.FECHA', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['TIPO'] = $post->TIPO;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+                
+                $nestedData['ACCION'] = "
+                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    /*  --------------------------------------------------------------------------------- */
+
 }

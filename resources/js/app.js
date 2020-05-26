@@ -399,6 +399,7 @@ Vue.component('modal-detalle-compra', require('./components/compra/modal/ModalDe
 // CLIENTES
 
 Vue.component('busqueda-cliente-modal', require('./components/cliente/BusquedaCliente.vue').default);
+Vue.component('cliente-filtrar', require('./components/textboxs/ClienteTextbox.vue').default);
 
 /* ********************************************* */
 

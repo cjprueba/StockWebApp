@@ -32,6 +32,7 @@
           <!-- Content Row -->
           <div class="row">
 
+
             <div class="col-md-12" v-if="$can('inicio.lotes.vencidos')">
                 <caja-lote @codigo_producto="detalle"></caja-lote>
             </div>

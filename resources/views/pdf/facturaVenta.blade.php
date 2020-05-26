@@ -127,7 +127,7 @@
                 <td width="13%">&nbsp;</td>
                 <td width="4%" align="left" class="border fondo"><span class="text">X</span></td>
                 <td width="7%"></td>
-                <td width="7%" align="left"><span class="text">X</span></td>
+                <td width="7%" align="left"><span class="text"></span></td>
                 <td width="7%" ></td>
             </tr>
         </table>

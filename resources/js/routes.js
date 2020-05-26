@@ -190,6 +190,11 @@ export default new Router({
 			component: require('./components/reportes/stock/busqueda/stock.vue').default
 		},
 		{
+			path: '/vt1',
+			name: 'ventaMostrar',
+			component: require('./components/venta/MostrarVenta.vue').default
+		},
+		{
 			path: '/vt2',
 			name: 'ventaRealizar',
 			component: require('./components/venta/RealizarVenta.vue').default
@@ -198,6 +203,11 @@ export default new Router({
 			path: '/nom1',
 			name: 'nombreCrear',
 			component: require('./components/Atributos/nombre/CrearNombre.vue').default
+		},
+		{
+			path: '/cli1',
+			name: 'crearCliente',
+			component: require('./components/cliente/CrearCliente.vue').default
 		}
 
 	],

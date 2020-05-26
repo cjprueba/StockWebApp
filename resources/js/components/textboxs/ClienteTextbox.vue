@@ -1,0 +1,165 @@
+<template>
+	<div>
+
+		<!-- ------------------------------------------------ INPUT DE CODIGO DEL CLIENTE ---------------------------------------------- -->
+		
+		<div class="input-group ">
+	
+				<div class="input-group-prepend">
+					<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".cliente-modal" ><font-awesome-icon icon="search"/></button>
+				</div>
+
+				<input ref="codigo" :value="codigo" id="codigo_cliente" class="custom-select custom-select-sm" type="text" @input="$emit('input', $event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)">
+		
+		</div>	
+				
+		<!-- ----------------------------------------------- DATATABLE DE LA TABLA CLIENTE --------------------------------------------- -->
+		
+		<div class="modal fade cliente-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+
+					   <h5 class="modal-title" id="exampleModalCenterTitle">Clientes: </small></h5>
+					   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					     	<span aria-hidden="true">&times;</span>
+					   </button>
+					</div>
+
+					<!-- ---------------------------------- TITULO DE LAS COLUMNAS A MOSTRAR ------------------------------------------- -->
+					
+					<div class="modal-body">
+					    <table id="tablaModalCliente" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+							<thead>
+							    <tr>
+							    	<th></th>
+							        <th>Nombre</th>
+							        <th>Codigo</th>
+							        <th>RUC</th>
+							        <th>Dirección</th>
+							        <th>Ciudad</th>
+							    </tr>
+							</thead>       
+						</table>        
+					</div>
+
+					<!-- ----------------------------------------- BOTON CERRAR DATATABLE ---------------------------------------------- -->
+					
+					<div class="modal-footer">
+
+					  	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</template>
+
+<script>
+	
+	export default{
+		
+		props: ['codigo'],
+		
+		data(){
+			 return {
+			}
+		},
+
+		methods: {
+			
+			enviarCodigoPadre(id, codigo, cedula, nombre, ruc, direccion, ciudad, nacimiento, telefono, celular, email, tipo, limite){
+
+				// ENVIAR CODIGO
+
+				this.$emit('id', id);
+				this.$emit('codigo', codigo);
+		        this.$emit('cedula', cedula);
+		        this.$emit('nombre', nombre);
+		        this.$emit('ruc', ruc);
+		        this.$emit('direccion', direccion);
+		        this.$emit('ciudad', ciudad);
+		        this.$emit('nacimiento', nacimiento);
+		        this.$emit('telefono', telefono);
+		        this.$emit('celular', celular);
+		        this.$emit('email', email);
+		        this.$emit('tipo', tipo);
+		        this.$emit('limite', limite);
+
+				// ------------------------------------------------------------------------
+
+			},
+		},
+
+		mounted(){
+
+			let me = this;
+
+			var table = $('#tablaModalCliente').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				        	{ extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary' }
+				        ],
+                        "ajax":{
+                        		"data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
+                                 "url": "/cliente/clienteDatatable",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "ID" },
+                            { "data": "NOMBRE" },
+                            { "data": "CODIGO" },
+                            { "data": "RUC" },
+                            { "data": "DIRECCION" },
+                            { "data": "CIUDAD" }
+                        ]      
+            });
+
+
+			$('#tablaModalCliente').on('click', 'tbody tr', function() {
+
+                // CARGAR LOS VALORES A LAS VARIABLES
+
+                me.id = table.row(this).data().ID;
+
+                Common.filtrarClienteCommon(me.id).then(data => {  
+                    
+                    me.enviarCodigoPadre(me.id,
+                    data.cliente[0].CODIGO,
+                    data.cliente[0].CI,
+                    data.cliente[0].NOMBRE,
+                    data.cliente[0].RUC,
+                    data.cliente[0].DIRECCION,
+                    data.cliente[0].CIUDAD, 
+                    data.cliente[0].FEC_NAC, 
+                    data.cliente[0].TELEFONO,
+           			data.cliente[0].CELULAR,
+           			data.cliente[0].EMAIL,
+           			data.cliente[0].TIPO,
+           			data.cliente[0].LIMITE_CREDITO);
+                })
+
+                // CERRAR EL MODAL
+                     
+                $('.cliente-modal').modal('hide');
+
+               // *******************************************************************
+
+            });
+		}
+	}
+</script>

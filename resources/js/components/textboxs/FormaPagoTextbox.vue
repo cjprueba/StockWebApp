@@ -418,13 +418,13 @@
                           <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
                           <div class="col-sm-10">
                             <div class="form-check form-check-inline">
-                              <input v-model="radio.impresion" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion1" value="1">
+                              <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion1" value="1">
                               <label class="form-check-label" for="radioImpresion1">
                                 Ticket
                               </label>
                             </div>
                             <div class="form-check form-check-inline">
-                              <input v-model="radio.impresion" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
+                              <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
                               <label class="form-check-label" for="radioImpresion2">
                                 Factura / Ticket
                               </label>
@@ -637,6 +637,13 @@
 
             // ------------------------------------------------------------------------
 
+            // CAMBIAR EL DEFAULT DE VUELTO POR LA MONEDA 
+
+            this.radio.vuelto = String(this.moneda);
+            this.respuesta.OPCION_VUELTO = String(this.moneda);
+
+            // ------------------------------------------------------------------------
+
           }, formatoGuaranies(){
 
             // ------------------------------------------------------------------------
@@ -669,7 +676,7 @@
 
             // ------------------------------------------------------------------------
 
-            // DAR FORMATO A CANTIDAD
+            // DAR FORMATO A TARJETA
             
             me.medios.TARJETA = Common.darFormatoCommon(me.medios.TARJETA, me.cotizacion.candec_gs);
 
@@ -794,7 +801,7 @@
 
             Common.cotizacionyMonedaFormaPagoCommon().then(data => {
                 me.cotizacion = data;
-                this.total_modificable = this.total_crudo;
+                me.total_modificable = me.total_crudo;
                 me.calcularTotalesMoneda();
             });
 
@@ -848,31 +855,33 @@
 
           }, sumarMonedas() {
 
-            var dolares = 0, guaranies = 0, pesos = 0, reales = 0, total = 0, vuelto = 0;
+            var dolares = 0, guaranies = 0, pesos = 0, reales = 0, total = 0, vuelto = 0, tarjeta = 0;
 
             // ------------------------------------------------------------------------
 
             // TOTALES MONEDAS 
 
-            guaranies = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.monedas.GUARANIES, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.moneda, this.cotizacion.moneda_gs);
+            guaranies = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.monedas.GUARANIES, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
 
-            dolares =  Common.formulaCommon(this.cotizacion.formula_usd_reves, this.monedas.DOLARES, this.cotizacion.dolares, this.cotizacion.candec_$, this.moneda, this.cotizacion.moneda_$);
+            dolares =  Common.formulaCommon(this.cotizacion.formula_usd_reves, this.monedas.DOLARES, this.cotizacion.dolares, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_$);
 
-            pesos =  Common.formulaCommon(this.cotizacion.formula_ps_reves, this.monedas.PESOS, this.cotizacion.pesos, this.cotizacion.candec_ps, this.moneda, this.cotizacion.moneda_ps);
+            pesos =  Common.formulaCommon(this.cotizacion.formula_ps_reves, this.monedas.PESOS, this.cotizacion.pesos, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_ps);
 
-            reales = Common.formulaCommon(this.cotizacion.formula_rs_reves, this.monedas.REALES, this.cotizacion.reales, this.cotizacion.candec_rs, this.moneda, this.cotizacion.moneda_rs);
+            reales = Common.formulaCommon(this.cotizacion.formula_rs_reves, this.monedas.REALES, this.cotizacion.reales, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_rs);
 
             // ------------------------------------------------------------------------
 
             // TOTAL MONEDAS 
-
+            // alert("total guaranies "+this.monedas.GUARANIES);
+            // alert("guaranies "+ guaranies);
             total = (Common.sumarCommon(Common.sumarCommon(pesos, reales, this.candec), Common.sumarCommon(dolares, guaranies, this.candec), this.candec));
 
             // ------------------------------------------------------------------------
 
-            // TARJETA 
+            // TARJETA
 
-            total = Common.sumarCommon(this.medios.TARJETA, total, this.candec);
+            tarjeta = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.medios.TARJETA, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
+            total = Common.sumarCommon(tarjeta, total, this.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1026,7 +1035,7 @@
               REALES: me.monedas.REALES,
               CHEQUE: me.cheque,
               TIPO_IMPRESION: me.seleccion.impresion,
-              OPCION_VUELTO: me.seleccion.vuelto
+              OPCION_VUELTO: me.radio.vuelto
             }
             
             // ------------------------------------------------------------------------
