@@ -89,7 +89,7 @@
 					<div class="col-md-4">
 						<!-- <div>
 							 -->
-						<label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO}}</label><br>
+						<label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO + 1}}</label><br>
 						<label><span class="text-primary">Nro. Caja:</span> {{venta.CODIGO_CAJA}}</label>
 					</div>
 
@@ -242,8 +242,8 @@
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
 				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="recargar"><small>Nuevo</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Ticket Test</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Factura Test</small></button>
+				<button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button>
+				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 			</div>
 
@@ -393,7 +393,12 @@
          		MAYORISTA: false,
          		TICKET: false,
          		FACTURA: false
-         	}, codigo_detalle: '' 
+         	}, codigo_detalle: '',
+         	impresion: {
+         		TICKET: false,
+         		FACTURA: false,
+         		TIPO: ''
+         	} 
 
         }
       }, 
@@ -457,23 +462,24 @@
 
 						// GENERAR FACTURA Y TICKET
 
+						me.impresion.TIPO = datos.TIPO_IMPRESION;
+
 						if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
 							Common.generarPdfFacturaVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
-						} else if (datos.TIPO_IMPRESION === "2") {
-							me.factura(result.value.CODIGO, result.value.CAJA);
-						}
+						} 
 
 						if (me.checked.TICKET === true) {
 							Common.generarPdfTicketVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
 						} else {
 							me.ticket(result.value.CODIGO, result.value.CAJA);
 						}
-						
-						// ------------------------------------------------------------------------ 
+						// ------------------------------------------------------------------------
 
-						// RECARGAR LA PAGINA 
+						// VOLVER TRUE FACTURA SI ES QUE SOLO IMPRIMIO TICKET 
 
-						//me.recargar();
+						if(datos.TIPO_IMPRESION === "1") {
+							me.impresion.FACTURA = true;
+						}
 
 						// ------------------------------------------------------------------------ 
 
@@ -490,7 +496,10 @@
       			// RECARGAR LA PAGINA 
 
       			//this.test();
-				window.location.href = '/vt2';
+
+      			if (this.impresion.TICKET === true && this.impresion.FACTURA === true) {
+      				window.location.href = '/vt2';
+      			}
 
 				// ------------------------------------------------------------------------ 
 
@@ -554,12 +563,12 @@
         	},
         	ticket_mostrar(){
 
-        		this.ticket(8, 1);
-        		//Common.generarPdfTicketVentaVisualizarCommon(3, 1);
+        		//this.ticket(8, 1);
+        		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, 1);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(8, 1);
-        		this.factura(8, 1);
+        		Common.generarPdfFacturaVentaVisualizarCommon(this.venta.CODIGO, 1);
+        		//this.factura(8, 1);
         	},
         	resumen_test(){
         		Common.generarPdfResumenCajaVentaCommon(8, 1);
@@ -1188,7 +1197,7 @@
 						reader.onloadend = function() {
 						     var base64data = reader.result;
 						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						     me.imprimir(base64data);
+						     me.imprimir(base64data, numero, caja);
 						 }
 
 				});
@@ -1197,7 +1206,7 @@
 
 				// Common.generarPdfTicketVentaTestCommon();
 
-			}, imprimir(base64) {
+			}, imprimir(base64, numero, caja) {
 
 				let me = this;
 
@@ -1205,7 +1214,7 @@
 					   return qz.printers.find(me.ajustes.IMPRESORA_TICKET);              // Pass the printer name into the next Promise
 					}).then(function(printer) {
 
-						     var config = qz.configs.create(printer);
+						     var config = qz.configs.create(printer, { copies: 2 });
 						var data = [{ 
 						   type: 'pixel',
            					format: 'pdf',
@@ -1213,7 +1222,33 @@
 						   data: base64
 						}];
 
-					   return qz.print(config, data);
+					   return qz.print(config, data).then(function() {
+
+					   		// ------------------------------------------------------------------------ 
+
+					   		// AVISAR QUE YA IMPRIMIO TICKET 
+
+					   		me.impresion.TICKET = true;
+
+					   		// ------------------------------------------------------------------------ 
+
+					   		// CUANDO SE DESCONECTA TICKET ENVIAR IMPRESION FACTURA
+
+					   		qz.websocket.disconnect();
+
+					   		if (me.impresion.TIPO === "2" && me.checked.FACTURA === false) {
+								me.factura(numero, caja);
+							}
+
+					   		// ------------------------------------------------------------------------ 
+
+					   		// RECARGAR LA PAGINA 
+
+					   		me.recargar();
+
+					   		// ------------------------------------------------------------------------ 
+
+					   });
 						 
 					   
 					}).catch(function(e) { console.error(e); });
@@ -1234,7 +1269,11 @@
 						   data: base64
 						}];
 
-					   return qz.print(config, data);
+					   return qz.print(config, data).then(function() {
+					   		me.impresion.FACTURA = true;
+					   		qz.websocket.disconnect();
+					   		me.recargar();
+					   });
 						 
 					   
 					}).catch(function(e) { console.error(e); });

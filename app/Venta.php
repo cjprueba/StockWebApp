@@ -10,6 +10,9 @@ use App\Ticket;
 use App\Ventas_det;
 use App\Cliente;
 use App\Ventas_det_Descuento;
+use App\VentaTarjeta;
+use App\VentaGiro;
+use App\VentaTransferencia;
 
 class Venta extends Model
 {
@@ -1651,6 +1654,23 @@ class Venta extends Model
         $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
         $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
         $codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRANSFERENCIA 
+
+        $transferencia = Common::quitar_coma($data["data"]["pago"]["TRANSFERENCIA"], 0);
+        $codigo_banco = $data["data"]["pago"]["CODIGO_BANCO"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO 
+
+        $giro = Common::quitar_coma($data["data"]["pago"]["GIRO"], 0);
+        $codigo_entidad = $data["data"]["pago"]["CODIGO_ENT"];
+
+        /*  --------------------------------------------------------------------------------- */
+
         $caja = $data["data"]["caja"]["CODIGO"];
         $cliente = $data["data"]["cliente"]["CODIGO"];
         $vendedor = $data["data"]["vendedor"]["CODIGO"];
@@ -1730,7 +1750,7 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */ 
 
             // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
-            var_dump($respuesta_resta);
+            
 
             if ($respuesta_resta["datos"]) {
 
@@ -1902,6 +1922,36 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // INSERTAR PAGO TRANSFERENCIA
+        
+        if ($codigo_banco !== '0' && $codigo_banco !== '0.00' && $codigo_banco !== NULL) {
+            if ($codigo_banco !== '') {
+                VentaTransferencia::guardar_referencia([
+                    'FK_BANCO' => $codigo_banco,
+                    'FK_VENTA' => $venta,
+                    'MONTO' => $transferencia,
+                    'MONEDA' => 1
+                ]);
+            } 
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INSERTAR PAGO GIRO
+        
+        if ($codigo_entidad !== '0' && $codigo_entidad !== '0.00' && $codigo_entidad !== NULL) {
+            if ($codigo_entidad !== '') {
+                VentaGiro::guardar_referencia([
+                    'FK_ENTIDAD' => $codigo_entidad,
+                    'FK_VENTA' => $venta,
+                    'MONTO' => $giro,
+                    'MONEDA' => 1
+                ]);
+            } 
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // INSERTAR PAGO CHEQUES 
 
         $pago_cheque = VentaCheque::guardar_referencia($cheques, $venta);
@@ -1920,7 +1970,7 @@ class Venta extends Model
 
         // RETORNAR VALOR 
 
-        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja, "SIN_STOCK" => $sin_stock];
+        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2395,6 +2445,17 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // TARJETA 
+        
+        $tarjeta = VentaTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_TARJETA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
         // SUMAR ANULADOS
 
         $anulados = Venta::select('CODIGO')
@@ -2548,7 +2609,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Tarjetas:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TARJETAS, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($tarjeta[0]->TOTAL, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Cheques:', 0);
@@ -2894,7 +2955,7 @@ class Venta extends Model
         $pdf->Cell(25, 10, 'TOTAL:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($total, $monedaVenta),0,0,'R');
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra(($total + $descuento), $monedaVenta),0,0,'R');
         $pdf->Ln(3);
         $pdf->SetFont('Helvetica', 'B', 7);    
         $pdf->Cell(25, 10, 'DESCUENTO:', 0);
@@ -2906,7 +2967,7 @@ class Venta extends Model
         $pdf->Cell(25, 10, 'TOTAL A PAGAR:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, Common::precio_candec_sin_letra(($total - $descuento), $monedaVenta),0,0,'R');
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($total, $monedaVenta),0,0,'R');
         
         $pdf->Ln(10);
         $pdf->Cell(60,0,'','T');
@@ -3093,7 +3154,7 @@ class Venta extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR

@@ -274,7 +274,7 @@
                                           <div class="input-group-prepend">
                                             <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="credit-card"/></span>
                                           </div>
-                                          <input class="form-control form-control-sm" type="text" v-model="medios.TARJETA" v-on:blur="formatoTarjeta">
+                                          <input class="form-control form-control-sm" placeholder="Solo en guaranies." type="text" v-model="medios.TARJETA" v-on:blur="formatoTarjeta">
                                         </div>
 
                                         <small id="passwordHelpBlock" class="form-text text-muted" v-if="mostrar.TARJETA_SELECCION">
@@ -283,7 +283,38 @@
 
                                       <!-- ------------------------------------------------------------------------ -->
 
+                                    </div>
+
+                                    <!-- ------------------------------------------------------------------------ -->
+
+                                    <!-- TRANSFERENCIA -->
+
+                                    <div class="col-md-2">
+                                      <label for="validationTooltip01">Transf.</label>
                                     </div>  
+
+                                    <div class="col-md-10">
+
+                                      <!-- ------------------------------------------------------------------------ -->
+
+                                      <!-- MONTO PAGADO -->
+
+                                        
+                                        <div class="input-group input-group-sm mb-3" >
+                                          <div class="input-group-prepend">
+                                            <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="university"/></span>
+                                          </div>
+                                          <input class="form-control form-control-sm" type="text" v-model="medios.TRANSFERENCIA" v-on:blur="formatoTransferencia">
+                                        </div>
+
+                                        <small id="passwordHelpBlock" class="form-text text-muted" v-if="mostrar.BANCO_SELECCION">
+                                            <p><a href="#" v-on:click="formatoTransferencia" class="text-primary">{{banco.descripcion}}</a></p>
+                                        </small>
+
+                                      <!-- ------------------------------------------------------------------------ -->
+
+                                    </div>
+                                      
                                     <!-- ------------------------------------------------------------------------ -->
 
                                     <!-- CHEQUE -->
@@ -363,8 +394,12 @@
                                           <div class="input-group-prepend">
                                             <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="sync-alt"/></span>
                                           </div>
-                                          <input class="form-control form-control-sm" type="text" disabled>
+                                          <input class="form-control form-control-sm" type="text" placeholder="Solo en guaranies." v-model="medios.GIROS" v-on:blur="formatoGiro">
                                         </div>
+
+                                        <small id="passwordHelpBlock" class="form-text text-muted" v-if="mostrar.GIROS_SELECCION">
+                                            <p><a href="#" v-on:click="formatoGiro" class="text-primary">{{giro.descripcion}}</a></p>
+                                        </small>
 
                                       <!-- ------------------------------------------------------------------------ -->
 
@@ -398,6 +433,8 @@
                   </div> 
 
                   <tarjeta-modal ref="compontente_modal_tarjeta" @codigo="codigoTarjeta" @descripcion="descripcionTarjeta"></tarjeta-modal> 
+                  <giro-modal ref="compontente_modal_giro" @codigo="codigoGiro" @descripcion="descripcionGiro"></giro-modal> 
+                  <banco-modal ref="compontente_modal_banco" @codigo="codigoBanco" @descripcion="descripcionBanco"></banco-modal> 
                   <cheque-modal ref="compontente_modal_cheque" @data="sumarCheques" :cotizacion="cotizacion" :moneda_principal="moneda"></cheque-modal> 
 
                   <!-- ------------------------------------------------------------------------ -->
@@ -415,57 +452,71 @@
                         <div class="modal-body">
 
                           <div class="row">
-                          <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
-                          <div class="col-sm-10">
-                            <div class="form-check form-check-inline">
-                              <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion1" value="1">
-                              <label class="form-check-label" for="radioImpresion1">
-                                Ticket
-                              </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                              <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
-                              <label class="form-check-label" for="radioImpresion2">
-                                Factura / Ticket
-                              </label>
+                            <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
+                            <div class="col-sm-10">
+                              <div class="form-check form-check-inline">
+                                <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion1" value="1">
+                                <label class="form-check-label" for="radioImpresion1">
+                                  Ticket
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input v-model="radio.impresion" v-on:change="seleccionar" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
+                                <label class="form-check-label" for="radioImpresion2">
+                                  Factura / Ticket
+                                </label>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div class="row">
-                          <div class="col-md-12">
-                            <hr>
+                          <div class="row">
+                            <div class="col-md-12">
+                              <hr>
+                            </div>
+                          </div>  
+                          <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">Vuelto</legend>
+                            <div class="col-sm-10">
+                              <div class="form-check form-check-inline">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                                <label class="form-check-label" for="gridRadios1">
+                                  Guaranies
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                                <label class="form-check-label" for="gridRadios2">
+                                  Dolares
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <label class="form-check-label" for="gridRadios3">
+                                  Reales
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <label class="form-check-label" for="gridRadios4">
+                                  Pesos
+                                </label>
+                              </div>
+                            </div>
                           </div>
-                        </div>  
-                        <div class="row">
-                          <legend class="col-form-label col-sm-2 pt-0">Vuelto</legend>
-                          <div class="col-sm-10">
-                            <div class="form-check form-check-inline">
-                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
-                              <label class="form-check-label" for="gridRadios1">
-                                Guaranies
-                              </label>
+
+                          <div class="row">
+                            <div class="col-md-12">
+                              <hr>
                             </div>
-                            <div class="form-check form-check-inline">
-                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
-                              <label class="form-check-label" for="gridRadios2">
-                                Dolares
-                              </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
-                              <label class="form-check-label" for="gridRadios3">
-                                Reales
-                              </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                              <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
-                              <label class="form-check-label" for="gridRadios4">
-                                Pesos
-                              </label>
+                          </div> 
+
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="text-center">
+                                <h1 class="text-primary" >{{vuelto.seleccion}} </h1>
+                              </div>  
                             </div>
                           </div>
-                        </div>
 
                         </div>
 
@@ -515,7 +566,9 @@
               VUELTO: '0',
               TARJETA: '0',
               EFECTIVO: '0',
-              CHEQUE: '0'
+              CHEQUE: '0',
+              TRANSFERENCIA: '0',
+              GIROS: '0'
             },
             monedas: {
               GUARANIES: '',
@@ -558,22 +611,28 @@
               REALES: ''
             },
             total_modificable: 0,
-            respuesta: {
-              EFECTIVO: '0',
-              CODIGO_TARJETA: ''
-            },
             vuelto: {
               guaranies: '',
               dolares: '',
               pesos: '',
-              reales: ''
+              reales: '',
+              seleccion: ''
             },
             tarjeta: {
               codigo: '',
               descripcion: 'Ninguno'
             },
+            banco: {
+              codigo: '',
+              descripcion: 'Ninguno'
+            },
+            giro: {
+              codigo: '',
+              descripcion: 'Ninguno'
+            },
             mostrar: {
-              TARJETA_SELECCION: false
+              TARJETA_SELECCION: false,
+              BANCO_SELECCION: false
             },
             cheque: '',
             seleccion: {
@@ -587,6 +646,10 @@
               EFECTIVO: '',
               CODIGO_TARJETA: '',
               TARJETA: '',
+              CODIGO_BANCO: '',
+              TRANSFERENCIA: '',
+              CODIGO_ENT: '',
+              GIRO: '',
               VUELTO: '',
               SALDO: '',
               GUARANIES: '',
@@ -611,6 +674,19 @@
 
             // ------------------------------------------------------------------------
 
+            // MOSTRAR VUELTO SELECCIONADO 
+
+            if (this.radio.vuelto === "1") {
+              this.vuelto.seleccion = this.vuelto.guaranies;
+            } else if (this.radio.vuelto === "2") {
+              this.vuelto.seleccion = this.vuelto.dolares;
+            } else if (this.radio.vuelto === "3") {
+              this.vuelto.seleccion = this.vuelto.pesos;
+            } else if (this.radio.vuelto === "4") {
+              this.vuelto.seleccion = this.vuelto.reales;
+            } 
+
+            // ------------------------------------------------------------------------
           },
       		llamarPadre(valor){
 
@@ -689,6 +765,72 @@
               this.tarjeta.codigo = '';
               this.tarjeta.descripcion = 'Ninguno';
               this.mostrar.TARJETA_SELECCION = false;
+            }
+            
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+            
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+
+          }, formatoGiro(){
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A TARJETA
+            
+            me.medios.GIROS = Common.darFormatoCommon(me.medios.GIROS, me.cotizacion.candec_gs);
+
+            // ------------------------------------------------------------------------
+
+            if (me.medios.GIROS !== '0') {
+              this.$refs.compontente_modal_giro.mostrarModal();
+              this.mostrar.GIROS_SELECCION = true;
+            } else {
+              this.giro.codigo = '';
+              this.giro.descripcion = 'Ninguno';
+              this.mostrar.GIROS_SELECCION = false;
+            }
+            
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+            
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+
+          }, formatoTransferencia(){
+           
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A TARJETA
+            
+            me.medios.TRANSFERENCIA = Common.darFormatoCommon(me.medios.TRANSFERENCIA, me.cotizacion.candec_gs);
+
+            // ------------------------------------------------------------------------
+
+            if (me.medios.TRANSFERENCIA !== '0') {
+              this.$refs.compontente_modal_banco.mostrarModal();
+              this.mostrar.BANCO_SELECCION = true;
+            } else {
+              this.banco.codigo = '';
+              this.banco.descripcion = 'Ninguno';
+              this.mostrar.BANCO_SELECCION = false;
             }
             
             // ------------------------------------------------------------------------
@@ -855,7 +997,7 @@
 
           }, sumarMonedas() {
 
-            var dolares = 0, guaranies = 0, pesos = 0, reales = 0, total = 0, vuelto = 0, tarjeta = 0;
+            var dolares = 0, guaranies = 0, pesos = 0, reales = 0, total = 0, vuelto = 0, tarjeta = 0, transferencia = 0, giro = 0;
 
             // ------------------------------------------------------------------------
 
@@ -882,6 +1024,20 @@
 
             tarjeta = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.medios.TARJETA, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
             total = Common.sumarCommon(tarjeta, total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // TRANSFERENCIA
+
+            transferencia = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.medios.TRANSFERENCIA, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
+            total = Common.sumarCommon(transferencia, total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // GIROS
+
+            giro = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.medios.GIROS, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
+            total = Common.sumarCommon(giro, total, this.candec);
 
             // ------------------------------------------------------------------------
 
@@ -999,6 +1155,46 @@
 
             // ------------------------------------------------------------------------
 
+          }, codigoGiro(valor) {
+
+            // ------------------------------------------------------------------------
+
+            // OBTENER CODIGO DE GIRO
+
+            this.giro.codigo = valor;
+
+            // ------------------------------------------------------------------------
+
+          }, descripcionGiro(valor) {
+
+            // ------------------------------------------------------------------------
+
+            // OBTENER DESCRIPCION DE GIRO
+
+            this.giro.descripcion = valor;
+
+            // ------------------------------------------------------------------------
+
+          }, codigoBanco(valor) {
+
+            // ------------------------------------------------------------------------
+
+            // OBTENER CODIGO DE BANCO
+
+            this.banco.codigo = valor;
+
+            // ------------------------------------------------------------------------
+
+          }, descripcionBanco(valor) {
+
+            // ------------------------------------------------------------------------
+
+            // OBTENER DESCRIPCION DE BANCO
+
+            this.banco.descripcion = valor;
+
+            // ------------------------------------------------------------------------
+
           }, enviar(){
 
             // ------------------------------------------------------------------------
@@ -1022,11 +1218,15 @@
             // ------------------------------------------------------------------------
 
             // ENVIAR DATOS
-            
+
             me.respuesta = {
               EFECTIVO: me.medios.EFECTIVO,
               CODIGO_TARJETA: me.tarjeta.codigo,
               TARJETA: me.medios.TARJETA,
+              CODIGO_BANCO: me.banco.codigo,
+              TRANSFERENCIA: me.medios.TRANSFERENCIA,
+              CODIGO_ENT: me.giro.codigo,
+              GIRO: me.medios.GIROS,
               VUELTO: me.vuelto,
               SALDO: me.medios.SALDO,
               GUARANIES: me.monedas.GUARANIES,
@@ -1037,7 +1237,7 @@
               TIPO_IMPRESION: me.seleccion.impresion,
               OPCION_VUELTO: me.radio.vuelto
             }
-            
+
             // ------------------------------------------------------------------------
 
             // EMITIR DATOS 
@@ -1060,7 +1260,8 @@
 
               $('#staticBackdrop').modal('hide');
               $('#modalImpresion').modal('show');
-
+              me.seleccionar();
+              
               // ------------------------------------------------------------------------
 
             } else {

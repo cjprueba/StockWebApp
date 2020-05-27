@@ -215,6 +215,12 @@ Route::get('banco/datatable', 'BancoController@datatable');
 
 /* -------------------------------------------------------------------------- */
 
+// GIRO ENTIDADES
+
+Route::get('giro/datatable/entidades', 'GiroController@datatableEntidades');
+
+/* -------------------------------------------------------------------------- */
+
 // VENDEDORES 
 
 Route::post('devendedores', 'DevolucionController@mostrar');
