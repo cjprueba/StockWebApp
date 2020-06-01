@@ -73,6 +73,23 @@ function eliminarClienteCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function clienteNuevoCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoCliente').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 
 
 // ------------------------------------------------------------------------
@@ -493,7 +510,7 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 	        	tabla.rows().every(function(){
 
 					var data = this.data();
-				    if (data['CODIGO_REAL'] === codigo_real && codigo_real !== '' && codigo_real !== 0 && codigo_real !== null && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00)) {
+				    if (data['CODIGO_REAL'] === codigo_real && codigo_real !== '' && codigo_real !== 0 && codigo_real !== '0' && codigo_real !== null && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00)) {
 				    	cantidad = parseInt(data['CANTIDAD']) + parseInt(cantidad);
 				    }
 
@@ -885,6 +902,26 @@ function obtenerProductoPOSCommon(codigo, moneda){
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
 			return axios.post('/producto/POS', {'codigo': codigo, 'moneda': moneda}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerServicioPOSCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/servicio/POS', {'codigo': codigo}).then(function (response) {
 					return response.data;
 			});
 
@@ -3083,5 +3120,7 @@ export {
 		filtrarClienteCommon,
 		guardarClienteCommon,
 		eliminarClienteCommon,
-		generarPdfResumenCajaVentaCommon
+		clienteNuevoCommon,
+		generarPdfResumenCajaVentaCommon,
+		obtenerServicioPOSCommon
 		};

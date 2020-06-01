@@ -59,5 +59,16 @@ class ClienteController extends Controller
         return response()->json($cliente);
         
     }
+        public function nuevoCliente(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::nuevoCliente();
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
 }

@@ -30,7 +30,7 @@
 			    	<div class="form-group row">
 			    		<label class="col-sm-3 col-form-label">Código</label>
 			    		<div class="col-sm-5">
-					    	<cliente-filtrar :codigo="codigo" @codigo="cargarCodigo" v-model='codigo' @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimiento" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite"></cliente-filtrar>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite"v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }" ></cliente-filtrar>
 					    </div>
 			    	</div>
 
@@ -46,18 +46,9 @@
 			    	<!-- --------------------------------------- INPUT DE NRO DE DOCUMENTO --------------------------------------------- -->
 
 			    	<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Nro. de Documento</label>
+			    		<label class="col-sm-3 col-form-label" >Nro. C.I.</label>
 			    		<div class="col-sm-5">
 					    	<input type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
-					    </div>
-			    	</div>	
-
-			    	<!-- ---------------------------------------- INPUT DE CIUDAD/BARRIO ----------------------------------------------- -->
-
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Ciudad/Barrio</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ciud" v-bind:class="{ 'is-invalid': validar.ciud }" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
 
@@ -68,18 +59,9 @@
 			    		<div class="col-sm-5">
 					    	<input type="text" v-model="ruc" v-bind:class="{ 'is-invalid': validar.ruc }" class="form-control form-control-sm">
 					    </div>
-			    	</div>
+			    	</div>	
 
-			    	<!-- ------------------------------------- INPUT DE FECHA DE NACIMIENTO -------------------------------------------- -->
-			    	
-			    	<div class="form-group row mt-3">
-							<label class="col-sm-3 col-form-label">Fecha de Nacimiento</label>
-							<div class="col-sm-5 date">
-								<input v-bind:class="{ 'is-invalid': validar.nacim }" type="text" class="form-control form-control-sm" id="fecha" v-model="nacim" data-date-format="yyyy-mm-dd"/>
-							</div>
-					</div>		
-			   		
-			   		<!-- ------------------------------------------- INPUT DE DIRECCION ------------------------------------------------ -->
+			    	<!-- ---------------------------------------- INPUT DE DIRECCION ----------------------------------------------- -->
 
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label" >Dirección</label>
@@ -87,6 +69,16 @@
 					    	<input type="text" v-model="dire" v-bind:class="{ 'is-invalid': validar.dire }" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
+
+			    	<!-- ---------------------------------------- INPUT DE CIUDAD/BARRIO ----------------------------------------------- -->
+
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label" >Ciudad/Barrio</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="ciud" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+
 			   		
 			   		<!-- -------------------------------------------- INPUT DE TELEFONO ------------------------------------------------ -->
 			   		
@@ -102,7 +94,7 @@
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label" >Celular</label>
 			    		<div class="col-sm-5">
-					    	<input type="text" v-model="cel" v-bind:class="{ 'is-invalid': validar.cel }" class="form-control form-control-sm">
+					    	<input type="text" v-model="cel" class="form-control form-control-sm">
 					    </div>
 			    	</div>			
 			   		
@@ -111,16 +103,21 @@
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label" >Email</label>
 			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ema" v-bind:class="{ 'is-invalid': validar.ema }" class="form-control form-control-sm">
+					    	<input type="text" v-model="ema" class="form-control form-control-sm">
 					    </div>
 			    	</div>
 
-			    	<!-- ---------------------------------------------- INPUT DE TIPO -------------------------------------------------- -->
+			    	<!-- ---------------------------------------------- SELECT DE TIPO ------------------------------------------------ -->
 
+			    	
 			    	<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Tipo</label>
+			    		<label class="col-sm-3 col-form-label">Tipo</label>
 			    		<div class="col-sm-5">
-					    	<input type="text" v-model="tipo" v-bind:class="{ 'is-invalid': validar.tipo }" class="form-control form-control-sm">
+					    	<select v-model="tipo" class="custom-select custom-select-sm">
+			    				<option>OCASIONAL</option>
+			  	  				<option>EXTRANJERO</option>
+			    				<option>MAYORISTA</option>
+		  					</select>
 					    </div>
 			    	</div>			
 			   		
@@ -128,8 +125,8 @@
 			   		
 			   		<div class="form-group row mst-3">
 			    		<label class="col-sm-3 col-form-label">Límite de Crédito</label>
-			    		<div class="col-sm-4">
-					    	<input type="text" v-model="limit" v-bind:class="{ 'is-invalid': validar.limit }" class="form-control form-control-sm">
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="limit" class="form-control form-control-sm">
 					    </div>
 			    	</div>
 
@@ -160,7 +157,7 @@
 
 <script>
 	export default{
-
+		props: ['candec'],
 		data(){
 
 			return{
@@ -170,12 +167,11 @@
 				ci: '',
 				ciud: '',
 				ruc: '',
-				nacim: '',
 				dire: '',
 				tel: '',
 				cel: '',
 				ema:'',
-				tipo: '',
+				tipo: 'OCASIONAL',
 				limit: '',
 				btnguardar: true,
 				existe: false,
@@ -183,21 +179,14 @@
 					cliente: false,
 					codigo: false,
 					ci: false,
-					ciud: false,
 					ruc: false,
-					nacim: false,
 					dire: false,
-					tel: false,
-					cel: false,
-					ema: false,
-					tipo: false,
-					limit: false
+					tel: false
 				}
 			}
 		},
 
 		methods: {
-			
 			
 			// GUARDAR Y MODIFICAR
 
@@ -220,7 +209,6 @@
 					direccion: this.dire,
 					ciudad: this.ciud,
 					ruc: this.ruc,
-					nacimiento: this.nacim,
 					telefono: this.tel,
 					celular: this.cel,
 					email: this.ema,
@@ -245,6 +233,9 @@
 	                  	)
 	                  	this.existe = true;
 	                  	this.btnguardar = false;
+	                  	this.limpiar();
+
+            			this.$refs.componente_textbox_cliente.recargar();
 
 	                }else{
 
@@ -288,7 +279,8 @@
 		                    '¡Eliminado!',
 		                    '¡Se ha eliminado correctamente el cliente!',
 		                    'success'
-	                  )
+	                  	)
+            			this.$refs.componente_textbox_cliente.recargar();
 	               	}else{
 		                Swal.fire(
 		                    '¡Error!',
@@ -327,39 +319,25 @@
 					this.validar.codigo = false;
 				}
 
-				if ((this.ci).length === 0 || (this.ci === " ")){
+				if (((this.ci) === '' || (this.ci === " ")) && (this.ruc) === ''){
 					this.validar.ci = true;
 
 				}else{
 					this.validar.ci = false;
 				}
 
-				if ((this.ciud).length === 0 || (this.ciud === " ")){
-					this.validar.ciud = true;
+				if ((this.dire).length === 0 || (this.dire === " ")){
+					this.validar.dire = true;
 
 				}else{
-					this.validar.ciud = false;
+					this.validar.dire = false;
 				}
 
-				if ((this.ruc).length === 0 || (this.ruc === " ")){
+				if (((this.ruc) === '' || (this.ruc === " ")) && (this.ci) === ''){
 					this.validar.ruc = true;
 
 				}else{
 					this.validar.ruc = false;
-				}
-
-				if ((this.nacim).length === 0 || (this.nacim === " ")){
-					this.validar.nacim = true;
-
-				}else{
-					this.validar.nacim = false;
-				}
-
-				if ((this.dire).length === 0 || (this.dire) === " "){
-					this.validar.dire = true;
-				
-				}else{
-					this.validar.dire = false;
 				}
 
 				if((this.tel).length === 0 || (this.tel)=== " "){
@@ -368,37 +346,7 @@
 					this.validar.tel =  false;
 				}
 
-				if ((this.cel).length === 0 || (this.cel) === " "){
-					this.validar.cel = true;
-				}else{
-					this.validar.cel = false;
-				}
-
-				if((this.ema).length === 0 || (this.ema) === " "){
-					this.validar.ema =  true;
-				}else{
-					this.validar.ema = false;
-				}
-
-				if ((this.tipo).length === 0 || (this.tipo === " ")){
-					this.validar.tipo = true;
-
-				}else{
-					this.validar.tipo = false;
-				}
-
-				if ((this.limit).length === 0 || (this.limit === " ")){
-					this.validar.limit = true;
-
-				}else{
-					this.validar.limit = false;
-				}
-
-				if ((this.validar.codigo === true) || (this.validar.cliente === true) || (this.validar.ci === true) || (this.validar.ciud === true) || (this.validar.ruc === true) || (this.validar.nacim) === true){
-					return false;
-				}
-
-				if((this.validar.dire === true) || (this.validar.tel === true) || (this.validar.cel === true) || (this.validar.tipo === true) || (this.validar.limit === true)){
+				if ((this.validar.codigo === true) || (this.validar.cliente === true) || (this.validar.ci === true) || (this.validar.ruc === true) || (this.validar.dire === true) || (this.validar.tel === true)){
 					return false;
 				}
 
@@ -409,16 +357,14 @@
 			limpiar(){
 
 				this.cliente = '';
-				this.codigo = '';
 				this.ci = '';
 				this.ciud = '';
 				this.ruc = '';
-				this.nacim = '';
 				this.dire = '';
 				this.tel = '';
 				this.cel = '';
 				this.ema = '';
-				this.tipo = '';
+				this.tipo = 'OCASIONAL';
 				this.limit = '';
 				this.btnguardar = true;
 				this.existe = false;
@@ -427,13 +373,16 @@
 				this.validar.ci = false;
 				this.validar.ciud = false;
 				this.validar.ruc = false;
-				this.validar.nacim = false;
 				this.validar.dire = false;
 				this.validar.tel = false;
 				this.validar.cel = false;
 				this.validar.ema = false;
 				this.validar.tipo = false;
-				this.validar.limit = false;			
+				this.validar.limit = false;
+				Common.clienteNuevoCommon().then(data=> {
+		        	this.codigo = data.cliente[0].CODIGO+1;
+		        	this.btnguardar = true;
+		        });		
 
 			},
 
@@ -471,11 +420,6 @@
 				this.ciud = valor;
 			},
 			
-			cargarNacimiento(valor){
-
-				this.nacim = valor;
-			},
-			
 			cargarTelefono(valor){
 
 				this.tel = valor;
@@ -504,6 +448,10 @@
 
 		mounted(){
 
+			Common.clienteNuevoCommon().then(data=> {
+		        	this.codigo = data.cliente[0].CODIGO+1;
+		        	this.btnguardar = true;
+		        });
 		}
 
 	}

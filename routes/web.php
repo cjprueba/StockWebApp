@@ -284,6 +284,12 @@ Route::post('producto/existe', 'ProductoController@existe');
 
 /* -------------------------------------------------------------------------- */
 
+// SERVICIOS 
+
+Route::post('servicio/POS', 'ServicioController@obtenerServicioPOS');
+
+/* -------------------------------------------------------------------------- */
+
 //	PARAMETROS
 
 Route::get('parametro', 'ParametroController@mostrar');
@@ -348,6 +354,7 @@ Route::post('PermisoGuardar', 'UserController@guardarPermiso');
 Route::post('permisoAsignar', 'UserController@asignarPermiso');
 
 /* -------------------------------------------------------------------------- */
+
 // ARTICULOS 
 
 Route::post('MontoArticulos', 'ArticulosController@PorMonto');
@@ -363,6 +370,9 @@ Route::post('clienteFiltrar', 'ClienteController@filtrarCliente');
 Route::post('cliente/clienteDatatable', 'ClienteController@clienteDatatable');
 Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
+Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
+
+
 
 /* -------------------------------------------------------------------------- */
 

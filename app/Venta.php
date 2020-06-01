@@ -1652,9 +1652,15 @@ class Venta extends Model
         $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
         $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
         $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
-        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
-        $codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // Tarjeta
+        
+        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
+        //$codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
+        $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
+         
         /*  --------------------------------------------------------------------------------- */
 
         // TRANSFERENCIA 
@@ -1681,6 +1687,8 @@ class Venta extends Model
         $hora = date("H:i:s");
         $codigo = 0;
         $c = 0;
+        $total = 0;
+        $impuesto = 0;
         $total_total = 0;
         $total_iva = 0;
         $total_base5 = 0;
@@ -1701,8 +1709,8 @@ class Venta extends Model
         // TOTALES 
 
         $gravadas = Common::quitar_coma($data["data"]["cabecera"]["GRAVADAS"], $candec);
-        $impuesto = Common::quitar_coma($data["data"]["cabecera"]["IMPUESTO"], $candec);
-        $total = Common::quitar_coma($data["data"]["cabecera"]["TOTAL"], $candec);
+        $impuesto_cabecera = Common::quitar_coma($data["data"]["cabecera"]["IMPUESTO"], $candec);
+        $total_cabecera = Common::quitar_coma($data["data"]["cabecera"]["TOTAL"], $candec);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1909,7 +1917,7 @@ class Venta extends Model
 
         // INSERTAR PAGO TARJETA
 
-        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '0.00') {
+        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '0.00' && $codigo_tarjeta !== NULL) {
             if ($codigo_tarjeta !== '') {
                 $pago_tarjeta = VentaTarjeta::guardar_referencia([
                     'FK_TARJETA' => $codigo_tarjeta,
@@ -2456,6 +2464,29 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // TRANSFERENCIA
+        
+        $transferencia = VentaTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO
+        
+        $giro = VentaGiro::select(DB::raw('IFNULL(SUM(VENTAS_GIRO.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_GIRO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+
         // SUMAR ANULADOS
 
         $anulados = Venta::select('CODIGO')
@@ -2602,19 +2633,29 @@ class Venta extends Model
         $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
-        $pdf->Cell(25, 4, 'Efectivo:', 0);
-        $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_EFECTIVO, $parametro[0]->MONEDA),0,0,'R');
-        $pdf->Ln(4);
+        // $pdf->Cell(25, 4, 'Efectivo:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_EFECTIVO, $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tarjetas:', 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($tarjeta[0]->TOTAL, 1),0,0,'R');
         $pdf->Ln(4);
 
+        $pdf->Cell(25, 4, 'Transferencia:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL, 1),0,0,'R');
+        $pdf->Ln(4);
+
         $pdf->Cell(25, 4, 'Cheques:', 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_CHEQUE, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Giros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($giro[0]->TOTAL, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Vales:', 0);
@@ -2637,10 +2678,10 @@ class Venta extends Model
         $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_DONACION , $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
-        $pdf->Cell(25, 4, 'Vuelto:', 0);
-        $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VUELTOS, $parametro[0]->MONEDA),0,0,'R');
-        $pdf->Ln(4);
+        // $pdf->Cell(25, 4, 'Vuelto:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VUELTOS, $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Gastos:', 0);
         $pdf->Cell(20, 4, '', 0);
@@ -2650,11 +2691,11 @@ class Venta extends Model
         $pdf->Cell(25, 4, 'Total Ventas:', 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
-        $pdf->Ln(4);
+        // $pdf->Ln(4);
 
-        $pdf->Cell(25, 4, 'Total Efectivo:', 0);
-        $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec(($contado[0]->T_EFECTIVO + $contado[0]->T_CHEQUE + $contado[0]->T_VALES + $contado[0]->T_GIROS), $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Cell(25, 4, 'Total Efectivo:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec(($contado[0]->T_EFECTIVO + $contado[0]->T_CHEQUE + $contado[0]->T_VALES + $contado[0]->T_GIROS), $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
@@ -3367,7 +3408,7 @@ class Venta extends Model
                             3 => 'FECHA',
                             4 => 'IVA',
                             5 => 'TOTAL',
-                            6 => 'ESTATUS',
+                            6 => 'ACCION',
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -3398,7 +3439,11 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.FECHA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA'))
+            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE'))
+                         ->leftJoin('CLIENTES', function($join){
+                            $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -3419,9 +3464,11 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.FECHA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA'))
-                         // ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
-                         // ->leftjoin('SUCURSALES AS DESTINO', 'DESTINO.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
+            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE'))
+                         ->leftJoin('CLIENTES', function($join){
+                            $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
@@ -3463,12 +3510,15 @@ class Venta extends Model
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CAJA'] = $post->CAJA;
+                $nestedData['CLIENTE'] = $post->CLIENTE;
                 $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['HORA'] = $post->HORA;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 
                 $nestedData['ACCION'] = "
-                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirTransferencia' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
 
                 $data[] = $nestedData;
 

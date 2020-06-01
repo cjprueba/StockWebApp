@@ -238,13 +238,32 @@
 			</div>	
 
 			<div class="col-md-2 mt-3">
+
+				<!-- ------------------------------------------------------------------------------------- -->
+
+				<!-- TITULO  -->
+			
+				<div class="col-md-12">
+					<vs-divider>
+						Cliente
+					</vs-divider>
+				</div>
+			
+	        	<!-- ------------------------------------------------------------------------------------- -->
+
 				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente"></busqueda-cliente-modal>
+
+				<div class="col-md-12">
+					<hr>
+				</div>
+
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
-				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="recargar"><small>Nuevo</small></button>
+				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
+				<button class="btn btn-primary btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button>
 			</div>
 
 		</div>
@@ -353,6 +372,7 @@
          		DESCRIPCION: '',
          		PREC_VENTA: '',
          		PREMAYORISTA: '',
+         		PREC_AUX: '',
          		LOTE: '',
          		STOCK: '',
          		PRECIO_TOTAL: 0,
@@ -504,6 +524,17 @@
 				// ------------------------------------------------------------------------ 
 
       		},
+      		nuevo(){
+
+      			// ------------------------------------------------------------------------ 
+
+      			// RECARGAR LA PAGINA 
+
+      			window.location.href = '/vt2';
+
+				// ------------------------------------------------------------------------ 
+
+      		},
       		controlador(){
 
       			// ------------------------------------------------------------------------
@@ -569,6 +600,9 @@
         	factura_test(){
         		Common.generarPdfFacturaVentaVisualizarCommon(this.venta.CODIGO, 1);
         		//this.factura(8, 1);
+        	},
+        	test_factura(){
+        		this.factura(103, 1);
         	},
         	resumen_test(){
         		Common.generarPdfResumenCajaVentaCommon(8, 1);
@@ -668,6 +702,17 @@
 
 	            // ------------------------------------------------------------------------
 
+	            // SERVICIO 
+
+	            if (codigo.substring(0, 1) === "/") {
+	            	Common.obtenerServicioPOSCommon(codigo).then(data => {
+
+	            	});
+	            	return;
+	            }
+
+	            // ------------------------------------------------------------------------
+
 	            // CONSULTAR PRODUCTO CON LOTE 
 
 	            Common.obtenerProductoPOSCommon(codigo, me.moneda.CODIGO).then(data => {
@@ -693,6 +738,7 @@
 		            	me.producto.COD_PROD = data.producto.CODIGO;
 		            	me.producto.DESCRIPCION = data.producto.DESCRIPCION;
 		            	me.producto.PREC_VENTA = data.producto.PREC_VENTA;
+		            	me.producto.PREC_AUX = data.producto.PREC_VENTA;
 		            	me.producto.PREMAYORISTA = data.producto.PREMAYORISTA;
 		            	me.producto.LOTE = data.producto.LOTE;
 		            	me.producto.STOCK = data.producto.STOCK;
@@ -801,6 +847,7 @@
 
 	            	// ------------------------------------------------------------------------
 
+	            	
 	            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 
 	            	if (me.producto.DESCUENTO < 100) {
@@ -911,6 +958,21 @@
 
 	            	// ------------------------------------------------------------------------
 
+	            	// PRECIO MAYORISTA EN EDITAR CANTIDAD 
+
+		            if (me.checked.MAYORISTA === false) {
+
+			            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
+
+			            if ((Common.quitarComaCommon(cantidadNueva) >= me.ajustes.LIMITE_MAYORISTA) && (descuento === 0 || descuento === 0.00)) {
+			            	precio = premayorista;
+			            	descuento = 0;
+			            }
+
+		            }
+
+		            // ------------------------------------------------------------------------
+
 	            	// REVISAR SI LA NUEVA CANTIDAD SUPERA AL STOCK
 
 	            	if (cantidadNueva > me.producto.STOCK) {
@@ -921,7 +983,7 @@
 	            	// ------------------------------------------------------------------------
 
 	            	// EDITAR CANTIDAD PRODUCTO 
-
+	            	
 	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto, precio, productoExistente.row, descuento, descuento_total, descuento_unitario);
 	            	return;
 
@@ -1029,7 +1091,7 @@
 
 	            // DESCUENTO TOTAL
 
-	            tabla.cell(row, 14).data(descuento_unitario).draw();
+	            //tabla.cell(row, 14).data(descuento_unitario).draw();
 
 	            // ------------------------------------------------------------------------
 
@@ -1040,15 +1102,17 @@
 			    // ------------------------------------------------------------------------
 
 			    // CALCULAR DESCUENTO TOTAL
-
-	            descuento_total = Common.descuentoCommon(descuento, precio_total, me.moneda.DECIMAL);
+			    //alert(precio_total);
+			    //alert(descuento);
+	            descuento_total = Common.descuentoCommon(descuento, (Common.quitarComaCommon(me.producto.PREC_AUX) * cantidad), me.moneda.DECIMAL);
+	            //alert(descuento_total);
 	            tabla.cell(row, 5).data(descuento_total).draw();
 
 	            // ------------------------------------------------------------------------
 
 			    // CARGAR PRECIO CALCULADO 
 
-			    precio_total = Common.restarCommon(precio_total, descuento_total, me.moneda.DECIMAL);
+			    //precio_total = Common.restarCommon(precio_total, descuento_total, me.moneda.DECIMAL);
 	            tabla.cell(row, 9).data(precio_total).draw();
 
 	            // ------------------------------------------------------------------------
@@ -1435,7 +1499,7 @@
 						      // CARGAR EN EL FOOTER
 
 						      $( api.columns('.impuestoColumna').footer() ).html(
-					                me.venta.IMPUESTO = Common.darFormatoCommon(impuesto, 0)
+					                me.venta.IMPUESTO = Common.darFormatoCommon(impuesto, me.moneda.DECIMAL)
 					           );
 
 						      // *******************************************************************

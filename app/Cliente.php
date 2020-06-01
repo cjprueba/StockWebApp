@@ -9,7 +9,8 @@ class Cliente extends Model
 {
     protected $connection = 'retail';
     protected $table = 'clientes';
-
+    public $timestamps = false;
+    
     public static function cliente_datatable($request)
     {
 
@@ -26,18 +27,18 @@ class Cliente extends Model
         $columns = array( 
                             0 => 'CODIGO', 
                             1 => 'CI',
-                         	2 => 'NOMBRE',
-                         	3 => 'RUC',
-                         	4 => 'DIRECCION',
-                         	5 => 'CIUDAD',
-                         	6 => 'TELEFONO',
+                            2 => 'NOMBRE',
+                            3 => 'RUC',
+                            4 => 'DIRECCION',
+                            5 => 'CIUDAD',
+                            6 => 'TELEFONO',
                         );
         
         /*  --------------------------------------------------------------------------------- */
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Color::
+        $totalData = Cliente::
         where('ID_SUCURSAL','=', $user->id_sucursal)
         ->count();
 
@@ -158,107 +159,11 @@ class Cliente extends Model
 
     }
 
-    public static function guardarClientes($datos){
-        
-        $user = auth()->user();
-        $dia = date("Y-m-d");
-        $hora = date("H:i:s");
-
-        try {
-
-            // CONTROLA QUE NO EXISTA PARA INSERTAR
-
-            if ($datos['data']['existe']=== false){
-
-                // GUARDA LOS DATOS
-
-                $cliente = Cliente::insertGetId(
-                ['CODIGO'=> $datos['data']['codigo'], 
-                'CI' => $datos['data']['cedula'],
-                'NOMBRE'=> $datos['data']['name'],
-                'RUC'=> $datos['data']['ruc'],
-                'DIRECCION' => $datos['data']['direccion'],
-                'CIUDAD' => $datos['data']['ciudad'],
-                'FEC_NAC'=> $datos['data']['nacimiento'],
-                'TELEFONO' => $datos['data']['telefono'],
-                'CELULAR' => $datos['data']['celular'],
-                'EMAIL' => $datos['data']['email'],
-                'TIPO' => $datos['data']['tipo'],
-                'LIMITE_CREDITO' => $datos['data']['limite'],
-                'USER'=> $user->name,
-                'FECALTAS'=> $dia,
-                'HORALTAS'=> $hora,
-                'ID_SUCURSAL' => $user->id_sucursal]);
-
-            }else{
-
-                // ACTUALIZA LOS DATOS
-
-                $cliente = Cliente::Where('CODIGO','=',$datos['data']['codigo'])->where('ID_SUCURSAL', '=', $user->id_sucursal)
-                    ->update(['CI' => $datos['data']['cedula'],
-                    'NOMBRE'=> $datos['data']['name'],
-                    'RUC'=> $datos['data']['ruc'],
-                    'DIRECCION' => $datos['data']['direccion'],
-                    'CIUDAD' => $datos['data']['ciudad'],
-                    'FEC_NAC'=> $datos['data']['nacimiento'],
-                    'TELEFONO' => $datos['data']['telefono'],
-                    'CELULAR' => $datos['data']['celular'],
-                    'EMAIL' => $datos['data']['email'],
-                    'TIPO' => $datos['data']['tipo'],
-                    'LIMITE_CREDITO' => $datos['data']['limite'],
-                    'USERM'=>$user->name,
-                    'FECMODIF'=>$dia,
-                    'HORMODIF'=>$hora]);
-                }
-
-            // ENVIA UNA RESPUESTA A LA FUNCION
-
-            return ["response"=>true];
-
-        // ERROR 
-        
-        }catch(Exception $ex){ 
-
-            return ["response"=>false,'statusText'=>$ex->getMessage()];
-        }
-    }
-
-    public static function eliminarClientes($datos){
-
-        $user = auth()->user();
-
-        try {
-
-            // ELIMINA SI EXISTE
-
-            if ($datos['data']['existe']=== true){
-
-                $clientes= Cliente::Where('CODIGO','=',$datos['data']['codigo'])
-                ->where('NOMBRE','=', $datos['data']['nombre'])
-                ->where('ID_SUCURSAL', '=', $user->id_sucursal)->delete();
-
-            }else{
-
-                // MUESTRA QUE NO EXISTE
-
-                return ["response"=>false,'statusText'=> 'No se encontró el cliente'];
-            }
-
-        }catch(Exception $ex){ 
-
-                return ["response"=>false,'statusText'=>$ex->getMessage()];            
-        
-             }
-
-        // RETORNAR EL VALOR
-
-       return ["response"=>true];
-
-    }
-
-    public static function clientesDatatable($request){
+   public static function clientesDatatable($request){
 
         // INICIARA VARIABLES
+
+        $user = auth()->user();
 
         // CREAR COLUMNA DE ARRAY 
 
@@ -277,7 +182,7 @@ class Cliente extends Model
 
         // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
 
-        $totalData = Cliente::count();
+        $totalData = Cliente::select('id')->where('ID_SUCURSAL', '=', $user->id_sucursal)->count();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -299,6 +204,7 @@ class Cliente extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
             $posts = Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
+                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -319,6 +225,7 @@ class Cliente extends Model
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
+                            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
                             ->limit($limit)
                             ->orderBy($order,$dir)
@@ -330,7 +237,7 @@ class Cliente extends Model
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
-                            })
+                            })->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
             /*  ************************************************************ */  
@@ -385,4 +292,140 @@ class Cliente extends Model
        return $json_data; 
 
     }
+    public static function filtrarClientes($datos){
+
+        $user = auth()->user();
+
+        // OBTENER TODAS LOS CLIENTES
+
+        $cliente= Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, FEC_NAC, TELEFONO, CELULAR, EMAIL, TIPO, LIMITE_CREDITO'))
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->Where('ID','=',$datos['data'])->get()->toArray();
+
+        // RETORNAR EL VALOR
+
+       return ["cliente"=>$cliente];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
+   public static function guardarClientes($datos){
+        
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+
+        try {
+
+            // CONTROLA QUE NO EXISTA PARA INSERTAR
+
+            if ($datos['data']['existe']=== false){
+
+                // GUARDA LOS DATOS
+                 $codigo = Cliente::select('CODIGO')->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->orderby('CODIGO','DESC')->limit(1)
+                        ->get()->toArray();
+
+
+                $cliente = Cliente::insertGetId(
+                ['CODIGO'=> $codigo["0"]["CODIGO"]+1, 
+                'CI' => $datos['data']['cedula'],
+                'NOMBRE'=> $datos['data']['name'],
+                'RUC'=> $datos['data']['ruc'],
+                'DIRECCION' => $datos['data']['direccion'],
+                'CIUDAD' => $datos['data']['ciudad'],
+                'TELEFONO' => $datos['data']['telefono'],
+                'CELULAR' => $datos['data']['celular'],
+                'EMAIL' => $datos['data']['email'],
+                'TIPO' => $datos['data']['tipo'],
+                'LIMITE_CREDITO' => $datos['data']['limite'],
+                'USER'=> $user->name,
+                'FECALTAS'=> $dia,
+                'HORALTAS'=> $hora,
+                'ID_SUCURSAL' => $user->id_sucursal]);
+
+            }else{
+
+                // ACTUALIZA LOS DATOS
+
+                $cliente = Cliente::Where('CODIGO','=',$datos['data']['codigo'])->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                    ->update(['CI' => $datos['data']['cedula'],
+                    'NOMBRE'=> $datos['data']['name'],
+                    'RUC'=> $datos['data']['ruc'],
+                    'DIRECCION' => $datos['data']['direccion'],
+                    'CIUDAD' => $datos['data']['ciudad'],
+                    'TELEFONO' => $datos['data']['telefono'],
+                    'CELULAR' => $datos['data']['celular'],
+                    'EMAIL' => $datos['data']['email'],
+                    'TIPO' => $datos['data']['tipo'],
+                    'LIMITE_CREDITO' => $datos['data']['limite'],
+                    'USERM'=>$user->name,
+                    'FECMODIF'=>$dia,
+                    'HORMODIF'=>$hora]);
+                }
+
+            // ENVIA UNA RESPUESTA A LA FUNCION
+
+            return ["response"=>true];
+
+        // ERROR 
+        
+        }catch(Exception $ex){ 
+
+            return ["response"=>false,'statusText'=>$ex->getMessage()];
+        }
+    }
+        public static function nuevoCliente(){
+
+        $user = auth()->user();
+
+        //OBTENER EL ULTIMO CODIGO DE CLIENTE
+
+        $cliente = Cliente::select('CODIGO')->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->orderby('CODIGO','DESC')->limit(1)
+                        ->get()->toArray();
+
+
+        // RETORNAR EL VALOR
+
+        return ["cliente" => $cliente];
+    }
+
+    public static function eliminarClientes($datos){
+
+        $user = auth()->user();
+
+        try {
+
+            // ELIMINA SI EXISTE
+
+            if ($datos['data']['existe']=== true){
+
+                $clientes= Cliente::Where('CODIGO','=',$datos['data']['codigo'])
+                ->where('NOMBRE','=', $datos['data']['nombre'])
+                ->where('ID_SUCURSAL', '=', $user->id_sucursal)->delete();
+
+            }else{
+
+                // MUESTRA QUE NO EXISTE
+
+                return ["response"=>false,'statusText'=> 'No se encontró el cliente'];
+            }
+
+        }catch(Exception $ex){ 
+
+                return ["response"=>false,'statusText'=>$ex->getMessage()];            
+        
+             }
+
+        // RETORNAR EL VALOR
+
+       return ["response"=>true];
+
+    }
+
+
+    
 }

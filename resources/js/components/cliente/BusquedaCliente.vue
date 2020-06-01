@@ -1,15 +1,35 @@
 <template>
 	<div>
 
-		<!--  ------------------------------------------------------------------------ -->
+        <div class="row">
 
-		<!-- BOTON CLIENTES  -->
+            <div class="col-md-6">
 
-		<button class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target=".busqueda-cliente-modal"><small>Cliente</small></button>
+        		<!--  ------------------------------------------------------------------------ -->
 
-		<!--  ------------------------------------------------------------------------ -->
+        		<!-- BOTON CLIENTES  -->
 
-	        <!-- MODAL PRODUCTOS -->
+        		<button class="btn btn-primary btn-sm btn-block" data-toggle="modal" v-on:click="procesarFormas" ><small>Cliente</small></button>
+
+        		<!--  ------------------------------------------------------------------------ -->
+
+            </div>
+
+            <div class="col-md-6">
+
+                <!--  ------------------------------------------------------------------------ -->
+
+                <button class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target=".registrar-cliente-modal"><small>Registrar</small></button>
+
+                <!--  ------------------------------------------------------------------------ -->
+
+            </div>
+
+        </div>
+
+            <!--  ------------------------------------------------------------------------ -->
+
+	        <!-- MODAL CLIENTES -->
 
 	                <div class="modal fade busqueda-cliente-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
 	                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
@@ -46,6 +66,29 @@
 	                </div>  
 
 	        <!--  ------------------------------------------------------------------------ -->
+            
+            <!-- REGISTRAR CLIENTES -->
+
+                    <div class="modal fade registrar-cliente-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Registrar Clientes </small></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                                <crear-cliente></crear-cliente>  
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>  
+
+            <!--  ------------------------------------------------------------------------ -->
 
 	</div>	
 </template>
@@ -76,9 +119,11 @@
 
           	// ------------------------------------------------------------------------
 
-            // MOSTRAR LA PREGUNTA DE ELIMINAR 
+            // MOSTRAR CLIENTES
 
+            var tableClientes = $('#tablaModalClientes').DataTable();
             $('.busqueda-cliente-modal').modal('show');
+            tableClientes.ajax.reload( null, false );
 
             // ------------------------------------------------------------------------
 
