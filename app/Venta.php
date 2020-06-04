@@ -2281,6 +2281,8 @@ class Venta extends Model
             $ventas_det[$key]->IVA = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
             $ventas_det[$key]->PRECIO = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
 
+            /*  --------------------------------------------------------------------------------- */
+
         }
 
         /*  --------------------------------------------------------------------------------- */

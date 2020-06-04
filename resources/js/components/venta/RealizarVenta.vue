@@ -9,7 +9,7 @@
 
 					<!-- ------------------------------------------------------------------ -->
 
-				    <div class="col-md-12 mt-5">
+				    <div class="col-md-12 mt-3">
 							
 						<form class="form-inline">
 
@@ -48,6 +48,17 @@
 
 							<!-- ------------------------------------------------------------------ -->
 
+							<!-- MOSTRAR FACTURA -->
+									
+							<div class="my-1">
+								<div class="custom-control custom-switch mr-sm-3">
+									<input type="checkbox" class="custom-control-input" id="switchDescuento" v-model="checked.DESCUENTO">
+									<label class="custom-control-label" for="switchDescuento">Descuento Automático</label>
+								</div>
+							</div>
+
+							<!-- ------------------------------------------------------------------ -->
+
 						</form>
 
 						<!-- ------------------------------------------------------------------ -->
@@ -56,25 +67,49 @@
 				    	
 				    <!-- ------------------------------------------------------------------ -->
 
-					<div class="col-md-2 mt-5">
-					    <label class="mb-0"><b>Guaranies</b></label>
-					    <h6>{{cotizacion.GUARANIES}} </h6>
-					    
+
+					<div class="col-md-2 mt-3 d-flex align-items-center">
+						<form class="form-inline">
+							<div class="form-group">
+								<div style="font-size:20px">
+							    	<span class="flag-icon flag-icon-py"></span>
+							    </div>
+							    <h5 class="mt-1">&nbsp; - {{cotizacion.GUARANIES}} </h5>
+						    </div>
+					    </form>
 					</div>
 
-					<div class="col-md-2 mt-5">
-					    <label class="mb-0"><b>Dolares</b></label>
-					    <h6>{{cotizacion.DOLARES}}</h6>
+					<div class="col-md-2 mt-3 d-flex align-items-center">
+						<form class="form-inline">
+							<div class="form-group">
+							    <div style="font-size:20px">
+							    	<span class="flag-icon flag-icon-us"></span>
+							    </div>
+							    <h5 class="mt-1">&nbsp; - {{cotizacion.DOLARES}}</h5>
+							</div>
+					    </form>	    
 					</div>
 
-					<div class="col-md-2 mt-5">
-					    <label class="mb-0"><b>Reales</b></label>
-					    <h6>{{cotizacion.REALES}}</h6>
+					<div class="col-md-2 mt-3 d-flex align-items-center">
+						<form class="form-inline">
+							<div class="form-group">
+							    <div style="font-size:20px">
+							    	<span class="flag-icon flag-icon-br"></span>
+							    </div>
+							    <h5 class="mt-1">&nbsp; - {{cotizacion.REALES}}</h5>
+						    </div>
+					    </form>
 					</div>
 
-					<div class="col-md-2 mt-5">
-					    <label class="mb-0"><b>Pesos</b></label>
-					    <h6>{{cotizacion.PESOS}}</h6>
+					<div class="col-md-2 mt-3 d-flex align-items-center">
+						<form class="form-inline">
+							<div class="form-group">
+							    <div style="font-size:20px">
+							    	<span class="flag-icon flag-icon-ar"></span>
+							    </div>
+							    <h5 class="mt-1">&nbsp; - {{cotizacion.PESOS}}</h5>
+					    	</div>
+					    </form>
 					</div>
 
 					<div class="col-md-4 text-right mt-3">
@@ -151,7 +186,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 										</div>
-							    		<input v-model="producto.PREC_VENTA" class="form-control form-control-sm" type="text">
+							    		<input ref="precio_venta" tabindex="1" v-model="producto.PREC_VENTA" class="form-control form-control-sm" type="text" v-on:blur="formatoPrecio">
 									</div>
 								</div>
 
@@ -162,7 +197,7 @@
 
 								<div class="col-md-5">
 									<label for="validationTooltip01">Descripción</label>
-									<input v-model="producto.DESCRIPCION" class="form-control form-control-sm" type="text"  disabled>
+									<input v-model="producto.DESCRIPCION" tabindex="2" class="form-control form-control-sm" type="text"  :disabled="deshabilitar.DESCRIPCION">
 								</div>
 
 							</div>
@@ -180,7 +215,7 @@
 
 				        <!-- TABLA VENTA -->
 
-							<table id="tablaVenta" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
+							<table id="tablaVenta" class="display nowrap table table-hover table-bordered table-sm mb-3" style="width:100%">
 				                <thead>
 				                    <tr>
 				                        <th></th>
@@ -188,9 +223,9 @@
 				                        <th>Descripción</th>
 				                        <th>Lote</th>
 				                        <th>%</th>
-				                        <th>Descuento</th>
+				                        <th>Desc.</th>
 				                        <th class="cantidadColumna">Cant.</th>
-				                        <th class="impuestoColumna">Impuesto</th>
+				                        <th class="impuestoColumna">Iva</th>
 				                        <th class="precioColumna">Precio</th>
 				                        <th class="precioTotalColumna">Total</th>
 				                        <th>Acción</th>
@@ -198,6 +233,7 @@
 				                        <th>Codigo Real</th>
 				                        <th>Precio Mayorista</th>
 				                        <th>Descuento Unitario</th>
+				                        <th>Tipo</th>
 				                    </tr>
 				                </thead>
 				                <tbody>
@@ -211,6 +247,7 @@
 					                	<th></th>
 					                	<th></th>
 					                	<th>TOTALES</th>
+					                	<th></th>
 					                	<th></th>
 					                	<th></th>
 					                	<th></th>
@@ -239,6 +276,24 @@
 
 			<div class="col-md-2 mt-3">
 
+					    		
+
+			<!-- ------------------------------------------------------------------ -->
+
+					    			<!-- IMAGEN -->
+
+					    			<div >
+
+					    				<div class="card">
+										  <img :src="imagen.RUTA" class="card-img-top" alt="...">
+										  <div class="card-body">
+										    <p class="card-text">{{producto.DESCRIPCION}}</p>
+										  </div>
+										</div>
+
+					    			</div>
+
+
 				<!-- ------------------------------------------------------------------------------------- -->
 
 				<!-- TITULO  -->
@@ -260,10 +315,10 @@
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
 				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
+				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button>
+				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button> -->
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button>
+				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
 			</div>
 
 		</div>
@@ -288,6 +343,23 @@
 		      </template>
 		      Este producto ya no tiene stock !
 		    </b-toast>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- TOAST SERVICIO EXISTENTE -->
+
+		<div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+			<b-toast id="toast-servicio-repetido" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">Existente</small>
+		        </div>
+		      </template>
+		      Este servicio ya ha sido agregado !
+		    </b-toast>
+		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -332,6 +404,20 @@
 		        </div>
 		      </template>
 		      La cantidad ingresada ya supera el stock !
+		    </b-toast>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
+
+			<b-toast id="toast-producto-modificado" variant="success" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <strong class="mr-auto">Éxito !</strong>
+		          <small class="text-muted mr-2">modificado</small>
+		        </div>
+		      </template>
+		      Este producto ha sido modificado con éxito !
 		    </b-toast>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -412,12 +498,23 @@
          	}, checked: {
          		MAYORISTA: false,
          		TICKET: false,
-         		FACTURA: false
+         		FACTURA: false,
+         		DESCUENTO: true
          	}, codigo_detalle: '',
          	impresion: {
          		TICKET: false,
          		FACTURA: false,
          		TIPO: ''
+         	}, deshabilitar: {
+         		DESCRIPCION: true
+         	}, servicio: {
+         		COD_PROD: '',
+			    DESCRIPCION: '',
+			    LOTE: 0,
+			    STOCK: 1,
+			    IVA: 0
+         	}, imagen: {
+         		RUTA: require('./../../../imagenes/SinImagen.png'),
          	} 
 
         }
@@ -445,66 +542,132 @@
 	        	}
 
 	        	Swal.fire({
-					title: 'Estas seguro ?',
-					text: "Guardar la venta !",
-					type: 'warning',
-					showLoaderOnConfirm: true,
-					showCancelButton: true,
-					confirmButtonColor: '#d33',
-					cancelButtonColor: '#3085d6',
-					confirmButtonText: 'Si, guardalo!',
-					cancelButtonText: 'Cancelar',
-					preConfirm: () => {
-					    return Common.guardarVentaCommon(me.respuesta).then(data => {
+				  title: 'Guardando venta',
+				  html: 'Cerrare en cuanto guarde la venta.',
+				  onBeforeOpen: () => {
+
+				  	// ------------------------------------------------------------------------
+
+				  	// MOSTRAR CARGAR 
+
+				    Swal.showLoading()
+				    
+				    // ------------------------------------------------------------------------
+
+				    Common.guardarVentaCommon(me.respuesta).then(data => {
+
+				    		// ------------------------------------------------------------------------
+
 					    	if (!data.response === true) {
 					          throw new Error(data.statusText);
 					        }
-					  		return data;
-					  	}).catch(error => {
+
+					        if (data.response) {
+
+					        	Swal.close();
+
+								// ------------------------------------------------------------------------
+
+								Swal.fire(
+									'Guardado !',
+									 data.statusText,
+									'success'
+								)
+
+								// ------------------------------------------------------------------------
+
+								// GENERAR FACTURA Y TICKET
+
+								me.impresion.TIPO = datos.TIPO_IMPRESION;
+
+								if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
+									Common.generarPdfFacturaVentaVisualizarCommon(data.CODIGO, data.CAJA);
+								} 
+
+								if (me.checked.TICKET === true) {
+									Common.generarPdfTicketVentaVisualizarCommon(data.CODIGO, data.CAJA);
+								} else {
+									me.ticket(data.CODIGO, data.CAJA);
+								}
+
+								// ------------------------------------------------------------------------
+
+								// VOLVER TRUE FACTURA SI ES QUE SOLO IMPRIMIO TICKET 
+
+								if(datos.TIPO_IMPRESION === "1") {
+									me.impresion.FACTURA = true;
+								}
+
+								// ------------------------------------------------------------------------ 
+
+							}
+
+							// ------------------------------------------------------------------------
+
+					}).catch(error => {
 					        Swal.showValidationMessage(
 					          `Request failed: ${error}`
 					        )
-					    });
-					}
+					 });
+				  }
 				}).then((result) => {
-					
-					if (result.value.response) {
 
-						// ------------------------------------------------------------------------
+				  	
 
-						Swal.fire(
-							'Guardado !',
-							 result.value.statusText,
-							'success'
-						)
-
-						// ------------------------------------------------------------------------
-
-						// GENERAR FACTURA Y TICKET
-
-						me.impresion.TIPO = datos.TIPO_IMPRESION;
-
-						if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
-							Common.generarPdfFacturaVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
-						} 
-
-						if (me.checked.TICKET === true) {
-							Common.generarPdfTicketVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
-						} else {
-							me.ticket(result.value.CODIGO, result.value.CAJA);
-						}
-						// ------------------------------------------------------------------------
-
-						// VOLVER TRUE FACTURA SI ES QUE SOLO IMPRIMIO TICKET 
-
-						if(datos.TIPO_IMPRESION === "1") {
-							me.impresion.FACTURA = true;
-						}
-
-						// ------------------------------------------------------------------------ 
-
-					}
 				})
+
+	   //      	Swal.fire({
+				// 	title: 'Estas seguro ?',
+				// 	text: "Guardar la venta !",
+				// 	type: 'warning',
+				// 	showLoaderOnConfirm: true,
+				// 	showCancelButton: true,
+				// 	confirmButtonColor: '#d33',
+				// 	cancelButtonColor: '#3085d6',
+				// 	confirmButtonText: 'Si, guardalo!',
+				// 	cancelButtonText: 'Cancelar',
+				// 	preConfirm: () => {
+					    
+				// 	}
+				// }).then((result) => {
+					
+				// 	if (result.value.response) {
+
+				// 		// ------------------------------------------------------------------------
+
+				// 		Swal.fire(
+				// 			'Guardado !',
+				// 			 result.value.statusText,
+				// 			'success'
+				// 		)
+
+				// 		// ------------------------------------------------------------------------
+
+				// 		// GENERAR FACTURA Y TICKET
+
+				// 		me.impresion.TIPO = datos.TIPO_IMPRESION;
+
+				// 		if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
+				// 			Common.generarPdfFacturaVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
+				// 		} 
+
+				// 		if (me.checked.TICKET === true) {
+				// 			Common.generarPdfTicketVentaVisualizarCommon(result.value.CODIGO, result.value.CAJA);
+				// 		} else {
+				// 			me.ticket(result.value.CODIGO, result.value.CAJA);
+				// 		}
+				// 		// ------------------------------------------------------------------------
+
+				// 		// VOLVER TRUE FACTURA SI ES QUE SOLO IMPRIMIO TICKET 
+
+				// 		if(datos.TIPO_IMPRESION === "1") {
+				// 			me.impresion.FACTURA = true;
+				// 		}
+
+				// 		// ------------------------------------------------------------------------ 
+
+				// 	}
+				// })
 
 	        	// ------------------------------------------------------------------------
 
@@ -530,9 +693,21 @@
 
       			// RECARGAR LA PAGINA 
 
-      			window.location.href = '/vt2';
+      			Swal.fire({
+					title: '¿ Crear nueva venta ?',
+					type: 'warning',
+					showLoaderOnConfirm: true,
+					showCancelButton: true,
+					confirmButtonColor: '#d33',
+					cancelButtonColor: '#3085d6',
+					confirmButtonText: 'Aceptar',
+					cancelButtonText: 'Cancelar'
+				}).then((result) => {
+					
+					window.location.href = '/vt2';
+				})
 
-				// ------------------------------------------------------------------------ 
+	        	// ------------------------------------------------------------------------
 
       		},
       		controlador(){
@@ -591,7 +766,40 @@
 
 	        	// ------------------------------------------------------------------------
 
-        	},
+        	}, formatoPrecio(){
+
+	            // ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+	            var impuesto = 0, tipo = 2, rowClass='table-primary';
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A PRECIO
+
+	            me.producto.PREC_VENTA = Common.darFormatoCommon(me.producto.PREC_VENTA, me.moneda.DECIMAL);
+
+	            // ------------------------------------------------------------------------
+	            
+	            // IMPUESTO
+
+	            impuesto = Common.calcularIVACommon(me.producto.PREC_VENTA, me.servicio.IVA, me.moneda.DECIMAL);
+
+	            // ------------------------------------------------------------------------
+
+	            me.agregarFilaTabla(me.servicio.COD_PROD, me.servicio.DESCRIPCION, me.servicio.LOTE, 0, 1, impuesto, me.producto.PREC_VENTA, me.producto.PREC_VENTA, me.servicio.IVA, 0, '', me.producto.PREC_VENTA, 0, tipo, rowClass);
+
+	            // ------------------------------------------------------------------------
+
+	            // INICIAR AGREGAR PRODUCTO 
+
+	            me.inivarAgregarProducto();
+
+	            // ------------------------------------------------------------------------
+
+	        },
         	ticket_mostrar(){
 
         		//this.ticket(8, 1);
@@ -705,9 +913,41 @@
 	            // SERVICIO 
 
 	            if (codigo.substring(0, 1) === "/") {
+
+	            	// ------------------------------------------------------------------------
+
+	            	// OBTENER SERVICIO 
+
 	            	Common.obtenerServicioPOSCommon(codigo).then(data => {
 
+	            		if (data.response === true) {
+
+	            			if(data.servicio.MANUAL_PRECIO === 1) {
+	            				me.$refs.precio_venta.focus();
+	            			}
+	            				
+	            			if(data.servicio.MANUAL_DESCRIPCION === 1) {
+	            				me.deshabilitar.DESCRIPCION = false;
+	            			}
+
+	            			// ------------------------------------------------------------------------
+
+	            			// AGREGAR SERVICIO
+
+	            			me.servicio.COD_PROD = data.servicio.CODIGO;
+			            	me.servicio.DESCRIPCION = data.servicio.DESCRIPCION;
+			            	me.servicio.LOTE = 0;
+			            	me.servicio.STOCK = 1;
+			            	me.servicio.IVA = data.servicio.IVA;
+	            			
+	            			// ------------------------------------------------------------------------
+
+	            		}
+	            		
 	            	});
+
+	            	// ------------------------------------------------------------------------
+
 	            	return;
 	            }
 
@@ -750,10 +990,10 @@
 
 						// DESCUENTO POR MARCA O CATEGORIA
 
-						if (data.descuento_marca !== false) {
+						if (data.descuento_marca !== false && me.checked.DESCUENTO === true) {
 							me.producto.DESCUENTO = data.descuento_marca.DESCUENTO;
 							me.producto.TIPO_DESCUENTO = 5;
-						} else if (data.descuento_categoria > 0 && me.producto.DESCUENTO === 0) {
+						} else if (data.descuento_categoria > 0 && me.producto.DESCUENTO === 0 && me.checked.DESCUENTO === true) {
 							me.producto.DESCUENTO = data.descuento_categoria;
 							me.producto.TIPO_DESCUENTO = 6;
 						}
@@ -789,9 +1029,10 @@
 	            // INICIAR VARIABLES
 
 	            let me = this;
-	            var iva = 0;
+	            var iva = 0, tipo = 1;
 	            var tableVenta = $("#tablaVenta").DataTable();
-	             
+	            var rowClass = "";
+
 	            // ------------------------------------------------------------------------
 
 	            // CONTROLADOR
@@ -827,18 +1068,20 @@
 
 		            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
-		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= me.ajustes.LIMITE_MAYORISTA) && (me.producto.DESCUENTO === 0 || me.producto.DESCUENTO === 0.00)) {
+		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= parseInt(me.ajustes.LIMITE_MAYORISTA))) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
+		            	rowClass = "table-secondary";
 		            }
 
 		            // ------------------------------------------------------------------------
 
 		            // PRECIO MAYORISTA CODIGO REAL
 
-		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, me.ajustes.LIMITE_MAYORISTA, me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL) === true) {
+		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, parseInt(me.ajustes.LIMITE_MAYORISTA), me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL, 'table-secondary') === true) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
+		            	rowClass = "table-secondary";
 		            } 
 
 		            // ------------------------------------------------------------------------
@@ -849,7 +1092,7 @@
 
 	            	
 	            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
-
+	            	rowClass = "table-secondary";
 	            	if (me.producto.DESCUENTO < 100) {
 	            		me.producto.DESCUENTO = 0;
 	            	}
@@ -858,6 +1101,14 @@
 	            	// ------------------------------------------------------------------------
 	            }
 
+	            // ------------------------------------------------------------------------
+
+	            if (me.producto.DESCUENTO > 0 && me.producto.DESCUENTO < 100) {
+	            	rowClass = "table-warning";
+	            } else if (me.producto.DESCUENTO == 100) {
+	            	rowClass = "table-danger";
+	            }
+	            
 	            // ------------------------------------------------------------------------
 
 	            //  QUITAR COMA DE PRECIO
@@ -902,9 +1153,9 @@
             	
             	// ------------------------------------------------------------------------
 
-	            // CARGAR DATO EN TABLA COMPRAS
+	            // CARGAR DATO EN TABLA VENTAS
 
-	            me.agregarFilaTabla(me.producto.COD_PROD, me.producto.DESCRIPCION, me.producto.LOTE, me.producto.DESCUENTO, me.producto.CANTIDAD, me.producto.IMPUESTO, me.producto.PREC_VENTA, me.producto.PRECIO_TOTAL, me.producto.IVA, me.producto.DESCUENTO_MONTO, me.producto.CODIGO_REAL, me.producto.PREMAYORISTA, me.producto.DESCUENTO_UNITARIO);
+	            me.agregarFilaTabla(me.producto.COD_PROD, me.producto.DESCRIPCION, me.producto.LOTE, me.producto.DESCUENTO, me.producto.CANTIDAD, me.producto.IMPUESTO, me.producto.PREC_VENTA, me.producto.PRECIO_TOTAL, me.producto.IVA, me.producto.DESCUENTO_MONTO, me.producto.CODIGO_REAL, me.producto.PREMAYORISTA, me.producto.DESCUENTO_UNITARIO, tipo, rowClass);
 
 	            // ------------------------------------------------------------------------
 
@@ -929,10 +1180,10 @@
 
 		        // ------------------------------------------------------------------------
 
-	        }, agregarFilaTabla(codigo, descripcion, lote, descuento, cantidad, impuesto, precio, precio_total, iva, descuento_total, codigo_real, premayorista, descuento_unitario){
+	        }, agregarFilaTabla(codigo, descripcion, lote, descuento, cantidad, impuesto, precio, precio_total, iva, descuento_total, codigo_real, premayorista, descuento_unitario, tipo, rowClass){
 
 	        	// ------------------------------------------------------------------------
-
+	        	
 	        	//	INICIAR VARIABLES 
 
 	        	let me = this;
@@ -948,7 +1199,7 @@
 
 	            productoExistente = Common.existeProductoDataTableCommon(tableVenta, codigo, 2);
 	           	
-	            if (productoExistente.respuesta == true) {
+	            if (productoExistente.respuesta == true && tipo !== 2) {
 
 	            	// ------------------------------------------------------------------------
 
@@ -964,7 +1215,7 @@
 
 			            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
-			            if ((Common.quitarComaCommon(cantidadNueva) >= me.ajustes.LIMITE_MAYORISTA) && (descuento === 0 || descuento === 0.00)) {
+			            if ((cantidadNueva >= parseInt(me.ajustes.LIMITE_MAYORISTA))) {
 			            	precio = premayorista;
 			            	descuento = 0;
 			            }
@@ -984,13 +1235,15 @@
 
 	            	// EDITAR CANTIDAD PRODUCTO 
 	            	
-	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto, precio, productoExistente.row, descuento, descuento_total, descuento_unitario);
+	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto, precio, productoExistente.row, descuento, descuento_total, descuento_unitario, rowClass);
 	            	return;
 
 	            	// ------------------------------------------------------------------------
 
-	            } else {
+	            } else if (productoExistente.respuesta == true){
 	            	me.validarCodigoProducto = false;
+	            	me.$bvToast.show('toast-servicio-repetido');
+	            	return;
 	            }
 
 	            // ------------------------------------------------------------------------
@@ -1012,10 +1265,14 @@
 			                    "DESCUENTO_TOTAL": descuento_total,
 			                    "CODIGO_REAL": codigo_real,
 			                    "PREMAYORISTA": premayorista,
-			                    "DESCUENTO_UNITARIO": descuento_unitario
+			                    "DESCUENTO_UNITARIO": descuento_unitario,
+			                    "TIPO": tipo
 			                } ] )
-			     .draw();
-			     
+			     .draw()
+			     .nodes()
+    			 .to$()
+			     .addClass(rowClass);
+
 			    // ------------------------------------------------------------------------ 
 
 	            // AGREGAR INDEX A LA TABLA TRANSFERNCIAS
@@ -1038,7 +1295,7 @@
 
 	            // ------------------------------------------------------------------------
 
-	        }, editarCantidadProducto(tabla, cantidad, impuesto, precio, row, descuento, descuento_total, descuento_unitario){
+	        }, editarCantidadProducto(tabla, cantidad, impuesto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
 
 	        	// ------------------------------------------------------------------------
 
@@ -1089,12 +1346,6 @@
 
 	            // ------------------------------------------------------------------------
 
-	            // DESCUENTO TOTAL
-
-	            //tabla.cell(row, 14).data(descuento_unitario).draw();
-
-	            // ------------------------------------------------------------------------
-
 	            // CALCULAR PRECIO TOTAL
 
 	            precio_total = Common.multiplicarCommon(cantidad, precio, me.moneda.DECIMAL);
@@ -1102,24 +1353,31 @@
 			    // ------------------------------------------------------------------------
 
 			    // CALCULAR DESCUENTO TOTAL
-			    //alert(precio_total);
-			    //alert(descuento);
+
 	            descuento_total = Common.descuentoCommon(descuento, (Common.quitarComaCommon(me.producto.PREC_AUX) * cantidad), me.moneda.DECIMAL);
-	            //alert(descuento_total);
+	            
 	            tabla.cell(row, 5).data(descuento_total).draw();
 
 	            // ------------------------------------------------------------------------
 
 			    // CARGAR PRECIO CALCULADO 
 
-			    //precio_total = Common.restarCommon(precio_total, descuento_total, me.moneda.DECIMAL);
 	            tabla.cell(row, 9).data(precio_total).draw();
+
+	            // ------------------------------------------------------------------------
+
+	            // EDITAR FILA COLOR 
+
+	            tabla.row(row).draw()
+	            .nodes()
+    			.to$()
+    			.addClass(rowClass);
 
 	            // ------------------------------------------------------------------------
 
 	            // LLAMAR TOAST MODIFICADO
 
-	            me.$bvToast.show('toast-producto-transferencia-modificado');
+	            me.$bvToast.show('toast-producto-modificado');
 
 	            // ------------------------------------------------------------------------
 
@@ -1164,7 +1422,8 @@
 				// ------------------------------------------------------------------------ 
 
 				let me = this;
-
+				//this.$refs.compontente_codigo_producto.$el.focus();
+				//this.$refs.compontente_codigo_producto.focus();
 				// ------------------------------------------------------------------------ 
 
 				// OBTENER DATOS DE INICIO PARA VENTA
@@ -1197,10 +1456,10 @@
 				// COTIZACION DIA 
 
 				Common.obtenerCotizacionDia().then(data => {
-					me.cotizacion.GUARANIES = data.Guaranies;
-					me.cotizacion.DOLARES = data.Dolares;
-					me.cotizacion.REALES = data.Reales;
-					me.cotizacion.PESOS = data.Pesos;
+					me.cotizacion.GUARANIES = Common.darFormatoCommon(data.Guaranies, 0);
+					me.cotizacion.DOLARES = Common.darFormatoCommon(data.Dolares, 2);
+					me.cotizacion.REALES = Common.darFormatoCommon(data.Reales, 2);
+					me.cotizacion.PESOS = Common.darFormatoCommon(data.Pesos, 2);
 				});
 
 				// ------------------------------------------------------------------------ 
@@ -1343,6 +1602,7 @@
 					}).catch(function(e) { console.error(e); });
 
 			}
+
       },
         mounted() {
 
@@ -1364,7 +1624,7 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
-                        "responsive": true,
+                        "responsive": false,
                         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
 						"<'row'<'col-sm-12'tr>>" +
 						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
@@ -1389,7 +1649,8 @@
                             { "data": "IVA" },
                             { "data": "CODIGO_REAL" },
                             { "data": "PREMAYORISTA" },
-                            { "data": "DESCUENTO_UNITARIO" }
+                            { "data": "DESCUENTO_UNITARIO" },
+                            { "data": "TIPO" }
                         ],
                         "columnDefs": [
 				            {
@@ -1409,6 +1670,11 @@
 				            },
 				            {
 				                "targets": [ 14 ],
+				                "visible": false,
+				                "searchable": false
+				            },
+				            {
+				                "targets": [ 15 ],
 				                "visible": false,
 				                "searchable": false
 				            }
@@ -1677,6 +1943,28 @@
                 });
 
                 // ------------------------------------------------------------------------
+
+                // CODIGO PARA CAMBIAR EL FOCUS CON ENTER EN INPUT
+        	
+	        	$(document).on('keypress', 'input', function(e) {
+	        		
+				  if(e.keyCode == 13) {
+				           
+				           me.cb = parseInt($(this).attr('tabindex'));
+				    	   
+				           if ($(':input[tabindex=\'' + (me.cb + 1) + '\']') != null) {
+
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').focus();
+				               $(':input[tabindex=\'' + (me.cb + 1) + '\']').select();
+				               e.preventDefault();
+				    
+				               return false;
+				           }
+				  }
+
+				});
+
+				// -------------------------------------------------------------------------------------
         }
     }
 				

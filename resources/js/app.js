@@ -24,9 +24,15 @@ require('bootstrap-datepicker');
 import Permissions from './mixins/Permissions';
 Vue.mixin(Permissions);
 
+
 /* ********************************************* */
 
+// BANDERAS 
 
+import FlagIcon from 'vue-flag-icon'
+Vue.use(FlagIcon);
+
+/* ********************************************* */
 
 // HOTKEYS
 /* ********************************************* */

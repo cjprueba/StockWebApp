@@ -568,19 +568,18 @@ class Compra extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        $id_compra = Compra::select('ID')
+        ->where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('CODIGO','=', $codigo["data"])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
         // ELIMINAR TODA LA COMPRA
         // SI LA OPCION ES 1 ELIMINAR LA COMPRA, SINO SOLO ELIMINAR COMPRASDET
 
         if ($codigo["opcion"] === 1) {
-
-
-            /*  --------------------------------------------------------------------------------- */
-
-            $id_compra = Compra::select('ID')
-            ->where('ID_SUCURSAL','=', $user->id_sucursal)
-            ->where('CODIGO','=', $codigo["data"])
-            ->get();
-
+            
             /*  --------------------------------------------------------------------------------- */
 
             // INSERTAR USER REFERENCIA

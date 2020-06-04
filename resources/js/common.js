@@ -497,7 +497,7 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 
 }
 
-function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista, cantidad, decimal) {
+function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista, cantidad, decimal, rowClass) {
 
 				// ------------------------------------------------------------------------
 
@@ -560,6 +560,15 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 
 				            tabla.cell(tabla.row( this ), 7).data(Common.calcularIVACommon(precio_total, data['IVA'], decimal)).draw();
 			            	
+			            	// ------------------------------------------------------------------------
+
+			            	// EDITAR FILA COLOR 
+
+				            tabla.row( this ).draw()
+				            .nodes()
+			    			.to$()
+			    			.addClass(rowClass);
+
 			            	// ------------------------------------------------------------------------
 
 					    }

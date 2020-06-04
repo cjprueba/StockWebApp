@@ -3,12 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Servicios extends Model
 {
 
     protected $connection = 'retail';
-    protected $table = 'servicios';
+    protected $table = 'services';
     public $timestamps = false;
 
     public static function servicios_pos($datos){
@@ -23,57 +24,35 @@ class Servicios extends Model
 
         // INICIAR VARIABLES 
 
-        $codigo = $datos["codigo"];
+        $codigo = substr($datos["codigo"], 1);
 
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
 
-        $producto = Servicios::
-        ->select(DB::raw('DESCRIPCION'))
-        ->where($filtro, '=', $codigo)
-        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        $servicio = Servicios::select(DB::raw('CODIGO, DESCRIPCION, MANUAL_DESCRIPCION, MANUAL_PRECIO, IVA'))
+        ->where('CODIGO', '=', $codigo)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
         
-        if (count($producto) > 0) {
+        if (count($servicio) > 0) {
 
-            /*  --------------------------------------------------------------------------------- */
+        	/*  --------------------------------------------------------------------------------- */
 
-            // OBTENER GONDOLAS 
-
-            $gondola = Gondola::obtener_gondolas_por_producto($codigo);
-            
-            $producto[0]["GONDOLAS"] = $gondola['gondolas'];
-            $producto[0]["AUTODESCRIPCION"] = false;
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // IMAGEN 
-
-            $imagen = Imagen::obtenerImagen($codigo);
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // RETORNAR VALOR 
-            if(count($online)== 0){
-               // var_dump("entre 1");
-
-                return ["response" => true, "producto" => $producto[0], "online" => 0, "imagen" => $imagen["imagen"]];
-            }else{
-               // var_dump("entre 2");
-                return ["response" => true, "producto" => $producto[0], "online" => $online[0], "imagen" => $imagen["imagen"]];
-            }
-
-            
+            return ["response" => true, "servicio" => $servicio[0]];
 
             /*  --------------------------------------------------------------------------------- */
 
         } else {
+
+        	/*  --------------------------------------------------------------------------------- */
+
             return ["response" => false];
+
+            /*  --------------------------------------------------------------------------------- */
         }
 
         /*  --------------------------------------------------------------------------------- */

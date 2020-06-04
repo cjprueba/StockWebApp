@@ -2384,7 +2384,8 @@ class Producto extends Model
                           PRODUCTOS.MARCA,
                           PRODUCTOS.LINEA,
                           PRODUCTOS.VENCIMIENTO,
-                          PRODUCTOS_AUX.CODIGO_REAL')
+                          PRODUCTOS_AUX.CODIGO_REAL,
+                          PRODUCTOS_AUX.DESCUENTO')
         , DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
@@ -2404,6 +2405,7 @@ class Producto extends Model
             $data["MARCA"] = $value->MARCA;
             $data["LINEA"] = $value->LINEA;
             $data["CODIGO_REAL"] = $value->CODIGO_REAL;
+            $data["DESCUENTO"] = $value->DESCUENTO;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2450,6 +2452,14 @@ class Producto extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // DESCUENTO MANUAL POR PRODUCTO
+
+        if ($data["DESCUENTO"] > 0) {
+            $descuento_categoria = $data["DESCUENTO"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
         // REVISAR DESCUENTO POR MARCA 
 
         $descuento_marca = MarcaAux::
