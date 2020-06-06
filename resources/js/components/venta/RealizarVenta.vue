@@ -218,10 +218,10 @@
 							<table id="tablaVenta" class="display nowrap table table-hover table-bordered table-sm mb-3" style="width:100%">
 				                <thead>
 				                    <tr>
-				                        <th></th>
+				                        <th>#</th>
 				                        <th class="codigoDeclarados">Codigo</th>
 				                        <th>Descripción</th>
-				                        <th>Lote</th>
+				                        <th>L</th>
 				                        <th>%</th>
 				                        <th>Desc.</th>
 				                        <th class="cantidadColumna">Cant.</th>
@@ -378,6 +378,21 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- TOAST FALTA COMPLETAR -->
+
+			<b-toast id="toast-no-existe" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">No existe</small>
+		        </div>
+		      </template>
+		      Este código no existe !
+		    </b-toast>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 		<!-- TOAST DESCUENTO SUPERADO -->
 
 			<b-toast id="toast-descuento-error" variant="warning" solid>
@@ -515,6 +530,8 @@
 			    IVA: 0
          	}, imagen: {
          		RUTA: require('./../../../imagenes/SinImagen.png'),
+         	}, tabla: {
+         		ITEM: 0
          	} 
 
         }
@@ -789,6 +806,31 @@
 
 	            // ------------------------------------------------------------------------
 
+	            // CONTROLADOR SERVICIO
+
+	            if (me.producto.COD_PROD.length === 0) {
+	                me.validar.COD_PROD = true;
+	                return;
+	            } else {
+	                me.validar.COD_PROD = false;
+	            }
+
+	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0' || me.producto.PREC_VENTA === '0.00') {
+	                me.validar.PRECIO_UNITARIO = true;
+	                return;
+	            } else {
+	                me.validar.PRECIO_UNITARIO = false;
+	            }
+
+	            if (me.producto.CANTIDAD.length === 0  || me.producto.CANTIDAD === '0') {
+	                me.validar.CANTIDAD = true;
+	                return;
+	            } else {
+	                me.validar.CANTIDAD = false;
+	            }
+
+	            // ------------------------------------------------------------------------
+
 	            me.agregarFilaTabla(me.servicio.COD_PROD, me.servicio.DESCRIPCION, me.servicio.LOTE, 0, 1, impuesto, me.producto.PREC_VENTA, me.producto.PREC_VENTA, me.servicio.IVA, 0, '', me.producto.PREC_VENTA, 0, tipo, rowClass);
 
 	            // ------------------------------------------------------------------------
@@ -988,6 +1030,12 @@
 
 						// ------------------------------------------------------------------------
 
+						// IMAGEN DEL PRODUCTO 
+
+						me.imagen.RUTA = data.imagen;
+
+						// ------------------------------------------------------------------------
+
 						// DESCUENTO POR MARCA O CATEGORIA
 
 						if (data.descuento_marca !== false && me.checked.DESCUENTO === true) {
@@ -1008,11 +1056,13 @@
 
 					} else {
 
-						Swal.fire(
-							'Error !',
-							data.statusText,
-							'error'
-						)
+						// ------------------------------------------------------------------------
+
+						// NO EXISTE PRODUCTO 
+
+						me.$bvToast.show('toast-no-existe');
+
+						// ------------------------------------------------------------------------
 
 					}
 
@@ -1248,10 +1298,16 @@
 
 	            // ------------------------------------------------------------------------
 
+	            // SUMAR FILAS TABLA 
+
+	            me.tabla.ITEM = me.tabla.ITEM + 1;
+
+	            // ------------------------------------------------------------------------
+
 	        	// AGREGAR FILAS 
 
 	        	 tableVenta.rows.add( [ {
-			                    "ITEM": '',
+			                    "ITEM": me.tabla.ITEM,
 			                    "CODIGO":   codigo,
 			                    "DESCRIPCION":     descripcion,
 			                    "LOTE": lote,
@@ -1277,11 +1333,11 @@
 
 	            // AGREGAR INDEX A LA TABLA TRANSFERNCIAS
 
-	            tableVenta.on( 'order.dt search.dt', function () {
-	                tableVenta.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-	                    cell.innerHTML = i+1;
-	                } );
-	            } ).draw();
+	            // tableVenta.on( 'order.dt search.dt', function () {
+	            //     tableVenta.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+	            //         cell.innerHTML = i+1;
+	            //     } );
+	            // } ).draw();
 
 	            // ------------------------------------------------------------------------
 
@@ -1679,6 +1735,7 @@
 				                "searchable": false
 				            }
 				        ],
+				        "order": [[ 0, "desc" ]],
                         "footerCallback": function(row, data, start, end, display) {
 						  var api = this.api();
 						 

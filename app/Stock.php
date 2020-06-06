@@ -74,6 +74,7 @@ class Stock extends Model
     	$datos = [];
     	$valor = false;
     	$diaHora = date("Y-m-d H:i:s");
+    	$hora = date("H:i:s");
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -104,11 +105,11 @@ class Stock extends Model
 	        	/*  --------------------------------------------------------------------------------- */
 
 	        	// PONER EN CERO E LOTE PORQUE SUPERO CANTIDAD 
-
+	        	
 	        	$restar = Stock::where('COD_PROD','=', $codigo)
 		        ->where('LOTE','=', $stock[0]->LOTE)
 		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
-		        ->update(['CANTIDAD' => 0]);
+		        ->update(['CANTIDAD' => 0, 'USERM' => $user->name, 'FECMODIF' => $diaHora, 'HORMODIF' => $hora]);
 
 		        /*  --------------------------------------------------------------------------------- */
 
@@ -129,11 +130,16 @@ class Stock extends Model
 	        	/*  --------------------------------------------------------------------------------- */
 
 	        	// RESTAR CANTIDAD DE LOTE 
-
+	        	
 	        	$restar =Stock::where('COD_PROD','=', $codigo)
 		        ->where('LOTE','=', $stock[0]->LOTE)
 		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
-		        ->decrement('CANTIDAD', $cantidad);
+		        ->update(['CANTIDAD' => DB::raw('CANTIDAD - '.$cantidad), 'USERM' => $user->name, 'FECMODIF' => $diaHora, 'HORMODIF' => $hora]);
+
+	        	// $restar =Stock::where('COD_PROD','=', $codigo)
+		        // ->where('LOTE','=', $stock[0]->LOTE)
+		        // ->where('ID_SUCURSAL','=',$user->id_sucursal)
+		        // ->decrement('CANTIDAD', $cantidad);
 
 		        /*  --------------------------------------------------------------------------------- */
 

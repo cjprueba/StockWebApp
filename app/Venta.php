@@ -13,10 +13,12 @@ use App\Ventas_det_Descuento;
 use App\VentaTarjeta;
 use App\VentaGiro;
 use App\VentaTransferencia;
+use App\VentasDetServicios;
+use App\VentasAnulado;
 
 class Venta extends Model
 {
-    //protected $connection = 'retail';
+    protected $connection = 'retail';
 
     public static function ventas($fecha)
     {
@@ -1579,408 +1581,507 @@ class Venta extends Model
     public static function guardar($data)
     {
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-
-        $user = auth()->user();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER CANDEC 
-
-        $moneda = $data["data"]["moneda"];
-        $candec = (Parametro::candec($moneda))["CANDEC"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INICIAR VARIABLES
-
-        $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
-        if ($guaranies === '') {
-            $guaranies = 0;
-        } 
-
-        $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
-        if ($dolares === '') {
-            $dolares = 0;
-        } 
-
-        $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
-        if ($pesos === '') {
-            $pesos = 0;
-        } 
-
-        $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
-        if ($reales === '') {
-            $reales = 0;
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR DINERO Y QUITARLE VUELTO 
-
-        $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
-
-        if ($opcion_vuelto === '1') {
-            $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
-        } else if ($opcion_vuelto === '2') {
-            $dolares = $dolares - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , 2);
-        } else if ($opcion_vuelto === '3') {
-            $reales = $reales - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2);
-        } else if ($opcion_vuelto === '4') {
-            $pesos = $pesos - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2);
-        } 
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // VUELTO PRINCIPAL 
-
-        if($moneda === 1) {
-            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec);
-        } else if ($moneda === 2) {
-            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , $candec);
-        } else if ($moneda === 3) {
-            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , $candec);
-        } else if ($moneda === 4) {
-            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , $candec);
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        $numero_caja = 'CA'.'01';
-        $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
-        $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
-        $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // Tarjeta
-        
-        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
-        //$codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
-        $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
-         
-        /*  --------------------------------------------------------------------------------- */
-
-        // TRANSFERENCIA 
-
-        $transferencia = Common::quitar_coma($data["data"]["pago"]["TRANSFERENCIA"], 0);
-        $codigo_banco = $data["data"]["pago"]["CODIGO_BANCO"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // GIRO 
-
-        $giro = Common::quitar_coma($data["data"]["pago"]["GIRO"], 0);
-        $codigo_entidad = $data["data"]["pago"]["CODIGO_ENT"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        $caja = $data["data"]["caja"]["CODIGO"];
-        $cliente = $data["data"]["cliente"]["CODIGO"];
-        $vendedor = $data["data"]["vendedor"]["CODIGO"];
-        $cheques = $data["data"]["pago"]["CHEQUE"];
-        $opcion_impresion = $data["data"]["pago"]["TIPO_IMPRESION"];
-        $total = 0;
-        $dia = date('Y-m-d');
-        $hora = date("H:i:s");
-        $codigo = 0;
-        $c = 0;
-        $total = 0;
-        $impuesto = 0;
-        $total_total = 0;
-        $total_iva = 0;
-        $total_base5 = 0;
-        $total_base10 = 0;
-        $total_gravadas = 0;
-        $total_exentas = 0;
-        $descuento = 0;
-        $descuento_total = 0;
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // PRODUCTOS 
-
-        $filas = count($data["data"]["productos"]);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // TOTALES 
-
-        $gravadas = Common::quitar_coma($data["data"]["cabecera"]["GRAVADAS"], $candec);
-        $impuesto_cabecera = Common::quitar_coma($data["data"]["cabecera"]["IMPUESTO"], $candec);
-        $total_cabecera = Common::quitar_coma($data["data"]["cabecera"]["TOTAL"], $candec);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR SI YA EXISTE VENTA 
-
-        $codigo = Venta::existe_codigo($data["data"]["cabecera"]["CODIGO"], $data["data"]["caja"]["CODIGO"]);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RECORRER VENTAS
-
-        while($c < $filas) {
+        try {
 
             /*  --------------------------------------------------------------------------------- */
 
-            // INICIAR DATOS 
+            // INICIAR TRANSACCION 
 
-            $cod_prod = $data["data"]["productos"][$c]["CODIGO"];
-            $cantidad = Common::quitar_coma($data["data"]["productos"][$c]["CANTIDAD"], $candec);
-            $cantidad_total = $cantidad;
-            $precio = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO"], $candec);
-            $impuesto = Common::quitar_coma($data["data"]["productos"][$c]["IMPUESTO"], $candec);
-            $porcentaje = Common::quitar_coma($data["data"]["productos"][$c]["IVA"], $candec);
-            $descuento = Common::quitar_coma($data["data"]["productos"][$c]["DESCUENTO_TOTAL"], $candec);
-            $descuento_porcentaje = (int)$data["data"]["productos"][$c]["DESCUENTO"];
+            DB::connection('retail')->beginTransaction();
 
             /*  --------------------------------------------------------------------------------- */
 
-            // REALIZAR CALCULOS 
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
             
-            $total = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO_TOTAL"], $candec);
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER CANDEC 
+
+            $moneda = $data["data"]["moneda"];
+            $candec = (Parametro::candec($moneda))["CANDEC"];
 
             /*  --------------------------------------------------------------------------------- */
 
-            // OBTENER DATOS FALTANTES 
+            // INICIAR VARIABLES
 
-            $producto = Producto::datosVariosProducto($cod_prod);
+            $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
+            if ($guaranies === '') {
+                $guaranies = 0;
+            } 
 
-            /*  --------------------------------------------------------------------------------- */ 
+            $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
+            if ($dolares === '') {
+                $dolares = 0;
+            } 
 
-            // RESTAR STOCK DEL PRODUCTO
+            $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
+            if ($pesos === '') {
+                $pesos = 0;
+            } 
 
-            $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
-                    
-            /*  --------------------------------------------------------------------------------- */ 
+            $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
+            if ($reales === '') {
+                $reales = 0;
+            }
 
-            // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR DINERO Y QUITARLE VUELTO 
+
+            $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
+
+            if ($opcion_vuelto === '1') {
+                $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
+            } else if ($opcion_vuelto === '2') {
+                $dolares = $dolares - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , 2);
+            } else if ($opcion_vuelto === '3') {
+                $reales = $reales - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2);
+            } else if ($opcion_vuelto === '4') {
+                $pesos = $pesos - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2);
+            } 
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // VUELTO PRINCIPAL 
+
+            if($moneda === 1) {
+                $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec);
+            } else if ($moneda === 2) {
+                $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , $candec);
+            } else if ($moneda === 3) {
+                $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , $candec);
+            } else if ($moneda === 4) {
+                $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , $candec);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $numero_caja = 'CA'.'01';
+            $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
+            $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
+            $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // Tarjeta
             
+            $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
+            //$codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
+            $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
+             
+            /*  --------------------------------------------------------------------------------- */
 
-            if ($respuesta_resta["datos"]) {
+            // TRANSFERENCIA 
+
+            $transferencia = Common::quitar_coma($data["data"]["pago"]["TRANSFERENCIA"], 0);
+            $codigo_banco = $data["data"]["pago"]["CODIGO_BANCO"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // GIRO 
+
+            $giro = Common::quitar_coma($data["data"]["pago"]["GIRO"], 0);
+            $codigo_entidad = $data["data"]["pago"]["CODIGO_ENT"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $caja = $data["data"]["caja"]["CODIGO"];
+            $cliente = $data["data"]["cliente"]["CODIGO"];
+            $vendedor = $data["data"]["vendedor"]["CODIGO"];
+            $cheques = $data["data"]["pago"]["CHEQUE"];
+            $opcion_impresion = $data["data"]["pago"]["TIPO_IMPRESION"];
+            $total = 0;
+            $dia = date('Y-m-d');
+            $hora = date("H:i:s");
+            $codigo = 0;
+            $c = 0;
+            $total = 0;
+            $impuesto = 0;
+            $total_total = 0;
+            $total_iva = 0;
+            $total_base5 = 0;
+            $total_base10 = 0;
+            $total_gravadas = 0;
+            $total_exentas = 0;
+            $descuento = 0;
+            $descuento_total = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // PRODUCTOS 
+
+            $filas = count($data["data"]["productos"]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // TOTALES 
+
+            $gravadas = Common::quitar_coma($data["data"]["cabecera"]["GRAVADAS"], $candec);
+            $impuesto_cabecera = Common::quitar_coma($data["data"]["cabecera"]["IMPUESTO"], $candec);
+            $total_cabecera = Common::quitar_coma($data["data"]["cabecera"]["TOTAL"], $candec);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI YA EXISTE VENTA 
+
+            $codigo = Venta::existe_codigo($data["data"]["cabecera"]["CODIGO"], $data["data"]["caja"]["CODIGO"]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RECORRER VENTAS
+
+            while($c < $filas) {
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
+                // INICIAR DATOS 
 
-                $cantidad_guardada = 0;
-
-                foreach ($respuesta_resta["datos"] as $key => $value) {
-                    $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
-
-                if ($cantidad !== $cantidad_guardada) {
-                    $total = $precio * $cantidad_guardada;
-                }
+                $cod_prod = $data["data"]["productos"][$c]["CODIGO"];
+                $cantidad = Common::quitar_coma($data["data"]["productos"][$c]["CANTIDAD"], $candec);
+                $cantidad_total = $cantidad;
+                $precio = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO"], $candec);
+                $impuesto = Common::quitar_coma($data["data"]["productos"][$c]["IMPUESTO"], $candec);
+                $porcentaje = Common::quitar_coma($data["data"]["productos"][$c]["IVA"], $candec);
+                $descuento = Common::quitar_coma($data["data"]["productos"][$c]["DESCUENTO_TOTAL"], $candec);
+                $descuento_porcentaje = (int)$data["data"]["productos"][$c]["DESCUENTO"];
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // CALCULAR IVA
+                // REALIZAR CALCULOS 
                 
-                $impuesto = Common::calculo_iva((int)$porcentaje, $total, $candec);
+                $total = Common::quitar_coma($data["data"]["productos"][$c]["PRECIO_TOTAL"], $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER DATOS FALTANTES 
+
+                $producto = Producto::datosVariosProducto($cod_prod);
+
+                /*  --------------------------------------------------------------------------------- */ 
+
+                // SI TIPO ES PRODUCTO
+
+                if ($data["data"]["productos"][$c]["TIPO"] === 1) {
+
+                    /*  --------------------------------------------------------------------------------- */ 
+
+                    // RESTAR STOCK DEL PRODUCTO
+
+                    $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
+                            
+                    /*  --------------------------------------------------------------------------------- */ 
+
+                    // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
+                    
+
+                    if ($respuesta_resta["datos"]) {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
+
+                        $cantidad_guardada = 0;
+
+                        foreach ($respuesta_resta["datos"] as $key => $value) {
+                            $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
+
+                        if ($cantidad !== $cantidad_guardada) {
+                            $total = $precio * $cantidad_guardada;
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CALCULAR IVA
+                        
+                        $impuesto = Common::calculo_iva((int)$porcentaje, $total, $candec);
+                                
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // TOTALES 
+
+                        $total_total = $total_total + $total;
+                        
+                        $total_iva = $total_iva + $impuesto["impuesto"];
+                        $total_base10 = $total_base10 + $impuesto["base10"];
+                        $total_base5 = $total_base5 + $impuesto["base5"];
+                        $total_exentas = $total_exentas + $impuesto["exentas"];
+                        $total_gravadas = $total_gravadas + $impuesto["gravadas"];
+                        $descuento_total = $descuento_total + $descuento;
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR TRANSFERENCIA DET 
+
+                        $id_ventas_det = Ventas_det::insertGetId(
+                            [
+                            'CODIGO' => $codigo, 
+                            'CAJA' => $caja, 
+                            'ITEM' => $c + 1, 
+                            'COD_PROD' => $cod_prod, 
+                            'DESCRIPCION' => $data["data"]["productos"][$c]["DESCRIPCION"], 
+                            'LOTE' => $data["data"]["productos"][$c]["LOTE"], 
+                            'CANTIDAD' => $cantidad_guardada, 
+                            'GRAVADA' => $impuesto["gravadas"],
+                            'IVA' => $impuesto["impuesto"],
+                            'EXENTA' => $impuesto["exentas"],
+                            'DESCUENTO' => '', 
+                            'PRECIO' => $total, 
+                            'PRECIO_UNIT' => $precio, 
+                            'BASE5' => $impuesto["base5"],
+                            'BASE10' =>  $impuesto["base10"],
+                            'TIVA' => '', 
+                            'USER' => $user->name, 
+                            'FECALTAS' => $dia, 
+                            'HORALTAS' => $hora, 
+                            'ID_SUCURSAL' => $user->id_sucursal, 
+                            'CODIGO_CA' => $codigo_caja, 
+                            'ANULADO' => 0
+                            ]
+                        );
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR DESCUENTO 
+
+                        if ($descuento_porcentaje > 0) {
+                            Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod);
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
+
+                    foreach ($respuesta_resta["datos"] as $key => $value) {
+                        VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"]);
+                    }
+                            
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
+
+                    if ($respuesta_resta["response"] === false){
+                        $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
+                    }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI TIPO ES SERVICIO 
+
+                } else if ($data["data"]["productos"][$c]["TIPO"] === 2) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // CALCULAR IVA
+                        
+                    $impuesto = Common::calculo_iva((int)$porcentaje, $total, $candec);
+                            
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // TOTALES 
+
+                    $total_total = $total_total + $total;
+                        
+                    $total_iva = $total_iva + $impuesto["impuesto"];
+                    $total_base10 = $total_base10 + $impuesto["base10"];
+                    $total_base5 = $total_base5 + $impuesto["base5"];
+                    $total_exentas = $total_exentas + $impuesto["exentas"];
+                    $total_gravadas = $total_gravadas + $impuesto["gravadas"];
+                    $descuento_total = $descuento_total + $descuento;
+                        
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // INSERTAR TRANSFERENCIA DET 
+
+                    VentasDetServicios::insert(
+                            [
+                            'CODIGO' => $codigo, 
+                            'CAJA' => $caja, 
+                            'ITEM' => $c + 1, 
+                            'COD_SERV' => $cod_prod, 
+                            'DESCRIPCION' => $data["data"]["productos"][$c]["DESCRIPCION"], 
+                            'CANTIDAD' => $cantidad, 
+                            'GRAVADA' => $impuesto["gravadas"],
+                            'IVA' => $impuesto["impuesto"],
+                            'EXENTA' => $impuesto["exentas"],
+                            'DESCUENTO' => '', 
+                            'PRECIO' => $total, 
+                            'PRECIO_UNIT' => $precio, 
+                            'BASE5' => $impuesto["base5"],
+                            'BASE10' =>  $impuesto["base10"],
+                            'TIVA' => '', 
+                            'ID_SUCURSAL' => $user->id_sucursal, 
+                            'CODIGO_CA' => $codigo_caja, 
+                            'ANULADO' => 0
+                            ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+                        
+                // AUMENTAR CONTADOR 
+
+                $c++;
                         
                 /*  --------------------------------------------------------------------------------- */
-
-                // TOTALES 
-
-                $total_total = $total_total + $total;
-                
-                $total_iva = $total_iva + $impuesto["impuesto"];
-                $total_base10 = $total_base10 + $impuesto["base10"];
-                $total_base5 = $total_base5 + $impuesto["base5"];
-                $total_exentas = $total_exentas + $impuesto["exentas"];
-                $total_gravadas = $total_gravadas + $impuesto["gravadas"];
-                $descuento_total = $descuento_total + $descuento;
-                
-                /*  --------------------------------------------------------------------------------- */
-
-                // INSERTAR TRANSFERENCIA DET 
-
-                $id_ventas_det = Ventas_det::insertGetId(
-                    [
-                    'CODIGO' => $codigo, 
-                    'CAJA' => $caja, 
-                    'ITEM' => $c + 1, 
-                    'COD_PROD' => $cod_prod, 
-                    'DESCRIPCION' => $data["data"]["productos"][$c]["DESCRIPCION"], 
-                    'LOTE' => 0, 
-                    'CANTIDAD' => $cantidad_guardada, 
-                    'GRAVADA' => $impuesto["gravadas"],
-                    'IVA' => $impuesto["impuesto"],
-                    'EXENTA' => $impuesto["exentas"],
-                    'DESCUENTO' => '', 
-                    'PRECIO' => $total, 
-                    'PRECIO_UNIT' => $precio, 
-                    'BASE5' => $impuesto["base5"],
-                    'BASE10' =>  $impuesto["base10"],
-                    'TIVA' => '', 
-                    'USER' => $user->name, 
-                    'FECALTAS' => $dia, 
-                    'HORALTAS' => $hora, 
-                    'ID_SUCURSAL' => $user->id_sucursal, 
-                    'CODIGO_CA' => '', 
-                    'ANULADO' => 0
-                    ]
-                );
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // INSERTAR DESCUENTO 
-
-                if ($descuento_porcentaje > 0) {
-                    Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod);
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
             }
 
             /*  --------------------------------------------------------------------------------- */
 
-            // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
+            // INSERTAR VENTA 
 
-            foreach ($respuesta_resta["datos"] as $key => $value) {
-                VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"]);
+            $venta = Venta::insertGetId(
+                [
+                    "CODIGO" => $codigo, 
+                    "FECHA" => $dia, 
+                    "HORA" => $hora, 
+                    //"FACTURA" => '', 
+                    "CAJA" => $caja, 
+                    "CLIENTE" => $cliente, 
+                    "VENDEDOR" => $vendedor, 
+                    "TIPO" => 'CO', 
+                    //"FORMA_PAGO" => '', 
+                    "PLAN_PAGO" => 0, 
+                    "TARJETA" => 0, 
+                    "DESCUENTO" => $descuento_total, 
+                    "GRAVADAS" => $total_gravadas, 
+                    "IMPUESTOS" => $total_iva, 
+                    "EXENTAS" => $total_exentas, 
+                    "BASE5" => $total_base5, 
+                    "BASE10" => $total_base10, 
+                    "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
+                    "TOTAL" => $total_total, 
+                    "EFECTIVO" => $efectivo, 
+                    "CHEQUE" => 0, 
+                    "VALE" => 0, 
+                    "DONACION" => 0, 
+                    "VUELTO" => $vuelto, 
+                    "GIROS" => 0, 
+                    "MONEDA" => $moneda, 
+                    "MONEDA1" => $dolares, 
+                    "MONEDA2" => $reales, 
+                    "MONEDA3" => $guaranies, 
+                    "MONEDA4" => $pesos, 
+                    "OPCION_IMPRESION" => $opcion_impresion, 
+                    "USER" => $user->name, 
+                    "FECALTAS" => $dia, 
+                    "HORALTAS" => $hora, 
+                    "ID_SUCURSAL" => $user->id_sucursal, 
+                    "CODIGO_CA" => $codigo_caja, 
+                    //"TIPO_PRECIO" =>
+                ]
+            );
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR ANULADO 
+
+            VentasAnulado::guardar_referencia([
+                    'FK_VENTA' => $venta,
+                    'ANULADO' => 0,
+                    'FECHA' => date('Y-m-d H:i:s')
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TARJETA
+
+            if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '0.00' && $codigo_tarjeta !== NULL) {
+                if ($codigo_tarjeta !== '') {
+                    $pago_tarjeta = VentaTarjeta::guardar_referencia([
+                        'FK_TARJETA' => $codigo_tarjeta,
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $tarjeta,
+                        'MONEDA' => 1
+                    ]);
+                } 
             }
-                    
+
             /*  --------------------------------------------------------------------------------- */
 
-            // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
-
-            if ($respuesta_resta["response"] === false){
-                $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
+            // INSERTAR PAGO TRANSFERENCIA
+            
+            if ($codigo_banco !== '0' && $codigo_banco !== '0.00' && $codigo_banco !== NULL) {
+                if ($codigo_banco !== '') {
+                    VentaTransferencia::guardar_referencia([
+                        'FK_BANCO' => $codigo_banco,
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $transferencia,
+                        'MONEDA' => 1
+                    ]);
+                } 
             }
 
             /*  --------------------------------------------------------------------------------- */
-                    
-            // AUMENTAR CONTADOR 
 
-            $c++;
-                    
+            // INSERTAR PAGO GIRO
+            
+            if ($codigo_entidad !== '0' && $codigo_entidad !== '0.00' && $codigo_entidad !== NULL) {
+                if ($codigo_entidad !== '') {
+                    VentaGiro::guardar_referencia([
+                        'FK_ENTIDAD' => $codigo_entidad,
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $giro,
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
             /*  --------------------------------------------------------------------------------- */
-        }
 
-        /*  --------------------------------------------------------------------------------- */
+            // INSERTAR PAGO CHEQUES 
 
-        // INSERTAR VENTA 
+            $pago_cheque = VentaCheque::guardar_referencia($cheques, $venta);
 
-        $venta = Venta::insertGetId(
-            [
-                "CODIGO" => $codigo, 
-                "FECHA" => $dia, 
-                "HORA" => $hora, 
-                //"FACTURA" => '', 
-                "CAJA" => $caja, 
-                "CLIENTE" => $cliente, 
-                "VENDEDOR" => $vendedor, 
-                "TIPO" => 'CO', 
-                //"FORMA_PAGO" => '', 
-                "PLAN_PAGO" => 0, 
-                "TARJETA" => 0, 
-                "DESCUENTO" => $descuento_total, 
-                "GRAVADAS" => $total_gravadas, 
-                "IMPUESTOS" => $total_iva, 
-                "EXENTAS" => $total_exentas, 
-                "BASE5" => $total_base5, 
-                "BASE10" => $total_base10, 
-                "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                "TOTAL" => $total_total, 
-                "EFECTIVO" => $efectivo, 
-                "CHEQUE" => 0, 
-                "VALE" => 0, 
-                "DONACION" => 0, 
-                "VUELTO" => $vuelto, 
-                "GIROS" => 0, 
-                "MONEDA" => $moneda, 
-                "MONEDA1" => $dolares, 
-                "MONEDA2" => $reales, 
-                "MONEDA3" => $guaranies, 
-                "MONEDA4" => $pesos, 
-                "OPCION_IMPRESION" => $opcion_impresion, 
-                "USER" => $user->name, 
-                "FECALTAS" => $dia, 
-                "HORALTAS" => $hora, 
-                "ID_SUCURSAL" => $user->id_sucursal, 
-                "CODIGO_CA" => $codigo_caja, 
-                //"TIPO_PRECIO" =>
-            ]
-        );
+            if ($pago_cheque["response"] === false) {
+                return $pago_cheque;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ACTUALIZAR NUMERO TICKET 
+
+            Ticket::actualizar_numero($venta, $codigo_caja, $numero_caja, $dia, $hora);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
         
-        /*  --------------------------------------------------------------------------------- */
+           /*  --------------------------------------------------------------------------------- */
 
-        // INSERTAR PAGO TARJETA
+           // NO GUARDAR NINGUN CAMBIO 
 
-        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '0.00' && $codigo_tarjeta !== NULL) {
-            if ($codigo_tarjeta !== '') {
-                $pago_tarjeta = VentaTarjeta::guardar_referencia([
-                    'FK_TARJETA' => $codigo_tarjeta,
-                    'FK_VENTA' => $venta,
-                    'MONTO' => $tarjeta,
-                    'MONEDA' => 1
-                ]);
-            } 
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
         }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO TRANSFERENCIA
-        
-        if ($codigo_banco !== '0' && $codigo_banco !== '0.00' && $codigo_banco !== NULL) {
-            if ($codigo_banco !== '') {
-                VentaTransferencia::guardar_referencia([
-                    'FK_BANCO' => $codigo_banco,
-                    'FK_VENTA' => $venta,
-                    'MONTO' => $transferencia,
-                    'MONEDA' => 1
-                ]);
-            } 
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO GIRO
-        
-        if ($codigo_entidad !== '0' && $codigo_entidad !== '0.00' && $codigo_entidad !== NULL) {
-            if ($codigo_entidad !== '') {
-                VentaGiro::guardar_referencia([
-                    'FK_ENTIDAD' => $codigo_entidad,
-                    'FK_VENTA' => $venta,
-                    'MONTO' => $giro,
-                    'MONEDA' => 1
-                ]);
-            } 
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO CHEQUES 
-
-        $pago_cheque = VentaCheque::guardar_referencia($cheques, $venta);
-
-        if ($pago_cheque["response"] === false) {
-            return $pago_cheque;
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ACTUALIZAR NUMERO TICKET 
-
-        Ticket::actualizar_numero($venta, $codigo_caja, $numero_caja, $dia, $hora);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR VALOR 
-
-        return ["response" => true, "statusText" => "Se ha guardado correctamente la venta !", "CODIGO" => $codigo, "CAJA" => $caja];
-
-        /*  --------------------------------------------------------------------------------- */
 
     }
 
@@ -2226,6 +2327,7 @@ class Venta extends Model
 
         $codigo = $data['codigo'];
         $caja = $data['caja'];
+        $data = array();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2270,16 +2372,25 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            // CARGAR PORCENTAJE IVA IVA 
-
-            $ventas_det[$key]->IVA_PORCENTAJE = $producto[0]->IMPUESTO;
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS;
+            $nestedData['BASE5'] = $value->BASE5;
+            $nestedData['BASE10'] = $value->BASE10;
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
 
             /*  --------------------------------------------------------------------------------- */
 
-            $ventas_det[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
-            $ventas_det[$key]->PRECIO_UNIT = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
-            $ventas_det[$key]->IVA = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
-            $ventas_det[$key]->PRECIO = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2287,9 +2398,66 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // OBTENER SERVICIOS 
+
+        $ventas_det_servicios = VentasDetServicios::select(DB::raw(
+                        'ventasdet_servicios.ID,
+                        ventasdet_servicios.ITEM, 
+                        ventasdet_servicios.COD_SERV, 
+                        ventasdet_servicios.DESCRIPCION, 
+                        ventasdet_servicios.CANTIDAD, 
+                        ventasdet_servicios.PRECIO_UNIT,
+                        ventasdet_servicios.IVA,
+                        ventasdet_servicios.EXENTA AS EXENTAS,
+                        ventasdet_servicios.BASE5,
+                        ventasdet_servicios.BASE10,
+                        ventasdet_servicios.PRECIO,
+                        VENTAS.MONEDA,
+                        0 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'ventasdet_servicios.CODIGO')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'ventasdet_servicios.ID_SUCURSAL')
+                                     ->on('VENTAS.CAJA', '=', 'ventasdet_servicios.CAJA');
+                            })
+        ->where('ventasdet_servicios.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('ventasdet_servicios.CODIGO','=', $codigo)
+        ->where('ventasdet_servicios.CAJA','=', $caja)
+        ->get();
+
+        foreach ($ventas_det_servicios as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_SERV;
+            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS;
+            $nestedData['BASE5'] = $value->BASE5;
+            $nestedData['BASE10'] = $value->BASE10;
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = 10;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR SERVICIOS EN ARRAY 
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
         // RETORNAR VALOR 
 
-        return $ventas_det;
+        return $data;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2906,25 +3074,25 @@ class Venta extends Model
             
             /*  --------------------------------------------------------------------------------- */
                 
-            $articulos["precio"] = $value->PRECIO_UNIT;
-            $articulos["total"] = $value->PRECIO;
-            $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
-            $total = $total + Common::quitar_coma($value->PRECIO, $candec);
+            $articulos["precio"] = $value["PRECIO_UNIT"];
+            $articulos["total"] = $value["PRECIO"];
+            $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+            $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
             
             /*  --------------------------------------------------------------------------------- */
 
             // CARGAR VARIABLES 
 
-            $articulos["cantidad"] = $value->CANTIDAD;
-            $articulos["cod_prod"] = $value->COD_PROD;
-            $articulos["descripcion"] = utf8_decode(substr($value->DESCRIPCION, 0,38));
-            $cantidad = $cantidad + $value->CANTIDAD;
+            $articulos["cantidad"] = $value["CANTIDAD"];
+            $articulos["cod_prod"] = $value["COD_PROD"];
+            $articulos["descripcion"] = utf8_decode(substr($value["DESCRIPCION"], 0,38));
+            $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI EXISTE EXENTAS 
 
-            if ($value->EXENTAS > 0) {
+            if ($value["EXENTAS"] > 0) {
                 $articulos["exentas"] = $articulos["total"];
             } else {
                 $articulos["exentas"] = '';
@@ -2934,11 +3102,11 @@ class Venta extends Model
 
             // REVISAR SI EXISTE BASE5 O BASE10
 
-            if ($value->BASE5 > 0) {
+            if ($value["BASE5"] > 0) {
                 $articulos["base10"] = '';
                 $articulos["base5"] = $articulos["total"];
                 $base5 = $base5 + Common::quitar_coma($articulos["total"], $candec);
-            } else if ($value->BASE10 > 0) {
+            } else if ($value["BASE10"] > 0) {
                 $articulos["base5"] = '';
                 $articulos["base10"] = $articulos["total"];
                 $base10 = $base10 + Common::quitar_coma($articulos["total"], $candec);
@@ -2965,8 +3133,8 @@ class Venta extends Model
             // BUSCAR DESCUENTOS 
 
             $descuento_producto = Ventas_det_Descuento::select(DB::raw('PORCENTAJE, TOTAL'))
-            ->WHERE('FK_VENTASDET', '=', $value->ID)
-            ->WHERE('FK_COD_PROD', '=', $value->COD_PROD)
+            ->WHERE('FK_VENTASDET', '=', $value["ID"])
+            ->WHERE('FK_COD_PROD', '=', $value["COD_PROD"])
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
@@ -3176,13 +3344,13 @@ class Venta extends Model
 
             // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
             
-            if ($value->MONEDA <> 1) {
+            if ($value["MONEDA"] <> 1) {
 
                 /*  --------------------------------------------------------------------------------- */
 
                 // PRECIO 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO_UNIT, 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -3197,7 +3365,7 @@ class Venta extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
@@ -3214,10 +3382,10 @@ class Venta extends Model
 
             } else {
                 
-                $articulos[$c_rows]["precio"] = $value->PRECIO_UNIT;
-                $articulos[$c_rows]["total"] = $value->PRECIO;
-                $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
-                $total = $total + Common::quitar_coma($value->PRECIO, $candec);
+                $articulos[$c_rows]["precio"] = $value["PRECIO_UNIT"];
+                $articulos[$c_rows]["total"] = $value["PRECIO"];
+                $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+                $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
             }
 
             
@@ -3225,16 +3393,16 @@ class Venta extends Model
 
             // CARGAR VARIABLES 
 
-            $articulos[$c_rows]["cantidad"] = $value->CANTIDAD;
-            $articulos[$c_rows]["cod_prod"] = $value->COD_PROD;
-            $articulos[$c_rows]["descripcion"] = substr($value->DESCRIPCION, 0,30);
-            $cantidad = $cantidad + $value->CANTIDAD;
+            $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
+            $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
+            $articulos[$c_rows]["descripcion"] = substr($value["DESCRIPCION"], 0,30);
+            $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI EXISTE EXENTAS 
 
-            if ($value->EXENTAS > 0) {
+            if ($value["EXENTAS"] > 0) {
                 $articulos[$c_rows]["exentas"] = $articulos[$c_rows]["total"];
             } else {
                 $articulos[$c_rows]["exentas"] = '';
@@ -3244,11 +3412,11 @@ class Venta extends Model
 
             // REVISAR SI EXISTE BASE5 O BASE10
 
-            if ($value->BASE5 > 0) {
+            if ($value["BASE5"] > 0) {
                 $articulos[$c_rows]["base10"] = '';
                 $articulos[$c_rows]["base5"] = $articulos[$c_rows]["total"];
                 $base5 = $base5 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
-            } else if ($value->BASE10 > 0) {
+            } else if ($value["BASE10"] > 0) {
                 $articulos[$c_rows]["base5"] = '';
                 $articulos[$c_rows]["base10"] = $articulos[$c_rows]["total"];
                 $base10 = $base10 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);

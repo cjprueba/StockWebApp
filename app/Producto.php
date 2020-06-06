@@ -2346,6 +2346,8 @@ class Producto extends Model
         $data = [];
         $valor = 0;
         $dia = date("Y-m-d");
+        $descuento_marca = false;
+        $descuento_categoria = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2412,7 +2414,7 @@ class Producto extends Model
             // OBTENER LOTE
 
             $lote = Stock::ultimo_lote($value->CODIGO);
-            $data["LOTE"] = $lote + 1;
+            $data["LOTE"] = $lote;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2448,45 +2450,63 @@ class Producto extends Model
 
         // DESCUENTO CATEGORIA 
 
-        $descuento_categoria = LineasDescuento::obtener_descuento($data["LINEA"], $user->id_sucursal);
+        if(count($producto) > 0) {
+            $descuento_categoria = LineasDescuento::obtener_descuento($data["LINEA"], $user->id_sucursal);
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
         // DESCUENTO MANUAL POR PRODUCTO
 
-        if ($data["DESCUENTO"] > 0) {
-            $descuento_categoria = $data["DESCUENTO"];
+        if(count($producto) > 0) {
+            if ($data["DESCUENTO"] > 0) {
+                $descuento_categoria = $data["DESCUENTO"];
+            }
         }
 
         /*  --------------------------------------------------------------------------------- */
         
         // REVISAR DESCUENTO POR MARCA 
 
-        $descuento_marca = MarcaAux::
-        select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
-        ->where('CODIGO_MARCA', '=', $data["MARCA"])
-        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->where([
-            ['FECHAINI', '<=', $dia],
-            ['FECHAFIN', '>=', $dia]
-            ])
-        ->get();
+        if(count($producto) > 0) {
+            $descuento_marca = MarcaAux::
+            select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
+            ->where('CODIGO_MARCA', '=', $data["MARCA"])
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where([
+                ['FECHAINI', '<=', $dia],
+                ['FECHAFIN', '>=', $dia]
+                ])
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CONVERTIR EN FALSE DESCUENTO POR MARCA 
+        
+            if (count($descuento_marca) > 0) {
+                $descuento_marca = $descuento_marca[0];
+            } else {
+                $descuento_marca = false;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
-        // CONVERTIR EN FALSE DESCUENTO POR MARCA 
+        // IMAGEN 
         
-        if (count($descuento_marca) === 0) {
-            $descuento_marca = false;
-        } else {
-            $descuento_marca = $descuento_marca[0];
-        }
+        $imagen = Imagen::obtenerImagen($dato["codigo"]);
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
 
-        return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria];
+        if (count($producto) > 0) {
+            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"]];
+        } else {
+            return ["response" => false];
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
