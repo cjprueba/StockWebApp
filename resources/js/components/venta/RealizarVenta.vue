@@ -59,6 +59,17 @@
 
 							<!-- ------------------------------------------------------------------ -->
 
+							<!-- DEVOLUCION -->
+									
+							<div class="my-1">
+								<div class="custom-control custom-switch mr-sm-3">
+									<input type="checkbox" class="custom-control-input" id="switchDescuento" v-model="checked.DEVOLUCION">
+									<label class="custom-control-label" for="switchDescuento">Devolución</label>
+								</div>
+							</div>
+
+							<!-- ------------------------------------------------------------------ -->
+
 						</form>
 
 						<!-- ------------------------------------------------------------------ -->
@@ -514,7 +525,8 @@
          		MAYORISTA: false,
          		TICKET: false,
          		FACTURA: false,
-         		DESCUENTO: true
+         		DESCUENTO: true,
+         		DEVOLUCION: false
          	}, codigo_detalle: '',
          	impresion: {
          		TICKET: false,
@@ -685,8 +697,41 @@
 
 				// 	}
 				// })
-
 	        	// ------------------------------------------------------------------------
+
+      		},
+      		obtenerCaja() {
+
+      			let me=this;
+          		
+          		// ------------------------------------------------------------------------
+
+          		// OBTENER CAJA 
+
+          		Common.obtenerIPCommon(function(){
+                	axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
+                	  if (response.data.response === true) {
+                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+                	  	  me.numeracion();
+                	  } else {
+                	  		
+                	  	  	Swal.fire({
+								title: 'NO SE PUDO OBTENER CAJA',
+								type: 'warning',
+								confirmButtonColor: '#d33',
+								confirmButtonText: 'Aceptar',
+							}).then((result) => {
+								
+								window.location.href = '/vt2';
+
+							})	
+
+                	  }		
+		              
+		            })
+                });
+
+                // ------------------------------------------------------------------------
 
       		},
       		recargar(){
@@ -845,17 +890,17 @@
         	ticket_mostrar(){
 
         		//this.ticket(8, 1);
-        		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, 1);
+        		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(this.venta.CODIGO, 1);
+        		Common.generarPdfFacturaVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         		//this.factura(8, 1);
         	},
         	test_factura(){
         		this.factura(103, 1);
         	},
         	resumen_test(){
-        		Common.generarPdfResumenCajaVentaCommon(8, 1);
+        		Common.generarPdfResumenCajaVentaCommon(this.caja.CODIGO);
         	},
       		gravadas(){
 
@@ -1306,7 +1351,7 @@
 
 	        	// AGREGAR FILAS 
 
-	        	 tableVenta.rows.add( [ {
+	        	tableVenta.rows.add( [ {
 			                    "ITEM": me.tabla.ITEM,
 			                    "CODIGO":   codigo,
 			                    "DESCRIPCION":     descripcion,
@@ -1463,7 +1508,7 @@
 				let me = this;
 
 
-				Common.numeracionVentaCommon(me.respuesta).then(data => {
+				Common.numeracionVentaCommon(me.caja.CODIGO).then(data => {
 					me.venta.CODIGO = data.CODIGO;
 					me.venta.CODIGO_CAJA = data.CODIGO_CAJA;
 				}).catch(error => {
@@ -1664,13 +1709,22 @@
 
         	let me = this;
 
-        	me.numeracion();
+        	// ------------------------------------------------------------------------
+
+        	// OBTENER CAJA 
+
+        	me.obtenerCaja();
+
+        	// ------------------------------------------------------------------------
+
         	me.inicio();
 
-   //      	qz.websocket.connect().then(function() {
-			//    alert("Connected!");
-			// });
+        	// ------------------------------------------------------------------------
 
+        	// FIJAR CURSOR
+
+        	me.$refs.compontente_codigo_producto.vaciarDevolver();
+        	
             	// ------------------------------------------------------------------------
                 // >>
                 // INICIAR EL DATATABLE TRANSFERENCIA 

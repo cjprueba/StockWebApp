@@ -163,10 +163,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving )
 
 
 /* ********************************************* */
@@ -271,6 +271,7 @@ Vue.component('cotizacionEnviarTransferencia', require('./components/cotizacion/
 /* ********************************************* */
 
 // TEXTBOX
+
 Vue.component('rol-nombre', require('./components/textboxs/RolTextbox.vue').default);
 Vue.component('permiso-nombre', require('./components/textboxs/PermisoTextbox.vue').default);
 Vue.component('selected-sucursal', require('./components/textboxs/Sucursal.vue').default);
@@ -292,6 +293,7 @@ Vue.component('nombre-textbox', require('./components/textboxs/Atributos/NombreT
 Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoTextbox.vue').default);
 Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vue').default);
 Vue.component('search-marca', require('./components/textboxs/MarcaSearch.vue').default);
+Vue.component('ventas-id', require('./components/textboxs/Ventas/VentasTextbox.vue').default);
 
 /* ********************************************* */
 

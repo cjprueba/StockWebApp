@@ -21,4 +21,31 @@ class CotizacionController extends Controller
     	$cotizaciones = Cotizacion::cotizacion_dia_monedas_compra($request->all());
         return response()->json($cotizaciones);
     }
+
+    /*  ------------------------------------ ELIMINAR ----------------------------------- */
+    
+    public function eliminarCotizacion(Request $request){
+        
+        $eliminar = Cotizacion::eliminar_cotizacion($request->all());
+        return response()->json($eliminar);
+    }
+
+    /*  ----------------------------------- FILTRAR ------------------------------------- */
+
+    public function filtrarCotizacion(Request $request){
+        
+        $filtro = Cotizacion::filtrar_cotizacion($request->all());
+        return response()->json($filtro);   
+    }
+
+    /*  ------------------------------------ GUARDAR ------------------------------------- */
+
+    public function guardarCotizacion(Request $request){
+
+        $cotizaciones = Cotizacion::cotizacion_guardar($request->all());
+        return response()->json($cotizaciones);
+    }
+    
+    /*  --------------------------------------------------------------------------------- */
+
 }

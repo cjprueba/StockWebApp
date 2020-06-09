@@ -136,4 +136,46 @@ class VentaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function filtrarVenta(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+       // OBTENER TODOS LOS DATOS DEL TALLE
+
+         $venta= Venta::filtrar_venta($request->all());
+        return response()->json($venta);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
+    public function ventasDatatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Talles
+
+        $ventas = Venta::ventas_datatable($request);
+        return response()->json($ventas);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
+    public function anularVenta(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL TALLE
+
+        $venta= Venta::anular_venta($request->all());
+        return response()->json($venta);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

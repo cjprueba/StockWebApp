@@ -1088,8 +1088,7 @@ class Producto extends Model
             'GENERADO' => $datos["generado"],
             'VENCIMIENTO' => $datos["vencimiento"],
             'TEMPORADA' => $datos["temporada"],
-            'PERIODO' => $datos["periodo"],
-            'ONLINE' => $datos["online"]
+            'PERIODO' => $datos["periodo"]
             ]
         );
 

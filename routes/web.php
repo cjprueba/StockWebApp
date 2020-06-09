@@ -35,6 +35,12 @@ Route::apiResource('busquedas', 'BusquedaController');
 
 /* -------------------------------------------------------------------------- */
 
+// CAJAS
+ 
+Route::post('cajaObtener', 'CajaController@obtenerCaja');
+
+/* -------------------------------------------------------------------------- */
+
 // VENTAS 
 
 Route::post('ventas', 'VentaController@mostrar');
@@ -46,6 +52,9 @@ Route::post('venta/factura', 'VentaController@factura');
 Route::post('venta/ticket', 'VentaController@ticket');
 Route::post('venta/resumen', 'VentaController@resumen');
 Route::get('venta/datatable', 'VentaController@datatable');
+Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
+Route::post('ventaAnular', 'VentaController@anularVenta');
+Route::post('ventasDatatable', 'VentaController@ventasDatatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -308,6 +317,9 @@ Route::post('lote/vencidos', 'StockController@vencidos');
 Route::post('cotizacion', 'CotizacionController@cotizar');
 Route::get('cotizacion', 'CotizacionController@cotizacionDia');
 Route::get('cotizacion/compra-dia', 'CotizacionController@cotizacionCompraDia');
+Route::post('cotizacionGuardar', 'CotizacionController@guardarCotizacion');
+Route::post('cotizacionFiltrar', 'CotizacionController@filtrarCotizacion');
+Route::post('eliminarCotizacion', 'CotizacionController@eliminarCotizacion');
 
 /* -------------------------------------------------------------------------- */
 

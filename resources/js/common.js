@@ -1202,7 +1202,7 @@ function generarPdfTicketVentaCommon(codigo, caja){
 
 }
 
-function generarPdfResumenCajaVentaCommon(codigo, caja){
+function generarPdfResumenCajaVentaCommon(caja){
 
 			// ------------------------------------------------------------------------
 
@@ -1214,7 +1214,7 @@ function generarPdfResumenCajaVentaCommon(codigo, caja){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'venta/resumen', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+			return axios({url: 'venta/resumen', method: 'post', responseType: 'arraybuffer', data: {'caja': caja}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -1256,6 +1256,71 @@ function generarPdfTicketVentaTestCommon(){
 
 }
 
+function filtrarVentasCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/ventaFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+
+function anularVentaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/ventaAnular', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+
+
+async function obtenerIPCommon(_callback) {
+
+	// INICIAR VARIABLES
+
+    window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;   //compatibility for firefox and chrome
+    var pc = new RTCPeerConnection({iceServers:[]}), noop = function(){};      
+    pc.createDataChannel("");    //create a bogus data channel
+    pc.createOffer(pc.setLocalDescription.bind(pc), noop);    // create offer and set local description
+ 	var ip=true;
+
+    	   pc.onicecandidate=  function (ice){  //listen for candidate events
+        if(!ice || !ice.candidate || !ice.candidate.candidate)  return;
+        window.IPv = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
+
+        console.log(window.IPv);
+           ip=false;
+           		
+	         		 _callback();   
+        
+    };
+                 
+}
+		
+ 
 function generarRptPdfTransferenciaCommon(codigo, codigo_origen){
 
 			// ------------------------------------------------------------------------
@@ -1395,6 +1460,81 @@ function obtenerCotizacionDia(){
 
 			// ------------------------------------------------------------------------
 
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    GUARDAR COTIZACION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function guardarCotizacionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/cotizacionGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    FILTRAR COTIZACION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function filtrarCotizacionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/cotizacionFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    ELIMINAR COTIZACION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function eliminarCotizacionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/eliminarCotizacion', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
 }
 
 // ------------------------------------------------------------------------
@@ -1916,7 +2056,7 @@ function numeracionVentaCommon(data) {
 
 			// GUARDAR LA LA VENTA DEL POS 
 
-			return axios.post('/venta/numeracion', {data: data}).then(function (response) {
+			return axios.post('/venta/numeracion', {caja: data}).then(function (response) {
 					return response.data;
 				});
 
@@ -3131,5 +3271,11 @@ export {
 		eliminarClienteCommon,
 		clienteNuevoCommon,
 		generarPdfResumenCajaVentaCommon,
-		obtenerServicioPOSCommon
+		obtenerServicioPOSCommon,
+		guardarCotizacionCommon,
+		filtrarCotizacionCommon,
+		eliminarCotizacionCommon,
+		anularVentaCommon,
+		obtenerIPCommon,
+		filtrarVentasCommon
 		};

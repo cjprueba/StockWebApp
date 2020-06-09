@@ -9,6 +9,10 @@ use App\Parametro;
 class Cotizacion extends Model
 {
 
+    protected $connection = 'retail';
+    protected $table = 'TABRELMON';
+    public $timestamps = false;
+    
     public static function CALMONED($data)
     {
 
@@ -736,4 +740,176 @@ class Cotizacion extends Model
          
     }
 
+    public static function eliminar_cotizacion($datos){
+
+
+        //DATOS DEL USUARIO
+
+        $user = auth()->user();
+
+        // OBTENER TODAS LAS COTIZACIONES 
+
+        try {
+
+            // ELIMINA SI EXISTE
+
+            if ($datos['data']['existe']=== true){
+
+                $cotizacion=Cotizacion::Where('CODMON','=',$datos['data']['demoneda'])
+                ->Where('CODMON1','=',$datos['data']['amoneda'])
+                ->Where('MES','=',$datos['data']['mes'])
+                ->Where('ANO','=',$datos['data']['ano'])
+                ->Where('ID_SUCURSAL','=', $user->id_sucursal)->delete();
+
+            }else{
+
+                // MUESTRA QUE NO EXISTE
+
+                return ["response"=>false,'statusText'=> 'No se encontró la cotización'];
+            }
+
+        }catch(Exception $ex){ 
+
+                return ["response"=>false,'statusText'=>$ex->getMessage()];            
+        
+             }
+
+        // RETORNAR EL VALOR
+
+       return ["response"=>true];
+
+    }
+
+    public static function filtrar_cotizacion($datos){
+
+        $user = auth()->user();
+
+        // OBTENER TODAS LAS COTIZACIONES 
+
+        $cotizacion = Cotizacion::select(DB::raw('*'))
+        ->Where('CODMON','=',$datos['data']['demoneda'])
+        ->Where('CODMON1','=',$datos['data']['amoneda'])
+        ->Where('MES','=',$datos['data']['mes'])
+        ->Where('ANO','=',$datos['data']['ano'])
+        ->Where('FORMULA','=',$datos['data']['operacion'])
+        ->Where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->get()
+        ->toArray();
+
+
+        if(count($cotizacion)<=0){
+           
+           return ["response"=>false];
+        }
+        // RETORNAR EL VALOR
+
+        return ["response"=>true,"cotizacion"=>$cotizacion];
+    }
+
+    public static function cotizacion_guardar($datos){
+
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+
+        try {
+
+            // CONTROLA QUE NO EXISTA PARA INSERTAR
+
+            if ($datos['data']['existe']=== false){
+
+                $cotizacion=Cotizacion::insertGetId(
+                ['CODMON'=> $datos['data']['CODMONE'], 
+                'CODMON1'=> $datos['data']['CODMONE1'],
+                'CA01'=> $datos['data']['CA01'],
+                'CA02'=> $datos['data']['CA02'],
+                'CA03' => $datos['data']['CA03'],
+                'CA04' => $datos['data']['CA04'],
+                'CA05' => $datos['data']['CA05'],
+                'CA06' => $datos['data']['CA06'],
+                'CA07' => $datos['data']['CA07'],
+                'CA08' => $datos['data']['CA08'],
+                'CA09' => $datos['data']['CA09'],
+                'CA10' => $datos['data']['CA10'],
+                'CA11' => $datos['data']['CA11'],
+                'CA12' => $datos['data']['CA12'], 
+                'CA13' => $datos['data']['CA13'],
+                'CA14' => $datos['data']['CA14'],
+                'CA15' => $datos['data']['CA15'],
+                'CA16' => $datos['data']['CA16'],
+                'CA17' => $datos['data']['CA17'],
+                'CA18' => $datos['data']['CA18'],
+                'CA19' => $datos['data']['CA19'],
+                'CA20' => $datos['data']['CA20'],
+                'CA21' => $datos['data']['CA21'],
+                'CA22' => $datos['data']['CA22'],
+                'CA23' => $datos['data']['CA23'],
+                'CA24' => $datos['data']['CA24'],
+                'CA25' => $datos['data']['CA25'],
+                'CA26' => $datos['data']['CA26'],
+                'CA27' => $datos['data']['CA27'],
+                'CA28' => $datos['data']['CA28'],
+                'CA29' => $datos['data']['CA29'],
+                'CA30' => $datos['data']['CA30'],
+                'CA31' => $datos['data']['CA31'],
+                'ANO'=> $datos['data']['ANO'],
+                'MES'=> $datos['data']['MES'],
+                'FORMULA' => $datos['data']['FORMULA'],
+                'USER'=> $user->name,
+                'ID_SUCURSAL' => $user->id_sucursal,
+                'FECALTAS'=> $dia,
+                'HORALTAS'=> $hora]);
+
+            }else{
+
+                // SI EXISTE ACTUALIZA LOS DATOS
+
+                $cotizacion=Cotizacion::Where('CODMON','=',$datos['data']['CODMONE'])
+                    ->Where('CODMON1','=',$datos['data']['CODMONE1'])
+                    ->Where('MES','=',$datos['data']['MES'])
+                    ->Where('ANO','=',$datos['data']['ANO'])
+                    ->Where('ID_SUCURSAL','=', $user->id_sucursal)
+                    ->update(['CA01'=> $datos['data']['CA01'],
+                    'CA02'=> $datos['data']['CA02'],
+                    'CA03' => $datos['data']['CA03'],
+                    'CA04' => $datos['data']['CA04'],
+                    'CA05' => $datos['data']['CA05'],
+                    'CA06' => $datos['data']['CA06'],
+                    'CA07' => $datos['data']['CA07'],
+                    'CA08' => $datos['data']['CA08'],
+                    'CA09' => $datos['data']['CA09'],
+                    'CA10' => $datos['data']['CA10'],
+                    'CA11' => $datos['data']['CA11'],
+                    'CA12' => $datos['data']['CA12'], 
+                    'CA13' => $datos['data']['CA13'],
+                    'CA14' => $datos['data']['CA14'],
+                    'CA15' => $datos['data']['CA15'],
+                    'CA16' => $datos['data']['CA16'],
+                    'CA17' => $datos['data']['CA17'],
+                    'CA18' => $datos['data']['CA18'],
+                    'CA19' => $datos['data']['CA19'],
+                    'CA20' => $datos['data']['CA20'],
+                    'CA21' => $datos['data']['CA21'],
+                    'CA22' => $datos['data']['CA22'],
+                    'CA23' => $datos['data']['CA23'],
+                    'CA24' => $datos['data']['CA24'],
+                    'CA25' => $datos['data']['CA25'],
+                    'CA26' => $datos['data']['CA26'],
+                    'CA27' => $datos['data']['CA27'],
+                    'CA28' => $datos['data']['CA28'],
+                    'CA29' => $datos['data']['CA29'],
+                    'CA30' => $datos['data']['CA30'],
+                    'CA31' => $datos['data']['CA31'], 
+                    'USERM'=>$user->name,
+                    'FECMODIF'=>$dia,
+                    'HORMODIF'=>$hora]);
+                }
+
+            return ["response"=>true];
+
+        }catch(Exception $ex){ 
+
+                return ["response"=>false,'statusText'=>$ex->getMessage()];
+              }
+    }
 }

@@ -200,6 +200,11 @@ export default new Router({
 			component: require('./components/venta/RealizarVenta.vue').default
 		},
 		{
+			path: '/vt3',
+			name: 'ventaAnular',
+			component: require('./components/venta/AnularVenta.vue').default
+		},
+		{
 			path: '/nom1',
 			name: 'nombreCrear',
 			component: require('./components/Atributos/nombre/CrearNombre.vue').default
@@ -208,6 +213,16 @@ export default new Router({
 			path: '/cli1',
 			name: 'crearCliente',
 			component: require('./components/cliente/CrearCliente.vue').default
+		},
+		{
+			path: '/ct2',
+			name: 'cotizacionCrear',
+			component: require('./components/cotizacion/CotizacionMostrar.vue').default
+		},
+		{
+			path: '/tr1',
+			name: 'transporteCrear',
+			component: require('./components/transporte/crearTransporte.vue').default
 		}
 
 	],

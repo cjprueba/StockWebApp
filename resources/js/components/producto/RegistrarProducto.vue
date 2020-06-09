@@ -1777,6 +1777,7 @@
             	}
 
             	if (this.seleccion_sub_categoria === 'null' || this.seleccion_sub_categoria === '') {
+            		alert(this.seleccion_sub_categoria);
             		retornar = true;
             		this.validar_sub_categoria = true;
             	} else {
@@ -2062,7 +2063,7 @@
             	if (this.checked_online===true){
 
             		this.online=1;
-            	}
+            	} 
 
             	// PREPARAR DATOS
             	
@@ -2343,9 +2344,21 @@
 
               // ENVIAR DESCRIPCION TELA A PADRE
 
+              let me = this;
+
               var seleccion = '';
-              seleccion = (Common.filtrarCommon(subCategorias, parseInt(valor)));
-              this.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+
+              this.seleccion_sub_categoria = valor;
+
+              subCategorias.filter(function(item) {
+	             if (item.CODIGO === valor) {
+	             	me.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+	             }
+	           })
+              // seleccion = (Common.filtrarCommon(subCategorias, parseInt(valor)).then(data => {
+              // 		this.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+              // }));
+              
               
 
               // ------------------------------------------------------------------------

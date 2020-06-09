@@ -522,6 +522,7 @@
 
                         <div class="modal-footer">
                           <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="enviar">Aceptar</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                         </div>
 
                       </div>
@@ -1202,8 +1203,38 @@
             let me = this;
             
             me.$emit('datos', me.respuesta);
-            me.limpiar();
+            //me.limpiar();
             $('#modalImpresion').modal('hide');
+
+            // ------------------------------------------------------------------------
+
+          }, controlarSeleccinMedios() {
+
+            // ------------------------------------------------------------------------
+
+            // SI NO ELIGE LAS ENTIDADES DE LOS MEDIOS NO PERMITIR ACEPTAR 
+
+            // ------------------------------------------------------------------------
+
+            if (this.medios.TARJETA !== '0' && this.tarjeta.codigo === '') {
+              return false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            if (this.medios.TRANSFERENCIA !== '0' && this.banco.codigo === '') {
+              return false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            if (this.medios.GIROS !== '0' && this.mostrar.GIROS_SELECCION === false) {
+              return false;
+            }
+
+            // ------------------------------------------------------------------------
+
+            return true;
 
             // ------------------------------------------------------------------------
 
@@ -1215,6 +1246,14 @@
             var total = 0;
             var medios = 0;
             
+            // ------------------------------------------------------------------------
+
+            // RETORNAR SI ES FALSE 
+
+            if (this.controlarSeleccinMedios() === false) {
+              return; 
+            }
+
             // ------------------------------------------------------------------------
 
             // ENVIAR DATOS

@@ -1658,8 +1658,10 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            $numero_caja = 'CA'.'01';
+            
             $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
+            $caja = $data["data"]["caja"]["CODIGO"];
+            $numero_caja = 'CA'.sprintf("%02d", $caja).'';
             $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
             $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
 
@@ -1687,7 +1689,6 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            $caja = $data["data"]["caja"]["CODIGO"];
             $cliente = $data["data"]["cliente"]["CODIGO"];
             $vendedor = $data["data"]["vendedor"]["CODIGO"];
             $cheques = $data["data"]["pago"]["CHEQUE"];
@@ -1989,11 +1990,11 @@ class Venta extends Model
 
             // INSERTAR ANULADO 
 
-            VentasAnulado::guardar_referencia([
-                    'FK_VENTA' => $venta,
-                    'ANULADO' => 0,
-                    'FECHA' => date('Y-m-d H:i:s')
-            ]);
+            // VentasAnulado::guardar_referencia([
+            //         'FK_VENTA' => $venta,
+            //         'ANULADO' => 0,
+            //         'FECHA' => date('Y-m-d H:i:s')
+            // ]);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2124,8 +2125,8 @@ class Venta extends Model
 
     }
 
-    public static function numeracion() {
-
+    public static function numeracion($data) {
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -2133,15 +2134,15 @@ class Venta extends Model
         $user = auth()->user();
         $dia = date('Y-m-d');
         $hora = date("H:i:s");
-        $numero_caja = 1;
-        $caja = 'CA'.'01';
+        $numero_caja = $data["caja"];
+        $caja = 'CA'.sprintf("%02d", $numero_caja).'';
 
         /*  --------------------------------------------------------------------------------- */
 
         // NUMERO TICKET 
 
         $ticket = Ticket::numero_caja($caja, $dia, $hora);
-        
+
         /*  --------------------------------------------------------------------------------- */
 
         // VER SI EXISTE NUMERO DE VENTA 
@@ -2158,8 +2159,9 @@ class Venta extends Model
             $codigo = $ticket[0]["NUMERO"];
         }
 
-        /*  --------------------------------------------------------------------------------- */ 
+        /*  --------------------------------------------------------------------------------- */
 
+        
         $ticket = $ticket[0]["CAJA"];
 
         /*  --------------------------------------------------------------------------------- */ 
@@ -2174,9 +2176,19 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */ 
 
+        // NUMERO CPOR PRIMERA VEZ POR CAJA 
+
+        if (count($numero) === 0) {
+            $numero = 0;
+        } else {
+            $numero = $numero[0]['CODIGO'];
+        }
+
+        /*  --------------------------------------------------------------------------------- */ 
+
         // RETORNAR VALOR 
 
-        return ['CODIGO' => $numero[0]['CODIGO'], 'CODIGO_CAJA' => $ticket];
+        return ['CODIGO' => $numero, 'CODIGO_CAJA' => $ticket];
 
         /*  --------------------------------------------------------------------------------- */ 
 
@@ -2555,7 +2567,6 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        $dato = ['codigo' => 820671264471, 'caja' => 1];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2602,11 +2613,12 @@ class Venta extends Model
         // SUMAR TODOS LOS VALORES CONTADO
 
         $contado = Venta::select(DB::raw('SUM(EFECTIVO) AS T_EFECTIVO, SUM(TARJETAS) AS T_TARJETAS, SUM(VALE) AS T_VALES, SUM(CHEQUE) AS T_CHEQUE, SUM(DONACION) AS T_DONACION, SUM(GIROS) AS T_GIROS, SUM(VUELTO) AS T_VUELTOS, SUM(BASE5) AS T_BASE5, SUM(BASE10) AS T_BASE10, SUM(EXENTAS) AS T_EXENTAS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->where('FECHA', '=', $fecha)
+        ->where('VENTAS.FECHA', '=', $fecha)
         ->where('TIPO', '=', 'CO')
         ->where('CAJA', '=', $dato['caja'])
-        ->where('TOTAL', '<>', 0)
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2614,11 +2626,12 @@ class Venta extends Model
         // SUMAR TODOS LOS VALORES CREDITO
 
         $credito = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->where('FECHA', '=', $fecha)
+        ->where('VENTAS.FECHA', '=', $fecha)
         ->where('TIPO', '=', 'CR')
         ->where('CAJA', '=', $dato['caja'])
-        ->where('TOTAL', '<>', 0)
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2638,9 +2651,11 @@ class Venta extends Model
         
         $transferencia = VentaTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_TRANSFERENCIA.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
         ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2649,9 +2664,11 @@ class Venta extends Model
         
         $giro = VentaGiro::select(DB::raw('IFNULL(SUM(VENTAS_GIRO.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_GIRO.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_GIRO.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
         ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2660,8 +2677,9 @@ class Venta extends Model
         // SUMAR ANULADOS
 
         $anulados = Venta::select('CODIGO')
-        ->where('TOTAL', '=', 0)
-        ->where('FECHA', '=', $fecha)
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 1)
+        ->where('VENTAS.FECHA', '=', $fecha)
         ->where('CAJA', '=', $dato['caja'])
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->count();
@@ -3609,7 +3627,8 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE'))
+            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO'))
+            ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
@@ -3634,7 +3653,8 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE'))
+            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO'))
+            ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
@@ -3686,9 +3706,18 @@ class Venta extends Model
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
-                
-                $nestedData['ACCION'] = "
+
+                if ($post->ANULADO === 1) {
+                    $nestedData['ESTATUS'] = 'table-danger';
+                    $nestedData['ACCION'] = "
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                } else {
+                    $nestedData['ACCION'] = "
                     &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                    $nestedData['ESTATUS'] = '';
+                }
+
+                
 
                 $data[] = $nestedData;
 
@@ -3718,5 +3747,400 @@ class Venta extends Model
     }
 
     /*  --------------------------------------------------------------------------------- */
+
+    public static function filtrar_venta($datos)
+    {
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+ 
+        // OBTENER TODOS LOS DATOS DEL TALLE
+        if($datos['id']['co_ca']===1){
+
+
+            $venta = DB::connection('retail')->table('VENTAS')
+            ->leftJoin('CLIENTES', function($join){
+                        $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                             ->on('VENTAS.ID_SUCURSAL', '=', 'CLIENTES.ID_SUCURSAL');
+                    })
+                        ->leftJoin('EMPLEADOS', function($join){
+                        $join->on('VENTAS.VENDEDOR', '=', 'EMPLEADOS.CODIGO')
+                             ->on('VENTAS.ID_SUCURSAL', '=', 'EMPLEADOS.ID_SUCURSAL');
+                    })
+            ->leftjoin('MONEDAS', 'VENTAS.MONEDA', '=', 'MONEDAS.CODIGO')
+          ->select( 
+            DB::raw('VENTAS.CODIGO AS CODIGO'),
+            DB::raw('VENTAS.CAJA AS CAJA'),
+            DB::raw('VENTAS.CODIGO_CA AS CODIGO_CA'),
+            DB::raw('VENTAS.FECALTAS AS FECHA'),
+             DB::raw('VENTAS.HORA AS HORA'),
+            DB::raw('CLIENTES.NOMBRE AS NOMBRE'),
+            DB::raw('EMPLEADOS.NOMBRE AS NOMBRE_E'),
+            DB::raw('VENTAS.TIPO AS TIPO'),
+          
+            DB::raw('VENTAS.DESCUENTO AS DESCUENTO'),
+            DB::raw('VENTAS.TOTAL AS TOTAL'),
+            DB::raw('MONEDAS.DESCRIPCION AS MONEDA'))
+        ->Where('VENTAS.CODIGO','=',$datos['id']['Codigo'])
+        ->Where('VENTAS.CAJA','=',$datos['id']['caja'])
+        ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)  
+                ->get()
+                ->toArray();
+        }else{
+
+
+            $venta = DB::connection('retail')->table('VENTAS')
+            ->leftJoin('CLIENTES', function($join){
+                        $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                             ->on('VENTAS.ID_SUCURSAL', '=', 'CLIENTES.ID_SUCURSAL');
+                    })
+                    ->leftJoin('EMPLEADOS', function($join){
+                        $join->on('VENTAS.VENDEDOR', '=', 'EMPLEADOS.CODIGO')
+                             ->on('VENTAS.ID_SUCURSAL', '=', 'EMPLEADOS.ID_SUCURSAL');
+                    })
+            ->leftjoin('MONEDAS', 'VENTAS.MONEDA', '=', 'MONEDAS.CODIGO')
+            ->select(
+            DB::raw('VENTAS.CODIGO AS CODIGO'),
+            DB::raw('VENTAS.CAJA AS CAJA'),
+            DB::raw('VENTAS.CODIGO_CA AS CODIGO_CA'),
+            DB::raw('VENTAS.FECALTAS AS FECHA'),
+             DB::raw('VENTAS.HORA AS HORA'),
+            DB::raw('CLIENTES.NOMBRE AS NOMBRE'),
+            DB::raw('EMPLEADOS.NOMBRE AS NOMBRE_E'),
+            DB::raw('VENTAS.TIPO AS TIPO'),
+           
+            DB::raw('VENTAS.DESCUENTO AS DESCUENTO'),
+            DB::raw('VENTAS.TOTAL AS TOTAL'),
+            DB::raw('MONEDAS.DESCRIPCION AS MONEDA'))
+        ->Where('VENTAS.CODIGO_CA','=',$datos['id']['co_ca'])
+        
+        ->Where('VENTAS.FECALTAS','like',$datos['id']['fecha'].'%')
+        ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)  
+                ->get()
+                ->toArray();
+        }
+
+        if(count($venta)<=0){
+           return ["response"=>false];
+        }
+        // RETORNAR EL VALOR
+        
+       return ["response"=>true,"ventas"=>$venta];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function ventas_datatable($request)
+    {
+        $dia = date("Y-m-d");
+         $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        //global $search;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            1 => 'caja',
+                            2 => 'codigo_ca',
+                            3 => 'fecha',
+                            4 => 'nombre',
+                            5 => 'tipo',
+                            6 => 'tarjeta',
+                            7 => 'descuento',
+                            8 => 'total',
+                            9 => 'moneda'
+                         
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('CAJA','=',$request->input('caja_numero'))->count();  
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+                          $posts = DB::connection('retail')->table('VENTAS')
+             ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+              ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+            ->select(
+            DB::raw('VENTAS.CODIGO AS CODIGO, 
+                VENTAS.CAJA AS CAJA,
+                VENTAS.CODIGO_CA AS CODIGO_CA,
+                VENTAS.FECALTAS AS FECHA,
+                CLIENTES.NOMBRE AS NOMBRE,
+                VENTAS.TIPO AS TIPO,
+              IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                VENTAS.DESCUENTO AS DESCUENTO,
+                VENTAS.TOTAL AS TOTAL,
+                MONEDAS.DESCRIPCION AS MONEDA'))
+                       ->leftJoin('CLIENTES', function($join){
+                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
+             ->Where('VENTAS.FECALTAS','=',$dia)
+              ->Where('VENTAS_ANULADO.anulado','=',0)
+             ->where('CAJA','=',$request->input('caja_numero'))   
+                ->offset($start)
+                ->limit($limit)
+                ->orderBy($order,$dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            
+                $posts = DB::connection('retail')->table('VENTAS')
+            ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+              ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+            ->select(
+            DB::raw('VENTAS.CODIGO AS CODIGO, 
+                VENTAS.CAJA AS CAJA,
+                VENTAS.CODIGO_CA AS CODIGO_CA,
+                VENTAS.FECALTAS AS FECHA,
+                CLIENTES.NOMBRE AS NOMBRE,
+                VENTAS.TIPO AS TIPO,
+                IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                VENTAS.DESCUENTO AS DESCUENTO,
+                VENTAS.TOTAL AS TOTAL,
+                MONEDAS.DESCRIPCION AS MONEDA'))
+                       ->leftJoin('CLIENTES', function($join){
+                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+          
+            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
+            ->Where('VENTAS.FECALTAS','=',$dia)
+             ->Where('VENTAS_ANULADO.anulado','=',0)  
+            ->where('CAJA','=',$request->input('caja_numero')) 
+            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
+                            })
+
+                ->offset($start)
+                ->limit($limit)
+                ->orderBy($order,$dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered =DB::connection('retail')->table('VENTAS')
+            ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+             ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+            ->select(
+            DB::raw('VENTAS.CODIGO AS CODIGO, 
+                VENTAS.CAJA AS CAJA,
+                VENTAS.CODIGO_CA AS CODIGO_CA,
+                VENTAS.FECALTAS AS FECHA,
+                CLIENTES.NOMBRE AS NOMBRE,
+                VENTAS.TIPO AS TIPO,
+               IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                VENTAS.DESCUENTO AS DESCUENTO,
+                VENTAS.TOTAL AS TOTAL,
+                MONEDAS.DESCRIPCION AS MONEDA'))
+                       ->leftJoin('CLIENTES', function($join){
+                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+            ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
+            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
+            ->Where('VENTAS.FECALTAS','=',$dia)
+             ->Where('VENTAS_ANULADO.anulado','=',0)
+            ->where('CAJA','=',$request->input('caja_numero'))
+            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
+                            }) 
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CAJA'] = $post->CAJA;
+                $nestedData['CODIGO_CA'] = $post->CODIGO_CA;
+                $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['TIPO'] = $post->TIPO;
+                $nestedData['TARJETA'] = $post->TARJETA;
+                $nestedData['DESCUENTO'] = $post->DESCUENTO;
+                $nestedData['TOTAL'] = $post->TOTAL;
+                $nestedData['MONEDA'] = $post->MONEDA;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+    }
+    
+    public static function anular_venta($datos)
+    {
+
+        try {
+            DB::connection('retail')->beginTransaction();
+      
+        $user = auth()->user();
+        $dia = date("Y-m-d H:i:s");
+        $hora = date("H:i:s");
+
+        /*  --------------------------------------------------------------------------------- */
+
+           $venta = DB::connection('retail')->table('VENTAS')->select(
+            DB::raw('VENTAS.TOTAL AS TOTAL,VENTAS.ID AS ID'))
+            ->Where('VENTAS.CODIGO','=',$datos['data']['codigo'])
+            ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
+            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
+            ->get()
+            ->toArray();
+            
+        if(count($venta)<=0){
+           return ["response"=>false,'status_text'=> "No existe la venta seleccionada"];
+        }
+        
+
+
+            VentasAnulado::anular_venta($venta["0"]->ID,$dia);
+
+            $venta= DB::connection('retail')->table('VENTAS')->where('CODIGO', $datos['data']['codigo'])
+               ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
+              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
+            ->update(['FECMODIF'=>$dia,'HORMODIF'=>$hora, 'USERM'=>$user->name]);
+
+                  $venta = DB::connection('retail')->table('VENTASDET')
+                   ->leftjoin('VENTASDET_TIENE_LOTES', 'ID_VENTAS_DET', '=', 'VENTASDET.ID')
+                   ->select(
+            DB::raw('VENTASDET.COD_PROD AS COD_PROD'),
+            DB::raw('VENTASDET.ID AS ID'),
+            DB::raw('VENTASDET_TIENE_LOTES.ID_LOTE AS ID_LOTE'),
+            DB::raw('VENTASDET.CANTIDAD AS CANTIDAD'),
+            DB::raw('VENTASDET.PRECIO AS PRECIO'),
+            DB::raw('VENTASDET.LOTE AS LOTE'))
+            ->Where('VENTASDET.CODIGO','=',$datos['data']['codigo'])
+            ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
+            ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
+            ->where('VENTASDET.DESCRIPCION', 'NOT LIKE', 'DESCUENTO%')
+            ->get()
+            ->toArray();
+             foreach ($venta as $key => $value) {
+                 # code...
+                Stock::sumar_stock_id_lote($value->ID_LOTE,$value->CANTIDAD);
+                /*if ($value->LOTE>0){
+              
+
+            }
+            if($value->PRECIO<0){
+              Stock::restar_stock_producto($value->COD_PROD, $value->CANTIDAD);
+            }*/
+
+                $delete_lote_venta= DB::connection('retail')->table('VENTASDET_TIENE_LOTES')->where('ID_VENTAS_DET', $value->ID)
+               ->delete();
+
+             }
+            
+    
+            $ventas= DB::connection('retail')->table('VENTASDET')->where('CODIGO', $datos['data']['codigo'])
+            ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
+            ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
+            ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
+            DB::connection('retail')->commit();
+
+            return ["response"=>true,"ventas"=>$venta];
+
+    } catch (Exception $e) {
+        DB::connection('retail')->rollBack();
+        throw $e;
+    }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
 }

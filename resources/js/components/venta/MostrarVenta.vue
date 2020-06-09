@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row">
-
+		<div class="row" v-if="$can('venta.mostrar')">
+			<!--   -->
 			<!-- ------------------------------------------------------------------------------------- -->
 
 			<!-- TITULO  -->
@@ -50,9 +50,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<!-- <div v-else>
+		<div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
+		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -238,7 +238,10 @@
                     { "data": "TIPO" },
                     { "data": "TOTAL" },
                     { "data": "ACCION" }
-                ]      
+                ],
+                "createdRow": function( row, data, dataIndex){
+                    $(row).addClass(data['ESTATUS']);
+                }       
             });
 
             // ------------------------------------------------------------------------
