@@ -274,7 +274,7 @@ class Stock extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
-
+    
     public static function sumar_stock_producto($codigo, $cantidad, $lote)
     {
 

@@ -510,7 +510,7 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 	        	tabla.rows().every(function(){
 
 					var data = this.data();
-				    if (data['CODIGO_REAL'] === codigo_real && codigo_real !== '' && codigo_real !== 0 && codigo_real !== '0' && codigo_real !== null && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00)) {
+				    if (data['CODIGO_REAL'] === codigo_real && codigo_real !== '' && codigo_real !== 0 && codigo_real !== '0' && codigo_real !== null && codigo_real !== 'null' && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00)) {
 				    	cantidad = parseInt(data['CANTIDAD']) + parseInt(cantidad);
 				    }
 
@@ -528,7 +528,7 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 
 					tabla.rows().every(function(){
 						var data = this.data();
-					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00") {
+					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00" && codigo_real !== null && codigo_real !== 'null') {
 
 					    	// ------------------------------------------------------------------------
 
@@ -1307,17 +1307,24 @@ async function obtenerIPCommon(_callback) {
     pc.createOffer(pc.setLocalDescription.bind(pc), noop);    // create offer and set local description
  	var ip=true;
 
-    	   pc.onicecandidate=  function (ice){  //listen for candidate events
-        if(!ice || !ice.candidate || !ice.candidate.candidate)  return;
-        window.IPv = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
+ 		
 
-        console.log(window.IPv);
-           ip=false;
-           		
-	         		 _callback();   
-        
-    };
-                 
+    	   pc.onicecandidate=  function (ice){  //listen for candidate events
+
+	 			try {
+
+			        if(!ice || !ice.candidate || !ice.candidate.candidate)  return;
+			        window.IPv = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
+			        console.log(window.IPv);
+		           	ip=false;	
+			        _callback();
+		    		
+	        	} catch(error){
+			    	window.IPv = false;
+			    	 _callback();
+			    }
+
+           };     
 }
 		
  

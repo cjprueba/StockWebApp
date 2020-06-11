@@ -80,16 +80,16 @@
                 // ------------------------------------------------------------------------
            
                 // ENVIAR CODIGO
-         this.$emit('codigo',codigo);
-        
-         this.$emit('codigoCaja', codigo_ca);
-         this.$emit('fecha', fecha);
-         this.$emit('tipo', tipo);
-         this.$emit('hora', hora);
-         this.$emit('total', total);
-         this.$emit('cliente', cliente);
-         this.$emit('vendedor',vendedor);
-          this.$emit('moneda',moneda);
+                
+                 this.$emit('codigo',codigo);
+                 this.$emit('codigoCaja', codigo_ca);
+                 this.$emit('fecha', fecha);
+                 this.$emit('tipo', tipo);
+                 this.$emit('hora', hora);
+                 this.$emit('total', total);
+                 this.$emit('cliente', cliente);
+                 this.$emit('vendedor',vendedor);
+                  this.$emit('moneda',moneda);
 
                 // ------------------------------------------------------------------------
 

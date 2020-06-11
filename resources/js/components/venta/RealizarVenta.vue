@@ -63,8 +63,8 @@
 									
 							<div class="my-1">
 								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchDescuento" v-model="checked.DEVOLUCION">
-									<label class="custom-control-label" for="switchDescuento">Devolución</label>
+									<input type="checkbox" class="custom-control-input" v-on:change="devolucionLlamar" id="switchDevolucion" v-model="checked.DEVOLUCION" data-target=".modal-devolucion">
+									<label class="custom-control-label" for="switchDevolucion" >Devolución</label>
 								</div>
 							</div>
 
@@ -297,15 +297,14 @@
 
 					    				<div class="card">
 										  <img :src="imagen.RUTA" class="card-img-top" alt="...">
-										  <div class="card-body">
-										    <p class="card-text">{{producto.DESCRIPCION}}</p>
+										  <div class="card-body text-center">
+										    <p class="card-text">CAJA: {{caja.CODIGO}}</p>
 										  </div>
 										</div>
 
 					    			</div>
 
-
-				<!-- ------------------------------------------------------------------------------------- -->
+	        	<!-- ------------------------------------------------------------------------------------- -->
 
 				<!-- TITULO  -->
 			
@@ -341,6 +340,66 @@
 		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
+
+		<!-- MODAL DEVOLUCION -->
+
+		<div class="modal fade modal-devolucion" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+
+                      <div class="modal-content">
+
+                      	<!-- ------------------------------------------------------------------------ -->
+
+                      	<!-- HEADER -->
+
+                      	<div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalCenterTitle"><small>DEVOLUCION</small></h5>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+                        <div class="modal-body">  
+                        	<ventas-id class="form-input-inline form-input-sm" ref="componente_textbox_Ventas" @codigo='codigo_devolucion'></ventas-id>
+
+                        	<table id="devolucionProductos" class="table table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+					            <thead>
+					                <tr>
+					                	<th>ID</th>
+					                    <th>ITEM</th>
+					                    <th>Codigo Producto</th>
+					                    <th>Descripción</th>
+					                    <th>%</th>
+					                    <th>Descuento</th>
+					                    <th>Cantidad</th>
+					                    <th>IVA</th>
+					                    <th>Impuesto</th>
+					                    <th>Precio</th>
+					                    <th>Total</th>
+					                </tr>
+					            </thead>
+					            <tbody>
+					                <td></td>
+					            </tbody>
+					        </table>
+
+                        </div>	
+		      			
+		      			<!-- ------------------------------------------------------------------------ -->
+
+		      			<!-- FOOTER -->
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">CERRAR</button>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+		    		  </div>
+
+		  			</div>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
 
 		<!-- TOAST STOCK CERO -->
 
@@ -477,7 +536,7 @@
          		NOMBRE: ''
          	},
          	caja: {
-         		CODIGO: 1,
+         		CODIGO: null,
          	},
          	producto: {
          		COD_PROD: '',
@@ -543,7 +602,13 @@
          	}, imagen: {
          		RUTA: require('./../../../imagenes/SinImagen.png'),
          	}, tabla: {
-         		ITEM: 0
+         		ITEM: 0,
+         		tableProductosDevolucion: ''
+         	}, devolucion: {
+         		CODIGO: 0,
+         		PRODUCTO: {
+         			CODIGO: ''
+         		}
          	} 
 
         }
@@ -555,6 +620,18 @@
 
 	        	let me = this;
 	        	var tableVenta = $('#tablaVenta').DataTable();
+
+	        	// ------------------------------------------------------------------------
+
+	        	if (me.caja.CODIGO === null) {
+	        		Swal.fire({
+						title: 'NO SE PUDO OBTENER CAJA',
+						type: 'warning',
+						confirmButtonColor: '#d33',
+						confirmButtonText: 'Aceptar',
+					})
+	        		return;
+	        	}
 
 	        	// ------------------------------------------------------------------------
 
@@ -709,26 +786,44 @@
           		// OBTENER CAJA 
 
           		Common.obtenerIPCommon(function(){
-                	axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
-                	  if (response.data.response === true) {
-                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
-                	  	  me.numeracion();
-                	  } else {
-                	  		
-                	  	  	Swal.fire({
-								title: 'NO SE PUDO OBTENER CAJA',
-								type: 'warning',
-								confirmButtonColor: '#d33',
-								confirmButtonText: 'Aceptar',
-							}).then((result) => {
-								
-								window.location.href = '/vt2';
 
-							})	
+          			if (window.IPv !== false) {
+          				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
+	                	  if (response.data.response === true) {
+	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  me.numeracion();
+	                	  } else {
+	                	  		
+	                	  	  	Swal.fire({
+									title: 'NO SE PUDO OBTENER CAJA',
+									type: 'warning',
+									confirmButtonColor: '#d33',
+									confirmButtonText: 'Aceptar',
+								}).then((result) => {
+									
+									window.location.href = '/vt2';
 
-                	  }		
-		              
-		            })
+								})	
+
+	                	  }		
+			              
+			            })
+          			} else {
+
+
+          				Swal.fire({
+							title: 'NO SE PUDO OBTENER LA IP DE LA MAQUINA',
+							type: 'warning',
+							confirmButtonColor: '#d33',
+							confirmButtonText: 'Aceptar',
+						}).then((result) => {
+									
+							window.location.href = '/vt2';
+
+						})
+
+          			}
+                	
                 });
 
                 // ------------------------------------------------------------------------
@@ -766,7 +861,10 @@
 					cancelButtonText: 'Cancelar'
 				}).then((result) => {
 					
-					window.location.href = '/vt2';
+					if (result.value === true) {
+						window.location.href = '/vt2';
+					}
+					
 				})
 
 	        	// ------------------------------------------------------------------------
@@ -1157,7 +1255,7 @@
 
 	            // SWITCH MAYORISTA
 
-	            if (me.checked.MAYORISTA === false) {
+	            if (me.checked.MAYORISTA === false && me.producto.DESCUENTO < 50) {
 
 		            // ------------------------------------------------------------------------
 
@@ -1181,7 +1279,7 @@
 
 		            // ------------------------------------------------------------------------
 
-	            } else if (me.checked.MAYORISTA === true && me.producto.PREMAYORISTA !== 0 && me.producto.PREMAYORISTA !== 0.00){
+	            } else if (me.checked.MAYORISTA === true && me.producto.PREMAYORISTA !== 0 && me.producto.PREMAYORISTA !== 0.00 && me.producto.DESCUENTO < 50){
 
 	            	// ------------------------------------------------------------------------
 
@@ -1306,13 +1404,14 @@
 
 	            	// PRECIO MAYORISTA EN EDITAR CANTIDAD 
 
-		            if (me.checked.MAYORISTA === false) {
+		            if (me.checked.MAYORISTA === false && descuento < 50) {
 
 			            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
 			            if ((cantidadNueva >= parseInt(me.ajustes.LIMITE_MAYORISTA))) {
 			            	precio = premayorista;
 			            	descuento = 0;
+			            	rowClass = "table-secondary";
 			            }
 
 		            }
@@ -1352,6 +1451,7 @@
 	        	// AGREGAR FILAS 
 
 	        	tableVenta.rows.add( [ {
+	        					"ID": 0,
 			                    "ITEM": me.tabla.ITEM,
 			                    "CODIGO":   codigo,
 			                    "DESCRIPCION":     descripcion,
@@ -1702,10 +1802,68 @@
 					   
 					}).catch(function(e) { console.error(e); });
 
+			}, devolucionLlamar() {
+
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+
+				if (this.checked.DEVOLUCION === true) {
+					this.$refs.componente_textbox_Ventas.datatableMostrar(this.caja.CODIGO);
+					$('.modal-devolucion').modal('show');
+				}
+
+            	// ------------------------------------------------------------------------
+
+			}, codigo_devolucion(codigo) {
+
+				// ------------------------------------------------------------------------
+
+            	let me = this;
+
+            	// ------------------------------------------------------------------------
+
+            	// PREPARAR DATATABLE 
+
+	 			this.tabla.tableProductosDevolucion = $('#devolucionProductos').DataTable({
+	                 	"processing": true,
+	                 	"serverSide": true,
+	                 	"destroy": true,
+	                 	"bAutoWidth": true,
+	                 	"select": true,
+	                 	"ajax":{
+	                 			"data": {
+	                 				codigo: codigo,
+	                 				caja: me.caja.CODIGO
+	                 			},
+	                             "url": "venta/devolucion/productos",
+	                             "dataType": "json",
+	                             "type": "GET",
+	                             "contentType": "application/json; charset=utf-8"
+	                           },
+	                    "columns": [
+	                    		{ "data": "ID" },
+	                            { "data": "ITEM" },
+	                            { "data": "COD_PROD" },
+	                            { "data": "DESCRIPCION" },
+	                            { "data": "DESCUENTO" },
+	                            { "data": "DESCUENTO_TOTAL" },
+	                            { "data": "CANTIDAD" },
+	                            { "data": "IVA_PORCENTAJE" },
+	                            { "data": "IMPUESTO" },
+	                            { "data": "PRECIO" },
+	                            { "data": "TOTAL" }
+	                        ]    
+	                });
+                    
+	 			// ------------------------------------------------------------------------
+
 			}
 
       },
         mounted() {
+
+        	// ------------------------------------------------------------------------
 
         	let me = this;
 
@@ -1760,7 +1918,8 @@
                             { "data": "CODIGO_REAL" },
                             { "data": "PREMAYORISTA" },
                             { "data": "DESCUENTO_UNITARIO" },
-                            { "data": "TIPO" }
+                            { "data": "TIPO" },
+                            { "data": "ID" }
                         ],
                         "columnDefs": [
 				            {
@@ -1785,6 +1944,11 @@
 				            },
 				            {
 				                "targets": [ 15 ],
+				                "visible": false,
+				                "searchable": false
+				            },
+				            {
+				                "targets": [ 16 ],
 				                "visible": false,
 				                "searchable": false
 				            }
@@ -2076,6 +2240,64 @@
 				});
 
 				// -------------------------------------------------------------------------------------
+
+				// MOSTRAR MODAL PRODUCTO
+
+                $('#devolucionProductos').on('click', 'tbody tr', function() {
+
+                	// *******************************************************************
+
+                	// INICIAR VARIABLES 
+
+                	var productoExistente = [];
+
+                	// *******************************************************************
+
+                	// OBTENER DATOS DEL PRODUCTO DATATABLE JS
+                	
+                	productoExistente = Common.existeProductoDataTableCommon(tableVenta, me.tabla.tableProductosDevolucion.row(this).data().COD_PROD, 2);
+	           	
+	            	if (productoExistente.respuesta == false) {
+
+	                	me.tabla.ITEM = me.tabla.ITEM + 1;
+	                	
+	                	tableVenta.rows.add( [ {
+	                				"ID": me.tabla.tableProductosDevolucion.row(this).data().ID,
+				                    "ITEM": me.tabla.ITEM,
+				                    "CODIGO":  me.tabla.tableProductosDevolucion.row(this).data().COD_PROD,
+				                    "DESCRIPCION":     me.tabla.tableProductosDevolucion.row(this).data().DESCRIPCION,
+				                    "LOTE": 0,
+				                    "DESCUENTO": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO,
+				                    "DESCUENTO_TOTAL": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO_TOTAL,
+				                    "CANTIDAD": me.tabla.tableProductosDevolucion.row(this).data().CANTIDAD,
+				                    "IMPUESTO": (me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO * -1),
+				                    "PRECIO": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
+				                    "PRECIO_TOTAL": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
+				                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
+				                    "IVA": me.tabla.tableProductosDevolucion.row(this).data().IVA_PORCENTAJE,
+				                    "CODIGO_REAL": 0,
+				                    "PREMAYORISTA": 0,
+				                    "DESCUENTO_UNITARIO": 0,
+				                    "TIPO": 3
+				                } ] )
+					     .draw()
+					     .nodes()
+		    			 .to$()
+					     .addClass('table-info');
+
+				    }
+
+                    // *******************************************************************
+
+                    // CERRAR MODAL 
+
+                    $('.modal-devolucion').modal('hide');
+
+                    // *******************************************************************
+
+                });
+
+                // ------------------------------------------------------------------------
         }
     }
 				
