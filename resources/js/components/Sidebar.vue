@@ -155,12 +155,12 @@
 
 
       <!-- ------------------------------------------------------------------------------------- -->
-      
+
       <!-- SUCURSALES -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSucursales" aria-expanded="true" aria-controls="collapseSucursales">
-          <font-awesome-icon icon="money-bill-alt" />
+          <font-awesome-icon icon="building" />
           <span>Sucursales</span>
         </a>
         <div id="collapseSucursales" class="collapse" aria-labelledby="headingSucursales" data-parent="#accordionSidebar">

@@ -1822,6 +1822,178 @@ function eliminarNotaRemCommon(data){
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 							    CODIGO NOTA DE REMISION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function nuevaNotaCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaNota').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    PDF TICKET
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarPdfRemisionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+
+	return axios({url: 'pdf-generar-remision', method: 'post', responseType: 'arraybuffer', data: {'codigo': data}}).then(
+	(response) => {
+	const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+	const link = document.createElement('a');
+	link.href = url;
+	//DESCARGAR
+	// link.setAttribute('download', 'file.pdf');
+	// document.body.appendChild(link);
+	link.target = '_blank'
+	link.click();
+	},
+	(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    CUERPO NOTA DE REMISION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerCuerpoRemisionCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/remisionCuerpo', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    MODIFICAR NOTA DE REMISION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function modificarRemisionCommon(productos, data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/remisionModificar', {'productos':productos, 'data':data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 					TABLA DE PRODUCTOS NOTA DE REMISION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function existeProductoRemisionDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA PRODUCTOS REMISION
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'descuento' : data['DESCUENTO'],
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							  INVENTARIOS
 // ------------------------------------------------------------------------
@@ -3630,5 +3802,10 @@ export {
 		guardarRemisionCommon,
 		filtrarRemisionCommon,
 		eliminarNotaRemCommon,
-		sucursalNuevaCommon
+		sucursalNuevaCommon,
+		nuevaNotaCommon,
+		generarPdfRemisionCommon,
+		obtenerCuerpoRemisionCommon,
+		modificarRemisionCommon,
+		existeProductoRemisionDataTableCommon
 		};
