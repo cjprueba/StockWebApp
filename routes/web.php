@@ -262,6 +262,11 @@ Route::post('export', 'ExportController@mostrar');
 
 Route::get('sucursal', 'SucursalController@mostrar');
 Route::post('sucursal', 'SucursalController@encontrar');
+Route::post('sucursal/sucursalDatatable', 'SucursalController@sucursalDatatable');
+Route::post('sucursalFiltrar', 'SucursalController@filtrarSucursal');
+Route::post('sucursalGuardar', 'SucursalController@guardarSucursal');
+Route::post('sucursalEliminar', 'SucursalController@eliminarSucursal');
+Route::get('nuevaSucursal', 'SucursalController@sucursalNueva');
 
 /* -------------------------------------------------------------------------- */
 
@@ -413,6 +418,39 @@ Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
 Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
 Route::post('exportCompra', 'CompraController@Descargar');
 Route::post('export/Stock', 'StockController@descargar');
+
+/* -------------------------------------------------------------------------- */
+
+// TRASNSPORTE 
+
+Route::post('transporteFiltrar', 'TransporteController@filtrarTransporte');
+Route::post('transporteDatatable', 'TransporteController@transporteDatatable');
+Route::get('nuevoTransporte','TransporteController@obtenerCodigo');
+Route::post('transporteGuardar', 'TransporteController@transporteGuardar');
+Route::post('transporteEliminar', 'TransporteController@transporteEliminar');
+
+/* -------------------------------------------------------------------------- */
+
+// CONTAINER
+
+Route::post('containerFiltrar', 'ContainerController@filtrarContainer');
+Route::post('containerDatatable', 'ContainerController@containerDatatable');
+Route::get('nuevoContainer','ContainerController@obtenerCodigo');
+Route::post('containerGuardar', 'ContainerController@containerGuardar');
+Route::post('containerEliminar', 'ContainerController@containerEliminar');
+
+/* -------------------------------------------------------------------------- */
+
+// NOTA DE REMISION 
+
+Route::post('remisionGuardar', 'RemisionController@guardarRemision');
+Route::post('remisionFiltrar', 'RemisionController@filtrarRemision');
+Route::post('remisionEliminar', 'RemisionController@eliminarRemision');
+Route::get('nuevaNota', 'RemisionController@notaNueva');
+Route::post('remision/NotaDeRemisionDatatable', 'RemisionController@remisionDatatable');
+Route::post('pdf-generar-remision','RemisionController@remision_pdf');
+Route::post('remisionCuerpo', 'RemisionController@mostrarCuerpo');
+Route::post('remisionModificar', 'RemisionController@modificarRemision');
 
 /* -------------------------------------------------------------------------- */
 

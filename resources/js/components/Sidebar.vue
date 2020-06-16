@@ -110,6 +110,7 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'compraMostrar'}">Mostrar Compras</router-link>
             <router-link class="collapse-item" :to="{name: 'compra'}">Realizar Compras</router-link>
+            <router-link class="collapse-item" :to="{name: 'compraContainer'}">Crear Container</router-link>
           </div>
         </div>
       </li>
@@ -133,6 +134,44 @@
           </div>
         </div>
       </li>
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
+      <!-- MOVIMIENTOS -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMovimientos" aria-expanded="true" aria-controls="collapseMovimientos">
+          <font-awesome-icon icon="money-bill-alt" />
+          <span>Movimientos</span>
+        </a>
+        <div id="collapseMovimientos" class="collapse" aria-labelledby="headingMovimientos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'notaRemision'}">Nota de Remisión</router-link>
+            
+          </div>
+        </div>
+      </li>
+
+
+      <!-- ------------------------------------------------------------------------------------- -->
+      
+      <!-- SUCURSALES -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSucursales" aria-expanded="true" aria-controls="collapseSucursales">
+          <font-awesome-icon icon="money-bill-alt" />
+          <span>Sucursales</span>
+        </a>
+        <div id="collapseSucursales" class="collapse" aria-labelledby="headingSucursales" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'crearSucursal'}">Crear Sucursal</router-link>
+            
+          </div>
+        </div>
+      </li>
+
 
       <!-- ------------------------------------------------------------------------------------- -->
 

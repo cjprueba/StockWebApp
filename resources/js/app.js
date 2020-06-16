@@ -295,6 +295,10 @@ Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vu
 Vue.component('search-marca', require('./components/textboxs/MarcaSearch.vue').default);
 Vue.component('ventas-id', require('./components/textboxs/Ventas/VentasTextbox.vue').default);
 Vue.component('ventas-global-textbox', require('./components/textboxs/Ventas/VentasGlobalTextbox.vue').default);
+Vue.component('transporte-nombre', require('./components/textboxs/Transporte/TransporteTextbox.vue').default);
+Vue.component('container-nombre', require('./components/textboxs/Container/ContainerTextbox.vue').default);
+Vue.component('sucursal-filtrar', require('./components/textboxs/SucursalTextbox.vue').default);
+Vue.component('remision-filtrar', require('./components/textboxs/NotaDeRemisionTextbox.vue').default);
 
 /* ********************************************* */
 

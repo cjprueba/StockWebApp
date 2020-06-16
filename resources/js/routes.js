@@ -126,6 +126,11 @@ export default new Router({
 		},
 		{
 			path: '/cr2/:id',
+			name: 'compraContainer',
+			component: require('./components/container/crearContainer.vue').default
+		},
+		{
+			path: '/cr2/:id',
 			name: 'compra',
 			component: require('./components/compra/RealizarCompra.vue').default
 		},
@@ -223,6 +228,16 @@ export default new Router({
 			path: '/tr1',
 			name: 'transporteCrear',
 			component: require('./components/transporte/crearTransporte.vue').default
+		},
+		{
+			path: '/suc1',
+			name: 'crearSucursal',
+			component: require('./components/sucursales/CrearSucursal.vue').default
+		},
+		{
+			path: '/mov1',
+			name: 'notaRemision',
+			component: require('./components/movimientos/RemisionNota.vue').default
 		}
 
 	],

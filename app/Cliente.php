@@ -377,7 +377,8 @@ class Cliente extends Model
             return ["response"=>false,'statusText'=>$ex->getMessage()];
         }
     }
-        public static function nuevoCliente(){
+    
+    public static function nuevoCliente(){
 
         $user = auth()->user();
 
@@ -426,6 +427,104 @@ class Cliente extends Model
 
     }
 
+    public static function existe_venta($codigo){
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VERIFICAR SI EXISTE 
+
+        $cliente = DB::connection('retail')
+        ->table('ventas')
+        ->select(DB::raw(
+                        'CODIGO'
+                    ))
+        ->where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('CLIENTE','=', $codigo)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // RETORNAL VALOR 
+
+        if(count($cliente) > 0){
+
+            return true;
+        } else {
+
+            return false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function verificarRuc($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $user = auth()->user();
+        $ruc = $data;
+
+        //OBTENER EL ULTIMO CODIGO DE CLIENTE
+
+        $cliente = Cliente::select(
+                                    'CODIGO'
+                                )
+                        ->where('RUC', 'LIKE', $ruc)
+                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->limit(1)
+                        ->get()
+                        ->toArray();
+
+        // RETORNAR EL VALOR
+
+        if(count($cliente) > 0){
+
+            return true;
+        } else {
+            return false;
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     
+    public static function verificarCI($data){
+        
+        /*  --------------------------------------------------------------------------------- */
+        $user = auth()->user();
+        $ci = $data;
+
+        //OBTENER EL ULTIMO CODIGO DE CLIENTE
+
+        $cliente = Cliente::select(
+                                    'CODIGO'
+                                )
+                        ->where('CI', 'LIKE', $ci)
+                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->limit(1)
+                        ->get()
+                        ->toArray();
+
+        // RETORNAR EL VALOR
+
+        if(count($cliente) > 0){
+
+            return true;
+        } else {
+            return false;
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }
