@@ -325,8 +325,8 @@
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
 				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
-				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button> -->
+				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
+				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
 				<button class="btn btn-primary btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
 			</div>
@@ -359,7 +359,7 @@
                         <!-- ------------------------------------------------------------------------ -->
 
                         <div class="modal-body">  
-                        	<ventas-id class="form-input-inline form-input-sm" ref="componente_textbox_Ventas" @codigo='codigo_devolucion'></ventas-id>
+                        	<ventas-global-textbox class="form-input-inline form-input-sm" ref="componente_textbox_Ventas" @codigo='codigo_devolucion'></ventas-global-textbox>
 
                         	<table id="devolucionProductos" class="table table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
 					            <thead>
@@ -503,6 +503,21 @@
 		        </div>
 		      </template>
 		      Este producto ha sido modificado con éxito !
+		    </b-toast>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
+
+			<b-toast id="toast-total-negativo" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">negativo</small>
+		        </div>
+		      </template>
+		      El total no puede ser negativo !
 		    </b-toast>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -922,7 +937,11 @@
 
 	        	// ------------------------------------------------------------------------
 
-	        	this.$refs.compontente_medio_pago.procesarFormas();
+	        	if (this.venta.TOTAL_CRUDO >= 0) {
+	        		this.$refs.compontente_medio_pago.procesarFormas();
+	        	} else {
+	        		this.$bvToast.show('toast-total-negativo');
+	        	}
 
 	        	// ------------------------------------------------------------------------
 
@@ -991,7 +1010,7 @@
         		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
+        		Common.generarPdfFacturaVentaVisualizarCommon(252845, this.caja.CODIGO);
         		//this.factura(8, 1);
         	},
         	test_factura(){
@@ -2265,7 +2284,7 @@
 	                				"ID": me.tabla.tableProductosDevolucion.row(this).data().ID,
 				                    "ITEM": me.tabla.ITEM,
 				                    "CODIGO":  me.tabla.tableProductosDevolucion.row(this).data().COD_PROD,
-				                    "DESCRIPCION":     me.tabla.tableProductosDevolucion.row(this).data().DESCRIPCION,
+				                    "DESCRIPCION":  'DEVOLUCION: '+me.tabla.tableProductosDevolucion.row(this).data().DESCRIPCION,
 				                    "LOTE": 0,
 				                    "DESCUENTO": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO,
 				                    "DESCUENTO_TOTAL": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO_TOTAL,

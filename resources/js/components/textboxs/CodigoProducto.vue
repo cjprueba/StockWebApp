@@ -152,9 +152,9 @@
 
                 // RECARGAR SIEMPRE TABLA PRODUCTOS 
 
-                setInterval( function () {
-				    tableProductos.ajax.reload( null, false ); // user paging is not reset on reload
-				}, 90000 );
+    //             setInterval( function () {
+				//     tableProductos.ajax.reload( null, false ); // user paging is not reset on reload
+				// }, 300000 );
 
                 // ------------------------------------------------------------------------
                 

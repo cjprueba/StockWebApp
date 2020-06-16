@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class VentasDetDevolucion extends Model
 {
-    private $connection = 'retail';
-    private $table = 'ventasdet_devoluciones';
+    protected $connection = 'retail';
+    protected $table = 'ventasdet_devoluciones';
 }

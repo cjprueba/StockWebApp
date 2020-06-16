@@ -2332,6 +2332,8 @@ class Producto extends Model
 
     public static function obtener_producto_POS($dato){
 
+        
+
         /*  --------------------------------------------------------------------------------- */
 
         // USUARIO 
@@ -2373,7 +2375,7 @@ class Producto extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
-
+        $start = microtime(true);
         $producto = ProductosAux::
         leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
         ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
@@ -2391,7 +2393,9 @@ class Producto extends Model
         ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
-
+        $time = microtime(true) - $start;
+        
+        $start2 = microtime(true);
         foreach ($producto as $key => $value) {
 
             /*  --------------------------------------------------------------------------------- */
@@ -2472,10 +2476,8 @@ class Producto extends Model
             select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
             ->where('CODIGO_MARCA', '=', $data["MARCA"])
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where([
-                ['FECHAINI', '<=', $dia],
-                ['FECHAFIN', '>=', $dia]
-                ])
+            ->whereDate('FECHAINI', '<=', $dia)
+            ->whereDate('FECHAFIN', '>=', $dia)
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
@@ -2498,11 +2500,15 @@ class Producto extends Model
         $imagen = Imagen::obtenerImagen($dato["codigo"]);
 
         /*  --------------------------------------------------------------------------------- */
+        $time2 = microtime(true) - $start2;
+        
+
+        /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
 
         if (count($producto) > 0) {
-            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"]];
+            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"], "time" => $time, "time-2" => $time2];
         } else {
             return ["response" => false];
         }

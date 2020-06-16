@@ -224,6 +224,37 @@
                                       <!-- ------------------------------------------------------------------------ -->
 
                                     </div> 
+
+                                    <div class="col-md-12">
+
+                                      <!-- ------------------------------------------------------------------------ -->
+
+                                      <!-- REALES -->
+
+                                        <div class="row">
+
+                                          <div class="col-md-2">
+                                            <label for="validationTooltip01">Descuento</label>
+                                          </div> 
+
+                                          <div class="col-md-7">
+                                            <div class="input-group input-group-sm mb-3" >
+                                              <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm">%</span>
+                                              </div>
+                                              <input class="form-control form-control-sm" type="number" max="100" min="0" v-model="descuento.PORCENTAJE" v-on:blur="formatoDescuento" >
+                                            </div>
+                                          </div>
+
+                                          <div class="col-md-3">
+                                            <input class="form-control form-control-sm" type="text" v-model="medios.DESCUENTO" disabled>
+                                          </div>
+
+                                        </div>
+
+                                      <!-- ------------------------------------------------------------------------ -->
+
+                                    </div> 
                                   </div>  
                               </div> 
 
@@ -551,6 +582,11 @@
 <script>
 	export default {
       props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec'],
+      watch: { 
+        total_crudo: function(newVal, oldVal) { 
+            this.sumarMonedas();
+        }
+      },
       data(){
         return {
             formas: [
@@ -569,7 +605,8 @@
               EFECTIVO: '0',
               CHEQUE: '0',
               TRANSFERENCIA: '0',
-              GIROS: '0'
+              GIROS: '0',
+              DESCUENTO: '0'
             },
             monedas: {
               GUARANIES: '',
@@ -660,6 +697,8 @@
               CHEQUE: '',
               TIPO_IMPRESION: '',
               OPCION_VUELTO: ''
+            }, descuento: {
+              PORCENTAJE: '0'
             }
         }
       }, 
@@ -934,6 +973,28 @@
 
             // ------------------------------------------------------------------------
 
+          }, formatoDescuento(){
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A PORCENTAJE
+            
+            me.descuento.PORCENTAJE = Common.darFormatoCommon(me.descuento.PORCENTAJE, 0);
+
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+
           }, obtenerCotizacionyMoneda(){
 
             // ------------------------------------------------------------------------
@@ -1045,6 +1106,18 @@
             // CHEQUE 
 
             total = Common.sumarCommon(this.medios.CHEQUE, total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // CALCULAR DESCUENTO
+
+            this.medios.DESCUENTO = Common.descuentoCommon(this.descuento.PORCENTAJE, this.total_crudo, this.cotizacion.candec);
+
+            // ------------------------------------------------------------------------
+
+            // DESCUENTO GENERAL
+
+            total = Common.sumarCommon(this.medios.DESCUENTO, total, this.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1266,6 +1339,8 @@
               TRANSFERENCIA: me.medios.TRANSFERENCIA,
               CODIGO_ENT: me.giro.codigo,
               GIRO: me.medios.GIROS,
+              DESCUENTO_GENERAL_PORCENTAJE: me.descuento.PORCENTAJE,
+              DESCUENTO_GENERAL: me.medios.DESCUENTO,
               VUELTO: me.vuelto,
               SALDO: me.medios.SALDO,
               GUARANIES: me.monedas.GUARANIES,

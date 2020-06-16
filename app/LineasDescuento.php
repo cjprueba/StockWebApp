@@ -30,8 +30,8 @@ class LineasDescuento extends Model
         $descuento = LineasDescuento::select(DB::raw('DESCUENTO'))
         ->where('CODIGO_LINEA', '=', $categoria)
         ->where('ID_SUCURSAL', '=', $id_sucursal)
-        ->where('FECHAINI', '<=', $fecha)
-        ->where('FECHAFIN', '>=', $fecha)
+        ->whereDate('FECHAINI', '<=', $fecha)
+        ->whereDate('FECHAFIN', '>=', $fecha)
         ->limit(1)
         ->get();
 

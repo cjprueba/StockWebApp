@@ -461,7 +461,7 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 
 			tabla.rows().every(function(){
 				var data = this.data();
-				    if (data['CODIGO'] === codigo) {
+				    if (data['CODIGO'] === codigo && data['TIPO'] !== 3) {
 				    	if (tipo_respuesta === 1) {
 				    		valor = { 'respuesta': true };
 				    	} else if (tipo_respuesta === 2) {

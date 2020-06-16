@@ -294,6 +294,7 @@ Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoText
 Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vue').default);
 Vue.component('search-marca', require('./components/textboxs/MarcaSearch.vue').default);
 Vue.component('ventas-id', require('./components/textboxs/Ventas/VentasTextbox.vue').default);
+Vue.component('ventas-global-textbox', require('./components/textboxs/Ventas/VentasGlobalTextbox.vue').default);
 
 /* ********************************************* */
 

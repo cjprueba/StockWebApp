@@ -98,9 +98,9 @@ class Cotizacion extends Model
     	} else if ($cotizaciones[0]->FORMULA === '-') {
     		$valor = Common::formato_precio(((float)$data['precio'] - (float)$cotizaciones[0]->CAMBIO), $data['decSistema']);
     	}	
+        
+        /*  --------------------------------------------------------------------------------- */
 
-    	/*  --------------------------------------------------------------------------------- */
-    	
     	// RETORNAR VALOR
         
     	return ["response" => true, "valor" => $valor];

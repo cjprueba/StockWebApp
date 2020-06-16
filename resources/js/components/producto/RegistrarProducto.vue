@@ -2062,7 +2062,9 @@
 
             	if (this.checked_online===true){
 
-            		this.online=1;
+            		online = 1;
+            	}else{
+            		online = 0;
             	} 
 
             	// PREPARAR DATOS
@@ -2098,7 +2100,7 @@
             		modificar: this.estado_boton.boton_warning,
             		vencimiento: this.checked_vencimiento,
             		periodo: this.seleccion.periodo,
-            		online: this.online,
+            		online: online,
             		nombreWeb: this.web.nombre,
             		descripcionWeb: this.web.descripcion,
             		pesoWeb: this.web.peso,
@@ -2350,17 +2352,19 @@
 
               this.seleccion_sub_categoria = valor;
 
-              subCategorias.filter(function(item) {
-	             if (item.CODIGO === valor) {
-	             	me.descripcionSubCategoria(seleccion[0].DESCRIPCION);
-	             }
-	           })
-              // seleccion = (Common.filtrarCommon(subCategorias, parseInt(valor)).then(data => {
-              // 		this.descripcionSubCategoria(seleccion[0].DESCRIPCION);
-              // }));
-              
-              
+            //   subCategorias.filter(function(item){
+            //   	alert(item.CODIGO+' '+ valor);
+	           //   if (item.CODIGO === valor) {
+	           //   	alert("despues");
+	           //   	me.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+	           //   }
+	           // });
 
+              if (valor!=="null"){
+              	seleccion = (Common.filtrarCommon(subCategorias, parseInt(valor)));
+              
+              	this.descripcionSubCategoria(seleccion[0].DESCRIPCION);
+              }
               // ------------------------------------------------------------------------
 
             }

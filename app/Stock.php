@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Lotes_tiene_TransferenciaDet;
 use Illuminate\Support\Facades\Log;
 use App\LoteUser;
+use App\VentasDetTieneLotes;
 
 class Stock extends Model
 {
@@ -270,6 +271,177 @@ class Stock extends Model
         // RETORNAR VALOR 
 
         return ['cantidad' => $cantidad_a_restar, 'lote' => $lote];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function sumar_stock_producto_devolucion($codigo, $cantidad, $id_ventas_det)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+    	$diaHora = date('Y-m-d H:i:s');
+    	$dia = date('Y-m-d');
+    	$hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LOTE NO ES NULO 
+
+        if ($id_ventas_det === NULL) {
+            $id_ventas_det = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($id_ventas_det > 0) {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	$lotes_a_sumar = VentasDetTieneLotes::select(DB::raw('ID_LOTE, CANTIDAD'))
+	        ->where('ID_VENTAS_DET','=',$id_ventas_det)
+	        ->get();
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// SUMAR ID LOTES 
+
+        	foreach ($lotes_a_sumar as $key => $value) {
+        		
+        		if ($value->CANTIDAD >= $cantidad) {
+
+        			/*  --------------------------------------------------------------------------------- */
+
+        			Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $cantidad);
+
+			        $cantidad = 0;
+
+			        LoteUser::guardar_referencia($user->id, 3, $value->ID_LOTE, $diaHora);
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		} else {
+
+        			Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $value->CANTIDAD);
+
+			        $cantidad = $cantidad - $value->CANTIDAD;
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        // INSERTAR REFERENCIA USER 
+
+    				LoteUser::guardar_referencia($user->id, 3, $value->ID_LOTE, $diaHora);
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		}
+
+        		if ($cantidad === 0) {
+        			break;
+        		}
+
+        	}
+
+        	/*  --------------------------------------------------------------------------------- */
+        	
+
+        } else {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// CONSEGUIR LOTE A SUMAR 
+
+        	$lote = Stock::select(DB::raw('LOTE'))
+	        ->where('COD_PROD','=', $codigo)
+	        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+	        ->orderBy('LOTE', 'desc')
+	        ->limit(1)
+	        ->get();
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// REVISAR SI ENCUENTRA ULTIMO LOTE 
+
+        	if (count($lote) > 0) 
+        	{
+
+	        	$lote = $lote[0]->LOTE;
+
+	        	$stock = Stock::where('COD_PROD','=', $codigo)
+		        ->where('LOTE','=', $lote)
+		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+		        ->limit(1)
+		        ->increment('CANTIDAD', $cantidad);
+
+		        /*  --------------------------------------------------------------------------------- */
+
+		        // OBTENER ID 
+
+		        $id_lote = Stock::select('ID')
+		        ->where('COD_PROD','=', $codigo)
+		        ->where('LOTE','=', $lote)
+		        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+		        ->limit(1)
+		        ->get();
+
+		        /*  --------------------------------------------------------------------------------- */
+
+		        // INSERTAR REFERENCIA USER 
+
+	    		LoteUser::guardar_referencia($user->id, 3, $id_lote[0]['ID'], $diaHora);
+
+	    		/*  --------------------------------------------------------------------------------- */
+
+	    	} else {
+
+	    		/*  --------------------------------------------------------------------------------- */
+
+	    		// INSERTAR NUEVO LOTE SI PRODUCTO NO POSEE NINGUN LOTE
+
+	    		$id_lote = Stock::insert(
+				    [
+				    	'COD_PROD' => $codigo, 
+				    	'CANTIDAD_INICIAL' => $cantidad,
+				    	'CANTIDAD' => $cantidad,
+				    	'COSTO' => 0,
+				    	'LOTE' => 1,
+				    	'USER' => $user->name,
+				    	'FECALTAS' => $dia,
+				    	'HORALTAS' => $hora,
+				    	'ID_SUCURSAL' => $user->id_sucursal
+				    ]
+				);
+
+	    		/*  --------------------------------------------------------------------------------- */
+
+	    		// INSERTAR REFERENCIA USER 
+
+	    		LoteUser::guardar_referencia($user->id, 1, $id_lote, $diaHora);
+
+	    		/*  --------------------------------------------------------------------------------- */
+
+	    	}
+
+	        /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true];
 
         /*  --------------------------------------------------------------------------------- */
 

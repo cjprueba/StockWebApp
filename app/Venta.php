@@ -16,6 +16,7 @@ use App\VentaTransferencia;
 use App\VentasDetServicios;
 use App\VentasAnulado;
 use App\VentasDetDevolucion;
+use App\Ventas_Descuento;
 
 class Venta extends Model
 {
@@ -1683,6 +1684,13 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // DESCUENTO GENERAL 
+
+            $descuento_general = Common::quitar_coma($data["data"]["pago"]["DESCUENTO_GENERAL"], $candec);
+            $descuento_general_porcentaje = $data["data"]["pago"]["DESCUENTO_GENERAL_PORCENTAJE"];
+
+            /*  --------------------------------------------------------------------------------- */
+
             // GIRO 
 
             $giro = Common::quitar_coma($data["data"]["pago"]["GIRO"], 0);
@@ -1740,6 +1748,7 @@ class Venta extends Model
 
                 // INICIAR DATOS 
 
+                $id_ventasdet = Common::quitar_coma($data["data"]["productos"][$c]["ID"], 0);
                 $cod_prod = $data["data"]["productos"][$c]["CODIGO"];
                 $cantidad = Common::quitar_coma($data["data"]["productos"][$c]["CANTIDAD"], $candec);
                 $cantidad_total = $cantidad;
@@ -1988,6 +1997,7 @@ class Venta extends Model
 
                     // SUMAR STOCK 
 
+                    Stock::sumar_stock_producto_devolucion($cod_prod, $cantidad, $id_ventasdet);
                     
                     /*  --------------------------------------------------------------------------------- */
 
@@ -2000,6 +2010,18 @@ class Venta extends Model
                 $c++;
                         
                 /*  --------------------------------------------------------------------------------- */
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CALCULAR TOTAL GENERAL IVA  CON DESCUENTO GENERAL 
+
+            if ($descuento_general_porcentaje > 0) {
+                $total_iva = $total_iva - (($total_iva * $descuento_general_porcentaje) / 100);
+                $total_base10 = $total_base10 - (($total_base10 * $descuento_general_porcentaje) / 100);
+                $total_base5 = $total_base5 - (($total_base5 * $descuento_general_porcentaje) / 100);
+                $total_exentas = $total_exentas - (($total_exentas * $descuento_general_porcentaje) / 100);
+                $total_gravadas = $total_gravadas - (($total_gravadas * $descuento_general_porcentaje) / 100);
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2019,14 +2041,14 @@ class Venta extends Model
                     //"FORMA_PAGO" => '', 
                     "PLAN_PAGO" => 0, 
                     "TARJETA" => 0, 
-                    "DESCUENTO" => $descuento_total, 
+                    "DESCUENTO" => ($descuento_total + $descuento_general), 
                     "GRAVADAS" => $total_gravadas, 
                     "IMPUESTOS" => $total_iva, 
                     "EXENTAS" => $total_exentas, 
                     "BASE5" => $total_base5, 
                     "BASE10" => $total_base10, 
                     "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => $total_total, 
+                    "TOTAL" => ($total_total - $descuento_general), 
                     "EFECTIVO" => $efectivo, 
                     "CHEQUE" => 0, 
                     "VALE" => 0, 
@@ -2111,6 +2133,14 @@ class Venta extends Model
 
             if ($pago_cheque["response"] === false) {
                 return $pago_cheque;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR DESCUENTO GENERAL
+
+            if ($descuento_general_porcentaje > 0) {
+                Ventas_Descuento::guardar_referencia($descuento_general_porcentaje, $descuento_general, $venta, $moneda);
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2402,6 +2432,132 @@ class Venta extends Model
         $codigo = $data['codigo'];
         $caja = $data['caja'];
         $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DEVOLUCIONES 
+
+        $ventas_det_devoluciones = VentasDetDevolucion::select(DB::raw(
+                        'VENTASDET_DEVOLUCIONES.ID,
+                        VENTASDET_DEVOLUCIONES.ITEM, 
+                        VENTASDET_DEVOLUCIONES.COD_PROD, 
+                        VENTASDET_DEVOLUCIONES.DESCRIPCION, 
+                        VENTASDET_DEVOLUCIONES.CANTIDAD, 
+                        VENTASDET_DEVOLUCIONES.PRECIO_UNIT,
+                        VENTASDET_DEVOLUCIONES.IVA,
+                        VENTASDET_DEVOLUCIONES.EXENTA AS EXENTAS,
+                        VENTASDET_DEVOLUCIONES.BASE5,
+                        VENTASDET_DEVOLUCIONES.BASE10,
+                        VENTASDET_DEVOLUCIONES.PRECIO,
+                        VENTAS.MONEDA,
+                        0 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'VENTASDET_DEVOLUCIONES.CODIGO')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET_DEVOLUCIONES.ID_SUCURSAL')
+                                     ->on('VENTAS.CAJA', '=', 'VENTASDET_DEVOLUCIONES.CAJA');
+                            })
+        ->where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTASDET_DEVOLUCIONES.CODIGO','=', $codigo)
+        ->where('VENTASDET_DEVOLUCIONES.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($ventas_det_devoluciones as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR IVA PRODUCTO
+
+            $producto = DB::connection('retail')
+            ->table('PRODUCTOS')
+            ->select(DB::raw('IMPUESTO'))
+            ->where('CODIGO', '=', $value->COD_PROD)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS;
+            $nestedData['BASE5'] = $value->BASE5;
+            $nestedData['BASE10'] = $value->BASE10;
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCUENTO 
+
+        $ventas_descuento = Ventas_Descuento::select(DB::raw(
+                        'VENTAS_DESCUENTO.ID,
+                        0 AS ITEM, 
+                        1 AS COD_PROD, 
+                        0 AS DESCRIPCION, 
+                        1 AS CANTIDAD, 
+                        VENTAS_DESCUENTO.TOTAL AS PRECIO_UNIT,
+                        0 AS IVA,
+                        0 AS EXENTAS,
+                        0 AS BASE5,
+                        0 AS BASE10,
+                        VENTAS_DESCUENTO.TOTAL AS PRECIO,
+                        VENTAS.MONEDA,
+                        0 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTAS');
+                            })
+        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.CODIGO','=', $codigo)
+        ->where('VENTAS.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($ventas_descuento as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = 'DESCUENTO GENERAL';
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT * -1, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA * -1, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS * -1;
+            $nestedData['BASE5'] = $value->BASE5 * -1;
+            $nestedData['BASE10'] = ($value->PRECIO * -1 / 11);
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO * -1, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3429,7 +3585,7 @@ class Venta extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // PRECIO 
-
+                
                 $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
@@ -3492,11 +3648,11 @@ class Venta extends Model
 
             // REVISAR SI EXISTE BASE5 O BASE10
 
-            if ($value["BASE5"] > 0) {
+            if ($value["BASE5"] !== 0 && $value["BASE5"] !== 0.00) {
                 $articulos[$c_rows]["base10"] = '';
                 $articulos[$c_rows]["base5"] = $articulos[$c_rows]["total"];
                 $base5 = $base5 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
-            } else if ($value["BASE10"] > 0) {
+            } else if ($value["BASE10"] !== 0 && $value["BASE10"] !== 0.00) {
                 $articulos[$c_rows]["base5"] = '';
                 $articulos[$c_rows]["base10"] = $articulos[$c_rows]["total"];
                 $base10 = $base10 + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
@@ -3504,7 +3660,7 @@ class Venta extends Model
                 $articulos[$c_rows]["base5"] = '';
                 $articulos[$c_rows]["base10"] = '';
             }
-            
+
             /*  --------------------------------------------------------------------------------- */
             
             // CONTAR CANTIDAD DE FILAS DE HOJAS 
@@ -3522,7 +3678,7 @@ class Venta extends Model
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 10){
-                
+
                 /*  --------------------------------------------------------------------------------- */
 
                 // AGREGAR ARTICULOS 
@@ -3654,7 +3810,7 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'CODIGO',
+                            0 => 'CODIGO', 
                             1 => 'CAJA', 
                             3 => 'FECHA',
                             4 => 'IVA',
@@ -3725,7 +3881,8 @@ class Venta extends Model
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('VENTAS.FECHA', 'LIKE',"%{$search}%");
+                                      ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -3737,9 +3894,14 @@ class Venta extends Model
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered = Venta::where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                             })
                             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('VENTAS.FECHA', 'LIKE',"%{$search}%");
+                                       ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
+                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                              ->count();
 
