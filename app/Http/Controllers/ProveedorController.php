@@ -122,4 +122,53 @@ class ProveedorController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+            public function proveedorGuardar(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::proveedor_guardar($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+            public function proveedorEliminar(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::proveedor_eliminar($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function filtrarProveedor(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::filtrar_proveedor($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function proveedorDatatable(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $proveedor = Proveedor::proveedor_datatable($request);
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

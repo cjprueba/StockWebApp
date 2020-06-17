@@ -1330,4 +1330,230 @@ class Proveedor extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+
+              public static function filtrar_proveedor($datos)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+     
+        // OBTENER TODOS LOS DATOS DEL TALLE
+        $proveedor = Proveedor::select(DB::raw('CODIGO, NOMBRE,RUC,DIRECCION,TELEFONO,CELULAR,EMAIL,CONTACTO'))->Where('CODIGO','=',$datos['id'])->get()->toArray();
+        if(count($proveedor)<=0){
+           return ["response"=>false];
+        }
+        // RETORNAR EL VALOR
+
+       return ["response"=>true,"proveedor"=>$proveedor];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+            public static function proveedor_guardar($datos)
+    {
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+        $codigo_proveedor=$datos['data']['Codigo'];
+
+
+        try { 
+
+        /*  --------------------------------------------------------------------------------- */
+         if($datos['data']['Existe']=== false){
+         $proveedor=Proveedor::insertGetId(
+         ['NOMBRE'=> $datos['data']['Descripcion'],'RUC'=> $datos['data']['Ruc'], 'DIRECCION'=> $datos['data']['Direccion'],'TELEFONO'=> $datos['data']['Telefono'],'celular'=> $datos['data']['cel'],'CONTACTO'=> $datos['data']['contacto'],'EMAIL'=> $datos['data']['email'],'USER'=>$user->name,'FECALTAS'=>$dia,'HORALTAS'=>$hora]);
+         $codigo_proveedor = $proveedor;
+        }else{
+            $proveedor=Proveedor::where('CODIGO', $codigo_proveedor)
+            ->update(['NOMBRE'=> $datos['data']['Descripcion'],'RUC'=> $datos['data']['Ruc'], 'DIRECCION'=> $datos['data']['Direccion'],'TELEFONO'=> $datos['data']['Telefono'],'celular'=> $datos['data']['cel'],'CONTACTO'=> $datos['data']['contacto'],'EMAIL'=> $datos['data']['email'], 'USERM'=>$user->name,'FECMODIF'=>$dia,'HORMODIF'=>$hora]);
+        }
+       return ["response"=>true];
+
+        /*  --------------------------------------------------------------------------------- */
+        } catch(Exception $ex){ 
+
+ 
+        if($ex->errorInfo[1]===1062){
+      return ["response"=>false,'statusText'=>'Esta descripcion de proveedor ya fue registrada!!'];
+       }else{
+      return ["response"=>false,'statusText'=>$ex->getMessage()];
+      }
+  
+      }
+
+
+    }
+         public static function proveedor_eliminar($datos)
+    {
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+        $codigo_proveedor=$datos['data']['Codigo'];
+        /*  --------------------------------------------------------------------------------- */
+
+        if($datos['data']['Existe']=== true){
+        
+         $producto=Producto::select('CODIGO')->Where('PROVEEDOR','=',$codigo_proveedor)->limit(1)->get()->toArray();
+         if(count($producto)>0){
+            return ["response"=>false];
+         }else{
+            $tela=Proveedor::where('CODIGO', $codigo_proveedor)->delete();
+                    }
+
+        }else{
+        return ["response"=>false];
+        }
+  return ["response"=>true];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+public static function proveedor_datatable($request)
+    {
+ /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        //global $search;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'codigo', 
+                            1 => 'nombre',
+                            2 => 'ruc',
+                            3 => 'direccion',
+                            5 => 'telefono',
+                            6 => 'contacto',
+                            7 => 'celular',
+                            8 => 'email'
+                         
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = Proveedor::count();  
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  ------------------------------------- -------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Proveedor::select(DB::raw('CODIGO,NOMBRE,RUC,DIRECCION,TELEFONO,CONTACTO,CELULAR,EMAIL'))
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =Proveedor::select(DB::raw('CODIGO,NOMBRE,RUC,DIRECCION,TELEFONO,CONTACTO,CELULAR,EMAIL'))
+                            ->where(function ($query) use ($search) {
+                                $query->where('CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Proveedor::where(function ($query) use ($search) {
+                                $query->where('CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['RUC'] = $post->RUC;
+                $nestedData['DIRECCION'] = $post->DIRECCION;
+                $nestedData['TELEFONO'] = $post->TELEFONO;
+                $nestedData['CONTACTO'] = $post->CONTACTO;
+                $nestedData['CELULAR'] = $post->CELULAR;
+                $nestedData['EMAIL'] = $post->EMAIL;
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+    }
 }

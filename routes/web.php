@@ -197,6 +197,10 @@ Route::post('proveedor/lote', 'ProveedorController@loteProducto');
 Route::post('proveedor/devolucion', 'ProveedorController@devolucion');
 Route::get('proveedor/devolucion/mostrar', 'ProveedorController@devolucionMostrar');
 Route::get('proveedor/devolucion/detalle', 'ProveedorController@devolucionDetalle');
+Route::post('proveedorFiltrar', 'ProveedorController@filtrarProveedor');
+Route::post('proveedorGuardar', 'ProveedorController@proveedorGuardar');
+Route::post('proveedorEliminar', 'ProveedorController@proveedorEliminar');
+Route::post('proveedorDatatable', 'ProveedorController@proveedorDatatable');
 
 /* -------------------------------------------------------------------------- */
 

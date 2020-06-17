@@ -299,6 +299,7 @@ Vue.component('transporte-nombre', require('./components/textboxs/Transporte/Tra
 Vue.component('container-nombre', require('./components/textboxs/Container/ContainerTextbox.vue').default);
 Vue.component('sucursal-filtrar', require('./components/textboxs/SucursalTextbox.vue').default);
 Vue.component('remision-filtrar', require('./components/textboxs/NotaDeRemisionTextbox.vue').default);
+Vue.component('proveedor-nombre', require('./components/textboxs/Proveedor/ProveedorTextbox.vue').default);
 
 /* ********************************************* */
 

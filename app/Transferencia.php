@@ -1768,297 +1768,325 @@ class Transferencia extends Model
 
     public static function importar_transferencia($data)
     {
-        /*  --------------------------------------------------------------------------------- */
 
-        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
 
-        $user = auth()->user();
+            // INICIAR TRANSACCION 
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // INICIAR VARIABLES 
-
-        $dia = date("Y-m-d");
-        $hora = date("H:i:s");
-        $codigo = $data["codigo"];
-        $codigo_origen = $data["codigo_origen"];
-        $conversion = false;
-
-        $precio_venta = 0;
-        $precio_mayorista = 0;
-        $precio_vip = 0;
-        $formula = 0;
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR ESTATUS 
-
-        $estatus = Transferencia::verificar_estatus($codigo, $codigo_origen);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR SI EL ESTATUS SE ENCUENTRA EN 1 PARA SER IMPORTADO
-
-        if ($estatus === false or $estatus === 0 or $estatus === 2) {
-            return ["response" => false, "statusText" => "Ya se encuentra procesada !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER DATOS TRANSFERENCIA
-
-        $transferencia = DB::connection('retail')
-        ->table('transferencias')
-        ->select(DB::raw(
-                        'ID, 
-                        SUCURSAL_DESTINO,
-                        CAMBIO, 
-                        MONEDA,
-                        MONEDA_ENVIAR'
-                    ))
-        ->where('ID_SUCURSAL','=', $codigo_origen)
-        ->where('CODIGO','=', $codigo)
-        ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // CARGAR VARIABLES TRANSFERENCIA
-
-        $monedaTransferencia = $transferencia[0]->MONEDA;
-        $monedaEnviada = $transferencia[0]->MONEDA_ENVIAR;
-        $cambio = $transferencia[0]->CAMBIO;
-        $id = $transferencia[0]->ID;
-        $usere = 'TRA-'.$id;
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR MONEDA SUCURSAL 
-
-        $parametro = Parametro::mostrarParametro();
-        $monedaSucursal = $parametro["parametros"][0]->MONEDA;
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR SI MONEDA DE TRANSFERENCIA ES DIFERENTE A MONEDA ENVIO 
-
-        if ($monedaTransferencia !== $monedaEnviada) {
-            $conversion = true;
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // TIPO DE CALCULO 
-        
-        if ($monedaTransferencia === 1 && $monedaEnviada === 2) {
-
-            /*  --------------------------------------------- */
-
-            // DIVIDIR - GUARANIES A DOLAR 
-
-            $formula = 2;
-
-            /*  --------------------------------------------- */
-
-        } else if ($monedaTransferencia === 2 && $monedaEnviada === 1) {
-
-            /*  --------------------------------------------- */
-
-            // MULTIPLICAR - DOLAR A GUARANIES
-
-            $formula = 1;
-
-            /*  --------------------------------------------- */
-
-        } else if ($monedaTransferencia === 1 && $monedaEnviada === 3) {
-
-            /*  --------------------------------------------- */
-
-            // DIVIDIR - GUARANIES A PESOS
-
-            $formula = 2;
-
-            /*  --------------------------------------------- */
-
-        } else if ($monedaTransferencia === 1 && $monedaEnviada === 4) {
-
-            /*  --------------------------------------------- */
-
-            // DIVIDIR - GUARANIES A REAL 
-
-            $formula = 2;
-
-            /*  --------------------------------------------- */
-
-        } else if ($monedaTransferencia === 2 && $monedaEnviada === 3) {
-
-            /*  --------------------------------------------- */
-
-            // MULTIPLICAR - DOLAR A PESO 
-
-            $formula = 1;
-
-            /*  --------------------------------------------- */
-
-        } else if ($monedaTransferencia === 2 && $monedaEnviada === 4) {
-
-            /*  --------------------------------------------- */
-
-            // MULTIPLICAR - DOLAR A PESO 
-
-            $formula = 1;
-
-            /*  --------------------------------------------- */
-
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR SI SUCURSAL DESTINO ES IGUAL A LA SUCURSAL
-
-        if ($transferencia[0]->SUCURSAL_DESTINO !== $user->id_sucursal) {
-            return ["response" => false, "statusText" => "La transferencia no es de esta sucursal !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // CAMBIAR ESTADO DE TRANSFERENCIA A PROCESADO
-
-        if (Transferencia::aceptar_transferencia($data) === false) {
-            return ["response" => false, "statusText" => "La transferencia no pudo cambiar de estado !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER TODOS LOS PRODUCTOS 
-
-        $transferencia_det = DB::connection('retail')
-        ->table('TRANSFERENCIAS_DET')
-        ->leftjoin('TRANSFERENCIADET_TIENE_LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA', '=', 'TRANSFERENCIAS_DET.ID')
-        ->leftjoin('LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE', '=', 'LOTES.ID')
-        ->select(DB::raw(
-                        'TRANSFERENCIAS_DET.ID,
-                        TRANSFERENCIAS_DET.CODIGO_PROD, 
-                        TRANSFERENCIAS_DET.CANTIDAD, 
-                        TRANSFERENCIAS_DET.PRECIO,
-                        LOTES.FECHA_VENC AS VENCIMIENTO'
-                    ))
-        ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
-        ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
-        ->groupBy('TRANSFERENCIAS_DET.ID')
-        ->get();
-        
-        /*  --------------------------------------------------------------------------------- */
-
-        // RECORRER TODOS LOS PRODUCTOS 
-
-        foreach ($transferencia_det as $td) {
+            DB::connection('retail')->beginTransaction();
 
             /*  --------------------------------------------------------------------------------- */
-            
-            // OBTENER DATOS DEL PRODUCTO 
 
-            $producto = DB::connection('retail')
-            ->table('PRODUCTOS_AUX')
-            ->where('CODIGO', '=', $td->CODIGO_PROD)
-            ->where('ID_SUCURSAL', '=', $codigo_origen)
-            ->select(DB::raw('CODIGO_INTERNO, BAJA, PREC_VENTA, PREMAYORISTA, PREVIP, DESCUENTO, STOCK_MIN, PROVEEDOR, OBSERVACION, PORCENTAJE, CODIGO_REAL'))
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR VARIABLES 
+
+            $dia = date("Y-m-d");
+            $hora = date("H:i:s");
+            $codigo = $data["codigo"];
+            $codigo_origen = $data["codigo_origen"];
+            $conversion = false;
+
+            $precio_venta = 0;
+            $precio_mayorista = 0;
+            $precio_vip = 0;
+            $formula = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR ESTATUS 
+
+            $estatus = Transferencia::verificar_estatus($codigo, $codigo_origen);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EL ESTATUS SE ENCUENTRA EN 1 PARA SER IMPORTADO
+
+            if ($estatus === false or $estatus === 0 or $estatus === 2) {
+                return ["response" => false, "statusText" => "Ya se encuentra procesada !"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER DATOS TRANSFERENCIA
+
+            $transferencia = DB::connection('retail')
+            ->table('transferencias')
+            ->select(DB::raw(
+                            'ID, 
+                            SUCURSAL_DESTINO,
+                            CAMBIO, 
+                            MONEDA,
+                            MONEDA_ENVIAR'
+                        ))
+            ->where('ID_SUCURSAL','=', $codigo_origen)
+            ->where('CODIGO','=', $codigo)
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
 
-            // REVISAR SI CONVERSION ES VERDADERO PARA COTIZAR
+            // CARGAR VARIABLES TRANSFERENCIA
+
+            $monedaTransferencia = $transferencia[0]->MONEDA;
+            $monedaEnviada = $transferencia[0]->MONEDA_ENVIAR;
+            $cambio = $transferencia[0]->CAMBIO;
+            $id = $transferencia[0]->ID;
+            $usere = 'TRA-'.$id;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR MONEDA SUCURSAL 
+
+            $parametro = Parametro::mostrarParametro();
+            $monedaSucursal = $parametro["parametros"][0]->MONEDA;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI MONEDA DE TRANSFERENCIA ES DIFERENTE A MONEDA ENVIO 
+
+            if ($monedaTransferencia !== $monedaEnviada) {
+                $conversion = true;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // TIPO DE CALCULO 
+            
+            if ($monedaTransferencia === 1 && $monedaEnviada === 2) {
+
+                /*  --------------------------------------------- */
+
+                // DIVIDIR - GUARANIES A DOLAR 
+
+                $formula = 2;
+
+                /*  --------------------------------------------- */
+
+            } else if ($monedaTransferencia === 2 && $monedaEnviada === 1) {
+
+                /*  --------------------------------------------- */
+
+                // MULTIPLICAR - DOLAR A GUARANIES
+
+                $formula = 1;
+
+                /*  --------------------------------------------- */
+
+            } else if ($monedaTransferencia === 1 && $monedaEnviada === 3) {
+
+                /*  --------------------------------------------- */
+
+                // DIVIDIR - GUARANIES A PESOS
+
+                $formula = 2;
+
+                /*  --------------------------------------------- */
+
+            } else if ($monedaTransferencia === 1 && $monedaEnviada === 4) {
+
+                /*  --------------------------------------------- */
+
+                // DIVIDIR - GUARANIES A REAL 
+
+                $formula = 2;
+
+                /*  --------------------------------------------- */
+
+            } else if ($monedaTransferencia === 2 && $monedaEnviada === 3) {
+
+                /*  --------------------------------------------- */
+
+                // MULTIPLICAR - DOLAR A PESO 
+
+                $formula = 1;
+
+                /*  --------------------------------------------- */
+
+            } else if ($monedaTransferencia === 2 && $monedaEnviada === 4) {
+
+                /*  --------------------------------------------- */
+
+                // MULTIPLICAR - DOLAR A PESO 
+
+                $formula = 1;
+
+                /*  --------------------------------------------- */
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI SUCURSAL DESTINO ES IGUAL A LA SUCURSAL
+
+            if ($transferencia[0]->SUCURSAL_DESTINO !== $user->id_sucursal) {
+                return ["response" => false, "statusText" => "La transferencia no es de esta sucursal !"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CAMBIAR ESTADO DE TRANSFERENCIA A PROCESADO
+
+            if (Transferencia::aceptar_transferencia($data) === false) {
+                return ["response" => false, "statusText" => "La transferencia no pudo cambiar de estado !"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER TODOS LOS PRODUCTOS 
+
+            $transferencia_det = DB::connection('retail')
+            ->table('TRANSFERENCIAS_DET')
+            ->leftjoin('TRANSFERENCIADET_TIENE_LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA', '=', 'TRANSFERENCIAS_DET.ID')
+            ->leftjoin('LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE', '=', 'LOTES.ID')
+            ->select(DB::raw(
+                            'TRANSFERENCIAS_DET.ID,
+                            TRANSFERENCIAS_DET.CODIGO_PROD, 
+                            TRANSFERENCIAS_DET.CANTIDAD, 
+                            TRANSFERENCIAS_DET.PRECIO,
+                            LOTES.FECHA_VENC AS VENCIMIENTO'
+                        ))
+            ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
+            ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
+            ->groupBy('TRANSFERENCIAS_DET.ID')
+            ->get();
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // RECORRER TODOS LOS PRODUCTOS 
+
+            foreach ($transferencia_det as $td) {
+
+                /*  --------------------------------------------------------------------------------- */
                 
-            if ($conversion === true) {
+                // OBTENER DATOS DEL PRODUCTO 
 
-                if ($formula === 1) {
+                $producto = DB::connection('retail')
+                ->table('PRODUCTOS_AUX')
+                ->where('CODIGO', '=', $td->CODIGO_PROD)
+                ->where('ID_SUCURSAL', '=', $codigo_origen)
+                ->select(DB::raw('CODIGO_INTERNO, BAJA, PREC_VENTA, PREMAYORISTA, PREVIP, DESCUENTO, STOCK_MIN, PROVEEDOR, OBSERVACION, PORCENTAJE, CODIGO_REAL, MONEDA'))
+                ->get();
 
-                    $precio_venta = $td->PRECIO * $cambio;
-                    $precio_mayorista = $producto[0]->PREMAYORISTA * $cambio;
-                    $precio_vip = $producto[0]->PREVIP * $cambio;  
+                /*  --------------------------------------------------------------------------------- */
 
-                } else if ($formula === 2) {
+                // REVISAR SI CONVERSION ES VERDADERO PARA COTIZAR
+                
+                if ($conversion === true && $producto[0]->MONEDA !== $monedaSucursal) {
+
+                    if ($formula === 1) {
+
+                        $precio_venta = $td->PRECIO * $cambio;
+                        $precio_mayorista = $producto[0]->PREMAYORISTA * $cambio;
+                        $precio_vip = $producto[0]->PREVIP * $cambio;  
+
+                    } else if ($formula === 2) {
+                        
+                        $precio_venta = $td->PRECIO / $cambio;
+                        $precio_mayorista = $producto[0]->PREMAYORISTA / $cambio;
+                        $precio_vip = $producto[0]->PREVIP / $cambio; 
+
+                    }
+                        
+
+                } else {
                     
-                    $precio_venta = $td->PRECIO / $cambio;
-                    $precio_mayorista = $producto[0]->PREMAYORISTA / $cambio;
-                    $precio_vip = $producto[0]->PREVIP / $cambio; 
+                    $precio_venta = $producto[0]->PREC_VENTA;
+                    $precio_mayorista = $producto[0]->PREMAYORISTA;
+                    $precio_vip = $producto[0]->PREVIP;
+    
+                }
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // REVISAR SI EXISTE PRODUCTO 
+
+                if (Producto::existeProducto($td->CODIGO_PROD, $user->id_sucursal) !== true) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // INSERTAR PRODUCTO 
+
+                    $productos_aux = ProductosAux::insert(
+                        [
+                        'CODIGO' => $td->CODIGO_PROD, 
+                        'CODIGO_INTERNO' => $producto[0]->CODIGO_INTERNO,
+                        'BAJA' => $producto[0]->BAJA,
+                        'MONEDA' =>  $monedaEnviada,
+                        'PRECOSTO' => $precio_venta,
+                        'PREC_VENTA' => $precio_venta,
+                        'PREMAYORISTA' => $precio_mayorista,
+                        'PREVIP' => $precio_vip,
+                        'ID_SUCURSAL' => $user->id_sucursal,
+                        'DESCUENTO' => $producto[0]->DESCUENTO,
+                        'STOCK_MIN' => $producto[0]->STOCK_MIN,
+                        'PROVEEDOR' => $producto[0]->PROVEEDOR,
+                        'OBSERVACION' => $producto[0]->OBSERVACION,
+                        'PORCENTAJE' => $producto[0]->PROVEEDOR,
+                        'USER' => $user->name,
+                        'CODIGO_REAL' => $producto[0]->CODIGO_REAL,
+                        'FECALTAS' => $dia,
+                        'HORALTAS' => $hora,
+                        'USERM' => $usere
+                        ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
 
                 }
-                    
-
-            } else {
-
-                $precio_venta = $td->PRECIO;
-                $precio_mayorista = $producto[0]->PREMAYORISTA;
-                $precio_vip = $producto[0]->PREVIP;
-
-            }
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // REVISAR SI EXISTE PRODUCTO 
-
-            if (Producto::existeProducto($td->CODIGO_PROD, $user->id_sucursal) !== true) {
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // INSERTAR PRODUCTO 
+                // CREAR LOTE DEL PRODUCTO 
 
-                $productos_aux = ProductosAux::insert(
-                    [
-                    'CODIGO' => $td->CODIGO_PROD, 
-                    'CODIGO_INTERNO' => $producto[0]->CODIGO_INTERNO,
-                    'BAJA' => $producto[0]->BAJA,
-                    'MONEDA' =>  $monedaEnviada,
-                    'PRECOSTO' => $precio_venta,
-                    'PREC_VENTA' => $precio_venta,
-                    'PREMAYORISTA' => $precio_mayorista,
-                    'PREVIP' => $precio_vip,
-                    'ID_SUCURSAL' => $user->id_sucursal,
-                    'DESCUENTO' => $producto[0]->DESCUENTO,
-                    'STOCK_MIN' => $producto[0]->STOCK_MIN,
-                    'PROVEEDOR' => $producto[0]->PROVEEDOR,
-                    'OBSERVACION' => $producto[0]->OBSERVACION,
-                    'PORCENTAJE' => $producto[0]->PROVEEDOR,
-                    'USER' => $user->name,
-                    'CODIGO_REAL' => $producto[0]->CODIGO_REAL,
-                    'FECALTAS' => $dia,
-                    'HORALTAS' => $hora,
-                    'USERM' => $usere
-                    ]
-                );
+                $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere, $td->VENCIMIENTO))["id"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // MODIFICAR TRANSFERENCIA DET 
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // MODOS
+                // MODO 1 - COMPRA
+                // MODO 2 - TRANSFERENCIA 
+
+                Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+                //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
 
                 /*  --------------------------------------------------------------------------------- */
 
             }
 
             /*  --------------------------------------------------------------------------------- */
+            
+            // ENVIAR TRANSACCION A BD
 
-            // CREAR LOTE DEL PRODUCTO 
-
-            $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere, $td->VENCIMIENTO))["id"];
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // MODIFICAR TRANSFERENCIA DET 
+            DB::connection('retail')->commit();
 
             /*  --------------------------------------------------------------------------------- */
 
-            // MODOS
-            // MODO 1 - COMPRA
-            // MODO 2 - TRANSFERENCIA 
-
-            Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
-            //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+            return ["response" => true];
 
             /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
 
         }
-
-        /*  --------------------------------------------------------------------------------- */
-        
-        return ["response" => true];
-
-        /*  --------------------------------------------------------------------------------- */
 
     }
 

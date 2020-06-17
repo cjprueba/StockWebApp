@@ -190,6 +190,11 @@ export default new Router({
 			component: require('./components/proveedor/DevolucionProveedorMostrar.vue').default
 		},
 		{
+			path: '/pro5',
+			name: 'proveedorCrear',
+			component: require('./components/proveedor/CrearProveedor.vue').default
+		},
+		{
 			path: '/rpt10',
 			name: 'rptStock',
 			component: require('./components/reportes/stock/busqueda/stock.vue').default

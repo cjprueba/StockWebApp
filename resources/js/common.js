@@ -927,6 +927,77 @@ function obtenerProveedoresProductoCommon(codigo){
 
 }
 
+function nuevoProveedorCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoProveedor').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarProveedorCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// LLAMAR TELAS
+			return axios.post('/proveedorFiltrar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+
+			// ------------------------------------------------------------------------
+
+}
+function guardarProveedorCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/proveedorGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function eliminarProveedorCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/proveedorEliminar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 function obtenerTransferenciaProductoCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -3807,5 +3878,9 @@ export {
 		generarPdfRemisionCommon,
 		obtenerCuerpoRemisionCommon,
 		modificarRemisionCommon,
-		existeProductoRemisionDataTableCommon
+		existeProductoRemisionDataTableCommon,
+		nuevoProveedorCommon,
+		filtrarProveedorCommon,
+		guardarProveedorCommon,
+		eliminarProveedorCommon
 		};

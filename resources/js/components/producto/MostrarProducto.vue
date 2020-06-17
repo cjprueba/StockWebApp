@@ -98,6 +98,10 @@
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                        "responsive": true,
+                        "rowReorder": {
+                            "selector": 'td:nth-child(2)'
+                        },
                         "ajax":{
                                  "data": {
                                     "_token": $('meta[name="csrf-token"]').attr('content')

@@ -189,6 +189,7 @@
             <router-link class="collapse-item" :to="{name: 'proveedorPago'}">Pago de Cuentas</router-link>
             <router-link class="collapse-item" :to="{name: 'proveedorDevolucion'}">Devolución</router-link>
             <router-link class="collapse-item" :to="{name: 'proveedorDevolucionMostrar'}">Mostrar Devoluciones</router-link>
+            <router-link class="collapse-item" :to="{name: 'proveedorCrear'}">Crear Proveedor</router-link>
           </div>
         </div>
       </li>
