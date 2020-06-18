@@ -184,7 +184,10 @@ class VentaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
 
-        return Venta::devolucion_productos($request);
+        // MOSTRAR IMPORTAR
+
+        $venta = Venta::devolucion_productos($request);
+        return response()->json($venta);
 
         /*  --------------------------------------------------------------------------------- */
 

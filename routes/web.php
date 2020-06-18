@@ -55,7 +55,7 @@ Route::get('venta/datatable', 'VentaController@datatable');
 Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
-Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
+Route::post('venta/devolucion/productos', 'VentaController@devolucionProductos');
 
 /* -------------------------------------------------------------------------- */
 

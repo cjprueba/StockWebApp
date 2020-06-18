@@ -624,7 +624,7 @@
          		PRODUCTO: {
          			CODIGO: ''
          		}
-         	} 
+         	}
 
         }
       }, 
@@ -1843,7 +1843,8 @@
             	// ------------------------------------------------------------------------
 
             	// PREPARAR DATATABLE 
-
+            	// alert(me.token);
+            	// alert($('meta[name="csrf-token"]').attr('content'));
 	 			this.tabla.tableProductosDevolucion = $('#devolucionProductos').DataTable({
 	                 	"processing": true,
 	                 	"serverSide": true,
@@ -1852,13 +1853,14 @@
 	                 	"select": true,
 	                 	"ajax":{
 	                 			"data": {
-	                 				codigo: codigo,
-	                 				caja: me.caja.CODIGO
+	                 				"codigo": codigo,
+	                 				"caja": me.caja.CODIGO
 	                 			},
 	                             "url": "venta/devolucion/productos",
-	                             "dataType": "json",
-	                             "type": "GET",
-	                             "contentType": "application/json; charset=utf-8"
+	                             "type": "POST",
+	                             'headers': {
+						            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						          }
 	                           },
 	                    "columns": [
 	                    		{ "data": "ID" },
