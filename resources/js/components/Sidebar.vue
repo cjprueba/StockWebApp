@@ -225,6 +225,7 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
             <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+             <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
           </div>
         </div>
       </li>
