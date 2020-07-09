@@ -606,7 +606,7 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 
 					tabla.rows().every(function(){
 						var data = this.data();
-					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00" && codigo_real !== null && codigo_real !== 'null') {
+					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00" && codigo_real !== null && codigo_real !== 'null' && codigo_real !== 0 && codigo_real !== '0') {
 
 					    	// ------------------------------------------------------------------------
 

@@ -7,6 +7,7 @@ use App\Lotes_tiene_TransferenciaDet;
 use Illuminate\Support\Facades\Log;
 use App\LoteUser;
 use App\VentasDetTieneLotes;
+use App\Ventas_det;
 
 class Stock extends Model
 {
@@ -868,7 +869,7 @@ class Stock extends Model
 
     	// CONSEGUIR LOTE 
 
-    	$lote = Stock::select(DB::raw('LOTE, CANTIDAD_INICIAL, CANTIDAD, COSTO, SUBSTR(FECALTAS, 1,11) AS FECALTAS'))
+    	$lote = Stock::select(DB::raw('LOTE, CANTIDAD_INICIAL, CANTIDAD, COSTO, SUBSTR(FECALTAS, 1,11) AS FECALTAS, SUBSTR(FECHA_VENC, 1,11) AS VENCIMIENTO'))
 	    ->where('COD_PROD','=', $codigo["codigo"])
 	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	    ->get();
@@ -1148,5 +1149,496 @@ class Stock extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function terminados($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'COD_PROD',
+                            1 => 'DESCRIPCION',
+                            2 => 'STOCK',
+                            3 => 'IMAGEN',
+                            4 => 'ACCION'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $dia = date('Y-m-d');
+        //$dia = '2020-07-06';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS VENCIDOS QUE PASAN EL TIEMPO DE VENCIMIENTO
+
+        // $lotes_modificados = Ventas_det::
+        // 			select(DB::raw('VENTASDET.COD_PROD, VENTASDET.ID_SUCURSAL'))
+        // 			->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = VENTASDET.COD_PROD) AND (l.ID_SUCURSAL = VENTASDET.ID_SUCURSAL))),0)) = 0')
+        // 			->where('VENTASDET.FECALTAS','=', '2020-05-22')
+        // 			->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+        // 			->groupBy('VENTASDET.COD_PROD')
+        //             ->get();
+
+        // $lotes_modificados = Stock::
+        // 			select(DB::raw('LOTES.COD_PROD, LOTES.ID_SUCURSAL, SUM(LOTES.CANTIDAD) AS STOCK'))
+        // 			->leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        // 			//->whereRaw('(IFNULL((SUM(LOTES.CANTIDAD)),0)) = 0')
+        // 			->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        // 			//->havingRaw('(IFNULL((SUM(LOTES.CANTIDAD)),0)) = ?', ["0"])
+        // 			->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "2020-07-06"')
+        // 			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        // 			->groupBy('LOTES.COD_PROD')
+        //             ->get();
+                                
+
+
+        // $totalData = Stock::
+        // 			leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        // 			->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        // 			->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "'.$dia.'"')
+        // 			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        // 			//->groupBy('LOTES.COD_PROD')
+        //             ->count();  
+        //var_dump($totalData);
+
+                     $totalData = Stock::
+        	leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "'.$dia.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        	->groupBy('LOTES.COD_PROD')
+        	->get();  
+
+        	$totalData = count($totalData);
+        //var_dump($totalData);
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $imagen_producto = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Stock::
+        	select(DB::raw('LOTES.COD_PROD, PRODUCTOS.DESCRIPCION, SUM(LOTES.CANTIDAD) AS STOCK'))
+        	->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "'.$dia.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        	->groupBy('LOTES.COD_PROD')
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Stock::
+        	select(DB::raw('LOTES.COD_PROD, PRODUCTOS.DESCRIPCION, SUM(LOTES.CANTIDAD) AS STOCK'))
+        	->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "'.$dia.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        	->groupBy('LOTES.COD_PROD')
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Stock::
+		        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin('LOTES_USER', 'LOTES.ID', '=', 'LOTES_USER.FK_LOTE')
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(LOTES_USER.FECHA, 1,11) = "'.$dia.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
+        	->groupBy('LOTES.COD_PROD')
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->COD_PROD)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION, 0, 20).'...';
+                $nestedData['STOCK'] = $post->STOCK;
+
+
+                
+                
+                // $nestedData['ESTATUS'] = '<span class="badge badge-info">Cercano</span>';
+
+                // if ($post->FECHA_VENC <= $dias_warning && $post->FECHA_VENC > $dia) {
+                // 	$nestedData['ESTATUS'] = '<span class="badge badge-warning">Por Vencer</span>';
+                // }
+
+                // if ($post->FECHA_VENC <= $dia) {
+                // 	$nestedData['ESTATUS'] = '<span class="badge badge-danger">Vencido</span>';
+                // } 
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+                
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:30px;height:30px;'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function terminados_reporte($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'COD_PROD',
+                            1 => 'DESCRIPCION',
+                            2 => 'STOCK',
+                            3 => 'IMAGEN',
+                            4 => 'ACCION'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $dia = date('Y-m-d');
+        $sucursal = $request->input('sucursal');
+        $inicio = date('Y-m-d', strtotime($request->input('inicio')));
+        $fin =  date('Y-m-d', strtotime($request->input('fin')));
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $totalData = Stock::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        ->leftjoin(DB::raw('(SELECT  FK_LOTE, MAX(FECHA) AS FECHA 
+            FROM    lotes_user
+            GROUP   BY FK_LOTE)
+	               b'), 
+	        function($join)
+	        {
+	           $join->on('LOTES.ID', '=', 'b.FK_LOTE');
+	        })
+        ->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        ->whereRaw('SUBSTR(b.FECHA, 1,11) >= "'.$inicio.'" and SUBSTR(b.FECHA, 1,11) <= "'.$fin.'"')
+        ->where('LOTES.ID_SUCURSAL','=', $sucursal)
+        ->groupBy('LOTES.COD_PROD')
+        ->get();  
+
+        $totalData = count($totalData);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $imagen_producto = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Stock::
+        	select(DB::raw('LOTES.COD_PROD, PRODUCTOS.DESCRIPCION, SUM(LOTES.CANTIDAD) AS STOCK, b.FECHA'))
+        	->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin(DB::raw('(SELECT  FK_LOTE, MAX(FECHA) AS FECHA 
+            FROM    lotes_user
+            GROUP   BY FK_LOTE)
+	               b'), 
+	        function($join)
+	        {
+	           $join->on('LOTES.ID', '=', 'b.FK_LOTE');
+	        })
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(b.FECHA, 1,11) >= "'.$inicio.'" and SUBSTR(b.FECHA, 1,11) <= "'.$fin.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $sucursal)
+        	->groupBy('LOTES.COD_PROD')
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Stock::
+        	select(DB::raw('LOTES.COD_PROD, PRODUCTOS.DESCRIPCION, SUM(LOTES.CANTIDAD) AS STOCK'))
+        	->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin(DB::raw('(SELECT  FK_LOTE, MAX(FECHA) AS FECHA 
+            FROM    lotes_user
+            GROUP   BY FK_LOTE)
+	               b'), 
+	        function($join)
+	        {
+	           $join->on('LOTES.ID', '=', 'b.FK_LOTE');
+	        })
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(b.FECHA, 1,11) >= "'.$inicio.'" and SUBSTR(b.FECHA, 1,11) <= "'.$fin.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $sucursal)
+        	->groupBy('LOTES.COD_PROD')
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Stock::
+		        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        	->leftjoin(DB::raw('(SELECT  FK_LOTE, MAX(FECHA) AS FECHA 
+            FROM    lotes_user
+            GROUP   BY FK_LOTE)
+	               b'), 
+	        function($join)
+	        {
+	           $join->on('LOTES.ID', '=', 'b.FK_LOTE');
+	        })
+        	->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0')
+        	->whereRaw('SUBSTR(b.FECHA, 1,11) >= "'.$inicio.'" and SUBSTR(b.FECHA, 1,11) <= "'.$fin.'"')
+        	->where('LOTES.ID_SUCURSAL','=', $sucursal)
+        	->groupBy('LOTES.COD_PROD')
+                            ->where(function ($query) use ($search) {
+                                $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->COD_PROD)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION, 0, 20).'...';
+                $nestedData['STOCK'] = $post->STOCK;
+                $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+                
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:30px;height:30px;'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
     }
 }

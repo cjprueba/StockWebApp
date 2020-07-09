@@ -1,7 +1,8 @@
 <template>
 		<!-- VENTA POR MARCA Y CATEGORIA -->
+		<!-- v-if="$can('reporte.stock')" -->
 	<div class="container mt-3">
-		<div class="card shadow border-bottom-primary" v-if="$can('reporte.stock')">
+		<div class="card shadow border-bottom-primary" >
 		  	<div class="card-header">Stock por marcas y categorías</div>
 			<div class="card-body">
 			  	<div class="form-row">

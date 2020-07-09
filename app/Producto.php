@@ -1583,6 +1583,17 @@ class Producto extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // ULTIMA VENTA
+
+            // $fecha_v = Venta::select('FECALTAS')
+            // ->where('COD_PROD', '=', $data['codigo'])
+            // ->limit(1)
+            // ->orderBy('ID', 'desc');
+
+            // var_dump($fecha_v);
+
+            /*  --------------------------------------------------------------------------------- */
+
             // PARAMETRO MAYORISTA
 
             $mayorista = Parametro::consultaPersonalizada('DESTINO');

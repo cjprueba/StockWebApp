@@ -261,6 +261,7 @@ Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
 Vue.component('caja-lote', require('./components/cajas/LoteCaja.vue').default);
 Vue.component('caja-periodo', require('./components/cajas/PeriodoCaja.vue').default);
 Vue.component('caja-minimo', require('./components/cajas/MinimoCaja.vue').default);
+Vue.component('caja-lote-cero', require('./components/cajas/LoteVacio.vue').default);
 
 /* ********************************************* */
 

@@ -200,6 +200,11 @@ export default new Router({
 			component: require('./components/reportes/stock/busqueda/stock.vue').default
 		},
 		{
+			path: '/rpt11',
+			name: 'rptStockCero',
+			component: require('./components/reportes/stock/busqueda/cerado.vue').default
+		},
+		{
 			path: '/vt1',
 			name: 'ventaMostrar',
 			component: require('./components/venta/MostrarVenta.vue').default
