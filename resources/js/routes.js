@@ -49,11 +49,6 @@ export default new Router({
 			name: 'productoRegistrar',
 			component: require('./components/producto/RegistrarProducto.vue').default
 		},
-	    {
-			path: '/pr3',
-			name: 'productoImprimir',
-			component: require('./components/producto/ImprimirProducto.vue').default
-		},
 		{
 			path: '/us1',
 			name: 'userCrear',
