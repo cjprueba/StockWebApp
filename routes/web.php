@@ -20,7 +20,10 @@ Auth::routes(['register' => false]);
  	
 
 /* -------------------------------------------------------------------------- */
-
+Route::post('/qrcode','QrController@Crear');
+Route::post('/barcode','QrController@Crear_Barcode');
+Route::post('/barinterno','QrController@Crear_Barinterno');
+Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
