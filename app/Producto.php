@@ -62,14 +62,18 @@ class Producto extends Model
     	// OBTENER EL PRODUCTO
 
     	$producto = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS_AUX.CODIGO_INTERNO,PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA,PRODUCTOS_AUX.PREMAYORISTA, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
     	DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $cod_prod)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
-
+$lotes= DB::connection('retail')
+        ->table('Lotes')->select(DB::raw('ID,CANTIDAD,LOTE'))
+        ->where('COD_PROD', '=', $cod_prod)
+        ->where('id_sucursal', '=', $user->id_sucursal)
+        ->get();
         // CONSEGUIR COTIZACION 
 
         foreach ($producto as $key => $value) {
@@ -95,9 +99,9 @@ class Producto extends Model
         // RETORNAR EL VALOR
         
         if (count($producto) > 0) {
-            return ['producto' => $producto[0], 'valor' => $cotizacion["valor"]];
+            return ['producto' => $producto[0], 'valor' => $cotizacion["valor"],'lote' => $lotes];
         } else {
-            return ['producto' => 0];
+            return ['producto' => 0,'lote' => 0];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -132,6 +136,8 @@ class Producto extends Model
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
+
+   
         /*  --------------------------------------------------------------------------------- */
 
         // RECORRER DATOS OBTENIDOS 
