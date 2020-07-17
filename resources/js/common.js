@@ -4050,6 +4050,230 @@ function generarPdfBarinternoProductoCommon(datos){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 							    ORDEN FACTURA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarPdfFacturaOrdenCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO
+			
+			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(
+			(response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+			(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    ORDEN CABECERA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerCabeceraOrdenCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA 
+			
+			return axios.post('/ordenCabecera', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    DIRECCION DE ORDEN
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarPdfDireccionOrdenCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO
+			
+			return axios({url: 'pdf-generar-direccion', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(
+			(response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+			(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    ENVIAR ORDEN
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function enviarOrdenCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO 
+			
+			return axios.post('/ordenEnviar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						CABECERA ORDEN PENDIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerCabeceraOrdenPendienteCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA 
+			
+			return axios.post('/ordenPendienteCabecera', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							 FACTURA ORDEN PENDIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarPdfFacturaOrdenPendienteCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO
+			
+			return axios({url: 'pdf-generar-factura-pendiente', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(
+			(response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+			(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							 DIRECCION ORDEN PENDIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarPdfDireccionOrdenPendienteCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO
+			
+			return axios({url: 'pdf-generar-direccion-pendiente', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(
+			(response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+			(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4217,9 +4441,17 @@ export {
 		filtrarProveedorCommon,
 		guardarProveedorCommon,
 		eliminarProveedorCommon,
+		generarPdfFacturaOrdenCommon,
+		obtenerCabeceraOrdenCommon,
+		generarPdfDireccionOrdenCommon,
+		enviarOrdenCommon,
+		obtenerCabeceraOrdenPendienteCommon,
+		generarPdfFacturaOrdenPendienteCommon,
+		generarPdfDireccionOrdenPendienteCommon,
 		generarPdfQrProductoCommon,
 		existeProductoImprimirEtiquetaDataTableCommon,
 		existeProductoImprimirEtiquetaQrDataTableCommon,
 		generarPdfBarcodeProductoCommon,
 		generarPdfBarinternoProductoCommon
+
 		};

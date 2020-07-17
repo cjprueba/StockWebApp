@@ -312,7 +312,17 @@ Vue.component('camara-bardcode', require('./components/camara/camara-barcode.vue
 
 // COLOR 
 
+/* ********************************************* */
 
+// ORDEN
+
+Vue.component('modal-detalle-orden', require('./components/orden/modal/ModalDetalleOrden.vue').default);
+Vue.component('modal-detalle-orden-pendiente', require('./components/orden/modal/ModalDetalleOrdenPendiente.vue').default);
+
+/* ********************************************* */
+// VENTAS
+
+Vue.component('modal-detalle-venta', require('./components/venta/modal/ModalDetalleVenta.vue').default);
 
 /* ********************************************* */
 

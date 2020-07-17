@@ -253,6 +253,21 @@ export default new Router({
 			path: '/mov1',
 			name: 'notaRemision',
 			component: require('./components/movimientos/RemisionNota.vue').default
+		},
+		{
+			path: '/orden1',
+			name: 'ordenesMostrar',
+			component: require('./components/orden/MostrarOrden.vue').default
+		},
+		{
+			path: '/orden2',
+			name: 'ordenesPendientes',
+			component: require('./components/orden/MostrarPendientes.vue').default
+		},
+		{
+			path: '/orden3',
+			name: 'ordenesProcesando',
+			component: require('./components/orden/MostrarOrdenProcesando.vue').default
 		}
 
 	],
