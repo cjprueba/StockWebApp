@@ -20,7 +20,10 @@ Auth::routes(['register' => false]);
  	
 
 /* -------------------------------------------------------------------------- */
-
+Route::post('/qrcode','QrController@Crear');
+Route::post('/barcode','QrController@Crear_Barcode');
+Route::post('/barinterno','QrController@Crear_Barinterno');
+Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -55,8 +58,10 @@ Route::get('venta/datatable', 'VentaController@datatable');
 Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
+
 Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -320,6 +325,8 @@ Route::get('parametro', 'ParametroController@mostrar');
 
 Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
 Route::post('lote/vencidos', 'StockController@vencidos');
+Route::post('lote/terminados', 'StockController@terminados');
+Route::post('lote/terminados/reporte', 'StockController@terminados_reporte');
 
 /* -------------------------------------------------------------------------- */
 

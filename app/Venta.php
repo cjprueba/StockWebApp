@@ -1975,7 +1975,7 @@ class Venta extends Model
                             'COD_PROD' => $cod_prod, 
                             'DESCRIPCION' => $data["data"]["productos"][$c]["DESCRIPCION"], 
                             'LOTE' => $data["data"]["productos"][$c]["LOTE"], 
-                            'CANTIDAD' => $cantidad_guardada, 
+                            'CANTIDAD' => $cantidad, 
                             'GRAVADA' => $impuesto["gravadas"],
                             'IVA' => $impuesto["impuesto"],
                             'EXENTA' => $impuesto["exentas"],
@@ -2177,6 +2177,7 @@ class Venta extends Model
         }
 
     }
+    
 
     public static function existe_codigo($codigo, $caja){
 

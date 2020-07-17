@@ -606,7 +606,7 @@ function mayoristaCommon(codigo_real, tabla, limite_mayorista, precio_mayorista,
 
 					tabla.rows().every(function(){
 						var data = this.data();
-					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00" && codigo_real !== null && codigo_real !== 'null') {
+					    if (data['CODIGO_REAL'] === codigo_real && (data['DESCUENTO'] === 0 || data['DESCUENTO'] === 0.00) && data['PREMAYORISTA'] !== "0" && data['PREMAYORISTA'] !== "0.00" && codigo_real !== null && codigo_real !== 'null' && codigo_real !== 0 && codigo_real !== '0') {
 
 					    	// ------------------------------------------------------------------------
 
@@ -2045,6 +2045,180 @@ function existeProductoRemisionDataTableCommon(tabla, codigo, tipo_respuesta){
 				    			'respuesta': true,
 				    			'cantidad': data['CANTIDAD'],
 				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+function existeProductoImprimirEtiquetaDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA PRODUCTOS REMISION
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    		
+				    			'stock': data['STOCK'],
+				    			
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+function existeProductoImprimirEtiquetaQrDataTableCommon(tabla, codigo, tipo_respuesta,lote){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA PRODUCTOS REMISION
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo && data['LOTE']===lote ) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			
+				    			'stock': data['STOCK'],
+				    			
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+function existeProductoImprimirDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA PRODUCTOS REMISION
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'mayorista': data['PRECIO_MAYORISTA'],
+				    			'stock': data['STOCK'],
+				    			
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			
 				    			'row': tabla.row( this )
 				    		}
 				    	}
@@ -3712,6 +3886,166 @@ function cotizacionyMonedaFormaPagoCommon() {
 
 			// ------------------------------------------------------------------------
 }
+function generarPdfQrProductoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);
+/*return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);*/
+			// ------------------------------------------------------------------------
+
+}
+function generarPdfBarcodeProductoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);
+/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);*/
+			// ------------------------------------------------------------------------
+
+}
+function generarPdfBarinternoProductoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/barinterno', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);
+/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);*/
+			// ------------------------------------------------------------------------
+
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4113,5 +4447,11 @@ export {
 		enviarOrdenCommon,
 		obtenerCabeceraOrdenPendienteCommon,
 		generarPdfFacturaOrdenPendienteCommon,
-		generarPdfDireccionOrdenPendienteCommon
+		generarPdfDireccionOrdenPendienteCommon,
+		generarPdfQrProductoCommon,
+		existeProductoImprimirEtiquetaDataTableCommon,
+		existeProductoImprimirEtiquetaQrDataTableCommon,
+		generarPdfBarcodeProductoCommon,
+		generarPdfBarinternoProductoCommon
+
 		};

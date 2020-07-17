@@ -70,6 +70,17 @@
 
 							<!-- ------------------------------------------------------------------ -->
 
+							<!-- HABILITAR MAYORISTA AUTOMATICO -->
+									
+							<div class="my-1">
+								<div class="custom-control custom-switch mr-sm-3">
+									<input type="checkbox" class="custom-control-input" id="switchMayoristaAut" v-model="checked.MAYORISTA_AUT">
+									<label class="custom-control-label" for="switchMayoristaAut">Mayorista Aut.</label>
+								</div>
+							</div>
+
+							<!-- ------------------------------------------------------------------ -->
+
 						</form>
 
 						<!-- ------------------------------------------------------------------ -->
@@ -600,7 +611,8 @@
          		TICKET: false,
          		FACTURA: false,
          		DESCUENTO: true,
-         		DEVOLUCION: false
+         		DEVOLUCION: false,
+         		MAYORISTA_AUT: true
          	}, codigo_detalle: '',
          	impresion: {
          		TICKET: false,
@@ -624,7 +636,7 @@
          		PRODUCTO: {
          			CODIGO: ''
          		}
-         	} 
+         	}
 
         }
       }, 
@@ -1280,7 +1292,7 @@
 
 		            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
-		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= parseInt(me.ajustes.LIMITE_MAYORISTA))) {
+		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= parseInt(me.ajustes.LIMITE_MAYORISTA)) && me.checked.MAYORISTA_AUT === true) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
 		            	rowClass = "table-secondary";
@@ -1290,7 +1302,7 @@
 
 		            // PRECIO MAYORISTA CODIGO REAL
 
-		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, parseInt(me.ajustes.LIMITE_MAYORISTA), me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL, 'table-secondary') === true) {
+		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, parseInt(me.ajustes.LIMITE_MAYORISTA), me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL, 'table-secondary') === true && me.checked.MAYORISTA_AUT === true) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
 		            	rowClass = "table-secondary";
@@ -1423,7 +1435,7 @@
 
 	            	// PRECIO MAYORISTA EN EDITAR CANTIDAD 
 
-		            if (me.checked.MAYORISTA === false && descuento < 50) {
+		            if (me.checked.MAYORISTA === false && descuento < 50 && me.checked.MAYORISTA_AUT === true) {
 
 			            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
@@ -1516,7 +1528,7 @@
 	            // ------------------------------------------------------------------------
 
 	        }, editarCantidadProducto(tabla, cantidad, impuesto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
-
+	        	
 	        	// ------------------------------------------------------------------------
 
 	        	// INICIAR VARIABLES
@@ -1591,6 +1603,11 @@
 	            tabla.row(row).draw()
 	            .nodes()
     			.to$()
+    			.removeClass('table-secondary')
+    			.removeClass('table-info')
+    			.removeClass('table-primary')
+    			.removeClass('table-warning')
+    			.removeClass('table-danger')
     			.addClass(rowClass);
 
 	            // ------------------------------------------------------------------------
@@ -1843,7 +1860,8 @@
             	// ------------------------------------------------------------------------
 
             	// PREPARAR DATATABLE 
-
+            	// alert(me.token);
+            	// alert($('meta[name="csrf-token"]').attr('content'));
 	 			this.tabla.tableProductosDevolucion = $('#devolucionProductos').DataTable({
 	                 	"processing": true,
 	                 	"serverSide": true,
@@ -1852,13 +1870,14 @@
 	                 	"select": true,
 	                 	"ajax":{
 	                 			"data": {
-	                 				codigo: codigo,
-	                 				caja: me.caja.CODIGO
+	                 				"codigo": codigo,
+	                 				"caja": me.caja.CODIGO
 	                 			},
 	                             "url": "venta/devolucion/productos",
-	                             "dataType": "json",
-	                             "type": "GET",
-	                             "contentType": "application/json; charset=utf-8"
+	                             "type": "POST",
+	                             'headers': {
+						            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						          }
 	                           },
 	                    "columns": [
 	                    		{ "data": "ID" },

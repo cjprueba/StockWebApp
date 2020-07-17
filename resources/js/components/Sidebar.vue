@@ -75,6 +75,7 @@
              <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventarios</router-link>
              <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link>
              <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link>
           </div>
         </div>
       </li>
@@ -224,6 +225,7 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
             <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+             <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
           </div>
         </div>
       </li>

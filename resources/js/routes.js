@@ -49,6 +49,11 @@ export default new Router({
 			name: 'productoRegistrar',
 			component: require('./components/producto/RegistrarProducto.vue').default
 		},
+	    {
+			path: '/pr3',
+			name: 'productoImprimir',
+			component: require('./components/producto/ImprimirProducto.vue').default
+		},
 		{
 			path: '/us1',
 			name: 'userCrear',
@@ -198,6 +203,11 @@ export default new Router({
 			path: '/rpt10',
 			name: 'rptStock',
 			component: require('./components/reportes/stock/busqueda/stock.vue').default
+		},
+		{
+			path: '/rpt11',
+			name: 'rptStockCero',
+			component: require('./components/reportes/stock/busqueda/cerado.vue').default
 		},
 		{
 			path: '/vt1',
