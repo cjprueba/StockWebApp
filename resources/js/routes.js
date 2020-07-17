@@ -130,7 +130,7 @@ export default new Router({
 			component: require('./components/compra/MostrarCompra.vue').default
 		},
 		{
-			path: '/cr2/:id',
+			path: '/crc',
 			name: 'compraContainer',
 			component: require('./components/container/crearContainer.vue').default
 		},
