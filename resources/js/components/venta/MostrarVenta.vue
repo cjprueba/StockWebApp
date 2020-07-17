@@ -46,6 +46,15 @@
 
 
 			</div>	
+
+			<!-- ------------------------------------------------------------------------ -->
+		
+			<!-- MODAL MOSTRAR DETALLE VENTA -->
+
+			<modal-detalle-venta 
+			ref="ModalImportarVenta"
+			></modal-detalle-venta>
+
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -55,11 +64,18 @@
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
+		
+		<!-- MODAL MOSTRAR DETALLE VENTA -->
+
+		<!-- <modal-detalle-venta 
+		ref="ModalImportarVenta"
+		></modal-detalle-venta> -->
+
+		<!-- ------------------------------------------------------------------------ -->
 
 	</div>
 </template>
 <script>
-
 
 	 export default {
 	  props: ['id_sucursal'],	
@@ -199,9 +215,20 @@
 
 				}).catch(function(e) { console.error(e); });
 
-			}
+			},
+			mostrarModalVenta(codigo, caja) {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+      			this.$refs.ModalImportarVenta.mostrarModal(codigo, caja);
+
+      			// ------------------------------------------------------------------------
+      		}
       },
         mounted() {
+
         	
         	// ------------------------------------------------------------------------
 
@@ -317,14 +344,14 @@
 
            	// ------------------------------------------------------------------------
 
-           	$('#tablaVentaMostrar').on('click', 'tbody tr #mostrarTransferencia', function() {
+           	$('#tablaVentaMostrar').on('click', 'tbody tr #mostrarDetalle', function() {
 
 		        // *******************************************************************
 
-		        // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+		        // REDIRIGIR Y ENVIAR CODIGO VENTA
 
 		        var row  = $(this).parents('tr')[0];
-		        me.mostrarModalTranferencia(tableVentaMostrar.row( row ).data().CODIGO, me.id_sucursal);
+		        me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
 
 		        // *******************************************************************
 

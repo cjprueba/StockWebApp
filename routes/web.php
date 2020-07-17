@@ -56,6 +56,7 @@ Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
 Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
+Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 
 /* -------------------------------------------------------------------------- */
 
@@ -455,6 +456,24 @@ Route::post('remision/NotaDeRemisionDatatable', 'RemisionController@remisionData
 Route::post('pdf-generar-remision','RemisionController@remision_pdf');
 Route::post('remisionCuerpo', 'RemisionController@mostrarCuerpo');
 Route::post('remisionModificar', 'RemisionController@modificarRemision');
+
+/* -------------------------------------------------------------------------- */
+
+//ORDEN 
+
+Route::get('orden/datatable', 'OrdenController@datatable');
+Route::get('ordenMostrarProductos', 'OrdenController@mostrarProductos');
+Route::post('pdf-generar-factura', 'OrdenController@factura');
+Route::post('pdf-generar-direccion','OrdenController@direccionPDF');
+Route::post('ordenCabecera', 'OrdenController@obtenerCabecera');
+Route::post('ordenEnviar', 'OrdenController@enviarOrden');
+Route::get('orden/datatablePendiente', 'OrdenController@datatable_pendiente');
+Route::get('orden/datatableProcesando', 'OrdenController@datatable_procesando');
+Route::post('ordenPendienteCabecera', 'OrdenController@obtenerCabeceraPendiente');
+Route::get('ordenPendienteMostrarProductos', 'OrdenController@mostrarProductosPendiente');
+Route::post('pdf-generar-factura-pendiente', 'OrdenController@facturaPendiente');
+Route::post('pdf-generar-direccion-pendiente','OrdenController@direccionPendientePDF');
+
 
 /* -------------------------------------------------------------------------- */
 

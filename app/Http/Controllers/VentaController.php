@@ -189,4 +189,18 @@ class VentaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function mostrarProductos(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $venta = Venta::mostrar_productos($request);
+        return response()->json($venta);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
