@@ -348,7 +348,7 @@
 
 		<!-- FORMA PAGO PROVEEDOR -->
 
-		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
 
@@ -563,6 +563,7 @@
          	},
          	caja: {
          		CODIGO: null,
+         		CANTIDAD_PERSONALIZADA: 1
          	},
          	producto: {
          		COD_PROD: '',
@@ -818,6 +819,7 @@
           				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
 	                	  if (response.data.response === true) {
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
 	                	  	  me.numeracion();
 	                	  } else {
 	                	  		
@@ -1097,7 +1099,7 @@
 
 		        // REVISAR SI ES PARA DESCUENTO O CANTIDAD 
 
-		        if (codigo.substring(0, 1) === "+") {
+		        if (codigo.substring(0, 1) === "+" && me.caja.CANTIDAD_PERSONALIZADA === 1) {
 
 		        	me.producto.CANTIDAD = codigo.substring(1, 20);
 		        	me.producto.COD_PROD = '';
@@ -1774,7 +1776,7 @@
 					   return qz.printers.find(me.ajustes.IMPRESORA_TICKET);              // Pass the printer name into the next Promise
 					}).then(function(printer) {
 
-						     var config = qz.configs.create(printer, { copies: 2 });
+						     var config = qz.configs.create(printer, { copies: 1 });
 						var data = [{ 
 						   type: 'pixel',
            					format: 'pdf',
@@ -2310,7 +2312,7 @@
 				                    "CANTIDAD": me.tabla.tableProductosDevolucion.row(this).data().CANTIDAD,
 				                    "IMPUESTO": (me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO * -1),
 				                    "PRECIO": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
-				                    "PRECIO_TOTAL": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
+				                    "PRECIO_TOTAL": (me.tabla.tableProductosDevolucion.row(this).data().TOTAL * -1),
 				                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 				                    "IVA": me.tabla.tableProductosDevolucion.row(this).data().IVA_PORCENTAJE,
 				                    "CODIGO_REAL": 0,

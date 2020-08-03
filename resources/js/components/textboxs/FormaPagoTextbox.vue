@@ -13,6 +13,15 @@
 
                         <div class="modal-header">
                           <h5 class="modal-title" id="exampleModalCenterTitle"><small> MEDIOS DE PAGO </small></h5>
+
+                          <div class="text-right" v-if="cliente.credito.total_agregado > 0">
+                            <a href="#" class="badge badge-primary">Crédito: {{cliente.credito.total_agregado}} </a>
+                          </div>
+
+                          <div class="float-right">
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito">Agregar Crédito</button>
+                          </div>
+
                         </div>
 
                         <div class="modal-body">  
@@ -24,7 +33,7 @@
                                   <div class="row">
 
                                     <!-- ------------------------------------------------------------------------ -->
-
+                                      
                                     <div class="col-md-3 mt-3"">
                                       <label for="validationTooltip01">TOTAL</label>
                                       <h2 class="text-success">{{total}}</h2>
@@ -255,7 +264,10 @@
                                       <!-- ------------------------------------------------------------------------ -->
 
                                     </div> 
-                                  </div>  
+                                  </div>
+
+                                  
+
                               </div> 
 
                               
@@ -398,7 +410,7 @@
                                           <div class="input-group-prepend">
                                             <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="address-card"/></span>
                                           </div>
-                                          <input class="form-control form-control-sm" type="text" disabled>
+                                          <input class="form-control form-control-sm" type="text" v-model="medios.VALES" v-on:blur="formatoVale">
                                         </div>
 
                                       <!-- ------------------------------------------------------------------------ -->
@@ -577,14 +589,110 @@
 
                   <!-- ------------------------------------------------------------------------ -->
 
+                 <!-- MODAL CREDITO -->
+
+                  <div class="modal fade" id="modalCredito" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel"><small>CREDITO</small></h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="row">
+
+                            <div class="col-md-4">
+                              <label class="form-check-label">
+                                  Días de Crédito
+                              </label>
+                              <input v-model="cliente.credito.defaultDia" class="form-control form-control-sm mt-2" type="text" disabled>
+                            </div>
+
+                            <div class="col-md-4">
+                              <label class="form-check-label">
+                                  Límite de Crédito
+                              </label>
+                              <input v-model="cliente.credito.limite" class="input-sm form-control form-control-sm mt-2" type="text" disabled>
+                            </div>
+
+                            <div class="col-md-4">
+                              <label class="form-check-label">
+                                  Crédito Disponible
+                              </label>
+                              <input v-model="cliente.credito.disponible" class="input-sm form-control form-control-sm mt-2" type="text" disabled>
+                            </div>
+                            
+                            <div class="col-md-12">
+                              <hr>
+                            </div>
+                             
+                            <div class="col-md-4">
+                              <label class="form-check-label">
+                                  Total a Crédito
+                              </label>
+                              <input v-model="cliente.credito.total" v-on:blur="formatoTotalCredito"  class="input-sm form-control form-control-sm mt-2" type="text" >
+                            </div>
+
+                            <div class="col-md-4">
+                              <label class="form-check-label">
+                                  Días de Crédito
+                              </label>
+                              <input v-model="cliente.credito.dias" v-on:change="formatoDias" class="input-sm form-control form-control-sm mt-2" type="number" >
+                            </div>
+
+                            <!-- FECHA COBRO -->
+
+                            <div class="col-md-4">
+                              <label>Vencimiento</label>
+                              <div id="sandbox-container">
+                                <div class="input-daterange input-group input-group-sm date">
+                                  <div class="input-group-prepend ">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="calendar" /></span>
+                                  </div>
+                                  <input type="text" class="input-sm form-control form-control-sm" id="credito_vencimiento" v-model="cliente.credito.vencimiento" data-date-format="yyyy-mm-dd" v-bind:class="{  }"/>
+                                </div>
+                              </div>  
+                            </div>
+
+
+                            <div class="col-md-12 mt-3" v-if="cliente.credito.total_agregado > 0">
+                              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                <strong>Crédito agregado: </strong> {{cliente.credito.total_agregado}}
+                                <button type="button" class="close" v-on:click="cliente.credito.total_agregado = 0; sumarMonedas();">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                            </div>
+                              
+                          </div> 
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" v-on:click="agregarCredito">Agregar</button>
+                          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- ------------------------------------------------------------------------ --> 
 	</div>	
 </template>
 <script>
 	export default {
-      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec'],
+      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer'],
       watch: { 
         total_crudo: function(newVal, oldVal) { 
             this.sumarMonedas();
+            this.formatoDias();
+
+        }, 
+        customer: function(newVal, oldVal) {
+            this.formatoDias();
         }
       },
       data(){
@@ -606,7 +714,8 @@
               CHEQUE: '0',
               TRANSFERENCIA: '0',
               GIROS: '0',
-              DESCUENTO: '0'
+              VALES: '0',
+              DESCUENTO: '0',
             },
             monedas: {
               GUARANIES: '',
@@ -699,10 +808,47 @@
               OPCION_VUELTO: ''
             }, descuento: {
               PORCENTAJE: '0'
+            }, cliente: {
+              credito: {
+                defaultDia: '',
+                limite: '',
+                disponible: '',
+                total: '0',
+                dias: '90',
+                vencimiento: '',
+                total_agregado: '0'
+              }
             }
         }
       }, 
       methods: {
+          datosCliente(){
+
+            // ------------------------------------------------------------------------
+
+            // OBTENER DATOS DEL CLIENTE 
+
+            Common.obtenerCreditoClienteCommon(codigo).then(data => {
+              console.log(data);
+            })
+
+            // ------------------------------------------------------------------------
+
+          },
+          agregarCredito(){
+
+            // ------------------------------------------------------------------------
+
+            // SELECCIONAR
+
+            this.cliente.credito.total_agregado = this.cliente.credito.total;
+
+            // ------------------------------------------------------------------------
+
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+          },
           seleccionar(){
 
             // ------------------------------------------------------------------------
@@ -848,6 +994,28 @@
 
             // ------------------------------------------------------------------------
 
+          }, formatoVale(){
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A TARJETA
+            
+            me.medios.VALES = Common.darFormatoCommon(me.medios.VALES, me.cotizacion.candec);
+            
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+            
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+
           }, formatoTransferencia(){
            
             // ------------------------------------------------------------------------
@@ -920,6 +1088,28 @@
             // DAR FORMATO A CANTIDAD
             
             me.monedas.DOLARES = Common.darFormatoCommon(me.monedas.DOLARES, me.cotizacion.candec_$);
+
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+            
+            this.sumarMonedas();
+
+            // ------------------------------------------------------------------------
+
+          }, formatoTotalCredito(){
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A CANTIDAD
+            
+            me.cliente.credito.total = Common.darFormatoCommon(me.cliente.credito.total, me.cotizacion.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1058,7 +1248,7 @@
             // ------------------------------------------------------------------------
 
           }, sumarMonedas() {
-
+            
             var dolares = 0, guaranies = 0, pesos = 0, reales = 0, total = 0, vuelto = 0, tarjeta = 0, transferencia = 0, giro = 0;
 
             // ------------------------------------------------------------------------
@@ -1100,6 +1290,18 @@
 
             giro = Common.formulaCommon(this.cotizacion.formula_gs_reves, this.medios.GIROS, this.cotizacion.guaranies, this.cotizacion.candec, this.moneda, this.cotizacion.moneda_gs);
             total = Common.sumarCommon(giro, total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // VALE
+
+            total = Common.sumarCommon(Common.darFormatoCommon(this.medios.VALES, this.candec), total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // CREDITO
+
+            total = Common.sumarCommon(Common.darFormatoCommon(this.cliente.credito.total_agregado, this.candec), total, this.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1272,7 +1474,7 @@
           }, enviar(){
 
             // ------------------------------------------------------------------------
-
+            
             let me = this;
             
             me.$emit('datos', me.respuesta);
@@ -1314,7 +1516,7 @@
           }, aceptar(){
 
             // ------------------------------------------------------------------------
-
+            //alert(this.customer);
             let me = this;
             var total = 0;
             var medios = 0;
@@ -1339,6 +1541,9 @@
               TRANSFERENCIA: me.medios.TRANSFERENCIA,
               CODIGO_ENT: me.giro.codigo,
               GIRO: me.medios.GIROS,
+              VALE: me.medios.VALES,
+              CREDITO: me.cliente.credito.total_agregado,
+              DIAS_CREDITO: me.cliente.credito.dias,
               DESCUENTO_GENERAL_PORCENTAJE: me.descuento.PORCENTAJE,
               DESCUENTO_GENERAL: me.medios.DESCUENTO,
               VUELTO: me.vuelto,
@@ -1415,6 +1620,33 @@
 
             // ------------------------------------------------------------------------
 
+          },
+          formatoDias(){
+                //alert("entre");
+                // ------------------------------------------------------------------------
+
+                // INICIAR VARIABLES 
+
+                let me = this;
+
+                // ------------------------------------------------------------------------
+
+                // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A COSTO
+
+                me.cliente.credito.dias = Common.darFormatoCommon(me.cliente.credito.dias , 0);
+
+                // ------------------------------------------------------------------------
+
+                // OBTENER FECHA A PARTIR DE DIAS
+
+                if (parseFloat(me.cliente.credito.dias) !== 0) {
+                  var fecha = new Date();
+                  fecha.setDate(fecha.getDate() + parseFloat(me.cliente.credito.dias));
+                  me.cliente.credito.vencimiento = Common.formatDateCommon(fecha); 
+                }
+
+                // ------------------------------------------------------------------------
+
           }
       },
         mounted() {
@@ -1429,7 +1661,14 @@
         	// ------------------------------------------------------------------------
         	
           me.obtenerCotizacionyMoneda();
-        	
+        	//me.datosCliente();
+          
+          // ------------------------------------------------------------------------
+
+          $("#credito_vencimiento").datepicker().on(
+                "changeDate", () => {me.cliente.credito.vencimiento = $('#credito_vencimiento').val()}
+          );
+
           // ------------------------------------------------------------------------
 
         }

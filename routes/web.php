@@ -91,6 +91,10 @@ Route::post('inventarioGuardar', 'InventarioController@guardarInventario');
 Route::post('inventarioAgregarEditarProducto', 'InventarioController@agregarEditarProducto');
 Route::get('inventarioProductos', 'InventarioController@productosDataTable');
 Route::get('inventarioMostrar', 'InventarioController@inventarioDataTable');
+Route::post('/inventario/eliminar/producto', 'InventarioController@eliminarProducto');
+Route::post('inventario/comentario', 'InventarioController@modificarComentario');
+Route::post('/inventario/reporte', 'InventarioController@reporte');
+Route::post('/inventario/procesar', 'InventarioController@procesar');
 
 /* -------------------------------------------------------------------------- */
 
@@ -401,8 +405,7 @@ Route::post('cliente/clienteDatatable', 'ClienteController@clienteDatatable');
 Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
-
-
+Route::get('cliente/credito', 'ClienteController@creditoCliente');
 
 /* -------------------------------------------------------------------------- */
 

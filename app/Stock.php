@@ -751,6 +751,7 @@ class Stock extends Model
     	// MODOS
         // MODO 1 - COMPRA
         // MODO 2 - TRANSFERENCIA 
+    	// MODO 5 - INVENTARIO
 
 		$id = Stock::insertGetId(
 		[
@@ -1640,5 +1641,34 @@ class Stock extends Model
         return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    /*  --------------------------------------------------------------------------------- */
+
+    public static function obtener_stock($codigo)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $stock = Stock::select(DB::raw('IFNULL(SUM(CANTIDAD), 0) AS CANTIDAD'))
+        ->where('COD_PROD','=', $codigo)
+        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+        ->groupBy('COD_PROD')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true, "stock" => $stock[0]->CANTIDAD];
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

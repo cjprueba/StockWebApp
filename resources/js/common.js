@@ -48,6 +48,30 @@ function guardarClienteCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							    DATOS CLIENTE
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerCreditoClienteCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/cliente/credito', {'data': data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -2286,6 +2310,91 @@ function guardarInventarioCommon(sucursal, observacion) {
 
 }
 
+function editarComentarioProductoInventarioCommon(id, codigo, comentario) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/inventario/comentario', {'id': id, 'codigo': codigo, 'comentario': comentario}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+function eliminarProductoInventarioCommon(id, codigo) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/inventario/eliminar/producto', {'id': id, 'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarRptPdfInventarioCommon(codigo, tipo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/inventario/reporte', method: 'post', responseType: 'blob', data: {'codigo': codigo, 'tipo': tipo}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function procesarInventarioCommon(id, codigo) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/inventario/procesar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4452,6 +4561,10 @@ export {
 		existeProductoImprimirEtiquetaDataTableCommon,
 		existeProductoImprimirEtiquetaQrDataTableCommon,
 		generarPdfBarcodeProductoCommon,
-		generarPdfBarinternoProductoCommon
-
+		generarPdfBarinternoProductoCommon,
+		obtenerCreditoClienteCommon,
+		editarComentarioProductoInventarioCommon,
+		eliminarProductoInventarioCommon,
+		generarRptPdfInventarioCommon,
+		procesarInventarioCommon
 		};

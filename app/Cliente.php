@@ -527,4 +527,35 @@ class Cliente extends Model
 
     }
 
+    public static function creditoCliente($datos){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LOS CLIENTES
+
+        $cliente= Cliente::select(DB::raw('LIMITE_CREDITO, DIAS_CREDITO, CREDITO_DISPONIBLE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->Where('ID','=',$datos['data'])->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if(count($cliente) > 0){
+
+            return ["response" => true, "cliente" => $cliente];
+
+        } else {
+
+           return ["response" => false];
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

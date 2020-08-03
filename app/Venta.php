@@ -17,6 +17,7 @@ use App\VentasDetServicios;
 use App\VentasAnulado;
 use App\VentasDetDevolucion;
 use App\Ventas_Descuento;
+use App\VentaCredito;
 
 class Venta extends Model
 {
@@ -1698,6 +1699,19 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // VALE 
+
+            $vale = Common::quitar_coma($data["data"]["pago"]["VALE"], 2);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CREDITO
+
+            $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
+            $dias_credito = $data["data"]["pago"]["DIAS_CREDITO"];
+
+            /*  --------------------------------------------------------------------------------- */
+
             $cliente = $data["data"]["cliente"]["CODIGO"];
             $vendedor = $data["data"]["vendedor"]["CODIGO"];
             $cheques = $data["data"]["pago"]["CHEQUE"];
@@ -1969,6 +1983,7 @@ class Venta extends Model
 
                     VentasDetDevolucion::insertGetId(
                             [
+                            'FK_VENTASDET' => $id_ventasdet,     
                             'CODIGO' => $codigo, 
                             'CAJA' => $caja, 
                             'ITEM' => $c + 1, 
@@ -2123,6 +2138,36 @@ class Venta extends Model
                         'MONEDA' => 1
                     ]);
                 } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO VALE
+            
+            if ($vale !== '0' && $vale !== '0.00' && $vale !== NULL) {
+
+                VentaVale::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $vale,
+                        'MONEDA' => $moneda
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CREDITO
+            
+            if ($credito !== '0' && $credito !== '0.00' && $credito !== NULL) {
+
+                VentaCredito::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $vale,
+                        'MONEDA' => $moneda,
+                        'DIAS_CREDITO' => $dias_credito,
+                        'FECHA_CREDITO_FIN' => $dia
+                ]);
+                
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2330,6 +2375,7 @@ class Venta extends Model
         $candec["CODIGO"] = $parametro[0]['MONEDA'];
 
         /*  --------------------------------------------------------------------------------- */
+
 
         // RETORNAR VALOR 
 
@@ -2892,6 +2938,18 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // VALE
+        
+        $vale = VentaVale::select(DB::raw('IFNULL(SUM(VENTAS_VALE.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_VALE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
 
         // SUMAR ANULADOS
 
@@ -3067,7 +3125,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Vales:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VALES, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($vale[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Giros:', 0);

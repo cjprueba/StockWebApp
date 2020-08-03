@@ -59,7 +59,8 @@ class ClienteController extends Controller
         return response()->json($cliente);
         
     }
-        public function nuevoCliente(){
+    
+    public function nuevoCliente(){
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -71,4 +72,15 @@ class ClienteController extends Controller
         /*  --------------------------------------------------------------------------------- */
     }
 
+    public function creditoCliente(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::creditoCliente();
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }
