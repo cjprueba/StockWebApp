@@ -208,7 +208,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'crearCliente'}">Crear Cliente</router-link>
-            
+            <router-link class="collapse-item" :to="{name: 'creditoCliente'}">Crédito Cliente</router-link>
           </div>
         </div>
       </li>

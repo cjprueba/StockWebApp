@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class VentaCredito extends Model
 {
@@ -20,7 +21,7 @@ class VentaCredito extends Model
 	    		'MONTO' => $data["MONTO"],
 	    		'MONEDA' => $data["MONEDA"],
 	    		'DIAS_CREDITO' => $data["DIAS_CREDITO"],
-	    		'FECHA_CREDITO_FIN' => $data["FECHA"]
+	    		'FECHA_CREDITO_FIN' => $data["FECHA_CREDITO_FIN"]
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */

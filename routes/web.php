@@ -59,7 +59,7 @@ Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
 
-Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
+Route::post('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 
 
@@ -406,6 +406,7 @@ Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
 Route::get('cliente/credito', 'ClienteController@creditoCliente');
+Route::get('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
 
 /* -------------------------------------------------------------------------- */
 

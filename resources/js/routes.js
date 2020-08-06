@@ -235,6 +235,11 @@ export default new Router({
 			component: require('./components/cliente/CrearCliente.vue').default
 		},
 		{
+			path: '/cli2',
+			name: 'creditoCliente',
+			component: require('./components/cliente/CreditoCliente.vue').default
+		},
+		{
 			path: '/ct2',
 			name: 'cotizacionCrear',
 			component: require('./components/cotizacion/CotizacionMostrar.vue').default

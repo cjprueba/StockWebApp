@@ -83,4 +83,16 @@ class ClienteController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public function creditoClienteDatatable(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::credito_cliente_datatable($request);
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }
