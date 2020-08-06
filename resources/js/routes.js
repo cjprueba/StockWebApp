@@ -268,7 +268,13 @@ export default new Router({
 			path: '/orden3',
 			name: 'ordenesProcesando',
 			component: require('./components/orden/MostrarOrdenProcesando.vue').default
-		}
+		},
+		{
+			path: '/rpt12',
+			name: 'rptVales',
+			component: require('./components/reportes/vales/Vales.vue').default
+		},
+
 
 	],
 	mode: 'history'

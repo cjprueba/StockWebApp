@@ -32,9 +32,9 @@
 					    <table id="tablaModalCliente" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
 							<thead>
 							    <tr>
-							    	<th></th>
+							    	<th>ID</th>
 							        <th>Nombre</th>
-							        <th>Codigo</th>
+							        <th>Código</th>
 							        <th>RUC</th>
 							        <th>Dirección</th>
 							        <th>Ciudad</th>
@@ -69,7 +69,7 @@
 
 		methods: {
 			
-			enviarCodigoPadre(id, codigo, cedula, nombre, ruc, direccion, ciudad, nacimiento, telefono, celular, email, tipo, limite){
+			enviarCodigoPadre(id, codigo, cedula, nombre, ruc, direccion, ciudad, nacimiento, telefono, celular, email, tipo, limite, empresaID, diaLimite, empresa){
 
 				// ENVIAR CODIGO
 
@@ -86,10 +86,18 @@
 		        this.$emit('email', email);
 		        this.$emit('tipo', tipo);
 		        this.$emit('limite', limite);
+		        this.$emit('empresaID', empresaID);
+		        this.$emit('diaLimite', diaLimite);
+		        this.$emit('empresa', empresa);
 
 				// ------------------------------------------------------------------------
 
 			},
+
+			recargar(){
+		        var table = $('#tablaModalCliente').DataTable();
+		      	table.ajax.reload( null, false );
+		    },
 		},
 
 		mounted(){
@@ -137,7 +145,7 @@
                 me.id = table.row(this).data().ID;
 
                 Common.filtrarClienteCommon(me.id).then(data => {  
-                    
+
                     me.enviarCodigoPadre(me.id,
                     data.cliente[0].CODIGO,
                     data.cliente[0].CI,
@@ -150,7 +158,10 @@
            			data.cliente[0].CELULAR,
            			data.cliente[0].EMAIL,
            			data.cliente[0].TIPO,
-           			data.cliente[0].LIMITE_CREDITO);
+           			data.cliente[0].LIMITE_CREDITO,
+           			data.cliente[0].FK_EMPRESA,
+           			data.cliente[0].LIMITEDIA,
+           			data.cliente[0].EMPRESA);
                 })
 
                 // CERRAR EL MODAL
