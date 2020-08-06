@@ -439,6 +439,14 @@ Vue.component('busqueda-cliente-modal', require('./components/cliente/BusquedaCl
 Vue.component('cliente-filtrar', require('./components/textboxs/ClienteTextbox.vue').default);
 Vue.component('crear-cliente', require('./components/cliente/CrearCliente.vue').default);
 
+
+/* ********************************************* */
+
+// EMPRESAS
+
+Vue.component('empresa-mostrar', require('./components/textboxs/EmpresaTextbox.vue').default);
+
+
 /* ********************************************* */
 
 // VENDEDORES
