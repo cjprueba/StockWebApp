@@ -35,7 +35,7 @@ class ClienteController extends Controller
     public function clienteDatatable(Request $request){
 
 
-       // OBTENER TODOS LOS DATOS DE lAS SUCURSALES
+       // OBTENER TODOS LOS DATOS
 
          $cliente = Cliente::clientesDatatable($request);
         return response()->json($cliente);
@@ -64,7 +64,7 @@ class ClienteController extends Controller
         
         /*  --------------------------------------------------------------------------------- */
 
-        // OBTENER MARCAS
+        // OBTENER
 
         $cliente = Cliente::nuevoCliente();
         return response()->json($cliente);
@@ -94,5 +94,17 @@ class ClienteController extends Controller
         return response()->json($cliente);
 
         /*  --------------------------------------------------------------------------------- */
+
+    }    
+
+    /*  ---------------------------EMPRESA DATATABLE------------------------------------- */
+
+    public function datatableEmpresa(Request $request){
+
+       // OBTENER TODOS LOS DATOS 
+
+        $empresa = Cliente::empresasDatatable($request);
+        return response()->json($empresa);
+
     }
 }

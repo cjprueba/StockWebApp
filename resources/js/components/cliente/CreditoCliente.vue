@@ -26,6 +26,7 @@
 			<!-- ------------------------------------------------------------------------ -->
 
 			<div class="col-md-12">
+
 				<table id="tablaClienteCredito" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
@@ -40,8 +41,7 @@
 		            <tbody>
 		                <td></td>
 		            </tbody>
-		        </table> 
-
+		        </table>
 
 			</div>	
 		</div>
@@ -60,6 +60,73 @@
 		ref="ModalMostrarDetalleCompra"
 		></modal-detalle-compra>
 
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- MODAL PAGAR CUENTA -->
+
+		<div class="modal fade producto-modal" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+                      <div class="modal-content">
+                        
+                        <div class="modal-header">
+                        	<h5 class="modal-title" id="exampleModalCenterTitle"><small> MEDIOS DE PAGO </small></h5>
+                        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+						</div>
+						
+						<div class="modal-body">  
+                        	<div class="row">
+                        		<div class="col-md-12 mb-3">
+                        			<button class="btn btn-primary"><font-awesome-icon icon="plus" /> Abonar</button>
+                        			<button class="btn btn-danger"><font-awesome-icon icon="trash" /> Eliminar</button>
+                        			<button class="btn btn-primary"><font-awesome-icon icon="print" /> Recibo</button>
+                        		</div>
+                        		<div class="col-md-12">
+                        			<table id="tablaClienteCreditoDet" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+							            <thead>
+							                <tr>
+							                    <th>Doc.</th>
+							                    <th>Folio</th>
+							                    <th>Serie</th>
+							                    <th>Fecha</th>
+							                    <th>Vencimiento</th>
+							                    <th>Crédito</th>
+							                    <th>Abonos</th>
+							                    <th>Saldo</th>
+							                    <!-- <th>Acción</th> -->
+							                </tr>
+							            </thead>
+							            <tbody>
+							                <td></td>
+							            </tbody>
+							        </table> 
+                        		</div>	
+
+                        		<div class="col-md-12">
+                        			<table id="tablaClienteCreditoDet" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+							            <thead>
+							                <tr>
+							                    <th>Fecha</th>
+							                    <th>TP</th>
+							                    <th>Mult. Pago</th>
+							                    <th>Referencia</th>
+							                    <th>Total</th>
+							                    <!-- <th>Acción</th> -->
+							                </tr>
+							            </thead>
+							            <tbody>
+							                <td></td>
+							            </tbody>
+							        </table> 
+                        		</div>
+                        	</div>	
+                        </div>	
+					  
+					  </div>
+					</div>
+		</div>
+		
 		<!-- ------------------------------------------------------------------------ -->
 
 	</div>
@@ -86,6 +153,29 @@
       			this.$refs.ModalMostrarDetalleCompra.mostrarModal(codigo);
 
       			// ------------------------------------------------------------------------
+
+      		}, detalleCredito(){
+
+      			var tableClienteCreditoDet = $('#tablaClienteCreditoDet').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                                 "url": "/cliente/credito/datatable",
+                                 "dataType": "json",
+                                 "type": "GET",
+                                 "contentType": "application/json; charset=utf-8"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "NOMBRE" },
+                            { "data": "CELULAR" },
+                            { "data": "TELEFONO" },
+                            { "data": "MONTO" }
+                        ]      
+                });
 
       		}
       },
@@ -130,14 +220,16 @@
 
                 	// EDITAR TRANSFERENCIA
 
-                    $('#tablaClienteCredito').on('click', 'tbody tr #editar', function() {
+                    $('#tablaClienteCredito').on('click', 'tbody tr', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
-	                   	var row  = $(this).parents('tr')[0];
-	                    me.editarCompra(tableClienteCredito.row( row ).data().CODIGO);
+	                   	$('#staticBackdrop').modal('show');
+	                   	me.detalleCredito();
+	                   	// var row  = $(this).parents('tr')[0];
+	                    // me.editarCompra(tableClienteCredito.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 

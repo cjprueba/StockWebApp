@@ -61,6 +61,7 @@ Route::post('ventasDatatable', 'VentaController@ventasDatatable');
 
 Route::post('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
+Route::post('pdf-generar-rptVale','VentaController@rptVale');
 
 
 /* -------------------------------------------------------------------------- */
@@ -407,6 +408,7 @@ Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
 Route::get('cliente/credito', 'ClienteController@creditoCliente');
 Route::get('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
+Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
 
 /* -------------------------------------------------------------------------- */
 

@@ -76,6 +76,7 @@
              <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link>
              <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
              <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>
           </div>
         </div>
       </li>

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Venta;
-
+use App\VentaVale;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
@@ -202,6 +202,19 @@ class VentaController extends Controller
 
         $venta = Venta::mostrar_productos($request);
         return response()->json($venta);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function rptVale(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = VentaVale::valePDF($request->all());
+        return response()->json($vale);
 
         /*  --------------------------------------------------------------------------------- */
 
