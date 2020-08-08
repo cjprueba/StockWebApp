@@ -240,7 +240,7 @@
 				// CONTROL DE DATOS NULOS
 
 				if(this.controlador() === false){
-					
+					this.controlar = true;
 					return;
 				}
 
@@ -366,7 +366,7 @@
 
 				let me = this;
 
-				if ((me.cliente).length === 0 || (me.cliente === " ")){
+				if (me.cliente === '' || me.cliente === " "){
 					me.validar.cliente = true;
 					me.controlar = false;
 
@@ -374,7 +374,7 @@
 					me.validar.cliente = false;
 				}
 
-				if ((me.codigo).length === 0 || (me.codigo === " ")){
+				if (me.codigo === '' || me.codigo === " "){
 					me.validar.codigo = true;
 					me.controlar = false;
 
@@ -382,7 +382,7 @@
 					me.validar.codigo = false;
 				}
 
-				if (((me.ci) === '' || (me.ci === " ")) && (me.ruc) === ''){
+				if ((me.ci === '' || me.ci === " ") && me.ruc === ''){
 					me.validar.ci = true;
 					me.controlar = false;
 
@@ -390,7 +390,7 @@
 					me.validar.ci = false;
 				}
 
-				if (me.direccion === '' || (me.direccion === " ")){
+				if (me.direccion === '' || me.direccion === " "){
 					me.validar.direccion = true;
 					me.controlar = false;
 
@@ -398,7 +398,7 @@
 					me.validar.direccion = false;
 				}
 
-				if (((me.ruc) === '' || (me.ruc === " ")) && (me.ci) === ''){
+				if ((me.ruc === '' || me.ruc === " ") && me.ci === ''){
 					me.validar.ruc = true;
 					me.controlar = false;
 
@@ -406,20 +406,24 @@
 					me.validar.ruc = false;
 				}
 
-				if(me.telefono === '' || (me.telefono)=== " "){
+				if(me.telefono === '' || me.telefono === " "){
 					me.validar.telefono = true;
 					me.controlar = false;
 				}else{
 					me.validar.telefono =  false;
 				}
 
-				if(((me.idEmpresa).length === 0 || me.idEmpresa=== " ") && (me.tipo === 'FUNCIONARIO') && (me.existe === false)){
+				if((me.idEmpresa === 'null' || me.idEmpresa=== '') && me.tipo === 'FUNCIONARIO' && me.existe === false){
 					
 					me.$bvToast.show('toast-completar-datos');
 					me.controlar = false;
 				}
 				
-				return me.controlar;
+				if(me.controlar === true){
+					return true;
+				}else{
+					return false;
+				}
 			},
 
 			// REINICIAR EL FORMULARIO
