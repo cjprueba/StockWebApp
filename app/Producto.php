@@ -20,6 +20,7 @@ use App\Ventas_det;
 use App\ComprasDet;
 use App\Cotizacion;
 use App\LineasDescuento;
+use App\Categoria;
 
 class Producto extends Model
 {
@@ -1261,11 +1262,12 @@ $lotes= DB::connection('retail')
         $columns = array( 
                             0 =>'CODIGO', 
                             1 =>'DESCRIPCION',
-                            2=> 'PREC_VENTA',
-                            3=> 'PRECOSTO',
-                            4=> 'PREMAYORISTA',
-                            5=> 'STOCK',
-                            6=> 'IMAGEN',
+                            2 => 'CATEGORIA',
+                            3 => 'PREC_VENTA',
+                            4 => 'PRECOSTO',
+                            5 => 'PREMAYORISTA',
+                            6 => 'STOCK',
+                            7 => 'IMAGEN',
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1287,24 +1289,28 @@ $lotes= DB::connection('retail')
         $imagen_producto = '';
 
         /*  --------------------------------------------------------------------------------- */
-
+        
+        if(!empty($request->input('columns.0.search.value'))){
+            //var_dump($request->input('columns.0.search.value'));
+        }
         // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
 
-        if(empty($request->input('search.value')))
+        if(empty($request->input('search.value')) && empty($request->input('columns.0.search.value')) && empty($request->input('columns.1.search.value')) && empty($request->input('columns.2.search.value')) && empty($request->input('columns.3.search.value')) && empty($request->input('columns.4.search.value')) && empty($request->input('columns.5.search.value')))
         {            
 
             /*  ************************************************************ */
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
-                         ->orderBy($order,$dir)
+                         //->orderBy($order,$dir)
                          ->get();
 
             /*  ************************************************************ */
@@ -1321,31 +1327,92 @@ $lotes= DB::connection('retail')
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+            $posts =  ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                             ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
-                            ->where(function ($query) use ($search) {
-                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
-                            })
                             ->offset($start)
-                            ->limit($limit)
-                            ->orderBy($order,$dir)
-                            ->get();
+                            ->limit($limit);
+                            //->orderBy($order,$dir);
+
+            /*  ************************************************************ */
+
+            if(!empty($request->input('search.value'))) {
+                $posts->where(function ($query) use ($search) {
+                            $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                            ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                });
+            }
+
+            if(!empty($request->input('columns.0.search.value'))) {
+                $posts->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));
+            }
+
+            if(!empty($request->input('columns.1.search.value'))) {
+                $posts->where('PRODUCTOS.DESCRIPCION', $request->input('columns.1.search.value'));
+            }
+
+            if(!empty($request->input('columns.2.search.value'))) {
+                $posts->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
+            }           
+
+            if(!empty($request->input('columns.3.search.value'))) {
+                $posts->where('PRODUCTOS_AUX.PREC_VENTA', '=' , ''.$request->input('columns.3.search.value').'');
+            }
+
+            if(!empty($request->input('columns.4.search.value'))) {
+                $posts->where('PRODUCTOS_AUX.PRECOSTO', '=' , ''.$request->input('columns.4.search.value').'');
+            }
+
+            if(!empty($request->input('columns.5.search.value'))) {
+                $posts->where('PRODUCTOS_AUX.PREMAYORISTA', '=' , ''.$request->input('columns.5.search.value').'');
+            }
+
+            $posts = $posts->get();
 
             /*  ************************************************************ */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-                             ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)   
-                             ->where(function ($query) use ($search) {
-                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
-                             })
-                             ->count();
+                            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                            ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal); 
+
+
+            if(!empty($request->input('search.value'))) {
+                $totalFiltered->where(function ($query) use ($search) {
+                            $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                            ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                });
+            }
+
+            if(!empty($request->input('columns.0.search.value'))) {
+                $totalFiltered->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));
+            }
+
+            if(!empty($request->input('columns.1.search.value'))) {
+                $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
+            }
+
+            if(!empty($request->input('columns.2.search.value'))) {
+                $totalFiltered->where('LINEAS.DESCRIPCION', 'LIKE' , ''.$request->input('columns.2.search.value').'%');
+            }           
+
+            if(!empty($request->input('columns.3.search.value'))) {
+                $totalFiltered->where('PRODUCTOS_AUX.PREC_VENTA', '=' , ''.$request->input('columns.3.search.value').'');
+            }
+
+            if(!empty($request->input('columns.4.search.value'))) {
+                $totalFiltered->where('PRODUCTOS_AUX.PRECOSTO', '=' , ''.$request->input('columns.4.search.value').'');
+            }
+
+            if(!empty($request->input('columns.5.search.value'))) {
+                $totalFiltered->where('PRODUCTOS_AUX.PREMAYORISTA', '=' , ''.$request->input('columns.5.search.value').'');
+            }
+
+            $totalFiltered = $totalFiltered->count();
 
             /*  ************************************************************ */  
 
@@ -1384,6 +1451,7 @@ $lotes= DB::connection('retail')
 
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
                 $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
                 $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
@@ -2997,5 +3065,223 @@ $lotes= DB::connection('retail')
         }
 
         $dirint->close();
+    }
+
+    public static function mostrar_new($datos)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $start = $datos["datos"]["offset"];
+        $limit = $datos["datos"]["limite"];
+        $pagina = $datos["datos"]["actual"];
+        $start = ($pagina * $limit) - $limit;
+        $categorias = $datos["datos"]["categorias"];
+        $marcas = $datos["datos"]["marcas"];
+        $proveedores = $datos["datos"]["proveedores"];
+        $busqueda = $datos["datos"]["busqueda"];
+        $tipo = $datos["datos"]["tipo"];
+        $ordenar = $datos["datos"]["ordenar"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO'),
+                     DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                         //->where('PRODUCTOS.LINEA','=', 34)
+                         ->offset($start)
+                         ->limit($limit);
+                         //->orderBy($order,$dir)
+                         
+
+        
+        if($tipo === '1') {
+
+            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+
+        } else if ($tipo === '2'){
+
+            $posts->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
+
+        }
+
+        if(!empty($categorias)) {
+            $posts->whereIn('PRODUCTOS.LINEA', $categorias);
+        }
+
+        if(!empty($marcas)) {
+            $posts->whereIn('PRODUCTOS.MARCA', $marcas);
+        }
+
+        if(!empty($proveedores)) {
+            $posts->whereIn('PRODUCTOS.PROVEEDOR', $proveedores);
+        }
+
+        if(!empty($ordenar)) {
+            if($ordenar === 2) {
+                $posts->orderBy('PRODUCTOS.PREC_VENTA', 'DESC');
+            } else if ($ordenar === 3) {
+                $posts->orderBy('PRODUCTOS.PREC_VENTA', 'ASC');
+            }
+        }
+
+        $posts = $posts->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL FILTRADO 
+        
+        $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal);
+
+        if($tipo === '1') {
+            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+        } else if ($tipo === '2'){
+            $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
+        }
+
+        if(!empty($busqueda)) {
+            $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''.$busqueda.'%');
+        }
+                         
+        if(!empty($categorias)) {
+            $totalFiltered->whereIn('PRODUCTOS.LINEA', $categorias);
+        }
+
+        if(!empty($marcas)) {
+            $totalFiltered->whereIn('PRODUCTOS.MARCA', $marcas);
+        }
+
+        if(!empty($proveedores)) {
+            $totalFiltered->whereIn('PRODUCTOS.PROVEEDOR', $proveedores);
+        }
+
+        if(!empty($ordenar)) {
+            if($ordenar === 2) {
+                $totalFiltered->orderBy('PRODUCTOS.PREC_VENTA', 'DESC');
+            } else if ($ordenar === 3) {
+                $totalFiltered->orderBy('PRODUCTOS.PREC_VENTA', 'ASC');
+            }
+        }
+
+        $totalFiltered = $totalFiltered->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/product.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->CODIGO)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
+                $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREMAYORISTA, 2);
+                $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
+                $nestedData['PREMAYORISTA_CRUDO'] = Common::formato_precio($post->PREMAYORISTA, 2);
+
+
+                
+
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+
+                if ($nestedData['STOCK'] === '0') {
+                    $nestedData['BACKGROUND'] = 'bg-danger';
+                    $nestedData['ESTATUS'] = 'AGOTADO';
+                } else if($post->DESCUENTO > 0) {
+                    $nestedData['BACKGROUND'] = 'bg-warning';
+                    $nestedData['ESTATUS'] = ''.$post->DESCUENTO.'% OFF';
+                } else {
+                    $nestedData['BACKGROUND'] = 'bg-success';
+                    $nestedData['ESTATUS'] = 'DISPONIBLE';
+                }
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='eliminarProducto' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."'  width='100%'>";
+
+                // $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-fluid mx-auto d-block img-thumbnail' alt='Card image cap'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    //"draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval(12),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data,
+                    "offset"          => $start
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
     }  
+    
 }

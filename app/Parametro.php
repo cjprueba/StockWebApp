@@ -136,5 +136,35 @@ class Parametro extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function mayoristaCantidad()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETROS
+
+        $parametros = Parametro::select(DB::raw('parametros.DESTINO'))
+        ->where('parametros.ID_SUCURSAL','=',$user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if ($parametros) {
+            return ['MAYORISTA' => $parametros[0]["DESTINO"]];
+        } else {
+            return ['MAYORISTA' => false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
     }    
 }

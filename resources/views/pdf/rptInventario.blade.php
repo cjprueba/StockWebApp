@@ -170,6 +170,7 @@
             <th class="desc">DESCRIPCION</th>
             <th>STOCK</th>
             <th>CONTEO</th>
+            <th>VENDIDO</th>
             <th>CREADO</th>
             <th>MODIFI.</th>
             <th>COMENTARIO</th>
@@ -185,6 +186,7 @@
                 <td class="desc"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
                 <td class="qty"><span class="text">{{ $articulos[$i]['stock'] }}</span></td>
                 <td class="total"><span class="text">{{ $articulos[$i]['conteo'] }}</span></td>
+                <td class="total"><span class="text">{{ $articulos[$i]['vendidos'] }}</span></td>
                 <td class="qty"><span class="text">{{ $articulos[$i]['created_at'] }}</span></td>
                 <td class="total"><span class="text">{{ $articulos[$i]['updated_at'] }}</span></td>
                 <td class="total"><span class="text">{{ $articulos[$i]['comentario'] }}</span></td>

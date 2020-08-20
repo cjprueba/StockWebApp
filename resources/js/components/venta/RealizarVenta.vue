@@ -993,7 +993,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0' || me.producto.PREC_VENTA === '0.00') {
+	            if (me.producto.PREC_VENTA.length === 0 ) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1272,7 +1272,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0') {
+	            if (me.producto.PREC_VENTA.length === 0) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1545,7 +1545,7 @@
 
 	            // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
 
-	            if (cantidad === '0' || precio === '0') {
+	            if (cantidad === '0') {
 	                me.$bvToast.show('toast-editar-cero');
 	                return;	
 	            }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Parametro;
+use App\Stock;
 
 class Common 
 {   
@@ -171,6 +172,74 @@ class Common
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function calculoMayorista($valor_a, $valor_b, $cantidad) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MAYORISTA 
+
+        $mayorista = Parametro::mayoristaCantidad();
+        $tipo = 1;
+        $precio_unit = 0.00;
+        $precio = 0.00;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CALCULAR MAYORISTA 
+
+        if ($cantidad >= $mayorista["MAYORISTA"] && $mayorista["MAYORISTA"] !== false) {
+            $precio_unit = $valor_b;
+            $precio = Common::quitar_coma($valor_b, 2) * Common::quitar_coma($cantidad, 2);
+            $tipo = 2;
+        } else {
+            $precio_unit = $valor_a;
+            $precio = Common::quitar_coma($valor_a, 2) * Common::quitar_coma($cantidad, 2);
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["valor" => $precio, "tipo" => $tipo, "precio_unit" => $precio_unit];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function comprobarCantidadLimiteStock($codigo, $cantidad){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI SUPERA STOCK
+
+        $stock = Stock::obtener_stock($codigo);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $response = true;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($cantidad > $stock["stock"]) {
+            $response = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR
+
+        if ($response === true) {
+            return ["response" => $response, "statusText" => 'La cantidad no supera el STOCK'];
+        } else {
+            return ["response" => $response, "statusText" => 'La cantidad supera el STOCK'];
+        }
+        
+
+        /*  --------------------------------------------------------------------------------- */
     }
 
 }

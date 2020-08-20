@@ -45,6 +45,11 @@ export default new Router({
 			component: require('./components/producto/MostrarProducto.vue').default
 		},
 		{
+			path: '/pr4',
+			name: 'productoMostrarNew',
+			component: require('./components/producto/MostrarProductoNew.vue').default
+		},
+		{
 			path: '/pr2',
 			name: 'productoRegistrar',
 			component: require('./components/producto/RegistrarProducto.vue').default
@@ -279,7 +284,11 @@ export default new Router({
 			name: 'rptVales',
 			component: require('./components/reportes/vales/Vales.vue').default
 		},
-
+		{
+			path: '/pd2',
+			name: 'pdCheckout',
+			component: require('./components/pedido/CheckoutPedido.vue').default
+		}
 
 	],
 	mode: 'history'

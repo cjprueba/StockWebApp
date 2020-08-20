@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Mpdf\Mpdf;
 use App\Lote_tiene_ConteoDet;
+use App\Ventas_det;
 
 class Inventario extends Model
 {
@@ -636,7 +637,8 @@ class Inventario extends Model
                         conteo_det.CONTEO,
                         conteo_det.CREATED_AT,
                         conteo_det.UPDATED_AT,
-                        conteo_det.COMENTARIO'
+                        conteo_det.COMENTARIO,
+                        0 AS VENDIDO'
                     ))
         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'conteo_det.COD_PROD')
         ->where('conteo_det.ID_SUCURSAL','=', $user->id_sucursal)
@@ -664,6 +666,24 @@ class Inventario extends Model
             $conteo_det[$key]->CREATED_AT = $value->CREATED_AT;
             $conteo_det[$key]->UPDATED_AT = $value->UPDATED_AT;
             $conteo_det[$key]->COMENTARIO = $value->COMENTARIO;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LA CANTIDAD QUE SE VENDIO DESPUES DE INICIAR A CONTAR 
+
+            $vendido = Ventas_det::select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
+            ->where('FECALTAS', '>', $value->CREATED_AT)
+            ->where('HORALTAS', '>', date("H:i:s",strtotime($value->CREATED_AT)))
+            ->groupBy('COD_PROD')
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if(count($vendido) > 0) {
+                $conteo_det[$key]->VENDIDO = $vendido[0]['CANTIDAD'];
+            } else {
+                $conteo_det[$key]->VENDIDO = '0';
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -720,7 +740,7 @@ class Inventario extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-         
+        ini_set("pcre.backtrack_limit", "10000000"); 
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER DATOS DE CABECERA 
@@ -784,6 +804,7 @@ class Inventario extends Model
                 $articulos[$c]["comentario"] = $value->COMENTARIO;
                 $cantidad = $cantidad + $value->STOCK;
                 $total_conteo = $total_conteo + $value->CONTEO;
+                $articulos[$c]["vendidos"] = $value->VENDIDO;
 
                 if ($value->STOCK === $value->CONTEO) {
                     $articulos[$c]["estatus"] = 'COINCIDEN';
@@ -808,7 +829,7 @@ class Inventario extends Model
                     $articulos[$c]["comentario"] = $value->COMENTARIO;
                     $cantidad = $cantidad + $value->STOCK;
                     $total_conteo = $total_conteo + $value->CONTEO;
-
+                    $articulos[$c]["vendidos"] = $value->VENDIDO;
                     
                     $articulos[$c]["estatus"] = 'COINCIDEN';
                     
@@ -830,7 +851,7 @@ class Inventario extends Model
                     $articulos[$c]["comentario"] = $value->COMENTARIO;
                     $cantidad = $cantidad + $value->STOCK;
                     $total_conteo = $total_conteo + $value->CONTEO;
-
+                    $articulos[$c]["vendidos"] = $value->VENDIDO;
                     
                     $articulos[$c]["estatus"] = 'DIFERENCIA';
                     
@@ -852,7 +873,7 @@ class Inventario extends Model
                     $articulos[$c]["comentario"] = $value->COMENTARIO;
                     $cantidad = $cantidad + $value->STOCK;
                     $total_conteo = $total_conteo + $value->CONTEO;
-
+                    $articulos[$c]["vendidos"] = $value->VENDIDO;
                     
                     $articulos[$c]["estatus"] = 'DIFERENCIA';
                     
@@ -874,7 +895,7 @@ class Inventario extends Model
                     $articulos[$c]["comentario"] = $value->COMENTARIO;
                     $cantidad = $cantidad + $value->STOCK;
                     $total_conteo = $total_conteo + $value->CONTEO;
-
+                    $articulos[$c]["vendidos"] = $value->VENDIDO;
                     
                     $articulos[$c]["estatus"] = 'DIFERENCIA';
                     

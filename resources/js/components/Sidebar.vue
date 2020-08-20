@@ -337,7 +337,7 @@
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrdenes" aria-expanded="true" aria-controls="collapseOrdenes">
           <font-awesome-icon icon="user-circle" />
-          <span>Pedidos</span>
+          <span>Ordenes</span>
         </a>
         <div id="collapseOrdenes" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -349,6 +349,19 @@
         </div>
       </li>
 
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePedidos" aria-expanded="true" aria-controls="collapsePedidos">
+          <font-awesome-icon icon="user-circle" />
+          <span>Pedidos</span>
+        </a>
+        <div id="collapsePedidos" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'productoMostrarNew'}">Productos</router-link>
+            <router-link class="collapse-item" :to="{name: 'pdCheckout'}">Checkout</router-link>
+          </div>
+        </div>
+      </li>
 
 
       <!-- ------------------------------------------------------------------------------------- -->
