@@ -92,9 +92,9 @@
 
                       <div class="col-md-12">
                         <ul class="shop__sorting">
-                          <li class="active"><a href="#">General</a></li>
-                          <li><a href="#">Ofertas</a></li>
-                          <li><a href="#">Nuevos</a></li>
+                          <li :class="listar.activo_general"><a v-on:click="general" href="#">General</a></li>
+                          <li :class="listar.activo_ofertas"><a v-on:click="ofertas" href="#">Ofertas</a></li>
+                          <li :class="listar.activo_nuevos"><a href="#">Nuevos</a></li>
                         </ul>
                       </div>
 
@@ -140,7 +140,7 @@
                       </div>
                     </div>
 
-                    <div class="row" v-if="cargando === false">
+                    <div :class="'row ' + cargar.class">
                       <div class="col-6 col-md-6 col-lg-4 mb-3"  v-for="producto in productos">
 
                         <!-- <div class="col-md-4 mb-3" v-for="producto in productos">
@@ -187,11 +187,11 @@
                        
                     </div>
 
-                    <div v-else class="row">
+                    <!-- <div v-else class="row">
                           <div class="spinner-grow" role="status">
                             <span class="sr-only">Loading...</span>
                           </div>
-                    </div> 
+                    </div>  -->
 
                     <div class="row sorting mb-5 mt-5">
                       <div class="col-12">
@@ -384,6 +384,7 @@
               busqueda: '',
               tipo: '1',
               ordenar: 1,
+              estado: 1
             },
             cargando: false,
             categorias: [],
@@ -397,7 +398,10 @@
               precio_unit: 0,
               precio: 0,
               precio_mayorista: 0,
-              stock: 0
+              stock: 0,
+              descuento: 0,
+              linea: 0,
+              marca: 0
             }, agregado: {
               descripcion: '',
               cantidad: '',
@@ -405,6 +409,14 @@
             },
             conteo: 0,
             total: 0,
+            listar: {
+              activo_general: 'active',
+              activo_ofertas: '',
+              activo_nuevos: ''
+            },
+            cargar: {
+              class: ''
+            }
           }
       }, 
       methods: {
@@ -435,8 +447,11 @@
 
           let me = this;
 
+          me.cargar.class = 'special-card';
+
           Common.mostrarProductosViewNewCommon(me.opciones).then(data => {
             me.productos = data.data;
+            me.cargar.class = '';
             me.cargando = false;
             me.opciones.filas = data.recordsFiltered;
           });
@@ -448,6 +463,7 @@
 
           // ------------------------------------------------------------------------
 
+          this.cargar.class = 'special-card';
           this.cargando = true;
           this.opciones.offset = this.opciones.offset + this.opciones.limite;
           this.mostrarProductos();
@@ -488,6 +504,7 @@
           // CAMBIAR LIMITE
 
           this.cargando = true;
+          this.cargar.class = 'special-card';
           this.opciones.limite = limite;
           this.mostrarProductos();
 
@@ -528,6 +545,9 @@
           this.producto.precio_unit = producto.PREC_VENTA_CRUDO;
           this.producto.precio_mayorista = producto.PREMAYORISTA_CRUDO;
           this.producto.stock = producto.STOCK;
+          this.producto.descuento = producto.DESCUENTO;
+          this.producto.marca = producto.MARCA;
+          this.producto.linea = producto.LINEA;
           $('#modalAgregar').modal('show');
 
           // ------------------------------------------------------------------------
@@ -571,7 +591,45 @@
 
         },
         checkout(){
+
+          // ------------------------------------------------------------------------
+
+          // CAMBIAR DE LOCALIZACION 
+
           window.location.href = '/pd2';
+
+          // ------------------------------------------------------------------------
+
+        },
+        ofertas(){
+
+          // ------------------------------------------------------------------------
+          
+          // OFERTAS 
+
+          this.opciones.estado = 2;
+          this.listar.activo_ofertas = 'active';
+          this.listar.activo_general = '';
+          this.listar.activo_nuevos = '';
+          this.mostrarProductos();
+
+          // ------------------------------------------------------------------------
+
+        },
+        general(){
+
+          // ------------------------------------------------------------------------
+          
+          // OFERTAS 
+
+          this.opciones.estado = 1;
+          this.listar.activo_ofertas = '';
+          this.listar.activo_general = 'active';
+          this.listar.activo_nuevos = '';
+          this.mostrarProductos();
+
+          // ------------------------------------------------------------------------
+
         }
       },
         mounted() {
@@ -581,6 +639,7 @@
           // INICIAR VARIABLES 
 
           let me = this;
+          me.cargar.class = 'special-card';
           me.cargando = true;
           me.inicio();
           me.ordenarPor(1);
@@ -780,4 +839,14 @@ button:active {
   }
 }
 
+.special-card {
+/* create a custom class so you 
+   do not run into specificity issues 
+   against bootstraps styles
+   which tends to work better than using !important 
+   (future you will thank you later)*/
+
+  background-color: rgba(245, 245, 245, 1);
+  opacity: .4;
+}
 </style>

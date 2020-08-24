@@ -67,4 +67,29 @@ class PedidoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function eliminar_producto(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Pedido::eliminar_producto($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function mostrar_datatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $pedidos = Pedido::mostrar_datatable($request);
+        return response()->json($pedidos);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

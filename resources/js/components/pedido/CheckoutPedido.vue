@@ -92,12 +92,12 @@
                   <td class="border-0 align-middle">
                   	<div class="quantity">
                         <input type="button" value="+" class="plus">
-                        <input type="number" step="1" v-on:change="cambiarCantidad($event.target.value)" :value="producto.CANTIDAD" max="99" min="1" value="1" title="Qty" class="qty"
+                        <input type="number" step="1" v-on:change="cambiarCantidad(producto.CODIGO, $event.target.value)" :value="producto.CANTIDAD" max="99" min="1" value="1" title="Qty" class="qty"
                                            size="4">
                         <input type="button" value="-" class="minus">
                     </div>
                   </td>
-                  <td class="border-0 align-middle"><a href="#" class="text-dark"><i class="fa fa-trash"></i></a></td>
+                  <td class="border-0 align-middle"><a v-on:click="eliminar(producto.CODIGO)" href="#" class="text-dark"><i class="fa fa-trash"></i></a></td>
                 </tr>
               </tbody>
             </table>
@@ -299,11 +299,15 @@
 
 			}, 1000);
 
-        }, cambiarCantidad(cantidad){
+        }, cambiarCantidad(codigo, cantidad){
 
         	// ------------------------------------------------------------------------
 
-        	Common.cambiarCantidadPedidoCommon(cantidad).then(data => {
+        	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	Common.cambiarCantidadPedidoCommon({'codigo': codigo, 'cantidad':cantidad}).then(data => {
 
 	          	if(data.response === true) {
 
@@ -313,12 +317,75 @@
 						confirmButtonColor: 'btn btn-dark',
 						confirmButtonText: 'Aceptar',
 					})	
+
+
 	          			
-	          	}
+	          	} else if (data.response === false) {
+	              Swal.fire(
+	                'Error !',
+	                data.statusText ,
+	                'error'
+	              )
+	            }
+
+	            me.inicio();
+
 
 	        });
 
         	// ------------------------------------------------------------------------
+
+        }, eliminar(codigo) {
+
+        	// ------------------------------------------------------------------------
+        	
+        	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	Swal.fire({
+				title: 'Estas seguro ?',
+				text: "Eliminar producto !",
+				type: 'warning',
+				showLoaderOnConfirm: true,
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Eliminar !',
+				cancelButtonText: 'Cancelar',
+				preConfirm: () => {
+				    return Common.eliminarProductoPedidoCommon(codigo).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+				  	}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				}
+			}).then((result) => {
+
+				if (result.value.response) {
+
+					// ------------------------------------------------------------------------
+
+					Swal.fire(
+						'Eliminado!',
+						'Se ha correctamente el producto  !',
+						'success'
+					)
+
+					me.inicio();
+
+					// ------------------------------------------------------------------------
+
+				}
+			})
+
+        	// ------------------------------------------------------------------------
+
         }
       },
         mounted() {

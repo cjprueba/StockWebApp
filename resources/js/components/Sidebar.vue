@@ -226,7 +226,8 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
             <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
-             <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
+            <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
+            <router-link class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link>
           </div>
         </div>
       </li>
@@ -357,6 +358,7 @@
         <div id="collapsePedidos" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'pdMostrar'}">Mostrar</router-link>
             <router-link class="collapse-item" :to="{name: 'productoMostrarNew'}">Productos</router-link>
             <router-link class="collapse-item" :to="{name: 'pdCheckout'}">Checkout</router-link>
           </div>

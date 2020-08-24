@@ -4571,6 +4571,25 @@ function cambiarCantidadPedidoCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+function eliminarProductoPedidoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/pedido/producto/eliminar', {'data':data}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4764,5 +4783,6 @@ export {
 		agregarProductoPedidoCommon,
 		mostrarProductosPedidoCommon,
 		confirmarPedidoCommon,
-		cambiarCantidadPedidoCommon
+		cambiarCantidadPedidoCommon,
+		eliminarProductoPedidoCommon
 		};

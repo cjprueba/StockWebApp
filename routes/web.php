@@ -498,6 +498,8 @@ Route::post('pedido/producto/obtener', 'PedidoController@obtenerProductos');
 Route::post('pedido/confirmar', 'PedidoController@confirmar');
 Route::post('pedido/inicio_mostrar_new', 'PedidoController@inicio_mostrar_new');
 Route::post('pedido/cambiar/cantidad', 'PedidoController@cambiar_cantidad');
+Route::post('pedido/producto/eliminar', 'PedidoController@eliminar_producto');
+Route::get('pedido/mostrar/datatable', 'PedidoController@mostrar_datatable');
 
 /* -------------------------------------------------------------------------- */
 

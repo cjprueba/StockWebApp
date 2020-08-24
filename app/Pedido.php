@@ -31,20 +31,17 @@ class Pedido extends Model
     	$precio_unit = 0.00;
     	$total = 0.00;
     	$cantidad = (float)$datos["cantidad"];
+    	$porcentaje = (float)$datos["descuento"];
+    	$linea = $datos["linea"];
+    	$marca = $datos["marca"];
 
     	/*  --------------------------------------------------------------------------------- */
 
     	// REVISAR CANTDIAD MAYORISTA
 
-    	$mayorista = Common::calculoMayorista($datos["precio_unit"], $datos["precio_mayorista"], $cantidad);
-    	$precio = $mayorista["valor"];
-    	$precio_unit = $mayorista["precio_unit"];
-
-    	/*  --------------------------------------------------------------------------------- */
-
-    	// CALCULAR TOTAL
-
-    	$total = $precio * $cantidad;
+    	$calculoPrecio = Common::calculoPrecio($datos["precio_unit"], $datos["precio_mayorista"], $cantidad, $porcentaje, $linea, $marca);
+    	$precio = $calculoPrecio["valor"];
+    	$precio_unit = $calculoPrecio["precio_unit"];
 
     	/*  --------------------------------------------------------------------------------- */
 
@@ -79,7 +76,7 @@ class Pedido extends Model
 	            'HORMODIF' => $hora,
 	            'ID_SUCURSAL' => $user->id_sucursal,
 	            'ESTATUS' => 1,
-	            'MONEDA' => $parametro['MONEDA']
+	            'FK_MONEDA' => $parametro->MONEDA
 	        ]);
 
     		/*  --------------------------------------------------------------------------------- */
@@ -103,13 +100,13 @@ class Pedido extends Model
 
     		/*  --------------------------------------------------------------------------------- */  
 
-    		$mayorista = Common::calculoMayorista($datos["precio_unit"], $datos["precio_mayorista"], ($cantidad + Common::quitar_coma($producto[0]["CANTIDAD"], 0)));
-    		$precio = $mayorista["valor"];
-    		$precio_unit = $mayorista["precio_unit"];
+    		$calculoPrecio = Common::calculoPrecio($datos["precio_unit"], $datos["precio_mayorista"], ($cantidad + Common::quitar_coma($producto[0]["CANTIDAD"], 0)), $porcentaje, $linea, $marca);
+    		$precio = $calculoPrecio["valor"];
+    		$precio_unit = $calculoPrecio["precio_unit"];
 
-    		/*  --------------------------------------------------------------------------------- */  
+	    	/*  --------------------------------------------------------------------------------- */
 
-    		// COMPRBAR STOCK 
+    		// COMPROBAR STOCK 
 
     		$stock = Common::comprobarCantidadLimiteStock($datos["codigo"], ($cantidad + Common::quitar_coma($producto[0]["CANTIDAD"], 0)));
 
@@ -128,6 +125,7 @@ class Pedido extends Model
     		->update([
 	            'COD_PROD' => $datos["codigo"],
 	            'CANTIDAD' =>  \DB::raw('CANTIDAD + '.$datos["cantidad"].''), 
+	            'TIPO_PRECIO' => $calculoPrecio["tipo"], 
 	            'PRECIO_UNIT' => $precio_unit, 
 	            'PRECIO' => $precio,
 	            'FECMODIF' => $fecha,
@@ -162,7 +160,7 @@ class Pedido extends Model
 	    		'ID_PEDIDO' => $pedido,
 	            'COD_PROD' => $datos["codigo"],
 	            'CANTIDAD' => $datos["cantidad"], 
-	            'TIPO_PRECIO' => $mayorista["tipo"], 
+	            'TIPO_PRECIO' => $calculoPrecio["tipo"], 
 	            'PRECIO_UNIT' => $precio_unit, 
 	            'PRECIO' => $precio, 
 	            'DESCUENTO' => 0, 
@@ -207,6 +205,7 @@ class Pedido extends Model
 
         $user = auth()->user();
         $start = $datos["datos"]["offset"];
+        $json_data = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -336,7 +335,9 @@ class Pedido extends Model
 
         // PREPARAR EL ARRAY A ENVIAR 
 
-        $json_data = array(
+    	if (count($posts) > 0) {
+
+        	$json_data = array(
                     //"draw"            => intval($request->input('draw')),  
                     "recordsTotal"    => intval(12),  
                     "recordsFiltered" => intval($totalFiltered), 
@@ -345,8 +346,23 @@ class Pedido extends Model
                     "total"			  => Common::precio_candec($total[0]["TOTAL"], $datos_pedido[0]['FK_MONEDA']),
                     "cantidad"	      => $total[0]["CANTIDAD"],
                     "cantidad_items"  => $total[0]["CANTIDAD_ITEMS"],
-                    );
+            );
         
+        } else {
+
+        	$json_data = array(
+                    //"draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval(12),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data,
+                    "offset"          => $start,
+                    "total"			  => 0,
+                    "cantidad"	      => 0,
+                    "cantidad_items"  => 0,
+            );
+
+        }
+
         /*  --------------------------------------------------------------------------------- */
 
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
@@ -459,6 +475,7 @@ class Pedido extends Model
         // OBTENER TODAS LAS CATEGORIAS
 
         $categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION', 'ASC')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -466,6 +483,7 @@ class Pedido extends Model
         // OBTENER TODAS LAS CATEGORIAS
         
         $marcas = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION', 'ASC')
         ->get();
       
         /*  --------------------------------------------------------------------------------- */
@@ -473,6 +491,7 @@ class Pedido extends Model
         // OBTENER TODOS LOS PROVEEDORES 
 
         $proveedores = Proveedor::select(DB::raw('CODIGO, NOMBRE AS DESCRIPCION'))
+        ->orderBy('NOMBRE', 'ASC')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -488,9 +507,14 @@ class Pedido extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // TOTAL 
-
-        $pedido = Pedido::totales($pedido[0]['ID']);
-
+		
+		if(count($pedido) > 0) {
+			$pedido = Pedido::totales($pedido[0]['ID']);
+		} else {
+			$pedido["conteo"] = 0;
+			$pedido["total"] = 0;
+		}
+		
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
@@ -503,5 +527,274 @@ class Pedido extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function cambiar_cantidad($datos) {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// INICIAR VARIABLES
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */  
+
+    	// CARGAR VARIABLES 
+
+    	$data = $datos["data"];
+    	$fecha = date("Y-m-d H:i:s");
+    	$hora = date("H:i:s");
+
+    	/*  --------------------------------------------------------------------------------- */  
+
+    	// REVISAR SI VIENE 0 
+
+    	if (empty($data["cantidad"]) or (int)$data["cantidad"] === 0 or (int)$data["cantidad"] < 1){
+    		return ["response" => false, "statusText" => "No puede ser cero o vacio"];
+    	}
+
+    	/*  --------------------------------------------------------------------------------- */  
+
+    	$producto = ProductosAux::select(DB::raw('PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PREMAYORISTA, PRODUCTOS_AUX.DESCUENTO AS PORCENTAJE, PRODUCTOS.MARCA, PRODUCTOS.LINEA'))
+    					 ->leftjoin('PRODUCTOS', 'PRODUCTOS_AUX.CODIGO', '=', 'PRODUCTOS.CODIGO')
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('PRODUCTOS_AUX.CODIGO','=', $data["codigo"])
+                         ->get();
+
+        /*  --------------------------------------------------------------------------------- */  
+        
+        $calculoPrecio = Common::calculoPrecio($producto[0]["PREC_VENTA"], $producto[0]["PREMAYORISTA"], (int)$data["cantidad"], $producto[0]["PORCENTAJE"], $producto[0]["LINEA"], $producto[0]["LINEA"]);
+    	$precio = $calculoPrecio["valor"];
+    	$precio_unit = $calculoPrecio["precio_unit"];
+
+    	/*  --------------------------------------------------------------------------------- */  
+
+    	// COMPRBAR STOCK 
+
+    	$stock = Common::comprobarCantidadLimiteStock($data["codigo"], (int)$data["cantidad"]);
+
+    	if ($stock["response"] === false) {
+    			return $stock;
+    	}
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// ACTUALIZAR CANTIDAD Y TOTAL
+
+    	PedidoDet::
+    	leftjoin('PEDIDOS', 'PEDIDOS.ID', '=', 'PEDIDOS_DET.ID_PEDIDO')
+    	->where('COD_PROD', '=', $data["codigo"])
+	    ->where('PEDIDOS.ESTATUS', '=', 1)
+    	->where('PEDIDOS_DET.ID_SUCURSAL', '=', $user->id_sucursal) 
+    	->where('PEDIDOS_DET.USER_ID', '=', $user->id)
+    	->update([
+	        'PEDIDOS_DET.CANTIDAD' =>  (int)$data["cantidad"], 
+	        'PEDIDOS_DET.PRECIO_UNIT' => $precio_unit, 
+	        'PEDIDOS_DET.PRECIO' => $precio,
+	        'PEDIDOS_DET.FECMODIF' => $fecha,
+	        'PEDIDOS_DET.HORMODIF' => $hora,
+	    ]);
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	return ["response" => true];
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function eliminar_producto($data){
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// INICIAR VARIABLES
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */  
+
+    	// INICIAR VARIABLES 
+
+    	$codigo = $data["data"];
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// ELIMINAR PRODUCTOS 
+
+    	PedidoDet::leftjoin('PEDIDOS', 'PEDIDOS.ID', '=', 'PEDIDOS_DET.ID_PEDIDO')
+    	->where('COD_PROD', '=', $codigo)
+        ->where('PEDIDOS.ESTATUS', '=', 1)
+    	->where('PEDIDOS_DET.ID_SUCURSAL', '=', $user->id_sucursal) 
+    	->where('PEDIDOS_DET.USER_ID', '=', $user->id)
+        ->delete();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true];
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    }
+
+   	public static function mostrar_datatable($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            1 => 'DESCRIPCION',
+                            2 => 'CATEGORIA',
+                            3 => 'PREC_VENTA',
+                            4 => 'PRECOSTO',
+                            5 => 'PREMAYORISTA',
+                            6 => 'STOCK',
+                            7 => 'IMAGEN',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+
+        $totalData = Pedido::where('PEDIDOS.ID_SUCURSAL','=', $user->id_sucursal)
+                     ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Pedido::select(DB::raw('PEDIDOS.ID AS CODIGO, CLIENTES.NOMBRE, PEDIDOS.FECALTAS, PEDIDOS.OBSERVACION, USERS.NAME, PEDIDOS.TOTAL, PEDIDOS.ESTATUS, PEDIDOS.FK_MONEDA AS MONEDA'))
+                         ->leftJoin('CLIENTES', function($join){
+	                        $join->on('CLIENTES.CODIGO', '=', 'PEDIDOS.CLIENTE_ID')
+	                             ->on('CLIENTES.ID_SUCURSAL', '=', 'PEDIDOS.ID_SUCURSAL');
+	                     })
+                         ->leftjoin('USERS', 'USERS.ID', '=', 'PEDIDOS.USER_ID')
+                         ->where('PEDIDOS.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Pedido::select(DB::raw('PEDIDOS.ID AS CODIGO, CLIENTES.NOMBRE, PEDIDOS.FECALTAS, PEDIDOS.OBSERVACION, USERS.NAME, PEDIDOS.TOTAL, PEDIDOS.ESTATUS, PEDIDOS.FK_MONEDA AS MONEDA'))
+                         ->leftJoin('CLIENTES', function($join){
+	                        $join->on('CLIENTES.CODIGO', '=', 'PEDIDOS.CLIENTE_ID')
+	                             ->on('CLIENTES.ID_SUCURSAL', '=', 'PEDIDOS.ID_SUCURSAL');
+	                     })
+                         ->leftjoin('USERS', 'USERS.ID', '=', 'PEDIDOS.USER_ID')
+                         ->where('PEDIDOS.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where(function ($query) use ($search) {
+                            	$query->where('PEDIDOS.ID','LIKE',"%{$search}%")
+                            	->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                		  })
+                          ->offset($start)
+                          ->orderBy($order,$dir)
+                          ->limit($limit)
+                          ->get();
+                            
+
+            /*  ************************************************************ */
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CLIENTE'] = $post->NOMBRE;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['OBSERVACION'] = $post->OBSERVACION;
+                $nestedData['USUARIO'] = $post->NAME;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
+                if ($post->ESTATUS === 1) {
+                	$post->ESTATUS = '<span class="badge badge-warning">Pendiente</span>';
+                } else if ($post->ESTATUS === 2) {
+                	$post->ESTATUS = '<span class="badge badge-warning">Pendiente</span>';
+                } else if ($post->ESTATUS === 3) {
+                	$post->ESTATUS = '<span class="badge badge-primary">Confirmado</span>';
+                } else if ($post->ESTATUS === 3) {
+                	$post->ESTATUS = '<span class="badge badge-success">Procesado</span>';
+                }
+
+                $nestedData['ESTATUS'] = $post->ESTATUS;
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='confirmarPedido' title='Confirmar'><i class='fa fa-check text-success'  aria-hidden='true'></i></a>&emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='eliminarProducto' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
     }
 }
