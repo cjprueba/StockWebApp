@@ -1709,6 +1709,7 @@ class Venta extends Model
 
             $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
             $dias_credito = $data["data"]["pago"]["DIAS_CREDITO"];
+            $credito_fin = $data["data"]["pago"]["CREDITO_FIN"];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2162,10 +2163,10 @@ class Venta extends Model
 
                 VentaCredito::guardar_referencia([
                         'FK_VENTA' => $venta,
-                        'MONTO' => $vale,
+                        'MONTO' => $credito,
                         'MONEDA' => $moneda,
                         'DIAS_CREDITO' => $dias_credito,
-                        'FECHA_CREDITO_FIN' => $dia
+                        'FECHA_CREDITO_FIN' => $credito_fin
                 ]);
                 
             }

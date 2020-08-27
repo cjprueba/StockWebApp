@@ -81,7 +81,7 @@ Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProd
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
-Route::post('pdf-generar-factura','TransferenciaControler@getGenerar');
+Route::post('pdf-generar-factura-transferencia','TransferenciaControler@getGenerar');
 Route::post('pdf-generar-transferencia','TransferenciaControler@getRptTransferencia');
 Route::post('pdf-rptTransferencia','TransferenciaControler@rptTransferencia');
 Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT');
@@ -288,14 +288,14 @@ Route::get('nuevaSucursal', 'SucursalController@sucursalNueva');
 
 /* -------------------------------------------------------------------------- */
 
-//	EMPLEADOS
+// EMPLEADOS
 
 Route::get('empleado', 'EmpleadoController@mostrar');
 Route::post('empleado', 'EmpleadoController@encontrar');
 
 /* -------------------------------------------------------------------------- */
 
-//	PRODUCTOS
+// PRODUCTOS
 
 Route::post('productoDatatable', 'ProductoController@mostrar');
 Route::post('producto', 'ProductoController@encontrar');
@@ -314,6 +314,7 @@ Route::post('producto/baja', 'ProductoController@baja');
 Route::post('producto/POS', 'ProductoController@obtenerProductoPOS');
 Route::post('producto/ubicacion', 'ProductoController@ubicacion');
 Route::post('producto/existe', 'ProductoController@existe');
+Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
 
 /* -------------------------------------------------------------------------- */
 
@@ -412,6 +413,7 @@ Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
 Route::get('cliente/credito', 'ClienteController@creditoCliente');
+Route::get('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
 Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
 
 /* -------------------------------------------------------------------------- */
@@ -491,6 +493,18 @@ Route::get('ordenPendienteMostrarProductos', 'OrdenController@mostrarProductosPe
 Route::post('pdf-generar-factura-pendiente', 'OrdenController@facturaPendiente');
 Route::post('pdf-generar-direccion-pendiente','OrdenController@direccionPendientePDF');
 
+
+/* -------------------------------------------------------------------------- */
+
+// PEDIDO
+
+Route::post('pedido/producto/agregar', 'PedidoController@agregarProducto');
+Route::post('pedido/producto/obtener', 'PedidoController@obtenerProductos');
+Route::post('pedido/confirmar', 'PedidoController@confirmar');
+Route::post('pedido/inicio_mostrar_new', 'PedidoController@inicio_mostrar_new');
+Route::post('pedido/cambiar/cantidad', 'PedidoController@cambiar_cantidad');
+Route::post('pedido/producto/eliminar', 'PedidoController@eliminar_producto');
+Route::get('pedido/mostrar/datatable', 'PedidoController@mostrar_datatable');
 
 /* -------------------------------------------------------------------------- */
 

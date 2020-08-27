@@ -793,6 +793,34 @@ function filtrarProductosCommon(codigo){
 
 }
 
+function inicioProductosViewNewCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/pedido/inicio_mostrar_new', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function mostrarProductosViewNewCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/mostrar_new', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 function darDeBajaProductoCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -1200,7 +1228,6 @@ function enviarTransferenciaCommon(data){
 
 }
 
-
 function generarPdfFacturaTransferenciaCommon(data){
 
 			// ------------------------------------------------------------------------
@@ -1213,16 +1240,28 @@ function generarPdfFacturaTransferenciaCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'pdf-generar-factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': data, 'codigo_origen': 0}}).then( 
+			return axios({url: 'pdf-generar-factura-transferencia', method: 'post', responseType: 'arraybuffer', data: {'codigo': data, 'codigo_origen': 0}}).then( 
 				(response) => {
-					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-					const link = document.createElement('a');
-					link.href = url;
-					//DESCARGAR
-					// link.setAttribute('download', 'file.pdf');
-					// document.body.appendChild(link);
-					link.target = '_blank'
-					link.click();
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
 				},
 				(error) => { return error }
 			);
@@ -1230,6 +1269,36 @@ function generarPdfFacturaTransferenciaCommon(data){
 			// ------------------------------------------------------------------------
 
 }
+
+// function generarPdfFacturaTransferenciaCommon(data){
+
+// 			// ------------------------------------------------------------------------
+
+// 			// INICIAR VARIABLES
+
+// 			let me = this;
+
+// 			// ------------------------------------------------------------------------
+
+// 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+// 			return axios({url: 'pdf-generar-factura-transferencia', method: 'post', responseType: 'arraybuffer', data: {'codigo': data, 'codigo_origen': 0}}).then( 
+// 				(response) => {
+// 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+// 					const link = document.createElement('a');
+// 					link.href = url;
+// 					//DESCARGAR
+// 					// link.setAttribute('download', 'file.pdf');
+// 					// document.body.appendChild(link);
+// 					link.target = '_blank'
+// 					link.click();
+// 				},
+// 				(error) => { return error }
+// 			);
+
+// 			// ------------------------------------------------------------------------
+
+// }
 
 function generarPdfFacturaVentaVisualizarCommon(codigo, caja){
 
@@ -4420,10 +4489,7 @@ function generarReporteValeCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
-// 						   PDF VENTA POR TRANSFERENCIA
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
+
 
 function reporteVentaTransferenciaCommon(data){
 
@@ -4454,24 +4520,7 @@ function reporteVentaTransferenciaCommon(data){
 
 }
 
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// 						   PDF DELIVERY
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-
 function reporteDeliveryCommon(data){
-
-	// ------------------------------------------------------------------------
-
-	// INICIAR VARIABLES
-
-	let me = this;
-
-	// ------------------------------------------------------------------------
-
 	// CONSEGUIR EL CODIGO
 
 	return axios({url: 'pdf-rptDelivery', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
@@ -4490,6 +4539,102 @@ function reporteDeliveryCommon(data){
 	// ------------------------------------------------------------------------
 
 }
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF DELIVERY
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function agregarProductoPedidoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/pedido/producto/agregar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+
+function mostrarProductosPedidoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/pedido/producto/obtener', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function confirmarPedidoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/pedido/confirmar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function cambiarCantidadPedidoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/pedido/cambiar/cantidad', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function eliminarProductoPedidoCommon(data){
+  // GUARDAR PERMISO
+
+	return axios.post('/pedido/producto/eliminar', {'data':data}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}	
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4679,5 +4824,12 @@ export {
 		procesarInventarioCommon,
 		generarReporteValeCommon,
 		reporteVentaTransferenciaCommon,
-		reporteDeliveryCommon
+		reporteDeliveryCommon,
+		mostrarProductosViewNewCommon,
+		inicioProductosViewNewCommon,
+		agregarProductoPedidoCommon,
+		mostrarProductosPedidoCommon,
+		confirmarPedidoCommon,
+		cambiarCantidadPedidoCommon,
+		eliminarProductoPedidoCommon
 		};

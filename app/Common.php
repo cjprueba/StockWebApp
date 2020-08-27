@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Parametro;
+use App\Stock;
 
 class Common 
 {   
@@ -168,6 +169,134 @@ class Common
         //  RETORNAR VALOR
 
         return ["base5" => $base5, "base10" => $base10, "exentas" => $exenta, "gravadas" => $gravadas, "impuesto" => $impuesto];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function comprobarCantidadLimiteStock($codigo, $cantidad){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI SUPERA STOCK
+
+        $stock = Stock::obtener_stock($codigo);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $response = true;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($cantidad > $stock["stock"]) {
+            $response = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR
+
+        if ($response === true) {
+            return ["response" => $response, "statusText" => 'La cantidad no supera el STOCK'];
+        } else {
+            return ["response" => $response, "statusText" => 'La cantidad supera el STOCK'];
+        }
+        
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function calculoPrecio($valor_precio, $valor_mayorista, $cantidad, $porcentaje, $linea, $marca) {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // USUARIO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $tipo = 1;
+        $precio_unit = 0.00;
+        $precio = 0.00;
+        $descuento_unit = 0.00;
+        $descuento_categoria = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCUENTO CATEGORIA 
+
+        $descuento_categoria = LineasDescuento::obtener_descuento($linea, $user->id_sucursal);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCUENTO MANUAL POR PRODUCTO
+
+        $descuento_marca = MarcaAux::obtener_descuento($marca, $user->id_sucursal);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CALCULAR PRECIOS
+
+        if ($porcentaje < 30) {
+
+            // CALCULAR MAYORISTA
+
+            $mayorista = Parametro::mayoristaCantidad();
+
+            if ($cantidad >= $mayorista["MAYORISTA"] && $mayorista["MAYORISTA"] !== false) {
+
+                //  PRECIO MAYORISTA
+                
+                $precio_unit = $valor_mayorista;
+                $precio = Common::quitar_coma($valor_mayorista, 2) * Common::quitar_coma($cantidad, 2);
+                $tipo = 2;
+
+            } else if ($descuento_marca > 0) {
+
+               // DESCUENTO MARCA
+
+               $descuento_unit = (Common::quitar_coma($valor_precio, 2) * Common::quitar_coma($descuento_marca, 2)) / 100;
+               $precio_unit = Common::quitar_coma($valor_precio, 2) - $descuento_unit;
+               $precio = $precio_unit * $cantidad;
+               $tipo = 4;
+
+            } else if ($descuento_categoria > 0) {
+
+               // DESCUENTO CATEGORIA
+
+               $descuento_unit = (Common::quitar_coma($valor_precio, 2) * Common::quitar_coma($descuento_categoria, 2)) / 100;
+               $precio_unit = Common::quitar_coma($valor_precio, 2) - $descuento_unit;
+               $precio = $precio_unit * $cantidad;
+               $tipo = 5;
+
+            } else {
+
+                //  PRECIO NORMAL 
+
+                $precio_unit = $valor_precio;
+                $precio = Common::quitar_coma($valor_precio, 2) * Common::quitar_coma($cantidad, 2);
+
+            }
+
+        } else {
+
+            // CALCULAR DESCUENTO POR PRODUCTO
+
+            $descuento_unit = (Common::quitar_coma($valor_precio, 2) * Common::quitar_coma($porcentaje, 2)) / 100;
+            $precio_unit = Common::quitar_coma($valor_precio, 2) - $descuento_unit;
+            $precio = $precio_unit * $cantidad;
+            $tipo = 3;
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["valor" => $precio, "tipo" => $tipo, "precio_unit" => $precio_unit, "descuento_unit" => $descuento_unit];
 
         /*  --------------------------------------------------------------------------------- */
 

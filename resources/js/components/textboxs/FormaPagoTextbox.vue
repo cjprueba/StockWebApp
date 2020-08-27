@@ -19,7 +19,7 @@
                           </div>
 
                           <div class="float-right">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito">Agregar Crédito</button>
+                            <!-- <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito">Agregar Crédito</button> -->
                           </div>
 
                         </div>
@@ -1544,6 +1544,7 @@
               VALE: me.medios.VALES,
               CREDITO: me.cliente.credito.total_agregado,
               DIAS_CREDITO: me.cliente.credito.dias,
+              CREDITO_FIN: me.cliente.credito.vencimiento,
               DESCUENTO_GENERAL_PORCENTAJE: me.descuento.PORCENTAJE,
               DESCUENTO_GENERAL: me.medios.DESCUENTO,
               VUELTO: me.vuelto,
@@ -1561,38 +1562,38 @@
 
             // EMITIR DATOS 
 
-            if (me.medios.MEDIOS !== '0') {
+            // if (me.medios.MEDIOS !== '0') {
 
-              total = parseFloat(Common.quitarComaCommon(me.total));
-              medios = parseFloat(Common.quitarComaCommon(me.medios.MEDIOS));
+            total = parseFloat(Common.quitarComaCommon(me.total));
+            medios = parseFloat(Common.quitarComaCommon(me.medios.MEDIOS));
 
-              // ------------------------------------------------------------------------
+            // ------------------------------------------------------------------------
 
-              // REVISAR SI EL PAGO ES MAYOR AL TOTAL 
+            // REVISAR SI EL PAGO ES MAYOR AL TOTAL 
 
-              if (total > medios) {
-                this.$bvToast.show('toast-monto-insuficiente');
-                return;
-              }
-
-              // ------------------------------------------------------------------------
-
-              $('#staticBackdrop').modal('hide');
-              $('#modalImpresion').modal('show');
-              me.seleccionar();
-              
-              // ------------------------------------------------------------------------
-
-            } else {
-              
-              // ------------------------------------------------------------------------
-
+            if (total > medios) {
               this.$bvToast.show('toast-monto-insuficiente');
               return;
-
-              // ------------------------------------------------------------------------
-
             }
+
+            // ------------------------------------------------------------------------
+
+            $('#staticBackdrop').modal('hide');
+            $('#modalImpresion').modal('show');
+            me.seleccionar();
+              
+            // ------------------------------------------------------------------------
+
+            // } else {
+              
+            //   // ------------------------------------------------------------------------
+
+            //   this.$bvToast.show('toast-monto-insuficiente');
+            //   return;
+
+            //   // ------------------------------------------------------------------------
+
+            // }
 
             // ------------------------------------------------------------------------
 

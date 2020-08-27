@@ -16,13 +16,14 @@
       </div>
     
     </div>
-    
-    <div class="mt-3" v-if="$can('producto.mostrar')">
+    <!-- v-if="$can('producto.mostrar')" -->
+    <div class="mt-3" >
 			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		        <thead>
 		            <tr>
 		                <th>Codigo</th>
 		                <th>Descripcion</th>
+                    <th>Categoria</th>
 		                <th>Precio Venta</th>
 		                <th>Precio Costo</th>
 		                <th>Precio Mayorista</th>
@@ -36,9 +37,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
       <cuatrocientos-cuatro></cuatrocientos-cuatro>
-    </div>
+    </div> -->
 
     <!-- ------------------------------------------------------------------------ -->
 
@@ -87,14 +88,39 @@
           
         	$(document).ready( function () {
 
+            var tableProductos = $('#tablaModalProductos').DataTable();
+
         	 	// ------------------------------------------------------------------------
                 // >>
                 // INICIAR EL DATATABLE PRODUCTOS MODAL
                 // ------------------------------------------------------------------------
                 
+                // FILTRO POR COLUMNA 
+
+                $('#tablaModalProductos thead tr').clone(true).appendTo( '#tablaModalProductos thead' );
+                $('#tablaModalProductos thead tr:eq(1) th').each( function (i) {
+                    var title = $(this).text();
+                    $(this).html( '<input type="text" class="form-control form-control-sm" placeholder="Buscar '+title+'" />' );
+             
+                    $( 'input', this ).on( 'keyup change', function () {
+                        if ( tableProductos.column(i).search() !== this.value ) {
+                            tableProductos
+                                .column(i)
+                                .search( this.value )
+                                .draw();
+                        }
+                    } );
+                } );
+
+                // ------------------------------------------------------------------------
+
+                // 
+
                 var tableProductos = $('#tablaModalProductos').DataTable({
                         "processing": true,
                         "serverSide": true,
+                        "orderCellsTop": true,
+                        "fixedHeader": true,
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
@@ -113,12 +139,19 @@
                         "columns": [
                             { "data": "CODIGO" },
                             { "data": "DESCRIPCION" },
+                            { "data": "CATEGORIA" },
                             { "data": "PREC_VENTA" },
                             { "data": "PRECOSTO" },
                             { "data": "PREMAYORISTA" },
-                            { "data": "STOCK" },
-                            { "data": "IMAGEN" },
-                            { "data": "ACCION" }
+                            { "data": "STOCK", "searchable": false },
+                            { "data": "IMAGEN", "searchable": false },
+                            { "data": "ACCION", "searchable": false }
+                        ],
+                        "columnDefs": [
+                            { "targets": [0, 1, 2, 3, 4, 5], "searchable": true},
+                            { "targets": '_all', "searchable": false },
+                             
+                            //{ width: "40%", "targets": [5] }
                         ]      
                     });
 

@@ -563,7 +563,8 @@
          	},
          	caja: {
          		CODIGO: null,
-         		CANTIDAD_PERSONALIZADA: 1
+         		CANTIDAD_PERSONALIZADA: 1,
+         		CANTIDAD_TICKET: 1,
          	},
          	producto: {
          		COD_PROD: '',
@@ -820,6 +821,7 @@
 	                	  if (response.data.response === true) {
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
 	                	  	  me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
+	                	  	  me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
 	                	  	  me.numeracion();
 	                	  } else {
 	                	  		
@@ -991,7 +993,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0' || me.producto.PREC_VENTA === '0.00') {
+	            if (me.producto.PREC_VENTA.length === 0 ) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1270,7 +1272,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0') {
+	            if (me.producto.PREC_VENTA.length === 0) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1543,7 +1545,7 @@
 
 	            // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
 
-	            if (cantidad === '0' || precio === '0') {
+	            if (cantidad === '0') {
 	                me.$bvToast.show('toast-editar-cero');
 	                return;	
 	            }
@@ -1776,7 +1778,7 @@
 					   return qz.printers.find(me.ajustes.IMPRESORA_TICKET);              // Pass the printer name into the next Promise
 					}).then(function(printer) {
 
-						     var config = qz.configs.create(printer, { copies: 1 });
+						     var config = qz.configs.create(printer, { copies: me.caja.CANTIDAD_TICKET });
 						var data = [{ 
 						   type: 'pixel',
            					format: 'pdf',
@@ -2310,9 +2312,9 @@
 				                    "DESCUENTO": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO,
 				                    "DESCUENTO_TOTAL": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO_TOTAL,
 				                    "CANTIDAD": me.tabla.tableProductosDevolucion.row(this).data().CANTIDAD,
-				                    "IMPUESTO": (me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO * -1),
-				                    "PRECIO": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
-				                    "PRECIO_TOTAL": (me.tabla.tableProductosDevolucion.row(this).data().TOTAL * -1),
+				                    "IMPUESTO": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO, -1, me.moneda.DECIMAL),
+				                    "PRECIO": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().PRECIO, -1, me.moneda.DECIMAL),
+				                    "PRECIO_TOTAL": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().TOTAL, -1, me.moneda.DECIMAL),
 				                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 				                    "IVA": me.tabla.tableProductosDevolucion.row(this).data().IVA_PORCENTAJE,
 				                    "CODIGO_REAL": 0,

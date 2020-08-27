@@ -75,10 +75,42 @@
       data(){
         return {
           	codigoTransferencia: '',
-          	procesar: false
+          	procesar: false,
+          	ajustes: {
+          		IMPRESORA_TICKET: '',
+          		IMPRESORA_MATRICIAL: ''
+          	}
         }
       }, 
       methods: {
+      		inicio() {
+
+				// ------------------------------------------------------------------------ 
+
+				let me = this;
+
+				// ------------------------------------------------------------------------ 
+
+				// OBTENER DATOS DE INICIO PARA VENTA
+
+				Common.inicioVentaCommon().then(data => {
+
+					// ------------------------------------------------------------------------ 
+
+					me.ajustes.IMPRESORA_TICKET = data.IMPRESORA_TICKET;
+					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
+
+					// ------------------------------------------------------------------------ 
+
+				}).catch(error => {
+					Swal.showValidationMessage(
+					  `Request failed: ${error}`
+					)
+				});
+
+				// ------------------------------------------------------------------------ 
+
+			},
       		editarTransferencia(codigo){
 
       			// ------------------------------------------------------------------------
@@ -88,6 +120,7 @@
       			 this.$router.push('/tr2/'+ codigo + '');
 
       			// ------------------------------------------------------------------------
+      			
       		}, mostrarModalTranferencia(codigo, codigo_origen) {
 
       			// ------------------------------------------------------------------------
@@ -206,11 +239,68 @@
 
 				// ------------------------------------------------------------------------
 
-      		}
+      		}, factura(codigo) {
+
+					// ------------------------------------------------------------------------ 
+
+					let me = this;
+
+					// ------------------------------------------------------------------------ 
+
+					Common.generarPdfFacturaTransferenciaCommon(codigo).then( (response) => {
+
+							var reader = new FileReader();
+							reader.readAsDataURL(new Blob([response])); 
+							reader.onloadend = function() {
+							     var base64data = reader.result;
+							     base64data = base64data.replace("data:application/octet-stream;base64,", "");
+							     me.imprimir_factura(base64data);
+							 }
+
+					});
+
+					// ------------------------------------------------------------------------ 
+
+					// Common.generarPdfTicketVentaTestCommon();
+
+			}, imprimir_factura(base64) {
+
+				let me = this;
+				
+				qz.websocket.connect().then(function() { 
+
+					return qz.printers.find(me.ajustes.IMPRESORA_MATRICIAL);              // Pass the printer name into the next Promise
+
+				}).then(function(printer) {
+
+					var config = qz.configs.create(printer);
+					var data = [{ 
+						type: 'pixel',
+           				format: 'pdf',
+           				flavor: 'base64',
+						data: base64
+					}];
+
+					return qz.print(config, data).then(function() {
+						qz.websocket.disconnect();
+						Swal.close();
+					});
+
+				}).catch(function(e) { console.error(e); });
+
+			}
       },
         mounted() {
         	
         	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	// LLAMAR LOS DATOS DE LA IMPREOSRA 
+
+        	me.inicio();
+
+        	// ------------------------------------------------------------------------
 
             $(document).ready( function () {
 
@@ -293,23 +383,35 @@
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
-	                   	me.procesar = true;
-	                   	var row  = $(this).parents('tr')[0];
-	                   	Common.generarPdfFacturaTransferenciaCommon(tableTransferencia.row( row ).data().CODIGO).then( (data) => {
-	                   		if (data !== undefined) {
-	                   			Swal.fire({
-						  			title: 'Error',
-						  			text: "Revise cotización !",
-						  			type: 'warning',
-									showLoaderOnConfirm: true,
-									confirmButtonColor: 'btn btn-success',
-									confirmButtonText: 'Aceptar'
-								});
-	                   		}
-	                   		me.procesar = false;
-	                   	}).catch((err) => {
-	                   		me.procesar = false;
-           				});
+	       //             	me.procesar = true;
+	       //             	var row  = $(this).parents('tr')[0];
+	       //             	Common.generarPdfFacturaTransferenciaCommon(tableTransferencia.row( row ).data().CODIGO).then( (data) => {
+	       //             		if (data !== undefined) {
+	       //             			Swal.fire({
+						  // 			title: 'Error',
+						  // 			text: "Revise cotización !",
+						  // 			type: 'warning',
+								// 	showLoaderOnConfirm: true,
+								// 	confirmButtonColor: 'btn btn-success',
+								// 	confirmButtonText: 'Aceptar'
+								// });
+	       //             		}
+	       //             		me.procesar = false;
+	       //             	}).catch((err) => {
+	       //             		me.procesar = false;
+        //    				});
+
+        				var row  = $(this).parents('tr')[0];
+
+			            me.factura(tableTransferencia.row( row ).data().CODIGO);
+
+			            Swal.fire({
+							title: '¡ Imprimiendo Factura !',
+							html: 'Por favor espere...',
+							onBeforeOpen: () => {
+								Swal.showLoading()
+							}
+						})
 
 	                    // *******************************************************************
 
