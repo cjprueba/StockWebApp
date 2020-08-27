@@ -56,6 +56,20 @@
         </div>
       </li>
 
+       <li class="nav-item" >
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReporteWeb" aria-expanded="true" aria-controls="collapseReporteWeb">
+          <font-awesome-icon icon="chart-area" />
+          <span >Reporte web</span>
+        </a>
+        <div id="collapseReporteWeb" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Lista de Reportes:</h6>
+             <router-link class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
+
+          </div>
+        </div>
+      </li>
+
       <!-- Nav Item - Utilities Collapse Menu -->
       <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
@@ -301,6 +315,7 @@
           </div>
         </div>
       </li>
+      <!-- ATRIBUTOS MENI-->
             <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
           <font-awesome-icon icon="user-circle" />
@@ -319,6 +334,7 @@
           </div>
         </div>
       </li>
+      <!-- GONDOLAS MENU -->
             <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGondolas" aria-expanded="true" aria-controls="collapseGondolas">
           <font-awesome-icon icon="user-circle" />
@@ -328,6 +344,21 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+          </div>
+        </div>
+      </li>
+      <!-- CUPONES MENU -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCupon" aria-expanded="true" aria-controls="collapseCupon">
+          <font-awesome-icon icon="credit-card" />
+          <span>Cupones</span>
+        </a>
+        <div id="collapseCupon" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'cuponMostrar'}">Mostrar Cupones</router-link>
+            <router-link class="collapse-item" :to="{name: 'cuponCrear'}">Crear Cupones</router-link>
           </div>
         </div>
       </li>

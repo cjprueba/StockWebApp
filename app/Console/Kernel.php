@@ -26,6 +26,11 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+                $schedule->command('reporte_dia:enviar');
+                $schedule->command('reporte_dia:StockCero');
+                $schedule->command('reporte_dia:StockMinimo');
+                $schedule->command('reporte_mes:VentaMensual');
+                 $schedule->command('reporte_quincena:StockCeroProvee');
     }
 
     /**
