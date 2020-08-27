@@ -28,10 +28,19 @@ class VentaController extends Controller
     }
 
 
-   
+       public function reporteVenta(Request $request)
+    {
+ 
+
+            $ventas = Venta::generarReporteVenta($request->all());
+            return response()->json($ventas);
+       
+        //return response()->json([$request->all()]);
+    }
 
     public function mostrar(Request $request)
     {
+
         if ($request["Opcion"] === 2) {
             $ventas = Venta::generarTablaMarca($request->all());
             return response()->json($ventas);
