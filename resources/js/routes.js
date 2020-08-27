@@ -290,6 +290,15 @@ export default new Router({
 			component: require('./components/reportes/vales/Vales.vue').default
 		},
 		{
+			path: '/rpt13',
+			name: 'rptTransferencia2',
+			component: require('./components/reportes/VentaTransferencia.vue').default
+		},
+		{
+			path: '/rpt14',
+			name: 'rptDelivery',
+			component: require('./components/reportes/ServicioDelivery.vue').default
+    },
 			path: '/pd1',
 			name: 'pdCheckout',
 			component: require('./components/pedido/MostrarPedido.vue').default

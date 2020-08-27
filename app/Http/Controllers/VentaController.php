@@ -27,9 +27,6 @@ class VentaController extends Controller
         return response()->json($ventas);
     }
 
-
-   
-
     public function mostrar(Request $request)
     {
         if ($request["Opcion"] === 2) {
@@ -214,6 +211,19 @@ class VentaController extends Controller
         // MOSTRAR IMPORTAR
 
         $vale = VentaVale::valePDF($request->all());
+        return response()->json($vale);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarVentaVale(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = VentaVale::generarVentaVale($request);
         return response()->json($vale);
 
         /*  --------------------------------------------------------------------------------- */

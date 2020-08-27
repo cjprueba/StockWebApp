@@ -4489,7 +4489,61 @@ function generarReporteValeCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
-// 							PEDIDOS VENDEDORES
+
+
+function reporteVentaTransferenciaCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptTransferencia', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+
+}
+
+function reporteDeliveryCommon(data){
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptDelivery', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF DELIVERY
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4572,23 +4626,14 @@ function cambiarCantidadPedidoCommon(data){
 }
 
 function eliminarProductoPedidoCommon(data){
-	
-	// ------------------------------------------------------------------------
-
-	// INICIAR VARIABLES
-
-	let me = this;
-
-	// ------------------------------------------------------------------------
-
-	// GUARDAR PERMISO
+  // GUARDAR PERMISO
 
 	return axios.post('/pedido/producto/eliminar', {'data':data}).then(function (response) {
 		return response.data;
 	});
 
 	// ------------------------------------------------------------------------
-}
+}	
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4778,6 +4823,8 @@ export {
 		generarRptPdfInventarioCommon,
 		procesarInventarioCommon,
 		generarReporteValeCommon,
+		reporteVentaTransferenciaCommon,
+		reporteDeliveryCommon,
 		mostrarProductosViewNewCommon,
 		inicioProductosViewNewCommon,
 		agregarProductoPedidoCommon,

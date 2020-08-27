@@ -77,6 +77,8 @@
              <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
              <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link>
              <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptTransferencia2'}">Venta Transferencia</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptDelivery'}">Delivery</router-link>
           </div>
         </div>
       </li>
