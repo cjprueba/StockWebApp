@@ -45,6 +45,16 @@ export default new Router({
 			component: require('./components/producto/MostrarProducto.vue').default
 		},
 		{
+			path: '/pr4',
+			name: 'productoMostrarNew',
+			component: require('./components/producto/MostrarProductoNew.vue').default
+		},
+		{
+			path: '/pr5',
+			name: 'productoMostrarUno',
+			component: require('./components/producto/MostrarProductoUno.vue').default
+		},
+		{
 			path: '/pr2',
 			name: 'productoRegistrar',
 			component: require('./components/producto/RegistrarProducto.vue').default
@@ -130,7 +140,7 @@ export default new Router({
 			component: require('./components/compra/MostrarCompra.vue').default
 		},
 		{
-			path: '/cr2/:id',
+			path: '/crc',
 			name: 'compraContainer',
 			component: require('./components/container/crearContainer.vue').default
 		},
@@ -205,6 +215,11 @@ export default new Router({
 			component: require('./components/reportes/stock/busqueda/stock.vue').default
 		},
 		{
+			path: '/rpt11',
+			name: 'rptStockCero',
+			component: require('./components/reportes/stock/busqueda/cerado.vue').default
+		},
+		{
 			path: '/vt1',
 			name: 'ventaMostrar',
 			component: require('./components/venta/MostrarVenta.vue').default
@@ -228,6 +243,11 @@ export default new Router({
 			path: '/cli1',
 			name: 'crearCliente',
 			component: require('./components/cliente/CrearCliente.vue').default
+		},
+		{
+			path: '/cli2',
+			name: 'creditoCliente',
+			component: require('./components/cliente/CreditoCliente.vue').default
 		},
 		{
 			path: '/ct2',
@@ -264,6 +284,49 @@ export default new Router({
 			name: 'rptVentaWeb',
 			component: require('./components/reportes/venta/Inicio.vue').default
 		},
+			path: '/orden1',
+			name: 'ordenesMostrar',
+			component: require('./components/orden/MostrarOrden.vue').default
+		},
+		{
+			path: '/orden2',
+			name: 'ordenesPendientes',
+			component: require('./components/orden/MostrarPendientes.vue').default
+		},
+		{
+			path: '/orden3',
+			name: 'ordenesProcesando',
+			component: require('./components/orden/MostrarOrdenProcesando.vue').default
+		},
+		{
+			path: '/rpt12',
+			name: 'rptVales',
+			component: require('./components/reportes/vales/Vales.vue').default
+		},
+		{
+			path: '/rpt13',
+			name: 'rptTransferencia2',
+			component: require('./components/reportes/VentaTransferencia.vue').default
+		},
+		{
+			path: '/rpt14',
+			name: 'rptDelivery',
+			component: require('./components/reportes/ServicioDelivery.vue').default
+    },
+			path: '/pd1',
+			name: 'pdCheckout',
+			component: require('./components/pedido/MostrarPedido.vue').default
+		},
+		{
+			path: '/pd2',
+			name: 'pdCheckout',
+			component: require('./components/pedido/CheckoutPedido.vue').default
+		},
+		{
+			path: '/pd3',
+			name: 'pdMostrar',
+			component: require('./components/pedido/MostrarPedido.vue').default
+		}
 
 	],
 	mode: 'history'

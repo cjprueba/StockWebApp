@@ -42,9 +42,12 @@
             </div>
 
             <div class="col-lg-5" v-if="1 === 0">
-                <caja-periodo></caja-periodo>
+                <caja-periodo @codigo_producto="detalle"></caja-periodo>
             </div>
 
+            <div class="col-md-12 mt-3">
+                <caja-lote-cero @codigo_producto="detalle"></caja-lote-cero>
+            </div>
            
           </div>
 

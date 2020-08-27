@@ -39,6 +39,34 @@ class StockController extends Controller
 
     }
 
+    public function terminados(Request $request)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $stock = Stock::terminados($request);
+        return response()->json($stock);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function terminados_reporte(Request $request)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $stock = Stock::terminados_reporte($request);
+        return response()->json($stock);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
     public function descargar(Request $request)
     {
 

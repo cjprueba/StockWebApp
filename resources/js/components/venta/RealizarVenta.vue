@@ -70,6 +70,17 @@
 
 							<!-- ------------------------------------------------------------------ -->
 
+							<!-- HABILITAR MAYORISTA AUTOMATICO -->
+									
+							<div class="my-1">
+								<div class="custom-control custom-switch mr-sm-3">
+									<input type="checkbox" class="custom-control-input" id="switchMayoristaAut" v-model="checked.MAYORISTA_AUT">
+									<label class="custom-control-label" for="switchMayoristaAut">Mayorista Aut.</label>
+								</div>
+							</div>
+
+							<!-- ------------------------------------------------------------------ -->
+
 						</form>
 
 						<!-- ------------------------------------------------------------------ -->
@@ -337,7 +348,7 @@
 
 		<!-- FORMA PAGO PROVEEDOR -->
 
-		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
 
@@ -552,6 +563,8 @@
          	},
          	caja: {
          		CODIGO: null,
+         		CANTIDAD_PERSONALIZADA: 1,
+         		CANTIDAD_TICKET: 1,
          	},
          	producto: {
          		COD_PROD: '',
@@ -600,7 +613,8 @@
          		TICKET: false,
          		FACTURA: false,
          		DESCUENTO: true,
-         		DEVOLUCION: false
+         		DEVOLUCION: false,
+         		MAYORISTA_AUT: true
          	}, codigo_detalle: '',
          	impresion: {
          		TICKET: false,
@@ -806,6 +820,8 @@
           				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
 	                	  if (response.data.response === true) {
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
+	                	  	  me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
 	                	  	  me.numeracion();
 	                	  } else {
 	                	  		
@@ -977,7 +993,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0' || me.producto.PREC_VENTA === '0.00') {
+	            if (me.producto.PREC_VENTA.length === 0 ) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1085,7 +1101,7 @@
 
 		        // REVISAR SI ES PARA DESCUENTO O CANTIDAD 
 
-		        if (codigo.substring(0, 1) === "+") {
+		        if (codigo.substring(0, 1) === "+" && me.caja.CANTIDAD_PERSONALIZADA === 1) {
 
 		        	me.producto.CANTIDAD = codigo.substring(1, 20);
 		        	me.producto.COD_PROD = '';
@@ -1256,7 +1272,7 @@
 	                me.validar.COD_PROD = false;
 	            }
 
-	            if (me.producto.PREC_VENTA.length === 0  || me.producto.PREC_VENTA === '0') {
+	            if (me.producto.PREC_VENTA.length === 0) {
 	                me.validar.PRECIO_UNITARIO = true;
 	                return;
 	            } else {
@@ -1280,7 +1296,7 @@
 
 		            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
-		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= parseInt(me.ajustes.LIMITE_MAYORISTA))) {
+		            if ((Common.quitarComaCommon(me.producto.CANTIDAD) >= parseInt(me.ajustes.LIMITE_MAYORISTA)) && me.checked.MAYORISTA_AUT === true) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
 		            	rowClass = "table-secondary";
@@ -1290,7 +1306,7 @@
 
 		            // PRECIO MAYORISTA CODIGO REAL
 
-		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, parseInt(me.ajustes.LIMITE_MAYORISTA), me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL, 'table-secondary') === true) {
+		            if (Common.mayoristaCommon(me.producto.CODIGO_REAL,tableVenta, parseInt(me.ajustes.LIMITE_MAYORISTA), me.producto.PREMAYORISTA, me.producto.CANTIDAD, me.moneda.DECIMAL, 'table-secondary') === true && me.checked.MAYORISTA_AUT === true) {
 		            	me.producto.PREC_VENTA = me.producto.PREMAYORISTA;
 		            	me.producto.DESCUENTO = 0;
 		            	rowClass = "table-secondary";
@@ -1423,7 +1439,7 @@
 
 	            	// PRECIO MAYORISTA EN EDITAR CANTIDAD 
 
-		            if (me.checked.MAYORISTA === false && descuento < 50) {
+		            if (me.checked.MAYORISTA === false && descuento < 50 && me.checked.MAYORISTA_AUT === true) {
 
 			            // SI LA CANTIDAD SUPERA LA CANTIDAD DE PRECIO MAYORISTA O LO IGUALA 
 
@@ -1516,7 +1532,7 @@
 	            // ------------------------------------------------------------------------
 
 	        }, editarCantidadProducto(tabla, cantidad, impuesto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
-
+	        	
 	        	// ------------------------------------------------------------------------
 
 	        	// INICIAR VARIABLES
@@ -1529,7 +1545,7 @@
 
 	            // PROHIBIR EDITADO SI CANTIDAD O PRECIO ES CERO
 
-	            if (cantidad === '0' || precio === '0') {
+	            if (cantidad === '0') {
 	                me.$bvToast.show('toast-editar-cero');
 	                return;	
 	            }
@@ -1591,6 +1607,11 @@
 	            tabla.row(row).draw()
 	            .nodes()
     			.to$()
+    			.removeClass('table-secondary')
+    			.removeClass('table-info')
+    			.removeClass('table-primary')
+    			.removeClass('table-warning')
+    			.removeClass('table-danger')
     			.addClass(rowClass);
 
 	            // ------------------------------------------------------------------------
@@ -1757,7 +1778,7 @@
 					   return qz.printers.find(me.ajustes.IMPRESORA_TICKET);              // Pass the printer name into the next Promise
 					}).then(function(printer) {
 
-						     var config = qz.configs.create(printer, { copies: 2 });
+						     var config = qz.configs.create(printer, { copies: me.caja.CANTIDAD_TICKET });
 						var data = [{ 
 						   type: 'pixel',
            					format: 'pdf',
@@ -2291,9 +2312,9 @@
 				                    "DESCUENTO": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO,
 				                    "DESCUENTO_TOTAL": me.tabla.tableProductosDevolucion.row(this).data().DESCUENTO_TOTAL,
 				                    "CANTIDAD": me.tabla.tableProductosDevolucion.row(this).data().CANTIDAD,
-				                    "IMPUESTO": (me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO * -1),
-				                    "PRECIO": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
-				                    "PRECIO_TOTAL": (me.tabla.tableProductosDevolucion.row(this).data().PRECIO * -1),
+				                    "IMPUESTO": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().IMPUESTO, -1, me.moneda.DECIMAL),
+				                    "PRECIO": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().PRECIO, -1, me.moneda.DECIMAL),
+				                    "PRECIO_TOTAL": Common.multiplicarCommon(me.tabla.tableProductosDevolucion.row(this).data().TOTAL, -1, me.moneda.DECIMAL),
 				                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 				                    "IVA": me.tabla.tableProductosDevolucion.row(this).data().IVA_PORCENTAJE,
 				                    "CODIGO_REAL": 0,

@@ -17,6 +17,7 @@ use App\VentasDetServicios;
 use App\VentasAnulado;
 use App\VentasDetDevolucion;
 use App\Ventas_Descuento;
+use App\VentaCredito;
 
 class Venta extends Model
 {
@@ -1963,6 +1964,20 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // VALE 
+
+            $vale = Common::quitar_coma($data["data"]["pago"]["VALE"], 2);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CREDITO
+
+            $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
+            $dias_credito = $data["data"]["pago"]["DIAS_CREDITO"];
+            $credito_fin = $data["data"]["pago"]["CREDITO_FIN"];
+
+            /*  --------------------------------------------------------------------------------- */
+
             $cliente = $data["data"]["cliente"]["CODIGO"];
             $vendedor = $data["data"]["vendedor"]["CODIGO"];
             $cheques = $data["data"]["pago"]["CHEQUE"];
@@ -2234,6 +2249,7 @@ class Venta extends Model
 
                     VentasDetDevolucion::insertGetId(
                             [
+                            'FK_VENTASDET' => $id_ventasdet,     
                             'CODIGO' => $codigo, 
                             'CAJA' => $caja, 
                             'ITEM' => $c + 1, 
@@ -2388,6 +2404,36 @@ class Venta extends Model
                         'MONEDA' => 1
                     ]);
                 } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO VALE
+            
+            if ($vale !== '0' && $vale !== '0.00' && $vale !== NULL) {
+
+                VentaVale::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $vale,
+                        'MONEDA' => $moneda
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CREDITO
+            
+            if ($credito !== '0' && $credito !== '0.00' && $credito !== NULL) {
+
+                VentaCredito::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $credito,
+                        'MONEDA' => $moneda,
+                        'DIAS_CREDITO' => $dias_credito,
+                        'FECHA_CREDITO_FIN' => $credito_fin
+                ]);
+                
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2595,6 +2641,7 @@ class Venta extends Model
         $candec["CODIGO"] = $parametro[0]['MONEDA'];
 
         /*  --------------------------------------------------------------------------------- */
+
 
         // RETORNAR VALOR 
 
@@ -3157,6 +3204,18 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // VALE
+        
+        $vale = VentaVale::select(DB::raw('IFNULL(SUM(VENTAS_VALE.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_VALE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
 
         // SUMAR ANULADOS
 
@@ -3332,7 +3391,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Vales:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VALES, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($vale[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Giros:', 0);
@@ -4200,10 +4259,10 @@ class Venta extends Model
 
                 if ($post->ANULADO === 1) {
                     $nestedData['ESTATUS'] = 'table-danger';
-                    $nestedData['ACCION'] = "
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
                 } else {
-                    $nestedData['ACCION'] = "
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = '';
                 }
@@ -4784,6 +4843,204 @@ class Venta extends Model
                 $nestedData['IMPUESTO'] = Common::precio_candec_sin_letra($post->IMPUESTO, $post->MONEDA);
                 $nestedData['PRECIO'] = Common::precio_candec_sin_letra($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function mostrar_productos($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $request->input('codigoVenta');
+        $caja =  $request->input('codigoCaja');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ITEM', 
+                            1 => 'COD_PROD',
+                            2 => 'DESCRIPCION',
+                            3 => 'CANTIDAD',
+                            4 => 'PRECIO',
+                            5 => 'TOTAL',
+                            4 => 'PORC_DESCUENTO',
+                            5 => 'TOTAL_DESCUENTO'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+
+        $totalData = DB::connection('retail')->table('ventasdet as vd')
+                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
+                    ->leftJoin('ventas as v', function($join){
+                        $join->on('v.CODIGO', '=', 'vd.CODIGO')
+                             ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
+                             ->on('v.CAJA', '=', 'vd.CAJA');
+                    })
+                    ->where('v.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('vd.CODIGO','=', $codigo)
+                    ->where('vd.CAJA','=', $caja)
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = DB::connection('retail')->table('ventasdet as vd')
+                         ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
+                         ->leftJoin('ventas as v', function($join){
+                            $join->on('v.CODIGO', '=', 'vd.CODIGO')
+                                 ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
+                                 ->on('v.CAJA', '=', 'vd.CAJA');
+                         })
+                         ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('vd.CODIGO','=', $codigo)
+                         ->where('vd.CAJA','=', $caja)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  DB::connection('retail')->table('ventasdet as vd')
+                        ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
+                         ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
+                         ->leftJoin('ventas as v', function($join){
+                            $join->on('v.CODIGO', '=', 'vd.CODIGO')
+                                 ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
+                                 ->ON('v.CAJA', '=', 'vd.CAJA');
+                         })
+                         ->where('vd.CODIGO','=', $codigo)
+                         ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('vd.CAJA','=', $caja)
+                            ->where(function ($query) use ($search) {
+                                $query->where('vd.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('vd.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = DB::connection('retail')->table('ventasdet as vd')
+                            ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
+                             ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
+                             ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
+                             ->leftJoin('ventas as v', function($join){
+                                $join->on('v.CODIGO', '=', 'vd.CODIGO')
+                                     ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
+                                     ->on('v.CAJA', '=', 'vd.CAJA');
+                             })
+                             ->where('vd.CODIGO','=', $codigo)
+                             ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
+                             ->where('vd.CAJA','=', $caja)
+                            ->where(function ($query) use ($search) {
+                                $query->where('vd.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('vd.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['ITEM'] = $post->ITEM;
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['PRECIO'] = Common::precio_candec($post->PRECIO_UNIT, $post->MONEDA);
+                $nestedData['TOTAL'] = Common::precio_candec($post->PRECIO, $post->MONEDA);
+                $nestedData['PORC_DESCUENTO'] = $post->PORCENTAJE;
+                $nestedData['TOTAL_DESCUENTO'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
 
                 $data[] = $nestedData;

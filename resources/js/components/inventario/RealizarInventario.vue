@@ -66,6 +66,19 @@
 
 					<div class="mb-3">
 						<div class="row">
+
+							<div class="col-md-12 text-right">
+
+						      <!-- ------------------------------------------------------------------------ -->
+
+						      <!-- BOTON CAMARA -->
+
+						      <camara-bardcode @codigo_camara="codigo_camara"></camara-bardcode>
+						      
+						      <!-- ------------------------------------------------------------------------ -->
+
+						    </div>
+
 							<div class="col-md-6">
 								<codigo-producto  ref="compontente_codigo_producto_cantidad" v-model="codigoProductoCantidad"></codigo-producto >
 							</div>	
@@ -118,13 +131,15 @@
 
 					<!-- TABLA DE PRODUCTOS INGRESADOS -->
 
-					<table v-if="mostrarDatatable" id="tablaProductosConteo" class="table table-striped table-bordered table-sm" style="width:100%">
+					<table id="tablaProductosConteo" class="table table-striped table-bordered table-sm" style="width:100%">
 		                <thead>
 		                    <tr>
 		                        <th >Codigo Producto</th>
 		                        <th>Descripción</th>
 		                        <th class="conteoColumna">Conteo</th>
 		                        <th class="stockColumna">Stock</th>
+		                        <th>Comentario</th>
+		                        <th>Acción</th>
 		                    </tr>
 		                </thead>
 		                <tbody>
@@ -134,6 +149,8 @@
 		                	<tr>
 		                		<th></th>
 		                		<th>TOTALES</th>
+			                	<th></th>
+			                	<th></th>
 			                	<th></th>
 			                	<th></th>
 		                	</tr>
@@ -169,19 +186,30 @@
         return {
         	sucursal: 'null',
         	observacion: '',
-        	ventana: 1,
+        	ventana: 2,
         	response: '',
             codigoResponse: '',
             mostrar: '',
             cantidadResponse: '',
             id_Inventario: '',
-            mostrarDatatable: false,
+            mostrarDatatable: true,
             codigoProducto: '',
             codigoProductoCantidad: '',
             cantidad: ''
         }
       }, 
       methods: {
+      		codigo_camara(codigo){
+
+	          // ------------------------------------------------------------------------
+
+	          // CODIGO DE CAMARA RECIBIDO DEL COMPONENTE
+
+	          this.codigoProductoCantidad = codigo;
+
+	          // ------------------------------------------------------------------------
+
+	        },
             seleccionarSucursal(valor){
 
             	// ------------------------------------------------------------------------
@@ -236,7 +264,9 @@
 	        	let me = this;
 	        	me.mostrarDatatable = true;
 	        	me.mostrar = '';
+	        	var table = $('#tablaProductosConteo').DataTable();
 
+        		
 	        	// ------------------------------------------------------------------------
 
 	        	if (codigo === '' || codigo === undefined) {
@@ -270,7 +300,7 @@
 
 	        				// RECARGAR DATATABLE 
 
-	        				// me.recargarDatatable();
+	        				table.ajax.reload( null, false );
 
 							// ------------------------------------------------------------------------
 
@@ -298,7 +328,7 @@
 	        	// LLAMAR AL METODO HIJO 
 
 	        	this.codigoProducto = '';
-	        	this.$refs.compontente_codigo_producto.input.focus();
+	        	//this.$refs.compontente_codigo_producto.input.focus();
 
 	        	// ------------------------------------------------------------------------
 					
@@ -311,7 +341,7 @@
 	        	let me = this;
 	        	me.mostrarDatatable = true;
 	        	me.mostrar = '';
-
+	        	var table = $('#tablaProductosConteo').DataTable();
 
 	        	// ------------------------------------------------------------------------
 
@@ -351,7 +381,7 @@
 
 	        				// RECARGAR DATATABLE 
 
-	        				// me.recargarDatatable();
+	        				table.ajax.reload( null, false );
 
 							// ------------------------------------------------------------------------
 
@@ -392,27 +422,7 @@
 
         		// ------------------------------------------------------------------------
 
-        		var table = $('#tablaProductosConteo').DataTable({
-                        "processing": true,
-                        "serverSide": true,
-                        "destroy": true,
-                        "bAutoWidth": true,
-                        "select": true,
-                        "ajax":{
-                        		"data": {
-	                 				id: me.id_Inventario
-	                 			},
-                                 "url": "/inventarioProductos",
-                                 "dataType": "json",
-                                 "type": "GET"
-                               },
-                        "columns": [
-                            { "data": "COD_PROD" },
-                            { "data": "DESCRIPCION" },
-                            { "data": "CONTEO" },
-                            { "data": "STOCK" }
-                        ]      
-                    });
+        		var table = $('#tablaProductosConteo').DataTable();
 
         		table.ajax.reload( null, false );
 
@@ -466,7 +476,12 @@
 
 	        		// ------------------------------------------------------------------------
 	        		
+
+	        	} else {
+	        		me.ventana = 1;
 	        	}
+
+
 	        		
 	        	// ------------------------------------------------------------------------
 
@@ -479,6 +494,7 @@
             // INICIAR VARIABLES
 
             let me = this;
+            
 
         	// ------------------------------------------------------------------------
 
@@ -487,9 +503,156 @@
         	me.mostrarInventario(me.$route.params.id);
         	
         	// ------------------------------------------------------------------------
+        	
+        	var table = $('#tablaProductosConteo').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                        		"data": {
+	                 				id: me.$route.params.id
+	                 			},
+                                 "url": "/inventarioProductos",
+                                 "contentType": "application/json; charset=utf-8",
+                                 "type": "GET"
+                               },
+                        "columns": [
+                            { "data": "COD_PROD" },
+                            { "data": "DESCRIPCION" },
+                            { "data": "CONTEO" },
+                            { "data": "STOCK" },
+                            { "data": "COMENTARIO" },
+                            { "data": "ACCION" }
+                        ]      
+                    });
+        	
+        	// ------------------------------------------------------------------------
 
+        	$('#tablaProductosConteo').on('click', 'tbody tr #comentario', function() {
 
+                	// *******************************************************************
 
+                	// INICIAR VARIABLE 
+
+                	var producto = '';
+
+                	// *******************************************************************
+
+                	// OBTENER COSTO DEL PRODUCTO DE LA TABLA 
+
+                	producto = table.row($(this).parents('tr')).data().COD_PROD;
+
+                    // *******************************************************************
+
+                    // ABRIR EL SWEET ALERT
+                     
+                    Swal.mixin({
+					  input: 'text',
+					  confirmButtonText: 'Next &rarr;',
+					  showCancelButton: true,
+					  progressSteps: ['1']
+					}).queue([
+					  {
+					    title: 'Comentario',
+					    text: 'Ingrese el Comentario'
+					  }
+					]).then((result) => {
+					  if (result.value) {
+					    const comentario = result.value[0];
+					    
+					    Common.editarComentarioProductoInventarioCommon(me.id_Inventario, producto, comentario).then(data => {
+
+							// ------------------------------------------------------------------------ 
+
+							if (data.response === true) {
+								Swal.fire({
+							      title: 'Cambiado',
+							      confirmButtonText: 'Aceptar !'
+							    })
+
+							    table.ajax.reload( null, false );
+							}
+
+							
+
+							// ------------------------------------------------------------------------ 
+
+						}).catch(error => {
+							Swal.showValidationMessage(
+							  `Request failed: ${error}`
+							)
+						});
+
+					    
+					  }
+					})
+
+                    // *******************************************************************
+
+            });
+        	
+        	 $('#tablaProductosConteo').on('click', 'tbody tr #eliminar', function() {
+
+                    // *******************************************************************
+
+                    // OBTENER DATOS DEL PRODUCTO DATATABLE JS
+                    
+                    Swal.fire({
+                      title: '¿ Eliminar ?',
+                      text: 'Eliminar el producto',
+                      type: 'warning',
+                      showLoaderOnConfirm: true,
+                      showCancelButton: true,
+                      confirmButtonColor: 'btn btn-success',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Si !',
+                      cancelButtonText: 'Cancelar',
+                      preConfirm: () => {
+
+                        return Common.eliminarProductoInventarioCommon(me.id_Inventario, table.row($(this).parents('tr')).data().COD_PROD).then(data => {
+
+                            // ------------------------------------------------------------------------
+
+                            // REVISAR SI HAY DATOS 
+
+                            if (!data.response === true) {
+                              throw new Error(data.statusText);
+                            } 
+
+                            // ------------------------------------------------------------------------
+
+                            return true;
+
+                            // ------------------------------------------------------------------------
+
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                              `Request failed: ${error}`
+                            )
+                        });
+                      }
+
+                    }).then((result) => {
+                      if (result.value) {
+                        Swal.fire(
+                                  'Eliminado !',
+                                  'Se ha eliminado el producto correctamente !',
+                                  'success'
+                        )
+
+                        table.ajax.reload( null, false );
+
+                        // ------------------------------------------------------------------------
+
+                      }
+                    })
+                    //me.codigo = table.row($(this).parents('tr')).data().CODIGO;
+
+                    // *******************************************************************
+
+                });
         }
     }
 </script>

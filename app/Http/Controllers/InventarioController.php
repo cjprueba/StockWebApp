@@ -71,4 +71,55 @@ class InventarioController extends Controller
 
     }
 
+    public function modificarComentario(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PRODUCTOS INGRESADOS 
+
+        $inventario = Inventario::modificarComentario($request);
+        return response()->json($inventario);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function eliminarProducto(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PRODUCTOS INGRESADOS 
+
+        $inventario = Inventario::eliminarProducto($request);
+        return response()->json($inventario);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function reporte(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR PDF TRANSFERENCIA 
+
+        return Inventario::reporte($request->all());
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public function procesar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PRODUCTOS INGRESADOS 
+
+        $inventario = Inventario::procesar($request);
+        return response()->json($inventario);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

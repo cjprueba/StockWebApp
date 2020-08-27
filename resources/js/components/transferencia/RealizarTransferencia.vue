@@ -1033,12 +1033,12 @@
                 me.validarDescripcionProducto = false;
             }
 
-            if (me.precioProducto.length === 0  || me.precioProducto === '0') {
-                me.validarPrecioUnitario = true;
-                return;
-            } else {
-                me.validarPrecioUnitario = false;
-            }
+            // if (me.precioProducto.length === 0  || me.precioProducto === '0') {
+            //     me.validarPrecioUnitario = true;
+            //     return;
+            // } else {
+            //     me.validarPrecioUnitario = false;
+            // }
 
             if (me.cantidadProducto.length === 0  || me.cantidadProducto === '0') {
                 me.validarCantidad = true;

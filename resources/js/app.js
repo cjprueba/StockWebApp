@@ -163,10 +163,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus )
 
 
 /* ********************************************* */
@@ -261,6 +261,7 @@ Vue.component('cajas', require('./components/cajas/Cajas.vue').default);
 Vue.component('caja-lote', require('./components/cajas/LoteCaja.vue').default);
 Vue.component('caja-periodo', require('./components/cajas/PeriodoCaja.vue').default);
 Vue.component('caja-minimo', require('./components/cajas/MinimoCaja.vue').default);
+Vue.component('caja-lote-cero', require('./components/cajas/LoteVacio.vue').default);
 
 /* ********************************************* */
 
@@ -311,7 +312,17 @@ Vue.component('camara-bardcode', require('./components/camara/camara-barcode.vue
 
 // COLOR 
 
+/* ********************************************* */
 
+// ORDEN
+
+Vue.component('modal-detalle-orden', require('./components/orden/modal/ModalDetalleOrden.vue').default);
+Vue.component('modal-detalle-orden-pendiente', require('./components/orden/modal/ModalDetalleOrdenPendiente.vue').default);
+
+/* ********************************************* */
+// VENTAS
+
+Vue.component('modal-detalle-venta', require('./components/venta/modal/ModalDetalleVenta.vue').default);
 
 /* ********************************************* */
 
@@ -427,6 +438,14 @@ Vue.component('modal-detalle-compra', require('./components/compra/modal/ModalDe
 Vue.component('busqueda-cliente-modal', require('./components/cliente/BusquedaCliente.vue').default);
 Vue.component('cliente-filtrar', require('./components/textboxs/ClienteTextbox.vue').default);
 Vue.component('crear-cliente', require('./components/cliente/CrearCliente.vue').default);
+
+
+/* ********************************************* */
+
+// EMPRESAS
+
+Vue.component('empresa-mostrar', require('./components/textboxs/EmpresaTextbox.vue').default);
+
 
 /* ********************************************* */
 
