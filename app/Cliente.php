@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Venta;
 
 class Cliente extends Model
 {
@@ -159,7 +160,7 @@ class Cliente extends Model
 
     }
 
-   public static function clientesDatatable($request){
+ public static function clientesDatatable($request){
 
         // INICIARA VARIABLES
 
@@ -168,14 +169,12 @@ class Cliente extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-
                         0 => 'id',
                         1 => 'nombre',
                         2 => 'codigo',
                         3 => 'ruc',
                         4 => 'direccion',
                         5 => 'ciudad',
-                        
                     );
         
         /*  --------------------------------------------------------------------------------- */
@@ -196,7 +195,6 @@ class Cliente extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
-
         // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
 
         if(empty($request->input('search.value'))){            
@@ -212,7 +210,7 @@ class Cliente extends Model
 
             /*  ************************************************************ */
 
-        } else {
+        }else{
 
             // CARGAR EL VALOR A BUSCAR 
 
@@ -220,10 +218,11 @@ class Cliente extends Model
 
             // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
 
-            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, NOMBRE, RUC, DIRECCION, CIUDAD'))
+            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ID', 'LIKE',"%{$search}%");
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
@@ -231,17 +230,16 @@ class Cliente extends Model
                             ->orderBy($order,$dir)
                             ->get();
 
-
             // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
 
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ID', 'LIKE',"%{$search}%");
                             })->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
             /*  ************************************************************ */  
-
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -254,7 +252,6 @@ class Cliente extends Model
         {
             foreach ($posts as $post)
             {
-
              /*  --------------------------------------------------------------------------------- */
 
              // CARGA EN LA VARIABLE 
@@ -265,7 +262,6 @@ class Cliente extends Model
                 $nestedData['RUC'] = $post->RUC;
                 $nestedData['DIRECCION'] = $post->DIRECCION;
                 $nestedData['CIUDAD'] = $post->CIUDAD;
-
 
                 $data[] = $nestedData;
 
@@ -284,34 +280,48 @@ class Cliente extends Model
                     "recordsFiltered" => intval($totalFiltered), 
                     "data"            => $data   
                     );
-        
         /*  --------------------------------------------------------------------------------- */
 
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
 
        return $json_data; 
-
     }
+
     public static function filtrarClientes($datos){
 
         $user = auth()->user();
 
         // OBTENER TODAS LOS CLIENTES
 
-        $cliente= Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, FEC_NAC, TELEFONO, CELULAR, EMAIL, TIPO, LIMITE_CREDITO'))
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->Where('ID','=',$datos['data'])->get()->toArray();
-
+        $cliente= Cliente::select(DB::raw('CLIENTES.CODIGO, 
+                        CLIENTES.CI, 
+                        CLIENTES.NOMBRE, 
+                        CLIENTES.RUC, 
+                        CLIENTES.DIRECCION, 
+                        CLIENTES.CIUDAD, 
+                        CLIENTES.FEC_NAC, 
+                        CLIENTES.TELEFONO, 
+                        CLIENTES.CELULAR, 
+                        CLIENTES.EMAIL, 
+                        CLIENTES.TIPO, 
+                        CLIENTES.LIMITE_CREDITO,
+                        CLIENTES.FK_EMPRESA,
+                        CLIENTES.DIAS_CREDITO AS LIMITEDIA,
+                        EMPRESAS.NOMBRE AS EMPRESA'))
+                    ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
+                    ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
+                    ->Where('CLIENTES.ID','=',$datos['data'])
+                    ->get()
+                    ->toArray();
+          
         // RETORNAR EL VALOR
 
-       return ["cliente"=>$cliente];
+        return ["cliente" => $cliente];
 
         /*  --------------------------------------------------------------------------------- */
-
     }
 
-
-   public static function guardarClientes($datos){
+    public static function guardarClientes($datos){
         
         $user = auth()->user();
         $dia = date("Y-m-d");
@@ -321,13 +331,15 @@ class Cliente extends Model
 
             // CONTROLA QUE NO EXISTA PARA INSERTAR
 
-            if ($datos['data']['existe']=== false){
+            if($datos['data']['existe']=== false){
 
                 // GUARDA LOS DATOS
-                 $codigo = Cliente::select('CODIGO')->where('ID_SUCURSAL', '=', $user->id_sucursal)
-                        ->orderby('CODIGO','DESC')->limit(1)
-                        ->get()->toArray();
-
+                $codigo = Cliente::select('CODIGO')
+                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->orderby('CODIGO','DESC')
+                        ->limit(1)
+                        ->get()
+                        ->toArray();
 
                 $cliente = Cliente::insertGetId(
                 ['CODIGO'=> $codigo["0"]["CODIGO"]+1, 
@@ -340,7 +352,9 @@ class Cliente extends Model
                 'CELULAR' => $datos['data']['celular'],
                 'EMAIL' => $datos['data']['email'],
                 'TIPO' => $datos['data']['tipo'],
+                'FK_EMPRESA' => $datos['data']['idEmpresa'],
                 'LIMITE_CREDITO' => $datos['data']['limite'],
+                'DIAS_CREDITO' => $datos['data']['diaLimite'],
                 'USER'=> $user->name,
                 'FECALTAS'=> $dia,
                 'HORALTAS'=> $hora,
@@ -361,6 +375,7 @@ class Cliente extends Model
                     'EMAIL' => $datos['data']['email'],
                     'TIPO' => $datos['data']['tipo'],
                     'LIMITE_CREDITO' => $datos['data']['limite'],
+                    'FK_EMPRESA' => $datos['data']['idEmpresa'],
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
                     'HORMODIF'=>$hora]);
@@ -384,14 +399,18 @@ class Cliente extends Model
 
         //OBTENER EL ULTIMO CODIGO DE CLIENTE
 
-        $cliente = Cliente::select('CODIGO')->where('ID_SUCURSAL', '=', $user->id_sucursal)
-                        ->orderby('CODIGO','DESC')->limit(1)
-                        ->get()->toArray();
+        $cliente = Cliente::select('CODIGO')
+                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                        ->orderby('CODIGO','DESC')
+                        ->limit(1)
+                        ->get()
+                        ->toArray();
 
+        $limiteDia = Parametro::consultaPersonalizada('LIMITE_DIAS');
 
         // RETORNAR EL VALOR
 
-        return ["cliente" => $cliente];
+        return ["cliente" => $cliente, "limite"=>$limiteDia];
     }
 
     public static function eliminarClientes($datos){
@@ -527,4 +546,307 @@ class Cliente extends Model
 
     }
 
+    public static function creditoCliente($datos){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LOS CLIENTES
+
+        $cliente= Cliente::select(DB::raw('LIMITE_CREDITO, DIAS_CREDITO, CREDITO_DISPONIBLE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->Where('ID','=',$datos['data'])->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if(count($cliente) > 0){
+
+            return ["response" => true, "cliente" => $cliente];
+
+        } else {
+
+           return ["response" => false];
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function credito_cliente_datatable($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                        0 => 'VENTAS.CLIENTE',
+                        1 => 'CLIENTES.NOMBRE',
+                        2 => 'CLIENTES.CELULAR',
+                        3 => 'CLIENTES.TELEFONO',
+                        4 => 'MONTO',
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = Venta::rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                         ->groupBy('VENTAS.CLIENTE')
+                         ->get();
+
+
+        $totalData = count($totalData);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO , SUM(VENTAS_CREDITO.MONTO) AS MONTO'))
+                         ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->leftJoin('CLIENTES', function($join){
+                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
+                         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                         ->groupBy('VENTAS.CLIENTE')
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+            $posts =        Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO , SUM(VENTAS_CREDITO.MONTO) AS MONTO'))
+                            ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->groupBy('VENTAS.CLIENTE')
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = Venta::rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->groupBy('VENTAS.CLIENTE')
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CLIENTE;
+                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['CELULAR'] = $post->CELULAR;
+                $nestedData['TELEFONO'] = $post->TELEFONO;
+                $nestedData['MONTO'] = $post->MONTO;
+
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function empresasDatatable($request){
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                        0 => 'ID',
+                        1 => 'NOMBRE'
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = DB::connection('retail')->table('empresas')->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+            $posts = DB::connection('retail')->table('empresas')->select(DB::raw('ID, NOMBRE'))
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+
+            $posts = DB::connection('retail')->table('empresas')->select(DB::raw('ID, NOMBRE'))
+                            ->where(function ($query) use ($search) {
+                                $query->Where('NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = DB::connection('retail')->table('empresas')->where(function ($query) use ($search) {
+                                $query->Where('NOMBRE', 'LIKE',"%{$search}%")
+                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                            })->count();
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['NOMBRE'] = $post->NOMBRE;
+
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
 }

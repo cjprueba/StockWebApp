@@ -13,7 +13,7 @@
 				        <a class="nav-link active">Datos del Cliente</a>
 				      </li>
 				      <li class="nav-item">
-				        <a class="nav-link"">Imagen</a>
+				        <a class="nav-link">Imagen</a>
 				      </li>
 				      <li class="nav-item">
 				        <a class="nav-link">Saldo Inicial</a>
@@ -28,87 +28,13 @@
 			  		<!-- ------------------------------------------ TEXTBOX DE CODIGO -------------------------------------------------- -->
 
 			    	<div class="form-group row">
-			    		<label class="col-sm-3 col-form-label">Código</label>
+			    		<label class="col-sm-3 col-form-label">Código Cliente</label>
 			    		<div class="col-sm-5">
-					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite"v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }" ></cliente-filtrar>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
 					    </div>
 			    	</div>
 
-			   		<!-- -------------------------------------- INPUT DE NOMBRE Y APELLIDO --------------------------------------------- -->
-			   		
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Nombre y Apellido</label>
-			    		<div class="col-sm-9">
-					    	<input type="text" v-model="cliente" v-bind:class="{ 'is-invalid': validar.cliente }" class="form-control form-control-sm">
-					    </div>
-			    	</div>
-
-			    	<!-- --------------------------------------- INPUT DE NRO DE DOCUMENTO --------------------------------------------- -->
-
-			    	<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Nro. C.I.</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
-					    </div>
-			    	</div>	
-
-			    	<!-- --------------------------------------------- INPUT DE RUC ---------------------------------------------------- -->
-			   		
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >R.U.C.</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ruc" v-bind:class="{ 'is-invalid': validar.ruc }" class="form-control form-control-sm">
-					    </div>
-			    	</div>	
-
-			    	<!-- ---------------------------------------- INPUT DE DIRECCION ----------------------------------------------- -->
-
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Dirección</label>
-			    		<div class="col-sm-9">
-					    	<input type="text" v-model="dire" v-bind:class="{ 'is-invalid': validar.dire }" class="form-control form-control-sm">
-					    </div>
-			    	</div>	
-
-			    	<!-- ---------------------------------------- INPUT DE CIUDAD/BARRIO ----------------------------------------------- -->
-
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Ciudad/Barrio</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ciud" class="form-control form-control-sm">
-					    </div>
-			    	</div>	
-
-			   		
-			   		<!-- -------------------------------------------- INPUT DE TELEFONO ------------------------------------------------ -->
-			   		
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label">Teléfono</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="tel" v-bind:class="{ 'is-invalid': validar.tel }" class="form-control form-control-sm">
-					    </div>
-			    	</div>
-
-			    	<!-- -------------------------------------------- INPUT DE CELULAR ------------------------------------------------- -->
-
-			    	<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Celular</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="cel" class="form-control form-control-sm">
-					    </div>
-			    	</div>			
-			   		
-			   		<!-- --------------------------------------------- INPUT DE EMAIL -------------------------------------------------- -->
-
-			   		<div class="form-group row mt-3">
-			    		<label class="col-sm-3 col-form-label" >Email</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="ema" class="form-control form-control-sm">
-					    </div>
-			    	</div>
-
-			    	<!-- ---------------------------------------------- SELECT DE TIPO ------------------------------------------------ -->
-
+					<!-- ---------------------------------------------- SELECT DE TIPO ------------------------------------------------ -->
 			    	
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Tipo</label>
@@ -117,20 +43,160 @@
 			    				<option>OCASIONAL</option>
 			  	  				<option>EXTRANJERO</option>
 			    				<option>MAYORISTA</option>
+			    				<option>FUNCIONARIO</option>
 		  					</select>
 					    </div>
 			    	</div>			
 			   		
+			    	<!-- --------------------------------------- TEXTBOX DE EMPLEADOS -------------------------------------------------- -->
+
+			    	<!-- <div class="form-group row" v-if="tipo==='FUNCIONARIO' && existe===false">
+			    		<label class="col-sm-3 col-form-label">Código Funcionario</label>
+			    		<div class="col-sm-5">
+					    	<empleado-filtrar ref="componente_textbox_empleado" :codigo="codigoEmpleado" @codigo="filtrarCodigo" @nombre="filtrarNombre" @cedula="filtrarCi" @direccion="filtrarDireccion" @ciudad="filtrarCiudad" @telefono="filtrarTelefono" @id_sucursal="filtrarID" v-model='codigoEmpleado'></empleado-filtrar>
+					    </div>
+			    	</div> -->
+
+			    	<!-- ------------------------------------------- TEXTBOX DE EMPRESA------------------------------------------------- -->
+
+			    	<div class="form-group row mt-3" v-if="tipo === 'FUNCIONARIO'">
+			    		<label class="col-sm-3 col-form-label">Empresa</label>
+			    		<div class="col-sm-5">
+				    		<empresa-mostrar ref="componente_textbox_empresa" :nombre="empresa" @id="filtrarIdEmpresa" @nombre="filtrarNombreEmpresa" v-bind:class="{ 'is-invalid': validar.empresa }"></empresa-mostrar>
+					    </div>
+			    	</div>
+
+			   		<!-- -------------------------------------- INPUT DE NOMBRE Y APELLIDO --------------------------------------------- -->
+			   		
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Nombre y Apellido</label>
+			    		<div class="col-sm-9">
+					    	<input type="text" v-model="cliente" v-bind:class="{ 'is-invalid': validar.cliente }" class="form-control form-control-sm">
+					    </div>
+			    	</div>
+
+			    	<!-- ---------------------------------- ----- INPUT DE NRO DE DOCUMENTO -------------------------------------------- -->
+
+			    	<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Nro. C.I.</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+
+			    	<!-- --------------------------------------------- INPUT DE RUC ---------------------------------------------------- -->
+			   		
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">R.U.C.</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="ruc" v-bind:class="{ 'is-invalid': validar.ruc }" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+
+			    	<!-- ---------------------------------------- INPUT DE DIRECCION ----------------------------------------------- -->
+
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Dirección</label>
+			    		<div class="col-sm-9">
+					    	<input type="text" v-model="direccion" v-bind:class="{ 'is-invalid': validar.direccion }" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+
+			    	<!-- ---------------------------------------- INPUT DE CIUDAD/BARRIO ----------------------------------------------- -->
+
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Ciudad/Barrio</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="ciudad" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+			   		
+			   		<!-- -------------------------------------------- INPUT DE TELEFONO ------------------------------------------------ -->
+			   		
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Teléfono</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="telefono" v-bind:class="{ 'is-invalid': validar.telefono }" class="form-control form-control-sm">
+					    </div>
+			    	</div>
+
+			    	<!-- -------------------------------------------- INPUT DE CELULAR ------------------------------------------------- -->
+
+			    	<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Celular</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="celular" class="form-control form-control-sm">
+					    </div>
+			    	</div>			
+			   		
+			   		<!-- --------------------------------------------- INPUT DE EMAIL -------------------------------------------------- -->
+
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Email</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="email" class="form-control form-control-sm">
+					    </div>
+			    	</div>
+
+			    	<!-- --------------------------------------- INPUT DE LIMITE DIA CREDITO ------------------------------------------ -->
+			   		
+			   		<div class="form-group row mst-3">
+			    		<label class="col-sm-3 col-form-label">Día límite de Crédito</label>
+			    		<div class="col-sm-5">
+					    	<input type="text" v-model="limiteCreditoDia" class="form-control form-control-sm">
+					    </div>
+			    	</div>
+
 			   		<!-- --------------------------------------- INPUT DE LIMITE DE CREDITO -------------------------------------------- -->
 			   		
 			   		<div class="form-group row mst-3">
 			    		<label class="col-sm-3 col-form-label">Límite de Crédito</label>
 			    		<div class="col-sm-5">
-					    	<input type="text" v-model="limit" class="form-control form-control-sm">
+					    	<input type="text" v-model="limiteCredito" class="form-control form-control-sm">
 					    </div>
 			    	</div>
 
+			    	<!-- --------------------------------------- CHECKED DE UBICACION -------------------------------------------- -->
+					<!-- 
+			    	<div class="row ml-2 my-4">
+						<div class="custom-control custom-switch mr-sm-2">
+							<input type="checkbox" class="custom-control-input" id="switchUbicacion" v-model="checkedUbicacion">
+							<label class="custom-control-label" for="switchUbicacion">Agregar Ubicación</label>
+						</div>
+					</div>
+ 					-->
+			    	<!-- --------------------------------------- COORDENADAS DEL MAPA -------------------------------------------- -->
+
+				    <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+			            <div class="col-auto">
+			                <label><strong>Tus coordenadas:</strong></label>
+			                <p>Latitud: {{ myCoordinates.lat }} <br>Longitud: {{ myCoordinates.lng }}</p>
+			            </div>
+			            <div class="col-auto">
+			                <label><strong>Coordenadas del Mapa:</strong></label>
+			                <p>Latitud:{{ mapCoordinates.lat }} <br>Longitud: {{ mapCoordinates.lng }}</p>
+			            </div>
+			        </div>
+			    	<!-- --------------------------------------- MAPA -------------------------------------------- -->
+					<div>
+				        <GmapMap
+				            :center="myCoordinates"
+				            :zoom="zoom"
+				            style="width:640px; height:360px; margin: 32px auto;"
+				            ref="mapRef"
+				            @dragend="handleDrag">
+				        	 <GmapMarker
+							    :key=""
+							    :position="myCoordinates"
+							    :clickable="true"
+							    :draggable="true"
+							    @click="center=map"
+							  />
+				        </GmapMap>
+					</div>
+
 			    	<!-- ------------------------------ BOTONES NUEVO, GUARDAR, MODIFICAR Y ELIMINAR ----------------------------------- -->
+					
 					<div class="row mt-4">
 
 				    	<div class="col text-right">
@@ -151,51 +217,132 @@
 				    </div>
 				</div>		
 	  		</div>	
-		</div>
+    	</div>
+
+		<!-- -------------------------------------------------TOAST COMPLETAR CABECERA------------------------------------------------- -->
+
+		<b-toast id="toast-completar-datos" variant="warning" solid>
+	      <template v-slot:toast-title>
+	        <div class="d-flex flex-grow-1 align-items-baseline">
+	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+	          <strong class="mr-auto">¡Error!</strong>
+	          <small class="text-muted mr-2">incompleto</small>
+	        </div>
+	      </template>
+	      ¡Seleccione una Empresa!
+	    </b-toast>
 	</div>
 </template>
 
+<script src="vue-google-maps.js"></script>
+
 <script>
+
+	import VueGeolocation from 'vue-browser-geolocation'
+
+	Vue.config.productionTip = false
+	Vue.use(VueGeolocation)
+
+	import * as VueGoogleMaps from 'vue2-google-maps'
+	Vue.use(VueGoogleMaps, {
+	  load: {
+	    key: 'AIzaSyCGcQ1_i9zvFkgWnfgLjD7m-_DKi1XEruc',
+	    libraries: 'places',
+	  }
+	})
+	import {gmapApi} from 'vue2-google-maps'
+
 	export default{
 		props: ['candec'],
 		data(){
 
 			return{
-
 				cliente: '',
 				codigo: '',
+				empresa:'',
+				idEmpresa: '',
+				codigoEmpleado: '',
 				ci: '',
-				ciud: '',
+				ciudad: '',
 				ruc: '',
-				dire: '',
-				tel: '',
-				cel: '',
-				ema:'',
+				direccion: '',
+				telefono: '',
+				celular: '',
+				email:'',
 				tipo: 'OCASIONAL',
-				limit: '',
+				limiteCredito: '',
+				limiteCreditoDia: '',
 				btnguardar: true,
 				existe: false,
+				controlar: true,
 				validar: {
 					cliente: false,
 					codigo: false,
 					ci: false,
 					ruc: false,
-					dire: false,
-					tel: false
-				}
+					direccion: false,
+					telefono: false
+				},
+                map: null,
+                myCoordinates: {
+                    lat: -25.5131,
+                    lng: -54.6069
+                },
+                zoom: 16,
+                checkedUbicacion: false,
+                marker: [],
+      			center: { 
+      				lat: -25.5131,
+                    lng: -54.6069 
+                }
 			}
 		},
 
+        created() {
+          
+            // OBTENER UBICACION
+            
+            this.$getLocation({}).then(coordinates => {
+                        this.myCoordinates = coordinates;
+                    })
+                .catch(error => alert(error));
+           
+        },
+		
 		methods: {
-			
+
+			//CREAR MARCADOR
+
+			createMarker: function (latlng) {
+		      this.marker = new window.google.maps.Marker({
+		        setMap: this.map,
+		        position: latlng,
+		        animation: window.google.maps.Animation.DROP
+		      })
+		      this.addYourLocationButton()
+		    },
+
+			handleDrag() {
+
+                // OBTENER NIVEL DE ZOOM Y COORDENADAS EN EL MAPA
+
+                let center = {
+                    lat: this.map.getCenter().lat(),
+                    lng: this.map.getCenter().lng()
+                };
+                let zoom = this.map.getZoom();
+                localStorage.center = JSON.stringify(center);
+                localStorage.zoom = zoom;
+            },
+
 			// GUARDAR Y MODIFICAR
 
 			guardar(){
 
-
 				// CONTROL DE DATOS NULOS
 
 				if(this.controlador() === false){
+					this.controlar = true;
 					return;
 				}
 
@@ -206,15 +353,17 @@
 					codigo: this.codigo,
 					name: this.cliente,
 					cedula: this.ci,
-					direccion: this.dire,
-					ciudad: this.ciud,
+					direccion: this.direccion,
+					ciudad: this.ciudad,
 					ruc: this.ruc,
-					telefono: this.tel,
-					celular: this.cel,
-					email: this.ema,
+					telefono: this.telefono,
+					celular: this.celular,
+					email: this.email,
 					tipo: this.tipo,
-					limite: this.limit,
-					existe: this.existe
+					limite: this.limiteCredito,
+					existe: this.existe,
+					idEmpresa: this.idEmpresa,
+					diaLimite: this.limiteCreditoDia
 				}
 
 				// ENVIA LOS DATOS PARA GUARDAR O MODIFICAR
@@ -231,8 +380,7 @@
 	                     	'¡Se ha guardado correctamente el cliente!',
 	                     	'success'
 	                  	)
-	                  	this.existe = true;
-	                  	this.btnguardar = false;
+
 	                  	this.limpiar();
 
             			this.$refs.componente_textbox_cliente.recargar();
@@ -267,123 +415,156 @@
     				existe: this.existe
     			}
 
+    			// MOSTRAR LA PREGUNTA
 
-    			// LLAMAR A UNA FUNCION PARA ELIMINAR LOS DATOS
+      			Swal.fire({
+				  title: '¿Estás seguro?',
+				  text: "¡Eliminar el Cliente " + this.codigo + "!",
+				  type: 'warning',
+				  showLoaderOnConfirm: true,
+				  showCancelButton: true,
+				  cancelButtonColor: 'btn btn-success',
+				  confirmButtonColor: '#d33',
+				  confirmButtonText: '¡Sí, eliminar!',
+				  cancelButtonText: 'Cancelar',
+				  preConfirm: () => {
+    				// LLAMAR A UNA FUNCION PARA ELIMINAR LOS DATOS
+				    return Common.eliminarClienteCommon(eliminar).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+				  	}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				  }
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      '¡Eliminado!',
+						      '¡Se ha eliminado correctamente el cliente!',
+						      'success'
+					)
 
-    			Common.eliminarClienteCommon(eliminar).then(data => {
+				  	// ------------------------------------------------------------------------
 
-    				// MENSAJE DE CONFIRMACION O ERROR
+				  	// RECARGAR TABLA 
+				  	
+            		this.$refs.componente_textbox_cliente.recargar();
 
-    				if(data.response===true){
-	                  	Swal.fire(
-		                    '¡Eliminado!',
-		                    '¡Se ha eliminado correctamente el cliente!',
-		                    'success'
-	                  	)
-            			this.$refs.componente_textbox_cliente.recargar();
-	               	}else{
-		                Swal.fire(
-		                    '¡Error!',
-		                    data.statusText,
-		                    'warning'
-		                )
-	               	}
+    				this.limpiar();
 
-	               	// MENSAJE DE ERROR EN LA FUNCION
+					// ------------------------------------------------------------------------
 
-    			}).catch((err) => {
-	                console.log(err);
-	                this.mostrar_error = true;
-	                this.mensaje = err;
-              	});
-
-    			this.limpiar();
-
+				  }
+				})
 			},
 
 			// CONTROL DE INPUT NULOS
 
 			controlador(){
 
-				if ((this.cliente).length === 0 || (this.cliente === " ")){
-					this.validar.cliente = true;
+				let me = this;
+
+				if (me.cliente === '' || me.cliente === " "){
+					me.validar.cliente = true;
+					me.controlar = false;
 
 				}else{
-					this.validar.cliente = false;
+					me.validar.cliente = false;
 				}
 
-				if ((this.codigo).length === 0 || (this.codigo === " ")){
-					this.validar.codigo = true;
+				if (me.codigo === '' || me.codigo === " "){
+					me.validar.codigo = true;
+					me.controlar = false;
 
 				}else{
-					this.validar.codigo = false;
+					me.validar.codigo = false;
 				}
 
-				if (((this.ci) === '' || (this.ci === " ")) && (this.ruc) === ''){
-					this.validar.ci = true;
+				if ((me.ci === '' || me.ci === " ") && me.ruc === ''){
+					me.validar.ci = true;
+					me.controlar = false;
 
 				}else{
-					this.validar.ci = false;
+					me.validar.ci = false;
 				}
 
-				if ((this.dire).length === 0 || (this.dire === " ")){
-					this.validar.dire = true;
+				if (me.direccion === '' || me.direccion === " "){
+					me.validar.direccion = true;
+					me.controlar = false;
 
 				}else{
-					this.validar.dire = false;
+					me.validar.direccion = false;
 				}
 
-				if (((this.ruc) === '' || (this.ruc === " ")) && (this.ci) === ''){
-					this.validar.ruc = true;
+				if ((me.ruc === '' || me.ruc === " ") && me.ci === ''){
+					me.validar.ruc = true;
+					me.controlar = false;
 
 				}else{
-					this.validar.ruc = false;
+					me.validar.ruc = false;
 				}
 
-				if((this.tel).length === 0 || (this.tel)=== " "){
-					this.validar.tel = true;
+				if(me.telefono === '' || me.telefono === " "){
+					me.validar.telefono = true;
+					me.controlar = false;
 				}else{
-					this.validar.tel =  false;
+					me.validar.telefono =  false;
 				}
 
-				if ((this.validar.codigo === true) || (this.validar.cliente === true) || (this.validar.ci === true) || (this.validar.ruc === true) || (this.validar.dire === true) || (this.validar.tel === true)){
+				if((me.idEmpresa === 'null' || me.idEmpresa=== '') && me.tipo === 'FUNCIONARIO' && me.existe === false){
+					
+					me.$bvToast.show('toast-completar-datos');
+					me.controlar = false;
+				}
+				
+				if(me.controlar === true){
+					return true;
+				}else{
 					return false;
 				}
-
 			},
 
 			// REINICIAR EL FORMULARIO
 
 			limpiar(){
-
-				this.cliente = '';
-				this.ci = '';
-				this.ciud = '';
-				this.ruc = '';
-				this.dire = '';
-				this.tel = '';
-				this.cel = '';
-				this.ema = '';
-				this.tipo = 'OCASIONAL';
-				this.limit = '';
-				this.btnguardar = true;
-				this.existe = false;
-				this.validar.cliente = false;
-				this.validar.codigo = false;
-				this.validar.ci = false;
-				this.validar.ciud = false;
-				this.validar.ruc = false;
-				this.validar.dire = false;
-				this.validar.tel = false;
-				this.validar.cel = false;
-				this.validar.ema = false;
-				this.validar.tipo = false;
-				this.validar.limit = false;
+				let me = this;
+				me.cliente = '';
+				me.ci = '';
+				me.ciudad = '';
+				me.ruc = '';
+				me.direccion = '';
+				me.telefono = '';
+				me.celular = '';
+				me.email = '';
+				me.tipo = 'OCASIONAL';
+				me.limiteCredito = '';
+				me.limiteCreditoDia = '';
+				me.btnguardar = true;
+				me.existe = false;
+				me.validar.cliente = false;
+				me.validar.codigo = false;
+				me.validar.ci = false;
+				me.validar.ciudad = false;
+				me.validar.ruc = false;
+				me.validar.direccion = false;
+				me.validar.telefono = false;
+				me.validar.celular = false;
+				me.validar.email = false;
+				me.validar.tipo = false;
+				me.validar.limiteCredito = false;
 				Common.clienteNuevoCommon().then(data=> {
-		        	this.codigo = data.cliente[0].CODIGO+1;
-		        	this.btnguardar = true;
+		        	me.codigo = data.cliente[0].CODIGO+1;
+		        	me.limiteCreditoDia = data.limite.LIMITE_DIAS;
+		        	me.btnguardar = true;
 		        });		
-
+				me.codigoEmpleado = '';
+				me.idEmpresa = '';
+				me.empresa = '';
+				me.controlar = true;
 			},
 
 			// FILTRA LOS DATOS DEL DATATABLE AL INPUT
@@ -412,27 +593,27 @@
 			
 			cargarDireccion(valor){
 
-				this.dire = valor;
+				this.direccion = valor;
 			},
 			
 			cargarCiudad(valor){
 
-				this.ciud = valor;
+				this.ciudad = valor;
 			},
 			
 			cargarTelefono(valor){
 
-				this.tel = valor;
+				this.telefono = valor;
 			},
 			
 			cargarCelular(valor){
 
-				this.cel = valor;
+				this.celular = valor;
 			},
 			
 			cargarEmail(valor){
 
-				this.ema = valor;
+				this.email = valor;
 			},
 			
 			cargarTipo(valor){
@@ -442,17 +623,65 @@
 			
 			cargarLimite(valor){
 
-				this.limit = valor;
+				this.limiteCredito = valor;
+			},
+
+			cargarEmpresa(valor){
+				
+				this.empresa = valor;
+			},
+			
+			cargarEmpresaID(valor){
+				
+				this.idEmpresa = valor;
+			},
+
+			cargarLimiteDia(valor){
+
+				this.limiteCreditoDia = valor;
+			},
+
+			filtrarNombreEmpresa(valor){
+
+				this.empresa = valor;
+			},
+
+			filtrarIdEmpresa(valor){
+
+				this.idEmpresa = valor;
 			}
 		},
 
 		mounted(){
 
+			let me = this;
+
 			Common.clienteNuevoCommon().then(data=> {
-		        	this.codigo = data.cliente[0].CODIGO+1;
-		        	this.btnguardar = true;
-		        });
-		}
+		        	me.codigo = data.cliente[0].CODIGO+1;
+		        	me.limiteCreditoDia = data.limite.LIMITE_DIAS;
+		        	me.btnguardar = true;
+		    });
+
+			// AGREGAR EL MAPA A UN DATA OBJECT
+
+			this.$refs.mapRef.$mapPromise.then(map => this.map = map);
+		},
+
+        computed: {
+            mapCoordinates() {
+                if(!this.map) {
+                    return {
+                       	lat: 0,
+                    	lng: 0
+                    };
+                }
+                return {
+                    lat: this.map.getCenter().lat().toFixed(4),
+                    lng: this.map.getCenter().lng().toFixed(4)
+                }
+            },
+            google: gmapApi
+        }
 
 	}
 </script>

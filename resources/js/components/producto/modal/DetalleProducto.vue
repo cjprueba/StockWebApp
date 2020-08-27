@@ -187,6 +187,7 @@
 																      <th scope="col">Existente</th>
 																      <th scope="col">Costo</th>
 																      <th scope="col">Creación</th>
+																      <th scope="col">Vencimiento</th>
 																    </tr>
 																  </thead>
 																  <tbody>
@@ -197,6 +198,7 @@
 																      <td>{{lote.CANTIDAD}}</td>
 																      <td>{{lote.COSTO}}</td>
 																      <td>{{lote.FECALTAS}}</td>
+																      <td>{{lote.VENCIMIENTO}}</td>
 																    </tr>
 																  </tbody>
 																</table>
@@ -506,7 +508,8 @@
           		CANTIDAD_INICIAL: '', 
           		CANTIDAD: '', 
           		COSTO: '', 
-          		FECALTAS: ''
+          		FECALTAS: '',
+          		VENCIMIENTO: ''
           	},
           	proveedores: {
           		CANTIDAD: '',

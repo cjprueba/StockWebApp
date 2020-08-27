@@ -35,7 +35,7 @@ class ClienteController extends Controller
     public function clienteDatatable(Request $request){
 
 
-       // OBTENER TODOS LOS DATOS DE lAS SUCURSALES
+       // OBTENER TODOS LOS DATOS
 
          $cliente = Cliente::clientesDatatable($request);
         return response()->json($cliente);
@@ -59,11 +59,12 @@ class ClienteController extends Controller
         return response()->json($cliente);
         
     }
-        public function nuevoCliente(){
+    
+    public function nuevoCliente(){
         
         /*  --------------------------------------------------------------------------------- */
 
-        // OBTENER MARCAS
+        // OBTENER
 
         $cliente = Cliente::nuevoCliente();
         return response()->json($cliente);
@@ -71,4 +72,39 @@ class ClienteController extends Controller
         /*  --------------------------------------------------------------------------------- */
     }
 
+    public function creditoCliente(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::creditoCliente();
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function creditoClienteDatatable(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::credito_cliente_datatable($request);
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }    
+
+    /*  ---------------------------EMPRESA DATATABLE------------------------------------- */
+
+    public function datatableEmpresa(Request $request){
+
+       // OBTENER TODOS LOS DATOS 
+
+        $empresa = Cliente::empresasDatatable($request);
+        return response()->json($empresa);
+
+    }
 }

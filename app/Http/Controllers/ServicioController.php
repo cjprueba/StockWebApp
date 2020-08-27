@@ -21,4 +21,30 @@ class ServicioController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function reporteDelivery(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR PRODUCTO 
+
+        $servicios = Servicios::rptServicioDelivery($request->all());
+        return response()->json($servicios);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarRptDelivery(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $servicios = Servicios::generarReporteDelivery($request);
+        return response()->json($servicios);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

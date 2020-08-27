@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Mpdf\Mpdf;
 use App\Transferencia;
 use App\Exports\TransferenciaGeneral;
+use App\VentaTransferencia;
 
 class TransferenciaControler extends Controller
 {
@@ -227,4 +228,31 @@ class TransferenciaControler extends Controller
         
     }
    
+    public function rptTransferencia(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = VentaTransferencia::transferenciaPDF($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarVentaT(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = VentaTransferencia::generarVentaTransferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

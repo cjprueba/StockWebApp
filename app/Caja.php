@@ -16,7 +16,7 @@ class Caja extends Model
         /*  --------------------------------------------------------------------------------- */
        $user = auth()->user();
         // OBTENER TODOS LOS DATOS DEL TALLE
-        $caja = Caja::select(DB::raw('CAJA'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('IP','=',$datos['id'])->get()->toArray();
+        $caja = Caja::select(DB::raw('CAJA, CANTIDAD_PERSONALIZADA, CANTIDAD_TICKET'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('IP','=',$datos['id'])->get()->toArray();
         if(count($caja)<=0){
            return ["response"=>false];
         }

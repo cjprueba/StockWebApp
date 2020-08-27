@@ -11,7 +11,8 @@ use App\Common;
 use App\Parametro;
 use App\Sucursal;
 use App\TransferenciaDet_tiene_Lotes;
-use NumeroALetras\NumeroALetras;
+// use NumeroALetras\NumeroALetras;
+use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
 
 class Transferencia extends Model
@@ -2830,6 +2831,8 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
         
     }
+
+    
 
     public static function pdf_transferencia($dato)
     {
