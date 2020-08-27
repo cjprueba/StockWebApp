@@ -291,7 +291,7 @@ export default new Router({
 		},
 		{
 			path: '/pd1',
-			name: 'pdCheckout',
+			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
 		},
 		{

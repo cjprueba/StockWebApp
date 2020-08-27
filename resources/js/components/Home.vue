@@ -9635,9 +9635,9 @@ a:focus {
   animation-timing-function: opacity cubic-bezier(0, 1, 0.4, 1);
 }
 .bg-gradient-primary {
-  background-color: #5D001E;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(10%, #5D001E), to(#224abe));
-  background-image: linear-gradient(180deg, #5D001E 10%, #224abe 100%);
+  background-color: #002A3A;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(10%, #002A3A), to(#224abe));
+  background-image: linear-gradient(180deg, #002A3A 10%, #002A3A 100%);
   background-size: cover;
 }
 .bg-gradient-secondary {

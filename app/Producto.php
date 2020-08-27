@@ -2416,9 +2416,7 @@ $lotes= DB::connection('retail')
     }
 
     public static function obtener_producto_POS($dato){
-
         
-
         /*  --------------------------------------------------------------------------------- */
 
         // USUARIO 
@@ -2460,7 +2458,7 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
-        $start = microtime(true);
+
         $producto = ProductosAux::
         leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
         ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
@@ -2471,6 +2469,7 @@ $lotes= DB::connection('retail')
                           PRODUCTOS.IMPUESTO,
                           PRODUCTOS.MARCA,
                           PRODUCTOS.LINEA,
+                          PRODUCTOS_AUX.FECALTAS,
                           PRODUCTOS.VENCIMIENTO,
                           PRODUCTOS_AUX.CODIGO_REAL,
                           PRODUCTOS_AUX.DESCUENTO')
@@ -2478,9 +2477,7 @@ $lotes= DB::connection('retail')
         ->where('PRODUCTOS_AUX.CODIGO', '=', $dato["codigo"])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
-        $time = microtime(true) - $start;
-        
-        $start2 = microtime(true);
+
         foreach ($producto as $key => $value) {
 
             /*  --------------------------------------------------------------------------------- */
@@ -2496,7 +2493,7 @@ $lotes= DB::connection('retail')
             $data["LINEA"] = $value->LINEA;
             $data["CODIGO_REAL"] = $value->CODIGO_REAL;
             $data["DESCUENTO"] = $value->DESCUENTO;
-
+            $data["FECALTAS"]= $value->FECALTAS;
             /*  --------------------------------------------------------------------------------- */
 
             // OBTENER LOTE
@@ -2561,19 +2558,30 @@ $lotes= DB::connection('retail')
             select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
             ->where('CODIGO_MARCA', '=', $data["MARCA"])
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->whereDate('FECHAINI', '<=', $dia)
-            ->whereDate('FECHAFIN', '>=', $dia)
+            ->where([
+                ['FECHAINI', '<=', $dia],
+                ['FECHAFIN', '>=', $dia]
+                ])
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
 
             // CONVERTIR EN FALSE DESCUENTO POR MARCA 
-        
-            if (count($descuento_marca) > 0) {
-                $descuento_marca = $descuento_marca[0];
-            } else {
-                $descuento_marca = false;
-            }
+            //EN CASO DE QUE SEA SUCURSAL VILLAMORRA EL DESCUENTO POR MARCA NO SERA REALIZADO SI LOS PRODUCTOS SON DE FECHA DE IMPORTACION DEL 2020-08-17 PARA ARRIBA
+            if($user->id_sucursal==11){
+                        if (count($descuento_marca) > 0 && ($data["FECALTAS"]<'2020-08-18' ||  $data["FECALTAS"] >'2020-08-21') ) {
+                        $descuento_marca = $descuento_marca[0];
+                     }else{
+                        $descuento_marca = false;
+                     }
+                }else{
+                     if (count($descuento_marca) > 0) {
+                        $descuento_marca = $descuento_marca[0];
+                    } else {
+                        $descuento_marca = false;
+                    }
+             }
+           
 
             /*  --------------------------------------------------------------------------------- */
         }
@@ -2585,15 +2593,11 @@ $lotes= DB::connection('retail')
         $imagen = Imagen::obtenerImagen($dato["codigo"]);
 
         /*  --------------------------------------------------------------------------------- */
-        $time2 = microtime(true) - $start2;
-        
-
-        /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
 
         if (count($producto) > 0) {
-            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"], "time" => $time, "time-2" => $time2];
+            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"]];
         } else {
             return ["response" => false];
         }
@@ -3086,6 +3090,7 @@ $lotes= DB::connection('retail')
         $tipo = $datos["datos"]["tipo"];
         $ordenar = $datos["datos"]["ordenar"];
         $estado = $datos["datos"]["estado"];
+        $imagenes = $datos["datos"]["imagenes"];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3095,6 +3100,7 @@ $lotes= DB::connection('retail')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                                    
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
                          //->where('PRODUCTOS.LINEA','=', 34)
                          ->offset($start)
@@ -3102,7 +3108,10 @@ $lotes= DB::connection('retail')
                          //->orderBy($order,$dir)
                          
 
-        
+        if($imagenes === true) {
+            $posts->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO');
+        }
+
         if($tipo === '1') {
 
             $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
@@ -3137,6 +3146,10 @@ $lotes= DB::connection('retail')
             }
         }
 
+        // if($imagenes === true) {
+        //     $posts->whereRaw('LENGTH(IMAGENES.PICTURE) <> 14373');
+        // }
+
         $posts = $posts->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -3148,14 +3161,14 @@ $lotes= DB::connection('retail')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal);
 
+        if($imagenes === true) {
+            $totalFiltered->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO');
+        }
+
         if($tipo === '1') {
             $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
         } else if ($tipo === '2'){
             $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
-        }
-
-        if(!empty($busqueda)) {
-            $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''.$busqueda.'%');
         }
                          
         if(!empty($categorias)) {
@@ -3182,6 +3195,10 @@ $lotes= DB::connection('retail')
             $totalFiltered->where('PRODUCTOS_AUX.DESCUENTO', '>' , 0);
         }
         
+        // if($imagenes === true) {
+        //     $totalFiltered->whereRaw('LENGTH(IMAGENES.PICTURE) <> 14373');
+        // }
+
         $totalFiltered = $totalFiltered->count();
 
         /*  --------------------------------------------------------------------------------- */

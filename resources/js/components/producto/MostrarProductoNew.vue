@@ -13,7 +13,23 @@
                   <div class="container-fluid">
                     <div class="row">
 
-                      <div class="col-md-12">
+                    <div class="col-md-6">
+
+                      <!-- ------------------------------------------------------------------ -->
+
+                      <!-- HABILITAR CODIGO REAL -->
+                    
+                        <div class="custom-control custom-switch">
+                         <input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="opciones.imagenes">
+                         <label class="custom-control-label" for="customControlAutosizing">Solo imágenes</label>
+                        </div>
+                    
+
+                      <!-- ------------------------------------------------------------------ -->
+
+                    </div>
+
+                      <div class="col-md-6">
                   <ul class="nav navbar-nav text-right">
                     <li class="dropdown">
                       <a href="#" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" v-on:click="checkout()" role="button" aria-expanded="false"> 
@@ -384,7 +400,8 @@
               busqueda: '',
               tipo: '1',
               ordenar: 1,
-              estado: 1
+              estado: 1,
+              imagenes: true
             },
             cargando: false,
             categorias: [],

@@ -757,7 +757,7 @@ class Pedido extends Model
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
                 if ($post->ESTATUS === 1) {
-                	$post->ESTATUS = '<span class="badge badge-warning">Pendiente</span>';
+                	$post->ESTATUS = '<span class="badge badge-info">En Proceso</span>';
                 } else if ($post->ESTATUS === 2) {
                 	$post->ESTATUS = '<span class="badge badge-warning">Pendiente</span>';
                 } else if ($post->ESTATUS === 3) {
@@ -794,6 +794,364 @@ class Pedido extends Model
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
 
         return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function cambiar_estatus($data){
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+    	$fecha = date("Y-m-d H:i:s");
+    	$hora = date("H:i:s");
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// MODIFICAR ESTATUS 
+
+    	Pedido::where('ESTATUS', '=', 2)
+    	->where('ID_SUCURSAL', '=', $user->id_sucursal) 
+    	->where('ID', '=',  $data["codigo"])
+    	->update([
+	        'FECMODIF' => $fecha,
+	        'HORMODIF' => $hora,
+	        'ESTATUS' => $data["estatus"]
+	    ]);
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// RESPONSE 
+
+    	if ($data["estatus"] === 1) {
+    		return ["response" => false, "statusText" => "No se puede cambiar el estatus porque se encuentra en edición"];
+    	} else {
+    		return ["response" => true, "statusText" => "Se ha cambiado de estatus"];
+    	}
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function mostrarCabecera($codigo){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+                         
+        $pedido = Pedido::select(DB::raw(
+                        'PEDIDOS.ID AS CODIGO,
+                        CLIENTES.CI,
+                        CLIENTES.RUC,
+                        CLIENTES.NOMBRE AS CLIENTE, 
+                        CLIENTES.DIRECCION,
+                        CLIENTES.CIUDAD,
+                        CLIENTES.EMAIL,
+                        PEDIDOS.FECALTAS, 
+                        CLIENTES.TELEFONO,
+                        CLIENTES.CELULAR,
+                        PEDIDOS.OBSERVACION, 
+                        USERS.NAME, 
+                        PEDIDOS.TOTAL, 
+                        PEDIDOS.ESTATUS, 
+                        PEDIDOS.FK_MONEDA AS MONEDA,
+                        PEDIDOS.FECALTAS'
+        ))
+        ->leftJoin('CLIENTES', function($join){
+	        $join->on('CLIENTES.CODIGO', '=', 'PEDIDOS.CLIENTE_ID')
+	        ->on('CLIENTES.ID_SUCURSAL', '=', 'PEDIDOS.ID_SUCURSAL');
+	    })
+        ->leftjoin('USERS', 'USERS.ID', '=', 'PEDIDOS.USER_ID')
+		->where('PEDIDOS.ID','=', $codigo)
+		->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RUC / CI
+
+        if ($pedido[0]->RUC === '' || $pedido[0]->RUC === null) {
+            $pedido[0]->RUC = $pedido[0]->CI;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR 
+
+        return $pedido[0];
+
+        /*  --------------------------------------------------------------------------------- */
+	}
+
+	 public static function mostrarCuerpo($data){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+         
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $data;
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pedido_det = PedidoDet::select(DB::raw(
+                        'PEDIDOS.ID,
+                         PEDIDOS_DET.COD_PROD AS CODIGO, 
+                         PRODUCTOS.CODIGO AS COD_PROD,
+                         PRODUCTOS.DESCRIPCION, PEDIDOS_DET.CANTIDAD, 
+                         LINEAS.DESCRIPCION AS CATEGORIA, 
+                         PEDIDOS_DET.PRECIO_UNIT AS PREC_VENTA, 
+                         PEDIDOS_DET.PRECIO,
+                         MONEDAS.CANDEC, 
+                         PRODUCTOS_AUX.MONEDA,
+                         PESO.PESO,
+                         PEDIDOS.FK_MONEDA'
+                    ))
+        			->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PEDIDOS_DET.COD_PROD')
+        			->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+        			->leftjoin('PEDIDOS', 'PEDIDOS.ID', '=', 'PEDIDOS_DET.ID_PEDIDO')
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+	                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'PEDIDOS_DET.COD_PROD')
+	                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'PEDIDOS_DET.ID_SUCURSAL');
+	                     })
+                    ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    ->leftjoin('PESO', 'PESO.CODIGO', '=', 'PRODUCTOS.CODIGO')
+			        ->where('PEDIDOS.ID','=', $codigo)
+			        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($pedido_det as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['CODIGO'] = $value->CODIGO;
+            $nestedData['ITEM'] = $key;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 0);
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PREC_VENTA, $value->FK_MONEDA);
+            $nestedData['TOTAL'] = Common::precio_candec_sin_letra($value->PRECIO, $value->FK_MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['PESO'] = round(($value->PESO/1000), 2).'kg';
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return $data;
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function reporte($dato){
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $pedido = Pedido::mostrarCabecera($dato['data']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $pedido_det = Pedido::mostrarCuerpo($dato['data']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $c_rows = 0;
+        $c_rows_array = count($pedido_det);
+        $c_filas_total = count($pedido_det);
+        $codigo = $pedido->ID;
+        $cliente = $pedido->CLIENTE;
+        $direccion = $pedido->DIRECCION;
+        $ruc = $pedido->RUC;
+        $documento = $pedido->RUC;
+        $telefono = $pedido->TELEFONO;
+        $celular = $pedido->CELULAR;
+        $ciudad = $pedido->CIUDAD;
+        $fecha = $pedido->FECALTAS;
+        $ruc = $pedido->RUC;
+        $email = $pedido->EMAIL;
+        $nombre = 'Orden_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $moneda = $pedido->MONEDA;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_pedido_'.time().'.pdf';
+        $letra = '';
+        $total = Common::precio_candec_sin_letra($pedido->TOTAL, $moneda);
+        $factura = $pedido->ID;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES CABECERA
+
+        $data['cliente'] = $cliente;
+        $data['documento'] = $documento;
+        $data['ciudad'] = $ciudad;
+        $data['direccion'] = $direccion;
+        $data['telefono'] = $telefono;
+        $data['codigo'] = $codigo;
+        $data['dia'] = $dia;
+        $data['ruc'] = $ruc;        
+        $data['fecha'] = $fecha;
+        $data['nombre'] = $nombre;
+        $data['c'] = $c;
+        $data['tipo'] = 'online';
+        $data['total'] = $total;
+        $data['ruc'] = $ruc;
+        $data['factura'] = $factura;
+        $data['email'] = $email;
+
+        $total = 0;
+        
+        // INICIAR MPDF 
+
+		$mpdf = new \Mpdf\Mpdf([
+			'margin_left' => 20,
+			'margin_right' => 20,
+			'margin_top' => 40,
+			'margin_bottom' => 10,
+			'margin_header' => 10,
+			'margin_footer' => 10
+		]);
+
+        $mpdf->SetDisplayMode('fullpage');
+
+		foreach ($pedido_det as $key => $value) {
+
+            $totalP = $value["TOTAL"];
+
+            //COTIZACION
+
+           $cotizacion = $totalP/($value["CANTIDAD"]*$value["PRECIO"]);
+
+            // PRECIO 
+
+           $precio = $cotizacion*$value["PRECIO"];
+
+            // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+            $articulos[$c_rows]["precio"] = Common::precio_candec($precio, $value["MONEDA"]);
+
+            // CARGAR VARIABLES 
+
+            $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
+            $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
+            $articulos[$c_rows]["descripcion"] = $value["DESCRIPCION"];
+            $articulos[$c_rows]["total"] = Common::precio_candec($totalP, $value["MONEDA"]);
+            $articulos[$c_rows]["peso"] = $value["PESO"];
+
+	        $total = Common::quitar_coma($total, 2) +Common::quitar_coma($totalP,2);
+	        
+
+            // CONTAR CANTIDAD DE FILAS DE HOJAS 
+
+            $c_rows = $c_rows + 1;    
+
+            // CONTAR LA CANTIDAD DE FILAS 
+
+            $c = $c + 1;
+
+            // SI CANTIDAD DE FILAS ES IGUAL A 18 ENTONCES CREAR PAGINA 
+
+            if ($c_rows === 10){
+
+                // AGREGAR ARTICULOS 
+
+                $data['articulos'] = $articulos;
+
+                // RESTAR LAS CANTIDADES CARGADAS 
+
+                $c_rows_array = $c_rows_array - 10;
+
+                // PONER TRUE SWITCH YA QUE CREO UNA PAGINA 
+
+                $switch_hojas = true;
+
+                // CARGAR SUB TOTALES POR HOJA
+
+
+		        $data['total'] = Common::precio_candec($total, $moneda);;
+		        $data['subtotal'] = $subtotal;
+
+                $html = view('pdf.facturaPedido', $data)->render();
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($c !== 10) {
+                    $mpdf->AddPage();
+                }
+
+                // CERAR CONTADOR DE FILAS CARGADAS POR HOJAS Y ARTICULOS
+
+                $c_rows = 0;
+                $data['articulos'] = [];
+                $articulos = [];
+                    
+                $mpdf->WriteHTML($html);
+
+            } else if ($c_rows_array < 10 && $c_filas_total === $c) {
+                
+                // AGREGAR ARTICULOS 
+                
+                $data['articulos'] = $articulos;
+		        $data['total'] = Common::precio_candec($total, $moneda);
+
+                // CREAR HOJA 
+
+                $html = view('pdf.facturaPedido', $data)->render();
+
+                if ($switch_hojas === true) {
+                    $mpdf->AddPage();
+                }
+                    
+                $mpdf->WriteHTML($html);
+            }
+        }
+
+        $mpdf->SetProtection(array('print'));
+		$mpdf->SetTitle("Calbea/Factura");
+        
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output();
 
         /*  --------------------------------------------------------------------------------- */
     }
