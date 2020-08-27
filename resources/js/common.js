@@ -4223,6 +4223,191 @@ function generarPdfBarinternoProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
+function obtenerCuponCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/obtenerCupon').then(function (response) {
+				console.log(response.data);
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function guardarCuponCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR CUPON
+
+			return axios.post('/cuponGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function conseguirDatosCuponCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/conseguirCupon', {'data':data}).then(function (response) {
+				
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function modificarCuponCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR CUPON
+
+			return axios.post('/cuponModificar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function obtenerParametroCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/parametro').then(function (response) {
+				console.log(response.data);
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function deshabilitarCuponCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/cuponDeshabilitar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function habilitarCuponCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/cuponHabilitar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function generarReporteVentaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/reporte_ventas', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function encontrarfotoCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/encontrarFoto').then(function (response) {
+				
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function importarProductoCommon(codigo, tipo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/productoImportar', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 
 
 // ------------------------------------------------------------------------
@@ -4817,6 +5002,16 @@ export {
 		existeProductoImprimirEtiquetaQrDataTableCommon,
 		generarPdfBarcodeProductoCommon,
 		generarPdfBarinternoProductoCommon,
+		obtenerCuponCommon,
+		guardarCuponCommon,
+		conseguirDatosCuponCommon,
+		modificarCuponCommon,
+		obtenerParametroCommon,
+		deshabilitarCuponCommon,
+	  habilitarCuponCommon,
+	  generarReporteVentaCommon,
+	  encontrarfotoCommon,
+	  importarProductoCommon,
 		obtenerCreditoClienteCommon,
 		editarComentarioProductoInventarioCommon,
 		eliminarProductoInventarioCommon,

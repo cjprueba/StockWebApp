@@ -270,6 +270,20 @@ export default new Router({
 			component: require('./components/movimientos/RemisionNota.vue').default
 		},
 		{
+			path: '/cup1',
+			name: 'cuponMostrar',
+			component: require('./components/cupones/MostrarCupones.vue').default
+		},
+		{
+			path: '/cup2/:id',
+			name: 'cuponCrear',
+			component: require('./components/cupones/CrearCupones.vue').default
+		},
+		{
+			path: '/rpn1',
+			name: 'rptVentaWeb',
+			component: require('./components/reportes/venta/Inicio.vue').default
+		},
 			path: '/orden1',
 			name: 'ordenesMostrar',
 			component: require('./components/orden/MostrarOrden.vue').default
