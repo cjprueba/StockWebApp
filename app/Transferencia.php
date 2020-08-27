@@ -248,6 +248,7 @@ class Transferencia extends Model
             ->get()
             ->toArray(); 
 
+           
         } else if ($datos['AllCategory']) {
             
             $transferencias_det = DB::connection('retail')->table('transferencias_det as td')

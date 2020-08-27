@@ -60,8 +60,7 @@ class VentaVale extends Model
 
         // OBTENER DATOS 
 
-        $vales = DB::connection('retail')->table('VENTAS_VALE')
-        ->join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+        $vales = VentaVale::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_VALE.FK_VENTA')
         ->leftJoin('CLIENTES', function($join){
                         $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
@@ -80,8 +79,7 @@ class VentaVale extends Model
                 ['VENTAS_ANULADO.ANULADO', '<>', 1]
             ])
             ->groupBy('CLIENTES.CODIGO')
-            ->get()
-            ->toArray(); 
+            ->get(); 
 
         //INICIAR VARIABLES
 
@@ -91,7 +89,7 @@ class VentaVale extends Model
         $intervalo = $inicio.'/'.$final;
         $articulos = [];
         $c_rows = 0;
-
+        $limite = 27;
         // INICIAR MPDF 
 
         $mpdf = new \Mpdf\Mpdf([
@@ -112,6 +110,14 @@ class VentaVale extends Model
             $articulos[$c_rows]['TOTAL_VALE'] = Common::precio_candec($value->TOTAL, $candec);
             $empresa = strtolower($value->EMPRESA);
             $articulos[$c_rows]['EMPRESA'] = ucwords($empresa);
+
+            if($c_rows == $limite){
+                $articulos[$c_rows]['SALTO'] = true;
+                $limite = $limite + 32;
+            }else{
+
+                $articulos[$c_rows]['SALTO'] = false;
+            }
             $c_rows = $c_rows +1;
         }
 
@@ -136,11 +142,124 @@ class VentaVale extends Model
 
         // DESCARGAR ARCHIVO PDF 
 
-        if($accion=='ver'){
-            $mpdf->Output($namefile,'I');
-        }elseif($accion=='descargar'){
-            $mpdf->Output($namefile,'D');
+        $mpdf->Output();
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    public static function generarVentaVale($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $sucursal = $request->input('sucursal');
+        $inicio =  date('Y-m-d', strtotime($request->input('inicio')));
+        $final = date('Y-m-d', strtotime($request->input('final')));
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ITEM', 
+                            1 => 'CLIENTE',
+                            2 => 'EMPRESA',
+                            3 => 'TOTAL'
+                        );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $item = 1;
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+        $posts = VentaVale::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+            ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_VALE.FK_VENTA')
+            ->leftJoin('CLIENTES', function($join){
+                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                        })
+            ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+                DB::raw('CLIENTES.FK_EMPRESA AS EMPRESA_ID'),
+                DB::raw('SUM(VENTAS.TOTAL) AS TOTAL'),
+                DB::raw('VENTAS_VALE.MONEDA AS MONEDA'),
+                DB::raw('CLIENTES.CODIGO AS COD_CLI'),
+                DB::raw('EMPRESAS.NOMBRE AS EMPRESA'))
+            ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
+            ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
+                ->where([
+                    ['VENTAS.ID_SUCURSAL', '=', $sucursal],
+                    ['VENTAS_ANULADO.ANULADO', '<>', 1]
+                ])
+                ->groupBy('CLIENTES.CODIGO')
+                ->orderBy('CLIENTES.NOMBRE')
+                ->get(); 
+
+            /*  ************************************************************ */
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $moneda = $posts[0]->MONEDA;
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $cliente = strtolower($post["CLIENTE"]);
+                $empresa = strtolower($post["EMPRESA"]);
+                $nestedData['ITEM'] = $item;
+                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['EMPRESA'] = ucwords($empresa);
+                $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], $candec);
+
+                $data[] = $nestedData;
+                $item = $item +1;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
         }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($item),  
+                    "recordsFiltered" => intval($item), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
     }

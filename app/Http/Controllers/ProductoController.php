@@ -72,6 +72,19 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+       public function encontrarFoto()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR CODIGO PRODUCTO
+
+        $producto = Producto::guardar_img_principal();
+        return response()->json($producto);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
      public function guardar(Request $request)
     {
@@ -95,6 +108,19 @@ class ProductoController extends Controller
         // OBTENER TODOS LOS DATOS DEL PRODUCTO
 
         $productos = Producto::obtener_datos($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+         public function importar(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::importar_producto($request->all());
         return response()->json($productos);
         
         /*  --------------------------------------------------------------------------------- */

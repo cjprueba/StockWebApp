@@ -156,6 +156,45 @@
 					    </div>
 			    	</div>
 
+			    	<!-- --------------------------------------- CHECKED DE UBICACION -------------------------------------------- -->
+					<!-- 
+			    	<div class="row ml-2 my-4">
+						<div class="custom-control custom-switch mr-sm-2">
+							<input type="checkbox" class="custom-control-input" id="switchUbicacion" v-model="checkedUbicacion">
+							<label class="custom-control-label" for="switchUbicacion">Agregar Ubicación</label>
+						</div>
+					</div>
+ 					-->
+			    	<!-- --------------------------------------- COORDENADAS DEL MAPA -------------------------------------------- -->
+
+				    <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+			            <div class="col-auto">
+			                <label><strong>Tus coordenadas:</strong></label>
+			                <p>Latitud: {{ myCoordinates.lat }} <br>Longitud: {{ myCoordinates.lng }}</p>
+			            </div>
+			            <div class="col-auto">
+			                <label><strong>Coordenadas del Mapa:</strong></label>
+			                <p>Latitud:{{ mapCoordinates.lat }} <br>Longitud: {{ mapCoordinates.lng }}</p>
+			            </div>
+			        </div>
+			    	<!-- --------------------------------------- MAPA -------------------------------------------- -->
+					<div>
+				        <GmapMap
+				            :center="myCoordinates"
+				            :zoom="zoom"
+				            style="width:640px; height:360px; margin: 32px auto;"
+				            ref="mapRef"
+				            @dragend="handleDrag">
+				        	 <GmapMarker
+							    :key=""
+							    :position="myCoordinates"
+							    :clickable="true"
+							    :draggable="true"
+							    @click="center=map"
+							  />
+				        </GmapMap>
+					</div>
+
 			    	<!-- ------------------------------ BOTONES NUEVO, GUARDAR, MODIFICAR Y ELIMINAR ----------------------------------- -->
 					
 					<div class="row mt-4">
@@ -178,7 +217,7 @@
 				    </div>
 				</div>		
 	  		</div>	
-		</div>
+    	</div>
 
 		<!-- -------------------------------------------------TOAST COMPLETAR CABECERA------------------------------------------------- -->
 
@@ -195,13 +234,29 @@
 	</div>
 </template>
 
+<script src="vue-google-maps.js"></script>
+
 <script>
+
+	import VueGeolocation from 'vue-browser-geolocation'
+
+	Vue.config.productionTip = false
+	Vue.use(VueGeolocation)
+
+	import * as VueGoogleMaps from 'vue2-google-maps'
+	Vue.use(VueGoogleMaps, {
+	  load: {
+	    key: 'AIzaSyCGcQ1_i9zvFkgWnfgLjD7m-_DKi1XEruc',
+	    libraries: 'places',
+	  }
+	})
+	import {gmapApi} from 'vue2-google-maps'
+
 	export default{
 		props: ['candec'],
 		data(){
 
 			return{
-
 				cliente: '',
 				codigo: '',
 				empresa:'',
@@ -227,12 +282,59 @@
 					ruc: false,
 					direccion: false,
 					telefono: false
-				}
+				},
+                map: null,
+                myCoordinates: {
+                    lat: -25.5131,
+                    lng: -54.6069
+                },
+                zoom: 16,
+                checkedUbicacion: false,
+                marker: [],
+      			center: { 
+      				lat: -25.5131,
+                    lng: -54.6069 
+                }
 			}
 		},
 
+        created() {
+          
+            // OBTENER UBICACION
+            
+            this.$getLocation({}).then(coordinates => {
+                        this.myCoordinates = coordinates;
+                    })
+                .catch(error => alert(error));
+           
+        },
+		
 		methods: {
-			
+
+			//CREAR MARCADOR
+
+			createMarker: function (latlng) {
+		      this.marker = new window.google.maps.Marker({
+		        setMap: this.map,
+		        position: latlng,
+		        animation: window.google.maps.Animation.DROP
+		      })
+		      this.addYourLocationButton()
+		    },
+
+			handleDrag() {
+
+                // OBTENER NIVEL DE ZOOM Y COORDENADAS EN EL MAPA
+
+                let center = {
+                    lat: this.map.getCenter().lat(),
+                    lng: this.map.getCenter().lng()
+                };
+                let zoom = this.map.getZoom();
+                localStorage.center = JSON.stringify(center);
+                localStorage.zoom = zoom;
+            },
+
 			// GUARDAR Y MODIFICAR
 
 			guardar(){
@@ -558,8 +660,28 @@
 		        	me.codigo = data.cliente[0].CODIGO+1;
 		        	me.limiteCreditoDia = data.limite.LIMITE_DIAS;
 		        	me.btnguardar = true;
-		        });
-		}
+		    });
+
+			// AGREGAR EL MAPA A UN DATA OBJECT
+
+			this.$refs.mapRef.$mapPromise.then(map => this.map = map);
+		},
+
+        computed: {
+            mapCoordinates() {
+                if(!this.map) {
+                    return {
+                       	lat: 0,
+                    	lng: 0
+                    };
+                }
+                return {
+                    lat: this.map.getCenter().lat().toFixed(4),
+                    lng: this.map.getCenter().lng().toFixed(4)
+                }
+            },
+            google: gmapApi
+        }
 
 	}
 </script>

@@ -1006,7 +1006,7 @@
           rutaImagen: require('./../../../imagenes/SinImagen.png'),
           fileName: 'Imagen',
           shadow: true,
-          mostrar_precios: false,
+          mostrar_precios: true,
           descripcion_precio: '',
           precio_venta: '',
           precio_mayorista: '',
@@ -1107,15 +1107,77 @@
             		// ------------------------------------------------------------------------
 
             		// RETONAR SI ES FALSE LA RESPUESTA YA QUE NO ENCONTRO PRODUCTO 
+                               
+            		if (data.response === false && data.existe===true) {
+            			  Swal.fire({
+						  title: '¿Desea Importar el producto?',
+						  text: 'Este producto ya existe en otra sucursal!',
+						  type: 'warning',
+						  showLoaderOnConfirm: true,
+						  showCancelButton: true,
+						  confirmButtonColor: 'btn btn-success',
+						  cancelButtonColor: '#d33',
+						  confirmButtonText: 'Si, importalo!',
+						  cancelButtonText: 'Cancelar',
+						  preConfirm: () => {
 
-            		if (data.response === false) {
-            			return;
+						    return Common.importarProductoCommon(this.codigo_producto).then(datos => {
+
+						    	// ------------------------------------------------------------------------
+ 
+						    	// REVISAR SI HAY DATOS 
+
+						    	if (!datos.response === true) {
+						          throw new Error(datos.statusText);
+						        } else{
+						        	this.codigoProducto(this.codigo_producto);
+						        	
+						        }
+
+				        		// ------------------------------------------------------------------------
+
+								return true;
+
+								// ------------------------------------------------------------------------
+
+		        			}).catch(error => {
+						        Swal.showValidationMessage(
+						          `Request failed: ${error}`
+						        )
+						    });
+						  }
+
+						}).then((result) => {
+						  if (result.value) {
+						  	Swal.fire(
+								      'Importado !',
+								      'Se ha importado correctamente el producto !',
+								      'success'
+							)
+
+						  	// ------------------------------------------------------------------------
+
+						  	// LIMPIAR TEXTBOX 
+
+						
+
+							// ------------------------------------------------------------------------
+
+						  }
+						})
+
+						return;
+            		}else if(data.response===false){
+            			this.limpiar();
+            				return;
+  
+            			
             		}
 
             		// ------------------------------------------------------------------------
-
+                  
             		// CARGAR DATOS DEL PRODUCTO 
-
+                    
             		this.codigo_producto = data.producto.CODIGO;
                     this.codigo_interno = data.producto.CODIGO_INTERNO; 
                     this.descripcion = data.producto.DESCRIPCION;
@@ -1211,7 +1273,7 @@
 
            		}).catch((err) => {
            			this.mostrar_error = true;
-           			this.mensaje = err+' - ¡ Revise la conección y recargue la página !';
+           			this.mensaje = err+' - ¡ Revise la conexión y recargue la página !';
            		});
 
            		//$("#codigo_interno").focus();
@@ -1634,7 +1696,7 @@
            			me.codigo_producto = data;
            		}).catch((err) => {
            			this.mostrar_error = true;
-           			this.mensaje = err+' - ¡ Revise la conección y recargue la página !';
+           			this.mensaje = err+' - ¡ Revise la conexión y recargue la página !';
            		});
 
            		// ------------------------------------------------------------------------
@@ -1645,7 +1707,7 @@
            			me.codigo_interno = data;
            		}).catch((err) => {
            			this.mostrar_error = true;
-           			this.mensaje = err+' - ¡ Revise la conección y recargue la página !';
+           			this.mensaje = err+' - ¡ Revise la conexión y recargue la página !';
            		});
 
            		// ------------------------------------------------------------------------
@@ -2372,10 +2434,24 @@
         mounted() {
 
         	// -------------------------------------------------------------------------------------
-
+        		
+   				let me=this;
         	// INICIAR VARIABLES
+        	Common.obtenerParametroCommon().then(data => {
+		    
+				               	me.candec=data.parametros[0].CANDEC;
+                               this.descripcion_precio =data.parametros[0].DESCRIPCION;
+                               
+                            	this.llamarPrecios(this.descripcion_precio);
 
-        	let me = this;
+                                
+
+				                 
+		
+				    
+			 });
+
+
         	me.seleccion_moneda = String(me.monedaCodigo);
 
         	// -------------------------------------------------------------------------------------

@@ -63,7 +63,7 @@ class Producto extends Model
     	// OBTENER EL PRODUCTO
 
     	$producto = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS_AUX.CODIGO_INTERNO,PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA,PRODUCTOS_AUX.PREMAYORISTA, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS_AUX.CODIGO_INTERNO,PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA,PRODUCTOS_AUX.DESCUENTO,PRODUCTOS_AUX.PREMAYORISTA, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
     	DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $cod_prod)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
@@ -1195,10 +1195,189 @@ $lotes= DB::connection('retail')
 
         // OBTENER DATOS WEB
 
-        $online= DB::connection('retail')
+       
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+        
+        if (count($producto) > 0) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER GONDOLAS 
+
+            $gondola = Gondola::obtener_gondolas_por_producto($codigo);
+            
+            $producto[0]["GONDOLAS"] = $gondola['gondolas'];
+            $producto[0]["AUTODESCRIPCION"] = false;
+
+            /*  --------------------------------------------------------------------------------- */
+                $online= DB::connection('retail')
                 ->table('DETALLE_WEB')
                 ->select(DB::raw('NOMBRE, DESCRIPCION, PESO, ALTURA, ANCHURA, LONGITUD'))
                 ->where("CODIGO_INTERNO","=", $producto[0]["CODIGO_INTERNO"])
+                ->get()->toArray();
+            // IMAGEN 
+
+            $imagen = Imagen::obtenerImagen($codigo);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            if(count($online)== 0){
+               // var_dump("entre 1");
+
+                return ["response" => true, "producto" => $producto[0], "online" => 0, "imagen" => $imagen["imagen"],'existe'=>true];
+            }else{
+               // var_dump("entre 2");
+                return ["response" => true, "producto" => $producto[0], "online" => $online[0], "imagen" => $imagen["imagen"],'existe'=>true];
+            }
+
+            
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } else {
+             $producto = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO'))
+        ->where($filtro, '=', $codigo)
+        ->limit(1)
+        ->get()->toArray();
+
+        if(count($producto)>0){
+          return ["response" => false,'existe'=>true];
+        }
+
+            return ["response" => false,'existe'=>false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+     public static function importar_producto($datos){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $codigo = $datos["codigo"];
+      $tipo=1;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
+
+        if ($tipo === 1) {
+            $filtro = 'PRODUCTOS_AUX.CODIGO';
+        } 
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
+
+        $producto_aux = ProductosAux::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
+                          PRODUCTOS_AUX.CODIGO_INTERNO, 
+                          PRODUCTOS_AUX.CODIGO_REAL, 
+                          PRODUCTOS.DESCRIPCION, 
+                          PRODUCTOS.IMPUESTO AS IVA, 
+                          PRODUCTOS.LINEA,
+                          PRODUCTOS.SUBLINEA,
+                          PRODUCTOS.SUBLINEADET,
+                          PRODUCTOS_AUX.PROVEEDOR,
+                          PRODUCTOS.COLOR,
+                          PRODUCTOS.TELA,
+                          PRODUCTOS.TALLE,
+                          PRODUCTOS.GENERO,
+                          PRODUCTOS.MARCA,
+                          PRODUCTOS.PRESENTACION,
+                          PRODUCTOS.DESCUENTO, 
+                          PRODUCTOS_AUX.PREC_VENTA,
+                          PRODUCTOS_AUX.PREMAYORISTA,
+                          PRODUCTOS_AUX.PREVIP,
+                          PRODUCTOS_AUX.PRECOSTO,
+                          PRODUCTOS_AUX.STOCK_MIN,
+                          PRODUCTOS_AUX.OBSERVACION,
+                          PRODUCTOS_AUX.MONEDA,
+                          0 AS GONDOLAS,
+                          0 AS AUTODESCRIPCION,
+                          PRODUCTOS.PERIODO, 
+                          PRODUCTOS.TEMPORADA,
+                          PRODUCTOS_AUX.ONLINE,
+                          PRODUCTOS.VENCIMIENTO'))
+        ->where($filtro, '=', $codigo)
+        ->limit(1)
+        ->get()->toArray();
+
+
+           $producto = ProductosAux::insert(
+            [
+            'CODIGO' => $producto_aux[0]["CODIGO"],
+            'CODIGO_INTERNO' => $producto_aux[0]["CODIGO_INTERNO"],
+            'CODIGO_REAL' => $producto_aux[0]["CODIGO_REAL"],
+            'PROVEEDOR' => $producto_aux[0]["PROVEEDOR"],
+            'DESCUENTO' => $producto_aux[0]["DESCUENTO"],
+            'MONEDA' => $producto_aux[0]["MONEDA"],
+            'PREC_VENTA' => $producto_aux[0]["PREC_VENTA"],
+            'PREMAYORISTA' => $producto_aux[0]["PREMAYORISTA"],
+            'PREVIP' => $producto_aux[0]["PREVIP"],
+            'PRECOSTO' => $producto_aux[0]["PRECOSTO"],
+            'STOCK_MIN' => $producto_aux[0]["STOCK_MIN"],
+            'OBSERVACION' => $producto_aux[0]["OBSERVACION"],
+            'BAJA' => "NO",
+            'FECALTAS' => date("Y-m-d H:i:s"),
+            'HORALTAS' => date("H:i:s"),
+            'USER' => $user->id,
+            'ID_SUCURSAL' => $user->id_sucursal,
+            ]
+        );
+           //OBTENER PRODUCTO IMPORTADO
+           $producto = ProductosAux::
+        leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->select(DB::raw('PRODUCTOS_AUX.CODIGO,
+                          PRODUCTOS_AUX.CODIGO_INTERNO, 
+                          PRODUCTOS_AUX.CODIGO_REAL, 
+                          PRODUCTOS.DESCRIPCION, 
+                          PRODUCTOS.IMPUESTO AS IVA, 
+                          PRODUCTOS.LINEA,
+                          PRODUCTOS.SUBLINEA,
+                          PRODUCTOS.SUBLINEADET,
+                          PRODUCTOS_AUX.PROVEEDOR,
+                          PRODUCTOS.COLOR,
+                          PRODUCTOS.TELA,
+                          PRODUCTOS.TALLE,
+                          PRODUCTOS.GENERO,
+                          PRODUCTOS.MARCA,
+                          PRODUCTOS.PRESENTACION,
+                          PRODUCTOS.DESCUENTO, 
+                          PRODUCTOS_AUX.PREC_VENTA,
+                          PRODUCTOS_AUX.PREMAYORISTA,
+                          PRODUCTOS_AUX.PREVIP,
+                          PRODUCTOS_AUX.PRECOSTO,
+                          PRODUCTOS_AUX.STOCK_MIN,
+                          PRODUCTOS_AUX.OBSERVACION,
+                          PRODUCTOS_AUX.MONEDA,
+                          0 AS GONDOLAS,
+                          0 AS AUTODESCRIPCION,
+                          PRODUCTOS.PERIODO, 
+                          PRODUCTOS.TEMPORADA,
+                          PRODUCTOS_AUX.ONLINE,
+                          PRODUCTOS.VENCIMIENTO'))
+        ->where($filtro, '=', $codigo)
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+        // OBTENER DATOS WEB
+
+        $online= DB::connection('retail')
+                ->table('DETALLE_WEB')
+                ->select(DB::raw('NOMBRE, DESCRIPCION, PESO, ALTURA, ANCHURA, LONGITUD'))
+                ->where("CODIGO_INTERNO","=", $producto_aux[0]["CODIGO_INTERNO"])
                 ->get()->toArray();
 
         /*  --------------------------------------------------------------------------------- */
@@ -1239,7 +1418,8 @@ $lotes= DB::connection('retail')
             /*  --------------------------------------------------------------------------------- */
 
         } else {
-            return ["response" => false];
+
+            return ["response" => false,'statusText'=>'Ha ocurrido un error!. Comuniquese con los supervisores del sistema'];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -3005,7 +3185,7 @@ $lotes= DB::connection('retail')
 
         // INDICA LA DIRECCION DEL ARCHIVO
 
-        $directory="C:\Users\xsinx\Desktop\gg";
+        $directory="C:\Users\alezcano\Desktop\gg";
         $dirint = dir($directory);
         $secundario=1;
 
@@ -3018,21 +3198,14 @@ $lotes= DB::connection('retail')
 
                 $image = "";
                 $imagenBase64 = "";
-                $imge = "";
+                $imge = "";     
 
                 // SACA EL .JPG
-                $cod_prod = substr($archivo,0,-4);
+    
 
-                if(strlen($cod_prod) == 10 || strlen($cod_prod) == 15){
 
-                    // SACA EL - 
-                    $codigo=substr($cod_prod,0,-2);
-                    // var_dump($cod_prod);
-                    $secundario=2;
-                
-                }else{
-                    $secundario=1;
-                    $codigo=$cod_prod;
+               
+                  
 
                     // UNE LA UBICACION DEL ARCHIVO CON EL NOMBRE DE LA IMAGEN
                     
@@ -3046,21 +3219,31 @@ $lotes= DB::connection('retail')
 
                     // OBTINE EL CODIGO INTERNO DEL PRODUCTO
 
-                    $interno = DB::connection('retail')
+                    /*$interno = DB::connection('retail')
                         ->table('Productos')
                         ->select(DB::raw('CODIGO_INTERNO'))
                         ->where("CODIGO","=",$codigo)
-                        ->get();
-                        
-                    foreach ($interno as $key => $internos) {
+                        ->get();*/
+/*                  var_dump(strlen($imge));*/
+                $temp=DB::connection('retail')->table('imagenes')
+            /*    ->leftjoin('PRODUCTOS_AUX', 'PRODUCTOS_AUX.CODIGO', '=', 'IMAGENES.COD_PROD')*/
+   
+               ->select(
+                DB::raw('COUNT(COD_PROD)'))
+/*             ->WHERE('PRODUCTOS_AUX.ID_SUCURSAL','=',9)*/
+             ->whereRaw('length(PICTURE)= 14373')
+              ->get()
+              ->toArray();
+              var_dump($temp);
+                   /* foreach ($interno as $key => $internos) {
 
                             Imagen::guardar([
                                 'COD_PROD' => $codigo,
                                 'CODIGO_INTERNO'=> $internos->CODIGO_INTERNO,
                                 'PICTURE' => $imge
                             ]);
-                    }
-                }
+                    }*/
+                
                 // var_dump($imge);
 
                 // $aleluya = chunk_split (base64_encode(file_get_contents($image)));

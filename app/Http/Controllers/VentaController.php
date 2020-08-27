@@ -27,11 +27,19 @@ class VentaController extends Controller
         return response()->json($ventas);
     }
 
+       public function reporteVenta(Request $request)
+    {
+ 
 
-   
-
+            $ventas = Venta::generarReporteVenta($request->all());
+            return response()->json($ventas);
+       
+        //return response()->json([$request->all()]);
+    }
+  
     public function mostrar(Request $request)
     {
+
         if ($request["Opcion"] === 2) {
             $ventas = Venta::generarTablaMarca($request->all());
             return response()->json($ventas);
@@ -214,6 +222,19 @@ class VentaController extends Controller
         // MOSTRAR IMPORTAR
 
         $vale = VentaVale::valePDF($request->all());
+        return response()->json($vale);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarVentaVale(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = VentaVale::generarVentaVale($request);
         return response()->json($vale);
 
         /*  --------------------------------------------------------------------------------- */

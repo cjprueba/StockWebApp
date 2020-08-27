@@ -270,6 +270,20 @@ export default new Router({
 			component: require('./components/movimientos/RemisionNota.vue').default
 		},
 		{
+			path: '/cup1',
+			name: 'cuponMostrar',
+			component: require('./components/cupones/MostrarCupones.vue').default
+		},
+		{
+			path: '/cup2/:id',
+			name: 'cuponCrear',
+			component: require('./components/cupones/CrearCupones.vue').default
+		},
+		{
+			path: '/rpn1',
+			name: 'rptVentaWeb',
+			component: require('./components/reportes/venta/Inicio.vue').default
+		},
 			path: '/orden1',
 			name: 'ordenesMostrar',
 			component: require('./components/orden/MostrarOrden.vue').default
@@ -290,6 +304,15 @@ export default new Router({
 			component: require('./components/reportes/vales/Vales.vue').default
 		},
 		{
+			path: '/rpt13',
+			name: 'rptTransferencia2',
+			component: require('./components/reportes/VentaTransferencia.vue').default
+		},
+		{
+			path: '/rpt14',
+			name: 'rptDelivery',
+			component: require('./components/reportes/ServicioDelivery.vue').default
+    },
 			path: '/pd1',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
