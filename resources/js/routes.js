@@ -274,7 +274,16 @@ export default new Router({
 			name: 'rptVales',
 			component: require('./components/reportes/vales/Vales.vue').default
 		},
-
+		{
+			path: '/rpt13',
+			name: 'rptTransferencia2',
+			component: require('./components/reportes/VentaTransferencia.vue').default
+		},
+		{
+			path: '/rpt14',
+			name: 'rptDelivery',
+			component: require('./components/reportes/ServicioDelivery.vue').default
+		}
 
 	],
 	mode: 'history'

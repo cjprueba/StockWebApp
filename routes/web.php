@@ -58,10 +58,10 @@ Route::get('venta/datatable', 'VentaController@datatable');
 Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
-
 Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 Route::post('pdf-generar-rptVale','VentaController@rptVale');
+Route::get('ventaValeDatatable', 'VentaController@generarVentaVale');
 
 
 /* -------------------------------------------------------------------------- */
@@ -83,6 +83,9 @@ Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferenc
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
 Route::post('pdf-generar-factura','TransferenciaControler@getGenerar');
 Route::post('pdf-generar-transferencia','TransferenciaControler@getRptTransferencia');
+Route::post('pdf-rptTransferencia','TransferenciaControler@rptTransferencia');
+Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -317,6 +320,8 @@ Route::post('producto/existe', 'ProductoController@existe');
 // SERVICIOS 
 
 Route::post('servicio/POS', 'ServicioController@obtenerServicioPOS');
+Route::post('pdf-rptDelivery', 'ServicioController@reporteDelivery');
+Route::get('generarDeliveryDatatable', 'ServicioController@generarRptDelivery');
 
 /* -------------------------------------------------------------------------- */
 

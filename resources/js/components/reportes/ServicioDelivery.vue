@@ -1,12 +1,13 @@
 <template>
-		<!-- VALE DE FUNCIONARIOS -->
+		<!-- SERVICIO DE DELIVERY  -->
 	<div class="container">
-		<div class="card mt-3 shadow border-bottom-primary" >
-		  <div class="card-header">Vale de Funcionarios</div>
-		    <div class="card-body">
-			  <div class="row">
-			    <div class="col-4">
-					<div class="row ml-3">
+
+		<div class="card mt-3  shadow border-bottom-primary" >
+		  	<div class="card-header">Servicio de Delivery</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-4">
+						<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
 							<option value="null" selected>Seleccionar</option>
@@ -15,8 +16,8 @@
 						<div class="invalid-feedback">
 						    {{messageInvalidSucursal}}
 						</div>
-					</div>
-					<div class="row mt-4 ml-3">	
+						</div>
+						<div class="row mt-4 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
 							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
@@ -28,18 +29,18 @@
 						        {{messageInvalidFecha}}
 						    </div>
 						</div>
-					</div>
-					<div class="row mt-4 ml-3">
-						<div class="col-auto">
-							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
 						</div>
-						<div class="col-auto">
+						<div class="row mt-4 ml-3">
+							<div class="col-auto">
+								<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
+							</div>
+							<div class="col-auto">
 								
-							<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
+								<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
+							</div>
 						</div>
-					</div>
 
-					<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
+			        <!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
 				    <div class="row">
 						<div v-if="descarga" class="ml-5 d-flex justify-content-center mt-3">
@@ -48,36 +49,37 @@
 				        </div>
 			        </div>
 				</div>
-		        <div class="col-md-7 mt-3 ml-5">
-					<table id="tablaVentaVale" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+				
+			  	<div class="col-md-7 mt-3 ml-5">
+					<table id="tablaDelivery" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
+			                    <th>Codigo</th>
 			                    <th>Cliente</th>
-			                    <th>Empresa</th>
+			                    <th>Fecha</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
-			            		<th></th>
-			            		<th></th>
-				            	<th class="text-center"><strong>TOTALES</strong></th>
+				            	<th colspan='4' class="text-center"><strong>TOTALES</strong></th>
 				            	<th></th>
 				            </tr>
 			            </tfoot>
 			        </table> 
-				</div>
+				</div>	
+				</div>       
 			</div>
-		  </div>
 		</div>
+
 	</div>
-	<!-- FIN VALE DE FUNCIONARIOS -->
+	<!-- SERVICIO DE DELIVERY -->
 </template>
 
 <script >
 	export default {
-      	props: ['candec'],
+      props: ['candec'],
         data(){
             return {
               	sucursales: [],
@@ -89,9 +91,7 @@
               	messageInvalidFecha: '',
               	selectedFinalFecha: '',
               	validarFinalFecha: false,
-              	cargado: false,
-              	descarga: false,
-              	responseVale: []
+              	descarga: false
             }
         }, 
         methods: {
@@ -103,6 +103,7 @@
 
 	        descargar(){
 	        	let me = this;	
+
 	        	if(this.generarConsulta() === true) {
 
 	        		me.descarga = true;
@@ -110,11 +111,10 @@
 		        	var datos = {
 			        	sucursal: this.selectedSucursal,
 			        	inicio: String(this.selectedInicialFecha),
-			        	final: String(this.selectedFinalFecha),
-			        	accion: 'descargar'
+			        	final: String(this.selectedFinalFecha)
 		        	};
 		        	
-		        	Common.generarReporteValeCommon(datos).then(function(){
+		        	Common.reporteDeliveryCommon(datos).then(function(){
 	    				me.descarga = false;
 	    			});	
 				}
@@ -125,10 +125,10 @@
 	        	let me = this;
 
 		        if(this.generarConsulta() === true) {
-		        	
+
 		        	// PREPARAR DATATABLE 
 
-			 		var tableVentaVale = $('#tablaVentaVale').DataTable({
+			 		var tableDelirery = $('#tablaDelivery').DataTable({
 		                "processing": true,
 		                "serverSide": true,
 		                "destroy": true,
@@ -143,7 +143,7 @@
 				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
 				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
 				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
-				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaVale', messageTop: 'Ventas registradas por Vale', footer: true }
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptDelivery', messageTop: 'Servicios de Delivery registrados', footer: true }
 				        ],
 		                "ajax":{
 	                 			"data": {
@@ -151,15 +151,16 @@
 						        	inicio: String(me.selectedInicialFecha),
 						        	final: String(me.selectedFinalFecha)
 	                 			},
-		                  "url": "/ventaValeDatatable",
+		                  "url": "/generarDeliveryDatatable",
 		                  "dataType": "json",
 		                  "type": "GET",
 		                  "contentType": "application/json; charset=utf-8"
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },
+		                    { "data": "CODIGO" },
 		                    { "data": "CLIENTE" },
-		                    { "data": "EMPRESA" },
+		                    { "data": "FECHA" },
 		                    { "data": "TOTAL" }
 		                ],
 
@@ -206,7 +207,8 @@
 						  });
 						}
 		            });
-	        	} else {
+
+	        	}else {
 	        		alert("false");
 	        	}
 	        },
@@ -259,6 +261,7 @@
 					$('table').dataTable();
 			});
 			this.llamarBusquedas();
+			var tableDelirery = $('#tablaDelivery').DataTable();
         }
     }    
 </script>
