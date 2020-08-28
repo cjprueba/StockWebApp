@@ -58,6 +58,7 @@
         "sweetalert2": "^8.19.0",
         "toastr": "^2.1.4",
         "vue-apexcharts": "^1.5.3",
+        "vue-browser-geolocation": "^1.8.0",
         "vue-flag-icon": "^1.0.6",
         "vue-focus": "^2.1.0",
         "vue-loader": "^15.9.2",

@@ -238,19 +238,19 @@
 
 <script>
 
-	import VueGeolocation from 'vue-browser-geolocation'
+	// import VueGeolocation from 'vue-browser-geolocation'
 
-	Vue.config.productionTip = false
-	Vue.use(VueGeolocation)
+	// Vue.config.productionTip = false
+	// Vue.use(VueGeolocation)
 
-	import * as VueGoogleMaps from 'vue2-google-maps'
-	Vue.use(VueGoogleMaps, {
-	  load: {
-	    key: 'AIzaSyCGcQ1_i9zvFkgWnfgLjD7m-_DKi1XEruc',
-	    libraries: 'places',
-	  }
-	})
-	import {gmapApi} from 'vue2-google-maps'
+	// import * as VueGoogleMaps from 'vue2-google-maps'
+	// Vue.use(VueGoogleMaps, {
+	//   load: {
+	//     key: 'AIzaSyCGcQ1_i9zvFkgWnfgLjD7m-_DKi1XEruc',
+	//     libraries: 'places',
+	//   }
+	// })
+	// import {gmapApi} from 'vue2-google-maps'
 
 	export default{
 		props: ['candec'],
