@@ -92,4 +92,32 @@ class PedidoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public function cambiar_estatus(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Pedido::cambiar_estatus($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function reporte(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Pedido::reporte($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

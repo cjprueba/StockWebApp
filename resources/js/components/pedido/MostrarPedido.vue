@@ -118,7 +118,7 @@
 				  showCancelButton: true,
 				  confirmButtonColor: '#d33',
 				  cancelButtonColor: '#3085d6',
-				  confirmButtonText: 'Si, eliminalo!',
+				  confirmButtonText: 'Confirmar !',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
 				    return Common.eliminarCompraCommon(codigo).then(data => {
@@ -241,10 +241,10 @@
 	                    // *******************************************************************
 
 	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
-
+	                    
 	                   	me.procesar = true;
 	                   	var row  = $(this).parents('tr')[0];
-	                   	Common.generarRptPdfCompraCommon(tablePedido.row( row ).data().CODIGO).then( () => {
+	                   	Common.generarRptPdfPedidoCommon(tablePedido.row( row ).data().CODIGO).then( () => {
 	                   		me.procesar = false;
 	                   	});
 	                   	
@@ -269,6 +269,62 @@
 	                });
 
 	                // ------------------------------------------------------------------------
+
+	                // CONFIRMAR PEDIDO
+
+                    $('#tablaPedidos').on('click', 'tbody tr #confirmarPedido', function() {
+
+	                    // *******************************************************************
+
+	                    // CONFIRMAR PEDIDO
+	                    
+	                   	var row  = $(this).parents('tr')[0];
+
+	                   	Swal.fire({
+						  title: 'Estas seguro ?',
+						  text: "Confirmar pedido " + tablePedido.row( row ).data().CODIGO + " !",
+						  type: 'warning',
+						  showLoaderOnConfirm: true,
+						  showCancelButton: true,
+						  confirmButtonColor: '#d33',
+						  cancelButtonColor: '#3085d6',
+						  confirmButtonText: 'Confirmar !',
+						  cancelButtonText: 'Cancelar',
+						  preConfirm: () => {
+						    return Common.cambiarEstatusPedidoCommon(tablePedido.row( row ).data().CODIGO, 3).then( data => {
+						    	if (!data.response === true) {
+						          throw new Error(data.statusText);
+						        }
+						  		return data.response;
+						  	}).catch(error => {
+						        Swal.showValidationMessage(
+						          `Request failed: ${error}`
+						        )
+						    });
+						  }
+						}).then((result) => {
+						  if (result.value) {
+						  	Swal.fire(
+								      'Cambiado !',
+								      'Se ha confirmado el pedido !',
+								      'success'
+							)
+
+						  	// ------------------------------------------------------------------------
+
+						  	// RECARGAR TABLA 
+						  	
+							tablePedido.ajax.reload( null, false );
+
+							// ------------------------------------------------------------------------
+
+						  }
+						})
+	                   	
+
+	                    // *******************************************************************
+
+	                });
 	 });	
         }
     }

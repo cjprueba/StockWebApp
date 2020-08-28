@@ -284,6 +284,7 @@ export default new Router({
 			name: 'rptVentaWeb',
 			component: require('./components/reportes/venta/Inicio.vue').default
 		},
+		{
 			path: '/orden1',
 			name: 'ordenesMostrar',
 			component: require('./components/orden/MostrarOrden.vue').default
@@ -313,8 +314,9 @@ export default new Router({
 			name: 'rptDelivery',
 			component: require('./components/reportes/ServicioDelivery.vue').default
     },
+    {
 			path: '/pd1',
-			name: 'pdCheckout',
+			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
 		},
 		{

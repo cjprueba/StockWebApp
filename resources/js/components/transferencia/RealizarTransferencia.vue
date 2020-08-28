@@ -1,7 +1,7 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div class="container-fluid  bg-light">
 
-		<div v-if="$can('transferencia.crear')">
+		<div v-if="$can('transferencia.crear')" class="mt-4">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -13,15 +13,23 @@
 		
 	        <!-- ------------------------------------------------------------------------------------- -->
 
-	        <!-- UN PRODUCTO -->
+	        <!-- SWITCHS -->
 
 	        <div class="col-12">
+
+	        	<!-- ------------------------------------------------------------------------------------- -->
+
+	        	<!-- UN PRODUCTO -->
+
 			   	<div class="my-1 mb-3">
-					<div class="custom-control custom-switch mr-sm-2">
+					<div class="custom-control custom-switch">
 						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
 						<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
 					</div>
 				</div>
+
+				<!-- ------------------------------------------------------------------------------------- -->
+
 			</div>
 			
 			<!-- ------------------------------------------------------------------------------------- -->
@@ -34,7 +42,7 @@
 
 			<!-- FORMULARIO  -->
 
-			<div class="col-12">
+			<div class="col-12 bg-white rounded shadow-sm py-2 p-4">
 
 			  <div class="mt-3">
 
@@ -173,7 +181,7 @@
 		   
 		   <!-- AGREGAR PRODUCTO -->
 
-			<div class="col-12">
+			<div class="col-12 bg-white rounded shadow-sm py-2 p-4">
 		
 				<div class="mt-3">	
 					<div class="row">
@@ -214,12 +222,6 @@
 					</div>
 				</div>	
 			</div>		
-
-			<!-- FINAL AGREGAR PRODUCTO -->
-			
-			<!-- ------------------------------------------------------------------------------------- -->
-
-			<hr>
 			
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -282,10 +284,10 @@
 
 			<div class="col-md-12 mt-3 mb-3">
 					<div class="text-right" v-if="btnguardar">
-						<button v-on:click="guardarTransferencia()" class="btn btn-primary" id="guardar">Guardar</button>
+						<button v-on:click="guardarTransferencia()" class="btn btn-dark px-4 rounded-pill" id="guardar">Guardar</button>
 					</div>
 					<div class="text-right" v-else>
-						<button v-on:click="modificarTransferencia()" class="btn btn-warning" id="modificar">Modificar</button>
+						<button v-on:click="modificarTransferencia()" class="btn btn-warning px-4 rounded-pill" id="modificar">Modificar</button>
 					</div>	
 			</div>
 
@@ -681,6 +683,7 @@
             moneda_enviar: 0,
             no_registrados: [],
             btnguardar: true,
+            switch_un_producto: false,
             switch_un_producto: false,
             procesar: false,
             cantidad_row: 0
