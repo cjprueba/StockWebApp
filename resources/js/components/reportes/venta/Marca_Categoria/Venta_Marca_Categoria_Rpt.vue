@@ -343,11 +343,11 @@
 	        descargar(){
 	        	
 	        	let me = this;	
-	        		    Common.encontrarfotoCommon().then(data => {
+	        		 /*   Common.encontrarfotoCommon().then(data => {
 	        		  
              			
-              });
-	        	/*if(this.generarConsulta() === true) {
+              });*/
+	        	if(this.generarConsulta() === true) {
 	        		me.descarga = true;
 		        	axios({
 					  url: '/export_marca_categoria',
@@ -364,7 +364,7 @@
 					   link.click();
 					});
 				}
-				me.insert=false;*/
+				me.insert=false;
 	        },
 	        clicked(row) {
 	       	  this.marcaTitulo = row.TOTALES; 	
