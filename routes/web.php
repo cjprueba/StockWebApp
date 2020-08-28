@@ -312,6 +312,7 @@ Route::post('productoCompra', 'ProductoController@obtenerProductoCompra');
 Route::post('producto/minimo', 'ProductoController@minimo');
 Route::post('producto/baja', 'ProductoController@baja');
 Route::post('producto/POS', 'ProductoController@obtenerProductoPOS');
+Route::post('productoImportar', 'ProductoController@importar');
 Route::post('producto/ubicacion', 'ProductoController@ubicacion');
 Route::post('producto/existe', 'ProductoController@existe');
 Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
