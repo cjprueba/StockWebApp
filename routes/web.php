@@ -509,6 +509,26 @@ Route::post('pedido/reporte', 'PedidoController@reporte');
 
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+
+// REPORTES GENERAR
+Route::post('reporte_ventas', 'VentaController@reporteVenta');
+
+Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+
+/* -------------------------------------------------------------------------- */
+
+// REPORTES GENERAR
+Route::get('/cupon/datatable', 'CuponController@datatable');
+Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
+Route::post('cuponHabilitar', 'CuponController@cuponHabilitar');
+Route::get('obtenerCupon', 'CuponController@CrearCupon');
+Route::post('cuponGuardar', 'CuponController@cuponGuardar');
+Route::post('conseguirCupon', 'CuponController@ConseguirCupon');
+Route::post('cuponModificar', 'CuponController@cuponModificar');
+Route::post('conseguirCupon', 'CuponController@ConseguirCupon');
+
+
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
 
 Route::get('{any}', function () {
