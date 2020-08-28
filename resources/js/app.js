@@ -354,6 +354,7 @@ Vue.component('select-genero', require('./components/textboxs/GeneroCategoria.vu
 
 /* ********************************************* */
 
+Vue.component('venta-marca-categoria-rpt', require('./components/reportes/venta/Marca_Categoria/Venta_Marca_Categoria_Rpt.vue').default);
 // GONDOLA
 
 Vue.component('select-gondola', require('./components/textboxs/GondolaTextbox.vue').default);
