@@ -4888,6 +4888,25 @@ function arreglar_costo(){
 			// ------------------------------------------------------------------------
 }
 
+function obtenerProductoOfertaCommon(sucursal){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/producto/ofertas', {'sucursal': sucursal}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5097,5 +5116,5 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
-		arreglar_costo
+		obtenerProductoOfertaCommon
 		};

@@ -27,6 +27,7 @@ Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/producto', 'ApiController@producto')->name('producto');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
