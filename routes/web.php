@@ -78,6 +78,7 @@ Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
 Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
+Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
@@ -528,7 +529,7 @@ Route::post('cuponGuardar', 'CuponController@cuponGuardar');
 Route::post('conseguirCupon', 'CuponController@ConseguirCupon');
 Route::post('cuponModificar', 'CuponController@cuponModificar');
 Route::post('conseguirCupon', 'CuponController@ConseguirCupon');
-
+Route::get('arreglar', 'TransferenciaControler@arreglar');
 
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
 
