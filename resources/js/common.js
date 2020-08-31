@@ -4870,6 +4870,25 @@ function generarRptPdfPedidoCommon(data){
 
 }
 
+function obtenerProductoOfertaCommon(sucursal){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/producto/ofertas', {'sucursal': sucursal}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5078,5 +5097,6 @@ export {
 		cambiarCantidadPedidoCommon,
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
-		generarRptPdfPedidoCommon
+		generarRptPdfPedidoCommon,
+		obtenerProductoOfertaCommon
 		};
