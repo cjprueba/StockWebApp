@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('transferencia.importar')">
+	<!-- 	<div class="row" v-if="$can('transferencia.importar')"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -45,11 +45,11 @@
 		            </tbody>
 		        </table> 
 			</div>	
-		</div>
+		<!-- </div> -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 		
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -61,7 +61,15 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		
+				<!-- ------------------------------------------------------------------------ -->
+
+		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
+
+		<modal-devolucion-transferencia 
+		ref="ModalDevolucionTransferencia"
+		></modal-devolucion-transferencia>
+
+		<!-- ------------------------------------------------------------------------ -->
 
 	</div>
 
@@ -94,6 +102,16 @@
       			// LLAMAR EL METODO DEL COMPONENTE HIJO
 
       			this.$refs.ModalImportarTransferencia.mostrarModal(codigo, codigo_origen);
+
+      			// ------------------------------------------------------------------------
+      		},
+      		 mostrarModalDevolucion(codigo, codigo_origen) {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+      			this.$refs.ModalDevolucionTransferencia.mostrarModal(codigo, codigo_origen);
 
       			// ------------------------------------------------------------------------
       		},
@@ -317,6 +335,22 @@
 	                    // *******************************************************************
 
 	                });
+	                    $('#tablaImportarTrans').on('click', 'tbody tr #devolucion', function() {
+
+
+	                    // *******************************************************************
+
+	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+
+	                   
+	                  /* 	var row  = $(this).parents('tr')[0];
+                        me.mostrarModalDevolucion(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);*/
+
+
+	                    // *******************************************************************
+
+	                });
+
 
                     // ------------------------------------------------------------------------
 

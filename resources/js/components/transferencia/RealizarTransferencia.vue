@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid  bg-light">
 
-		<div v-if="$can('transferencia.crear')" class="mt-4">
+	<!-- 	<div v-if="$can('transferencia.crear')" class="mt-4"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -15,22 +15,35 @@
 
 	        <!-- SWITCHS -->
 
-	        <div class="col-12">
+	       <div class="col-12">
 
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
 	        	<!-- UN PRODUCTO -->
-
-			   	<div class="my-1 mb-3">
+             <form class="form-inline">
+			   	<div class="my-1">
 					<div class="custom-control custom-switch">
 						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_un_producto">
 						<label class="custom-control-label" for="customControlAutosizing">Un Producto</label>
+						
 					</div>
+					
 				</div>
+
 
 				<!-- ------------------------------------------------------------------------------------- -->
 
-			</div>
+	        	<!-- CONSIGNACION -->
+	        	 <div class="ml-2 my-1">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" v-on:click="consignacion" id="consignacionControlAutosizing" v-model="switch_consignacion">
+						<label class="custom-control-label" for="consignacionControlAutosizing">Consignación</label>
+					</div>
+		        </div>
+				<!-- ------------------------------------------------------------------------------------- -->
+		     </form>
+
+		   </div>
 			
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -620,11 +633,11 @@
 
 			<!-- ------------------------------------------------------------------------ -->
 
-		</div>
+<!-- 		</div> -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 
 	</div>
 
@@ -684,12 +697,61 @@
             no_registrados: [],
             btnguardar: true,
             switch_un_producto: false,
-            switch_un_producto: false,
+            switch_consignacion: false,
             procesar: false,
             cantidad_row: 0
         }
       }, 
       methods: {
+      	consignacion(){
+      		let me=this;
+      		if(me.switch_consignacion===true){
+      			return;
+      		}
+
+      		            			  Swal.fire({
+						  title: '¿Desea realizar la transferencia a consignacion?',
+						  text: 'los productos de esta transferencia podran ser devueltos en caso de que la sucursal a recibir lo desee!',
+						  type: 'warning',
+						  showLoaderOnConfirm: true,
+						  showCancelButton: true,
+						  confirmButtonColor: 'btn btn-success',
+						  cancelButtonColor: '#d33',
+						  confirmButtonText: 'Confirmar!',
+						  cancelButtonText: 'Cancelar',
+						  preConfirm: () => {
+
+
+                               me.switch_consignacion=true;
+						    	// ------------------------------------------------------------------------
+ 
+						    	// REVISAR SI HAY DATOS 
+
+
+				        		// ------------------------------------------------------------------------
+
+								return true;
+
+								// ------------------------------------------------------------------------
+
+						  }
+
+						}).then((result) => {
+						  if (!result.value) {
+
+						  	// ------------------------------------------------------------------------
+                              	me.switch_consignacion=false;
+						  	// LIMPIAR TEXTBOX 
+
+						
+
+							// ------------------------------------------------------------------------
+
+						  }
+
+						})
+
+      	},
       	activarBuscar(opcion){
 
             // ------------------------------------------------------------------------
@@ -1219,6 +1281,7 @@
 				origen: me.codigoOrigen,
 				destino: me.codigoDestino,
 				envia: me.codigoEnvia,
+				consignacion:me.switch_consignacion,
 				transporta: me.codigoTransporta,
 				recibe: me.codigoRecibe,
 				monedaSistema: me.monedaCodigo,

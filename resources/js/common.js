@@ -4869,6 +4869,24 @@ function generarRptPdfPedidoCommon(data){
 			// ------------------------------------------------------------------------
 
 }
+function arreglar_costo(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/arreglar').then(function (response) {
+				console.log(response.data);
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
 
 function obtenerProductoOfertaCommon(sucursal){
 	
