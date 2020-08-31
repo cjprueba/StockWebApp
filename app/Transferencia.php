@@ -14,6 +14,7 @@ use App\TransferenciaDet_tiene_Lotes;
 // use NumeroALetras\NumeroALetras;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
+use App\Central_tiene_Sucursales;
 
 class Transferencia extends Model
 {
@@ -1818,10 +1819,9 @@ class Transferencia extends Model
 
             // OBTENER DATOS TRANSFERENCIA
 
-            $transferencia = DB::connection('retail')
-            ->table('transferencias')
-            ->select(DB::raw(
-                            'ID, 
+            $transferencia = Transferencia::select(DB::raw(
+                            'ID,
+                            SUCURSAL_ORIGEN, 
                             SUCURSAL_DESTINO,
                             CAMBIO, 
                             MONEDA,
@@ -1840,6 +1840,8 @@ class Transferencia extends Model
             $cambio = $transferencia[0]->CAMBIO;
             $id = $transferencia[0]->ID;
             $usere = 'TRA-'.$id;
+            $origen = $transferencia[0]->SUCURSAL_ORIGEN;
+            $destino = $transferencia[0]->SUCURSAL_DESTINO;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1951,7 +1953,8 @@ class Transferencia extends Model
                             TRANSFERENCIAS_DET.CODIGO_PROD, 
                             TRANSFERENCIAS_DET.CANTIDAD, 
                             TRANSFERENCIAS_DET.PRECIO,
-                            LOTES.FECHA_VENC AS VENCIMIENTO'
+                            LOTES.FECHA_VENC AS VENCIMIENTO,
+                            LOTES.COSTO'
                         ))
             ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
             ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
@@ -2003,7 +2006,7 @@ class Transferencia extends Model
                     $precio_vip = $producto[0]->PREVIP;
     
                 }
-                
+
                 /*  --------------------------------------------------------------------------------- */
 
                 // REVISAR SI EXISTE PRODUCTO 
@@ -2037,6 +2040,22 @@ class Transferencia extends Model
                         'USERM' => $usere
                         ]
                     );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // VERIFICAR SI ENVIA ES DE CENTRAL A SUCURSAL
+
+                if (Central_tiene_Sucursales::comprobar_sucursal(["central" => $origen, "sucursal" => $destino]) === true) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // OBTENER PRECIO DEL COSTO LOTE CENTRAL
+
+                    $precio_venta = $td->COSTO;
 
                     /*  --------------------------------------------------------------------------------- */
 
