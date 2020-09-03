@@ -29,8 +29,8 @@
 
 			    	<div class="form-group row">
 			    		<label class="col-sm-3 col-form-label">Código Cliente</label>
-			    		<div class="col-sm-5">
-					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
+			    		<div class="col-sm-9">
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
 					    </div>
 			    	</div>
 
@@ -38,7 +38,7 @@
 			    	
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Tipo</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<select v-model="tipo" class="custom-select custom-select-sm">
 			    				<option>OCASIONAL</option>
 			  	  				<option>EXTRANJERO</option>
@@ -52,7 +52,7 @@
 
 			    	<!-- <div class="form-group row" v-if="tipo==='FUNCIONARIO' && existe===false">
 			    		<label class="col-sm-3 col-form-label">Código Funcionario</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<empleado-filtrar ref="componente_textbox_empleado" :codigo="codigoEmpleado" @codigo="filtrarCodigo" @nombre="filtrarNombre" @cedula="filtrarCi" @direccion="filtrarDireccion" @ciudad="filtrarCiudad" @telefono="filtrarTelefono" @id_sucursal="filtrarID" v-model='codigoEmpleado'></empleado-filtrar>
 					    </div>
 			    	</div> -->
@@ -61,7 +61,7 @@
 
 			    	<div class="form-group row mt-3" v-if="tipo === 'FUNCIONARIO'">
 			    		<label class="col-sm-3 col-form-label">Empresa</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 				    		<empresa-mostrar ref="componente_textbox_empresa" :nombre="empresa" @id="filtrarIdEmpresa" @nombre="filtrarNombreEmpresa" v-bind:class="{ 'is-invalid': validar.empresa }"></empresa-mostrar>
 					    </div>
 			    	</div>
@@ -79,7 +79,7 @@
 
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Nro. C.I.</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
@@ -88,7 +88,7 @@
 			   		
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">R.U.C.</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="ruc" v-bind:class="{ 'is-invalid': validar.ruc }" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
@@ -106,7 +106,7 @@
 
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Ciudad/Barrio</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="ciudad" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
@@ -115,7 +115,7 @@
 			   		
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Teléfono</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="telefono" v-bind:class="{ 'is-invalid': validar.telefono }" class="form-control form-control-sm">
 					    </div>
 			    	</div>
@@ -124,7 +124,7 @@
 
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Celular</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="celular" class="form-control form-control-sm">
 					    </div>
 			    	</div>			
@@ -133,7 +133,7 @@
 
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Email</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="email" class="form-control form-control-sm">
 					    </div>
 			    	</div>
@@ -142,8 +142,8 @@
 			   		
 			   		<div class="form-group row mst-3">
 			    		<label class="col-sm-3 col-form-label">Día límite de Crédito</label>
-			    		<div class="col-sm-5">
-					    	<input type="text" v-model="limiteCreditoDia" class="form-control form-control-sm">
+			    		<div class="col-sm-9">
+					    	<input type="number" v-model="limiteCreditoDia" class="form-control form-control-sm">
 					    </div>
 			    	</div>
 
@@ -151,8 +151,17 @@
 			   		
 			   		<div class="form-group row mst-3">
 			    		<label class="col-sm-3 col-form-label">Límite de Crédito</label>
-			    		<div class="col-sm-5">
+			    		<div class="col-sm-9">
 					    	<input type="text" v-model="limiteCredito" class="form-control form-control-sm">
+					    </div>
+			    	</div>
+
+			    	<!-- ------------------------------------- INPUT DE CREDITO DISPONIBLE -------------------------------------------- -->
+			   		
+			   		<div class="form-group row mst-3" v-if="existe">
+			    		<label class="col-sm-3 col-form-label">Crédito Disponible</label>
+			    		<div class="col-sm-9">
+					    	<input type="number" v-model="creditoDisponible" class="form-control form-control-sm" disabled>
 					    </div>
 			    	</div>
 
@@ -167,7 +176,9 @@
  					-->
 			    	<!-- --------------------------------------- COORDENADAS DEL MAPA -------------------------------------------- -->
 
-				   <!--  <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+
+				    <!-- <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+
 			            <div class="col-auto">
 			                <label><strong>Tus coordenadas:</strong></label>
 			                <p>Latitud: {{ myCoordinates.lat }} <br>Longitud: {{ myCoordinates.lng }}</p>
@@ -176,8 +187,10 @@
 			                <label><strong>Coordenadas del Mapa:</strong></label>
 			                <p>Latitud:{{ mapCoordinates.lat }} <br>Longitud: {{ mapCoordinates.lng }}</p>
 			            </div>
+
 			        </div> -->
 			    	<!-- --------------------------------------- MAPA -------------------------------------------- -->
+
 					<!-- <div>
 				        <GmapMap
 				            :center="myCoordinates"
@@ -195,24 +208,23 @@
 				        </GmapMap>
 					</div> -->
 
-			    	<!-- ------------------------------ BOTONES NUEVO, GUARDAR, MODIFICAR Y ELIMINAR ----------------------------------- -->
+			    	<!-- ------------------------------ BOTONES NUEVO, GUARDAR, MODIFICAR Y ELIMINAR ---------------------------------- -->
 					
+
+					  
+
 					<div class="row mt-4">
-
-				    	<div class="col text-right">
+						<div class="col-12 text-right">
+				    
 					    	<button v-on:click="limpiar()" type="button" class="btn btn-primary">Nuevo</button>
-					    </div>
-
-					    <div v-if='btnguardar' class="col text-center">
-					    	<button v-on:click="guardar" type="button" class="btn btn-success">Guardar</button>
-					    </div>
-
-					    <div v-else class="col text-center">
-					    	<button v-on:click="guardar" type="button" class="btn btn-warning">Modificar</button>
-					    </div>
-
-					    <div class="col text-left">
+					   
+					    	<button  v-if='btnguardar' v-on:click="guardar" type="button" class="btn btn-success">Guardar</button>
+					    
+					    	<button v-else v-on:click="guardar" type="button" class="btn btn-warning">Modificar</button>
+					   
+					    
 					    	<button v-on:click="eliminar()" type="button" class="btn btn-danger">Eliminar</button>
+					    
 					    </div>
 				    </div>
 				</div>		
@@ -272,6 +284,7 @@
 				tipo: 'OCASIONAL',
 				limiteCredito: '',
 				limiteCreditoDia: '',
+				creditoDisponible: '',
 				btnguardar: true,
 				existe: false,
 				controlar: true,
@@ -302,10 +315,12 @@
           
         //     // OBTENER UBICACION
             
-        //     this.$getLocation({}).then(coordinates => {
-        //                 this.myCoordinates = coordinates;
-        //             })
-        //         .catch(error => alert(error));
+
+            // this.$getLocation({}).then(coordinates => {
+            //             this.myCoordinates = coordinates;
+            //         })
+            //     .catch(error => alert(error));
+
            
         // },
 		
@@ -345,6 +360,7 @@
 					this.controlar = true;
 					return;
 				}
+
 
 				// CARGA TODOS LOS DATOS EN UNA VARIABLE
 
@@ -641,6 +657,11 @@
 				this.limiteCreditoDia = valor;
 			},
 
+			cargarCreditoDisponible(valor){
+
+				this.creditoDisponible = valor;
+			},
+
 			filtrarNombreEmpresa(valor){
 
 				this.empresa = valor;
@@ -679,8 +700,7 @@
         //             lat: this.map.getCenter().lat().toFixed(4),
         //             lng: this.map.getCenter().lng().toFixed(4)
         //         }
-        //     },
-        //     google: gmapApi
+        //     }
         // }
 
 	}
