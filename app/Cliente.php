@@ -222,7 +222,8 @@ class Cliente extends Model
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%");
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
@@ -235,7 +236,8 @@ class Cliente extends Model
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%");
                             })->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
@@ -307,7 +309,8 @@ class Cliente extends Model
                         CLIENTES.LIMITE_CREDITO,
                         CLIENTES.FK_EMPRESA,
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
-                        EMPRESAS.NOMBRE AS EMPRESA'))
+                        EMPRESAS.NOMBRE AS EMPRESA,
+                        CLIENTES.CREDITO_DISPONIBLE'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -327,6 +330,27 @@ class Cliente extends Model
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
 
+         /*  --------------------------------------------------------------------------------- */
+
+         // VERIFICAR RUC
+
+         $ruc = Cliente::verificarRuc($datos['data']['ruc']);
+
+         if($ruc['response'] == false){
+
+            return $ruc;
+         }
+          /*  --------------------------------------------------------------------------------- */
+
+          // VERIFICAR CI
+
+          $ci = Cliente::verificarCI($datos['data']['cedula']);
+
+         if($ci['response'] == false){
+
+            return $ci;
+         }
+          /*  --------------------------------------------------------------------------------- */
         try {
 
             // CONTROLA QUE NO EXISTA PARA INSERTAR
@@ -375,6 +399,7 @@ class Cliente extends Model
                     'EMAIL' => $datos['data']['email'],
                     'TIPO' => $datos['data']['tipo'],
                     'LIMITE_CREDITO' => $datos['data']['limite'],
+                    'DIAS_CREDITO' => $datos['data']['diaLimite'],
                     'FK_EMPRESA' => $datos['data']['idEmpresa'],
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
@@ -418,6 +443,13 @@ class Cliente extends Model
         $user = auth()->user();
 
         try {
+
+            $venta = Cliente::existe_venta($datos['data']['codigo']);
+
+            if($venta['response'] == false){
+
+                return $venta;
+            }
 
             // ELIMINA SI EXISTE
 
@@ -465,6 +497,7 @@ class Cliente extends Model
                     ))
         ->where('ID_SUCURSAL','=', $user->id_sucursal)
         ->where('CLIENTE','=', $codigo)
+        ->limit(1)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -473,10 +506,10 @@ class Cliente extends Model
 
         if(count($cliente) > 0){
 
-            return true;
+            return ["response"=>false,'statusText'=> 'Existe una venta con este cliente'];
         } else {
 
-            return false;
+            return ["response"=>true];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -495,7 +528,7 @@ class Cliente extends Model
         $cliente = Cliente::select(
                                     'CODIGO'
                                 )
-                        ->where('RUC', 'LIKE', $ruc)
+                        ->where('RUC', '=', $ruc)
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->limit(1)
                         ->get()
@@ -503,11 +536,14 @@ class Cliente extends Model
 
         // RETORNAR EL VALOR
 
-        if(count($cliente) > 0){
+        if(count($cliente) > 0 && !empty($ruc)){
 
-            return true;
+            return  ["response"=>false,'statusText'=> 'Ya existe un cliente con RUC: '.$data];
         } else {
-            return false;
+
+            // MUESTRA QUE YA EXISTE
+
+            return ["response"=>true];
 
         }
 
@@ -526,7 +562,7 @@ class Cliente extends Model
         $cliente = Cliente::select(
                                     'CODIGO'
                                 )
-                        ->where('CI', 'LIKE', $ci)
+                        ->where('CI', '=', $ci)
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->limit(1)
                         ->get()
@@ -534,11 +570,14 @@ class Cliente extends Model
 
         // RETORNAR EL VALOR
 
-        if(count($cliente) > 0){
+        if(count($cliente) > 0 && !empty($ci)){
 
-            return true;
+             return  ["response"=>false,'statusText'=> 'Ya existe un cliente registrado con C.I: '.$data];
         } else {
-            return false;
+
+            // MUESTRA QUE NO EXISTE
+
+            return ["response"=>true];
 
         }
 
