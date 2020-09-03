@@ -553,12 +553,13 @@ class Cliente extends Model
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
-
+        
         // OBTENER TODAS LOS CLIENTES
 
-        $cliente= Cliente::select(DB::raw('LIMITE_CREDITO, DIAS_CREDITO, CREDITO_DISPONIBLE'))
+        $cliente= Cliente::select(DB::raw('IFNULL(LIMITE_CREDITO,0) AS LIMITE_CREDITO, IFNULL(DIAS_CREDITO,0) DIAS_CREDITO, IFNULL(CREDITO_DISPONIBLE,0) AS CREDITO_DISPONIBLE'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->Where('ID','=',$datos['data'])->get();
+        ->where('CODIGO','=',$datos['data'])
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -566,7 +567,7 @@ class Cliente extends Model
 
         if(count($cliente) > 0){
 
-            return ["response" => true, "cliente" => $cliente];
+            return ["response" => true, "cliente" => $cliente[0], "disponible"];
 
         } else {
 

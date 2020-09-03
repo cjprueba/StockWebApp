@@ -167,7 +167,7 @@
  					-->
 			    	<!-- --------------------------------------- COORDENADAS DEL MAPA -------------------------------------------- -->
 
-				    <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+				   <!--  <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
 			            <div class="col-auto">
 			                <label><strong>Tus coordenadas:</strong></label>
 			                <p>Latitud: {{ myCoordinates.lat }} <br>Longitud: {{ myCoordinates.lng }}</p>
@@ -176,9 +176,9 @@
 			                <label><strong>Coordenadas del Mapa:</strong></label>
 			                <p>Latitud:{{ mapCoordinates.lat }} <br>Longitud: {{ mapCoordinates.lng }}</p>
 			            </div>
-			        </div>
+			        </div> -->
 			    	<!-- --------------------------------------- MAPA -------------------------------------------- -->
-					<div>
+					<!-- <div>
 				        <GmapMap
 				            :center="myCoordinates"
 				            :zoom="zoom"
@@ -193,7 +193,7 @@
 							    @click="center=map"
 							  />
 				        </GmapMap>
-					</div>
+					</div> -->
 
 			    	<!-- ------------------------------ BOTONES NUEVO, GUARDAR, MODIFICAR Y ELIMINAR ----------------------------------- -->
 					
@@ -298,42 +298,42 @@
 			}
 		},
 
-        created() {
+        // created() {
           
-            // OBTENER UBICACION
+        //     // OBTENER UBICACION
             
-            this.$getLocation({}).then(coordinates => {
-                        this.myCoordinates = coordinates;
-                    })
-                .catch(error => alert(error));
+        //     this.$getLocation({}).then(coordinates => {
+        //                 this.myCoordinates = coordinates;
+        //             })
+        //         .catch(error => alert(error));
            
-        },
+        // },
 		
 		methods: {
 
 			//CREAR MARCADOR
 
-			createMarker: function (latlng) {
-		      this.marker = new window.google.maps.Marker({
-		        setMap: this.map,
-		        position: latlng,
-		        animation: window.google.maps.Animation.DROP
-		      })
-		      this.addYourLocationButton()
-		    },
+			// createMarker: function (latlng) {
+		 //      this.marker = new window.google.maps.Marker({
+		 //        setMap: this.map,
+		 //        position: latlng,
+		 //        animation: window.google.maps.Animation.DROP
+		 //      })
+		 //      this.addYourLocationButton()
+		 //    },
 
-			handleDrag() {
+			// handleDrag() {
 
-                // OBTENER NIVEL DE ZOOM Y COORDENADAS EN EL MAPA
+   //              // OBTENER NIVEL DE ZOOM Y COORDENADAS EN EL MAPA
 
-                let center = {
-                    lat: this.map.getCenter().lat(),
-                    lng: this.map.getCenter().lng()
-                };
-                let zoom = this.map.getZoom();
-                localStorage.center = JSON.stringify(center);
-                localStorage.zoom = zoom;
-            },
+   //              let center = {
+   //                  lat: this.map.getCenter().lat(),
+   //                  lng: this.map.getCenter().lng()
+   //              };
+   //              let zoom = this.map.getZoom();
+   //              localStorage.center = JSON.stringify(center);
+   //              localStorage.zoom = zoom;
+   //          },
 
 			// GUARDAR Y MODIFICAR
 
@@ -664,24 +664,24 @@
 
 			// AGREGAR EL MAPA A UN DATA OBJECT
 
-			this.$refs.mapRef.$mapPromise.then(map => this.map = map);
+			// this.$refs.mapRef.$mapPromise.then(map => this.map = map);
 		},
 
-        computed: {
-            mapCoordinates() {
-                if(!this.map) {
-                    return {
-                       	lat: 0,
-                    	lng: 0
-                    };
-                }
-                return {
-                    lat: this.map.getCenter().lat().toFixed(4),
-                    lng: this.map.getCenter().lng().toFixed(4)
-                }
-            },
-            google: gmapApi
-        }
+        // computed: {
+        //     mapCoordinates() {
+        //         if(!this.map) {
+        //             return {
+        //                	lat: 0,
+        //             	lng: 0
+        //             };
+        //         }
+        //         return {
+        //             lat: this.map.getCenter().lat().toFixed(4),
+        //             lng: this.map.getCenter().lng().toFixed(4)
+        //         }
+        //     },
+        //     google: gmapApi
+        // }
 
 	}
 </script>
