@@ -176,7 +176,9 @@
  					-->
 			    	<!-- --------------------------------------- COORDENADAS DEL MAPA -------------------------------------------- -->
 
+
 				    <!-- <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between">
+
 			            <div class="col-auto">
 			                <label><strong>Tus coordenadas:</strong></label>
 			                <p>Latitud: {{ myCoordinates.lat }} <br>Longitud: {{ myCoordinates.lng }}</p>
@@ -185,8 +187,10 @@
 			                <label><strong>Coordenadas del Mapa:</strong></label>
 			                <p>Latitud:{{ mapCoordinates.lat }} <br>Longitud: {{ mapCoordinates.lng }}</p>
 			            </div>
-			        </div>
-			    	<-- --------------------------------------- MAPA -------------------------------------------- -->
+
+			        </div> -->
+			    	<!-- --------------------------------------- MAPA -------------------------------------------- -->
+
 					<!-- <div>
 				        <GmapMap
 				            :center="myCoordinates"
@@ -309,12 +313,14 @@
 
         // created() {
           
-            // OBTENER UBICACION
+        //     // OBTENER UBICACION
             
+
             // this.$getLocation({}).then(coordinates => {
             //             this.myCoordinates = coordinates;
             //         })
             //     .catch(error => alert(error));
+
            
         // },
 		
