@@ -30,7 +30,7 @@
 			    	<div class="form-group row">
 			    		<label class="col-sm-3 col-form-label">Código Cliente</label>
 			    		<div class="col-sm-9">
-					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" @razonSocial="cargarRazonSocial" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
 					    </div>
 			    	</div>
 
@@ -75,7 +75,7 @@
 					    </div>
 			    	</div>
 
-			    	<!-- ---------------------------------- ----- INPUT DE NRO DE DOCUMENTO -------------------------------------------- -->
+			    	<!-- ---------------------------------- ----- INPUT DE NRO DE DOCUMENTO ------------------------------------------- -->
 
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Nro. C.I.</label>
@@ -84,12 +84,21 @@
 					    </div>
 			    	</div>	
 
-			    	<!-- --------------------------------------------- INPUT DE RUC ---------------------------------------------------- -->
+			    	<!-- --------------------------------------------- INPUT DE RUC --------------------------------------------------- -->
 			   		
 			   		<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">R.U.C.</label>
 			    		<div class="col-sm-9">
 					    	<input type="text" v-model="ruc" v-bind:class="{ 'is-invalid': validar.ruc }" class="form-control form-control-sm">
+					    </div>
+			    	</div>	
+
+			    	<!-- ------------------------------------------- INPUT DE RAZON SOCIAL -------------------------------------------- -->
+			   		
+			   		<div class="form-group row mt-3">
+			    		<label class="col-sm-3 col-form-label">Razón Social</label>
+			    		<div class="col-sm-9">
+					    	<input type="text" v-model="razonSocial" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
 
@@ -281,6 +290,7 @@
 				limiteCredito: '',
 				limiteCreditoDia: '',
 				creditoDisponible: '',
+				razonSocial: '',
 				btnguardar: true,
 				existe: false,
 				controlar: true,
@@ -355,7 +365,6 @@
 					return;
 				}
 
-
 				// CARGA TODOS LOS DATOS EN UNA VARIABLE
 
 				var data = {
@@ -373,7 +382,8 @@
 					limite: this.limiteCredito,
 					existe: this.existe,
 					idEmpresa: this.idEmpresa,
-					diaLimite: this.limiteCreditoDia
+					diaLimite: this.limiteCreditoDia,
+					razonSocial: this.razonSocial
 				}
 
 				// ENVIA LOS DATOS PARA GUARDAR O MODIFICAR
@@ -531,11 +541,7 @@
 					me.controlar = false;
 				}
 				
-				if(me.controlar === true){
-					return true;
-				}else{
-					return false;
-				}
+				return me.controlar;
 			},
 
 			// REINICIAR EL FORMULARIO
@@ -553,6 +559,7 @@
 				me.tipo = 'OCASIONAL';
 				me.limiteCredito = '';
 				me.limiteCreditoDia = '';
+				me.razonSocial = '';
 				me.btnguardar = true;
 				me.existe = false;
 				me.validar.cliente = false;
@@ -644,6 +651,11 @@
 			cargarEmpresaID(valor){
 				
 				this.idEmpresa = valor;
+			},
+
+			cargarRazonSocial(valor){
+
+				this.razonSocial = valor;
 			},
 
 			cargarLimiteDia(valor){
