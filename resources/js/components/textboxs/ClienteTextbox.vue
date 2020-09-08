@@ -69,7 +69,7 @@
 
 		methods: {
 			
-			enviarCodigoPadre(id, codigo, cedula, nombre, ruc, direccion, ciudad, nacimiento, telefono, celular, email, tipo, limite, empresaID, diaLimite, empresa){
+			enviarCodigoPadre(id, codigo, cedula, nombre, ruc, direccion, ciudad, nacimiento, telefono, celular, email, tipo, limite, empresaID, diaLimite, empresa, creditoDisponible, razonSocial){
 
 				// ENVIAR CODIGO
 
@@ -89,6 +89,8 @@
 		        this.$emit('empresaID', empresaID);
 		        this.$emit('diaLimite', diaLimite);
 		        this.$emit('empresa', empresa);
+		        this.$emit('creditoDisponible', creditoDisponible);
+		        this.$emit('razonSocial', razonSocial);
 
 				// ------------------------------------------------------------------------
 
@@ -161,7 +163,9 @@
            			data.cliente[0].LIMITE_CREDITO,
            			data.cliente[0].FK_EMPRESA,
            			data.cliente[0].LIMITEDIA,
-           			data.cliente[0].EMPRESA);
+           			data.cliente[0].EMPRESA,
+           			data.cliente[0].CREDITO_DISPONIBLE,
+           			data.cliente[0].RAZON_SOCIAL);
                 })
 
                 // CERRAR EL MODAL
