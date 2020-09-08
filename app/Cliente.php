@@ -306,6 +306,7 @@ class Cliente extends Model
                         CLIENTES.CELULAR, 
                         CLIENTES.EMAIL, 
                         CLIENTES.TIPO, 
+                        CLIENTES.RAZON_SOCIAL,
                         CLIENTES.LIMITE_CREDITO,
                         CLIENTES.FK_EMPRESA,
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
@@ -330,34 +331,38 @@ class Cliente extends Model
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
 
-         /*  --------------------------------------------------------------------------------- */
-
-         // VERIFICAR RUC
-
-         $ruc = Cliente::verificarRuc($datos['data']['ruc']);
-
-         if($ruc['response'] == false){
-
-            return $ruc;
-         }
-          /*  --------------------------------------------------------------------------------- */
-
-          // VERIFICAR CI
-
-          $ci = Cliente::verificarCI($datos['data']['cedula']);
-
-         if($ci['response'] == false){
-
-            return $ci;
-         }
-          /*  --------------------------------------------------------------------------------- */
+         
         try {
 
             // CONTROLA QUE NO EXISTA PARA INSERTAR
 
             if($datos['data']['existe']=== false){
 
+                /*  --------------------------------------------------------------------------------- */
+
+                // VERIFICAR RUC
+
+                $ruc = Cliente::verificarRuc($datos['data']['ruc']);
+
+                if($ruc['response'] == false){
+
+                    return $ruc;
+                }
+                 /*  --------------------------------------------------------------------------------- */
+
+                // VERIFICAR CI
+
+                $ci = Cliente::verificarCI($datos['data']['cedula']);
+
+                if($ci['response'] == false){
+
+                    return $ci;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
                 // GUARDA LOS DATOS
+
                 $codigo = Cliente::select('CODIGO')
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->orderby('CODIGO','DESC')
@@ -371,6 +376,7 @@ class Cliente extends Model
                 'NOMBRE'=> $datos['data']['name'],
                 'RUC'=> $datos['data']['ruc'],
                 'DIRECCION' => $datos['data']['direccion'],
+                'RAZON_SOCIAL' => $datos['data']['razonSocial'],
                 'CIUDAD' => $datos['data']['ciudad'],
                 'TELEFONO' => $datos['data']['telefono'],
                 'CELULAR' => $datos['data']['celular'],
@@ -393,6 +399,7 @@ class Cliente extends Model
                     'NOMBRE'=> $datos['data']['name'],
                     'RUC'=> $datos['data']['ruc'],
                     'DIRECCION' => $datos['data']['direccion'],
+                    'RAZON_SOCIAL' => $datos['data']['razonSocial'],
                     'CIUDAD' => $datos['data']['ciudad'],
                     'TELEFONO' => $datos['data']['telefono'],
                     'CELULAR' => $datos['data']['celular'],
@@ -444,16 +451,16 @@ class Cliente extends Model
 
         try {
 
-            $venta = Cliente::existe_venta($datos['data']['codigo']);
-
-            if($venta['response'] == false){
-
-                return $venta;
-            }
-
             // ELIMINA SI EXISTE
 
             if ($datos['data']['existe']=== true){
+
+                $venta = Cliente::existe_venta($datos['data']['codigo']);
+
+                if($venta['response'] == false){
+
+                    return $venta;
+                }
 
                 $clientes= Cliente::Where('CODIGO','=',$datos['data']['codigo'])
                 ->where('NOMBRE','=', $datos['data']['nombre'])
