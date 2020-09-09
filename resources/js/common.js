@@ -4870,6 +4870,44 @@ function generarRptPdfPedidoCommon(data){
 
 }
 
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF VENTA TARJETA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function reporteVentaTarjetaCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptTarjeta', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+}
+
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5078,5 +5116,6 @@ export {
 		cambiarCantidadPedidoCommon,
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
-		generarRptPdfPedidoCommon
+		generarRptPdfPedidoCommon,
+		reporteVentaTarjetaCommon
 		};

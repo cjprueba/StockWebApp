@@ -1,11 +1,11 @@
 <template>
-		<!-- VALE DE FUNCIONARIOS -->
+	<!-- VENTA TARJETA  -->
 	<div class="container">
-		<div class="card mt-3 shadow border-bottom-primary" >
-		  <div class="card-header">Vale de Funcionarios</div>
-		    <div class="card-body">
+		<div class="card mt-3  shadow border-bottom-primary" >
+		  <div class="card-header">Ventas por Tarjeta</div>
+			<div class="card-body">
 			  <div class="row">
-			    <div class="col-4">
+				<div class="col-4">
 					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
@@ -48,36 +48,34 @@
 				        </div>
 			        </div>
 				</div>
-		        <div class="col-md-7 ml-5">
-					<table id="tablaVentaVale" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+				
+			  	<div class="col-md-7 ml-5">
+					<table id="tablaVentaTarjeta" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
 			                    <th>Cliente</th>
-			                    <th>Empresa</th>
+			                    <th>Tarjeta</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
-			            		<th></th>
-			            		<th></th>
-				            	<th class="text-center"><strong>TOTALES</strong></th>
+				            	<th colspan='3' class="text-center"><strong>TOTALES</strong></th>
 				            	<th></th>
 				            </tr>
 			            </tfoot>
 			        </table> 
-				</div>
+				</div>	
+			  </div>
 			</div>
-		  </div>
 		</div>
 	</div>
-	<!-- FIN VALE DE FUNCIONARIOS -->
+	<!-- VENTA TARJETA -->
 </template>
 
 <script >
 	export default {
-      	props: ['candec'],
         data(){
             return {
               	sucursales: [],
@@ -90,8 +88,7 @@
               	selectedFinalFecha: '',
               	validarFinalFecha: false,
               	cargado: false,
-              	descarga: false,
-              	responseVale: []
+              	descarga: false
             }
         }, 
         methods: {
@@ -103,6 +100,7 @@
 
 	        descargar(){
 	        	let me = this;	
+
 	        	if(this.generarConsulta() === true) {
 
 	        		me.descarga = true;
@@ -110,11 +108,10 @@
 		        	var datos = {
 			        	sucursal: this.selectedSucursal,
 			        	inicio: String(this.selectedInicialFecha),
-			        	final: String(this.selectedFinalFecha),
-			        	accion: 'descargar'
+			        	final: String(this.selectedFinalFecha)
 		        	};
 		        	
-		        	Common.generarReporteValeCommon(datos).then(function(){
+		        	Common.reporteVentaTarjetaCommon(datos).then(function(){
 	    				me.descarga = false;
 	    			});	
 				}
@@ -125,10 +122,10 @@
 	        	let me = this;
 
 		        if(this.generarConsulta() === true) {
-		        	
+
 		        	// PREPARAR DATATABLE 
 
-			 		var tableVentaVale = $('#tablaVentaVale').DataTable({
+			 		var tableVentaTarjeta = $('#tablaVentaTarjeta').DataTable({
 		                "processing": true,
 		                "serverSide": true,
 		                "destroy": true,
@@ -143,7 +140,7 @@
 				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
 				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
 				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
-				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaVale', messageTop: 'Ventas registradas por Vale', footer: true }
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaTarjeta', messageTop: 'Ventas registradas por Tarjeta', footer: true }
 				        ],
 		                "ajax":{
 	                 			"data": {
@@ -151,7 +148,7 @@
 						        	inicio: String(me.selectedInicialFecha),
 						        	final: String(me.selectedFinalFecha)
 	                 			},
-		                  "url": "/ventaValeDatatable",
+		                  "url": "/ventaTarjetaDatatable",
 		                  "dataType": "json",
 		                  "type": "GET",
 		                  "contentType": "application/json; charset=utf-8"
@@ -159,7 +156,7 @@
 		                "columns": [
 		                    { "data": "ITEM" },
 		                    { "data": "CLIENTE" },
-		                    { "data": "EMPRESA" },
+		                    { "data": "TARJETA" },
 		                    { "data": "TOTAL" }
 		                ],
 
@@ -200,13 +197,14 @@
 						    // CARGAR EN EL FOOTER  
 
 						    $( api.columns('.totalColumna').footer() ).html(
-					            Common.darFormatoCommon(sum, me.candec)
+					            Common.darFormatoCommon(sum, 0)
 					        ); 
 
 						  });
 						}
 		            });
-	        	} else {
+
+	        	}else {
 	        		alert("false");
 	        	}
 	        },
@@ -259,6 +257,7 @@
 					$('table').dataTable();
 			});
 			this.llamarBusquedas();
+			var tableVentaTarjeta = $('#tablaVentaTarjeta').DataTable();
         }
     }    
 </script>
