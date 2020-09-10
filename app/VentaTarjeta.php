@@ -44,7 +44,7 @@ class VentaTarjeta extends Model
 		}
     }
 
-    public static function generarConsulta($sucursal, $inicio, $final){
+    public static function generarConsulta($sucursal, $inicio, $final, $order, $dir){
 
         $ventaTarjeta = VentaTarjeta::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
             ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_TARJETA.FK_VENTA')
@@ -53,6 +53,7 @@ class VentaTarjeta extends Model
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                         })
             ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+                DB::raw('VENTAS.FECALTAS AS FECHA'),
                 DB::raw('VENTAS_TARJETA.FK_TARJETA AS ID_TARJETA'),
                 DB::raw('SUM(VENTAS_TARJETA.MONTO) AS TOTAL'),
                 DB::raw('VENTAS_TARJETA.MONEDA AS MONEDA'),
@@ -64,7 +65,8 @@ class VentaTarjeta extends Model
                     ['VENTAS.ID_SUCURSAL', '=', $sucursal],
                     ['VENTAS_ANULADO.ANULADO', '<>', 1]
                 ])
-                ->groupBy('CLIENTES.CODIGO')
+                ->groupBy('VENTAS.ID')
+                ->orderBy($order,$dir)
                 ->get()
                 ->toArray(); 
 
@@ -83,10 +85,12 @@ class VentaTarjeta extends Model
         $inicio = date('Y-m-d', strtotime($datos['data']['inicio']));
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $sucursal = $datos['data']['sucursal'];
+        $order ='VENTAS.FECALTAS';
+        $dir = 'ASC';
 
         // OBTENER DATOS 
 
-	    $ventaTarjeta = VentaTarjeta::generarConsulta($sucursal, $inicio, $final); 
+	    $ventaTarjeta = VentaTarjeta::generarConsulta($sucursal, $inicio, $final, $order, $dir); 
 
         //INICIAR VARIABLES
         
@@ -96,7 +100,7 @@ class VentaTarjeta extends Model
         $total = 0;
         $c_rows = 0;
         $articulos = [];
-        $limite = 27;
+        $limite = 30;
 
         // INICIAR MPDF 
 
@@ -116,12 +120,14 @@ class VentaTarjeta extends Model
             $total = $total + $value["TOTAL"];
             $nombre = strtolower($value["CLIENTE"]);
             $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $fecha = substr($value["FECHA"],0,-9);
+            $articulos[$c_rows]['FECHA'] = $fecha;
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value["TOTAL"], $candec);
             $tarjeta = strtolower($value["TARJETAS"]);
             $articulos[$c_rows]['TARJETA'] = ucwords($tarjeta);
             if($c_rows == $limite){
             	$articulos[$c_rows]['SALTO'] = true;
-            	$limite = $limite + 32;
+            	$limite = $limite + 36;
             }else{
 
             	$articulos[$c_rows]['SALTO'] = false;
@@ -176,9 +182,10 @@ class VentaTarjeta extends Model
 
         $columns = array( 
                             0 => 'ITEM', 
-                            1 => 'CLIENTE',
-                            2 => 'TARJETA',
-                            3 => 'TOTAL'
+                            1 => 'CLIENTES.NOMBRE',
+                            2 => 'TARJETAS.DESCRIPCION',
+                            3 => 'VENTAS.FECALTAS',
+                            4 => 'VENTAS_TARJETA.MONTO'
                         );
         
 
@@ -190,13 +197,17 @@ class VentaTarjeta extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
+        if($order == 'ITEM'){
+            $order ='VENTAS.FECALTAS';
+        }
 		$item = 1;
         
+        // var_dump($order);
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS DATOS ENCONTRADOS 
 
-        $posts = VentaTarjeta::generarConsulta($sucursal, $inicio, $final);
+        $posts = VentaTarjeta::generarConsulta($sucursal, $inicio, $final, $order, $dir);
 
         /*  ************************************************************ */
 
@@ -218,6 +229,8 @@ class VentaTarjeta extends Model
                 $nestedData['CLIENTE'] = ucwords($cliente);
                 $tarjeta = strtolower($post["TARJETAS"]);
                 $nestedData['TARJETA'] = ucwords($tarjeta);
+                $fecha = substr($post["FECHA"],0,-9);
+                $nestedData['FECHA'] = $fecha;
                 $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], 0);
 
                 $data[] = $nestedData;

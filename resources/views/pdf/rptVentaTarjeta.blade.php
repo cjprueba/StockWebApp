@@ -90,7 +90,8 @@
             <tr>
                 <td width="15%" class="title"><b>Ref.</b></td>
                 <td width="40%" class="title"><b>Nombre</b></td>
-                <td width="25%" class="title"><b>Tarjeta</b></td>
+                <td width="20%" class="title"><b>Tarjeta</b></td>
+                <td width="15%" class="title"><b>Fecha</b></td>
                 <td width="20%" class="title"><b>Total</b></td>
             </tr>
         </thead>
@@ -101,14 +102,16 @@
                 <tr>
                     <td width="15%" class="cuerpo"><span>{{$i + 1}} </span></td>
                     <td width="40%" align="left" class="cuerpo"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
-                    <td width="25%" class="cuerpo"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="15%" class="cuerpo"><span>{{ $articulos[$i]['FECHA']}}</span></td>
                     <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @else
                 <tr>
                     <td width="15%" class="cuerpo2"><span>{{$i + 1}} </span></td>
                     <td width="40%" class="cuerpo2" align="left"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
-                    <td width="25%" class="cuerpo2"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="15%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA']}}</span></td>
                     <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @endif
@@ -116,14 +119,15 @@
                 <tr>
                     <td width="15%">&nbsp;</td>
                     <td width="40%">&nbsp;</td>
-                    <td width="25%">&nbsp;</td>
+                    <td width="20%">&nbsp;</td>
+                    <td width="15%">&nbsp;</td>
                     <td width="20%">&nbsp;</td>
                 </tr>
                 @endif
             @endfor
             <!-- END ITEMS HERE -->
                 <tr>
-                    <td colspan='3' class="totals"><b><b>TOTAL:</b></td>
+                    <td colspan='4' class="totals"><b><b>TOTAL:</b></td>
                     <td class="totals" align="center"><b>{{$total}}</b></td>
                 </tr>
         </tbody>

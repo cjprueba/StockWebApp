@@ -56,13 +56,14 @@
 			                    <th>Ref</th>
 			                    <th>Cliente</th>
 			                    <th>Tarjeta</th>
+			                    <th>Fecha</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
 				            	<th colspan='3' class="text-center"><strong>TOTALES</strong></th>
-				            	<th></th>
+				            	<th colspan='2' class="text-center"></th>
 				            </tr>
 			            </tfoot>
 			        </table> 
@@ -157,6 +158,7 @@
 		                    { "data": "ITEM" },
 		                    { "data": "CLIENTE" },
 		                    { "data": "TARJETA" },
+		                    { "data": "FECHA" },
 		                    { "data": "TOTAL" }
 		                ],
 
