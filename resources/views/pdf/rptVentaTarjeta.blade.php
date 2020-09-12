@@ -36,7 +36,7 @@
         border-bottom: 1px solid #dbdbdb;
     }
     .totals {
-        font-size: 11pt;
+        font-size: 12pt;
         text-align: right;
         border-top: 0.2mm solid #000000;
         border-bottom: 0.2mm solid #000000;
@@ -79,7 +79,7 @@
 
     <sethtmlpagefooter name="myfooter" value="on" />
 
-    <div class="titulo"><strong>REPORTE SERVICIO DE DELIVERY</strong></div>
+    <div class="titulo"><strong>REPORTE VENTAS POR TARJETA</strong></div>
     
     <br><div class="texto"><span>Fecha: {{$intervalo}}</span></div><br>
     <div class="texto"><span>Generado Por: {{$generador}}</span></div><br>
@@ -88,10 +88,10 @@
     <table class="items" width="100%" cellpadding="6">
         <thead>
             <tr>
-                <td width="10%" class="title"><b>Ref.</b></td>
-                <td width="20" class="title"><b>Codigo Venta</b></td>
-                <td width="40%" class="title"><b>Cliente</b></td>
-                <td width="10" class="title"><b>Fecha</b></td>
+                <td width="15%" class="title"><b>Ref.</b></td>
+                <td width="40%" class="title"><b>Nombre</b></td>
+                <td width="20%" class="title"><b>Tarjeta</b></td>
+                <td width="15%" class="title"><b>Fecha</b></td>
                 <td width="20%" class="title"><b>Total</b></td>
             </tr>
         </thead>
@@ -100,28 +100,28 @@
             @for ($i = 0; $i < $c_rows; $i++)
                 @if($i <= $c_rows-2)
                 <tr>
-                    <td width="10%" class="cuerpo"><span>{{$i + 1}} </span></td>
-                    <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['CODIGO'] }}</span></td>
+                    <td width="15%" class="cuerpo"><span>{{$i + 1}} </span></td>
                     <td width="40%" align="left" class="cuerpo"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
-                    <td width="10%" class="cuerpo"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="15%" class="cuerpo"><span>{{ $articulos[$i]['FECHA']}}</span></td>
                     <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @else
                 <tr>
-                    <td width="10%" class="cuerpo2"><span>{{$i + 1}} </span></td>
-                    <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['CODIGO'] }}</span></td>
-                    <td width="40%" align="left" class="cuerpo2"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
-                    <td width="10%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="15%" class="cuerpo2"><span>{{$i + 1}} </span></td>
+                    <td width="40%" class="cuerpo2" align="left"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
+                    <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['TARJETA']}}</span></td>
+                    <td width="15%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA']}}</span></td>
                     <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @endif
                 @if($articulos[$i]['SALTO'] == true)
                 <tr>
-                    <td width="10%">&nbsp;</td>
-                    <td width="20%">&nbsp;</td>
+                    <td width="15%">&nbsp;</td>
                     <td width="40%">&nbsp;</td>
                     <td width="20%">&nbsp;</td>
-                    <td width="10%">&nbsp;</td>
+                    <td width="15%">&nbsp;</td>
+                    <td width="20%">&nbsp;</td>
                 </tr>
                 @endif
             @endfor

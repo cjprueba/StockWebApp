@@ -44,6 +44,35 @@ class VentaTransferencia extends Model
 		}
     }
 
+    public static function generarConsulta($sucursal, $inicio, $final, $order, $dir){
+
+        $ventaTransferencia = VentaTransferencia::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
+            ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
+            ->leftJoin('CLIENTES', function($join){
+                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                        })
+            ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+                DB::raw('VENTAS_TRANSFERENCIA.FK_BANCO AS BANCO_ID'),
+                DB::raw('SUM(VENTAS_TRANSFERENCIA.MONTO) AS TOTAL'),
+                DB::raw('VENTAS_TRANSFERENCIA.MONEDA AS MONEDA'),
+                DB::raw('CLIENTES.CODIGO AS COD_CLI'),
+                DB::raw('BANCOS.DESCRIPCION AS BANCO'),
+                DB::raw('VENTAS.FECALTAS AS FECHA'))
+            ->leftjoin('BANCOS', 'BANCOS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_BANCO')
+            ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
+                ->where([
+                    ['VENTAS.ID_SUCURSAL', '=', $sucursal],
+                    ['VENTAS_ANULADO.ANULADO', '<>', 1]
+                ])
+                ->groupBy('CLIENTES.CODIGO')
+                ->orderBy($order,$dir)
+                ->get()
+                ->toArray(); 
+
+        return $ventaTransferencia;
+    }
+
     public static function transferenciaPDF($datos){
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -56,30 +85,14 @@ class VentaTransferencia extends Model
         $inicio = date('Y-m-d', strtotime($datos['data']['inicio']));
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $sucursal = $datos['data']['sucursal'];
+        $order ='VENTAS.FECALTAS';
+        $dir = 'ASC';
 
         // OBTENER DATOS 
 
-	    $ventaTransferencia = VentaTransferencia::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
-	        ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
-	        ->leftJoin('CLIENTES', function($join){
-	                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-	                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
-	                    })
-	        ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-	            DB::raw('VENTAS_TRANSFERENCIA.FK_BANCO AS BANCO_ID'),
-	            DB::raw('SUM(VENTAS_TRANSFERENCIA.MONTO) AS TOTAL'),
-	            DB::raw('VENTAS_TRANSFERENCIA.MONEDA AS MONEDA'),
-	            DB::raw('CLIENTES.CODIGO AS COD_CLI'),
-	            DB::raw('BANCOS.DESCRIPCION AS BANCO'))
-	        ->leftjoin('BANCOS', 'BANCOS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_BANCO')
-	        ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
-	            ->where([
-	                ['VENTAS.ID_SUCURSAL', '=', $sucursal],
-	                ['VENTAS_ANULADO.ANULADO', '<>', 1]
-	            ])
-	            ->groupBy('CLIENTES.CODIGO')
-	            ->get()
-	            ->toArray(); 
+	    $ventaTransferencia = VentaTransferencia::generarConsulta($sucursal, $inicio, $final, $order, $dir); 
+
+        // var_dump($ventaTransferencia);
             
         //INICIAR VARIABLES
         
@@ -89,7 +102,7 @@ class VentaTransferencia extends Model
         $total = 0;
         $c_rows = 0;
         $articulos = [];
-        $limite = 27;
+        $limite = 30;
 
         // INICIAR MPDF 
 
@@ -112,9 +125,12 @@ class VentaTransferencia extends Model
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value["TOTAL"], $candec);
             $banco = strtolower($value["BANCO"]);
             $articulos[$c_rows]['BANCO'] = ucwords($banco);
+            $fecha = substr($value["FECHA"],0,-9);
+            $articulos[$c_rows]['FECHA'] = $fecha;
+
             if($c_rows == $limite){
             	$articulos[$c_rows]['SALTO'] = true;
-            	$limite = $limite + 32;
+            	$limite = $limite + 36;
             }else{
 
             	$articulos[$c_rows]['SALTO'] = false;
@@ -169,8 +185,10 @@ class VentaTransferencia extends Model
 
         $columns = array( 
                             0 => 'ITEM', 
-                            1 => 'CLIENTE',
-                            2 => 'TOTAL'
+                            1 => 'CLIENTES.NOMBRE',
+                            2 => 'BANCOS.DESCRIPCION',
+                            3 => 'VENTAS.FECALTAS', 
+                            4 => 'VENTAS_TRANSFERENCIA.MONTO'
                         );
         
 
@@ -182,39 +200,20 @@ class VentaTransferencia extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
+
+        if($order == 'ITEM'){
+            $order ='VENTAS.FECALTAS';
+        }
+
 		$item = 1;
         
         /*  --------------------------------------------------------------------------------- */
 
-        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+        //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            /*  ************************************************************ */
+        $posts = VentaTransferencia::generarConsulta($sucursal, $inicio, $final, $order, $dir);
 
-            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
-
-            $posts = VentaTransferencia::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
-	        ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
-	        ->leftJoin('CLIENTES', function($join){
-	                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-	                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
-	                    })
-	        ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-	            DB::raw('VENTAS_TRANSFERENCIA.FK_BANCO AS BANCO_ID'),
-	            DB::raw('SUM(VENTAS_TRANSFERENCIA.MONTO) AS TOTAL'),
-	            DB::raw('VENTAS_TRANSFERENCIA.MONEDA AS MONEDA'),
-	            DB::raw('CLIENTES.CODIGO AS COD_CLI'),
-	            DB::raw('BANCOS.DESCRIPCION AS BANCO'))
-	        ->leftjoin('BANCOS', 'BANCOS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_BANCO')
-	        ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
-	            ->where([
-	                ['VENTAS.ID_SUCURSAL', '=', $sucursal],
-	                ['VENTAS_ANULADO.ANULADO', '<>', 1]
-	            ])
-	            ->groupBy('CLIENTES.CODIGO')
-                ->get()
-                ->toArray();
-
-            /*  ************************************************************ */
+        /*  ************************************************************ */
 
         $data = array();
 
@@ -234,6 +233,10 @@ class VentaTransferencia extends Model
                 $cliente = strtolower($post["CLIENTE"]);
                 $nestedData['ITEM'] = $item;
                 $nestedData['CLIENTE'] = ucwords($cliente);
+                $banco = strtolower($post["BANCO"]);
+                $nestedData['BANCO'] = ucwords($banco);
+                $fecha = substr($post["FECHA"],0,-9);
+                $nestedData['FECHA'] = $fecha;
                 $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], 0);
 
                 $data[] = $nestedData;

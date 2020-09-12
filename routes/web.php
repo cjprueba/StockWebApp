@@ -64,7 +64,6 @@ Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 Route::post('pdf-generar-rptVale','VentaController@rptVale');
 Route::get('ventaValeDatatable', 'VentaController@generarVentaVale');
 
-
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -236,6 +235,8 @@ Route::get('moneda', 'MonedaController@obtenerMonedas');
 // TARJETA
 
 Route::get('tarjeta/datatable', 'TarjetaController@datatable');
+Route::post('pdf-rptTarjeta', 'TarjetaController@reporteTarjeta');
+Route::get('ventaTarjetaDatatable', 'TarjetaController@generarVentaTarjeta');
 
 /* -------------------------------------------------------------------------- */
 
