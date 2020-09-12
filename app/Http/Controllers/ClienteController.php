@@ -72,13 +72,13 @@ class ClienteController extends Controller
         /*  --------------------------------------------------------------------------------- */
     }
 
-    public function creditoCliente(){
+    public function creditoCliente(Request $request){
         
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER MARCAS
 
-        $cliente = Cliente::creditoCliente();
+        $cliente = Cliente::creditoCliente($request->all());
         return response()->json($cliente);
 
         /*  --------------------------------------------------------------------------------- */
