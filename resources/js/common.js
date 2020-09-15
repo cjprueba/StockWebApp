@@ -1159,6 +1159,20 @@ function existeProductoCommon(codigo){
 
 }
 
+function mostrarProductosCatalogoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/catalogo', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -2888,6 +2902,44 @@ function guardarVentaCommon(data) {
 			// GUARDAR LA LA VENTA DEL POS 
 
 			return axios.post('/venta/guardar', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function guardarPagoPECommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/pago/pe', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function guardarPagoCreditoCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/pago/credito', {data: data}).then(function (response) {
 					return response.data;
 				});
 
@@ -4840,7 +4892,7 @@ function cambiarEstatusPedidoCommon(codigo, estatus){
 }
 
 
-function generarRptPdfPedidoCommon(data){
+function generarRptPdfPedidoCommon(data, moneda){
 
 			// ------------------------------------------------------------------------
 
@@ -4852,7 +4904,7 @@ function generarRptPdfPedidoCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/pedido/reporte', method: 'post', responseType: 'arraybuffer', data: {'data':data}}).then( 
+			return axios({url: '/pedido/reporte', method: 'post', responseType: 'arraybuffer', data: {'data':data, 'moneda': moneda}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4908,6 +4960,22 @@ function obtenerProductoOfertaCommon(sucursal){
 }
 
 
+function inicioCatalogoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/pedido/inicio_catalogo', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -4943,7 +5011,6 @@ function reporteVentaTarjetaCommon(data){
 
 	// ------------------------------------------------------------------------
 }
-
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5133,10 +5200,10 @@ export {
 		modificarCuponCommon,
 		obtenerParametroCommon,
 		deshabilitarCuponCommon,
-	  habilitarCuponCommon,
-	  generarReporteVentaCommon,
-	  encontrarfotoCommon,
-	  importarProductoCommon,
+	  	habilitarCuponCommon,
+	  	generarReporteVentaCommon,
+	  	encontrarfotoCommon,
+	  	importarProductoCommon,
 		obtenerCreditoClienteCommon,
 		editarComentarioProductoInventarioCommon,
 		eliminarProductoInventarioCommon,
@@ -5154,6 +5221,10 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
+		obtenerProductoOfertaCommon,
+		mostrarProductosCatalogoCommon,
+		inicioCatalogoCommon,
+		guardarPagoPECommon,
+		guardarPagoCreditoCommon,
 		reporteVentaTarjetaCommon,
-		obtenerProductoOfertaCommon
 		};
