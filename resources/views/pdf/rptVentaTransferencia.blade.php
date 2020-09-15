@@ -88,9 +88,11 @@
     <table class="items" width="100%" cellpadding="6">
         <thead>
             <tr>
-                <td width="20%" class="title"><b>Ref.</b></td>
-                <td width="50%" class="title"><b>Nombre</b></td>
-                <td width="30%" class="title"><b>Total Vale</b></td>
+                <td width="10%" class="title"><b>Ref.</b></td>
+                <td width="40%" class="title"><b>Nombre</b></td>
+                <td width="20%" class="title"><b>Banco</b></td>
+                <td width="15%" class="title"><b>Fecha</b></td>
+                <td width="20%" class="title"><b>Total</b></td>
             </tr>
         </thead>
         <tbody>
@@ -98,28 +100,34 @@
             @for ($i = 0; $i < $c_rows; $i++)
                 @if($i <= $c_rows-2)
                 <tr>
-                    <td width="20%" class="cuerpo"><span>{{$i + 1}} </span></td>
-                    <td width="50%" align="left" class="cuerpo"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
-                    <td width="30%" class="cuerpo"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
+                    <td width="10%" class="cuerpo"><span>{{$i + 1}} </span></td>
+                    <td width="40%" align="left" class="cuerpo"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
+                    <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['BANCO'] }}</span></td>
+                    <td width="15%" class="cuerpo"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @else
                 <tr>
-                    <td width="20%" class="cuerpo2"><span>{{$i + 1}} </span></td>
-                    <td width="50%" class="cuerpo2" align="left"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>                  
-                    <td width="30%" class="cuerpo2"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
+                    <td width="15%" class="cuerpo2"><span>{{$i + 1}} </span></td>
+                    <td width="40%" align="left" class="cuerpo2"><span>{{ $articulos[$i]['NOMBRE'] }}</span></td>
+                    <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['BANCO'] }}</span></td>
+                    <td width="15%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
                 </tr>
                 @endif
                 @if($articulos[$i]['SALTO'] == true)
                 <tr>
+                    <td width="10%">&nbsp;</td>
+                    <td width="40%">&nbsp;</td>
                     <td width="20%">&nbsp;</td>
-                    <td width="50%">&nbsp;</td>
-                    <td width="30%">&nbsp;</td>
+                    <td width="15%">&nbsp;</td>
+                    <td width="20%">&nbsp;</td>
                 </tr>
                 @endif
             @endfor
             <!-- END ITEMS HERE -->
                 <tr>
-                    <td colspan='2' class="totals"><b><b>TOTAL:</b></td>
+                    <td colspan='4' class="totals"><b><b>TOTAL:</b></td>
                     <td class="totals" align="center"><b>{{$total}}</b></td>
                 </tr>
         </tbody>

@@ -48,22 +48,22 @@
 				        </div>
 			        </div>
 				</div>
-		        <div class="col-md-7 mt-3 ml-5">
+		        <div class="col-md-7 ml-5">
 					<table id="tablaVentaVale" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
 			                    <th>Cliente</th>
 			                    <th>Empresa</th>
+			                    <th>Fecha</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
 			            		<th></th>
-			            		<th></th>
-				            	<th class="text-center"><strong>TOTALES</strong></th>
-				            	<th></th>
+				            	<th colspan='2' class="text-center"><strong>TOTALES</strong></th>
+				            	<th colspan='2' class="text-center"></th>
 				            </tr>
 			            </tfoot>
 			        </table> 
@@ -160,6 +160,7 @@
 		                    { "data": "ITEM" },
 		                    { "data": "CLIENTE" },
 		                    { "data": "EMPRESA" },
+		                    { "data": "FECHA" },
 		                    { "data": "TOTAL" }
 		                ],
 

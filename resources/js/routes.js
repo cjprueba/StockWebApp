@@ -313,8 +313,8 @@ export default new Router({
 			path: '/rpt14',
 			name: 'rptDelivery',
 			component: require('./components/reportes/ServicioDelivery.vue').default
-    },
-    {
+	    },
+	    {
 			path: '/pd1',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
@@ -328,7 +328,12 @@ export default new Router({
 			path: '/pd3',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
-		}
+		},
+		{
+			path: '/rpt15',
+			name: 'rptTarjeta',
+			component: require('./components/reportes/VentaTarjeta.vue').default
+	    }
 
 	],
 	mode: 'history'

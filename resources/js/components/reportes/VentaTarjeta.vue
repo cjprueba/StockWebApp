@@ -1,13 +1,12 @@
 <template>
-		<!-- SERVICIO DE DELIVERY  -->
+	<!-- VENTA TARJETA  -->
 	<div class="container">
-
 		<div class="card mt-3  shadow border-bottom-primary" >
-		  	<div class="card-header">Servicio de Delivery</div>
+		  <div class="card-header">Ventas por Tarjeta</div>
 			<div class="card-body">
-				<div class="row">
-					<div class="col-4">
-						<div class="row ml-3">
+			  <div class="row">
+				<div class="col-4">
+					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
 							<option value="null" selected>Seleccionar</option>
@@ -16,8 +15,8 @@
 						<div class="invalid-feedback">
 						    {{messageInvalidSucursal}}
 						</div>
-						</div>
-						<div class="row mt-4 ml-3">	
+					</div>
+					<div class="row mt-4 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
 							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
@@ -29,18 +28,18 @@
 						        {{messageInvalidFecha}}
 						    </div>
 						</div>
+					</div>
+					<div class="row mt-4 ml-3">
+						<div class="col-auto">
+							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
 						</div>
-						<div class="row mt-4 ml-3">
-							<div class="col-auto">
-								<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
-							</div>
-							<div class="col-auto">
+						<div class="col-auto">
 								
-								<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
-							</div>
+							<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 						</div>
+					</div>
 
-			        <!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
+					<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
 				    <div class="row">
 						<div v-if="descarga" class="ml-5 d-flex justify-content-center mt-3">
@@ -51,35 +50,33 @@
 				</div>
 				
 			  	<div class="col-md-7 ml-5">
-					<table id="tablaDelivery" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+					<table id="tablaVentaTarjeta" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
-			                    <th>Codigo</th>
 			                    <th>Cliente</th>
+			                    <th>Tarjeta</th>
 			                    <th>Fecha</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
-				            	<th colspan='4' class="text-center"><strong>TOTALES</strong></th>
-				            	<th></th>
+				            	<th colspan='3' class="text-center"><strong>TOTALES</strong></th>
+				            	<th colspan='2' class="text-center"></th>
 				            </tr>
 			            </tfoot>
 			        </table> 
 				</div>	
-				</div>       
+			  </div>
 			</div>
 		</div>
-
 	</div>
-	<!-- SERVICIO DE DELIVERY -->
+	<!-- VENTA TARJETA -->
 </template>
 
 <script >
 	export default {
-      props: ['candec'],
         data(){
             return {
               	sucursales: [],
@@ -91,6 +88,7 @@
               	messageInvalidFecha: '',
               	selectedFinalFecha: '',
               	validarFinalFecha: false,
+              	cargado: false,
               	descarga: false
             }
         }, 
@@ -114,7 +112,7 @@
 			        	final: String(this.selectedFinalFecha)
 		        	};
 		        	
-		        	Common.reporteDeliveryCommon(datos).then(function(){
+		        	Common.reporteVentaTarjetaCommon(datos).then(function(){
 	    				me.descarga = false;
 	    			});	
 				}
@@ -128,7 +126,7 @@
 
 		        	// PREPARAR DATATABLE 
 
-			 		var tableDelirery = $('#tablaDelivery').DataTable({
+			 		var tableVentaTarjeta = $('#tablaVentaTarjeta').DataTable({
 		                "processing": true,
 		                "serverSide": true,
 		                "destroy": true,
@@ -143,7 +141,7 @@
 				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
 				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
 				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
-				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptDelivery', messageTop: 'Servicios de Delivery registrados', footer: true }
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaTarjeta', messageTop: 'Ventas registradas por Tarjeta', footer: true }
 				        ],
 		                "ajax":{
 	                 			"data": {
@@ -151,15 +149,15 @@
 						        	inicio: String(me.selectedInicialFecha),
 						        	final: String(me.selectedFinalFecha)
 	                 			},
-		                  "url": "/generarDeliveryDatatable",
+		                  "url": "/ventaTarjetaDatatable",
 		                  "dataType": "json",
 		                  "type": "GET",
 		                  "contentType": "application/json; charset=utf-8"
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },
-		                    { "data": "CODIGO" },
 		                    { "data": "CLIENTE" },
+		                    { "data": "TARJETA" },
 		                    { "data": "FECHA" },
 		                    { "data": "TOTAL" }
 		                ],
@@ -201,7 +199,7 @@
 						    // CARGAR EN EL FOOTER  
 
 						    $( api.columns('.totalColumna').footer() ).html(
-					            Common.darFormatoCommon(sum, me.candec)
+					            Common.darFormatoCommon(sum, 0)
 					        ); 
 
 						  });
@@ -261,7 +259,7 @@
 					$('table').dataTable();
 			});
 			this.llamarBusquedas();
-			var tableDelirery = $('#tablaDelivery').DataTable();
+			var tableVentaTarjeta = $('#tablaVentaTarjeta').DataTable();
         }
     }    
 </script>
