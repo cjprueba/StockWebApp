@@ -198,12 +198,12 @@
                         "select": true,
                         "ajax":{
                         		 "data": {
-                        		 	codigo: codigo
+                        		 	codigo: codigo,
+                        		 	"_token": $('meta[name="csrf-token"]').attr('content')
                         		 },
                                  "url": "/cliente/credito/detalle/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },
@@ -235,12 +235,12 @@
                         "select": true,
                         "ajax":{
                         		 "data": {
-                        		 	codigo: codigo
+                        		 	codigo: codigo,
+                        		 	"_token": $('meta[name="csrf-token"]').attr('content')
                         		 },
                                  "url": "/cliente/credito/detalle/abono/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },
@@ -441,10 +441,12 @@
                         "bAutoWidth": true,
                         "select": true,
                         "ajax":{
+                        		"data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
                                  "url": "/cliente/credito/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },

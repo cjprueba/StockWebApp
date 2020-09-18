@@ -150,7 +150,7 @@
             <router-link class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link>
-            <router-link class="collapse-item" :to="{name: 'ventaCuenta'}">Cobro de Cuentas</router-link>
+            <!-- <router-link class="collapse-item" :to="{name: 'ventaCuenta'}">Cobro de Cuentas</router-link> -->
             <router-link class="collapse-item" :to="{name: 'ventaAnular'}">Anular Venta</router-link>
           </div>
         </div>
