@@ -69,6 +69,7 @@ Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
 Route::post('venta/pago/credito', 'VentaController@pagoCredito');
 Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
 
+
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -240,6 +241,8 @@ Route::get('moneda', 'MonedaController@obtenerMonedas');
 // TARJETA
 
 Route::get('tarjeta/datatable', 'TarjetaController@datatable');
+Route::post('pdf-rptTarjeta', 'TarjetaController@reporteTarjeta');
+Route::get('ventaTarjetaDatatable', 'TarjetaController@generarVentaTarjeta');
 
 /* -------------------------------------------------------------------------- */
 
