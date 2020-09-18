@@ -56,7 +56,7 @@ Route::post('venta/inicio', 'VentaController@inicio');
 Route::post('venta/factura', 'VentaController@factura');
 Route::post('venta/ticket', 'VentaController@ticket');
 Route::post('venta/resumen', 'VentaController@resumen');
-Route::get('venta/datatable', 'VentaController@datatable');
+Route::post('venta/datatable', 'VentaController@datatable');
 Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
