@@ -4763,7 +4763,7 @@ class Venta extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('CAJA','=',$request->input('caja_numero'))->count();  
+        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('VENTAS.TIPO','=','CO')->where('CAJA','=',$request->input('caja_numero'))->count();  
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
@@ -4807,6 +4807,7 @@ class Venta extends Model
              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
              ->Where('VENTAS.FECALTAS','=',$dia)
               ->Where('VENTAS_ANULADO.anulado','=',0)
+              ->where('VENTAS.TIPO','=','CO')
              ->where('CAJA','=',$request->input('caja_numero'))   
                 ->offset($start)
                 ->limit($limit)
@@ -4851,6 +4852,7 @@ class Venta extends Model
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
             ->Where('VENTAS.FECALTAS','=',$dia)
              ->Where('VENTAS_ANULADO.anulado','=',0)  
+             ->where('VENTAS.TIPO','=','CO')
             ->where('CAJA','=',$request->input('caja_numero')) 
             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
@@ -4889,6 +4891,7 @@ class Venta extends Model
             ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
             ->Where('VENTAS.FECALTAS','=',$dia)
+            ->where('VENTAS.TIPO','=','CO')
              ->Where('VENTAS_ANULADO.anulado','=',0)
             ->where('CAJA','=',$request->input('caja_numero'))
             ->where(function ($query) use ($search) {
