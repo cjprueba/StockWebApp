@@ -494,12 +494,12 @@
 	                "select": true,
 	                "ajax":{
 	                  "data": {
-		                 				caja: me.caja.CODIGO
+		                 				caja: me.caja.CODIGO,
+		                 				"_token": $('meta[name="csrf-token"]').attr('content')
 		                 			},  	
 	                  "url": "/venta/datatable",
 	                  "dataType": "json",
-	                  "type": "GET",
-	                  "contentType": "application/json; charset=utf-8"
+	                  "type": "POST"
 	                },
 	                "columns": [
 	                    { "data": "CODIGO" },
