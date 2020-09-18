@@ -296,4 +296,31 @@ class ProductoController extends Controller
 
     }
 
+    public function ofertas(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::ofertas($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function catalogo_cliente(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::catalogo_cliente($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }     
 }

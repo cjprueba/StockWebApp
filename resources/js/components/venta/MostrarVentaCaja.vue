@@ -40,6 +40,7 @@
 		                    <th>Total sin letra</th>
 		                    <th>Moneda</th>
 		                    <th>Candec</th>
+		                    <th>Cliente Codigo</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -82,6 +83,61 @@
 
 		<!-- ------------------------------------------------------------------------ -->	
 
+		<!-- MODAL ELECCION DE MONEDA -->
+
+                  <div class="modal fade" id="modalMoneda" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Opciones</h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">Moneda</legend>
+                            <div class="col-sm-10">
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                                <label class="form-check-label" for="gridRadios1">
+                                  Guaranies
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                                <label class="form-check-label" for="gridRadios2">
+                                  Dolares
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <label class="form-check-label" for="gridRadios3">
+                                  Reales
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <label class="form-check-label" for="gridRadios4">
+                                  Pesos
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="imprimirPDF()">Aceptar</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+        <!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -109,7 +165,11 @@
           	}, 
           	caja: {
           		CODIGO: null
-          	}
+          	},
+          	radio: {
+          		moneda: '1'
+          	},
+          	tableVentaMostrar: ''
         }
       }, 
       methods: {
@@ -249,6 +309,20 @@
 
       			// ------------------------------------------------------------------------
 
+      		},
+			imprimirPDF() {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+
+      			Common.generarRptPdfVentaCommon(this.codigoVenta, this.caja.CODIGO, this.radio.moneda).then( () => {
+	                   		
+	            });
+
+      			// ------------------------------------------------------------------------
+
       		}, formaPago(datos) {
 
       			// ------------------------------------------------------------------------
@@ -362,6 +436,7 @@
           				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
 	                	  if (response.data.response === true) {
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  me.obtenerDatatable();
 	                	  	  // me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
 	                	  	  // me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
 	                	  	  // me.numeracion();
@@ -374,7 +449,7 @@
 									confirmButtonText: 'Aceptar',
 								}).then((result) => {
 									
-									window.location.href = '/vt2';
+									window.location.href = '/vt0';
 
 								})	
 
@@ -391,7 +466,7 @@
 							confirmButtonText: 'Aceptar',
 						}).then((result) => {
 									
-							window.location.href = '/vt2';
+							window.location.href = '/vt0';
 
 						})
 
@@ -401,10 +476,56 @@
 
                 // ------------------------------------------------------------------------
 
+      		}, obtenerDatatable() {
+
+      			// ------------------------------------------------------------------------
+
+      			let me = this;
+
+      			// ------------------------------------------------------------------------
+
+	            // PREPARAR DATATABLE 
+
+		 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
+	                "processing": true,
+	                "serverSide": true,
+	                "destroy": true,
+	                "bAutoWidth": true,
+	                "select": true,
+	                "ajax":{
+	                  "data": {
+		                 				caja: me.caja.CODIGO
+		                 			},  	
+	                  "url": "/venta/datatable",
+	                  "dataType": "json",
+	                  "type": "GET",
+	                  "contentType": "application/json; charset=utf-8"
+	                },
+	                "columns": [
+	                    { "data": "CODIGO" },
+	                    { "data": "CAJA" },
+	                    { "data": "CLIENTE" },
+	                    { "data": "FECHA" },
+	                    { "data": "HORA" },
+	                    { "data": "TIPO" },
+	                    { "data": "TOTAL" },
+	                    { "data": "ACCION" },
+	                    { "data": "TOTAL_SIN_LETRA", "visible": false },
+	                    { "data": "MONEDA", "visible": false },
+	                    { "data": "CANDEC", "visible": false },
+	                    { "data": "CLIENTE_CODIGO", "visible": false },
+	                ],
+	                "createdRow": function( row, data, dataIndex){
+	                    $(row).addClass(data['ESTATUS']);
+	                }       
+	            });
+
+	            // ------------------------------------------------------------------------
+
+	            
       		}
       },
         mounted() {
-
         	
         	// ------------------------------------------------------------------------
 
@@ -415,153 +536,139 @@
         	// LLAMAR LOS DATOS DE LA IMPREOSRA 
 
         	me.inicio();
-
-        	// ------------------------------------------------------------------------
-
-            // PREPARAR DATATABLE 
-
-	 		var tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "destroy": true,
-                "bAutoWidth": true,
-                "select": true,
-                "ajax":{
-                  "url": "/venta/datatable",
-                  "dataType": "json",
-                  "type": "GET",
-                  "contentType": "application/json; charset=utf-8"
-                },
-                "columns": [
-                    { "data": "CODIGO" },
-                    { "data": "CAJA" },
-                    { "data": "CLIENTE" },
-                    { "data": "FECHA" },
-                    { "data": "HORA" },
-                    { "data": "TIPO" },
-                    { "data": "TOTAL" },
-                    { "data": "ACCION" },
-                    { "data": "TOTAL_SIN_LETRA", "visible": false },
-                    { "data": "MONEDA", "visible": false },
-                    { "data": "CANDEC", "visible": false },
-                    { "data": "CLIENTE_CODIGO", "visible": false },
-                ],
-                "createdRow": function( row, data, dataIndex){
-                    $(row).addClass(data['ESTATUS']);
-                }       
-            });
-
-            // ------------------------------------------------------------------------
-
-            // 
-
-            $('#tablaVentaMostrar').on('click', 'tbody tr #eliminarTransferencia', function() {
-
-	          	// *******************************************************************
-
-	          	// REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
-	                   	
-	          	var row  = $(this).parents('tr')[0];
-	          	me.eliminarTransferencia(tableVentaMostrar.row( row ).data().CODIGO);
-
-	          	// *******************************************************************
-
-	      	});
-
-            // ------------------------------------------------------------------------
-
-            // GENERAR FACTURA
-
-            $('#tablaVentaMostrar').on('click', 'tbody tr #imprimirTicket', function() {
-
-	            // *******************************************************************
-
-	            // IMPRIMIR TICKET 
-	                   	
-	            var row  = $(this).parents('tr')[0];
-	                   	
-	            me.ticket(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
-
-	            Swal.fire({
-					title: '¡ Imprimiendo Ticket !',
-					html: 'Por favor espere...',
-					onBeforeOpen: () => {
-						Swal.showLoading()
-					}
-				})
-
-	            // *******************************************************************
-
-	        });
-
-            // ------------------------------------------------------------------------
-
-            // GENERAR REPORTE PDF
-
-            $('#tablaVentaMostrar').on('click', 'tbody tr #imprimirFactura', function() {
-
-	            // *******************************************************************
-
-	            // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
-
-	            var row  = $(this).parents('tr')[0];
-
-	            me.factura(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
-
-	            Swal.fire({
-					title: '¡ Imprimiendo Factura !',
-					html: 'Por favor espere...',
-					onBeforeOpen: () => {
-						Swal.showLoading()
-					}
-				})
-
-	            // *******************************************************************
-
-	            // *******************************************************************
-
-	        });
-
-           	// ------------------------------------------------------------------------
-
-           	$('#tablaVentaMostrar').on('click', 'tbody tr #mostrarDetalle', function() {
-
-		        // *******************************************************************
-
-		        // REDIRIGIR Y ENVIAR CODIGO VENTA
-
-		        var row  = $(this).parents('tr')[0];
-		        me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
-
-		        // *******************************************************************
-
-	        });
+        	me.obtenerCaja();
 
 	        // ------------------------------------------------------------------------
+	 		
+	 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
 
-	        $('#tablaVentaMostrar').on('click', 'tbody tr #pagarVenta', function() {
+	 		// ------------------------------------------------------------------------
 
-		        // *******************************************************************
+	            // 
 
-		        // REDIRIGIR Y ENVIAR CODIGO VENTA
+	            $('#tablaVentaMostrar').on('click', 'tbody tr #eliminarTransferencia', function() {
 
-		        var row  = $(this).parents('tr')[0];
-		        // me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
-		        me.codigoVenta = tableVentaMostrar.row( row ).data().CODIGO;
-		        me.caja.CODIGO = tableVentaMostrar.row( row ).data().CAJA;
-		        me.venta.TOTAL = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
-		        me.venta.TOTAL_CRUDO = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
-		        me.moneda.CODIGO = tableVentaMostrar.row( row ).data().MONEDA;
-		        me.moneda.DECIMAL = tableVentaMostrar.row( row ).data().CANDEC;
-		        me.cliente.CODIGO = tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
-	        	me.$refs.compontente_medio_pago.procesarFormas();
+		          	// *******************************************************************
 
-		        // *******************************************************************
+		          	// REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+		                   	
+		          	var row  = $(this).parents('tr')[0];
+		          	me.eliminarTransferencia(me.tableVentaMostrar.row( row ).data().CODIGO);
 
-	        });
+		          	// *******************************************************************
 
-	        // ------------------------------------------------------------------------
-	 
+		      	});
+
+	            // ------------------------------------------------------------------------
+
+	            // GENERAR FACTURA
+
+	            $('#tablaVentaMostrar').on('click', 'tbody tr #imprimirTicket', function() {
+
+		            // *******************************************************************
+
+		            // IMPRIMIR TICKET 
+		                   	
+		            var row  = $(this).parents('tr')[0];
+		                   	
+		            me.ticket(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+
+		            Swal.fire({
+						title: '¡ Imprimiendo Ticket !',
+						html: 'Por favor espere...',
+						onBeforeOpen: () => {
+							Swal.showLoading()
+						}
+					})
+
+		            // *******************************************************************
+
+		        });
+
+	            // ------------------------------------------------------------------------
+
+	            // GENERAR REPORTE PDF
+
+	            $('#tablaVentaMostrar').on('click', 'tbody tr #imprimirFactura', function() {
+
+		            // *******************************************************************
+
+		            // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+
+		            var row  = $(this).parents('tr')[0];
+
+		            me.factura(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+
+		            Swal.fire({
+						title: '¡ Imprimiendo Factura !',
+						html: 'Por favor espere...',
+						onBeforeOpen: () => {
+							Swal.showLoading()
+						}
+					})
+
+		            // *******************************************************************
+
+		            // *******************************************************************
+
+		        });
+
+	           	// ------------------------------------------------------------------------
+
+	           	$('#tablaVentaMostrar').on('click', 'tbody tr #mostrarDetalle', function() {
+
+			        // *******************************************************************
+
+			        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+			        var row  = $(this).parents('tr')[0];
+			        me.mostrarModalVenta(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+
+			        // *******************************************************************
+
+		        });
+
+		        // ------------------------------------------------------------------------
+
+		        $('#tablaVentaMostrar').on('click', 'tbody tr #pagarVenta', function() {
+
+			        // *******************************************************************
+
+			        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+			        var row  = $(this).parents('tr')[0];
+			        // me.mostrarModalVenta(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+			        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
+			        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
+			        me.venta.TOTAL = me.tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+			        me.venta.TOTAL_CRUDO = me.tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+			        me.moneda.CODIGO = me.tableVentaMostrar.row( row ).data().MONEDA;
+			        me.moneda.DECIMAL = me.tableVentaMostrar.row( row ).data().CANDEC;
+			        me.cliente.CODIGO = me.tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
+		        	me.$refs.compontente_medio_pago.procesarFormas();
+
+			        // *******************************************************************
+
+		        });
+
+		        // ------------------------------------------------------------------------
+
+	           	$('#tablaVentaMostrar').on('click', 'tbody tr #imprimirPdf', function() {
+
+			        // *******************************************************************
+
+			        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+			        $('#modalMoneda').modal('show');
+
+			        var row  = $(this).parents('tr')[0];
+			        
+			        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
+			        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
+
+			        // *******************************************************************
+
+		        });
         }
     }
 </script>

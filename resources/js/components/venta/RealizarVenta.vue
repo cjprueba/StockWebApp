@@ -327,7 +327,7 @@
 			
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
-				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente"></busqueda-cliente-modal>
+				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente"></busqueda-cliente-modal>
 
 				<div class="col-md-12">
 					<hr>
@@ -554,7 +554,8 @@
          	cliente: {
          		CODIGO: 1,
          		CI: '',
-         		NOMBRE: ''
+         		NOMBRE: '',
+         		TIPO: ''
          	},
          	vendedor: {
          		CODIGO: 1,
@@ -1048,6 +1049,8 @@
 
       			// ------------------------------------------------------------------------
 
+      			// NOMBRE CLIENTE 
+
       			this.cliente.NOMBRE = cliente;
 
       			// ------------------------------------------------------------------------
@@ -1057,7 +1060,30 @@
 
       			// ------------------------------------------------------------------------
 
+      			// CODIGO CLIENTE 
+
       			this.cliente.CODIGO = cliente;
+
+      			// ------------------------------------------------------------------------
+
+      		},
+      		tipoCliente(cliente){
+
+      			// ------------------------------------------------------------------------
+
+      			// TIPO CLIENTE 
+
+      			this.cliente.TIPO = cliente;
+
+      			// ------------------------------------------------------------------------
+
+      			// MAYORISTA
+
+      			if (cliente === 'MAYORISTA') {
+      				this.checked.MAYORISTA = true;
+      			} else {
+      				this.checked.MAYORISTA = false;
+      			}
 
       			// ------------------------------------------------------------------------
 
@@ -1074,7 +1100,7 @@
       		codigoVendedor(vendedor){
 
       			// ------------------------------------------------------------------------
-
+      			
       			this.vendedor.CODIGO = vendedor;
 
       			// ------------------------------------------------------------------------
