@@ -44,6 +44,35 @@ class VentaVale extends Model
 		}
     }
 
+    public static function generarConsulta($sucursal, $inicio, $final, $order, $dir){
+
+        $vales = VentaVale::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_VALE.FK_VENTA')
+        ->leftJoin('CLIENTES', function($join){
+                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+        ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+            DB::raw('CLIENTES.FK_EMPRESA AS EMPRESA_ID'),
+            DB::raw('SUM(VENTAS.TOTAL) AS TOTAL'),
+            DB::raw('VENTAS_VALE.MONEDA AS MONEDA'),
+            DB::raw('CLIENTES.CODIGO AS COD_CLI'),
+            DB::raw('EMPRESAS.NOMBRE AS EMPRESA'),
+            DB::raw('VENTAS.FECALTAS AS FECHA'))
+        ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
+        ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
+            ->where([
+                ['VENTAS.ID_SUCURSAL', '=', $sucursal],
+                ['VENTAS_ANULADO.ANULADO', '<>', 1]
+            ])
+            ->groupBy('CLIENTES.CODIGO')
+            ->orderBy($order,$dir)
+            ->get()
+            ->toArray(); 
+
+        return $vales;
+    }
+
     public static function valePDF($datos){
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -57,33 +86,16 @@ class VentaVale extends Model
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $sucursal = $datos['data']['sucursal'];
         $accion = $datos['data']['accion'];
+        $order ='VENTAS.FECALTAS';
+        $dir = 'ASC';
 
         // OBTENER DATOS 
 
-        $vales = VentaVale::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
-        ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_VALE.FK_VENTA')
-        ->leftJoin('CLIENTES', function($join){
-                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
-                    })
-        ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-            DB::raw('CLIENTES.FK_EMPRESA AS EMPRESA_ID'),
-            DB::raw('SUM(VENTAS.TOTAL) AS TOTAL'),
-            DB::raw('VENTAS_VALE.MONEDA AS MONEDA'),
-            DB::raw('CLIENTES.CODIGO AS COD_CLI'),
-            DB::raw('EMPRESAS.NOMBRE AS EMPRESA'))
-        ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
-        ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
-            ->where([
-                ['VENTAS.ID_SUCURSAL', '=', $sucursal],
-                ['VENTAS_ANULADO.ANULADO', '<>', 1]
-            ])
-            ->groupBy('CLIENTES.CODIGO')
-            ->get(); 
+        $vales = VentaVale::generarConsulta($sucursal, $inicio, $final, $order, $dir); 
 
         //INICIAR VARIABLES
 
-        $moneda = $vales[0]->MONEDA;
+        $moneda = $vales[0]["MONEDA"];
         $candec = (Parametro::candec($moneda))["CANDEC"];
         $total = 0;
         $intervalo = $inicio.'/'.$final;
@@ -104,11 +116,13 @@ class VentaVale extends Model
         $mpdf->SetDisplayMode('fullpage');
 
         foreach ($vales as $key => $value) {
-            $total = $total + $value->TOTAL;
-            $nombre = strtolower($value->CLIENTE);
+            $total = $total + $value["TOTAL"];
+            $nombre = strtolower($value["CLIENTE"]);
             $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
-            $articulos[$c_rows]['TOTAL_VALE'] = Common::precio_candec($value->TOTAL, $candec);
-            $empresa = strtolower($value->EMPRESA);
+            $articulos[$c_rows]['TOTAL_VALE'] = Common::precio_candec($value["TOTAL"], $candec);
+            $empresa = strtolower($value["EMPRESA"]);
+            $fecha = substr($value["FECHA"],0,-9);
+            $articulos[$c_rows]['FECHA'] = $fecha;
             $articulos[$c_rows]['EMPRESA'] = ucwords($empresa);
 
             if($c_rows == $limite){
@@ -167,10 +181,11 @@ class VentaVale extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'ITEM', 
-                            1 => 'CLIENTE',
-                            2 => 'EMPRESA',
-                            3 => 'TOTAL'
+                            0 => 'VENTAS.FECALTAS', 
+                            1 => 'CLIENTES.NOMBRE',
+                            2 => 'EMPRESA.NOMBRE',
+                            3 => 'VENTAS.FECALTAS',
+                            4 => 'VENTAS.TOTAL'
                         );
 
         /*  --------------------------------------------------------------------------------- */
@@ -181,41 +196,22 @@ class VentaVale extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
+        
         $item = 1;
         
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-        $posts = VentaVale::join('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
-            ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS_VALE.FK_VENTA')
-            ->leftJoin('CLIENTES', function($join){
-                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
-                        })
-            ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-                DB::raw('CLIENTES.FK_EMPRESA AS EMPRESA_ID'),
-                DB::raw('SUM(VENTAS.TOTAL) AS TOTAL'),
-                DB::raw('VENTAS_VALE.MONEDA AS MONEDA'),
-                DB::raw('CLIENTES.CODIGO AS COD_CLI'),
-                DB::raw('EMPRESAS.NOMBRE AS EMPRESA'))
-            ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
-            ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
-                ->where([
-                    ['VENTAS.ID_SUCURSAL', '=', $sucursal],
-                    ['VENTAS_ANULADO.ANULADO', '<>', 1]
-                ])
-                ->groupBy('CLIENTES.CODIGO')
-                ->orderBy('CLIENTES.NOMBRE')
-                ->get(); 
+        $posts = VentaVale::generarConsulta($sucursal, $inicio, $final, $order, $dir); 
 
-            /*  ************************************************************ */
+        /*  ************************************************************ */
 
         $data = array();
 
         /*  --------------------------------------------------------------------------------- */
 
-        $moneda = $posts[0]->MONEDA;
+        $moneda = $posts[0]["MONEDA"];
         $candec = (Parametro::candec($moneda))["CANDEC"];
 
         // REVISAR SI LA VARIABLES POST ESTA VACIA 
@@ -234,6 +230,8 @@ class VentaVale extends Model
                 $nestedData['ITEM'] = $item;
                 $nestedData['CLIENTE'] = ucwords($cliente);
                 $nestedData['EMPRESA'] = ucwords($empresa);
+                $fecha = substr($post["FECHA"],0,-9);
+                $nestedData['FECHA'] = $fecha;
                 $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], $candec);
 
                 $data[] = $nestedData;

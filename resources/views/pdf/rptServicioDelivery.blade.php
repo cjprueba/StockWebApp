@@ -91,7 +91,7 @@
                 <td width="10%" class="title"><b>Ref.</b></td>
                 <td width="20" class="title"><b>Codigo Venta</b></td>
                 <td width="40%" class="title"><b>Cliente</b></td>
-                <td width="10" class="title"><b>fecha</b></td>
+                <td width="10" class="title"><b>Fecha</b></td>
                 <td width="20%" class="title"><b>Total</b></td>
             </tr>
         </thead>

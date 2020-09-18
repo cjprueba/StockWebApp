@@ -37,6 +37,9 @@
 		                    <th>Tipo</th>
 		                    <th>Total</th>
 		                    <th>Acción</th>
+		                    <th>Total sin letra</th>
+		                    <th>Moneda</th>
+		                    <th>Candec</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -73,6 +76,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- FORMA PAGO -->
+
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" :tipo="2" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+
+		<!-- ------------------------------------------------------------------------ -->	
+
 	</div>
 </template>
 <script>
@@ -86,6 +95,20 @@
           	ajustes: {
           		IMPRESORA_TICKET: '',
           		IMPRESORA_MATRICIAL: ''
+          	},
+          	venta: {
+          		TOTAL: 0,
+          		TOTAL_CRUDO: 0.00
+          	},
+          	moneda: {
+          		CODIGO: '',
+          		DECIMAL: ''
+          	},
+          	cliente: {
+          		CODIGO: ''
+          	}, 
+          	caja: {
+          		CODIGO: null
           	}
         }
       }, 
@@ -225,6 +248,159 @@
       			this.$refs.ModalImportarVenta.mostrarModal(codigo, caja);
 
       			// ------------------------------------------------------------------------
+
+      		}, formaPago(datos) {
+
+      			// ------------------------------------------------------------------------
+
+      			let me = this;
+      			
+	        	// ------------------------------------------------------------------------
+
+	        	// INICIAR VARIABLES
+
+      			var tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
+
+      			// ------------------------------------------------------------------------
+
+	        	if (me.caja.CODIGO === null) {
+	        		Swal.fire({
+						title: 'NO SE PUDO OBTENER CAJA',
+						type: 'warning',
+						confirmButtonColor: '#d33',
+						confirmButtonText: 'Aceptar',
+					})
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	// GUARDAR 
+
+	        	this.respuesta = {
+	        		codigo: this.codigoVenta,
+	        		caja: this.caja.CODIGO,
+	        		moneda: this.moneda.CODIGO,
+	        		estatus: 2,
+	        		venta: this.codigoVenta,
+	        		pago: datos,
+	        	}
+
+	        	Swal.fire({
+				  title: 'Guardando Pago',
+				  html: 'Cerrare en cuanto modifique la venta.',
+				  onBeforeOpen: () => {
+
+				  	// ------------------------------------------------------------------------
+
+				  	// MOSTRAR CARGAR 
+
+				    Swal.showLoading()
+				    
+				    // ------------------------------------------------------------------------
+
+				    Common.guardarPagoPECommon(me.respuesta).then(data => {
+
+				    		// ------------------------------------------------------------------------
+
+					    	if (!data.response === true) {
+					          throw new Error(data.statusText);
+					        }
+
+					        if (data.response) {
+
+					        	Swal.close();
+
+								// ------------------------------------------------------------------------
+
+								Swal.fire(
+									'Guardado !',
+									 data.statusText,
+									'success'
+								)
+
+								// ------------------------------------------------------------------------ 
+
+								// RECARGAR TABLA 
+				  	
+								tableVentaMostrar.ajax.reload( null, false );
+
+								// ------------------------------------------------------------------------
+
+								me.$refs.compontente_medio_pago.limpiar();
+
+								// ------------------------------------------------------------------------
+								
+							}
+
+							// ------------------------------------------------------------------------
+
+					}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					 });
+				  }
+				}).then((result) => {
+
+				  	
+
+				})
+
+      		},
+      		obtenerCaja() {
+
+      			let me=this;
+          		
+          		// ------------------------------------------------------------------------
+
+          		// OBTENER CAJA 
+
+          		Common.obtenerIPCommon(function(){
+
+          			if (window.IPv !== false) {
+          				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
+	                	  if (response.data.response === true) {
+	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  // me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
+	                	  	  // me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
+	                	  	  // me.numeracion();
+	                	  } else {
+	                	  		
+	                	  	  	Swal.fire({
+									title: 'NO SE PUDO OBTENER CAJA',
+									type: 'warning',
+									confirmButtonColor: '#d33',
+									confirmButtonText: 'Aceptar',
+								}).then((result) => {
+									
+									window.location.href = '/vt2';
+
+								})	
+
+	                	  }		
+			              
+			            })
+          			} else {
+
+
+          				Swal.fire({
+							title: 'NO SE PUDO OBTENER LA IP DE LA MAQUINA',
+							type: 'warning',
+							confirmButtonColor: '#d33',
+							confirmButtonText: 'Aceptar',
+						}).then((result) => {
+									
+							window.location.href = '/vt2';
+
+						})
+
+          			}
+                	
+                });
+
+                // ------------------------------------------------------------------------
+
       		}
       },
         mounted() {
@@ -264,7 +440,11 @@
                     { "data": "HORA" },
                     { "data": "TIPO" },
                     { "data": "TOTAL" },
-                    { "data": "ACCION" }
+                    { "data": "ACCION" },
+                    { "data": "TOTAL_SIN_LETRA", "visible": false },
+                    { "data": "MONEDA", "visible": false },
+                    { "data": "CANDEC", "visible": false },
+                    { "data": "CLIENTE_CODIGO", "visible": false },
                 ],
                 "createdRow": function( row, data, dataIndex){
                     $(row).addClass(data['ESTATUS']);
@@ -352,6 +532,29 @@
 
 		        var row  = $(this).parents('tr')[0];
 		        me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
+
+		        // *******************************************************************
+
+	        });
+
+	        // ------------------------------------------------------------------------
+
+	        $('#tablaVentaMostrar').on('click', 'tbody tr #pagarVenta', function() {
+
+		        // *******************************************************************
+
+		        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+		        var row  = $(this).parents('tr')[0];
+		        // me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
+		        me.codigoVenta = tableVentaMostrar.row( row ).data().CODIGO;
+		        me.caja.CODIGO = tableVentaMostrar.row( row ).data().CAJA;
+		        me.venta.TOTAL = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+		        me.venta.TOTAL_CRUDO = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+		        me.moneda.CODIGO = tableVentaMostrar.row( row ).data().MONEDA;
+		        me.moneda.DECIMAL = tableVentaMostrar.row( row ).data().CANDEC;
+		        me.cliente.CODIGO = tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
+	        	me.$refs.compontente_medio_pago.procesarFormas();
 
 		        // *******************************************************************
 

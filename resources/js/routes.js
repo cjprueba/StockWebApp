@@ -220,6 +220,11 @@ export default new Router({
 			component: require('./components/reportes/stock/busqueda/cerado.vue').default
 		},
 		{
+			path: '/vt0',
+			name: 'ventaCaja',
+			component: require('./components/venta/MostrarVentaCaja.vue').default
+		},
+		{
 			path: '/vt1',
 			name: 'ventaMostrar',
 			component: require('./components/venta/MostrarVenta.vue').default
@@ -228,6 +233,11 @@ export default new Router({
 			path: '/vt2',
 			name: 'ventaRealizar',
 			component: require('./components/venta/RealizarVenta.vue').default
+		},
+		{
+			path: '/vt4',
+			name: 'ventaCuenta',
+			component: require('./components/venta/CobroCuenta.vue').default
 		},
 		{
 			path: '/vt3',
@@ -313,8 +323,8 @@ export default new Router({
 			path: '/rpt14',
 			name: 'rptDelivery',
 			component: require('./components/reportes/ServicioDelivery.vue').default
-    },
-    {
+	    },
+	    {
 			path: '/pd1',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
@@ -328,7 +338,12 @@ export default new Router({
 			path: '/pd3',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
-		}
+		},
+		{
+			path: '/rpt15',
+			name: 'rptTarjeta',
+			component: require('./components/reportes/VentaTarjeta.vue').default
+	    }
 
 	],
 	mode: 'history'

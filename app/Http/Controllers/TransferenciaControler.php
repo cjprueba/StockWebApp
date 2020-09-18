@@ -135,6 +135,19 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+        public function mostrarProductosDevolucion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::mostrar_productos_devolucion($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
     public function enviarTransferencia(Request $request){
 
@@ -249,6 +262,19 @@ class TransferenciaControler extends Controller
         // MOSTRAR IMPORTAR
 
         $transferencia = VentaTransferencia::generarVentaTransferencia($request);
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function arreglar()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::arreglar_costo();
         return response()->json($transferencia);
 
         /*  --------------------------------------------------------------------------------- */

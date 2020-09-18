@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class VentaCredito extends Model
 {
     protected $connection = 'retail';
     protected $table = 'ventas_credito';
-
+    public $timestamps = false;
+    
     public static function guardar_referencia($data){
 
     	try {
@@ -21,7 +23,8 @@ class VentaCredito extends Model
 	    		'MONTO' => $data["MONTO"],
 	    		'MONEDA' => $data["MONEDA"],
 	    		'DIAS_CREDITO' => $data["DIAS_CREDITO"],
-	    		'FECHA_CREDITO_FIN' => $data["FECHA_CREDITO_FIN"]
+	    		'FECHA_CREDITO_FIN' => $data["FECHA_CREDITO_FIN"],
+	    		'SALDO' => $data["SALDO"],
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */
@@ -41,5 +44,38 @@ class VentaCredito extends Model
 			/*  --------------------------------------------------------------------------------- */
 
 		}
+    }
+
+    public static function obtener_creditos_cliente($codigo){
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER CREDITOS CLIENTES
+
+    	$creditos_cliente = VentaCredito::select(DB::raw('VENTAS_CREDITO.FK_VENTA, VENTAS_CREDITO.SALDO'))
+    	->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CREDITO.FK_VENTA')
+    	->where('VENTAS.CLIENTE', '=', $codigo)
+    	->where('VENTAS_CREDITO.SALDO', '>', 'VENTAS_CREDITO.PAGO')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+    	->get();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// RETORNAR 
+
+    	if (count($creditos_cliente) > 0) {
+    		return ['response' => true, 'creditos' => $creditos_cliente];
+    	} else {
+    		return ['response' => false, 'statusText' => 'No se han encontrado créditos'];
+    	}
+
+    	/*  --------------------------------------------------------------------------------- */
+
     }
 }

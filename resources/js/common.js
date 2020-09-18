@@ -1159,6 +1159,20 @@ function existeProductoCommon(codigo){
 
 }
 
+function mostrarProductosCatalogoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/producto/catalogo', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -2888,6 +2902,44 @@ function guardarVentaCommon(data) {
 			// GUARDAR LA LA VENTA DEL POS 
 
 			return axios.post('/venta/guardar', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function guardarPagoPECommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/pago/pe', {data: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function guardarPagoCreditoCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA LA VENTA DEL POS 
+
+			return axios.post('/venta/pago/credito', {data: data}).then(function (response) {
 					return response.data;
 				});
 
@@ -4840,7 +4892,7 @@ function cambiarEstatusPedidoCommon(codigo, estatus){
 }
 
 
-function generarRptPdfPedidoCommon(data){
+function generarRptPdfPedidoCommon(data, moneda){
 
 			// ------------------------------------------------------------------------
 
@@ -4852,7 +4904,7 @@ function generarRptPdfPedidoCommon(data){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/pedido/reporte', method: 'post', responseType: 'arraybuffer', data: {'data':data}}).then( 
+			return axios({url: '/pedido/reporte', method: 'post', responseType: 'arraybuffer', data: {'data':data, 'moneda': moneda}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4868,6 +4920,127 @@ function generarRptPdfPedidoCommon(data){
 
 			// ------------------------------------------------------------------------
 
+}
+
+function generarRptPdfVentaCommon(data, caja, moneda){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/venta/reporte/unico', method: 'post', responseType: 'arraybuffer', data: {'codigo':data, 'caja': caja, 'moneda': moneda}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
+function arreglar_costo(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/arreglar').then(function (response) {
+				console.log(response.data);
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function obtenerProductoOfertaCommon(sucursal){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/producto/ofertas', {'sucursal': sucursal}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
+
+function inicioCatalogoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/pedido/inicio_catalogo', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF VENTA TARJETA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function reporteVentaTarjetaCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptTarjeta', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
 }
 
 // ------------------------------------------------------------------------
@@ -5058,10 +5231,10 @@ export {
 		modificarCuponCommon,
 		obtenerParametroCommon,
 		deshabilitarCuponCommon,
-	  habilitarCuponCommon,
-	  generarReporteVentaCommon,
-	  encontrarfotoCommon,
-	  importarProductoCommon,
+	  	habilitarCuponCommon,
+	  	generarReporteVentaCommon,
+	  	encontrarfotoCommon,
+	  	importarProductoCommon,
 		obtenerCreditoClienteCommon,
 		editarComentarioProductoInventarioCommon,
 		eliminarProductoInventarioCommon,
@@ -5078,5 +5251,12 @@ export {
 		cambiarCantidadPedidoCommon,
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
-		generarRptPdfPedidoCommon
+		generarRptPdfPedidoCommon,
+		obtenerProductoOfertaCommon,
+		mostrarProductosCatalogoCommon,
+		inicioCatalogoCommon,
+		guardarPagoPECommon,
+		guardarPagoCreditoCommon,
+		generarRptPdfVentaCommon,
+		reporteVentaTarjetaCommon,
 		};

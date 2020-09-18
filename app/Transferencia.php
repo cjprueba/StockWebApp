@@ -14,6 +14,7 @@ use App\TransferenciaDet_tiene_Lotes;
 // use NumeroALetras\NumeroALetras;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
+use App\Central_tiene_Sucursales;
 
 class Transferencia extends Model
 {
@@ -532,7 +533,7 @@ class Transferencia extends Model
         // INSERTAR TRANSFERENCIA SI ES GUARDADO
 
         if ($opcion === 1) {
-
+       /*  var_dump($datos["cabecera"]);*/
             $transferencia = DB::connection('retail')
             ->table('transferencias')
             ->insertGetId(
@@ -560,7 +561,8 @@ class Transferencia extends Model
                 'HORALTAS' =>  $hora,
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'ESTATUS' => 0,
-                'CAMBIO' => $cotizacion
+                'CAMBIO' => $cotizacion,
+                'CONSIGNACION'=>$datos["cabecera"]["consignacion"]
                 ]
             );
 
@@ -1312,7 +1314,7 @@ class Transferencia extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Transferencia::select(DB::raw('TRANSFERENCIAS.CODIGO, ORIGEN.CODIGO AS CODIGO_ORIGEN, ORIGEN.DESCRIPCION AS ORIGEN, EMPLEADOS.NOMBRE AS RESPONSABLE, TRANSFERENCIAS.FECHA, TRANSFERENCIAS.HORA, TRANSFERENCIAS.TOTAL, TRANSFERENCIAS.ESTATUS, TRANSFERENCIAS.MONEDA'))
+            $posts = Transferencia::select(DB::raw('TRANSFERENCIAS.CODIGO, ORIGEN.CODIGO AS CODIGO_ORIGEN, ORIGEN.DESCRIPCION AS ORIGEN, EMPLEADOS.NOMBRE AS RESPONSABLE, TRANSFERENCIAS.FECHA, TRANSFERENCIAS.HORA, TRANSFERENCIAS.TOTAL, TRANSFERENCIAS.ESTATUS, TRANSFERENCIAS.MONEDA,TRANSFERENCIAS.CONSIGNACION'))
                          ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
                          ->leftJoin('EMPLEADOS', function($join){
                                 $join->on('EMPLEADOS.CODIGO', '=', 'TRANSFERENCIAS.ENVIA')
@@ -1340,7 +1342,7 @@ class Transferencia extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Transferencia::select(DB::raw('TRANSFERENCIAS.CODIGO, ORIGEN.CODIGO AS CODIGO_ORIGEN, ORIGEN.DESCRIPCION AS ORIGEN, EMPLEADOS.NOMBRE AS RESPONSABLE, TRANSFERENCIAS.FECHA, TRANSFERENCIAS.HORA, TRANSFERENCIAS.TOTAL, TRANSFERENCIAS.ESTATUS, TRANSFERENCIAS.MONEDA'))
+            $posts =  Transferencia::select(DB::raw('TRANSFERENCIAS.CODIGO, ORIGEN.CODIGO AS CODIGO_ORIGEN, ORIGEN.DESCRIPCION AS ORIGEN, EMPLEADOS.NOMBRE AS RESPONSABLE, TRANSFERENCIAS.FECHA, TRANSFERENCIAS.HORA, TRANSFERENCIAS.TOTAL, TRANSFERENCIAS.ESTATUS, TRANSFERENCIAS.MONEDA,TRANSFERENCIAS.CONSIGNACION'))
                             ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
                             ->leftJoin('EMPLEADOS', function($join){
                                 $join->on('EMPLEADOS.CODIGO', '=', 'TRANSFERENCIAS.ENVIA')
@@ -1402,9 +1404,16 @@ class Transferencia extends Model
                 } else if ($post->ESTATUS === 2) {
                     $nestedData['ESTATUS'] = '<span class="badge badge-success">Procesado</span>';
                 }
+                if($post->CONSIGNACION==1){
+                    $nestedData['ACCION'] = "<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
+            &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolucion' title='Devolucion'><i class='fa fa-reply-all text-danger' aria-hidden='true'></i></a>";
+                }else{
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
+                          &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i>";
+
+                }
                 
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i>";
+             
 
                 $data[] = $nestedData;
 
@@ -1585,6 +1594,227 @@ class Transferencia extends Model
                 $nestedData['COD_PROD'] = $post->CODIGO_PROD;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['PRECIO'] = Common::precio_candec($post->PRECIO, $post->MONEDA);
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    public static function arreglar_costo(){
+            $datos = DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.CODIGO_PROD, LOTES.COSTO AS COSTO,LOTE_TIENE_TRANSFERENCIADET.ID_LOTE,TRANSFERENCIADET_TIENE_LOTES.ID_LOTE AS ID_LOTE_ENVIO'))
+                         ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                           ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->where('td.ID_SUCURSAL','=', 4)
+                         ->WHERE('t.SUCURSAl_Destino','=',11)
+                         ->get()->toArray();
+                         foreach ($datos as $key => $value) {
+                              $porfi = DB::connection('retail')
+                            ->table('lotes')
+                            ->where('ID','=', $value->ID_LOTE)
+                            ->where('ID_SUCURSAL','=', 11)
+                            ->update([
+                                'COSTO' => $value->COSTO
+                            ]);
+
+                             # code...
+                         }
+                        
+
+
+    }
+        public static function mostrar_productos_devolucion($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $request->input('codigoTransferencia');
+        $codigo_origen = $request->input('codigo_origen');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ITEM', 
+                            1 => 'COD_PROD',
+                            2 => 'DESCRIPCION',
+                            3 => 'CANTIDAD',
+                            4 => 'SALIDA',
+                            5 => 'PRECIO',
+                            6 => 'TOTAL',
+                            7 => 'ACCION'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+
+        $totalData = DB::connection('retail')->table('transferencias_det as td')
+                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
+                    ->leftJoin('transferencias as t', function($join){
+                        $join->on('t.CODIGO', '=', 'td.CODIGO')
+                             ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                    })
+                    ->where('t.SUCURSAL_ORIGEN','=', $codigo_origen)
+                    ->where('td.CODIGO','=', $codigo)
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD) AS SALIDA'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
+                         ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->where('td.ID_SUCURSAL','=', $codigo_origen)
+                         ->where('td.CODIGO','=', $codigo)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  DB::connection('retail')->table('transferencias_det as td')
+                        ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA'))
+                         ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
+                         ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->where('t.SUCURSAL_ORIGEN','=', $codigo_origen)
+                         ->where('td.CODIGO','=', $codigo)
+                            ->where(function ($query) use ($search) {
+                                $query->where('td.CODIGO_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('td.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = DB::connection('retail')->table('transferencias_det as td')
+                            ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA'))
+                            ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
+                             ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
+                             ->leftJoin('transferencias as t', function($join){
+                                $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                     ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                             })
+                             ->where('t.SUCURSAL_ORIGEN','=', $codigo_origen)
+                             ->where('td.CODIGO','=', $codigo)
+                            ->where(function ($query) use ($search) {
+                                $query->where('td.CODIGO_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('td.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+     
+
+                $nestedData['ITEM'] = $post->ITEM;
+                $nestedData['COD_PROD'] = $post->CODIGO_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['SALIDA'] = $post->SALIDA;
                 $nestedData['PRECIO'] = Common::precio_candec($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
@@ -1818,10 +2048,9 @@ class Transferencia extends Model
 
             // OBTENER DATOS TRANSFERENCIA
 
-            $transferencia = DB::connection('retail')
-            ->table('transferencias')
-            ->select(DB::raw(
-                            'ID, 
+            $transferencia = Transferencia::select(DB::raw(
+                            'ID,
+                            SUCURSAL_ORIGEN, 
                             SUCURSAL_DESTINO,
                             CAMBIO, 
                             MONEDA,
@@ -1840,6 +2069,8 @@ class Transferencia extends Model
             $cambio = $transferencia[0]->CAMBIO;
             $id = $transferencia[0]->ID;
             $usere = 'TRA-'.$id;
+            $origen = $transferencia[0]->SUCURSAL_ORIGEN;
+            $destino = $transferencia[0]->SUCURSAL_DESTINO;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1951,7 +2182,8 @@ class Transferencia extends Model
                             TRANSFERENCIAS_DET.CODIGO_PROD, 
                             TRANSFERENCIAS_DET.CANTIDAD, 
                             TRANSFERENCIAS_DET.PRECIO,
-                            LOTES.FECHA_VENC AS VENCIMIENTO'
+                            LOTES.FECHA_VENC AS VENCIMIENTO,
+                            LOTES.COSTO'
                         ))
             ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
             ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
@@ -2003,7 +2235,7 @@ class Transferencia extends Model
                     $precio_vip = $producto[0]->PREVIP;
     
                 }
-                
+
                 /*  --------------------------------------------------------------------------------- */
 
                 // REVISAR SI EXISTE PRODUCTO 
@@ -2037,6 +2269,22 @@ class Transferencia extends Model
                         'USERM' => $usere
                         ]
                     );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // VERIFICAR SI ENVIA ES DE CENTRAL A SUCURSAL
+
+                if (Central_tiene_Sucursales::comprobar_sucursal(["central" => $origen, "sucursal" => $destino]) === true) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // OBTENER PRECIO DEL COSTO LOTE CENTRAL
+
+                    $precio_venta = $td->COSTO;
 
                     /*  --------------------------------------------------------------------------------- */
 

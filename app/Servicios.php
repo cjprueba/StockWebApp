@@ -59,7 +59,7 @@ class Servicios extends Model
 
     }
 
-    public static function generarConsulta($sucursal, $inicio, $final){
+    public static function generarConsulta($sucursal, $inicio, $final, $order, $dir){
 
         $delivery = DB::connection('retail')->table('VENTASDET_SERVICIOS')
             ->leftjoin('VENTAS' , function($join){
@@ -84,7 +84,7 @@ class Servicios extends Model
                     ['VENTAS_ANULADO.ANULADO', '<>', 1]
                 ])
             ->groupBy('CLIENTES.CODIGO')
-            ->orderBy('VENTAS.FECALTAS')
+            ->orderBy($order,$dir)
             ->get()
             ->toArray(); 
 
@@ -103,10 +103,12 @@ class Servicios extends Model
         $inicio = date('Y-m-d', strtotime($datos['data']['inicio']));
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $sucursal = $datos['data']['sucursal'];
+        $order ='VENTAS.FECALTAS';
+        $dir = 'ASC';
 
         // OBTENER DATOS 
 
-        $delivery = Servicios::generarConsulta($sucursal, $inicio, $final);
+        $delivery = Servicios::generarConsulta($sucursal, $inicio, $final, $order, $dir);
         
         //INICIAR VARIABLES
 
@@ -142,7 +144,7 @@ class Servicios extends Model
             $articulos[$c_rows]['FECHA'] = $fechaV;
             if($c_rows == $limite){
                 $articulos[$c_rows]['SALTO'] = true;
-                $limite = $limite + 37;
+                $limite = $limite + 36;
             }else{
 
                 $articulos[$c_rows]['SALTO'] = false;
@@ -196,11 +198,11 @@ class Servicios extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'ITEM', 
-                            1 => 'CODIGO',
-                            2 => 'CLIENTE',
-                            3 => 'FECHA',
-                            4 => 'TOTAL'
+                            0 => 'VENTAS.FECALTAS', 
+                            1 => 'VENTAS.CODIGO',
+                            2 => 'CLIENTES.NOMBRE',
+                            3 => 'VENTAS.FECALTAS',
+                            4 => 'VENTASDET_SERVICIOS.PRECIO'
                         );
         
 
@@ -212,13 +214,14 @@ class Servicios extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
+        
         $item = 1;
         
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-        $posts = Servicios::generarConsulta($sucursal, $inicio, $final);
+        $posts = Servicios::generarConsulta($sucursal, $inicio, $final, $order, $dir);
 
         /*  ************************************************************ */
 

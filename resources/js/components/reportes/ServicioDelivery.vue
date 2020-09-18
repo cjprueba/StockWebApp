@@ -50,7 +50,7 @@
 			        </div>
 				</div>
 				
-			  	<div class="col-md-7 mt-3 ml-5">
+			  	<div class="col-md-7 ml-5">
 					<table id="tablaDelivery" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>

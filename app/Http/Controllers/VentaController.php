@@ -240,4 +240,57 @@ class VentaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function obtenerCuentas(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = Venta::obtenerCuentas($request);
+        return response()->json($vale);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function pagoEntrega(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = Venta::pagoEntrega($request);
+        return response()->json($vale);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function pagoCredito(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vale = Venta::pagoCredito($request);
+        return response()->json($vale);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+     public function reporteUnico(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $venta = Venta::reporteUnico($request->all());
+        return response()->json($venta);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
