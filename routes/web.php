@@ -424,10 +424,10 @@ Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
 Route::post('cliente/credito', 'ClienteController@creditoCliente');
-Route::get('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
+Route::post('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
 Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
-Route::get('/cliente/credito/detalle/datatable', 'ClienteController@creditoClienteDatatableDetalle');
-Route::get('/cliente/credito/detalle/abono/datatable', 'ClienteController@creditoClienteAbonoDatatable');
+Route::post('/cliente/credito/detalle/datatable', 'ClienteController@creditoClienteDatatableDetalle');
+Route::post('/cliente/credito/detalle/abono/datatable', 'ClienteController@creditoClienteAbonoDatatable');
 
 /* -------------------------------------------------------------------------- */
 
