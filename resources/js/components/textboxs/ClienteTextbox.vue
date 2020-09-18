@@ -35,7 +35,10 @@
 							    	<th>ID</th>
 							        <th>Nombre</th>
 							        <th>Código</th>
-							        <th>RUC</th>
+							        <th>C.I.</th>
+							        <th>R.U.C.</th>
+							        <th>Telefono</th>
+							        <th>Razón Social</th>
 							        <th>Dirección</th>
 							        <th>Ciudad</th>
 							    </tr>
@@ -133,7 +136,10 @@
                             { "data": "ID" },
                             { "data": "NOMBRE" },
                             { "data": "CODIGO" },
+                            { "data": "CI" },
                             { "data": "RUC" },
+                            { "data": "TELEFONO" },
+                            { "data": "RAZON_SOCIAL" },
                             { "data": "DIRECCION" },
                             { "data": "CIUDAD" }
                         ]      

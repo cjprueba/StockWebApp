@@ -4896,26 +4896,26 @@ class Venta extends Model
                             1 => 'COD_PROD',
                             2 => 'DESCRIPCION',
                             3 => 'CANTIDAD',
-                            4 => 'PRECIO',
-                            5 => 'TOTAL',
-                            4 => 'PORC_DESCUENTO',
-                            5 => 'TOTAL_DESCUENTO'
+                            4 => 'PRECIO_UNIT',
+                            5 => 'PRECIO',
+                            6 => 'ventasdet_descuento.PORCENTAJE',
+                            7 => 'ventasdet_descuento.TOTAL'
                         );
         
         /*  --------------------------------------------------------------------------------- */
 
         // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
 
-        $totalData = DB::connection('retail')->table('ventasdet as vd')
-                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
-                    ->leftJoin('ventas as v', function($join){
-                        $join->on('v.CODIGO', '=', 'vd.CODIGO')
-                             ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
-                             ->on('v.CAJA', '=', 'vd.CAJA');
+        $totalData = DB::connection('retail')->table('VENTASDET')
+                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+                    ->leftJoin('VENTAS', function($join){
+                        $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                             ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+                             ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                     })
-                    ->where('v.ID_SUCURSAL','=', $user->id_sucursal)
-                    ->where('vd.CODIGO','=', $codigo)
-                    ->where('vd.CAJA','=', $caja)
+                    ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('VENTASDET.CODIGO','=', $codigo)
+                    ->where('VENTASDET.CAJA','=', $caja)
                     ->count();  
         
         /*  --------------------------------------------------------------------------------- */
@@ -4939,18 +4939,26 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = DB::connection('retail')->table('ventasdet as vd')
-                         ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
-                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
-                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
-                         ->leftJoin('ventas as v', function($join){
-                            $join->on('v.CODIGO', '=', 'vd.CODIGO')
-                                 ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
-                                 ->on('v.CAJA', '=', 'vd.CAJA');
+            $posts = DB::connection('retail')->table('VENTASDET')
+                         ->select(DB::raw('VENTASDET.ITEM, 
+                            VENTASDET.COD_PROD, 
+                            VENTASDET.DESCRIPCION, 
+                            VENTASDET.CANTIDAD, 
+                            VENTASDET.PRECIO_UNIT, 
+                            VENTASDET.PRECIO, 
+                            IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, 
+                            ventasdet_descuento.TOTAL, 
+                            VENTAS.MONEDA'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftJoin('VENTAS', function($join){
+                            $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                 ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+                                 ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
-                         ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
-                         ->where('vd.CODIGO','=', $codigo)
-                         ->where('vd.CAJA','=', $caja)
+                         ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('VENTASDET.CODIGO','=', $codigo)
+                         ->where('VENTASDET.CAJA','=', $caja)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -4971,21 +4979,29 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  DB::connection('retail')->table('ventasdet as vd')
-                        ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
-                         ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
-                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
-                         ->leftJoin('ventas as v', function($join){
-                            $join->on('v.CODIGO', '=', 'vd.CODIGO')
-                                 ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
-                                 ->ON('v.CAJA', '=', 'vd.CAJA');
+            $posts =  DB::connection('retail')->table('VENTASDET')
+                        ->select(DB::raw('VENTASDET.ITEM, 
+                            VENTASDET.COD_PROD, 
+                            VENTASDET.DESCRIPCION, 
+                            VENTASDET.CANTIDAD, 
+                            VENTASDET.PRECIO_UNIT, 
+                            VENTASDET.PRECIO, 
+                            IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, 
+                            ventasdet_descuento.TOTAL, 
+                            VENTAS.MONEDA'))
+                         ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftJoin('VENTAS', function($join){
+                            $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                 ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+                                 ->ON('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
-                         ->where('vd.CODIGO','=', $codigo)
-                         ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
-                         ->where('vd.CAJA','=', $caja)
+                         ->where('VENTASDET.CODIGO','=', $codigo)
+                         ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('VENTASDET.CAJA','=', $caja)
                             ->where(function ($query) use ($search) {
-                                $query->where('vd.COD_PROD','LIKE',"%{$search}%")
-                                      ->orWhere('vd.DESCRIPCION', 'LIKE',"%{$search}%");
+                                $query->where('VENTASDET.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('VENTASDET.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -4996,21 +5012,29 @@ class Venta extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = DB::connection('retail')->table('ventasdet as vd')
-                            ->select(DB::raw('vd.ITEM, vd.COD_PROD, vd.DESCRIPCION, vd.CANTIDAD, vd.PRECIO_UNIT, vd.PRECIO, IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, ventasdet_descuento.TOTAL, v.MONEDA'))
-                             ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'vd.COD_PROD')
-                             ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'vd.ID')
-                             ->leftJoin('ventas as v', function($join){
-                                $join->on('v.CODIGO', '=', 'vd.CODIGO')
-                                     ->on('v.ID_SUCURSAL', '=', 'vd.ID_SUCURSAL')
-                                     ->on('v.CAJA', '=', 'vd.CAJA');
+            $totalFiltered = DB::connection('retail')->table('VENTASDET')
+                            ->select(DB::raw('VENTASDET.ITEM, 
+                                VENTASDET.COD_PROD, 
+                                VENTASDET.DESCRIPCION, 
+                                VENTASDET.CANTIDAD, 
+                                VENTASDET.PRECIO_UNIT, 
+                                VENTASDET.PRECIO, 
+                                IFNULL(ventasdet_descuento.PORCENTAJE, 0) as PORCENTAJE, 
+                                ventasdet_descuento.TOTAL, 
+                                VENTAS.MONEDA'))
+                             ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+                             ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                             ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+                                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                              })
-                             ->where('vd.CODIGO','=', $codigo)
-                             ->where('vd.ID_SUCURSAL','=', $user->id_sucursal)
-                             ->where('vd.CAJA','=', $caja)
+                             ->where('VENTASDET.CODIGO','=', $codigo)
+                             ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+                             ->where('VENTASDET.CAJA','=', $caja)
                             ->where(function ($query) use ($search) {
-                                $query->where('vd.COD_PROD','LIKE',"%{$search}%")
-                                      ->orWhere('vd.DESCRIPCION', 'LIKE',"%{$search}%");
+                                $query->where('VENTASDET.COD_PROD','LIKE',"%{$search}%")
+                                      ->orWhere('VENTASDET.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                              ->count();
 

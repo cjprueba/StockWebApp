@@ -184,6 +184,7 @@
                 "bAutoWidth": true,
                 "searching": false,
                 "select": true,
+				"paging": false,
                 "ajax":{
                   "url": "/orden/datatablePendiente",
                   "dataType": "json",

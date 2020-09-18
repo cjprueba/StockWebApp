@@ -30,14 +30,17 @@
 		      		<div class="col-6">
 						<span><span class="float-left"><strong> Ciudad: </strong> {{cliente.ciudad}} </span></span><br/>
 					</div>
-		      		<div class="col-6">
-						<span><span class="float-left"><strong> Nota del Cliente: </strong> -{{cliente.nota}}- </span></span><br/>
-					</div>
 		      	</div>
 
-		      	<div class="row mt-2 mb-3">
+		      	<div class="row mt-2">
 		      		<div class="col">
 						<span class="float-left"><strong> Dirección: </strong> {{cliente.direccion}}</span><br/>
+					</div>
+				</div>
+
+				<div class="row mt-2 mb-3">
+		      		<div class="col">
+						<span class="float-left"><strong> Nota del Cliente: </strong> {{cliente.nota}}</span><br/>
 					</div>
 				</div>
 
@@ -112,14 +115,12 @@
             	Common.obtenerCabeceraOrdenPendienteCommon(codigo).then(data=> {
 
 		        		this.cliente.nombre = data.NOMBRE;
-		        		this.cliente.direccion = data.DIRECCION_1+', '+data.DIRECCION_2+'.';
+		        		this.cliente.direccion = data.DIRECCION_1;
 		        		this.cliente.ciudad = data.CIUDAD;
 		        		this.cliente.telefono = data.CELULAR;
 		        		this.cliente.documento = data.DOCUMENTO;
 		        		this.cliente.estado = data.ESTADO;	
 		        		this.cliente.nota = data.NOTA;	
-				
-
 		       	});
 
             	let me = this;

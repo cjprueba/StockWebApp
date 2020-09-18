@@ -182,6 +182,7 @@
                 "bAutoWidth": true,
                 "searching": false,
                 "select": true,
+	            "paging": false,
                 "ajax":{
                   "url": "/orden/datatableProcesando",
                   "dataType": "json",

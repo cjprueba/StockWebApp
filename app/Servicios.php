@@ -198,7 +198,7 @@ class Servicios extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'ITEM', 
+                            0 => 'VENTAS.FECALTAS', 
                             1 => 'VENTAS.CODIGO',
                             2 => 'CLIENTES.NOMBRE',
                             3 => 'VENTAS.FECALTAS',
@@ -214,9 +214,7 @@ class Servicios extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
-        if($order == 'ITEM'){
-            $order ='VENTAS.FECALTAS';
-        }
+        
         $item = 1;
         
         /*  --------------------------------------------------------------------------------- */
