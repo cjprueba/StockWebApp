@@ -33,6 +33,7 @@ class Cliente extends Model
                             4 => 'DIRECCION',
                             5 => 'CIUDAD',
                             6 => 'TELEFONO',
+                            7 => 'TIPO'
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -64,7 +65,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -85,7 +86,7 @@ class Cliente extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
@@ -133,7 +134,8 @@ class Cliente extends Model
                 $nestedData['DIRECCION'] = $post->DIRECCION;
                 $nestedData['CIUDAD'] = $post->CIUDAD;
                 $nestedData['TELEFONO'] = $post->TELEFONO;
-
+                $nestedData['TIPO'] = $post->TIPO;
+                
                 $data[] = $nestedData;
 
                 /*  --------------------------------------------------------------------------------- */
@@ -229,6 +231,7 @@ class Cliente extends Model
                                       ->orWhere('RUC', 'LIKE',"%{$search}%")  
                                       ->orWhere('CI', 'LIKE',"%{$search}%")   
                                       ->orWhere('RAZON_SOCIAL', 'LIKE',"%{$search}%");
+
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
@@ -345,6 +348,8 @@ class Cliente extends Model
          
         try {
 
+            /*  --------------------------------------------------------------------------------- */
+
             // CONTROLA QUE NO EXISTA PARA INSERTAR
 
             if($datos['data']['existe']=== false){
@@ -353,25 +358,22 @@ class Cliente extends Model
 
                 // VERIFICAR RUC
 
-                $ruc = Cliente::verificarRuc($datos['data']['ruc']);
+                 $ruc = Cliente::verificarRuc($datos['data']['ruc']);
 
-                if($ruc['response'] == false){
+                 if($ruc['response'] == false){
 
                     return $ruc;
-                }
-                 /*  --------------------------------------------------------------------------------- */
+                 }
+                  /*  --------------------------------------------------------------------------------- */
 
-                // VERIFICAR CI
+                  // VERIFICAR CI
 
-                $ci = Cliente::verificarCI($datos['data']['cedula']);
+                  $ci = Cliente::verificarCI($datos['data']['cedula']);
 
-                if($ci['response'] == false){
-
+                 if($ci['response'] == false){
                     return $ci;
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
+                 }
+                  /*  --------------------------------------------------------------------------------- */
                 // GUARDA LOS DATOS
 
                 $codigo = Cliente::select('CODIGO')
@@ -435,6 +437,7 @@ class Cliente extends Model
             return ["response"=>false,'statusText'=>$ex->getMessage()];
         }
     }
+
     
     public static function nuevoCliente(){
 
@@ -610,12 +613,13 @@ class Cliente extends Model
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
-
+        
         // OBTENER TODAS LOS CLIENTES
 
-        $cliente= Cliente::select(DB::raw('LIMITE_CREDITO, DIAS_CREDITO, CREDITO_DISPONIBLE'))
+        $cliente= Cliente::select(DB::raw('IFNULL(LIMITE_CREDITO,0) AS LIMITE_CREDITO, IFNULL(DIAS_CREDITO,0) DIAS_CREDITO, IFNULL(CREDITO_DISPONIBLE,0) AS CREDITO_DISPONIBLE'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->Where('ID','=',$datos['data'])->get();
+        ->where('CODIGO','=',$datos['data'])
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -623,7 +627,7 @@ class Cliente extends Model
 
         if(count($cliente) > 0){
 
-            return ["response" => true, "cliente" => $cliente];
+            return ["response" => true, "cliente" => $cliente[0], "disponible"];
 
         } else {
 

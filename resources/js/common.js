@@ -4869,6 +4869,43 @@ function generarRptPdfPedidoCommon(data){
 			// ------------------------------------------------------------------------
 
 }
+function arreglar_costo(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/arreglar').then(function (response) {
+				console.log(response.data);
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
+function obtenerProductoOfertaCommon(sucursal){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/producto/ofertas', {'sucursal': sucursal}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
 
 
 // ------------------------------------------------------------------------
@@ -5117,5 +5154,6 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
-		reporteVentaTarjetaCommon
+		reporteVentaTarjetaCommon,
+		obtenerProductoOfertaCommon
 		};

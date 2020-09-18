@@ -245,6 +245,7 @@ Vue.component('transferencia',  require('./components/transferencia/Inicio.vue')
 Vue.component('transferencia-marca-categoria', require('./components/transferencia/busquedas/TransferenciaMarcaCategoria.vue').default);
 Vue.component('realizarTransferencia', require('./components/transferencia/RealizarTransferencia.vue').default);
 Vue.component('modal-detalle-transferencia', require('./components/transferencia/modal/ModalDetalleTransferencia.vue').default);
+Vue.component('modal-devolucion-transferencia', require('./components/transferencia/modal/ModalDevolucionTransferencia.vue').default);
 
 /* ********************************************* */
 
@@ -462,6 +463,7 @@ Vue.component('formv', require('./components/Form.vue').default);
 Vue.component('sidebar', require('./components/Sidebar.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('home', require('./components/Home.vue').default);
+Vue.component('producto', require('./components/producto/MostrarProductoUno.vue').default);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
