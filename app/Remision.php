@@ -826,7 +826,7 @@ class Remision extends Model
                         1 => 'codigo',
                         2 => 'cliente',
                         3 => 'iva',
-                        4 => 'subtotal',
+                        4 => 'sub_total',
                         5 => 'total',
                         6 => 'moneda'
                         

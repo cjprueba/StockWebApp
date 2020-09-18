@@ -175,9 +175,12 @@ class Cliente extends Model
                         0 => 'id',
                         1 => 'nombre',
                         2 => 'codigo',
-                        3 => 'ruc',
-                        4 => 'direccion',
-                        5 => 'ciudad',
+                        3 => 'ci',
+                        4 => 'ruc',
+                        5 => 'telefono',
+                        6 => 'razon_social',
+                        7 => 'direccion',
+                        8 => 'ciudad'
                     );
         
         /*  --------------------------------------------------------------------------------- */
@@ -204,7 +207,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
+            $posts = Cliente::select(DB::raw('ID, NOMBRE, CODIGO, CI, RUC, TELEFONO, RAZON_SOCIAL, DIRECCION, CIUDAD'))
                          ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -221,13 +224,15 @@ class Cliente extends Model
 
             // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
 
-            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
+            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, CI, RUC, TELEFONO, RAZON_SOCIAL, DIRECCION, CIUDAD'))
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
                                       ->orWhere('ID', 'LIKE',"%{$search}%")
-                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
-                                      ->orWhere('CI', 'LIKE',"%{$search}%");
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")  
+                                      ->orWhere('CI', 'LIKE',"%{$search}%")   
+                                      ->orWhere('RAZON_SOCIAL', 'LIKE',"%{$search}%");
+
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
@@ -241,8 +246,9 @@ class Cliente extends Model
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
                                       ->orWhere('ID', 'LIKE',"%{$search}%")
-                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
-                                      ->orWhere('CI', 'LIKE',"%{$search}%");;
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")                                       
+                                      ->orWhere('CI', 'LIKE',"%{$search}%")                                          
+                                      ->orWhere('RAZON_SOCIAL', 'LIKE',"%{$search}%");
                             })->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
@@ -263,10 +269,14 @@ class Cliente extends Model
 
              // CARGA EN LA VARIABLE 
 
+                $cliente = strtolower($post->NOMBRE);
                 $nestedData['ID'] = $post->ID;
-                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['NOMBRE'] = ucwords($cliente);
                 $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CI'] = $post->CI;
                 $nestedData['RUC'] = $post->RUC;
+                $nestedData['TELEFONO'] = $post->TELEFONO;
+                $nestedData['RAZON_SOCIAL'] = $post->RAZON_SOCIAL;
                 $nestedData['DIRECCION'] = $post->DIRECCION;
                 $nestedData['CIUDAD'] = $post->CIUDAD;
 

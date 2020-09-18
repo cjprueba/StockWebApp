@@ -80,7 +80,7 @@
 			    	<div class="form-group row mt-3">
 			    		<label class="col-sm-3 col-form-label">Nro. C.I.</label>
 			    		<div class="col-sm-9">
-					    	<input type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
+					    	<input v-on:change="calcularRUC(ci)" type="text" v-model="ci" v-bind:class="{ 'is-invalid': validar.ci }" class="form-control form-control-sm">
 					    </div>
 			    	</div>	
 
@@ -682,6 +682,21 @@
 			filtrarIdEmpresa(valor){
 
 				this.idEmpresa = valor;
+			},
+
+			calcularRUC(cedula) {
+
+			    var total = 0, resto = '', k = 2, digito = '';
+			    var numero = cedula.length;
+			    for (var numero = cedula.length-1; numero >= 0 ; numero--) {
+			            var numeroInd = cedula.charAt(numero);
+			            k = k > 11 ? 2 : k;
+			            total += numeroInd * k;
+			            k++;
+			    }
+			    resto = total % 11;
+			    digito = resto > 1 ? 11 - resto : 0;
+			    this.ruc = cedula+'-'+digito;
 			}
 		},
 

@@ -181,7 +181,7 @@ class VentaVale extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'ITEM', 
+                            0 => 'VENTAS.FECALTAS', 
                             1 => 'CLIENTES.NOMBRE',
                             2 => 'EMPRESA.NOMBRE',
                             3 => 'VENTAS.FECALTAS',
@@ -196,9 +196,7 @@ class VentaVale extends Model
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
-        if($order == 'ITEM'){
-            $order ='VENTAS.FECALTAS';
-        }
+        
         $item = 1;
         
         /*  --------------------------------------------------------------------------------- */
