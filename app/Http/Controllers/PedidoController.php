@@ -120,4 +120,18 @@ class PedidoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function inicio_catalogo(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Pedido::inicio_catalogo($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

@@ -28,6 +28,7 @@ Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/producto', 'ApiController@producto')->name('producto');
+Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
@@ -63,6 +64,11 @@ Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 Route::post('pdf-generar-rptVale','VentaController@rptVale');
 Route::get('ventaValeDatatable', 'VentaController@generarVentaVale');
+Route::get('venta/cuenta/datatable', 'VentaController@obtenerCuentas');
+Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
+Route::post('venta/pago/credito', 'VentaController@pagoCredito');
+Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -319,6 +325,7 @@ Route::post('productoImportar', 'ProductoController@importar');
 Route::post('producto/ubicacion', 'ProductoController@ubicacion');
 Route::post('producto/existe', 'ProductoController@existe');
 Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
+Route::post('producto/catalogo', 'ProductoController@catalogo_cliente');
 
 /* -------------------------------------------------------------------------- */
 
@@ -416,9 +423,11 @@ Route::post('cliente/clienteDatatable', 'ClienteController@clienteDatatable');
 Route::post('clienteGuardar', 'ClienteController@guardarCliente');
 Route::post('clienteEliminar', 'ClienteController@eliminarCliente');
 Route::get('nuevoCliente', 'ClienteController@nuevoCliente');
-Route::get('cliente/credito', 'ClienteController@creditoCliente');
+Route::post('cliente/credito', 'ClienteController@creditoCliente');
 Route::get('cliente/credito/datatable', 'ClienteController@creditoClienteDatatable');
 Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
+Route::get('/cliente/credito/detalle/datatable', 'ClienteController@creditoClienteDatatableDetalle');
+Route::get('/cliente/credito/detalle/abono/datatable', 'ClienteController@creditoClienteAbonoDatatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -510,6 +519,7 @@ Route::post('pedido/producto/eliminar', 'PedidoController@eliminar_producto');
 Route::get('pedido/mostrar/datatable', 'PedidoController@mostrar_datatable');
 Route::post('pedido/cambiar/estatus', 'PedidoController@cambiar_estatus');
 Route::post('pedido/reporte', 'PedidoController@reporte');
+Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 
 /* -------------------------------------------------------------------------- */
 

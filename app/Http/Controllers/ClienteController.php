@@ -107,4 +107,30 @@ class ClienteController extends Controller
         return response()->json($empresa);
 
     }
+
+    public function creditoClienteDatatableDetalle(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::credito_cliente_datatable_detalle($request);
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    } 
+
+    public function creditoClienteAbonoDatatable(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::credito_cliente_datatable_abono($request);
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    } 
 }

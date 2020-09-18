@@ -3392,9 +3392,9 @@ $lotes= DB::connection('retail')
 
         // CONVERT IMAGE DEFAULT TO BLOB 
 
-        $path = '../storage/app/imagenes/product.png';
-        $type = pathinfo($path, PATHINFO_EXTENSION);
-        $dataDefaultImage = file_get_contents($path);
+        // $path = '../storage/app/imagenes/product.png';
+        // $type = pathinfo($path, PATHINFO_EXTENSION);
+        // $dataDefaultImage = file_get_contents($path);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3409,10 +3409,20 @@ $lotes= DB::connection('retail')
 
                 // BUSCAR IMAGEN
 
-                $imagen = Imagen::select(DB::raw('PICTURE'))
-                ->where('COD_PROD','=', $post->CODIGO)
-                ->get();
+                // $imagen = Imagen::select(DB::raw('PICTURE'))
+                // ->where('COD_PROD','=', $post->CODIGO)
+                // ->get();
                 
+                /*  --------------------------------------------------------------------------------- */
+
+                $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
+                
+                if(file_exists($filename)) {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+                } else {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                }
+
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
@@ -3475,18 +3485,20 @@ $lotes= DB::connection('retail')
 
                 // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
 
-                if (count($imagen) > 0) {
-                   foreach ($imagen as $key => $image) {
-                        $imagen_producto = $image->PICTURE;
-                    }
-                } else {
-                    $imagen_producto = $dataDefaultImage;
-                }
+                // if (count($imagen) > 0) {
+                //    foreach ($imagen as $key => $image) {
+                //         $imagen_producto = $image->PICTURE;
+                //     }
+                // } else {
+                //     $imagen_producto = $dataDefaultImage;
+                // }
 
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."'  width='100%'>";
+                //$nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."'  width='100%'>";
 
+                $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
+                
                 // $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-fluid mx-auto d-block img-thumbnail' alt='Card image cap'>";
 
                 /*  --------------------------------------------------------------------------------- */
@@ -3520,4 +3532,440 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
     }  
 
+    public static function ofertas($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["sucursal"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+                     DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')            
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $sucursal)
+                         ->where('PRODUCTOS_AUX.DESCUENTO', '>' , 0)
+                         ->whereRaw('0 < (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+                         ->inRandomOrder()
+                         ->limit(10)
+                         ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $path = '../storage/app/imagenes/oferta.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $imagen_oferta = file_get_contents($path);
+        $imagen_oferta = "<img src='data:image/jpg;base64,".base64_encode($imagen_oferta)."'  width='50%' class='img-fluid'>";
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $path = '../storage/app/imagenes/logo.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $imagen = file_get_contents($path);
+        $imagen_logo = "<img src='data:image/jpg;base64,".base64_encode($imagen)."' >";
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::select(DB::raw('PICTURE'))
+                ->where('COD_PROD','=', $post->CODIGO)
+                ->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
+                $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
+                
+                $nestedData['DESCUENTO'] = $post->DESCUENTO;
+
+                
+                $nestedData['LINEA'] = $post->LINEA;
+                $nestedData['MARCA'] = $post->MARCA;
+
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+
+                if ($nestedData['STOCK'] === '0') {
+                    $nestedData['BACKGROUND'] = 'bg-danger';
+                    $nestedData['ESTATUS'] = 'AGOTADO';
+                } else if($post->DESCUENTO > 0) {
+                    $nestedData['BACKGROUND'] = 'bg-warning';
+                    $nestedData['ESTATUS'] = ''.$post->DESCUENTO.'% OFF';
+                } else {
+                    $nestedData['BACKGROUND'] = 'bg-success';
+                    $nestedData['ESTATUS'] = 'DISPONIBLE';
+                }
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='eliminarProducto' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $descuento_unit = (Common::quitar_coma($post->PREC_VENTA, 2) * Common::quitar_coma($post->DESCUENTO, 2)) / 100;
+                $precio_unit = Common::quitar_coma($post->PREC_VENTA, 2) - $descuento_unit;
+                $nestedData['PREC_DESCUENTO'] = Common::precio_candec($precio_unit, $post->MONEDA);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                if (count($imagen) > 0) {
+                   foreach ($imagen as $key => $image) {
+                        $imagen_producto = $image->PICTURE;
+                    }
+                } else {
+                    $imagen_producto = $dataDefaultImage;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."'  width='100%' class='img-fluid'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+                    "oferta"          => $imagen_oferta,
+                    "logo"            => $imagen_logo
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function catalogo_cliente($datos)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $start = $datos["datos"]["offset"];
+        $limit = $datos["datos"]["limite"];
+        $pagina = $datos["datos"]["actual"];
+        $start = ($pagina * $limit) - $limit;
+        $categorias = $datos["datos"]["categorias"];
+        $marcas = $datos["datos"]["marcas"];
+        $proveedores = $datos["datos"]["proveedores"];
+        $busqueda = $datos["datos"]["busqueda"];
+        $tipo = $datos["datos"]["tipo"];
+        $ordenar = $datos["datos"]["ordenar"];
+        $estado = $datos["datos"]["estado"];
+        $imagenes = $datos["datos"]["imagenes"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RESTRINGIR LIMITE 
+        
+        if ($limit > 100) {
+            $limit = 96;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+                     DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                                    
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', 9)
+                         //->where('PRODUCTOS.LINEA','=', 34)
+                         ->offset($start)
+                         ->limit($limit);
+                         //->orderBy($order,$dir)
+                         
+
+        if($imagenes === true) {
+            $posts->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO');
+        } else{
+            $posts->leftjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO');
+        }
+
+        if($tipo === '1' && !empty($busqueda)) {
+
+            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+
+        } else if ($tipo === '2' && !empty($busqueda)){
+
+            $posts->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
+
+        }
+
+        if($estado === 2) {
+            $posts->where('PRODUCTOS_AUX.DESCUENTO', '>' , 0);
+        }
+
+        if(!empty($categorias)) {
+            $posts->whereIn('PRODUCTOS.LINEA', $categorias);
+        }
+
+        if(!empty($marcas)) {
+            $posts->whereIn('PRODUCTOS.MARCA', $marcas);
+        }
+
+        if(!empty($proveedores)) {
+            $posts->whereIn('PRODUCTOS.PROVEEDOR', $proveedores);
+        }
+
+        if(!empty($ordenar)) {
+            if($ordenar === 2) {
+                $posts->orderBy('PRODUCTOS.PREC_VENTA', 'DESC');
+            } else if ($ordenar === 3) {
+                $posts->orderBy('PRODUCTOS.PREC_VENTA', 'ASC');
+            }
+        }
+
+        // if($imagenes === true) {
+        //     $posts->whereRaw('LENGTH(IMAGENES.PICTURE) <> 14373');
+        // }
+
+        $posts = $posts->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL FILTRADO 
+        
+        $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', 9);
+
+        if($imagenes === true) {
+            $totalFiltered->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO');
+        }
+
+        if($tipo === '1' && !empty($busqueda)) {
+            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+        } else if ($tipo === '2' && !empty($busqueda)){
+            $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
+        }
+                         
+        if(!empty($categorias)) {
+            $totalFiltered->whereIn('PRODUCTOS.LINEA', $categorias);
+        }
+
+        if(!empty($marcas)) {
+            $totalFiltered->whereIn('PRODUCTOS.MARCA', $marcas);
+        }
+
+        if(!empty($proveedores)) {
+            $totalFiltered->whereIn('PRODUCTOS.PROVEEDOR', $proveedores);
+        }
+
+        if(!empty($ordenar)) {
+            if($ordenar === 2) {
+                $totalFiltered->orderBy('PRODUCTOS.PREC_VENTA', 'DESC');
+            } else if ($ordenar === 3) {
+                $totalFiltered->orderBy('PRODUCTOS.PREC_VENTA', 'ASC');
+            }
+        }
+
+        if($estado === 2) {
+            $totalFiltered->where('PRODUCTOS_AUX.DESCUENTO', '>' , 0);
+        }
+        
+        // if($imagenes === true) {
+        //     $totalFiltered->whereRaw('LENGTH(IMAGENES.PICTURE) <> 14373');
+        // }
+
+        $totalFiltered = $totalFiltered->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+         //$path = '../storage/app/imagenes/product.png';
+        // $type = pathinfo($path, PATHINFO_EXTENSION);
+        // $dataDefaultImage = file_get_contents($path);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                //$imagen = Imagen::select(DB::raw('PICTURE'))
+                //->where('COD_PROD','=', $post->CODIGO)
+                //->get();
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
+                
+                if(file_exists($filename)) {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+                } else {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
+                $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREC_VENTA, 2);
+                $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
+                $nestedData['PREMAYORISTA_CRUDO'] = Common::formato_precio($post->PREMAYORISTA, 2);
+                
+
+                if ($post->DESCUENTO === 0) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // DESCUENTO MANUAL POR PRODUCTO
+
+                    $descuento_marca = MarcaAux::obtener_descuento($post->MARCA, 9);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // DESCUENTO CATEGORIA 
+
+                    $descuento_categoria = LineasDescuento::obtener_descuento($post->LINEA, 9);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $post->DESCUENTO = $descuento_marca === 0 ? $descuento_categoria : $descuento_marca;
+
+                    /*  --------------------------------------------------------------------------------- */
+                    
+                }
+                
+                $nestedData['DESCUENTO'] = $post->DESCUENTO;
+
+                
+                $nestedData['LINEA'] = $post->LINEA;
+                $nestedData['MARCA'] = $post->MARCA;
+
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+
+                if ($nestedData['STOCK'] === '0') {
+                    $nestedData['BACKGROUND'] = 'bg-danger';
+                    $nestedData['ESTATUS'] = 'AGOTADO';
+                } else if($post->DESCUENTO > 0) {
+                    $nestedData['BACKGROUND'] = 'bg-warning';
+                    $nestedData['ESTATUS'] = ''.$post->DESCUENTO.'% OFF';
+                } else {
+                    $nestedData['BACKGROUND'] = 'bg-success';
+                    $nestedData['ESTATUS'] = 'DISPONIBLE';
+                }
+
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='editarProducto' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='eliminarProducto' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+
+                // if (strlen($post->PICTURE) > 0) {
+                 
+                //         $imagen_producto = $post->PICTURE;
+           
+                // } else {
+                //     $imagen_producto = $dataDefaultImage;
+                // }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."'  width='100%'>";
+
+                $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    //"draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval(12),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data,
+                    "offset"          => $start
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    
 }

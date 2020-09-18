@@ -62,7 +62,7 @@
 
 				// ENVIAR CEDULA
 
-				this.$emit('ci', cedula);
+				this.$emit('codigo', cedula);
                 this.$emit('nombre', nombre);
 
 				// ------------------------------------------------------------------------
