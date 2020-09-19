@@ -8,7 +8,7 @@
 			
 			<div class="col-md-12">
 				<vs-divider>
-					Mostrar Transferencias
+					Mostrar Transferencias Devolucion
 				</vs-divider>
 			</div>
 			
@@ -26,15 +26,15 @@
 			<!-- ------------------------------------------------------------------------ -->
 
 			<div class="col-md-12">
-				<table id="tablaTransferencias" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+				<table id="tablaTransferenciasDev" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
 		                    <th>Codigo</th>
+		                    <th>Codigo Transferencia</th>
 		                    <th>Origen</th>
 		                    <th>Destino</th>
-		                    <th>N. Caja</th>
-		                    <th>IVA</th>
-		                    <th>Total</th>
+		                    <th>Fecha</th>
+		                    <th>Hora</th>
 		                    <th>Estatus</th>
 		                    <th>Acción</th>
 		                </tr>
@@ -58,9 +58,9 @@
 		
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
-		<modal-detalle-transferencia 
+		<modal-detalle-transferencia-dev 
 		ref="ModalImportarTransferencia"
-		></modal-detalle-transferencia>
+		></modal-detalle-transferencia-dev>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -130,13 +130,13 @@
       			this.$refs.ModalImportarTransferencia.mostrarModal(codigo, codigo_origen);
 
       			// ------------------------------------------------------------------------
-      		}, eliminarTransferencia(codigo){
+      		}, eliminarDevTransferencia(codigo){
 
       			// ------------------------------------------------------------------------
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaTransferencias').DataTable();
+      			var tableTransferencia = $('#tablaTransferenciasDev').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@
 
       			Swal.fire({
 				  title: 'Estas seguro ?',
-				  text: "Eliminar la Transferencia " + codigo + " !",
+				  text: "Eliminar la devolucion de Transferencia " + codigo + " !",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -153,7 +153,7 @@
 				  confirmButtonText: 'Si, eliminalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.eliminarTransferenciaCommon(codigo).then(data => {
+				    return Common.eliminarDevTransferenciaCommon(codigo).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -168,7 +168,7 @@
 				  if (result.value) {
 				  	Swal.fire(
 						      'Eliminado!',
-						      'Se ha eliminado la transferencia y devuelto el stock !',
+						      'Se ha eliminado la devolucion de transferencia y devuelto el stock !',
 						      'success'
 					)
 
@@ -185,13 +185,13 @@
 
 				// ------------------------------------------------------------------------
 
-      		}, enviarTransferencia(codigo){
+      		}, enviarDevTransferencia(codigo){
       			
       			// ------------------------------------------------------------------------
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaTransferencias').DataTable();
+      			var tableTransferencia = $('#tablaTransferenciasDev').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@
 
       			Swal.fire({
 				  title: 'Estas seguro ?',
-				  text: "Enviar la Transferencia " + codigo + " !",
+				  text: "Enviar la devolucion de Transferencia " + codigo + " !",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -207,7 +207,7 @@
 				  confirmButtonText: 'Si, envialo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.enviarTransferenciaCommon(codigo).then(data => {
+				    return Common.enviarDevTransferenciaCommon(codigo).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -222,7 +222,7 @@
 				  if (result.value) {
 				  	Swal.fire(
 						      'Enviado!',
-						      'Se ha enviado la transferencia correctamente !',
+						      'Se ha enviado la devolucion de transferencia correctamente !',
 						      'success'
 					)
 
@@ -315,25 +315,25 @@
 
             		// PREPARAR DATATABLE 
 
-	 				var tableTransferencia = $('#tablaTransferencias').DataTable({
+	 				var tableTransferencia = $('#tablaTransferenciasDev').DataTable({
                         "processing": true,
                         "serverSide": true,
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
                         "ajax":{
-                                 "url": "/transferencias",
+                                 "url": "/transferenciasDev",
                                  "dataType": "json",
                                  "type": "GET",
                                  "contentType": "application/json; charset=utf-8"
                                },
                         "columns": [
                             { "data": "CODIGO" },
+                            { "data": "CODIGO_TRANSFERENCIA" },
                             { "data": "ORIGEN" },
                             { "data": "DESTINO" },
-                            { "data": "NRO_CAJA" },
-                            { "data": "IVA" },
-                            { "data": "TOTAL" },
+                            { "data": "FECHA" },
+                            { "data": "HORA" },
                             { "data": "ESTATUS" },
                             { "data": "ACCION" }
                         ]      
@@ -343,7 +343,7 @@
 
                 	// EDITAR TRANSFERENCIA
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #editarTransferencia', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #editarTransferencia', function() {
 
 	                    // *******************************************************************
 
@@ -360,14 +360,14 @@
 
                     // ELIMINAR TRANSFERENCIA
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #eliminarTransferencia', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #eliminarTransferencia', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.eliminarTransferencia(tableTransferencia.row( row ).data().CODIGO);
+	                    me.eliminarDevTransferencia(tableTransferencia.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 
@@ -377,7 +377,7 @@
 
                     // GENERAR FACTURA
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #imprimirTransferencia', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #imprimirTransferencia', function() {
 
 	                    // *******************************************************************
 
@@ -421,7 +421,7 @@
 
                     // GENERAR REPORTE PDF
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #imprimirReporte', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #imprimirReporte', function() {
 
 	                    // *******************************************************************
 
@@ -446,14 +446,14 @@
 
                     // ENVIAR TRANSFERENCIA
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #enviarTransferencia', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #enviarTransferencia', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.enviarTransferencia(tableTransferencia.row( row ).data().CODIGO);
+	                    me.enviarDevTransferencia(tableTransferencia.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 
@@ -461,7 +461,7 @@
 
                     // ------------------------------------------------------------------------
 
-                    $('#tablaTransferencias').on('click', 'tbody tr #mostrarTransferencia', function() {
+                    $('#tablaTransferenciasDev').on('click', 'tbody tr #mostrarTransferencia', function() {
 
 	                    // *******************************************************************
 

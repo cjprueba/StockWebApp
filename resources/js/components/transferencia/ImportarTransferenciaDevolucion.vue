@@ -8,7 +8,7 @@
 			
 			<div class="col-md-12">
 				<vs-divider>
-					Importar Transferencias
+					Importar Transferencias Devueltas
 				</vs-divider>
 			</div>
 
@@ -26,16 +26,15 @@
 			<!-- ------------------------------------------------------------------------------------- -->
 
 			<div class="col-md-12">
-				<table id="tablaImportarTrans" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
+				<table id="tablaImportarTransDev" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
 		                    <th>Codigo</th>
-		                    <th>Codigo Origen</th>
+		                    <th>Codigo Transferencia</th>
 		                    <th>Origen</th>
-		                    <th>Responsable Envio</th>
+		                    <th>Destino</th>
 		                    <th>Fecha</th>
 		                    <th>Hora</th>
-		                    <th>Total</th>
 		                    <th>Estatus</th>
 		                    <th>Acción</th>
 		                </tr>
@@ -55,19 +54,13 @@
 
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
-		<modal-detalle-transferencia 
+		<modal-detalle-transferencia-dev-imp 
 		ref="ModalImportarTransferencia"
-		></modal-detalle-transferencia>
+		></modal-detalle-transferencia-dev-imp>
 
 		<!-- ------------------------------------------------------------------------ -->
 
-				<!-- ------------------------------------------------------------------------ -->
-
-		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
-
-		<modal-devolucion-transferencia 
-		ref="ModalDevolucionTransferencia"
-		></modal-devolucion-transferencia>
+			
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -105,23 +98,23 @@
 
       			// ------------------------------------------------------------------------
       		},
-      		 mostrarModalDevolucion(codigo, codigo_origen) {
+			mostrarModalTranferencia(codigo, codigo_origen) {
 
       			// ------------------------------------------------------------------------
 
       			// LLAMAR EL METODO DEL COMPONENTE HIJO
 
-      			this.$refs.ModalDevolucionTransferencia.mostrarModal(codigo, codigo_origen);
+      			this.$refs.ModalImportarTransferencia.mostrarModal(codigo, codigo_origen);
 
       			// ------------------------------------------------------------------------
-      		},
-      		rechazarTransferencia(codigo, codigo_origen){
+      		}, 
+      		rechazarDevTransferencia(codigo){
 
       			// ------------------------------------------------------------------------
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaImportarTrans').DataTable();
+      			var tableTransferencia = $('#tablaImportarTransDev').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -129,7 +122,7 @@
 
       			Swal.fire({
 				  title: 'Estas seguro ?',
-				  text: "Rechazar la Transferencia " + codigo + " !",
+				  text: "Rechazar la devolucion de Transferencia " + codigo + " !",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -138,7 +131,7 @@
 				  confirmButtonText: 'Si, rechazalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.rechazarTransferenciaCommon(codigo, codigo_origen).then(data => {
+				    return Common.rechazarDevTransferenciaCommon(codigo).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -153,7 +146,7 @@
 				  if (result.value) {
 				  	Swal.fire(
 						      'Rechazado !',
-						      'Se ha rechazado la transferencia y devuelto al origen !',
+						      'Se ha rechazado la devolucion de transferencia y ha regresado al origen !',
 						      'success'
 					)
 
@@ -171,13 +164,13 @@
 				// ------------------------------------------------------------------------
 
       		},
-      		importarTransferencia(codigo, codigo_origen){
+      		importarDevTransferencia(codigo){
 
       			// ------------------------------------------------------------------------
 
       			// INICIAR VARIABLES
 
-      			var tableTransferencia = $('#tablaImportarTrans').DataTable();
+      			var tableTransferencia = $('#tablaImportarTransDev').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -185,7 +178,7 @@
 
       			Swal.fire({
 				  title: 'Estas seguro ?',
-				  text: "Importar la Transferencia " + codigo + " !",
+				  text: "Importar la Devolucion de Transferencia " + codigo + " !",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
@@ -193,7 +186,7 @@
 				  confirmButtonText: 'Si, importalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.importarTransferenciaCommon(codigo, codigo_origen).then(data => {
+				    return Common.importarDevTransferenciaCommon(codigo).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -237,7 +230,7 @@
 
             		// PREPARAR DATATABLE 
 
-	 				var tableImportarTransferencia = $('#tablaImportarTrans').DataTable({
+	 				var tableImportarDevTransferencia = $('#tablaImportarTransDev').DataTable({
                         "processing": true,
                         "serverSide": true,
                         "destroy": true,
@@ -247,18 +240,17 @@
                         		 "data": {
                                     "_token": $('meta[name="csrf-token"]').attr('content')
                                  },
-                                 "url": "/transferencia/mostrar/importar",
+                                 "url": "/transferenciasDevImportar",
                                  "dataType": "json",
                                  "type": "POST"
                                },       
                         "columns": [
                             { "data": "CODIGO" },
-                            { "data": "CODIGO_ORIGEN", "visible": false },
+                            { "data": "CODIGO_TRANSFERENCIA" },
                             { "data": "ORIGEN" },
-                            { "data": "RESPONSABLE" },
+                            { "data": "DESTINO" },
                             { "data": "FECHA" },
                             { "data": "HORA" },
-                            { "data": "TOTAL" },
                             { "data": "ESTATUS" },
                             { "data": "ACCION" }
                         ]      
@@ -268,14 +260,14 @@
 
                 	// EDITAR TRANSFERENCIA
 
-                    $('#tablaImportarTrans').on('click', 'tbody tr #mostrarTransferencia', function() {
+                    $('#tablaImportarTransDev').on('click', 'tbody tr #mostrarTransferencia', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 
 	                   	 var row  = $(this).parents('tr')[0];
-	                   	 me.mostrarModalTranferencia(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+	                   	 me.mostrarModalTranferencia(tableImportarDevTransferencia.row( row ).data().CODIGO, tableImportarDevTransferencia.row( row ).data().CODIGO_ORIGEN);
 
 	                    // *******************************************************************
 
@@ -285,14 +277,14 @@
 
                     // ELIMINAR TRANSFERENCIA
 
-                    $('#tablaImportarTrans').on('click', 'tbody tr #rechazarTransferencia', function() {
+                    $('#tablaImportarTransDev').on('click', 'tbody tr #rechazarDevTransferencia', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.rechazarTransferencia(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+	                    me.rechazarDevTransferencia(tableImportarDevTransferencia.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 
@@ -302,14 +294,14 @@
 
                     // IMPORTAR TRANSFERENCIA
 
-                    $('#tablaImportarTrans').on('click', 'tbody tr #importarTransferencia', function() {
+                    $('#tablaImportarTransDev').on('click', 'tbody tr #importarDevTransferencia', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.importarTransferencia(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+	                    me.importarDevTransferencia(tableImportarDevTransferencia.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 
@@ -319,7 +311,7 @@
 
                     // GENERAR REPORTE PDF
 
-                    $('#tablaImportarTrans').on('click', 'tbody tr #imprimirReporte', function() {
+                    $('#tablaImportarTransDev').on('click', 'tbody tr #imprimirReporte', function() {
 
 	                    // *******************************************************************
 
@@ -327,7 +319,7 @@
 
 	                   	me.procesar = true;
 	                   	var row  = $(this).parents('tr')[0];
-	                   	Common.generarRptPdfTransferenciaCommon(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN).then( () => {
+	                   	Common.generarRptPdfTransferenciaCommon(tableImportarDevTransferencia.row( row ).data().CODIGO, tableImportarDevTransferencia.row( row ).data().CODIGO_ORIGEN).then( () => {
 	                   		me.procesar = false;
 	                   	});
 	                   	
@@ -335,7 +327,7 @@
 	                    // *******************************************************************
 
 	                });
-	                    $('#tablaImportarTrans').on('click', 'tbody tr #devolucion', function() {
+	                    $('#tablaImportarTransDev').on('click', 'tbody tr #devolucion', function() {
 
 
 	                    // *******************************************************************
@@ -344,7 +336,7 @@
 
 	                    
 	                   	var row  = $(this).parents('tr')[0];
-                        me.mostrarModalDevolucion(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+                        me.mostrarModalDevolucion(tableImportarDevTransferencia.row( row ).data().CODIGO, tableImportarDevTransferencia.row( row ).data().CODIGO_ORIGEN);
                       
 
 	                    // *******************************************************************

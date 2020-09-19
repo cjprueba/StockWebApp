@@ -29,6 +29,7 @@ export default new Router({
 			name: 'transferenciaImportar',
 			component: require('./components/transferencia/ImportarTransferencia.vue').default
 		},
+
 		{
 			path: '/in1',
 			name: 'inventarioMostrar',
@@ -328,6 +329,16 @@ export default new Router({
 			path: '/pd3',
 			name: 'pdMostrar',
 			component: require('./components/pedido/MostrarPedido.vue').default
+		},
+		{
+			path: '/tr4',
+			name: 'transferenciaMostrarDevolucion',
+			component: require('./components/transferencia/MostrarDevolucionTransferencias.vue').default
+		},
+		{
+			path: '/tr5',
+			name: 'transferenciaImportarDevolucion',
+			component: require('./components/transferencia/ImportarTransferenciaDevolucion.vue').default
 		}
 
 	],

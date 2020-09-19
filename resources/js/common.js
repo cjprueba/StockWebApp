@@ -4906,6 +4906,121 @@ function obtenerProductoOfertaCommon(sucursal){
 
 	// ------------------------------------------------------------------------
 }
+function devolverTransferenciaCommon(codigo_tr,marcado){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('devolver_transferencia', { 'codigos':codigo_tr,'marcados':marcado}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+function marcarTodoTransferenciaCommon(codigo_tr){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('marcar_transferencia_devolucion', { 'codigos':codigo_tr}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+function enviarDevTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaEnviar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function eliminarDevTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaEliminar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function importarDevTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/DevtransferenciaImportar', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function rechazarDevTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaRechazar', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5116,5 +5231,11 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
-		obtenerProductoOfertaCommon
+		obtenerProductoOfertaCommon,
+		devolverTransferenciaCommon,
+		marcarTodoTransferenciaCommon,
+		enviarDevTransferenciaCommon,
+		eliminarDevTransferenciaCommon,
+		importarDevTransferenciaCommon,
+		rechazarDevTransferenciaCommon 
 		};

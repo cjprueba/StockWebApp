@@ -53,16 +53,14 @@ if ($this->hojas==1){
             DB::raw('(SUM(TRANSFERENCIAS_DET.CANTIDAD)*LOTES.COSTO) AS PRECOSTO_TOTAL'),
             DB::raw ('SUM(TRANSFERENCIAS_DET.TOTAL*T.CAMBIO) AS PRECIO_VENTA'),
             DB::raw('TRANSFERENCIAS_DET.PRECIO*T.CAMBIO as PRECIO_UNIT_VENTA'))
-          
+
+         
                 ->leftjoin('TRANSFERENCIAS AS T',function($join){
           $join->on('T.CODIGO','=','TRANSFERENCIAS_DET.CODIGO')
                ->on('TRANSFERENCIAS_DET.ID_SUCURSAL','=','T.ID_SUCURSAL');
                })
-                  ->leftjoin('LOTES',function($join){
-             $join->on('TRANSFERENCIAS_DET.LOTE','=','LOTES.LOTE')
-             ->on('TRANSFERENCIAS_DET.CODIGO_PROD','=','LOTES.COD_PROD');
-              
-                 })
+            ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','TRANSFERENCIAS_DET.ID')
+            ->leftjoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
          ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
          ->leftJoin('PRODUCTOS_AUX', 'PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
          ->WHERE([['PRODUCTOS_AUX.ID_SUCURSAL','=',$this->sucursal],
@@ -77,8 +75,9 @@ if ($this->hojas==1){
          ->GROUPBY('T.CAMBIO')
          ->get()
          ->toArray();
+      
 
-
+           
 
 $this->info[0]=array(
                  
@@ -102,13 +101,13 @@ $this->info[0]=array(
             DB::raw('LINEAS.DESCRIPCION AS descrili')
           )
          ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
-          ->leftJoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
-           ->leftJoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
-            ->leftjoin('TRANSFERENCIAS',function($join){
+         ->leftJoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+         ->leftJoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+         ->leftjoin('TRANSFERENCIAS',function($join){
           $join->on('TRANSFERENCIAS.CODIGO','=','TRANSFERENCIAS_DET.CODIGO')
                ->on('TRANSFERENCIAS_DET.ID_SUCURSAL','=','TRANSFERENCIAS.ID_SUCURSAL');
-               })
-         ->WHERE('TRANSFERENCIAS.SUCURSAL_DESTINO','=',$this->sucursal)
+          })
+        ->WHERE('TRANSFERENCIAS.SUCURSAL_DESTINO','=',$this->sucursal)
         ->whereBetween('TRANSFERENCIAS.FECMODIF', [$this->inicio, $this->final])
         ->GROUPBY ('PRODUCTOS.MARCA')
         ->GROUPBY ('PRODUCTOS.LINEA')
