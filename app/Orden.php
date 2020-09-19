@@ -150,8 +150,8 @@ class Orden extends Model
                 $cliente = strtolower($post->CLIENTE.' '.$post->APELLIDOS);
                 $ciudad = strtolower($post->CIUDAD);
                 $nestedData['ORDEN_ID'] = $post->ORDEN_ID;
-                $nestedData['CLIENTE'] = ucwords($cliente);
-                $nestedData['CIUDAD'] = ucwords($ciudad);
+                $nestedData['CLIENTE'] = ucwords(utf8_encode($cliente));
+                $nestedData['CIUDAD'] = ucwords(utf8_encode($ciudad));
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] =Common::formato_precio($post->TOTAL,0);
