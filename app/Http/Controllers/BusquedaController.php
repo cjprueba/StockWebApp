@@ -31,7 +31,7 @@ class BusquedaController extends Controller
 
         /*  *********** SUCURSALES *********** */
 
-        $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))
+        $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))-> where('CODIGO','=',$user->id_sucursal)
         ->orderBy('CODIGO')
         ->get();
 

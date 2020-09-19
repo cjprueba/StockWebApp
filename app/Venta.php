@@ -2723,6 +2723,7 @@ class Venta extends Model
                         'VENTAS.CODIGO,
                         VENTAS.FECALTAS,  
                         CLIENTES.NOMBRE AS CLIENTE,
+                        CLIENTES.RAZON_SOCIAL,
                         CLIENTES.DIRECCION,
                         CLIENTES.RUC,
                         CLIENTES.CI,
@@ -2778,6 +2779,14 @@ class Venta extends Model
 
         if ($venta[0]->TELEFONO === '' || $venta[0]->TELEFONO === null) {
             $venta[0]->TELEFONO = $venta[0]->CELULAR;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RAZON SOCIAL
+
+        if ($venta[0]->RAZON_SOCIAL !== '' && $venta[0]->RAZON_SOCIAL !== null) {
+            $venta[0]->CLIENTE = $venta[0]->RAZON_SOCIAL;
         }
 
         /*  --------------------------------------------------------------------------------- */
