@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Venta;
+use App\VentaAbono;
 
 class Cliente extends Model
 {
@@ -33,6 +34,7 @@ class Cliente extends Model
                             4 => 'DIRECCION',
                             5 => 'CIUDAD',
                             6 => 'TELEFONO',
+                            7 => 'TIPO'
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -64,7 +66,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -85,7 +87,7 @@ class Cliente extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
@@ -133,7 +135,8 @@ class Cliente extends Model
                 $nestedData['DIRECCION'] = $post->DIRECCION;
                 $nestedData['CIUDAD'] = $post->CIUDAD;
                 $nestedData['TELEFONO'] = $post->TELEFONO;
-
+                $nestedData['TIPO'] = $post->TIPO;
+                
                 $data[] = $nestedData;
 
                 /*  --------------------------------------------------------------------------------- */
@@ -172,9 +175,12 @@ class Cliente extends Model
                         0 => 'id',
                         1 => 'nombre',
                         2 => 'codigo',
-                        3 => 'ruc',
-                        4 => 'direccion',
-                        5 => 'ciudad',
+                        3 => 'ci',
+                        4 => 'ruc',
+                        5 => 'telefono',
+                        6 => 'razon_social',
+                        7 => 'direccion',
+                        8 => 'ciudad'
                     );
         
         /*  --------------------------------------------------------------------------------- */
@@ -201,7 +207,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
+            $posts = Cliente::select(DB::raw('ID, NOMBRE, CODIGO, CI, RUC, TELEFONO, RAZON_SOCIAL, DIRECCION, CIUDAD'))
                          ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -218,11 +224,15 @@ class Cliente extends Model
 
             // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
 
-            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, RUC, DIRECCION, CIUDAD'))
+            $posts =Cliente::select(DB::raw('ID, NOMBRE, CODIGO, CI, RUC, TELEFONO, RAZON_SOCIAL, DIRECCION, CIUDAD'))
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")  
+                                      ->orWhere('CI', 'LIKE',"%{$search}%")   
+                                      ->orWhere('RAZON_SOCIAL', 'LIKE',"%{$search}%");
+
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->offset($start)
@@ -235,7 +245,10 @@ class Cliente extends Model
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")                                       
+                                      ->orWhere('CI', 'LIKE',"%{$search}%")                                          
+                                      ->orWhere('RAZON_SOCIAL', 'LIKE',"%{$search}%");
                             })->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
@@ -256,10 +269,14 @@ class Cliente extends Model
 
              // CARGA EN LA VARIABLE 
 
+                $cliente = strtolower($post->NOMBRE);
                 $nestedData['ID'] = $post->ID;
-                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['NOMBRE'] = ucwords($cliente);
                 $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CI'] = $post->CI;
                 $nestedData['RUC'] = $post->RUC;
+                $nestedData['TELEFONO'] = $post->TELEFONO;
+                $nestedData['RAZON_SOCIAL'] = $post->RAZON_SOCIAL;
                 $nestedData['DIRECCION'] = $post->DIRECCION;
                 $nestedData['CIUDAD'] = $post->CIUDAD;
 
@@ -304,10 +321,12 @@ class Cliente extends Model
                         CLIENTES.CELULAR, 
                         CLIENTES.EMAIL, 
                         CLIENTES.TIPO, 
+                        CLIENTES.RAZON_SOCIAL,
                         CLIENTES.LIMITE_CREDITO,
                         CLIENTES.FK_EMPRESA,
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
-                        EMPRESAS.NOMBRE AS EMPRESA'))
+                        EMPRESAS.NOMBRE AS EMPRESA,
+                        CLIENTES.CREDITO_DISPONIBLE'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -327,13 +346,37 @@ class Cliente extends Model
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
 
+         
         try {
+
+            /*  --------------------------------------------------------------------------------- */
 
             // CONTROLA QUE NO EXISTA PARA INSERTAR
 
             if($datos['data']['existe']=== false){
 
+                /*  --------------------------------------------------------------------------------- */
+
+                // VERIFICAR RUC
+
+                 $ruc = Cliente::verificarRuc($datos['data']['ruc']);
+
+                 if($ruc['response'] == false){
+
+                    return $ruc;
+                 }
+                  /*  --------------------------------------------------------------------------------- */
+
+                  // VERIFICAR CI
+
+                  $ci = Cliente::verificarCI($datos['data']['cedula']);
+
+                 if($ci['response'] == false){
+                    return $ci;
+                 }
+                  /*  --------------------------------------------------------------------------------- */
                 // GUARDA LOS DATOS
+
                 $codigo = Cliente::select('CODIGO')
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->orderby('CODIGO','DESC')
@@ -347,6 +390,7 @@ class Cliente extends Model
                 'NOMBRE'=> $datos['data']['name'],
                 'RUC'=> $datos['data']['ruc'],
                 'DIRECCION' => $datos['data']['direccion'],
+                'RAZON_SOCIAL' => $datos['data']['razonSocial'],
                 'CIUDAD' => $datos['data']['ciudad'],
                 'TELEFONO' => $datos['data']['telefono'],
                 'CELULAR' => $datos['data']['celular'],
@@ -362,24 +406,56 @@ class Cliente extends Model
 
             }else{
 
-                // ACTUALIZA LOS DATOS
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER ID CLIENTE 
+
+                $id_cliente = (Cliente::id_cliente($datos['data']['codigo']))['ID_CLIENTE'];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER SALDO
+
+                $cliente = (Cliente::obtenerSaldo($id_cliente))["cliente"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // RETORNAR SALDO 
+
+                if ($cliente->SALDO > $datos['data']['limite']) {
+                    return ["response" => false, "statusText" => "Error, tu limite no puede ser menor a tu saldo"];
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // MODFICAR CLIENTE 
 
                 $cliente = Cliente::Where('CODIGO','=',$datos['data']['codigo'])->where('ID_SUCURSAL', '=', $user->id_sucursal)
                     ->update(['CI' => $datos['data']['cedula'],
                     'NOMBRE'=> $datos['data']['name'],
                     'RUC'=> $datos['data']['ruc'],
                     'DIRECCION' => $datos['data']['direccion'],
+                    'RAZON_SOCIAL' => $datos['data']['razonSocial'],
                     'CIUDAD' => $datos['data']['ciudad'],
                     'TELEFONO' => $datos['data']['telefono'],
                     'CELULAR' => $datos['data']['celular'],
                     'EMAIL' => $datos['data']['email'],
                     'TIPO' => $datos['data']['tipo'],
                     'LIMITE_CREDITO' => $datos['data']['limite'],
+                    'DIAS_CREDITO' => $datos['data']['diaLimite'],
                     'FK_EMPRESA' => $datos['data']['idEmpresa'],
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
                     'HORMODIF'=>$hora]);
                 }
+
+                 /*  --------------------------------------------------------------------------------- */
+
+                // ACTUALIZAR CREDITO 
+
+                Cliente::actualizarCredito($id_cliente);
+
+                /*  --------------------------------------------------------------------------------- */
 
             // ENVIA UNA RESPUESTA A LA FUNCION
 
@@ -392,6 +468,7 @@ class Cliente extends Model
             return ["response"=>false,'statusText'=>$ex->getMessage()];
         }
     }
+
     
     public static function nuevoCliente(){
 
@@ -422,6 +499,13 @@ class Cliente extends Model
             // ELIMINA SI EXISTE
 
             if ($datos['data']['existe']=== true){
+
+                $venta = Cliente::existe_venta($datos['data']['codigo']);
+
+                if($venta['response'] == false){
+
+                    return $venta;
+                }
 
                 $clientes= Cliente::Where('CODIGO','=',$datos['data']['codigo'])
                 ->where('NOMBRE','=', $datos['data']['nombre'])
@@ -465,6 +549,7 @@ class Cliente extends Model
                     ))
         ->where('ID_SUCURSAL','=', $user->id_sucursal)
         ->where('CLIENTE','=', $codigo)
+        ->limit(1)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -473,10 +558,10 @@ class Cliente extends Model
 
         if(count($cliente) > 0){
 
-            return true;
+            return ["response"=>false,'statusText'=> 'Existe una venta con este cliente'];
         } else {
 
-            return false;
+            return ["response"=>true];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -495,7 +580,7 @@ class Cliente extends Model
         $cliente = Cliente::select(
                                     'CODIGO'
                                 )
-                        ->where('RUC', 'LIKE', $ruc)
+                        ->where('RUC', '=', $ruc)
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->limit(1)
                         ->get()
@@ -503,11 +588,14 @@ class Cliente extends Model
 
         // RETORNAR EL VALOR
 
-        if(count($cliente) > 0){
+        if(count($cliente) > 0 && !empty($ruc)){
 
-            return true;
+            return  ["response"=>false,'statusText'=> 'Ya existe un cliente con RUC: '.$data];
         } else {
-            return false;
+
+            // MUESTRA QUE YA EXISTE
+
+            return ["response"=>true];
 
         }
 
@@ -526,7 +614,7 @@ class Cliente extends Model
         $cliente = Cliente::select(
                                     'CODIGO'
                                 )
-                        ->where('CI', 'LIKE', $ci)
+                        ->where('CI', '=', $ci)
                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->limit(1)
                         ->get()
@@ -534,11 +622,14 @@ class Cliente extends Model
 
         // RETORNAR EL VALOR
 
-        if(count($cliente) > 0){
+        if(count($cliente) > 0 && !empty($ci)){
 
-            return true;
+             return  ["response"=>false,'statusText'=> 'Ya existe un cliente registrado con C.I: '.$data];
         } else {
-            return false;
+
+            // MUESTRA QUE NO EXISTE
+
+            return ["response"=>true];
 
         }
 
@@ -553,12 +644,13 @@ class Cliente extends Model
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
-
+        
         // OBTENER TODAS LOS CLIENTES
 
-        $cliente= Cliente::select(DB::raw('LIMITE_CREDITO, DIAS_CREDITO, CREDITO_DISPONIBLE'))
+        $cliente= Cliente::select(DB::raw('IFNULL(LIMITE_CREDITO,0) AS LIMITE_CREDITO, IFNULL(DIAS_CREDITO,0) DIAS_CREDITO, IFNULL(CREDITO_DISPONIBLE,0) AS CREDITO_DISPONIBLE'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-        ->Where('ID','=',$datos['data'])->get();
+        ->where('CODIGO','=',$datos['data'])
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -566,7 +658,7 @@ class Cliente extends Model
 
         if(count($cliente) > 0){
 
-            return ["response" => true, "cliente" => $cliente];
+            return ["response" => true, "cliente" => $cliente[0], "disponible"];
 
         } else {
 
@@ -594,7 +686,7 @@ class Cliente extends Model
                         1 => 'CLIENTES.NOMBRE',
                         2 => 'CLIENTES.CELULAR',
                         3 => 'CLIENTES.TELEFONO',
-                        4 => 'MONTO',
+                        4 => 'DEUDA',
                     );
         
         /*  --------------------------------------------------------------------------------- */
@@ -602,8 +694,10 @@ class Cliente extends Model
         // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
 
         $totalData = Venta::rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+                         ->where('VENTAS_CREDITO.SALDO', '>', 0)
                          ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
-                         ->groupBy('VENTAS.CLIENTE')
+                         ->groupBy('VENTAS.CLIENTE', 'MONEDAS.CODIGO')
                          ->get();
 
 
@@ -627,14 +721,16 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO , SUM(VENTAS_CREDITO.MONTO) AS MONTO'))
+            $posts = Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO, SUM(VENTAS_CREDITO.MONTO) AS MONTO, SUM(VENTAS_CREDITO.PAGO) AS PAGO, SUM(VENTAS_CREDITO.SALDO) AS DEUDA, VENTAS.MONEDA, MONEDAS.CANDEC'))
                          ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
+                         ->where('VENTAS_CREDITO.SALDO', '>', 0)
                          ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
-                         ->groupBy('VENTAS.CLIENTE')
+                         ->groupBy('VENTAS.CLIENTE', 'MONEDAS.CODIGO')
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -649,8 +745,9 @@ class Cliente extends Model
             $search = $request->input('search.value'); 
 
             // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
-            $posts =        Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO , SUM(VENTAS_CREDITO.MONTO) AS MONTO'))
+            $posts =        Venta::select(DB::raw('VENTAS.CLIENTE,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO, SUM(VENTAS_CREDITO.MONTO) AS MONTO, SUM(VENTAS_CREDITO.PAGO) AS PAGO, SUM(VENTAS_CREDITO.MONTO) AS DEUDA, VENTAS.MONEDA, MONEDA.CANDEC'))
                             ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                             ->leftJoin('CLIENTES', function($join){
                                 $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
                                      ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
@@ -659,8 +756,9 @@ class Cliente extends Model
                                 $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             })
+                            ->where('VENTAS_CREDITO.SALDO', '>', 0)
                             ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
-                            ->groupBy('VENTAS.CLIENTE')
+                            ->groupBy('VENTAS.CLIENTE', 'MONEDAS.CODIGO')
                             ->offset($start)
                             ->limit($limit)
                             ->orderBy($order,$dir)
@@ -677,8 +775,9 @@ class Cliente extends Model
                                 $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             })
+                            ->where('VENTAS_CREDITO.SALDO', '>', 0)
                             ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
-                            ->groupBy('VENTAS.CLIENTE')
+                            ->groupBy('VENTAS.CLIENTE', 'VENTA.MONEDA')
                              ->count();
 
             /*  ************************************************************ */  
@@ -703,7 +802,14 @@ class Cliente extends Model
                 $nestedData['NOMBRE'] = $post->NOMBRE;
                 $nestedData['CELULAR'] = $post->CELULAR;
                 $nestedData['TELEFONO'] = $post->TELEFONO;
-                $nestedData['MONTO'] = $post->MONTO;
+                $nestedData['DEUDA'] = Common::precio_candec_sin_letra($post->DEUDA, $post->MONEDA);
+                $nestedData['PAGO'] = Common::precio_candec_sin_letra($post->PAGO, $post->MONEDA);
+                $nestedData['MONTO'] = Common::precio_candec_sin_letra($post->MONTO, $post->MONEDA);
+                $nestedData['DEUDA_CRUDO'] = $post->DEUDA;
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['CANDEC'] = $post->CANDEC;
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='abonar' title='Detalle'><i class='fa fa-cash-register' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
 
                 $data[] = $nestedData;
 
@@ -733,6 +839,174 @@ class Cliente extends Model
 
     }
 
+    public static function credito_cliente_datatable_detalle($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                        0 => 'VENTAS.ID',
+                        1 => 'VENTAS.FECALTAS',
+                        2 => 'CLIENTES.CELULAR',
+                        3 => 'CLIENTES.TELEFONO',
+                        4 => 'DEUDA',
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $codigo = $request->input('codigo');
+        $dia = date("Y-m-d");
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = Venta::rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                         ->where('VENTAS.CLIENTE', '=', $codigo)
+                         // ->where('VENTAS_CREDITO.SALDO', '>', 0)
+                         ->get();
+
+
+        $totalData = count($totalData);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Venta::select(DB::raw('VENTAS.ID,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO , VENTAS_CREDITO.MONTO AS DEUDA, VENTAS.FECALTAS, VENTAS_CREDITO.FECHA_CREDITO_FIN, VENTAS_CREDITO.PAGO, VENTAS_CREDITO.SALDO, VENTAS.MONEDA'))
+                         ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                         ->leftJoin('CLIENTES', function($join){
+                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
+                         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                         ->where('VENTAS.CLIENTE', '=', $codigo)
+                         // ->where('VENTAS_CREDITO.SALDO', '>', 0)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+            $posts =        Venta::select(DB::raw('VENTAS.ID,  CLIENTES.NOMBRE, CLIENTES.CELULAR, CLIENTES.TELEFONO ,VENTAS_CREDITO.MONTO AS DEUDA, VENTAS.FECALTAS, VENTAS_CREDITO.FECHA_CREDITO_FIN, VENTAS_CREDITO.PAGO, VENTAS_CREDITO.SALDO, VENTAS.MONEDA'))
+                            ->rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->where('VENTAS.CLIENTE', '=', $codigo)
+                            // ->where('VENTAS_CREDITO.SALDO', '>', 0)
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = Venta::rightjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CLIENTE','LIKE',"%{$search}%")
+                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+                            ->where('VENTAS.CLIENTE', '=', $codigo)
+                            // ->where('VENTAS_CREDITO.SALDO', '>', 0)
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->ID;
+                $nestedData['DEUDA'] = Common::precio_candec($post->DEUDA, $post->MONEDA);
+                $nestedData['VENCIMIENTO'] = $post->FECHA_CREDITO_FIN;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['PAGO'] = Common::precio_candec($post->PAGO, $post->MONEDA);
+                $nestedData['SALDO'] =  Common::precio_candec($post->SALDO, $post->MONEDA);
+
+                if ($post->FECHA_CREDITO_FIN <= $dia) {
+                    $nestedData['ESTATUS'] = 'table-danger';
+                } else if ($post->SALDO > 0) {
+                    $nestedData['ESTATUS'] = 'table-warning';
+                } else {
+                    $nestedData['ESTATUS'] = 'table-success';
+                }
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     public static function empresasDatatable($request){
 
         // INICIARA VARIABLES
@@ -848,5 +1122,231 @@ class Cliente extends Model
 
         /*  --------------------------------------------------------------------------------- */
         
+    }
+
+    public static function id_cliente($codigo){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER ID CLIENTE 
+
+        $id = Cliente::select('ID')
+        ->where('CODIGO', '=', $codigo)
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR ID CLIENTE 
+
+        return ['ID_CLIENTE' => $id[0]->ID];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function credito_cliente_datatable_abono($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                        0 => 'VENTAS_ABONO.ID',
+                        1 => 'VENTAS_ABONO.FECHA',
+                        2 => 'VENTAS_ABONO.PAGO',
+                        3 => 'VENTAS_ABONO.SALDO'
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $codigo = $request->input('codigo');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER ID CLIENTE 
+
+        $id = (Cliente::id_cliente($codigo))['ID_CLIENTE'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = VentaAbono::where('VENTAS_ABONO.FK_CLIENTE', '=', $id)
+                         ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = VentaAbono::select(DB::raw('VENTAS_ABONO.ID,  VENTAS_ABONO.FECHA, VENTAS_ABONO.PAGO, VENTAS_ABONO.SALDO, VENTAS_ABONO.MONEDA'))
+                         ->where('VENTAS_ABONO.FK_CLIENTE', '=', $id)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+            $posts =        VentaAbono::select(DB::raw('VENTAS_ABONO.ID,  VENTAS_ABONO.FECHA, VENTAS_ABONO.PAGO, VENTAS_ABONO.SALDO, VENTAS_ABONO.MONEDA'))
+                            ->where('VENTAS_ABONO.FK_CLIENTE', '=', $id)
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = Venta::where('VENTAS_ABONO.FK_CLIENTE', '=', $id)
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS_ABONO.PAGO','LIKE',"%{$search}%")
+                                      ->orWhere('VENTAS_ABONO.FECHA', 'LIKE',"%{$search}%");
+                            })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->ID;
+                $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['PAGO'] = Common::precio_candec($post->PAGO, $post->MONEDA);
+                $nestedData['SALDO'] =  Common::precio_candec($post->SALDO, $post->MONEDA);
+
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function obtenerSaldo($cliente_id){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $disponible = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $cliente = Cliente::select(DB::raw('CLIENTES.LIMITE_CREDITO AS LIMITE, SUM(VENTAS_CREDITO.SALDO) AS SALDO'))
+        ->leftJoin('VENTAS', function($join){
+                            $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+        })
+        ->leftjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
+        ->where('CLIENTES.ID', '=', $cliente_id)
+        ->where('VENTAS_CREDITO.SALDO', '>', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if($cliente[0]->SALDO === null) {
+            $cliente[0]->SALDO = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true, "cliente" => $cliente[0], "statusText" => "Se obtuvo los datos de crédito"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function actualizarCredito($cliente_id){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $cliente = (Cliente::obtenerSaldo($cliente_id))["cliente"];
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CALCULAR DISPONIBLE
+       
+        $disponible = $cliente->LIMITE - $cliente->SALDO;
+
+         /*  --------------------------------------------------------------------------------- */
+
+        $cliente = Cliente::where('ID', '=', $cliente_id)
+        ->update([
+            'CREDITO_DISPONIBLE' => $disponible
+        ]);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true, "statusText" => "Se actualizo correctamente el credito"];
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

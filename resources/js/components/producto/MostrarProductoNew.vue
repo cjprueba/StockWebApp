@@ -246,7 +246,7 @@
 
                 <div class="col-md-4 order-md-1 col-lg-3 sidebar-filter">
                   <label>BUSQUEDA</label>
-                  <input type="text" class="form-control mb-3" name="" v-model="opciones.busqueda" v-on:keyup="mostrarProductos()">
+                  <input type="text" class="form-control mb-3" name="" v-model="opciones.busqueda">
 
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" v-model="opciones.tipo" name="inlineRadioOptions" id="inlineRadio1" value="1">
@@ -257,7 +257,7 @@
                     <input class="form-check-input" type="radio" v-model="opciones.tipo" name="inlineRadioOptions" id="inlineRadio2" value="2">
                     <label class="form-check-label" for="inlineRadio2">DESCRIPCION</label>
                   </div>
-                  <a href="#" class="btn btn-sm btn-block btn-primary btn-sm mb-3 mt-3" v-on:click="mostrarProductos()">Actualizar Resultados</a>
+                  <a href="#" class="btn btn-sm btn-block btn-primary btn-sm mb-3 mt-3" v-on:click="actualizar()">Actualizar Resultados</a>
                   <!-- <h5 class="mt-0 mb-5">Mostrando <span class="text-primary">{{opciones.limite}}</span> Productos</h5> -->
                   <hr/>
 
@@ -456,6 +456,18 @@
           // ------------------------------------------------------------------------
 
         },
+        actualizar(){
+
+          // ------------------------------------------------------------------------
+
+          // ACTUALIZAR RESULTADOS 
+
+          this.opciones.filas = 1;
+          this.mostrarProductos();
+
+          // ------------------------------------------------------------------------
+
+        },
         mostrarProductos(){
 
           // ------------------------------------------------------------------------
@@ -527,10 +539,6 @@
 
           // ------------------------------------------------------------------------
 
-        },
-        actualizar(){
-          console.log(this.checked.categorias);
-          console.log(this.checked.marcas);
         },
         ordenarPor(opcion){
 
@@ -628,6 +636,7 @@
           this.listar.activo_ofertas = 'active';
           this.listar.activo_general = '';
           this.listar.activo_nuevos = '';
+          this.opciones.filas = 1;
           this.mostrarProductos();
 
           // ------------------------------------------------------------------------
@@ -643,6 +652,7 @@
           this.listar.activo_ofertas = '';
           this.listar.activo_general = 'active';
           this.listar.activo_nuevos = '';
+          this.opciones.filas = 1;
           this.mostrarProductos();
 
           // ------------------------------------------------------------------------

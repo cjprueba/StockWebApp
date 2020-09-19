@@ -32,12 +32,12 @@ class Orden extends Model
 
         $columns = array( 
                             0 => 'ORDEN_ID', 
-                            1 => 'CLIENTE', 
-                            3 => 'CIUDAD',
-                            2 => 'FECHA',
-                            3 => 'HORA',
+                            1 => 'NOMBRES', 
+                            2 => 'CIUDAD',
+                            3 => 'WP_ORDEN.FECALTAS',
+                            4 => 'WP_ORDEN.HORALTAS',
                             5 => 'TOTAL',
-                            6 => 'ESTADO',
+                            6 => 'WP_ORDEN.ESTADO',
                             7 => 'ACCION'
                         );
         
@@ -57,6 +57,9 @@ class Orden extends Model
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
         
+        if($request->input('draw') == '1'){
+            $dir = 'DESC';
+        }
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
@@ -79,7 +82,6 @@ class Orden extends Model
             	WP_ORDEN.ESTADO AS ESTADO, 
             	WP_ORDEN.MONEDA'))
             ->leftjoin('WP_SHIPPING', 'WP_SHIPPING.ORDEN_ID', '=', 'WP_ORDEN.ORDEN_ID')
-                         ->orderBy('WP_ORDEN.ORDEN_ID','DESC')
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -145,9 +147,11 @@ class Orden extends Model
 
                 // CARGAR EN LA VARIABLE 
 
+                $cliente = strtolower($post->CLIENTE.' '.$post->APELLIDOS);
+                $ciudad = strtolower($post->CIUDAD);
                 $nestedData['ORDEN_ID'] = $post->ORDEN_ID;
-                $nestedData['CLIENTE'] = $post->CLIENTE.' '.$post->APELLIDOS;
-                $nestedData['CIUDAD'] = $post->CIUDAD;
+                $nestedData['CLIENTE'] = ucwords(utf8_encode($cliente));
+                $nestedData['CIUDAD'] = ucwords(utf8_encode($ciudad));
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] =Common::formato_precio($post->TOTAL,0);
@@ -289,10 +293,11 @@ class Orden extends Model
 
         $columns = array( 
                             0 => 'SKU',
-                            1 => 'DESCRIPCION',
-                            2 => 'CANTIDAD',
-                            3 => 'PRECIO',
-                            4 => 'TOTAL'
+                            1 => 'SKU',
+                            2 => 'DESCRIPCION',
+                            3 => 'CANTIDAD',
+                            4 => 'PRECIO',
+                            5 => 'WP_ORDEN_DET.TOTAL'
                             // 5 => 'PORC_DESCUENTO',
                             // 6 => 'TOTAL_DESCUENTO'
                         );
@@ -301,9 +306,9 @@ class Orden extends Model
 
         // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
 
-        $totalData = DB::connection('retail')->table('wp_orden_det as od')
-                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'od.SKU')
-                    ->where('od.ORDEN_ID','=', $codigo)
+        $totalData = DB::connection('retail')->table('WP_ORDEN_DET')
+                    ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'WP_ORDEN_DET.SKU')
+                    ->where('WP_ORDEN_DET.ORDEN_ID','=', $codigo)
                     ->count();  
         
         /*  --------------------------------------------------------------------------------- */
@@ -327,17 +332,17 @@ class Orden extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = DB::connection('retail')->table('wp_orden_det as od')
-                         ->select(DB::raw('od.SKU, 
+            $posts = DB::connection('retail')->table('WP_ORDEN_DET')
+                         ->select(DB::raw('WP_ORDEN_DET.SKU, 
                          	PRODUCTOS.DESCRIPCION, 
-                         	od.CANTIDAD, 
-                         	od.PRECIO, 
-                         	od.SUBTOTAL, 
-                         	od.TOTAL, 
+                         	WP_ORDEN_DET.CANTIDAD, 
+                         	WP_ORDEN_DET.PRECIO, 
+                         	WP_ORDEN_DET.SUBTOTAL, 
+                         	WP_ORDEN_DET.TOTAL, 
                          	WP_ORDEN.MONEDA'))
-                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'od.SKU')
-                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'od.ORDEN_ID')
-                         ->where('od.ORDEN_ID','=', $codigo)
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'WP_ORDEN_DET.SKU')
+                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'WP_ORDEN_DET.ORDEN_ID')
+                         ->where('WP_ORDEN_DET.ORDEN_ID','=', $codigo)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -358,19 +363,19 @@ class Orden extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  DB::connection('retail')->table('wp_orden_det as od')
-                         ->select(DB::raw('od.SKU, 
+            $posts =  DB::connection('retail')->table('WP_ORDEN_DET')
+                         ->select(DB::raw('WP_ORDEN_DET.SKU, 
                          	PRODUCTOS.DESCRIPCION, 
-                         	od.CANTIDAD, 
-                         	od.PRECIO, 
-                         	od.SUBTOTAL, 
-                         	od.TOTAL, 
+                         	WP_ORDEN_DET.CANTIDAD, 
+                         	WP_ORDEN_DET.PRECIO, 
+                         	WP_ORDEN_DET.SUBTOTAL, 
+                         	WP_ORDEN_DET.TOTAL, 
                          	WP_ORDEN.MONEDA'))
-                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'od.SKU')
-                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'od.ORDEN_ID')
-                         ->where('od.ORDEN_ID','=', $codigo)
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'WP_ORDEN_DET.SKU')
+                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'WP_ORDEN_DET.ORDEN_ID')
+                         ->where('WP_ORDEN_DET.ORDEN_ID','=', $codigo)
                          ->where(function ($query) use ($search) {
-                                $query->where('od.SKU','LIKE',"%{$search}%")
+                                $query->where('WP_ORDEN_DET.SKU','LIKE',"%{$search}%")
                                       ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
@@ -382,19 +387,19 @@ class Orden extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = DB::connection('retail')->table('wp_orden_det as od')
-                         ->select(DB::raw('od.SKU, 
+            $totalFiltered = DB::connection('retail')->table('WP_ORDEN_DET')
+                         ->select(DB::raw('WP_ORDEN_DET.SKU, 
                          	PRODUCTOS.DESCRIPCION, 
-                         	od.CANTIDAD, 
-                         	od.PRECIO, 
-                         	od.SUBTOTAL, 
-                         	od.TOTAL, 
+                         	WP_ORDEN_DET.CANTIDAD, 
+                         	WP_ORDEN_DET.PRECIO, 
+                         	WP_ORDEN_DET.SUBTOTAL, 
+                         	WP_ORDEN_DET.TOTAL, 
                          	WP_ORDEN.MONEDA'))
-                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'od.SKU')
-                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'od.ORDEN_ID')
-                         ->where('od.ORDEN_ID','=', $codigo)
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'WP_ORDEN_DET.SKU')
+                         ->leftjoin('WP_ORDEN', 'WP_ORDEN.ORDEN_ID', '=', 'WP_ORDEN_DET.ORDEN_ID')
+                         ->where('WP_ORDEN_DET.ORDEN_ID','=', $codigo)
                             ->where(function ($query) use ($search) {
-                                $query->where('od.SKU','LIKE',"%{$search}%")
+                                $query->where('WP_ORDEN_DET.SKU','LIKE',"%{$search}%")
                                       ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                              ->count();
@@ -506,6 +511,24 @@ class Orden extends Model
             $orden[0]->RUC = $orden[0]->DOCUMENTO;
         }
 
+        $cliente = $orden[0]->CLIENTE.' '.$orden[0]->APELLIDOS;
+
+        $orden[0]->CIUDAD = ucwords(strtolower($orden[0]->CIUDAD));
+
+        $orden[0]->CLIENTE = ucwords(strtolower($cliente));
+
+        if(empty($orden[0]->NOTA)){
+            $orden[0]->NOTA = '--';
+        }
+
+        if(!empty($orden[0]->DIRECCION_2)){
+
+            $orden[0]->DIRECCION_1 = $orden[0]->DIRECCION_1.', '.$orden[0]->DIRECCION_2.'.';
+        }else{
+
+            $orden[0]->DIRECCION_1 = $orden[0]->DIRECCION_1.'.';
+        }
+
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR 
@@ -576,7 +599,13 @@ class Orden extends Model
             $nestedData['TOTAL'] = Common::precio_candec_sin_letra($value->TOTAL, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
-            $nestedData['PESO'] = round(($value->PESO/1000), 2).'kg';
+
+            if(empty($value->PESO)){
+                $nestedData['PESO'] = 'No Disponible';
+            }else{
+
+                $nestedData['PESO'] = round(($value->PESO/1000), 3).'kg';;
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -653,9 +682,9 @@ class Orden extends Model
         // CARGAR VARIABLES CABECERA
         
         $data['metodo'] = $metodo;
-        $data['cliente'] = $cliente;
+        $data['cliente'] = ucwords(strtolower($cliente));
         $data['documento'] = $documento;
-        $data['ciudad'] = $ciudad;
+        $data['ciudad'] = ucwords(strtolower($ciudad));
         $data['direccion'] = $direccion;
         $data['direccion_2'] = $direccion_2;
         $data['telefono'] = $telefono;
@@ -809,7 +838,10 @@ class Orden extends Model
 
     	$orden = Orden::mostrarCabecera($codigo);
     	$orden_id = $orden->ORDEN_ID;
-    	
+        $cliente = $orden->CLIENTE.' '.$orden->APELLIDOS;
+    	$cliente = ucwords(strtolower($cliente));
+        $ciudad = ucwords(strtolower($orden->CIUDAD));
+
     	$mpdf = new \Mpdf\Mpdf([
 			'mode' => 'B',
 			'margin_left' => 10,
@@ -833,6 +865,23 @@ class Orden extends Model
 					</span>';
 			$text2= '';
     	}
+
+        if(!empty($orden->DIRECCION_2)){
+
+            $direccion = 'Dirección: '.$orden->DIRECCION_1.'<br /> 
+                        Atención: '.$orden->DIRECCION_2.'.';
+        }else{
+
+            $direccion = 'Dirección: '.$orden->DIRECCION_1.'<br /><br />';
+        }
+
+        if(!empty($orden->CODIGO_POSTAL)){
+
+            $codigoPostal = 'Código Postal: '.$orden->CODIGO_POSTAL.', ';
+        }else{
+
+            $codigoPostal = ' ';
+        }
 
 		$header = '
 		<table 
@@ -896,12 +945,9 @@ class Orden extends Model
 					</span>
 				</td>
 				<td width="50%" align="justify">
-					<p><br />Nombre: '.$orden->CLIENTE.' '.$orden->APELLIDOS.'<br />
+					<p><br />Nombre: '.$cliente.'<br />
 					Tel: '.$orden->CELULAR.'<br /><br /></p>
-					<p>Código Postal: -'.$orden->CODIGO_POSTAL.'- , '.$orden->ESTADO.', '.$orden->CIUDAD.'.<br />
-					Dirección: '.$orden->DIRECCION_1.'<br /> 
-						Atención: '.$orden->DIRECCION_2.'.
-					
+					<p>'.$codigoPostal.''.$orden->ESTADO.', '.$ciudad.'.<br />'.$direccion.'
 				</td>
 			</tr></table><br />
 			<div class="text">
@@ -983,11 +1029,12 @@ class Orden extends Model
         );
 
         $data = [
+            'per_page' => '20',
 		    'status' => 'pending',
 		];
 
         $posts = ($woocommerce->get('orders', $data));
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         // CONTAR LA CANTIDAD DE ORDENES ENCONTRADAS 
@@ -1020,10 +1067,10 @@ class Orden extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
-
+                $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = $post->billing->first_name.' '.$post->billing->last_name;
-                $nestedData['CIUDAD'] = $post->billing->city;
+                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
+                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1070,11 +1117,11 @@ class Orden extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'ORDEN_ID', 
-                            1 => 'CLIENTE', 
-                            3 => 'CIUDAD',
-                            2 => 'FECHA',
-                            3 => 'HORA',
+                            0 => 'ID', 
+                            1 => 'billing.first_name', 
+                            3 => 'billing.city',
+                            2 => 'date_created',
+                            3 => 'date_created',
                             5 => 'TOTAL',
                             // 6 => 'ESTADO',
                             6 => 'ACCION'
@@ -1096,7 +1143,8 @@ class Orden extends Model
         );
 
         $data = [
-		    'status' => 'processing',
+            'per_page' => '20',
+		    'status' => 'processing'
 		];
 
         $posts = ($woocommerce->get('orders', $data));
@@ -1134,9 +1182,11 @@ class Orden extends Model
 
                 // CARGAR EN LA VARIABLE 
 
+                $cliente = $post->billing->first_name.' '.$post->billing->last_name;
+
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = $post->billing->first_name.' '.$post->billing->last_name;
-                $nestedData['CIUDAD'] = $post->billing->city;
+                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
+                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1205,11 +1255,24 @@ class Orden extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        $nombre = $posts->billing->first_name.' '.$posts->billing->last_name;
+
+        if(empty($posts->customer_note)){
+            $posts->customer_note = '--';
+        }
+
+        if(!empty($posts->billing->address_2)){
+
+            $posts->billing->address_1 = $posts->billing->address_1.', '.$posts->billing->address_2.'.';
+        }else{
+
+            $posts->billing->address_1 = $posts->billing->address_1.'.';
+        }
+
         $orden = array(
-        		'NOMBRE' => $posts->billing->first_name.' '.$posts->billing->last_name,
+        		'NOMBRE' => ucwords(strtolower($nombre)),
         		'DIRECCION_1' => $posts->billing->address_1,
-        		'DIRECCION_2' => $posts->billing->address_2,
-        		'CIUDAD' => $posts->billing->city,
+        		'CIUDAD' => ucwords(strtolower($posts->billing->city)),
         		'CELULAR' => $posts->billing->phone,
         		'DOCUMENTO' => $posts->meta_data[0]->value,
         		'ESTADO' => $posts->billing->state,
@@ -1410,9 +1473,9 @@ class Orden extends Model
         // CARGAR VARIABLES CABECERA
         
         $data['metodo'] = $metodo;
-        $data['cliente'] = $cliente;
+        $data['cliente'] = ucwords(strtolower($cliente));
         $data['ruc'] = $ruc;
-        $data['ciudad'] = $ciudad;
+        $data['ciudad'] = ucwords(strtolower($ciudad));
         $data['direccion'] = $direccion;
         $data['direccion_2'] = $direccion_2;
         $data['telefono'] = $telefono;
@@ -1470,7 +1533,13 @@ class Orden extends Model
             $articulos[$c_rows]["cod_prod"] = $value->sku;
             $articulos[$c_rows]["descripcion"] = $value->name;
             $articulos[$c_rows]["total"] = Common::precio_candec_sin_letra($totalP, $moneda);
-            $articulos[$c_rows]["peso"] = round(($peso[0]->PESO/1000), 2).'kg';
+
+            if(empty($peso[0])){
+                $articulos[$c_rows]["peso"] = 'No Disponible';
+            }else{
+
+                $articulos[$c_rows]["peso"] = round(($peso[0]->PESO/1000), 3).'kg';
+            }
 
 	        $total = $total+$totalP;
 	        
@@ -1583,6 +1652,8 @@ class Orden extends Model
         $orden = ($woocommerce->get('orders/'.$codigo));
 
     	$orden_id = $orden->id;
+
+        $nombre = $orden->shipping->first_name.' '.$orden->shipping->last_name;
     	
     	$mpdf = new \Mpdf\Mpdf([
 			'mode' => 'B',
@@ -1607,6 +1678,23 @@ class Orden extends Model
 					</span>';
 			$text2= '';
     	}
+
+        if(!empty($orden->shipping->address_2)){
+
+            $direccion = 'Dirección: '.$orden->shipping->address_1.'.<br /> 
+                        Atención: '.$orden->shipping->address_2;
+        }else{
+
+            $direccion = 'Dirección: '.$orden->shipping->address_1.'<br /><br />';
+        }
+
+        if(!empty($orden->shipping->postcode)){
+
+            $codigoPostal = 'Código Postal: '.$orden->shipping->postcode.', ';
+        }else{
+
+            $codigoPostal = ' ';
+        }
 
 		$header = '
 		<table 
@@ -1670,12 +1758,9 @@ class Orden extends Model
 					</span>
 				</td>
 				<td width="50%" align="justify">
-					<p><br />Nombre: '.$orden->shipping->first_name.' '.$orden->shipping->last_name.'<br />
+					<p><br />Nombre: '.ucwords(strtolower($nombre)).'<br />
 					Tel: '.$orden->billing->phone.'<br /><br /></p>
-					<p>Código Postal: -'.$orden->shipping->postcode.'- , '.$orden->shipping->state.', '.$orden->shipping->city.'.<br />
-					Dirección: -'.$orden->shipping->company.'- '.$orden->shipping->address_1.'<br /> 
-						Atención: '.$orden->shipping->address_2.'.
-					
+					<p>'.$codigoPostal.''.$orden->shipping->state.', '.ucwords(strtolower($orden->shipping->city)).'.<br />'.$direccion.'.
 				</td>
 			</tr></table><br />
 			<div class="text">

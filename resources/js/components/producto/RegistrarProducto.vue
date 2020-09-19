@@ -1168,7 +1168,7 @@
 
 						return;
             		}else if(data.response===false){
-            			this.limpiar();
+            			//this.limpiar();
             				return;
   
             			

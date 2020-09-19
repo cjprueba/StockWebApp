@@ -7,7 +7,7 @@
 			
 			<div class="col-md-12">
 				<vs-divider>
-					Cambio de Monedas
+					Cambio de Moneda
 				</vs-divider>
 			</div>
 			
@@ -18,11 +18,11 @@
 	        	<!-- SELECCION DE MONEDAS -->
 
 				<div class="col-sm-2">
-					<select-moneda v-model="moneda.de" @cantidad_decimales="cantidadDecimal"></select-moneda>
+					<select-moneda v-model="moneda.de" v-on:change="filtrarCot()"></select-moneda>
 	    		</div>
 
 	    		<div class="col-sm-2">
-					<select-moneda v-model="moneda.a"></select-moneda>
+					<select-moneda v-model="moneda.a" @cantidad_decimales="cantidadDecimal" v-on:change="filtrarCot()"></select-moneda>
 	    		</div>
 
 	    		<!-- LISTAS DE SELECCION DE MES -->
@@ -75,14 +75,13 @@
 				
 				<h6>Días</h6>
 
-
 				<!--	PRIMERA FILA --- COLUMNA 1-4 -->
 
 				<div class=" mt-2 row">
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm"> 1</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">01</span>
 						  </div>
 						  <input v-model="cotizaciones.uno" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoUno(1)">
 						</div>
@@ -90,7 +89,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm"> 2</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">02</span>
 						  </div>
 						  <input v-model="cotizaciones.dos" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoDos">
 						</div>
@@ -98,7 +97,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm"> 3</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">03</span>
 						  </div>
 						  <input v-model="cotizaciones.tres" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoTres">
 						</div>
@@ -106,7 +105,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm"> 4</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">04</span>
 						  </div>
 						  <input v-model="cotizaciones.cuatro" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoCuatro">
 						</div>
@@ -120,7 +119,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm">5</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">05</span>
 						  </div>
 						  <input v-model="cotizaciones.cinco" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoCinco">
 						</div>
@@ -128,7 +127,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm">6</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">06</span>
 						  </div>
 						  <input v-model="cotizaciones.seis" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoSeis">
 						</div>
@@ -136,7 +135,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm">7</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">07</span>
 						  </div>
 						  <input v-model="cotizaciones.siete" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoSiete">
 						</div>
@@ -144,7 +143,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm">8</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">08</span>
 						  </div>
 						  <input v-model="cotizaciones.ocho" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoOcho">
 						</div>
@@ -158,7 +157,7 @@
 					<div class="col-3">
 						<div class="input-group input-group-sm mb-3">
 						  <div class="input-group-prepend">
-						    <span class="input-group-text" id="inputGroup-sizing-sm">9</span>
+						    <span class="input-group-text" id="inputGroup-sizing-sm">09</span>
 						  </div>
 						  <input v-model="cotizaciones.nueve" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" v-on:blur="formatoNueve">
 						</div>
@@ -377,28 +376,20 @@
 
 				<div class="mt-3 row">
 
-					<div v-if='guardarbtn' class="col-9 text-right">
-			  			<button v-on:click="guardar" type="button" class="btn btn-outline-success" >
-			  				<font-awesome-icon icon="save" /> Guardar
-			  			</button>
+					<div class="col-9 text-right">
+			  			<button type="button" v-on:click="limpiar()" id="btnlimpiar" class="btn btn-primary">Limpiar</button>
 			  		</div>
 
-			  		<div v-else class="col-9 text-right">
-			  			<button v-on:click="guardar" type="button" class="btn btn-warning" >
-			  				Actualizar
-			  			</button>
+			  		<div v-if='guardarbtn' class="col text-center">
+			  			<button v-on:click="guardar" type="button" class="btn btn-success">Guardar</button>
 			  		</div>
 
-			  		<div class="col text-right">
-			  			<button type="button" v-on:click="eliminar()" class="btn btn-outline-danger">
-			  				<font-awesome-icon icon="trash-alt" /> Eliminar
-			  			</button>
+			  		<div v-else class="col text-center">
+			  			<button v-on:click="guardar" type="button" class="btn btn-warning" >Actualizar</button>
 			  		</div>
 
 			  		<div class="col text-right">
-			  			<button type="button" v-on:click="limpiar()" id="btnlimpiar" class="btn btn-outline-primary">
-			  				<font-awesome-icon icon="file" /> Limpiar
-			  			</button>
+			  			<button type="button" v-on:click="eliminar()" class="btn btn-danger">Eliminar</button>
 			  		</div>
 		  		</div>
 
@@ -499,36 +490,45 @@
     				existe: this.existe
     			}
 
-
-    			// LLAMAR A UNA FUNCION COMUN PARA ELIMINAR LOS DATOS
-
-    			Common.eliminarCotizacionCommon(eliminar).then(data => {
-
     				// MENSAJE DE CONFIRMACION O ERROR
 
-    				if(data.response===true){
-	                  	Swal.fire(
-		                    '¡Eliminado!',
-		                    '¡Se ha eliminado correctamente la cotización!',
-		                    'success'
-	                  	)
-	                  	this.limpiar();
-	               	}else{
-		                Swal.fire(
-		                    '¡Error!',
-		                    data.statusText,
-		                    'warning'
-		                )
-	               	}
+    			Swal.fire({
+				  title: '¿Estás seguro?',
+				  text: "¡Eliminar cotización!",
+				  type: 'warning',
+				  showLoaderOnConfirm: true,
+				  showCancelButton: true,
+				  cancelButtonColor: 'btn btn-success',
+				  confirmButtonColor: '#d33',
+				  confirmButtonText: '¡Sí, eliminar!',
+				  cancelButtonText: 'Cancelar',
+				  preConfirm: () => {
+    				// LLAMAR A UNA FUNCION PARA ELIMINAR LOS DATOS
+				    return Common.eliminarCotizacionCommon(eliminar).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+				  	}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				  }
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      '¡Eliminado!',
+						      '¡Se ha eliminado correctamente la cotización!',
+						      'success'
+					)
 
-	               	// MENSAJE DE ERROR EN LA FUNCION COMUN
+    				this.limpiar();
 
-    			}).catch((err) => {
-	                console.log(err);
-	                this.mostrar_error = true;
-	                this.mensaje = err;
-              });
+					// ------------------------------------------------------------------------
 
+				  }
+				})
     		},
 
 
@@ -561,37 +561,37 @@
 
 	               		this.guardarbtn = false;
 	               		this.existe = true;
-	               		this.cotizaciones.uno = data.cotizacion[0].CA01;
-	               		this.cotizaciones.dos = data.cotizacion[0].CA02;
-	               		this.cotizaciones.tres = data.cotizacion[0].CA03;
-	               		this.cotizaciones.cuatro = data.cotizacion[0].CA04;
-	               		this.cotizaciones.cinco = data.cotizacion[0].CA05;
-	               		this.cotizaciones.seis = data.cotizacion[0].CA06;
-	               		this.cotizaciones.siete = data.cotizacion[0].CA07;
-	               		this.cotizaciones.ocho = data.cotizacion[0].CA08;
-	               		this.cotizaciones.nueve = data.cotizacion[0].CA09;
-	               		this.cotizaciones.diez = data.cotizacion[0].CA10;
-	               		this.cotizaciones.once = data.cotizacion[0].CA11;
-	               		this.cotizaciones.doce = data.cotizacion[0].CA12;
-	               		this.cotizaciones.trece = data.cotizacion[0].CA13;
-	               		this.cotizaciones.catorce = data.cotizacion[0].CA14;
-	               		this.cotizaciones.quince = data.cotizacion[0].CA15;
-	               		this.cotizaciones.dseis = data.cotizacion[0].CA16;
-	               		this.cotizaciones.dsiete = data.cotizacion[0].CA17;
-	               		this.cotizaciones.docho = data.cotizacion[0].CA18;
-	               		this.cotizaciones.dnueve = data.cotizacion[0].CA19;
-	               		this.cotizaciones.veinte = data.cotizacion[0].CA20;
-	                  	this.cotizaciones.vuno = data.cotizacion[0].CA21;
-	               		this.cotizaciones.vdos = data.cotizacion[0].CA22;
-	               		this.cotizaciones.vtres = data.cotizacion[0].CA23;
-	               		this.cotizaciones.vcuatro = data.cotizacion[0].CA24;
-	               		this.cotizaciones.vcinco = data.cotizacion[0].CA25;
-	               		this.cotizaciones.vseis = data.cotizacion[0].CA26;
-	               		this.cotizaciones.vsiete = data.cotizacion[0].CA27;
-	               		this.cotizaciones.vocho = data.cotizacion[0].CA28;
-	               		this.cotizaciones.vnueve = data.cotizacion[0].CA29;
-	               		this.cotizaciones.treinta = data.cotizacion[0].CA30;
-	               		this.cotizaciones.tuno = data.cotizacion[0].CA31;
+	               		this.cotizaciones.uno = Common.darFormatoCommon(data.cotizacion[0].CA01, this.moneda.a);
+	               		this.cotizaciones.dos = Common.darFormatoCommon(data.cotizacion[0].CA02, this.moneda.a);
+	               		this.cotizaciones.tres = Common.darFormatoCommon(data.cotizacion[0].CA03, this.moneda.a);
+	               		this.cotizaciones.cuatro = Common.darFormatoCommon(data.cotizacion[0].CA04, this.moneda.a);
+	               		this.cotizaciones.cinco = Common.darFormatoCommon(data.cotizacion[0].CA05, this.moneda.a);
+	               		this.cotizaciones.seis = Common.darFormatoCommon(data.cotizacion[0].CA06, this.moneda.a);
+	               		this.cotizaciones.siete = Common.darFormatoCommon(data.cotizacion[0].CA07, this.moneda.a);
+	               		this.cotizaciones.ocho = Common.darFormatoCommon(data.cotizacion[0].CA08, this.moneda.a);
+	               		this.cotizaciones.nueve = Common.darFormatoCommon(data.cotizacion[0].CA09, this.moneda.a);
+	               		this.cotizaciones.diez = Common.darFormatoCommon(data.cotizacion[0].CA10, this.moneda.a);
+	               		this.cotizaciones.once = Common.darFormatoCommon(data.cotizacion[0].CA11, this.moneda.a);
+	               		this.cotizaciones.doce = Common.darFormatoCommon(data.cotizacion[0].CA12, this.moneda.a);
+	               		this.cotizaciones.trece = Common.darFormatoCommon(data.cotizacion[0].CA13, this.moneda.a);
+	               		this.cotizaciones.catorce = Common.darFormatoCommon(data.cotizacion[0].CA14, this.moneda.a);
+	               		this.cotizaciones.quince = Common.darFormatoCommon(data.cotizacion[0].CA15, this.moneda.a);
+	               		this.cotizaciones.dseis = Common.darFormatoCommon(data.cotizacion[0].CA16, this.moneda.a);
+	               		this.cotizaciones.dsiete = Common.darFormatoCommon(data.cotizacion[0].CA17, this.moneda.a);
+	               		this.cotizaciones.docho = Common.darFormatoCommon(data.cotizacion[0].CA18, this.moneda.a);
+	               		this.cotizaciones.dnueve = Common.darFormatoCommon(data.cotizacion[0].CA19, this.moneda.a);
+	               		this.cotizaciones.veinte = Common.darFormatoCommon(data.cotizacion[0].CA20, this.moneda.a);
+	                  	this.cotizaciones.vuno = Common.darFormatoCommon(data.cotizacion[0].CA21, this.moneda.a);
+	               		this.cotizaciones.vdos = Common.darFormatoCommon(data.cotizacion[0].CA22, this.moneda.a);
+	               		this.cotizaciones.vtres = Common.darFormatoCommon(data.cotizacion[0].CA23, this.moneda.a);
+	               		this.cotizaciones.vcuatro = Common.darFormatoCommon(data.cotizacion[0].CA24, this.moneda.a);
+	               		this.cotizaciones.vcinco = Common.darFormatoCommon(data.cotizacion[0].CA25, this.moneda.a);
+	               		this.cotizaciones.vseis = Common.darFormatoCommon(data.cotizacion[0].CA26, this.moneda.a);
+	               		this.cotizaciones.vsiete = Common.darFormatoCommon(data.cotizacion[0].CA27, this.moneda.a);
+	               		this.cotizaciones.vocho = Common.darFormatoCommon(data.cotizacion[0].CA28, this.moneda.a);
+	               		this.cotizaciones.vnueve = Common.darFormatoCommon(data.cotizacion[0].CA29, this.moneda.a);
+	               		this.cotizaciones.treinta = Common.darFormatoCommon(data.cotizacion[0].CA30, this.moneda.a);
+	               		this.cotizaciones.tuno = Common.darFormatoCommon(data.cotizacion[0].CA31, this.moneda.a);
 
 	                }else{
 	                   	

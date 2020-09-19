@@ -35,7 +35,7 @@ class VentasAnulado extends Model
 
 			// ERROR 
 
-			Log::error('Venta Anualdo: Error al guardar.', ['VENTA' => $data["FK_VENTA"]]);
+			Log::error('Venta Anulado: Error al guardar.', ['VENTA' => $data["FK_VENTA"]]);
 
 			/*  --------------------------------------------------------------------------------- */
 
@@ -71,5 +71,36 @@ class VentasAnulado extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function modificar_referencia($data){
+
+    	try {
+
+	    	/*  --------------------------------------------------------------------------------- */
+
+	    	$anulado = VentasAnulado::
+	    	where('FK_VENTA', '=', $data['FK_VENTA'])
+	    	->update([
+	    		'ANULADO' => $data["ANULADO"],
+	    	]);
+
+	    	/*  --------------------------------------------------------------------------------- */
+
+	    	Log::info('Venta Anulado Modificado: Éxito al guardar.', ['VENTA' => $data["FK_VENTA"], 'ID ANULADO' => $anulado]);
+
+	    	/*  --------------------------------------------------------------------------------- */
+
+    	} catch (Exception $e) {
+
+			/*  --------------------------------------------------------------------------------- */
+
+			// ERROR 
+
+			Log::error('Venta Anulado Modificado: Error al guardar.', ['VENTA' => $data["FK_VENTA"]]);
+
+			/*  --------------------------------------------------------------------------------- */
+
+		}
     }
 }

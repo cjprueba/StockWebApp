@@ -93,6 +93,7 @@
              <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTransferencia2'}">Venta Transferencia</router-link>
              <router-link class="collapse-item" :to="{name: 'rptDelivery'}">Delivery</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptTarjeta'}">Venta Tarjeta</router-link>
           </div>
         </div>
       </li>
@@ -145,9 +146,11 @@
         <div id="collapseVenta" class="collapse" aria-labelledby="headingVenta" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'ventaCaja'}">Mis Ventas</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link>
+            <!-- <router-link class="collapse-item" :to="{name: 'ventaCuenta'}">Cobro de Cuentas</router-link> -->
             <router-link class="collapse-item" :to="{name: 'ventaAnular'}">Anular Venta</router-link>
           </div>
         </div>
