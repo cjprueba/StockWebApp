@@ -246,8 +246,7 @@
                                  },
                                  "url": "/pedido/mostrar/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "json"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },

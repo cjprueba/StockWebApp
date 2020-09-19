@@ -493,7 +493,7 @@ Route::post('remisionModificar', 'RemisionController@modificarRemision');
 
 //ORDEN 
 
-Route::get('orden/datatable', 'OrdenController@datatable');
+Route::post('orden/datatable', 'OrdenController@datatable');
 Route::get('ordenMostrarProductos', 'OrdenController@mostrarProductos');
 Route::post('pdf-generar-factura', 'OrdenController@factura');
 Route::post('pdf-generar-direccion','OrdenController@direccionPDF');

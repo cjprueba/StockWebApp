@@ -242,10 +242,12 @@
                 "bAutoWidth": true,
                 "select": true,
                 "ajax":{
+                  "data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },	
                   "url": "/orden/datatable",
                   "dataType": "json",
-                  "type": "GET",
-                  "contentType": "application/json; charset=utf-8"
+                  "type": "POST"
                 },
                 "columns": [
                     { "data": "ORDEN_ID" },
