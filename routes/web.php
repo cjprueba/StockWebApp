@@ -516,7 +516,7 @@ Route::post('pedido/confirmar', 'PedidoController@confirmar');
 Route::post('pedido/inicio_mostrar_new', 'PedidoController@inicio_mostrar_new');
 Route::post('pedido/cambiar/cantidad', 'PedidoController@cambiar_cantidad');
 Route::post('pedido/producto/eliminar', 'PedidoController@eliminar_producto');
-Route::get('pedido/mostrar/datatable', 'PedidoController@mostrar_datatable');
+Route::post('pedido/mostrar/datatable', 'PedidoController@mostrar_datatable');
 Route::post('pedido/cambiar/estatus', 'PedidoController@cambiar_estatus');
 Route::post('pedido/reporte', 'PedidoController@reporte');
 Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
