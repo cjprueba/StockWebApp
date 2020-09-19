@@ -63,6 +63,7 @@ class VentaMensualTotales implements  FromArray, WithTitle,WithEvents,ShouldAuto
     	  $dia2 = date("Y-m-d");
                 $dia1 = new DateTime();
                 $dia1->modify('first day of this month');
+                $dia1= $dia1->format('Y-m-d');
     	$promedio=0;
     	  $temp=DB::connection('retail')->table('temp_ventas')
 	   	
@@ -126,9 +127,9 @@ class VentaMensualTotales implements  FromArray, WithTitle,WithEvents,ShouldAuto
 	            	sum(ventasdet_servicios.PRECIO_UNIT) AS PRECIO_UNIT'))
 	           
        ->Where('VENTAS_ANULADO.ANULADO','=',0)
-        ->Where('VENTAS.ID_SUCURSAL','=',11)
+        ->Where('VENTAS.ID_SUCURSAL','=',9)
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
-        ->whereBetween('VENTAS.FECALTAS', ['2020-08-01', '2020-08-11'])
+        ->whereBetween('VENTAS.FECALTAS', [$dia1, $dia2])
 	          ->get()
 	          ->toArray();
 	          if(count($ser)>0){

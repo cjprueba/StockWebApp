@@ -34,6 +34,7 @@ class VentaMensualMarcaCategoria  implements FromArray, WithTitle,WithEvents,Sho
      private $Linea;
     private $descri_M;
      private $descri_L;
+     private $descripcion;
     private $DESCRIPCIONL;
     private  $venta;
     private $total_descuento;
@@ -90,7 +91,7 @@ class VentaMensualMarcaCategoria  implements FromArray, WithTitle,WithEvents,Sho
 			            DB::raw('temp_ventas.COD_PROD AS COD_PROD'),
 			            DB::raw('temp_ventas.LOTE AS LOTE'),
 			            DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
-			            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = 11))),0) AS STOCK'),
+			            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = 9))),0) AS STOCK'),
 			            DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
 			            DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
 			            DB::raw('COSTO_UNIT AS COSTO_UNIT'),
@@ -261,7 +262,9 @@ class VentaMensualMarcaCategoria  implements FromArray, WithTitle,WithEvents,Sho
     public function title(): string
     {
          if($this->hojas==1){
-             return $this->descri_M." ".$this->descri_L;
+          $this->descripcion=$this->descri_M." ".$this->descri_L;
+          $this->descripcion=substr($this->descripcion, 0,31);
+             return $this->descripcion;
          }else{
          	return $this->descri_M;
          }

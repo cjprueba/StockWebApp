@@ -67,6 +67,7 @@ class VentaMensual  implements FromArray, WithTitle,WithEvents,ShouldAutoSize,Wi
     	 $dia2 = date("Y-m-d");
          $dia1 = new DateTime();
          $dia1=  $dia1->modify('first day of this month');
+         $dia1= $dia1->format('Y-m-d');
 	    	$dia = '2020-07-02';
 	        $precio=100;
 	        $descuento_precio=0;
@@ -91,7 +92,7 @@ class VentaMensual  implements FromArray, WithTitle,WithEvents,ShouldAutoSize,Wi
 		            DB::raw('temp_ventas.COD_PROD AS COD_PROD'),
 		            DB::raw('temp_ventas.LOTE AS LOTE'),
 		            DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
-		            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = 11))),0) AS STOCK'),
+		            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = 9))),0) AS STOCK'),
 		            DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
 		            DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
 		            DB::raw('COSTO_UNIT AS COSTO_UNIT'),
