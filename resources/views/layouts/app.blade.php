@@ -29,6 +29,7 @@
 </head>
 <body>
     <div id="app">
+
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm" style="margin-bottom:0px;" >
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ url('/') }}">
@@ -198,7 +199,7 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main>
             @yield('content')
         </main>
     </div>
