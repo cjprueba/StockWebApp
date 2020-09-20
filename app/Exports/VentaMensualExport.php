@@ -45,6 +45,7 @@ class VentaMensualExport implements WithMultipleSheets
     	        $dia2 = date("Y-m-d");
                 $dia1 = new DateTime();
               $dia1=  $dia1->modify('first day of this month');
+              $dia1= $dia1->format('Y-m-d');
 if($this->hojas==1){
 	DB::connection('retail')->table('temp_ventas')->truncate();
 
@@ -100,8 +101,8 @@ if($this->hojas==1){
 
         ->Where('VENTASDET.ANULADO','=',0)
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
-        ->whereBetween('VENTASDET.FECALTAS', ['2020-08-01', '2020-08-11'])
-        ->Where('VENTASDET.ID_SUCURSAL','=',11) 
+        ->whereBetween('VENTASDET.FECALTAS', [$dia1, $dia2])
+        ->Where('VENTASDET.ID_SUCURSAL','=',9) 
         ->orderby('VENTASDET.COD_PROD')
 
                 ->get()
@@ -246,7 +247,7 @@ if($this->hojas==1){
         ->Where('VENTASDET.ANULADO','=',0)
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
         ->whereBetween('VENTASDET_DEVOLUCIONES.FECALTAS', [$dia1, $dia2])
-        ->Where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=',11) 
+        ->Where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=',9) 
         ->orderby('VENTASDET.COD_PROD')
                ->get()
                 ->toArray();

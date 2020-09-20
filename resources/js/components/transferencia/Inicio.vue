@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid mt-4">
 
-		<div v-if="$can('reporte.transferencia')">
+		<!-- <div v-if="$can('reporte.transferencia')"> -->
 			
 			<div class="mb-3">
 				<label for="validationTooltip01">Seleccione Reporte Transferencia</label>
@@ -58,13 +58,13 @@
 				<transferencia-marca-categoria v-if="reporte === '3'" id="reporte2"></transferencia-marca-categoria>
 			</transition>
 
-		</div>	
+	<!-- 	</div>	 -->
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 		

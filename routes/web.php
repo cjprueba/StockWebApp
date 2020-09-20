@@ -69,7 +69,17 @@ Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
 Route::post('venta/pago/credito', 'VentaController@pagoCredito');
 Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
 
+/* -------------------------------------------------------------------------- */
 
+// DEV_TRANSFERENCIA
+Route::get('transferenciasDev', 'DevTransferenciaController@mostrarDataTable');
+Route::get('transferenciasMostrarProductosDev', 'DevTransferenciaController@mostrarProductosDevolucion');
+Route::get('transferenciasMostrarProductosDevImp', 'DevTransferenciaController@mostrarProductosDevolucionImp');
+Route::post('devTransferenciaEnviar', 'DevTransferenciaController@enviarDevTransferencia');
+Route::post('transferenciasDevImportar', 'DevTransferenciaController@mostrarImportar');
+Route::post('DevtransferenciaImportar', 'DevTransferenciaController@importarDevTransferencia');
+Route::post('devTransferenciaEliminar', 'DevTransferenciaController@eliminarDevTransferencia');
+Route::post('devTransferenciaRechazar', 'DevTransferenciaController@rechazarDevTransferencia');
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -83,8 +93,7 @@ Route::post('transferenciaEnviar', 'TransferenciaControler@enviarTransferencia')
 Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
-Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
-Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');
+Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');	
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
@@ -92,6 +101,9 @@ Route::post('pdf-generar-factura-transferencia','TransferenciaControler@getGener
 Route::post('pdf-generar-transferencia','TransferenciaControler@getRptTransferencia');
 Route::post('pdf-rptTransferencia','TransferenciaControler@rptTransferencia');
 Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT');
+Route::post('devolver_transferencia','TransferenciaControler@devolverTransferencia');
+
+Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
 
 
 /* -------------------------------------------------------------------------- */
