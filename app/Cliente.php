@@ -130,10 +130,10 @@ class Cliente extends Model
 
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CI'] = $post->CI;
-                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['NOMBRE'] = utf8_encode($post->NOMBRE);
                 $nestedData['RUC'] = $post->RUC;
-                $nestedData['DIRECCION'] = $post->DIRECCION;
-                $nestedData['CIUDAD'] = $post->CIUDAD;
+                $nestedData['DIRECCION'] = utf8_encode($post->DIRECCION);
+                $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
                 
@@ -271,14 +271,14 @@ class Cliente extends Model
 
                 $cliente = strtolower($post->NOMBRE);
                 $nestedData['ID'] = $post->ID;
-                $nestedData['NOMBRE'] = ucwords($cliente);
+                $nestedData['NOMBRE'] = ucwords(utf8_encode($cliente));
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['CI'] = $post->CI;
-                $nestedData['RUC'] = $post->RUC;
-                $nestedData['TELEFONO'] = $post->TELEFONO;
-                $nestedData['RAZON_SOCIAL'] = $post->RAZON_SOCIAL;
-                $nestedData['DIRECCION'] = $post->DIRECCION;
-                $nestedData['CIUDAD'] = $post->CIUDAD;
+                $nestedData['CI'] = utf8_encode($post->CI);
+                $nestedData['RUC'] = utf8_encode($post->RUC);
+                $nestedData['TELEFONO'] = utf8_encode($post->TELEFONO);
+                $nestedData['RAZON_SOCIAL'] = utf8_encode($post->RAZON_SOCIAL);
+                $nestedData['DIRECCION'] = utf8_encode($post->DIRECCION);
+                $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
 
                 $data[] = $nestedData;
 
