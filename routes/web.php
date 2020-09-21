@@ -60,7 +60,7 @@ Route::post('venta/datatable', 'VentaController@datatable');
 Route::post('ventaFiltrar', 'VentaController@filtrarVenta');
 Route::post('ventaAnular', 'VentaController@anularVenta');
 Route::post('ventasDatatable', 'VentaController@ventasDatatable');
-Route::get('venta/devolucion/productos', 'VentaController@devolucionProductos');
+Route::post('venta/devolucion/productos', 'VentaController@devolucionProductos');
 Route::get('ventaMostrarProductos', 'VentaController@mostrarProductos');
 Route::post('pdf-generar-rptVale','VentaController@rptVale');
 Route::get('ventaValeDatatable', 'VentaController@generarVentaVale');
