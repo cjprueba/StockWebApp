@@ -1071,7 +1071,7 @@ class Orden extends Model
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
                 $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1188,7 +1188,7 @@ class Orden extends Model
 
                 $nestedData['ORDEN_ID'] = $post->id;
                 $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
