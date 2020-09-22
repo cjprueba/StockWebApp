@@ -1024,7 +1024,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
@@ -1138,7 +1139,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
@@ -1242,7 +1244,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
         $orden_id=$codigo["codigo"];
@@ -1304,7 +1307,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true ,
+                'verify_ssl' => false
             ]
         );
 
@@ -1422,7 +1426,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true ,
+                'verify_ssl' => false
             ]
         );
 
@@ -1643,7 +1648,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
