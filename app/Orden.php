@@ -1070,7 +1070,7 @@ class Orden extends Model
                 // CARGAR EN LA VARIABLE 
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
                 $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
@@ -1187,7 +1187,7 @@ class Orden extends Model
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
 
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
                 $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
