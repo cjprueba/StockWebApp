@@ -150,8 +150,8 @@ class Orden extends Model
                 $cliente = strtolower($post->CLIENTE.' '.$post->APELLIDOS);
                 $ciudad = strtolower($post->CIUDAD);
                 $nestedData['ORDEN_ID'] = $post->ORDEN_ID;
-                $nestedData['CLIENTE'] = ucwords(utf8_decode($cliente));
-                $nestedData['CIUDAD'] = ucwords(utf8_decode($ciudad));
+                $nestedData['CLIENTE'] = ucwords(utf8_encode($cliente));
+                $nestedData['CIUDAD'] = ucwords(utf8_encode($ciudad));
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] =Common::formato_precio($post->TOTAL,0);
@@ -1070,8 +1070,8 @@ class Orden extends Model
                 // CARGAR EN LA VARIABLE 
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_decode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode($post->billing->city)));
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1149,7 +1149,7 @@ class Orden extends Model
 		    'status' => 'processing'
 		];
 
-        $posts =($woocommerce->get('orders', $data));
+        $posts = ($woocommerce->get('orders', $data));
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1187,8 +1187,8 @@ class Orden extends Model
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
 
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_decode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode($post->billing->city)));
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1373,10 +1373,10 @@ class Orden extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
-                $descripcion = utf8_decode($post->name);
+                $descripcion = utf8_encode($post->name);
                 $nestedData['ITEM'] = $item;
                 $nestedData['SKU'] = $post->sku;
-                $nestedData['DESCRIPCION'] = utf8_decode($descripcion);
+                $nestedData['DESCRIPCION'] = utf8_encode($descripcion);
                 $nestedData['CANTIDAD'] = $post->quantity;
                 $nestedData['PRECIO'] = Common::formato_precio($post->price, 0);
                 $nestedData['TOTAL'] = Common::formato_precio($post->total, 0);
