@@ -207,8 +207,6 @@
 						}
 		            });
 
-	        	}else {
-	        		alert("false");
 	        	}
 	        },
 	        generarConsulta(){

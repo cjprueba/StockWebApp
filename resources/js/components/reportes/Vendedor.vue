@@ -305,8 +305,6 @@
 						}
 					});
 
-	        	}else {
-	        		alert("false");
 	        	}
 	        },
 	        generarConsulta(){
