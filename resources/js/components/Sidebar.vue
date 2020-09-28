@@ -94,6 +94,7 @@
              <router-link class="collapse-item" :to="{name: 'rptTransferencia2'}">Venta Transferencia</router-link>
              <router-link class="collapse-item" :to="{name: 'rptDelivery'}">Delivery</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTarjeta'}">Venta Tarjeta</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptVentaVendedor'}">Venta Vendedor</router-link>
           </div>
         </div>
       </li>

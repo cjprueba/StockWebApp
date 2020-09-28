@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
+use App\Common;
 class Vendedores extends Model
 {
 
@@ -14,9 +16,9 @@ class Vendedores extends Model
     {
 
         
-         /*  --------------------------------------------------------------------------------- */
+        /*  --------------------------------------------------------------------------------- */
 
-         // INCICIAR VARIABLES 
+        // INCICIAR VARIABLES 
 
         $marcas[] = array();
         $categorias[] = array();
@@ -533,6 +535,246 @@ class Vendedores extends Model
 
     }
 
+    public static function obtenerDatos($sucursal, $inicio, $final, $order, $dir, $codigoVendedor){
 
+        $ventaVendedor = DB::connection('retail')->table('VENTAS')
+                ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+                    DB::raw('VENTAS.FECALTAS AS FECHA'),
+                    DB::raw('VENTAS.SUB_TOTAL AS SUBTOTAL'),
+                    DB::raw('VENTAS.IMPUESTOS AS IVA'),
+                    DB::raw('VENTAS.TOTAL AS TOTAL'),
+                    DB::raw('VENTAS.CODIGO AS CODIGO'),
+                    DB::raw('VENTAS.HORA AS HORA'),
+                    DB::raw('VENTAS.MONEDA AS MONEDA'),
+                    DB::raw('CLIENTES.CODIGO AS COD_CLI'),
+                    DB::raw('EMPlEADOS.NOMBRE AS VENDEDOR'))
+                ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+                ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                ->leftjoin('EMPlEADOS', function($join){
+                            $join->on('EMPlEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                                 ->on('EMPlEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                        })
+                ->whereBetween('VENTAS.FECALTAS', [$inicio , $final])
+                ->where([
+                    ['VENTAS.ID_SUCURSAL', '=', $sucursal],
+                    ['VENTAS_ANULADO.ANULADO', '<>', 1]])
+                ->groupBy('VENTAS.ID')
+                ->orderBy($order, $dir);
+
+        if($codigoVendedor !== "null"){
+
+            $ventaVendedor->where('VENTAS.VENDEDOR', '=', $codigoVendedor);
+        }
+
+        $ventaVendedor = $ventaVendedor->get();
+
+        return $ventaVendedor;
+    }
+
+    public static function rptVentaVendedor($datos){
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $fecha = date("Y-m-d");
+        $hora = date("H:i:s");
+        $fecha = $fecha.' '.$hora;
+        $generador = ucfirst($user->name);
+        $inicio = date('Y-m-d', strtotime($datos['data']['inicio']));
+        $final = date('Y-m-d', strtotime($datos['data']['final']));
+        $vendedor = $datos['data']['vendedor'];
+        $sucursal = $datos['data']['sucursal'];
+        $order ='VENTAS.FECALTAS';
+        $dir = 'ASC';
+
+        // OBTENER DATOS 
+
+        $ventaVendedor = Vendedores::obtenerDatos($sucursal, $inicio, $final, $order, $dir, $vendedor); 
+
+        //INICIAR VARIABLES
+        
+        $moneda = $ventaVendedor[0]->MONEDA;
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+        $intervalo = $inicio.'/'.$final;
+        $total = 0;
+        $c_rows = 0;
+        $iva = 0;
+        $subtotal = 0;
+        $articulos = [];
+        $limite = 35;
+
+        // INICIAR MPDF 
+
+        $mpdf = new \Mpdf\Mpdf([
+            'margin_left' => 20,
+            'margin_right' => 20,
+            'margin_top' => 18,
+            'margin_bottom' => 10,
+            'margin_header' => 5,
+            'margin_footer' => 10
+        ]);
+
+        $mpdf->SetDisplayMode('fullpage');
+
+        foreach ($ventaVendedor as $key => $value) {
+
+            $total = $total + $value->TOTAL;
+            $iva = $iva + $value->IVA;
+            $subtotal = $subtotal + $value->SUBTOTAL;
+            $nombre = strtolower($value->CLIENTE);
+            $vendedor = strtolower($value->VENDEDOR);
+            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $articulos[$c_rows]['CODIGO'] = $value->CODIGO;
+            $fecha = substr($value->FECHA,0,-9);
+            $articulos[$c_rows]['FECHA'] = $fecha;
+            $articulos[$c_rows]['HORA'] = $value->HORA;
+            $articulos[$c_rows]['VENDEDOR'] = ucwords($vendedor);
+            $articulos[$c_rows]['IVA'] = Common::formato_precio($value->IVA, $candec);
+            $articulos[$c_rows]['SUBTOTAL'] = Common::formato_precio($value->SUBTOTAL, $candec);
+            $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value->TOTAL, $candec);
+            if($c_rows == $limite){
+                $articulos[$c_rows]['SALTO'] = true;
+                $limite = $limite + 43;
+            }else{
+
+                $articulos[$c_rows]['SALTO'] = false;
+            }
+            $c_rows = $c_rows + 1;
+        }
+
+        $namefile = 'reporteVentaVendedor'.time().'.pdf';
+        $data['c_rows'] = $c_rows;
+        $data['fecha'] = $fecha;
+        $data['generador'] = $generador;
+        $data['intervalo'] = $intervalo;
+        $data['articulos'] = $articulos;
+        $data['iva'] = Common::formato_precio($iva, $candec);
+        $data['subtotal'] = Common::formato_precio($subtotal, $candec);
+        $data['total'] = Common::formato_precio($total, $candec);
+
+        $html = view('pdf.rptVentaVendedor', $data)->render();
+
+        $mpdf->WriteHTML($html);
+
+        // CREAR HOJA 
+
+        $mpdf->SetProtection(array('print'));
+        $mpdf->SetTitle("ReporteVentaVendedor");
+
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output();
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function generarReporteVentaVendedor($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $sucursal = $request->input('sucursal');
+        $inicio =  date('Y-m-d', strtotime($request->input('inicio')));
+        $final = date('Y-m-d', strtotime($request->input('final')));
+        $vendedor = $request->input('vendedor');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'VENTAS.FECALTAS', 
+                            1 => 'VENTAS.CODIGO',
+                            2 => 'CLIENTES.NOMBRE',
+                            3 => 'VENTAS.FECALTAS',
+                            4 => 'VENTAS.HORA',
+                            5 => 'EMPLEADOS.NOMBRE',
+                            6 => 'VENTAS.IMPUESTOS',
+                            7 => 'VENTAS.SUB_TOTAL',
+                            8 => 'VENTAS.TOTAL'
+                        );
+        
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $item = 1;
+    
+        /*  --------------------------------------------------------------------------------- */
+
+        //  CARGAR TODOS LOS DATOS ENCONTRADOS 
+
+        $posts = Vendedores::obtenerDatos($sucursal, $inicio, $final, $order, $dir, $vendedor);     
+
+        /*  ************************************************************ */
+
+        $moneda = $posts[0]->MONEDA;
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+        $data = array();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts)){
+            foreach ($posts as $post){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $cliente = strtolower($post->CLIENTE);
+                $vendedor = strtolower($post->VENDEDOR);
+                $nestedData['ITEM'] = $item;
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CLIENTE'] = ucwords($cliente);
+                $fecha = substr($post->FECHA,0,-9);
+                $nestedData['FECHA'] = $fecha;
+                $nestedData['HORA'] = $post->HORA;
+                $nestedData['VENDEDOR'] = ucwords($vendedor);
+                $nestedData['IVA'] = Common::formato_precio($post->IVA, $candec);
+                $nestedData['SUBTOTAL'] = Common::formato_precio($post->SUBTOTAL, $candec);
+                $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
+                $data[] = $nestedData;
+                $item = $item +1;
+
+                /*  --------------------------------------------------------------------------------- */
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($item),  
+                    "recordsFiltered" => intval($item), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
 }
