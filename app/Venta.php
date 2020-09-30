@@ -4458,6 +4458,10 @@ class Venta extends Model
                 $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
         } 
 
+        if($user->id_sucursal === 4){
+             $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
+        }
+
         $totalData = $totalData->count();
 
         /*  --------------------------------------------------------------------------------- */
@@ -4490,13 +4494,19 @@ class Venta extends Model
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
-                         ->limit($limit)
-                         ->orderBy($order,$dir);
+                         ->limit($limit);
 
             /*  ************************************************************ */
 
             if (!empty($request->input('caja'))){
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+            }
+
+            if($user->id_sucursal===4){
+                $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
+                ->orderby('VENTAS.ID','DESC');
+            }else{
+                    $posts->orderby($order,$dir);
             } 
 
             $posts = $posts->get();
@@ -4527,12 +4537,18 @@ class Venta extends Model
                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
-                            ->limit($limit)
-                            ->orderBy($order,$dir);
+                            ->limit($limit);
 
             if (!empty($request->input('caja'))){
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
             } 
+
+            if($user->id_sucursal===4){
+                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
+                 ->orderby('VENTAS.ID','DESC');
+            }else{
+                    $posts->orderby($order,$dir);
+            }
 
             $posts = $posts->get();                
 
@@ -4555,6 +4571,10 @@ class Venta extends Model
 
             if (!empty($request->input('caja'))){
                 $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+            }
+
+            if($user->id_sucursal===4){
+                $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
 
             $totalFiltered = $totalFiltered->count();
@@ -5201,6 +5221,13 @@ class Venta extends Model
                 $nestedData['PRECIO'] = Common::precio_candec_sin_letra($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
 
+                $nestedData['ACCION'] = '<form class="form-inline">
+                                            <div class="custom-control custom-checkbox">
+                                              <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->COD_PROD.'">
+                                              <label for='.$post->COD_PROD.' class="custom-control-label"></label>
+                                              <input type="number" value='.$post->CANTIDAD.' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$post->CANTIDAD.'>
+                                            </div>
+                                         </form>';
 
                 $data[] = $nestedData;
 
