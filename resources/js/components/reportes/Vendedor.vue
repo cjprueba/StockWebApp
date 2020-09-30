@@ -1,5 +1,5 @@
 <template>
-	<!-- VENTA VENDEDOR  -->
+	<!-- VENTA VENDv-if="$can('reporte.delivery')"EDOR  -->
 	<div class="container">
 		<div class="card mt-3  shadow border-bottom-primary" >
 		  <div class="card-header">Ventas por Vendedor</div>
@@ -89,6 +89,15 @@
 			  </div>
 			</div>
 		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+		
+		<!-- <div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div> -->
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 	<!-- VENTA VENDEDOR -->
 </template>
@@ -174,12 +183,12 @@
 	                 				sucursal: me.selectedSucursal,
 						        	inicio: String(me.selectedInicialFecha),
 						        	final: String(me.selectedFinalFecha),
-						        	vendedor: me.selectedVendedor
+						        	vendedor: me.selectedVendedor,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
 	                 			},
 		                  "url": "/ventaVendedorDatatable",
 		                  "dataType": "json",
-		                  "type": "GET",
-		                  "contentType": "application/json; charset=utf-8"
+		                  "type": "POST"
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },

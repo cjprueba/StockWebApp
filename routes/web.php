@@ -258,7 +258,7 @@ Route::post('devendedores', 'DevolucionController@mostrar');
 Route::post('vendedores', 'VendedorController@mostrar');
 Route::post('/vendedor/datatable', 'VendedorController@datatable');
 Route::post('pdf-rptVendedor', 'VendedorController@reporteVendedor');
-Route::get('ventaVendedorDatatable', 'VendedorController@generarVentaVendedor');
+Route::post('ventaVendedorDatatable', 'VendedorController@generarVentaVendedor');
 
 /* -------------------------------------------------------------------------- */
 
