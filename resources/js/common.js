@@ -5405,7 +5405,7 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
-		reporteVentaVendedorCommon
+		reporteVentaVendedorCommon,
 		obtenerProductoOfertaCommon,
 		devolverTransferenciaCommon,
 		marcarTodoTransferenciaCommon,
