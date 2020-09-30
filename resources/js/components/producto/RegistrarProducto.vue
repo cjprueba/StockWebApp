@@ -920,7 +920,7 @@
 				    				<!-- NUEVO -->
 
 				    				<div class="form-group mx-sm-3">
-				    					<button class="btn btn-secondary" v-on:click="limpiar()">Nuevo</button>
+				    					<button class="btn btn-secondary" v-on:click="limpiar_nuevo()">Nuevo</button>
 				    				</div>
 
 				    				<!-- ------------------------------------------------------------------ -->	
@@ -1168,7 +1168,7 @@
 
 						return;
             		}else if(data.response===false){
-            			/*this.limpiar();*/
+            			//this.limpiar();
             				return;
   
             			
@@ -1680,7 +1680,12 @@
 
 	            // ------------------------------------------------------------------------
 
-            }, obtenerCodigo(){
+            },limpiar_nuevo(){
+            		this.limpiar();
+            		this.obtenerCodigo();
+            },
+
+             obtenerCodigo(){
 
             	// ------------------------------------------------------------------------
 
@@ -2247,9 +2252,7 @@
             	
             	// ------------------------------------------------------------------------
 
-            	// GENERAR NUEVO CODIGO 
-
-            	this.obtenerCodigo();
+            	
 
             	// ------------------------------------------------------------------------
 

@@ -51,6 +51,61 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+        <!-- MODAL ELECCION DE MONEDA -->
+
+                  <div class="modal fade" id="modalMoneda" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Opciones</h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">Moneda</legend>
+                            <div class="col-sm-10">
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                                <label class="form-check-label" for="gridRadios1">
+                                  Guaranies
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                                <label class="form-check-label" for="gridRadios2">
+                                  Dolares
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <label class="form-check-label" for="gridRadios3">
+                                  Reales
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <label class="form-check-label" for="gridRadios4">
+                                  Pesos
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="enviar">Aceptar</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+        <!-- ------------------------------------------------------------------------ -->
+
 		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div> -->
@@ -75,7 +130,13 @@
       data(){
         return {
           	codigoTransferencia: '',
-          	procesar: false
+          	procesar: false,
+          	radio: {
+          		moneda: '1'
+          	},
+          	pedido: {
+          		codigo: ''
+          	}
         }
       }, 
       methods: {
@@ -153,6 +214,14 @@
 
 				// ------------------------------------------------------------------------
 
+      		}, enviar() {
+
+      			this.procesar = true;
+
+      			Common.generarRptPdfPedidoCommon(this.pedido.codigo, this.radio.moneda).then( () => {
+	                   		this.procesar = false;
+	            });
+
       		}
       },
         mounted() {
@@ -177,8 +246,7 @@
                                  },
                                  "url": "/pedido/mostrar/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "json"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },
@@ -241,13 +309,10 @@
 	                    // *******************************************************************
 
 	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
-	                    
-	                   	me.procesar = true;
+
+	                   	$('#modalMoneda').modal('show');
 	                   	var row  = $(this).parents('tr')[0];
-	                   	Common.generarRptPdfPedidoCommon(tablePedido.row( row ).data().CODIGO).then( () => {
-	                   		me.procesar = false;
-	                   	});
-	                   	
+	                   	me.pedido.codigo = tablePedido.row( row ).data().CODIGO;
 
 	                    // *******************************************************************
 

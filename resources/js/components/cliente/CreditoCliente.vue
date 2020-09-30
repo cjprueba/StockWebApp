@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('compra.mostrar')">
+		<div class="row" >
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -34,8 +34,13 @@
 		                    <th>Nombre</th>
 		                    <th>Celular</th>
 		                    <th>Telefono</th>
-		                    <th>Monto</th>
-		                    <!-- <th>Acción</th> -->
+		                    <th>Saldo</th>
+		                    <th>Pago</th>
+		                    <th>Total</th>
+		                    <th>Acción</th>
+		                    <th>Moneda</th>
+		                    <th>Candec</th>
+		                    <th>Deuda Crudo</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -48,10 +53,10 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
-
+ -->
 		<!-- ------------------------------------------------------------------------ -->
 
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
@@ -64,7 +69,7 @@
 
 		<!-- MODAL PAGAR CUENTA -->
 
-		<div class="modal fade producto-modal" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal fade producto-modal bg-dark" id="modalAbono" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
                       <div class="modal-content">
                         
@@ -77,24 +82,26 @@
 						
 						<div class="modal-body">  
                         	<div class="row">
-                        		<div class="col-md-12 mb-3">
-                        			<button class="btn btn-primary"><font-awesome-icon icon="plus" /> Abonar</button>
+                        		<div class="col-md-12 mb-1">
+                        			<button class="btn btn-primary" v-on:click="abonar"><font-awesome-icon icon="plus" /> Abonar</button>
                         			<button class="btn btn-danger"><font-awesome-icon icon="trash" /> Eliminar</button>
                         			<button class="btn btn-primary"><font-awesome-icon icon="print" /> Recibo</button>
                         		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+                        			
                         		<div class="col-md-12">
                         			<table id="tablaClienteCreditoDet" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
 							            <thead>
 							                <tr>
-							                    <th>Doc.</th>
-							                    <th>Folio</th>
-							                    <th>Serie</th>
-							                    <th>Fecha</th>
+							                    <th>Codigo.</th>
+							                    <th>Creacion</th>
 							                    <th>Vencimiento</th>
-							                    <th>Crédito</th>
-							                    <th>Abonos</th>
+							                    <th>Deuda</th>
+							                    <th>Pago</th>
 							                    <th>Saldo</th>
-							                    <!-- <th>Acción</th> -->
 							                </tr>
 							            </thead>
 							            <tbody>
@@ -103,15 +110,18 @@
 							        </table> 
                         		</div>	
 
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+
                         		<div class="col-md-12">
-                        			<table id="tablaClienteCreditoDet" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+                        			<table id="tablaClienteCreditoAbono" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
 							            <thead>
 							                <tr>
-							                    <th>Fecha</th>
-							                    <th>TP</th>
-							                    <th>Mult. Pago</th>
-							                    <th>Referencia</th>
-							                    <th>Total</th>
+							                    <th>ID</th>
+							                    <th>FECHA</th>
+							                    <th>PAGO</th>
+							                    <th>SALDO</th>
 							                    <!-- <th>Acción</th> -->
 							                </tr>
 							            </thead>
@@ -129,6 +139,12 @@
 		
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- FORMA PAGO -->
+
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" :tipo="3" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+
+		<!-- ------------------------------------------------------------------------ -->	
+
 	</div>
 </template>
 <script>
@@ -138,8 +154,22 @@
 	  props: ['id_sucursal'],	
       data(){
         return {
-          	codigoTransferencia: '',
-          	procesar: false
+          	codigoVenta: '',
+          	procesar: false,
+          	caja: {
+          		CODIGO: ''
+          	},
+          	venta: {
+          		TOTAL: '',
+          		TOTAL_CRUDO: ''
+          	},
+          	moneda: {
+          		CODIGO: '',
+          		DECIMAL: ''
+          	},
+          	cliente: {
+          		CODIGO: ''
+          	}
         }
       }, 
       methods: {
@@ -154,7 +184,11 @@
 
       			// ------------------------------------------------------------------------
 
-      		}, detalleCredito(){
+      		}, detalleCredito(codigo) {
+
+      			// ------------------------------------------------------------------------
+
+      			// DETALLE CREDITOS VENTAS
 
       			var tableClienteCreditoDet = $('#tablaClienteCreditoDet').DataTable({
                         "processing": true,
@@ -163,25 +197,236 @@
                         "bAutoWidth": true,
                         "select": true,
                         "ajax":{
-                                 "url": "/cliente/credito/datatable",
+                        		 "data": {
+                        		 	codigo: codigo,
+                        		 	"_token": $('meta[name="csrf-token"]').attr('content')
+                        		 },
+                                 "url": "/cliente/credito/detalle/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },
-                            { "data": "NOMBRE" },
-                            { "data": "CELULAR" },
-                            { "data": "TELEFONO" },
-                            { "data": "MONTO" }
-                        ]      
+                            { "data": "FECALTAS" },
+                            { "data": "VENCIMIENTO" },
+                            { "data": "DEUDA" },
+                            { "data": "PAGO" },
+                            { "data": "SALDO" }
+                        ],
+                        "order": [[ 0, "desc" ]],
+		                "createdRow": function( row, data, dataIndex){
+		                    $(row).addClass(data['ESTATUS']);
+		                }       
                 });
 
+      			// ------------------------------------------------------------------------
+
+      		}, detalleAbono(codigo){
+
+      			// ------------------------------------------------------------------------
+
+      			// DETALLE CREDITOS VENTAS
+
+      			var tableClienteCreditoDetAbono = $('#tablaClienteCreditoAbono').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                        		 "data": {
+                        		 	codigo: codigo,
+                        		 	"_token": $('meta[name="csrf-token"]').attr('content')
+                        		 },
+                                 "url": "/cliente/credito/detalle/abono/datatable",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "FECHA" },
+                            { "data": "PAGO" },
+                            { "data": "SALDO" }
+                        ],
+                        "order": [[ 0, "desc" ]]         
+                });
+
+      			// ------------------------------------------------------------------------
+
+      		}, abonar(){
+
+      			// ------------------------------------------------------------------------
+
+      			let me = this;
+
+      			// ------------------------------------------------------------------------
+
+	        	me.$refs.compontente_medio_pago.procesarFormas();
+
+	        	// ------------------------------------------------------------------------
+
+      		},
+      		obtenerCaja() {
+
+      			let me=this;
+          		
+          		// ------------------------------------------------------------------------
+
+          		// OBTENER CAJA 
+
+          		Common.obtenerIPCommon(function(){
+
+          			if (window.IPv !== false) {
+          				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
+	                	  if (response.data.response === true) {
+	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
+	                	  	  // me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
+	                	  	  // me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
+	                	  	  // me.numeracion();
+	                	  } else {
+	                	  		
+	                	  	  	Swal.fire({
+									title: 'NO SE PUDO OBTENER CAJA',
+									type: 'warning',
+									confirmButtonColor: '#d33',
+									confirmButtonText: 'Aceptar',
+								}).then((result) => {
+									
+									window.location.href = '/vt2';
+
+								})	
+
+	                	  }		
+			              
+			            })
+          			} else {
+
+
+          				Swal.fire({
+							title: 'NO SE PUDO OBTENER LA IP DE LA MAQUINA',
+							type: 'warning',
+							confirmButtonColor: '#d33',
+							confirmButtonText: 'Aceptar',
+						}).then((result) => {
+									
+							window.location.href = '/vt2';
+
+						})
+
+          			}
+                	
+                });
+
+                // ------------------------------------------------------------------------
+
+      		},
+      		formaPago(datos){
+
+      			// ------------------------------------------------------------------------
+
+      			let me = this;
+
+      			// ------------------------------------------------------------------------
+
+      			// INICIAR VARIABLES
+
+      			var tableClienteCredito = $('#tablaClienteCredito').DataTable();
+      			var tableClienteCreditoDet = $('#tablaClienteCreditoAbono').DataTable();
+      			var tableClienteCreditoDetAbono = $('#tablaClienteCreditoAbono').DataTable();
+
+      			// ------------------------------------------------------------------------
+
+	        	if (me.caja.CODIGO === null) {
+	        		Swal.fire({
+						title: 'NO SE PUDO OBTENER CAJA',
+						type: 'warning',
+						confirmButtonColor: '#d33',
+						confirmButtonText: 'Aceptar',
+					})
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	// GUARDAR 
+
+	        	this.respuesta = {
+	        		cliente: this.cliente.CODIGO,
+	        		caja: this.caja.CODIGO,
+	        		moneda: this.moneda.CODIGO,
+	        		estatus: 2,
+	        		pago: datos,
+	        	}
+
+	        	Swal.fire({
+				  title: 'Guardando Pago',
+				  html: 'Cerrare en cuanto modifique la venta.',
+				  onBeforeOpen: () => {
+
+				  	// ------------------------------------------------------------------------
+
+				  	// MOSTRAR CARGAR 
+
+				    Swal.showLoading()
+				    
+				    // ------------------------------------------------------------------------
+
+				    Common.guardarPagoCreditoCommon(me.respuesta).then(data => {
+
+				    		// ------------------------------------------------------------------------
+
+					    	if (!data.response === true) {
+					          throw new Error(data.statusText);
+					        }
+
+					        if (data.response) {
+
+					        	Swal.close();
+
+								// ------------------------------------------------------------------------
+
+								Swal.fire(
+									'Guardado !',
+									 data.statusText,
+									'success'
+								)
+
+								// ------------------------------------------------------------------------ 
+
+								// RECARGAR TABLA 
+
+				  				$('#modalAbono').modal('toggle');
+								tableClienteCredito.ajax.reload( null, false );
+								tableClienteCreditoDet.ajax.reload( null, false );
+      							tableClienteCreditoDetAbono.ajax.reload( null, false );
+
+								// ------------------------------------------------------------------------
+
+								me.$refs.compontente_medio_pago.limpiar();
+
+								// ------------------------------------------------------------------------
+								
+							}
+
+							// ------------------------------------------------------------------------
+
+					}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					 });
+				  }
+				}).then((result) => {
+
+				  	
+
+				})
       		}
       },
         mounted() {
         	
         	let me = this;
+        	me.obtenerCaja();
 
             $(document).ready( function () {
 
@@ -196,18 +441,27 @@
                         "bAutoWidth": true,
                         "select": true,
                         "ajax":{
+                        		"data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
                                  "url": "/cliente/credito/datatable",
                                  "dataType": "json",
-                                 "type": "GET",
-                                 "contentType": "application/json; charset=utf-8"
+                                 "type": "POST"
                                },
                         "columns": [
                             { "data": "CODIGO" },
                             { "data": "NOMBRE" },
                             { "data": "CELULAR" },
                             { "data": "TELEFONO" },
-                            { "data": "MONTO" }
-                        ]      
+                            { "data": "DEUDA" },
+                            { "data": "PAGO" },
+                            { "data": "MONTO" },
+                            { "data": "ACCION" },
+                            { "data": "MONEDA", "visible": false },
+                            { "data": "CANDEC", "visible": false },
+                            { "data": "DEUDA_CRUDO", "visible": false },
+                        ],
+                        "order": [[ 0, "desc" ]]         
                     });
                     
 	 				// ------------------------------------------------------------------------
@@ -215,25 +469,6 @@
 	 				// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
 
             		tableClienteCredito.columns.adjust().draw();
-
-            		// ------------------------------------------------------------------------
-
-                	// EDITAR TRANSFERENCIA
-
-                    $('#tablaClienteCredito').on('click', 'tbody tr', function() {
-
-	                    // *******************************************************************
-
-	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
-	                   	
-	                   	$('#staticBackdrop').modal('show');
-	                   	me.detalleCredito();
-	                   	// var row  = $(this).parents('tr')[0];
-	                    // me.editarCompra(tableClienteCredito.row( row ).data().CODIGO);
-
-	                    // *******************************************************************
-
-	                });
 
                     // ------------------------------------------------------------------------
 
@@ -275,14 +510,22 @@
 
                     // ------------------------------------------------------------------------
 
-                    $('#tablaClienteCredito').on('click', 'tbody tr #mostrar', function() {
+                    $('#tablaClienteCredito').on('click', 'tbody tr #abonar', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 
+	                     $('#modalAbono').modal('show');
 	                   	 var row  = $(this).parents('tr')[0];
-	                   	 me.mostrarModalTranferencia(tableClienteCredito.row( row ).data().CODIGO);
+	                   	 me.detalleCredito(tableClienteCredito.row( row ).data().CODIGO);
+	                   	 me.detalleAbono(tableClienteCredito.row( row ).data().CODIGO);
+
+				         me.venta.TOTAL = tableClienteCredito.row( row ).data().DEUDA;
+				         me.venta.TOTAL_CRUDO = tableClienteCredito.row( row ).data().DEUDA_CRUDO;
+				         me.moneda.CODIGO = tableClienteCredito.row( row ).data().MONEDA;
+				         me.moneda.DECIMAL = tableClienteCredito.row( row ).data().CANDEC;
+				         me.cliente.CODIGO = tableClienteCredito.row( row ).data().CODIGO;
 
 	                    // *******************************************************************
 

@@ -864,13 +864,15 @@ class Pedido extends Model
                         PEDIDOS.TOTAL, 
                         PEDIDOS.ESTATUS, 
                         PEDIDOS.FK_MONEDA AS MONEDA,
-                        PEDIDOS.FECALTAS'
+                        PEDIDOS.FECALTAS,
+                        MONEDAS.CANDEC'
         ))
         ->leftJoin('CLIENTES', function($join){
 	        $join->on('CLIENTES.CODIGO', '=', 'PEDIDOS.CLIENTE_ID')
 	        ->on('CLIENTES.ID_SUCURSAL', '=', 'PEDIDOS.ID_SUCURSAL');
 	    })
         ->leftjoin('USERS', 'USERS.ID', '=', 'PEDIDOS.USER_ID')
+        ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PEDIDOS.FK_MONEDA')
 		->where('PEDIDOS.ID','=', $codigo)
 		->get();
 
@@ -991,6 +993,18 @@ class Pedido extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // INICIAR VARIABLES 
 
         $c = 0;
@@ -1015,8 +1029,12 @@ class Pedido extends Model
         $switch_hojas = false;
         $namefile = 'boleta_de_pedido_'.time().'.pdf';
         $letra = '';
-        $total = Common::precio_candec_sin_letra($pedido->TOTAL, $moneda);
+        
+        
+        $total =  (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($pedido->TOTAL, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
         $factura = $pedido->ID;
+
+        $total = Common::precio_candec(Common::quitar_coma($total, 2), (int)$dato['moneda']);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1068,16 +1086,19 @@ class Pedido extends Model
 
             // SI NO ENCUENTRA COTIZACION RETORNAR 
 
-            $articulos[$c_rows]["precio"] = Common::precio_candec($precio, $value["MONEDA"]);
+            $articulos[$c_rows]["precio"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($precio, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
 
+            $articulos[$c_rows]["precio"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["precio"], 2), (int)$dato['moneda']);
             // CARGAR VARIABLES 
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
             $articulos[$c_rows]["descripcion"] = $value["DESCRIPCION"];
-            $articulos[$c_rows]["total"] = Common::precio_candec($totalP, $value["MONEDA"]);
+            $articulos[$c_rows]["total"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($totalP, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
             $articulos[$c_rows]["peso"] = $value["PESO"];
 
+            $articulos[$c_rows]["total"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["total"], 2), (int)$dato['moneda']);
+            
 	        $total = Common::quitar_coma($total, 2) +Common::quitar_coma($totalP,2);
 	        
 
@@ -1108,8 +1129,8 @@ class Pedido extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
 
-		        $data['total'] = Common::precio_candec($total, $moneda);;
-		        $data['subtotal'] = $subtotal;
+		        $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+		        $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
 
                 $html = view('pdf.facturaPedido', $data)->render();
 
@@ -1132,10 +1153,11 @@ class Pedido extends Model
                 // AGREGAR ARTICULOS 
                 
                 $data['articulos'] = $articulos;
-		        $data['total'] = Common::precio_candec($total, $moneda);
+		        $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+                $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
 
                 // CREAR HOJA 
-
+                
                 $html = view('pdf.facturaPedido', $data)->render();
 
                 if ($switch_hojas === true) {
@@ -1154,5 +1176,45 @@ class Pedido extends Model
         $mpdf->Output();
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function inicio_catalogo(){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS CATEGORIAS
+
+        $categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION', 'ASC')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS CATEGORIAS
+        
+        $marcas = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION', 'ASC')
+        ->get();
+      
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS PROVEEDORES 
+
+        $proveedores = Proveedor::select(DB::raw('CODIGO, NOMBRE AS DESCRIPCION'))
+        ->orderBy('NOMBRE', 'ASC')
+        ->get();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if ($categorias) {
+            return ['categorias' => $categorias, 'marcas' => $marcas, 'proveedores' => $proveedores];
+        } else {
+            return ['categorias' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

@@ -411,6 +411,12 @@ class Vendedores extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        
+        /*  --------------------------------------------------------------------------------- */
+        
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
@@ -423,7 +429,7 @@ class Vendedores extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Vendedores::count();  
+        $totalData = Vendedores::where('ID_SUCURSAL', '=', $user->id_sucursal)->count();  
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -447,6 +453,7 @@ class Vendedores extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
             $posts = Vendedores::select(DB::raw('CODIGO, CI, NOMBRE'))
+                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -467,6 +474,7 @@ class Vendedores extends Model
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
             $posts = Vendedores::select(DB::raw('CODIGO, CI, NOMBRE'))
+                            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
@@ -484,6 +492,7 @@ class Vendedores extends Model
                                 $query->where('CI','LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
+                            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                              ->count();
 
             /*  ************************************************************ */  

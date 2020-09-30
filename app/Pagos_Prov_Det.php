@@ -17,7 +17,7 @@ class Pagos_Prov_Det extends Model
     public static function insertar($data){
 
     	try {
-
+        
     	/*  --------------------------------------------------------------------------------- */
 
     	$pago = Pagos_Prov_Det::insertGetId([

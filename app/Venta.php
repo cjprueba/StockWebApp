@@ -22,6 +22,7 @@ use App\VentaCredito;
 class Venta extends Model
 {
     protected $connection = 'retail';
+    public $timestamps = false;
 
     public static function ventas($fecha)
     {
@@ -1872,6 +1873,14 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // INICIAR VARIABLE FORMA DE COBRO
+
+            $pago_al_entregar = $data["data"]["pago"]["PAGO_AL_ENTREGAR"];
+            $tipo_venta = 'CO';
+            $estatus_venta = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
             // INICIAR VARIABLES
 
             $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
@@ -1896,20 +1905,20 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            // REVISAR DINERO Y QUITARLE VUELTO 
+            // REVISAR DINERO Y QUITARLE VUELTO SI EL PAGO NO ES AL ENTREGAR
 
             $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
 
-            if ($opcion_vuelto === '1') {
+            if ($opcion_vuelto === '1' && $pago_al_entregar === false) {
                 $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
-            } else if ($opcion_vuelto === '2') {
+            } else if ($opcion_vuelto === '2' && $pago_al_entregar === false) {
                 $dolares = $dolares - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , 2);
-            } else if ($opcion_vuelto === '3') {
+            } else if ($opcion_vuelto === '3' && $pago_al_entregar === false) {
                 $reales = $reales - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2);
-            } else if ($opcion_vuelto === '4') {
+            } else if ($opcion_vuelto === '4' && $pago_al_entregar === false) {
                 $pesos = $pesos - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2);
             } 
-
+            
             /*  --------------------------------------------------------------------------------- */
 
             // VUELTO PRINCIPAL 
@@ -2307,6 +2316,32 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // REVISAR TIPO DE VENTA 
+
+            if ($credito !== '0' && $credito !== '0.00' && $credito !== NULL) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // TIPO CREDITO 
+
+                $tipo_venta = 'CR';
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else if ($pago_al_entregar === true) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // PARA FIJAR PAGO AL ENTREGAR 
+                
+                $tipo_venta = 'PE';
+                $estatus_venta = 2;
+
+                /*  --------------------------------------------------------------------------------- */
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
             // INSERTAR VENTA 
 
             $venta = Venta::insertGetId(
@@ -2318,7 +2353,7 @@ class Venta extends Model
                     "CAJA" => $caja, 
                     "CLIENTE" => $cliente, 
                     "VENDEDOR" => $vendedor, 
-                    "TIPO" => 'CO', 
+                    "TIPO" => $tipo_venta, 
                     //"FORMA_PAGO" => '', 
                     "PLAN_PAGO" => 0, 
                     "TARJETA" => 0, 
@@ -2357,7 +2392,7 @@ class Venta extends Model
 
             VentasAnulado::guardar_referencia([
                     'FK_VENTA' => $venta,
-                    'ANULADO' => 0,
+                    'ANULADO' => $estatus_venta,
                     'FECHA' => date('Y-m-d H:i:s')
             ]);
 
@@ -2431,9 +2466,24 @@ class Venta extends Model
                         'MONTO' => $credito,
                         'MONEDA' => $moneda,
                         'DIAS_CREDITO' => $dias_credito,
-                        'FECHA_CREDITO_FIN' => $credito_fin
+                        'FECHA_CREDITO_FIN' => $credito_fin,
+                        'SALDO' => $credito
                 ]);
                 
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER ID CLIENTE 
+
+                $id_cliente = (Cliente::id_cliente($cliente))['ID_CLIENTE'];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // ACTUALIZAR CREDITO 
+
+                Cliente::actualizarCredito($id_cliente);
+
+                /*  --------------------------------------------------------------------------------- */
+
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2645,8 +2695,10 @@ class Venta extends Model
 
         // RETORNAR VALOR 
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'EPSON LX-350 ESC/P (Copy 3)'];
+        // return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'Microsoft Print to PDF'];
 
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA'];
+        
         /*  --------------------------------------------------------------------------------- */
 
     }
@@ -2673,12 +2725,15 @@ class Venta extends Model
                         'VENTAS.CODIGO,
                         VENTAS.FECALTAS,  
                         CLIENTES.NOMBRE AS CLIENTE,
+                        CLIENTES.RAZON_SOCIAL,
                         CLIENTES.DIRECCION,
                         CLIENTES.RUC,
                         CLIENTES.CI,
                         VENTAS.TIPO,
                         VENTAS.HORALTAS,
                         VENTAS.CAJA,
+                        CLIENTES.CELULAR,
+                        CLIENTES.TELEFONO,
                         EMPLEADOS.NOMBRE AS VENDEDOR,
                         VENTAS.USER AS CAJERO,
                         VENTAS.EFECTIVO AS PAGO,
@@ -2686,7 +2741,8 @@ class Venta extends Model
                         VENTAS.DESCUENTO,
                         VENTAS.CODIGO_CA,
                         VENTAS.TIPO,
-                        VENTAS.MONEDA'
+                        VENTAS.MONEDA,
+                        VENTAS.TOTAL'
                     ))
         ->leftJoin('CLIENTES', function($join){
                                 $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
@@ -2717,6 +2773,22 @@ class Venta extends Model
 
         if ($venta[0]->RUC === '' || $venta[0]->RUC === null) {
             $venta[0]->RUC = $venta[0]->CI;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TELEFONO / CELULAR
+
+        if ($venta[0]->TELEFONO === '' || $venta[0]->TELEFONO === null) {
+            $venta[0]->TELEFONO = $venta[0]->CELULAR;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RAZON SOCIAL
+
+        if ($venta[0]->RAZON_SOCIAL !== '' && $venta[0]->RAZON_SOCIAL !== null) {
+            $venta[0]->CLIENTE = $venta[0]->RAZON_SOCIAL;
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -3147,7 +3219,7 @@ class Venta extends Model
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
-        ->where('TIPO', '=', 'CO')
+        ->where('TIPO', '<>', 'CR')
         ->where('CAJA', '=', $dato['caja'])
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
@@ -3163,6 +3235,19 @@ class Venta extends Model
         ->where('TIPO', '=', 'CR')
         ->where('CAJA', '=', $dato['caja'])
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES PAGO A ENTREGAR
+
+        $pe = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('TIPO', '=', 'PE')
+        ->where('CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 2)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -3217,6 +3302,21 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // CHEQUE
+        
+        $cheque = VentaCheque::select(DB::raw('IFNULL(SUM(VENTAS_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_CHEQUE.MONEDA'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CHEQUE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_CHEQUE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->groupBy('VENTAS_CHEQUE.MONEDA')
+        ->get();
+
+
+        /*  --------------------------------------------------------------------------------- */
+
         // SUMAR ANULADOS
 
         $anulados = Venta::select('CODIGO')
@@ -3226,6 +3326,109 @@ class Venta extends Model
         ->where('CAJA', '=', $dato['caja'])
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ************************************ ABONO *****************************************
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // SUMAR TODOS LOS VALORES ABONO
+
+        $abono = VentaAbono::select(DB::raw('IFNULL(SUM(PAGO), 0) AS T_TOTAL'))
+        ->where('FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TARJETA ABONO
+        
+        $tarjetaAbono = VentaAbonoTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_TARJETA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_TARJETA.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRANSFERENCIA ABONO
+        
+        $transferenciaAbono = VentaAbonoTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_TRANSFERENCIA.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO ABONO
+        
+        $giroAbono = VentaAbonoGiro::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_GIRO.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_GIRO.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VALE ABONO
+        
+        $valeAbono = VentaAbonoVale::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_VALE.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_VALE.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CHEQUE ABONO
+        
+        $chequeAbono = VentaAbonoCheque::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_ABONO_CHEQUE.MONEDA'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_CHEQUE.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->groupBy('VENTAS_ABONO_CHEQUE.MONEDA')
+        ->get();
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS ABONO
+        
+        $monedaAbono = VentaAbonoMoneda::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_MONEDAS.MONTO), 0) AS TOTAL, VENTAS_ABONO_MONEDAS.FK_MONEDA'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_MONEDAS.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->groupBy('VENTAS_ABONO_MONEDAS.FK_MONEDA')
+        ->get();
+
+        
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($monedaAbono as $key => $value) {
+
+           if ($value->FK_MONEDA === 1) {
+                $contado[0]->GUARANIES = $contado[0]->GUARANIES + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 2) {
+                $contado[0]->DOLARES = $contado[0]->DOLARES + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 3) {
+                $contado[0]->PESOS = $contado[0]->PESOS + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 4) {
+                $contado[0]->REALES = $contado[0]->REALES + $value->TOTAL;
+           }
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3291,6 +3494,11 @@ class Venta extends Model
         $switch_hojas = false;
         $namefile = 'boleta_de_venta_'.time().'.pdf';
         $letra = '';
+
+        $cheque_dolar = 0.00;
+        $cheque_guarani = 0;
+        $cheque_peso = 0.00;
+        $cheque_real = 0.00;
 
         /*  --------------------------------------------------------------------------------- */
         
@@ -3377,26 +3585,99 @@ class Venta extends Model
         $pdf->Cell(25, 4, 'Transferencia:', 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL, 1),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR CHEQUES 
+
+        foreach ($chequeAbono as $key => $value) {
+
+           if ($value->MONEDA === 1) {
+                $cheque_guarani = $cheque_guarani + $value->TOTAL;
+           } else if ($value->MONEDA === 2) {
+                $cheque_dolar = $cheque_dolar + $value->TOTAL;
+           } else if ($value->MONEDA === 3) {
+                $cheque_peso = $cheque_peso + $value->TOTAL;
+           } else if ($value->MONEDA === 4) {
+                $cheque_real = $cheque_real + $value->TOTAL;
+           }
+
+        }
+
+        foreach ($cheque as $key => $value) {
+
+            if ($value->MONEDA === 1) {
+                $cheque_guarani = $cheque_guarani + $value->TOTAL;
+           } else if ($value->MONEDA === 2) {
+                $cheque_dolar = $cheque_dolar + $value->TOTAL;
+           } else if ($value->MONEDA === 3) {
+                $cheque_peso = $cheque_peso + $value->TOTAL;
+           } else if ($value->MONEDA === 4) {
+                $cheque_real = $cheque_real + $value->TOTAL;
+           }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CHEQUES 
+        $pdf->SetFont('Helvetica','B',8);
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, 'CHEQUES:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, '',0,0,'R');
+        $pdf->Ln(4);
+        $pdf->SetFont('Helvetica','',8);
+
+        $pdf->Cell(25, 4, 'Guaranies', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani, 1),0,0,'R');
         $pdf->Ln(4);
 
-        $pdf->Cell(25, 4, 'Cheques:', 0);
+        $pdf->Cell(25, 4, 'Dolares', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_CHEQUE, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_dolar, 2),0,0,'R');
         $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Pesos', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_peso, 3),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Reales', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_real, 4),0,0,'R');
+        $pdf->Ln(4);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+
+        $pdf->Ln(2);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+
+        /*  --------------------------------------------------------------------------------- */
 
         $pdf->Cell(25, 4, 'Giros:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($giro[0]->TOTAL, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($giro[0]->TOTAL + $giroAbono[0]->TOTAL, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Vales:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($vale[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($vale[0]->TOTAL + $valeAbono[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Giros:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_GIROS, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_GIROS  + $giroAbono[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, utf8_decode('Donación:'), 0);
@@ -3421,7 +3702,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Total Ventas:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_TOTAL + $abono[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
         // $pdf->Ln(4);
 
         // $pdf->Cell(25, 4, 'Total Efectivo:', 0);
@@ -3440,7 +3721,12 @@ class Venta extends Model
         $pdf->Ln(2);
         $pdf->Cell(25, 4, utf8_decode('Ventas Crédito:'), 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, $credito[0]->T_TOTAL,0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($credito[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Ventas PE:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($pe[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
@@ -3496,6 +3782,8 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $pdf->Output('ticket.pdf','i');
+
+        /*  --------------------------------------------------------------------------------- */
 
     }
 
@@ -3836,6 +4124,8 @@ class Venta extends Model
 
         $c = 0;
         $c_rows = 0;
+        $contado_x = '';
+        $credito_x = '';
         $c_rows_array = count($ventas_det);
         $c_filas_total = count($ventas_det);
         $codigo = $ventas->CODIGO;
@@ -3844,6 +4134,7 @@ class Venta extends Model
         $ruc = $ventas->RUC;
         $tipo = $ventas->TIPO;
         $fecha = $ventas->FECALTAS;
+        $telefono = $ventas->TELEFONO;
         $nombre = 'Venta_'.$codigo.'_'.time().'';
         $articulos = [];
         $cantidad = 0;
@@ -3858,6 +4149,16 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // TIPO 
+
+        if ($tipo === 'CRÉDITO') {
+            $credito_x = 'X';
+        } else {
+            $contado_x = 'X';
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // CARGAR VARIABLES 
         
         $data['codigo'] = $codigo;
@@ -3865,10 +4166,13 @@ class Venta extends Model
         $data['direccion'] = $direccion;
         $data['ruc'] = $ruc;
         $data['fecha'] = $fecha;
+        $data['telefono'] = $telefono;
         $data['nombre'] = $nombre;
         $data['c'] = $c;
         $data['tipo'] = 'fisico';
-        
+        $data['contado_x'] = $contado_x;
+        $data['credito_x'] = $credito_x;
+
         /*  --------------------------------------------------------------------------------- */
         
         // INICIAR MPDF 
@@ -4125,7 +4429,7 @@ class Venta extends Model
     {
 
         /*  --------------------------------------------------------------------------------- */
-
+        
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
@@ -4139,17 +4443,23 @@ class Venta extends Model
                             1 => 'CAJA', 
                             3 => 'FECHA',
                             4 => 'IVA',
-                            5 => 'TOTAL',
-                            6 => 'ACCION',
+                            5 => 'TIPO',
+                            6 => 'TOTAL',
+                            7 => 'ACCION',
                         );
         
         /*  --------------------------------------------------------------------------------- */
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal)
-                     ->count();  
+        $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
         
+        if (!empty($request->input('caja'))){
+                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
+        } 
+
+        $totalData = $totalData->count();
+
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
@@ -4171,19 +4481,25 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO'))
+            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
-                         ->orderBy($order,$dir)
-                         ->get();
+                         ->orderBy($order,$dir);
 
             /*  ************************************************************ */
+
+            if (!empty($request->input('caja'))){
+                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+            } 
+
+            $posts = $posts->get();
 
         } else {
 
@@ -4197,12 +4513,13 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO'))
+            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
@@ -4211,8 +4528,13 @@ class Venta extends Model
                             })
                             ->offset($start)
                             ->limit($limit)
-                            ->orderBy($order,$dir)
-                            ->get();
+                            ->orderBy($order,$dir);
+
+            if (!empty($request->input('caja'))){
+                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+            } 
+
+            $posts = $posts->get();                
 
             /*  ************************************************************ */
 
@@ -4227,10 +4549,17 @@ class Venta extends Model
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
                                        ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
                                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
-                            })
-                             ->count();
+                            });
 
             /*  ************************************************************ */  
+
+            if (!empty($request->input('caja'))){
+                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+            }
+
+            $totalFiltered = $totalFiltered->count();
+
+            /*  ************************************************************ */
 
         }
 
@@ -4256,14 +4585,39 @@ class Venta extends Model
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+                $nestedData['TOTAL_SIN_LETRA'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['CANDEC'] = $post->CANDEC;
+                $nestedData['CLIENTE_CODIGO'] = $post->CLIENTE_CODIGO;
 
                 if ($post->ANULADO === 1) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // VENTA ANULADA 
+
                     $nestedData['ESTATUS'] = 'table-danger';
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                } else if($post->TIPO === 'PE' && $post->ANULADO === 2) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // PAGO AL ENTREGAR PENDIENTE
+
+                    $nestedData['ESTATUS'] = 'table-warning';
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='pagarVenta' title='Pagar'><i class='fa fa-vote-yea text-success' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirPdf' title='Pdf'><i class='fa fa-file text-danger' aria-hidden='true'></i></a>";
+
+                    /*  --------------------------------------------------------------------------------- */
+
                 } else {
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirFactura' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirPdf' title='Pdf'><i class='fa fa-file text-danger' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = '';
                 }
 
@@ -4384,7 +4738,7 @@ class Venta extends Model
     public static function ventas_datatable($request)
     {
         $dia = date("Y-m-d");
-         $user = auth()->user();
+        $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4420,7 +4774,7 @@ class Venta extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('CAJA','=',$request->input('caja_numero'))->count();  
+        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('VENTAS.TIPO','=','CO')->where('CAJA','=',$request->input('caja_numero'))->count();  
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
@@ -4464,6 +4818,7 @@ class Venta extends Model
              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
              ->Where('VENTAS.FECALTAS','=',$dia)
               ->Where('VENTAS_ANULADO.anulado','=',0)
+              ->where('VENTAS.TIPO','<>','CR')
              ->where('CAJA','=',$request->input('caja_numero'))   
                 ->offset($start)
                 ->limit($limit)
@@ -4508,6 +4863,7 @@ class Venta extends Model
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
             ->Where('VENTAS.FECALTAS','=',$dia)
              ->Where('VENTAS_ANULADO.anulado','=',0)  
+             ->where('VENTAS.TIPO','<>','CR')
             ->where('CAJA','=',$request->input('caja_numero')) 
             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
@@ -4546,6 +4902,7 @@ class Venta extends Model
             ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
             ->Where('VENTAS.FECALTAS','=',$dia)
+            ->where('VENTAS.TIPO','<>','CR')
              ->Where('VENTAS_ANULADO.anulado','=',0)
             ->where('CAJA','=',$request->input('caja_numero'))
             ->where(function ($query) use ($search) {
@@ -5090,6 +5447,1152 @@ class Venta extends Model
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
 
        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+     public static function obtenerCuentas($request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            1 => 'PROVEEDOR',
+                            2 => 'TIPO',
+                            3 => 'NRO_FACTURA',
+                            4 => 'FEC_FACTURA',
+                            5 => 'TOTAL',
+                            6 => 'ACCION',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = Compra::where('ID_SUCURSAL','=', $user->id_sucursal)
+                     ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+                         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                         ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+                         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                         ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->where(function ($query) use ($search) {
+                                $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
+                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Compra::where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                            ->where(function ($query) use ($search) {
+                                $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
+                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['PROVEEDOR'] = $post->NOMBRE;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // TIPO DE COMPRA
+
+                if ($post->TIPO === 'CO') {
+                    $nestedData['TIPO'] = 'Contado';
+                } else if ($post->TIPO === 'CR') {
+                    $nestedData['TIPO'] = 'Credito';
+                } else if ($post->TIPO === 'CS') {
+                    $nestedData['TIPO'] = 'Consignacion';
+                } else {
+                    $nestedData['TIPO'] = 'N/A';
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['NRO_FACTURA'] = $post->NRO_CAJA;
+                $nestedData['FEC_FACTURA'] = $post->FEC_FACTURA;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+                
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function iniciar_variables_venta($data) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER CANDEC 
+
+        $moneda = $data["data"]["moneda"];
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLE FORMA DE COBRO
+
+        $pago_al_entregar = $data["data"]["pago"]["PAGO_AL_ENTREGAR"];
+        $tipo_venta = 'CO';
+        $estatus_venta = 0;
+        $vuelto = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
+        if ($guaranies === '') {
+            $guaranies = 0;
+        } 
+
+        $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
+        if ($dolares === '') {
+            $dolares = 0;
+        } 
+
+        $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
+        if ($pesos === '') {
+            $pesos = 0;
+        } 
+
+        $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
+        if ($reales === '') {
+            $reales = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR DINERO Y QUITARLE VUELTO SI EL PAGO NO ES AL ENTREGAR
+
+        $opcion_vuelto = $data["data"]["pago"]["OPCION_VUELTO"];
+
+        if ($opcion_vuelto === '1' && $pago_al_entregar === false && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2) > 0) {
+            $guaranies = $guaranies - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , 2);
+        } else if ($opcion_vuelto === '2' && $pago_al_entregar === false && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"], 2) > 0) {
+            $dolares = $dolares - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , 2);
+        } else if ($opcion_vuelto === '3' && $pago_al_entregar === false && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2) > 0) {
+            $reales = $reales - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , 2);
+        } else if ($opcion_vuelto === '4' && $pago_al_entregar === false && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2) > 0) {
+            $pesos = $pesos - Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , 2);
+        } 
+            
+        /*  --------------------------------------------------------------------------------- */
+
+        // VUELTO PRINCIPAL 
+
+        if($moneda === 1 && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec) > 0) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec);
+        } else if ($moneda === 2 && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec) > 0) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["dolares"] , $candec);
+        } else if ($moneda === 3 && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec) > 0) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["reales"] , $candec);
+        } else if ($moneda === 4 && Common::quitar_coma($data["data"]["pago"]["VUELTO"]["guaranies"] , $candec) > 0) {
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"]["pesos"] , $candec);
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        //  SI EL PAGO ES DE PAGO AL ETNREGAR NO INICIARA ESTAS VARIABLES 
+
+        if ($data["data"]["estatus"] !== 2) {
+
+            $codigo_caja = $data["data"]["cabecera"]["CODIGO_CAJA"];
+            $caja = $data["data"]["caja"]["CODIGO"];
+            $numero_caja = 'CA'.sprintf("%02d", $caja).'';
+            $cliente = $data["data"]["cliente"]["CODIGO"];
+            $vendedor = $data["data"]["vendedor"]["CODIGO"];
+            $opcion_impresion = $data["data"]["pago"]["TIPO_IMPRESION"];
+
+        }    
+        
+        $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
+        $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Tarjeta
+            
+        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
+        $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
+             
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRANSFERENCIA 
+
+        $transferencia = Common::quitar_coma($data["data"]["pago"]["TRANSFERENCIA"], 0);
+        $codigo_banco = $data["data"]["pago"]["CODIGO_BANCO"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCUENTO GENERAL 
+
+        $descuento_general = Common::quitar_coma($data["data"]["pago"]["DESCUENTO_GENERAL"], $candec);
+        $descuento_general_porcentaje = $data["data"]["pago"]["DESCUENTO_GENERAL_PORCENTAJE"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO 
+
+        $giro = Common::quitar_coma($data["data"]["pago"]["GIRO"], 0);
+        $codigo_entidad = $data["data"]["pago"]["CODIGO_ENT"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VALE 
+
+        $vale = Common::quitar_coma($data["data"]["pago"]["VALE"], 2);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREDITO
+
+        $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
+        $dias_credito = $data["data"]["pago"]["DIAS_CREDITO"];
+        $credito_fin = $data["data"]["pago"]["CREDITO_FIN"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CHEQUE
+
+        $cheques = $data["data"]["pago"]["CHEQUE"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return [
+            'MONEDA' => $moneda,
+            'CANDEC' => $candec,
+            'PAGO_ENTREGA' => $pago_al_entregar,
+            'GUARANIES' => $guaranies,
+            'DOLARES' => $dolares,
+            'PESOS' => $pesos,
+            'REALES' => $reales,
+            'VUELTO' => $vuelto,
+            'SALDO' => $saldo,
+            'EFECTIVO' => $efectivo,
+            'TARJETA' => $tarjeta,
+            'CODIGO_TARJETA' => $codigo_tarjeta,
+            'TRANSFERENCIA' => $transferencia,
+            'CODIGO_BANCO' => $codigo_banco,
+            'DESCUENTO_GENERAL' => $descuento_general,
+            'DESCUENTO_GENERAL_PORCENTAJE' => $descuento_general_porcentaje,
+            'GIRO' => $giro,
+            'CODIGO_ENTIDAD' => $codigo_entidad,
+            'VALE' => $vale,
+            'CREDITO' => $credito,
+            'DIAS_CREDITO' => $dias_credito,
+            'CREDITO_FIN' => $credito_fin,
+            'CHEQUE' => $cheques
+        ];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function pagoEntrega($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PAGO AL ENTREGAR FUNCION
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // FECHA 
+
+            $dia = date('Y-m-d');
+            $hora = date("H:i:s");
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER ID VENTA 
+
+            $id = Venta::select('ID')
+            ->where('CODIGO', '=', $data['data']['codigo'])
+            ->where('CAJA', '=', $data['data']['caja'])
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER TODAS LAS VARIABLES INICIALIZADAS 
+
+            $datos = Venta::iniciar_variables_venta($data);
+            Venta::metodos_pago($datos, $id[0]['ID']);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // MODIFICAR VENTA
+
+            $venta = Venta::where('ID', '=', $id[0]['ID'])
+                ->update(
+                [ 
+                    "FECHA" => $dia,
+                    "DESCUENTO" => $datos['DESCUENTO_GENERAL'], 
+                    "EFECTIVO" => $datos['EFECTIVO'], 
+                    "VUELTO" => $datos['VUELTO'], 
+                    "MONEDA" => $datos['MONEDA'], 
+                    "MONEDA1" => $datos['DOLARES'], 
+                    "MONEDA2" => $datos['REALES'], 
+                    "MONEDA3" => $datos['GUARANIES'], 
+                    "MONEDA4" => $datos['PESOS'], 
+                    "USERM" => $user->name, 
+                    "FECMODIF" => $dia, 
+                    "HORMODIF" => $hora, 
+                ]
+            );
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR ANULADO 
+
+            VentasAnulado::modificar_referencia([
+                    'FK_VENTA' => $id[0]['ID'],
+                    'ANULADO' => 0
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente el pago !", "CODIGO" => $data['data']['codigo'], "CAJA" => $data['data']['caja']];
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+        } catch (Exception $e) {
+            
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+
+
+    public static function metodos_pago($datos, $venta){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // METODOS DE PAGO
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TARJETA
+
+            if ($datos['CODIGO_TARJETA'] !== '0' && $datos['CODIGO_TARJETA'] !== '0.00' && $datos['CODIGO_TARJETA'] !== NULL) {
+                if ($datos['CODIGO_TARJETA'] !== '') {
+                    $pago_tarjeta = VentaTarjeta::guardar_referencia([
+                        'FK_TARJETA' => $datos['CODIGO_TARJETA'],
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $datos['TARJETA'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TRANSFERENCIA
+            
+            if ($datos['CODIGO_BANCO'] !== '0' && $datos['CODIGO_BANCO'] !== '0.00' && $datos['CODIGO_BANCO'] !== NULL) {
+                if ($datos['CODIGO_BANCO'] !== '') {
+                    VentaTransferencia::guardar_referencia([
+                        'FK_BANCO' => $datos['CODIGO_BANCO'],
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $datos['TRANSFERENCIA'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO GIRO
+            
+            if ($datos['CODIGO_ENTIDAD'] !== '0' && $datos['CODIGO_ENTIDAD'] !== '0.00' && $datos['CODIGO_ENTIDAD'] !== NULL) {
+                if ($datos['CODIGO_ENTIDAD'] !== '') {
+                    VentaGiro::guardar_referencia([
+                        'FK_ENTIDAD' => $datos['CODIGO_ENTIDAD'],
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $datos['GIRO'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO VALE
+            
+            if ($datos['VALE'] !== '0' && $datos['VALE'] !== '0.00' && $datos['VALE'] !== NULL) {
+
+                VentaVale::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $datos['VALE'],
+                        'MONEDA' => $moneda
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CREDITO
+            
+            if ($datos['CREDITO'] !== '0' && $datos['CREDITO'] !== '0.00' && $datos['CREDITO'] !== NULL) {
+
+                VentaCredito::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $datos['CREDITO'],
+                        'MONEDA' => $datos['MONEDA'],
+                        'DIAS_CREDITO' => $datos['DIAS_CREDITO'],
+                        'FECHA_CREDITO_FIN' => $datos['CREDITO_FIN'],
+                        'SALDO' => $datos['CREDITO']
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CHEQUES 
+
+            $pago_cheque = VentaCheque::guardar_referencia($datos['CHEQUE'], $venta);
+
+            if ($pago_cheque["response"] === false) {
+                return $pago_cheque;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR DESCUENTO GENERAL
+
+            if ($datos['DESCUENTO_GENERAL_PORCENTAJE'] > 0) {
+                Ventas_Descuento::guardar_referencia($datos['DESCUENTO_GENERAL_PORCENTAJE'], $datos['DESCUENTO_GENERAL'], $venta, $datos['MONEDA']);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente los metodos de pago !"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+        } catch (Exception $e) {
+            
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+
+    }
+
+    public static function metodos_pago_credito($datos, $abono){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // METODOS DE PAGO
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TARJETA
+            
+            if ($datos['CODIGO_TARJETA'] !== '0' && $datos['CODIGO_TARJETA'] !== '0.00' && $datos['CODIGO_TARJETA'] !== NULL) {
+                if ($datos['CODIGO_TARJETA'] !== '') {
+                    $pago_tarjeta = VentaAbonoTarjeta::guardar_referencia([
+                        'FK_TARJETA' => $datos['CODIGO_TARJETA'],
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['TARJETA'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TRANSFERENCIA
+            
+            if ($datos['CODIGO_BANCO'] !== '0' && $datos['CODIGO_BANCO'] !== '0.00' && $datos['CODIGO_BANCO'] !== NULL) {
+                if ($datos['CODIGO_BANCO'] !== '') {
+                    VentaAbonoTransferencia::guardar_referencia([
+                        'FK_BANCO' => $datos['CODIGO_BANCO'],
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['TRANSFERENCIA'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO GIRO
+            
+            if ($datos['CODIGO_ENTIDAD'] !== '0' && $datos['CODIGO_ENTIDAD'] !== '0.00' && $datos['CODIGO_ENTIDAD'] !== NULL) {
+                if ($datos['CODIGO_ENTIDAD'] !== '') {
+                    VentaAbonoGiro::guardar_referencia([
+                        'FK_ENTIDAD' => $datos['CODIGO_ENTIDAD'],
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['GIRO'],
+                        'MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // MONEDAS
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // GUARANIES 
+
+            if ($datos['GUARANIES'] !== '0' && $datos['GUARANIES'] !== '0.00' && $datos['GUARANIES'] !== NULL) {
+                if ($datos['GUARANIES'] !== '') {
+                    VentaAbonoMoneda::guardar_referencia([
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['GUARANIES'],
+                        'FK_MONEDA' => 1
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // DOLARES 
+            
+            if ($datos['DOLARES'] !== '0' && $datos['DOLARES'] !== '0.00' && $datos['DOLARES'] !== NULL) {
+                if ($datos['DOLARES'] !== '') {
+                    VentaAbonoMoneda::guardar_referencia([
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['DOLARES'],
+                        'FK_MONEDA' => 2
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // PESOS 
+            
+            if ($datos['PESOS'] !== '0' && $datos['PESOS'] !== '0.00' && $datos['PESOS'] !== NULL) {
+                if ($datos['PESOS'] !== '') {
+                    VentaAbonoMoneda::guardar_referencia([
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['PESOS'],
+                        'FK_MONEDA' => 3
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REALES 
+            
+            if ($datos['REALES'] !== '0' && $datos['REALES'] !== '0.00' && $datos['REALES'] !== NULL) {
+                if ($datos['REALES'] !== '') {
+                    VentaAbonoMoneda::guardar_referencia([
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['REALES'],
+                        'FK_MONEDA' => 4
+                    ]);
+                } 
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO VALE
+            
+            if ($datos['VALE'] !== '0' && $datos['VALE'] !== '0.00' && $datos['VALE'] !== NULL) {
+
+                VentaAbonoVale::guardar_referencia([
+                        'FK_ABONO' => $abono,
+                        'MONTO' => $datos['VALE'],
+                        'MONEDA' => $moneda
+                ]);
+                
+            }
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CHEQUES 
+
+            $pago_cheque = VentaAbonoCheque::guardar_referencia($datos['CHEQUE'], $abono);
+
+            if ($pago_cheque["response"] === false) {
+                return $pago_cheque;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente los metodos de pago !"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+        } catch (Exception $e) {
+            
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+
+    }
+
+    public static function pagoCredito($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PAGO AL ENTREGAR FUNCION
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // FECHA 
+
+            $fecha = date('Y-m-d H:i:s');
+            $hora = date("H:i:s");
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER TODAS LAS VARIABLES INICIALIZADAS 
+
+            $datos = Venta::iniciar_variables_venta($data);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER ID CLIENTE 
+
+            $id_cliente = (Cliente::id_cliente($data['data']['cliente']))['ID_CLIENTE'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO 
+
+            $venta_abono_id = (VentaAbono::insertar_abono([
+                            'PAGO' => ($datos['EFECTIVO'] - $datos['VUELTO']), 
+                            'MONEDA' => $datos['MONEDA'], 
+                            'FECHA' => $fecha,
+                            'SALDO' => $datos['SALDO'],
+                            'VUELTO' => $datos['VUELTO'],
+                            'CAJA' => $data['data']['caja'],
+                            'FK_CLIENTE' => $id_cliente,
+                            'FK_USER' => $user->id,
+                            'FK_SUCURSAL' => $user->id_sucursal
+                        ]))['valor'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // METODOS PAGO
+            
+            Venta::metodos_pago_credito($datos, $venta_abono_id);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CALCULO DE PAGO PRO VENTA 
+
+            $creditos = VentaCredito::obtener_creditos_cliente($data["data"]["cliente"]);
+            
+            if ($creditos["response"] === false) {
+                return $creditos;
+            } else {
+                $creditos = $creditos["creditos"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RECORRER VENTAS CON CREDITO 
+
+            foreach ($creditos as $key => $value) {
+                
+                if ($value->SALDO >= $datos['EFECTIVO']) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // INSERTAR VENTAS DET CREDITO 
+
+                    VentaAbonoDet::guardar_referencia([
+                        'FK_VENTA' => $value->FK_VENTA,
+                        'FK_VENTAS_ABONO' => $venta_abono_id,
+                        'PAGO' => $datos['EFECTIVO']
+                    ]);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // ACTUALIZAR VENTA CREDITO 
+
+                    VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                    ->update([
+                        'PAGO' => \DB::raw('PAGO + '.$datos['EFECTIVO'].''),
+                        'SALDO' => ($value->SALDO - $datos['EFECTIVO'])
+                    ]);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // FIJAR CERO EFECTIVO 
+
+                    $datos['EFECTIVO'] = 0;
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                } else {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // INSERTAR VENTAS DET CREDITO 
+
+                    VentaAbonoDet::guardar_referencia([
+                        'FK_VENTA' => $value->FK_VENTA,
+                        'FK_VENTAS_ABONO' => $venta_abono_id,
+                        'PAGO' => $value->SALDO
+                    ]);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // ACTUALIZAR VENTA CREDITO 
+
+                    VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                    ->update([
+                        'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
+                        'SALDO' => 0
+                    ]);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // FIJAR CERO EFECTIVO 
+
+                    $datos['EFECTIVO'] = $datos['EFECTIVO'] - $value->SALDO;
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                }
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ACTUALIZAR CREDITO CLIENTE 
+            
+            Cliente::actualizarCredito($id_cliente);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente el pago !", "CODIGO" => $venta_abono_id, "CAJA" => $data['data']['caja']];
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+        } catch (Exception $e) {
+            
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+
+    public static function reporteUnico($dato){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $pedido = Venta::mostrar_cabecera(['codigo' => $dato['codigo'], 'caja' => $dato['caja']]);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $pedido_det = Venta::mostrar_cuerpo(['codigo' => $dato['codigo'], 'caja' => $dato['caja']]);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $c_rows = 0;
+        $c_rows_array = count($pedido_det);
+        $c_filas_total = count($pedido_det);
+        $codigo = $pedido->ID;
+        $cliente = $pedido->CLIENTE;
+        $direccion = $pedido->DIRECCION;
+        $ruc = $pedido->RUC;
+        $documento = $pedido->RUC;
+        $telefono = $pedido->TELEFONO;
+        $celular = $pedido->CELULAR;
+        $ciudad = $pedido->CIUDAD;
+        $fecha = $pedido->FECALTAS;
+        $ruc = $pedido->RUC;
+        $email = $pedido->EMAIL;
+        $nombre = 'Orden_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $moneda = $pedido->MONEDA;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_pedido_'.time().'.pdf';
+        $letra = '';
+        
+        
+        $total =  (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($pedido->TOTAL, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+        $factura = $pedido->ID;
+
+        $total = Common::precio_candec(Common::quitar_coma($total, 2), (int)$dato['moneda']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES CABECERA
+
+        $data['cliente'] = $cliente;
+        $data['documento'] = $documento;
+        $data['ciudad'] = $ciudad;
+        $data['direccion'] = $direccion;
+        $data['telefono'] = $telefono;
+        $data['codigo'] = $codigo;
+        $data['dia'] = $dia;
+        $data['ruc'] = $ruc;        
+        $data['fecha'] = $fecha;
+        $data['nombre'] = $nombre;
+        $data['c'] = $c;
+        $data['tipo'] = 'online';
+        $data['total'] = $total;
+        $data['ruc'] = $ruc;
+        $data['factura'] = $factura;
+        $data['email'] = $email;
+
+        $total = 0;
+        
+        // INICIAR MPDF 
+
+        $mpdf = new \Mpdf\Mpdf([
+            'margin_left' => 20,
+            'margin_right' => 20,
+            'margin_top' => 40,
+            'margin_bottom' => 10,
+            'margin_header' => 10,
+            'margin_footer' => 10
+        ]);
+
+        $mpdf->SetDisplayMode('fullpage');
+
+        foreach ($pedido_det as $key => $value) {
+
+            $totalP = $value["PRECIO"];
+
+            //COTIZACION
+
+           $cotizacion = $totalP/($value["CANTIDAD"]*$value["PRECIO_UNIT"]);
+
+            // PRECIO 
+
+           $precio = $cotizacion*$value["PRECIO_UNIT"];
+
+            // SI NO ENCUENTRA COTIZACION RETORNAR 
+
+            $articulos[$c_rows]["precio"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($precio, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+
+            $articulos[$c_rows]["precio"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["precio"], 2), (int)$dato['moneda']);
+            // CARGAR VARIABLES 
+
+            $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
+            $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
+            $articulos[$c_rows]["descripcion"] = $value["DESCRIPCION"];
+            $articulos[$c_rows]["total"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($totalP, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+            $articulos[$c_rows]["peso"] = 'INDEFINIDO';
+
+            $articulos[$c_rows]["total"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["total"], 2), (int)$dato['moneda']);
+            
+            $total = Common::quitar_coma($total, 2) +Common::quitar_coma($totalP,2);
+            
+
+            // CONTAR CANTIDAD DE FILAS DE HOJAS 
+
+            $c_rows = $c_rows + 1;    
+
+            // CONTAR LA CANTIDAD DE FILAS 
+
+            $c = $c + 1;
+
+            // SI CANTIDAD DE FILAS ES IGUAL A 18 ENTONCES CREAR PAGINA 
+
+            if ($c_rows === 10){
+
+                // AGREGAR ARTICULOS 
+
+                $data['articulos'] = $articulos;
+
+                // RESTAR LAS CANTIDADES CARGADAS 
+
+                $c_rows_array = $c_rows_array - 10;
+
+                // PONER TRUE SWITCH YA QUE CREO UNA PAGINA 
+
+                $switch_hojas = true;
+
+                // CARGAR SUB TOTALES POR HOJA
+
+
+                $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+                $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
+
+                $html = view('pdf.facturaPedido', $data)->render();
+
+                // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
+
+                if ($c !== 10) {
+                    $mpdf->AddPage();
+                }
+
+                // CERAR CONTADOR DE FILAS CARGADAS POR HOJAS Y ARTICULOS
+
+                $c_rows = 0;
+                $data['articulos'] = [];
+                $articulos = [];
+                    
+                $mpdf->WriteHTML($html);
+
+            } else if ($c_rows_array < 10 && $c_filas_total === $c) {
+                
+                // AGREGAR ARTICULOS 
+                
+                $data['articulos'] = $articulos;
+                $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+                $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
+
+                // CREAR HOJA 
+                
+                $html = view('pdf.facturaPedido', $data)->render();
+
+                if ($switch_hojas === true) {
+                    $mpdf->AddPage();
+                }
+                    
+                $mpdf->WriteHTML($html);
+            }
+        }
+
+        $mpdf->SetProtection(array('print'));
+        $mpdf->SetTitle("Calbea/Factura");
+        
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output();
 
         /*  --------------------------------------------------------------------------------- */
     }

@@ -242,7 +242,7 @@
 					    	<!-- FORMA DE PAGO -->
 
 					    	<div class="col-md-3">
-								<forma-pago-textbox :total="cuenta.FINAL" :total_crudo="cuenta.TOTAL_CRUDO" :procesar="procesar" :moneda="cuenta.MONEDA" :candec="cuenta.CANDEC" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>	
+								<forma-pago-textbox :total="cuenta.FINAL" :total_crudo="cuenta.TOTAL_CRUDO" :procesar="procesar" :moneda="cuenta.MONEDA" :candec="cuenta.CANDEC" @datos="formaPago" :tipo="4" ref="compontente_medio_pago"></forma-pago-textbox>	
 					    	</div>
 
 					    	<!-- ------------------------------------------------------------------------ -->
@@ -777,6 +777,10 @@
 					// RE OBTENER DATOS DESPUES DEL GUARDADO 
 
 					this.obtenerDatosDeuda();
+
+					// ------------------------------------------------------------------------
+
+					me.$refs.compontente_medio_pago.limpiar();
 
 					// ------------------------------------------------------------------------
 

@@ -28,6 +28,7 @@ Route::delete('task/{id}', 'TaskController@delete');
 // PRODUCTO
 
 Route::post('productos', 'ProductoController@apiListarProductos');
+Route::post('producto/ofertas', 'ProductoController@ofertas');
 
 /* -------------------------------------------------------------------------- */
 
