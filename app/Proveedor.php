@@ -325,7 +325,7 @@ class Proveedor extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER CANDEC 
@@ -335,7 +335,7 @@ class Proveedor extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES
-
+        
         $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
         if ($guaranies === '') {
             $guaranies = 0;
@@ -355,19 +355,19 @@ class Proveedor extends Model
         if ($reales === '') {
             $reales = 0;
         }
-
+        
         $fecha = $data["data"]["cabecera"]["FECHA"];
         $recibo = $data["data"]["cabecera"]["RECIBO"];
         $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
         $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"], $candec);
         $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
         $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
-        $codigo_tarjeta = Common::quitar_coma($data["data"]["pago"]["CODIGO_TARJETA"], $candec);
+        $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
         $cheques = $data["data"]["pago"]["CHEQUE"];
         $total = 0;
         $dia = date('Y-m-d');
         $hora = date("H:i:s");
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         // SELECCIONAR CUENTA 
@@ -415,8 +415,8 @@ class Proveedor extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // INSERTAR PAGO TARJETA
-
-        if ($codigo_tarjeta !== '0') {
+        
+        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '' && $codigo_tarjeta !== NULL && !empty($codigo_tarjeta)) {
             if ($pago_prov["response"] === true && $codigo_tarjeta !== '') {
                 $pago_tarjeta = Pagos_Prov_Tarjeta::guardar_referencia([
                     'FK_TARJETA' => $codigo_tarjeta,
@@ -428,7 +428,7 @@ class Proveedor extends Model
                 return $pago_prov;
             }
         }
-
+         
         /*  --------------------------------------------------------------------------------- */
 
         // INSERTAR PAGO CHEQUES 
@@ -449,7 +449,7 @@ class Proveedor extends Model
 
             // SI EL EFECTIVO ES 0 TERMINAR WHILE 
             
-            if ((int)$efectivo === 0) {
+            if ((float)$efectivo === 0) {
                 break;
             }
 
