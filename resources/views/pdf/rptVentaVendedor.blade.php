@@ -25,7 +25,7 @@
 
     .title{
         text-align: center;
-        font-size: 12pt; 
+        font-size: 11pt; 
         border-bottom: 0.2mm solid #000000;
         border-top: 0.2mm solid #000000;
     }
@@ -36,7 +36,7 @@
         border-bottom: 1px solid #dbdbdb;
     }
     .totals {
-        font-size: 12pt;
+        font-size: 11pt;
         text-align: right;
         border-top: 0.2mm solid #000000;
         border-bottom: 0.2mm solid #000000;
@@ -88,15 +88,18 @@
     <table class="items" width="100%" cellpadding="6">
         <thead>
             <tr>
-                <td width="6%" class="title"><b>Ref.</b></td>
-                <td width="9%" class="title"><b>Codigo</b></td>
+                <td width="6%" class="title"><b>Ref</b></td>
+                <td width="10%" class="title"><b>Codigo</b></td>
                 <td width="30%" class="title"><b>Cliente</b></td>
-                <td width="10%" class="title"><b>Fecha</b></td>
-                <td width="10%" class="title"><b>Hora</b></td>
+                <td width="12%" class="title"><b>Fecha</b></td>
+                <td width="7%" class="title"><b>Tipo</b></td>
                 <td width="20%" class="title"><b>Vendedor</b></td>
-                <td width="9%" class="title"><b>IVA</b></td>
-                <td width="10%" class="title"><b>SubTotal</b></td>
+                <td width="11%" class="title"><b>IVA</b></td>
+                <td width="12%" class="title"><b>SubTotal</b></td>
                 <td width="15%" class="title"><b>Total</b></td>
+                @if($tipo === 'CR')
+                <td width="15%" class="title"><b>Pago</b></td>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -107,24 +110,30 @@
                     <td width="6%" class="cuerpo"><span>{{$i + 1}} </span></td>
                     <td width="9%" class="cuerpo"><span>{{ $articulos[$i]['CODIGO'] }}</span></td>
                     <td width="30%" align="left" class="cuerpo"><span>{{ $articulos[$i]['NOMBRE']}}</span></td>
-                    <td width="10%" class="cuerpo"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
-                    <td width="10%" class="cuerpo"><span>{{ $articulos[$i]['HORA'] }}</span></td>
+                    <td width="12%" class="cuerpo"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="7%" class="cuerpo"><span>{{ $articulos[$i]['TIPO'] }}</span></td>
                     <td width="20%" class="cuerpo"><span>{{ $articulos[$i]['VENDEDOR']}}</span></td>
-                    <td width="9%" class="cuerpo"><span>{{ $articulos[$i]['IVA'] }}</span></td>
-                    <td width="10%" class="cuerpo"><span>{{ $articulos[$i]['SUBTOTAL']}}</span></td>
+                    <td width="11%" class="cuerpo"><span>{{ $articulos[$i]['IVA'] }}</span></td>
+                    <td width="12%" class="cuerpo"><span>{{ $articulos[$i]['SUBTOTAL']}}</span></td>
                     <td width="15%" class="cuerpo"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
+                    @if($tipo === 'CR')
+                    <td width="15%" class="cuerpo"><span>{{ $articulos[$i]['SALDO'] }}</span></td>
+                    @endif
                 </tr>
                 @else
                 <tr>
                     <td width="6%" class="cuerpo2"><span>{{$i + 1}} </span></td>
                     <td width="9%" class="cuerpo2"><span>{{ $articulos[$i]['CODIGO'] }}</span></td>
                     <td width="30%" align="left" class="cuerpo2"><span>{{ $articulos[$i]['NOMBRE']}}</span></td>
-                    <td width="10%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
-                    <td width="10%" class="cuerpo2"><span>{{ $articulos[$i]['HORA'] }}</span></td>
+                    <td width="12%" class="cuerpo2"><span>{{ $articulos[$i]['FECHA'] }}</span></td>
+                    <td width="7%" class="cuerpo2"><span>{{ $articulos[$i]['TIPO'] }}</span></td>
                     <td width="20%" class="cuerpo2"><span>{{ $articulos[$i]['VENDEDOR']}}</span></td>
-                    <td width="9%" class="cuerpo2"><span>{{ $articulos[$i]['IVA'] }}</span></td>
-                    <td width="10%" class="cuerpo2"><span>{{ $articulos[$i]['SUBTOTAL']}}</span></td>
+                    <td width="11%" class="cuerpo2"><span>{{ $articulos[$i]['IVA'] }}</span></td>
+                    <td width="12%" class="cuerpo2"><span>{{ $articulos[$i]['SUBTOTAL']}}</span></td>
                     <td width="15%" class="cuerpo2"><span>{{ $articulos[$i]['TOTAL'] }}</span></td>
+                    @if($tipo === 'CR')
+                    <td width="15%" class="cuerpo2"><span>{{ $articulos[$i]['SALDO'] }}</span></td>
+                    @endif
                 </tr>
                 @endif
                 @if($articulos[$i]['SALTO'] == true)
@@ -132,12 +141,15 @@
                     <td width="6%">&nbsp;</td>
                     <td width="9%">&nbsp;</td>
                     <td width="30%">&nbsp;</td>
-                    <td width="10%">&nbsp;</td>
-                    <td width="10%">&nbsp;</td>
+                    <td width="12%">&nbsp;</td>
+                    <td width="7%">&nbsp;</td>
                     <td width="20%">&nbsp;</td>
-                    <td width="9%">&nbsp;</td>
-                    <td width="10%">&nbsp;</td>
+                    <td width="11%">&nbsp;</td>
+                    <td width="12%">&nbsp;</td>
                     <td width="15%">&nbsp;</td>
+                    @if($tipo === 'CR')
+                    <td width="15%">&nbsp;</td>
+                    @endif
                 </tr>
                 @endif
             @endfor
@@ -150,6 +162,9 @@
                     <td class="totals" align="center"><b>{{$iva}}</b></td>
                     <td class="totals" align="center"><b>{{$subtotal}}</b></td>
                     <td class="totals" align="center"><b>{{$total}}</b></td>
+                    @if($tipo === 'CR')
+                    <td class="totals"></td>
+                    @endif
                 </tr>
         </tbody>
     </table>

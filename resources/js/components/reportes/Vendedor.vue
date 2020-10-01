@@ -1,7 +1,7 @@
 <template>
-	<!-- VENTA VENDv-if="$can('reporte.delivery')"EDOR  -->
+	<!-- VENTA VENDEDOR v-if="$can('reporte.vendedor')" -->
 	<div class="container">
-		<div class="card mt-3  shadow border-bottom-primary" >
+		<div class="card mt-3 shadow border-bottom-primary" >
 		  <div class="card-header">Ventas por Vendedor</div>
 			<div class="card-body">
 			  <div class="row">
@@ -26,7 +26,18 @@
 				</div>
 
 				<div class="col-4 mb-3 ">
-					<div class="row ml-3">	
+					<div class="row ml-3">
+						<div class="col-sm">
+							<label>Tipo</label>
+			    			<select v-model="selectedTipo" class="custom-select custom-select-sm">
+			    				<option>GENERAL</option>
+			  	  				<option value="CR">CRÉDITO</option>
+			    				<option value="CO">CONTADO</option>
+			    				<option value="PE">PAGO AL ENTREGAR</option>
+			  				</select>
+	    				</div>
+					</div>
+					<div class="row mt-3 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
 							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
@@ -39,16 +50,18 @@
 						    </div>
 						</div>
 					</div>
-					<div class="row mt-5 ml-3">
+				</div>
+
+				<div class="col-4 mb-3">
+					<div class="row mt-4 ml-3">
 						<div class="col-auto">
 							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
 						</div>
 						<div class="col-auto">
-								
 							<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 						</div>
 					</div>
-				</div>
+	    		</div>
 				<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
 				<div class="col-md-12 mt-3 mb-3">
@@ -67,7 +80,7 @@
 			                    <th>Codigo</th>
 			                    <th>Cliente</th>
 			                    <th>Fecha</th>
-			                    <th>Hora</th>
+			                    <th>Tipo</th>
 			                    <th>Vendedor</th>
 			                    <th class="totalIVA">IVA</th>
 			                    <th class="totalSubtotal">SubTotal</th>
@@ -121,7 +134,8 @@
               	selectedFinalFecha: '',
               	validarFinalFecha: false,
               	cargado: false,
-              	descarga: false
+              	descarga: false,
+              	selectedTipo: 'GENERAL'
             }
         }, 
         methods: {
@@ -144,7 +158,8 @@
 			        	sucursal: this.selectedSucursal,
 			        	inicio: String(this.selectedInicialFecha),
 			        	final: String(this.selectedFinalFecha),
-			        	vendedor: this.selectedVendedor
+			        	vendedor: this.selectedVendedor,
+			        	tipo: this.selectedTipo
 		        	};
 		        	
 		        	Common.reporteVentaVendedorCommon(datos).then(function(){
@@ -184,6 +199,7 @@
 						        	inicio: String(me.selectedInicialFecha),
 						        	final: String(me.selectedFinalFecha),
 						        	vendedor: me.selectedVendedor,
+						        	tipo: me.selectedTipo,
 						        	"_token": $('meta[name="csrf-token"]').attr('content')
 	                 			},
 		                  "url": "/ventaVendedorDatatable",
@@ -195,7 +211,7 @@
 		                    { "data": "CODIGO" },
 		                    { "data": "CLIENTE" },
 		                    { "data": "FECHA" },
-		                    { "data": "HORA" },
+		                    { "data": "TIPO" },
 		                    { "data": "VENDEDOR" },
 		                    { "data": "IVA" },
 		                    { "data": "SUBTOTAL" },
