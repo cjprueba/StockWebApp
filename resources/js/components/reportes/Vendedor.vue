@@ -6,6 +6,7 @@
 			<div class="card-body">
 			  <div class="row">
 				<div class="col-4 mb-3 ">
+					<!-- -------------------------------------------SELECCIONAR SUCURSAL----------------------------------------------- -->
 					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
@@ -16,6 +17,7 @@
 						    {{messageInvalidSucursal}}
 						</div>
 					</div>
+					<!-- -------------------------------------------SELECCIONAR VENDEDOR----------------------------------------------- -->
 					<div class="row mt-3 ml-3">
 				  		<label for="validationTooltip01">Vendedor</label>
 						<select class="custom-select custom-select-sm" v-model="selectedVendedor">
@@ -24,6 +26,8 @@
 						</select>
 					</div>
 				</div>
+
+				<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
 
 				<div class="col-4 mb-3 ">
 					<div class="row ml-3">
@@ -37,6 +41,8 @@
 			  				</select>
 	    				</div>
 					</div>
+					<!-- -------------------------------------------MOSTRAR FECHA----------------------------------------------- -->
+
 					<div class="row mt-3 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
@@ -51,7 +57,7 @@
 						</div>
 					</div>
 				</div>
-
+				<!-- -------------------------------------------MOSTRAR BOTONES----------------------------------------------- -->
 				<div class="col-4 mb-3">
 					<div class="row mt-4 ml-3">
 						<div class="col-auto">
@@ -62,6 +68,7 @@
 						</div>
 					</div>
 	    		</div>
+
 				<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
 				<div class="col-md-12 mt-3 mb-3">

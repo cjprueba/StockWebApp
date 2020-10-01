@@ -658,6 +658,8 @@ class Vendedores extends Model
             $articulos[$c_rows]['SUBTOTAL'] = Common::formato_precio($value->SUBTOTAL, $candec);
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value->TOTAL, $candec);
             
+            // ESTADO DE PAGO 
+
             if($tipo == 'CR'){
                     
                 $articulos[$c_rows]['SALDO'] = "Pendiente";
@@ -667,6 +669,8 @@ class Vendedores extends Model
                     $articulos[$c_rows]['SALDO'] = "Completado";
                 }
             }
+
+            // CREAR HOJA 
 
             $articulos[$c_rows]['SALTO'] = false;
 

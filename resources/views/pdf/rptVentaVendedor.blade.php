@@ -84,7 +84,7 @@
     <br><div class="texto"><span>Fecha: {{$intervalo}}</span></div><br>
     <div class="texto"><span>Generado Por: {{$generador}}</span></div><br>
     <div class="texto"><span>Fecha Generada: {{$fecha}}</span></div><br>
-  
+  <!-- TABLA -->
     <table class="items" width="100%" cellpadding="6">
         <thead>
             <tr>
