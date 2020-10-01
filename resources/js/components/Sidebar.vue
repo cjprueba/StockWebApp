@@ -111,6 +111,8 @@
             <router-link class="collapse-item" :to="{name: 'transferencia'}">Realizar Transferencias</router-link>
             <!-- <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a> -->
             <router-link class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencia</router-link>
+            <router-link class="collapse-item" :to="{name: 'transferenciaMostrarDevolucion'}">Mostrar Devolucion</router-link>
+            <router-link class="collapse-item" :to="{name: 'transferenciaImportarDevolucion'}">Importar Devolucion</router-link>
 
           </div>
         </div>
@@ -147,9 +149,11 @@
         <div id="collapseVenta" class="collapse" aria-labelledby="headingVenta" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'ventaCaja'}">Mis Ventas</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
             <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link>
+            <!-- <router-link class="collapse-item" :to="{name: 'ventaCuenta'}">Cobro de Cuentas</router-link> -->
             <router-link class="collapse-item" :to="{name: 'ventaAnular'}">Anular Venta</router-link>
           </div>
         </div>

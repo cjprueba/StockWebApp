@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('transferencia.mostrar')">
+		<!-- <div class="row" v-if="$can('transferencia.mostrar')"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -46,14 +46,14 @@
 
 
 			</div>	
-		</div>
+	<!-- 	</div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
-
+ -->
 		<!-- ------------------------------------------------------------------------ -->
 		
 		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
@@ -426,6 +426,10 @@
 	                    // *******************************************************************
 
 	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+	    /*                	      Common.arreglar_costo().then(data => {
+					        
+					            
+					              });*/
 
 	                   	me.procesar = true;
 	                   	var row  = $(this).parents('tr')[0];

@@ -125,9 +125,9 @@
                 <td width="36%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
                 <td width="5%">&nbsp;</td>
                 <td width="13%">&nbsp;</td>
-                <td width="4%" align="left" class="border fondo"><span class="text">X</span></td>
+                <td width="4%" align="left" class="border fondo"><span class="text">{{ $contado_x }}</span></td>
                 <td width="7%"></td>
-                <td width="7%" align="left"><span class="text"></span></td>
+                <td width="7%" align="left"><span class="text">{{ $credito_x }}</span></td>
                 <td width="7%" ></td>
             </tr>
         </table>
@@ -138,7 +138,7 @@
                 <td width="9%">&nbsp;</td>
                 <td width="9%"><span class="text">{{ $ruc }}</span></td>
                 <td width="13%">&nbsp;</td>
-                <td width="7%" ></td>
+                <td width="7%" ><span class="text"></span></td>
                 <td width="7%"></td>
                 <td width="7%"></td>
             </tr>
@@ -146,7 +146,7 @@
                 <td>Dirección:</td>
                 <td ><span class="text">{{ $direccion }}</span></td>
                 <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td width="9%"><span class="text">{{ $telefono }}</span></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

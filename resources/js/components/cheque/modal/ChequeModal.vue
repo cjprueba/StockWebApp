@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid">
-		<div class="modal fade" id="modalCheque" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal fade" id="modalCheque"  role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
@@ -20,7 +20,7 @@
 		        		<div class="col-md-3">
 		        			<div class="input-group ">
 								<div class="input-group-prepend">
-									<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalBancos" v-on:click=""><font-awesome-icon icon="search"/></button>
+									<button type="button" class="btn btn-info btn-sm" v-on:click="mostrarBancos()"><font-awesome-icon icon="search"/></button>
 								</div>
 								<input class="form-control form-control-sm" type="text" v-model="cheque.CODIGO_BANCO">
 							</div>
@@ -182,7 +182,7 @@
 
 		<!-- BANCOS -->
 
-		<div class="modal fade" id="modalBancos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal fade" id="modalBanco" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		  <div class="modal-dialog modal-xl" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
@@ -218,6 +218,11 @@
 <script>
 	 export default {
 	  props: ['cotizacion', 'moneda_principal'],
+	  watch: { 
+        moneda_principal: function(newVal, oldVal) { 
+        	this.moneda.CODIGO = newVal.toString();
+        }
+      },  
       data(){
         return {
           open: false,
@@ -260,7 +265,7 @@
       			// LLAMAR MODAL CHEQUE
 
       			$('#modalCheque').modal('show');
-
+      			//$("#modalCheque").appendTo("body");
       			$('#modalCheque').modal({backdrop: 'static', keyboard: false});
 
       			// ------------------------------------------------------------------------
@@ -504,6 +509,10 @@
 
   				// ------------------------------------------------------------------------
 
+            }, mostrarBancos(){
+
+            	$('#modalBanco').modal('show');
+            	 //$('#modalBanco').modal({backdrop: 'static', keyboard: false});
             }
       },
         mounted() {
@@ -563,7 +572,7 @@
     			me.cheque.CODIGO_BANCO = tableBanco.row(this).data().CODIGO;
     			me.cheque.DESCRIPCION_BANCO = tableBanco.row(this).data().DESCRIPCION;
     			me.enviarOpcionesPadre(tableBanco.row(this).data().CODIGO, tableBanco.row(this).data().DESCRIPCION);
-    			$('#modalBancos').modal('hide');
+    			$('#modalBanco').modal('hide');
     		})
 
     		// ------------------------------------------------------------------------

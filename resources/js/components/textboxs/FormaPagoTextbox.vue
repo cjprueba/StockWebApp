@@ -14,12 +14,25 @@
                         <div class="modal-header">
                           <h5 class="modal-title" id="exampleModalCenterTitle"><small> MEDIOS DE PAGO </small></h5>
 
+                          <!-- ------------------------------------------------------------------------ -->
+
+                          <!-- PAGO AL ENTREGAR -->
+                  
+                          <div class="my-1" v-if="tipo !== 2 && tipo !== 3 && tipo !== 4">
+                            <div class="custom-control custom-switch mr-sm-3">
+                              <input type="checkbox" class="custom-control-input" id="switchPagoEntrega" v-on:change="pagoAlEntregar" v-model="checked.PAGO_AL_ENTREGAR">
+                              <label class="custom-control-label" for="switchPagoEntrega" >PAGO AL ENTREGAR</label>
+                            </div>
+                          </div>
+
+                          <!-- ------------------------------------------------------------------------ -->
+
                           <div class="text-right" v-if="cliente.credito.total_agregado > 0">
                             <a href="#" class="badge badge-primary">Crédito: {{cliente.credito.total_agregado}} </a>
                           </div>
 
-                          <div class="float-right">
-                            <!-- <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito">Agregar Crédito</button> -->
+                          <div class="float-right" v-if="deshabilitar.credito && tipo !== 3 && tipo !== 4">
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito" v-on:click="calcularCredito">Agregar Crédito</button>
                           </div>
 
                         </div>
@@ -92,7 +105,7 @@
 
                               <!-- ------------------------------------------------------------------------ -->
 
-                              <div class="col-md-6 mt-3">
+                              <div v-if="checked.PAGO_AL_ENTREGAR === false" class="col-md-6 mt-3">
                                   <div class="row">
                                     <div class="col-md-12">
 
@@ -240,7 +253,7 @@
 
                                       <!-- REALES -->
 
-                                        <div class="row">
+                                        <div class="row" v-if="tipo !== 3 && tipo !== 4">
 
                                           <div class="col-md-2">
                                             <label for="validationTooltip01">Descuento</label>
@@ -272,7 +285,7 @@
 
                               
                                 
-                              <div class="col-md-6 mt-3">
+                              <div class="col-md-6 mt-3" v-if="checked.PAGO_AL_ENTREGAR === false">
                                   <div class="row">
 
                                      <!-- ------------------------------------------------------------------------ -->
@@ -394,13 +407,13 @@
 
                                     <!-- CHEQUE -->
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-2" v-if="tipo !== 4">
                                       <label for="validationTooltip01">Vales:</label>
                                     </div>  
 
                                     <!-- ------------------------------------------------------------------------ -->
 
-                                    <div class="col-md-10">
+                                    <div class="col-md-10" v-if="tipo !== 4">
 
                                       <!-- ------------------------------------------------------------------------ -->
 
@@ -494,7 +507,7 @@
 
                         <div class="modal-body">
 
-                          <div class="row">
+                          <div class="row" v-if="tipo !== 2 && tipo !== 4">
                             <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
                             <div class="col-sm-10">
                               <div class="form-check form-check-inline">
@@ -512,34 +525,34 @@
                             </div>
                           </div>
 
-                          <div class="row">
+                          <div class="row" v-if="checked.PAGO_AL_ENTREGAR === false">
                             <div class="col-md-12">
                               <hr>
                             </div>
                           </div>  
-                          <div class="row">
+                          <div class="row" v-if="checked.PAGO_AL_ENTREGAR === false">
                             <legend class="col-form-label col-sm-2 pt-0">Vuelto</legend>
                             <div class="col-sm-10">
                               <div class="form-check form-check-inline">
-                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1" :disabled="cotizacion.deshabilitar_gs">
                                 <label class="form-check-label" for="gridRadios1">
                                   Guaranies
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2" :disabled="cotizacion.deshabilitar_$">
                                 <label class="form-check-label" for="gridRadios2">
                                   Dolares
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3" :disabled="cotizacion.deshabilitar_rs">
                                 <label class="form-check-label" for="gridRadios3">
                                   Reales
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <input v-on:change="seleccionar" v-model="radio.vuelto" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4" :disabled="cotizacion.deshabilitar_ps">
                                 <label class="form-check-label" for="gridRadios4">
                                   Pesos
                                 </label>
@@ -547,13 +560,13 @@
                             </div>
                           </div>
 
-                          <div class="row">
+                          <div class="row" v-if="checked.PAGO_AL_ENTREGAR === false">
                             <div class="col-md-12">
                               <hr>
                             </div>
                           </div> 
 
-                          <div class="row">
+                          <div class="row" v-if="checked.PAGO_AL_ENTREGAR === false">
                             <div class="col-md-12">
                               <div class="text-center">
                                 <h1 class="text-primary" >{{vuelto.seleccion}} </h1>
@@ -585,6 +598,21 @@
                         </div>
                       </template>
                       El total supera al pago ingresado !
+                  </b-toast>
+
+                  <!-- ------------------------------------------------------------------------ -->
+
+                  <!-- TOAST CREDITO SUPERADO -->
+
+                  <b-toast id="toast-credito-superado" variant="warning" solid>
+                      <template v-slot:toast-title>
+                        <div class="d-flex flex-grow-1 align-items-baseline">
+                          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+                          <strong class="mr-auto">Error !</strong>
+                          <small class="text-muted mr-2">insuficiente</small>
+                        </div>
+                      </template>
+                      El total del credito supera lo disponible !
                   </b-toast>
 
                   <!-- ------------------------------------------------------------------------ -->
@@ -651,7 +679,7 @@
                                   <div class="input-group-prepend ">
                                     <span class="input-group-text" id="inputGroup-sizing-sm"><font-awesome-icon icon="calendar" /></span>
                                   </div>
-                                  <input type="text" class="input-sm form-control form-control-sm" id="credito_vencimiento" v-model="cliente.credito.vencimiento" data-date-format="yyyy-mm-dd" v-bind:class="{  }"/>
+                                  <input type="text" class="input-sm form-control form-control-sm" id="credito_vencimiento" v-model="cliente.credito.vencimiento" data-date-format="yyyy-mm-dd" v-bind:class="{  }" disabled />
                                 </div>
                               </div>  
                             </div>
@@ -684,16 +712,22 @@
 </template>
 <script>
 	export default {
-      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer'],
+      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo'],
       watch: { 
         total_crudo: function(newVal, oldVal) { 
             this.sumarMonedas();
             this.formatoDias();
-
         }, 
         customer: function(newVal, oldVal) {
             this.formatoDias();
-        }
+            this.datosCliente(newVal);
+        }, 
+        tipo: function(newVal, oldVal) {
+            //alert(newVal);
+        },
+        moneda: function(newVal, oldVal) {
+            this.radio.vuelto = String(newVal);
+        },
       },
       data(){
         return {
@@ -805,7 +839,8 @@
               REALES: '',
               CHEQUE: '',
               TIPO_IMPRESION: '',
-              OPCION_VUELTO: ''
+              OPCION_VUELTO: '',
+              PAGO_AL_ENTREGAR: false
             }, descuento: {
               PORCENTAJE: '0'
             }, cliente: {
@@ -818,18 +853,59 @@
                 vencimiento: '',
                 total_agregado: '0'
               }
+            }, deshabilitar: {
+              credito: true
+            }, checked: {
+              PAGO_AL_ENTREGAR: false
             }
         }
       }, 
       methods: {
-          datosCliente(){
+          datosCliente(codigo){
+
+            // ------------------------------------------------------------------------
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // SI CODIGO ES NULO RETORNAR 
+            
+            if (codigo === '') {
+              return;
+            }
 
             // ------------------------------------------------------------------------
 
             // OBTENER DATOS DEL CLIENTE 
 
             Common.obtenerCreditoClienteCommon(codigo).then(data => {
-              console.log(data);
+
+              // ------------------------------------------------------------------------
+
+              // INICIAR VARIABLES 
+
+              me.cliente.credito.limite = Common.darFormatoCommon(data.cliente.LIMITE_CREDITO, me.cotizacion.candec);
+              me.cliente.credito.dias = data.cliente.DIAS_CREDITO;
+              me.cliente.credito.disponible = Common.darFormatoCommon(data.cliente.CREDITO_DISPONIBLE, me.cotizacion.candec);
+              me.cliente.credito.defaultDia = data.cliente.DIAS_CREDITO;
+
+              // ------------------------------------------------------------------------
+
+              // DESHABILITAR CREDITO DE ACUERDO A LO DISPONIBLE 
+              
+              if (Common.quitarComaCommon(me.cliente.credito.limite) === '0' || me.cliente.credito.dias === 0 || me.cliente.credito.disponible === 0 || Common.quitarComaCommon(me.cliente.credito.disponible) === '0.00') {
+                me.deshabilitar.credito = false;
+              } else {
+                me.deshabilitar.credito = true;
+              }
+
+              // ------------------------------------------------------------------------
+
+              me.formatoDias();
+
+              // ------------------------------------------------------------------------
+
             })
 
             // ------------------------------------------------------------------------
@@ -848,6 +924,12 @@
             this.sumarMonedas();
 
             // ------------------------------------------------------------------------
+
+            // CONSULTAR CREDITO DE CLIENTE 
+
+
+            // ------------------------------------------------------------------------
+
           },
           seleccionar(){
 
@@ -1107,8 +1189,21 @@
 
             // ------------------------------------------------------------------------
 
+            // SUPERA LO DISPONIBLE
+
+            if(
+              (parseFloat(Common.quitarComaCommon(me.cliente.credito.total)) > parseFloat(Common.quitarComaCommon(me.cliente.credito.disponible)))
+               || (parseFloat(Common.quitarComaCommon(me.medios.SALDO)) < parseFloat(Common.quitarComaCommon(me.cliente.credito.total)))) 
+               {
+              me.cliente.credito.total = Common.darFormatoCommon(0, me.cotizacion.candec);
+              this.$bvToast.show('toast-credito-superado');
+              return;
+            }
+
+            // ------------------------------------------------------------------------
+
             // DAR FORMATO A CANTIDAD
-            
+
             me.cliente.credito.total = Common.darFormatoCommon(me.cliente.credito.total, me.cotizacion.candec);
 
             // ------------------------------------------------------------------------
@@ -1345,7 +1440,7 @@
             // ------------------------------------------------------------------------
 
           }, sumarCheques(data) {
-
+            
             // ------------------------------------------------------------------------
 
             let me = this;
@@ -1390,9 +1485,9 @@
             // ------------------------------------------------------------------------
 
             // TOTAL CHEQUE 
-
+            
             total = (Common.sumarCommon(Common.sumarCommon(pesos, reales, me.candec), Common.sumarCommon(dolares, guaranies, me.candec), me.candec));
-
+            
             // ------------------------------------------------------------------------
 
             this.medios.CHEQUE = total;
@@ -1516,7 +1611,7 @@
           }, aceptar(){
 
             // ------------------------------------------------------------------------
-            //alert(this.customer);
+
             let me = this;
             var total = 0;
             var medios = 0;
@@ -1555,7 +1650,8 @@
               REALES: me.monedas.REALES,
               CHEQUE: me.cheque,
               TIPO_IMPRESION: me.seleccion.impresion,
-              OPCION_VUELTO: me.radio.vuelto
+              OPCION_VUELTO: me.radio.vuelto,
+              PAGO_AL_ENTREGAR: me.checked.PAGO_AL_ENTREGAR
             }
 
             // ------------------------------------------------------------------------
@@ -1571,7 +1667,7 @@
 
             // REVISAR SI EL PAGO ES MAYOR AL TOTAL 
 
-            if (total > medios) {
+            if (total > medios && this.checked.PAGO_AL_ENTREGAR === false && this.tipo !== 3) {
               this.$bvToast.show('toast-monto-insuficiente');
               return;
             }
@@ -1602,22 +1698,44 @@
             // ------------------------------------------------------------------------
 
             this.medios = {
-              EFECTIVO: '0',
-              TARJETA: '0',
-              VUELTO: '0',
               SALDO: '0',
-              MEDIOS: '0'
+              MEDIOS: '0',
+              VUELTO: '0',
+              TARJETA: '0',
+              EFECTIVO: '0',
+              CHEQUE: '0',
+              TRANSFERENCIA: '0',
+              GIROS: '0',
+              VALES: '0',
+              DESCUENTO: '0',
             }
 
+            // ------------------------------------------------------------------------
+
             this.monedas = {
-              GUARANIES: '',
-              DOLARES: '',
-              PESOS: '',
-              REALES: ''
+              GUARANIES: '0',
+              DOLARES: '0',
+              PESOS: '0',
+              REALES: '0'
             }
+
+            // ------------------------------------------------------------------------
+
+            this.cliente.credito.total_agregado = 0;
+
+            // ------------------------------------------------------------------------
 
             this.tarjeta.codigo = '';
             this.cheque = '';
+            this.medios.TRANSFERENCIA = '0';
+            this.medios.TARJETA = '0';
+            this.banco.codigo = '';
+
+            // ------------------------------------------------------------------------
+
+            this.formatoTarjeta();
+            this.formatoTransferencia();
+            this.sumarMonedas();
 
             // ------------------------------------------------------------------------
 
@@ -1648,6 +1766,34 @@
 
                 // ------------------------------------------------------------------------
 
+          }, 
+          calcularCredito(){
+
+            // ------------------------------------------------------------------------
+            
+            if ((Common.quitarComaCommon(this.medios.SALDO) !== '0' && Common.quitarComaCommon(this.medios.SALDO) !== '0.00') && (
+                Common.quitarComaCommon(this.cliente.credito.total) === '0' || Common.quitarComaCommon(this.cliente.credito.total) === '0.00') && (Common.quitarComaCommon(this.cliente.credito.disponible) >= Common.quitarComaCommon(this.medios.SALDO))) 
+            {
+              this.cliente.credito.total = this.medios.SALDO;
+            } else {
+              this.cliente.credito.total = Common.darFormatoCommon(0, this.cotizacion.candec);
+            }
+
+            // ------------------------------------------------------------------------
+
+          },
+          pagoAlEntregar() {
+
+            // ------------------------------------------------------------------------
+
+            // ENTREGA 
+
+            if (this.checked.PAGO_AL_ENTREGAR === true) {
+              this.limpiar();
+            }
+            
+            // ------------------------------------------------------------------------
+
           }
       },
         mounted() {
@@ -1662,7 +1808,7 @@
         	// ------------------------------------------------------------------------
         	
           me.obtenerCotizacionyMoneda();
-        	//me.datosCliente();
+        	me.datosCliente(me.customer);
           
           // ------------------------------------------------------------------------
 
