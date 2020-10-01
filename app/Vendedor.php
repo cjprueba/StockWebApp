@@ -544,6 +544,7 @@ class Vendedores extends Model
 
     }
 
+
     public static function obtenerDatos($data, $order, $dir){
 
         $inicio = date('Y-m-d', strtotime($data['inicio']));
@@ -551,6 +552,9 @@ class Vendedores extends Model
         $codigoVendedor = $data['vendedor'];
         $sucursal = $data['sucursal'];
         $tipo = $data['tipo'];
+
+
+
 
         $ventaVendedor = DB::connection('retail')->table('VENTAS')
                 ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
@@ -607,12 +611,16 @@ class Vendedores extends Model
         $generador = ucfirst($user->name);
         $inicio = date('Y-m-d', strtotime($datos['data']['inicio']));
         $final = date('Y-m-d', strtotime($datos['data']['final']));
+        $vendedor = $datos['data']['vendedor'];
+        $sucursal = $datos['data']['sucursal'];
         $order ='VENTAS.FECALTAS';
         $dir = 'ASC';
 
         // OBTENER DATOS 
 
+
         $ventaVendedor = Vendedores::obtenerDatos($datos['data'], $order, $dir); 
+
 
         //INICIAR VARIABLES
         
@@ -625,7 +633,9 @@ class Vendedores extends Model
         $subtotal = 0;
         $articulos = [];
         $limite = 35;
+
         $tipo = $datos['data']['tipo'];
+
 
         // INICIAR MPDF 
 
@@ -657,6 +667,7 @@ class Vendedores extends Model
             $articulos[$c_rows]['IVA'] = Common::formato_precio($value->IVA, $candec);
             $articulos[$c_rows]['SUBTOTAL'] = Common::formato_precio($value->SUBTOTAL, $candec);
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value->TOTAL, $candec);
+
             
             // ESTADO DE PAGO 
 
@@ -679,6 +690,7 @@ class Vendedores extends Model
                 $articulos[$c_rows]['SALTO'] = true;
                 $limite = $limite + 42;
             }
+
 
             $c_rows = $c_rows + 1;
         }
@@ -707,10 +719,22 @@ class Vendedores extends Model
 
         $mpdf->Output();
 
+
         /*  --------------------------------------------------------------------------------- */
     }
 
+
+
     public static function generarReporteVentaVendedor($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $sucursal = $request->input('sucursal');
+        $inicio =  date('Y-m-d', strtotime($request->input('inicio')));
+        $final = date('Y-m-d', strtotime($request->input('final')));
+        $vendedor = $request->input('vendedor');
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -745,6 +769,7 @@ class Vendedores extends Model
         $dir = $request->input('order.0.dir');
         $item = 1;
 
+
         $datos = array(
                 'sucursal' => $request->input('sucursal'),
                 'inicio' => date('Y-m-d', strtotime($request->input('inicio'))),
@@ -753,12 +778,15 @@ class Vendedores extends Model
                 'tipo' => $request->input('tipo'),
             );
         
+
     
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS DATOS ENCONTRADOS 
 
+
         $posts = Vendedores::obtenerDatos($datos, $order, $dir);     
+
 
         /*  ************************************************************ */
 
@@ -784,7 +812,7 @@ class Vendedores extends Model
                 $nestedData['CLIENTE'] = ucwords($cliente);
                 $fecha = substr($post->FECHA,0,-9);
                 $nestedData['FECHA'] = $fecha;
-                $nestedData['TIPO'] = $post->TIPO;
+                $nestedData['TIPO'] = $post->TIPO;       
                 $nestedData['VENDEDOR'] = ucwords($vendedor);
                 $nestedData['IVA'] = Common::formato_precio($post->IVA, $candec);
                 $nestedData['SUBTOTAL'] = Common::formato_precio($post->SUBTOTAL, $candec);
