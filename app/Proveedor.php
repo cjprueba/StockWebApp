@@ -320,253 +320,277 @@ class Proveedor extends Model
 
     public static function pago($data){
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-
-        $user = auth()->user();
-        
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER CANDEC 
-
-        $candec = (Parametro::candec($data["data"]["moneda"]))["CANDEC"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INICIAR VARIABLES
-        
-        $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
-        if ($guaranies === '') {
-            $guaranies = 0;
-        } 
-
-        $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
-        if ($dolares === '') {
-            $dolares = 0;
-        } 
-
-        $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
-        if ($pesos === '') {
-            $pesos = 0;
-        } 
-
-        $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
-        if ($reales === '') {
-            $reales = 0;
-        }
-        
-        $fecha = $data["data"]["cabecera"]["FECHA"];
-        $recibo = $data["data"]["cabecera"]["RECIBO"];
-        $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
-        $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"], $candec);
-        $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
-        $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
-        $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
-        $cheques = $data["data"]["pago"]["CHEQUE"];
-        $total = 0;
-        $dia = date('Y-m-d');
-        $hora = date("H:i:s");
-        
-        /*  --------------------------------------------------------------------------------- */
-
-        // SELECCIONAR CUENTA 
-
-        $deudas = Deuda::obtener_deudas($data["data"]["codigo"]);
-        
-        if ($deudas["response"] === false) {
-            return $deudas;
-        } else {
-            $deudas = $deudas["deudas"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER PAGO DEUDA - COMPRA
-
-        $pagado = Pagos_Prov::obtener_pagos_deudas_compra($data["data"]["codigo"])["pagado"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // PAGO
-
-        $pago = [
-            "FECHA" => $fecha, 
-            "GUARANIES" => $guaranies, 
-            "DOLARES" => $dolares, 
-            "PESOS" => $pesos, 
-            "REALES" => $reales,
-            "PAGO" => $efectivo,
-            "VUELTO" => $vuelto,
-            "SALDO" => $saldo,
-            "RECIBO" => $recibo,
-            "FECALTAS" => $dia,
-            "HORALTAS" => $hora,
-            "FK_USER_CR" => $user->id,
-            "FK_DEUDA" => 0
-        ];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO PROVEEDOR 
-
-        $pago_prov = Pagos_Prov::insertar($pago);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO TARJETA
-        
-        if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '' && $codigo_tarjeta !== NULL && !empty($codigo_tarjeta)) {
-            if ($pago_prov["response"] === true && $codigo_tarjeta !== '') {
-                $pago_tarjeta = Pagos_Prov_Tarjeta::guardar_referencia([
-                    'FK_TARJETA' => $codigo_tarjeta,
-                    'FK_PAGO_PROV' => $pago_prov["id"],
-                    'MONTO' => $tarjeta,
-                    'MONEDA' => 1
-                ]);
-            } else {
-                return $pago_prov;
-            }
-        }
-         
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR PAGO CHEQUES 
-
-        $pago_cheque = Pagos_Prov_Cheque::guardar_referencia($cheques, $pago_prov["id"]);
-
-        if ($pago_cheque["response"] === false) {
-            return $pago_cheque;
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-        
-        // RECORRER DEUDAS 
-
-        foreach ($deudas as $key => $value) {
+        try {
 
             /*  --------------------------------------------------------------------------------- */
 
-            // SI EL EFECTIVO ES 0 TERMINAR WHILE 
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
             
-            if ((float)$efectivo === 0) {
-                break;
-            }
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER CANDEC 
+
+            $candec = (Parametro::candec($data["data"]["moneda"]))["CANDEC"];
 
             /*  --------------------------------------------------------------------------------- */
 
-            // INICIALIZAR EL TOTAL DE DEUDA Y SU ID
-
-            $total = $value->TOTAL;
-            $pago["FK_DEUDA"] = $value->ID;
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // OBTENER LOS PAGOS DE LA DEUDA 
-
-            $pagado_deuda = Pagos_Prov::obtener_pagos_deuda($value->ID);
-
-            if ($pagado_deuda["response"] === true) {
-                $total = $total - $pagado_deuda["pagado"];
+            // INICIAR VARIABLES
+            
+            $guaranies = Common::quitar_coma($data["data"]["pago"]["GUARANIES"], 2);
+            if ($guaranies === '') {
+                $guaranies = 0;
             } 
 
+            $dolares = Common::quitar_coma($data["data"]["pago"]["DOLARES"], 2);
+            if ($dolares === '') {
+                $dolares = 0;
+            } 
+
+            $pesos = Common::quitar_coma($data["data"]["pago"]["PESOS"], 2);
+            if ($pesos === '') {
+                $pesos = 0;
+            } 
+
+            $reales = Common::quitar_coma($data["data"]["pago"]["REALES"], 2);
+            if ($reales === '') {
+                $reales = 0;
+            }
+            
+            $fecha = $data["data"]["cabecera"]["FECHA"];
+            $recibo = $data["data"]["cabecera"]["RECIBO"];
+            $saldo = Common::quitar_coma($data["data"]["pago"]["SALDO"], $candec);
+            $vuelto = Common::quitar_coma($data["data"]["pago"]["VUELTO"], $candec);
+            $efectivo = Common::quitar_coma($data["data"]["pago"]["EFECTIVO"], $candec);
+            $tarjeta = Common::quitar_coma($data["data"]["pago"]["TARJETA"], $candec);
+            $codigo_tarjeta = $data["data"]["pago"]["CODIGO_TARJETA"];
+            $cheques = $data["data"]["pago"]["CHEQUE"];
+            $total = 0;
+            $dia = date('Y-m-d');
+            $hora = date("H:i:s");
+            
             /*  --------------------------------------------------------------------------------- */
 
-            // SI EFECTIVO ES MENOR O IGUAL AL TOTAL DE DEUDA
-           
-            if($total > $efectivo) {
-               
-                /*  --------------------------------------------------------------------------------- */
+            // SELECCIONAR CUENTA 
 
-                // PAGO 
-
-                $pago["PAGO"] = $efectivo;
-                    
-                /*  --------------------------------------------------------------------------------- */
-
-                if ($pago_prov["response"] === true) {
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // INSERTAR PAGO PROVEEDOR DET 
-
-                    Pagos_Prov_Det::insertar([
-                        "FK_PAGOS_PROV" => $pago_prov["id"],
-                        "PAGO" => $pago["PAGO"],
-                        "FK_DEUDA" =>  $pago["FK_DEUDA"] 
-                    ]);
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // CAMBIAR ESTADO 
-
-                    Deuda::cambiar_estado($value->ID, 2);
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
-                $efectivo = 0;
-                
-                /*  --------------------------------------------------------------------------------- */
-
-            } else if ($total > 0) {
-                
-                /*  --------------------------------------------------------------------------------- */
-
-                // RESTAR EFECTIVO A MEDIDA QUE VA DESCONTANDO 
-                
-                $efectivo = $efectivo - $total;
-
-                /*  --------------------------------------------------------------------------------- */
-
-                // PAGO 
-               
-                $pago["PAGO"] = $total;
-                    
-                /*  --------------------------------------------------------------------------------- */
-
-                if ($pago_prov["response"] === true) {
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // INSERTAR PAGO PROVEEDOR DET 
-
-                    Pagos_Prov_Det::insertar([
-                        "FK_PAGOS_PROV" => $pago_prov["id"],
-                        "PAGO" => $pago["PAGO"],
-                        "FK_DEUDA" =>  $pago["FK_DEUDA"] 
-                    ]);
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // CAMBIAR ESTADO 
-
-                    Deuda::cambiar_estado($value->ID, 3);
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                }
-
-                /*  --------------------------------------------------------------------------------- */
-
+            $deudas = Deuda::obtener_deudas($data["data"]["codigo"]);
+            
+            if ($deudas["response"] === false) {
+                return $deudas;
             } else {
-                return ["response" => false];
+                $deudas = $deudas["deudas"];
             }
 
             /*  --------------------------------------------------------------------------------- */
 
+            // OBTENER PAGO DEUDA - COMPRA
+
+            $pagado = Pagos_Prov::obtener_pagos_deudas_compra($data["data"]["codigo"])["pagado"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // PAGO
+
+            $pago = [
+                "FECHA" => $fecha, 
+                "GUARANIES" => $guaranies, 
+                "DOLARES" => $dolares, 
+                "PESOS" => $pesos, 
+                "REALES" => $reales,
+                "PAGO" => $efectivo,
+                "VUELTO" => $vuelto,
+                "SALDO" => $saldo,
+                "RECIBO" => $recibo,
+                "FECALTAS" => $dia,
+                "HORALTAS" => $hora,
+                "FK_USER_CR" => $user->id,
+                "FK_DEUDA" => 0
+            ];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO PROVEEDOR 
+
+            $pago_prov = Pagos_Prov::insertar($pago);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO TARJETA
+        
+            if ($codigo_tarjeta !== '0' && $codigo_tarjeta !== '' && $codigo_tarjeta !== NULL && !empty($codigo_tarjeta)) {
+                if ($pago_prov["response"] === true && $codigo_tarjeta !== '') {
+                    $pago_tarjeta = Pagos_Prov_Tarjeta::guardar_referencia([
+                        'FK_TARJETA' => $codigo_tarjeta,
+                        'FK_PAGO_PROV' => $pago_prov["id"],
+                        'MONTO' => $tarjeta,
+                        'MONEDA' => 1
+                    ]);
+                } else {
+                    return $pago_prov;
+                }
+            }
+             
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CHEQUES 
+
+            $pago_cheque = Pagos_Prov_Cheque::guardar_referencia($cheques, $pago_prov["id"]);
+
+            if ($pago_cheque["response"] === false) {
+                return $pago_cheque;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // RECORRER DEUDAS 
+
+            foreach ($deudas as $key => $value) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI EL EFECTIVO ES 0 TERMINAR WHILE 
+                
+                if ((float)$efectivo === 0) {
+                    break;
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // INICIALIZAR EL TOTAL DE DEUDA Y SU ID
+
+                $total = $value->TOTAL;
+                $pago["FK_DEUDA"] = $value->ID;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // OBTENER LOS PAGOS DE LA DEUDA 
+
+                $pagado_deuda = Pagos_Prov::obtener_pagos_deuda($value->ID);
+
+                if ($pagado_deuda["response"] === true) {
+                    $total = $total - $pagado_deuda["pagado"];
+                } 
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // SI EFECTIVO ES MENOR O IGUAL AL TOTAL DE DEUDA
+               
+                if($total > $efectivo) {
+                   
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // PAGO 
+
+                    $pago["PAGO"] = $efectivo;
+                        
+                    /*  --------------------------------------------------------------------------------- */
+
+                    if ($pago_prov["response"] === true) {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR PAGO PROVEEDOR DET 
+
+                        Pagos_Prov_Det::insertar([
+                            "FK_PAGOS_PROV" => $pago_prov["id"],
+                            "PAGO" => $pago["PAGO"],
+                            "FK_DEUDA" =>  $pago["FK_DEUDA"] 
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CAMBIAR ESTADO 
+
+                        Deuda::cambiar_estado($value->ID, 2);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $efectivo = 0;
+                    
+                    /*  --------------------------------------------------------------------------------- */
+
+                } else if ($total > 0) {
+                    
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // RESTAR EFECTIVO A MEDIDA QUE VA DESCONTANDO 
+                    
+                    $efectivo = $efectivo - $total;
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // PAGO 
+                   
+                    $pago["PAGO"] = $total;
+                        
+                    /*  --------------------------------------------------------------------------------- */
+
+                    if ($pago_prov["response"] === true) {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR PAGO PROVEEDOR DET 
+
+                        Pagos_Prov_Det::insertar([
+                            "FK_PAGOS_PROV" => $pago_prov["id"],
+                            "PAGO" => $pago["PAGO"],
+                            "FK_DEUDA" =>  $pago["FK_DEUDA"] 
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CAMBIAR ESTADO 
+
+                        Deuda::cambiar_estado($value->ID, 3);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                } else {
+                    return ["response" => false];
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // GUARDAR CAMBIOS 
+
+                DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente el pago !"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            DB::connection('retail')->rollBack();
+            throw $e;
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR VALOR 
-
-        return ["response" => true, "statusText" => "Se ha guardado correctamente el pago !"];
-
-        /*  --------------------------------------------------------------------------------- */
 
     }
 
