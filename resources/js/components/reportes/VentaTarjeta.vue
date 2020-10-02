@@ -205,11 +205,9 @@
 						  });
 						}
 		            });
-
-	        	}else {
-	        		alert("false");
 	        	}
 	        },
+	        
 	        generarConsulta(){
 	        	
 	        	if (this.selectedSucursal === null || this.selectedSucursal === "null") {

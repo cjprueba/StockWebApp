@@ -1,11 +1,14 @@
 <template>
-	<!-- VENTA TRANSFERENCIA  -->
+
+	<!-- VENTA VENDEDOR  -->
 	<div class="container">
 		<div class="card mt-3  shadow border-bottom-primary" >
-		  <div class="card-header">Ventas por Transferencia</div>
+		  <div class="card-header">Ventas por Vendedor</div>
 			<div class="card-body">
 			  <div class="row">
-				<div class="col-4">
+				<div class="col-4 mb-3 ">
+
+					<!-- -------------------------------------------SELECCIONAR SUCURSAL----------------------------------------------- -->
 					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
@@ -16,7 +19,36 @@
 						    {{messageInvalidSucursal}}
 						</div>
 					</div>
-					<div class="row mt-4 ml-3">	
+
+					<!-- -------------------------------------------SELECCIONAR VENDEDOR----------------------------------------------- -->
+
+					<div class="row mt-3 ml-3">
+				  		<label for="validationTooltip01">Vendedor</label>
+						<select class="custom-select custom-select-sm" v-model="selectedVendedor">
+							<option value="null" selected>Seleccionar</option>
+							<option v-for="vendedor in vendedores" :value="vendedor.CODIGO">{{ vendedor.NOMBRE }}</option>
+						</select>
+					</div>
+				</div>
+
+
+				<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
+
+				<div class="col-4 mb-3 ">
+					<div class="row ml-3">
+						<div class="col-sm">
+							<label>Tipo</label>
+			    			<select v-model="selectedTipo" class="custom-select custom-select-sm">
+			    				<option>GENERAL</option>
+			  	  				<option value="CR">CRÉDITO</option>
+			    				<option value="CO">CONTADO</option>
+			    				<option value="PE">PAGO AL ENTREGAR</option>
+			  				</select>
+	    				</div>
+					</div>
+					<!-- -------------------------------------------MOSTRAR FECHA----------------------------------------------- -->
+
+					<div class="row mt-3 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
 							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
@@ -29,60 +61,86 @@
 						    </div>
 						</div>
 					</div>
+				</div>
+				<!-- -------------------------------------------MOSTRAR BOTONES----------------------------------------------- -->
+				<div class="col-4 mb-3">
 					<div class="row mt-4 ml-3">
 						<div class="col-auto">
 							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
 						</div>
 						<div class="col-auto">
-								
 							<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 						</div>
 					</div>
+	    		</div>
 
-					<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
+				<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
-				    <div class="row">
-						<div v-if="descarga" class="ml-5 d-flex justify-content-center mt-3">
+				<div class="col-md-12 mt-3 mb-3">
+					<div v-if="descarga" class="ml-5 d-flex justify-content-center">
 							Descargando...
-				            <div class="spinner-grow text-primary" role="status" aria-hidden="true"></div>
-				        </div>
-			        </div>
-				</div>
-				
-			  	<div class="col-md-7 ml-5">
-					<table id="tablaVentaTransferencia" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+				    	<div class="spinner-grow text-primary" role="status" aria-hidden="true"></div>
+				    </div>
+			    </div>
+
+				<!-- -------------------------------------------DATATABLE VENTAS VENDEDOR---------------------------------------------- -->
+				<div class="col-md-12">
+					<table id="tablaVentaVendedor" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
+			                    <th>Codigo</th>
 			                    <th>Cliente</th>
-			                    <th>Banco</th>
 			                    <th>Fecha</th>
+			                    <th>Tipo</th>
+			                    <th>Vendedor</th>
+			                    <th class="totalIVA">IVA</th>
+			                    <th class="totalSubtotal">SubTotal</th>
 			                    <th class="totalColumna">Total</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
 			            	<tr>
+			            		<th></th><th></th><th></th>
 				            	<th colspan='3' class="text-center"><strong>TOTALES</strong></th>
-				            	<th colspan='2' class="text-center"></th>
+				            	<th class="text-center"></th>
+				            	<th class="text-center"></th>
+				            	<th class="text-center"></th> 
 				            </tr>
 			            </tfoot>
 			        </table> 
-				</div>	
+				</div>
+			  		
 			  </div>
 			</div>
 		</div>
+
+
+		<!-- ------------------------------------------------------------------------ -->
+		
+		<!-- <div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div> -->
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
-	<!-- VENTA TRANSFERENCIA -->
+	<!-- VENTA VENDEDOR -->
 </template>
 
 <script >
 	export default {
+      props: ['candec'],
         data(){
             return {
               	sucursales: [],
               	selectedSucursal: '',
               	validarSucursal: false,
               	messageInvalidSucursal: '',
+              	selectedVendedor: '',
+              	validarVendedor: false,
+              	messageInvalidVendedor: '',
+              	vendedores: [],
               	selectedInicialFecha: '',
               	validarInicialFecha: false,
               	messageInvalidFecha: '',
@@ -90,13 +148,16 @@
               	validarFinalFecha: false,
               	cargado: false,
               	descarga: false,
-              	responseVale: []
+              	selectedTipo: 'GENERAL'
+
             }
         }, 
         methods: {
+
         	llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {
 	           	this.sucursales = response.data.sucursales;
+	           	this.vendedores = response.data.vendedor;
 	          });
 	        },
 
@@ -110,10 +171,13 @@
 		        	var datos = {
 			        	sucursal: this.selectedSucursal,
 			        	inicio: String(this.selectedInicialFecha),
-			        	final: String(this.selectedFinalFecha)
+			        	final: String(this.selectedFinalFecha),
+			        	vendedor: this.selectedVendedor,
+			        	tipo: this.selectedTipo
+
 		        	};
 		        	
-		        	Common.reporteVentaTransferenciaCommon(datos).then(function(){
+		        	Common.reporteVentaVendedorCommon(datos).then(function(){
 	    				me.descarga = false;
 	    			});	
 				}
@@ -127,7 +191,7 @@
 
 		        	// PREPARAR DATATABLE 
 
-			 		var tableVentaTransferencia = $('#tablaVentaTransferencia').DataTable({
+			 		var tableVentaVendedor = $('#tablaVentaVendedor').DataTable({
 		                "processing": true,
 		                "serverSide": true,
 		                "destroy": true,
@@ -142,36 +206,43 @@
 				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
 				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
 				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
-				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaTransferencia', messageTop: 'Ventas registradas por Transferencia', footer: true }
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaVendedor', messageTop: 'Ventas registradas por Vendedor', footer: true }
 				        ],
 		                "ajax":{
 	                 			"data": {
 	                 				sucursal: me.selectedSucursal,
 						        	inicio: String(me.selectedInicialFecha),
-						        	final: String(me.selectedFinalFecha)
+						        	final: String(me.selectedFinalFecha),
+						        	vendedor: me.selectedVendedor,
+						        	tipo: me.selectedTipo,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
 	                 			},
-		                  "url": "/ventaTransferenciaDatatable",
+		                  "url": "/ventaVendedorDatatable",
 		                  "dataType": "json",
-		                  "type": "GET",
-		                  "contentType": "application/json; charset=utf-8"
+		                  "type": "POST"
+
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },
+		                    { "data": "CODIGO" },
 		                    { "data": "CLIENTE" },
-		                    { "data": "BANCO" },
 		                    { "data": "FECHA" },
+		                    { "data": "TIPO" },
+		                    { "data": "VENDEDOR" },
+		                    { "data": "IVA" },
+		                    { "data": "SUBTOTAL" },
 		                    { "data": "TOTAL" }
 		                ],
 
 		                "footerCallback": function(row, data, start, end, display) {
 
-						  var api = this.api();
+							var api = this.api();
 
-						  // TOTAL 
+							// TOTAL 
 
-						  api.columns('.totalColumna', {}).every(function() {
+							api.columns('.totalColumna', {}).every(function() {
 
-						    var sum = this.data().reduce(function(a, b) {
+						    	var sum = this.data().reduce(function(a, b) {
 
 						      	// *******************************************************************
 
@@ -193,19 +264,87 @@
 
 						        // *******************************************************************
 
-						      }, 0);
+						    	}, 0);
 
-						    // *******************************************************************
+							    // CARGAR EN EL FOOTER  
 
-						    // CARGAR EN EL FOOTER  
+							    $( api.columns('.totalColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
 
-						    $( api.columns('.totalColumna').footer() ).html(
-					            Common.darFormatoCommon(sum, 0)
-					        ); 
+					        //IVA
 
-						  });
+						  	api.columns('.totalIVA', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.totalIVA').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        );
+
+						  	});
+
+					        //SUBTOTAL
+
+					        api.columns('.totalSubtotal', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.totalSubtotal').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
 						}
-		            });
+					});
 
 	        	}
 	        },
@@ -243,6 +382,7 @@
         },
         mounted() {
         	let me = this;
+
         	$(function(){
 		   		    $('#sandbox-container .input-daterange').datepicker({
 		   		    	    keyboardNavigation: false,
@@ -257,8 +397,9 @@
 
 					$('table').dataTable();
 			});
+
 			this.llamarBusquedas();
-			var tableVentaTransferencia = $('#tablaVentaTransferencia').DataTable();
+			var tableVentaVendedor = $('#tablaVentaVendedor').DataTable();
         }
     }    
 </script>

@@ -18,7 +18,7 @@
 
                           <!-- PAGO AL ENTREGAR -->
                   
-                          <div class="my-1" v-if="tipo !== 2 && tipo !== 3">
+                          <div class="my-1" v-if="tipo !== 2 && tipo !== 3 && tipo !== 4">
                             <div class="custom-control custom-switch mr-sm-3">
                               <input type="checkbox" class="custom-control-input" id="switchPagoEntrega" v-on:change="pagoAlEntregar" v-model="checked.PAGO_AL_ENTREGAR">
                               <label class="custom-control-label" for="switchPagoEntrega" >PAGO AL ENTREGAR</label>
@@ -31,7 +31,7 @@
                             <a href="#" class="badge badge-primary">Crédito: {{cliente.credito.total_agregado}} </a>
                           </div>
 
-                          <div class="float-right" v-if="deshabilitar.credito && tipo !== 3">
+                          <div class="float-right" v-if="deshabilitar.credito && tipo !== 3 && tipo !== 4">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalCredito" v-on:click="calcularCredito">Agregar Crédito</button>
                           </div>
 
@@ -254,7 +254,7 @@
 
                                       <!-- REALES -->
 
-                                        <div class="row" v-if="tipo !== 3">
+                                        <div class="row" v-if="tipo !== 3 && tipo !== 4">
 
                                           <div class="col-md-2">
                                             <label for="validationTooltip01">Descuento</label>
@@ -430,13 +430,13 @@
 
                                     <!-- CHEQUE -->
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-2" v-if="tipo !== 4">
                                       <label for="validationTooltip01">Vales:</label>
                                     </div>  
 
                                     <!-- ------------------------------------------------------------------------ -->
 
-                                    <div class="col-md-10">
+                                    <div class="col-md-10" v-if="tipo !== 4">
 
                                       <!-- ------------------------------------------------------------------------ -->
 
@@ -530,7 +530,7 @@
 
                         <div class="modal-body">
 
-                          <div class="row" v-if="tipo !== 2">
+                          <div class="row" v-if="tipo !== 2 && tipo !== 4">
                             <legend class="col-form-label col-sm-2 pt-0">Impresión</legend>
                             <div class="col-sm-10">
                               <div class="form-check form-check-inline">
@@ -1492,7 +1492,7 @@
             // ------------------------------------------------------------------------
 
           }, sumarCheques(data) {
-
+            
             // ------------------------------------------------------------------------
 
             let me = this;
@@ -1537,9 +1537,9 @@
             // ------------------------------------------------------------------------
 
             // TOTAL CHEQUE 
-
+            
             total = (Common.sumarCommon(Common.sumarCommon(pesos, reales, me.candec), Common.sumarCommon(dolares, guaranies, me.candec), me.candec));
-
+            
             // ------------------------------------------------------------------------
 
             this.medios.CHEQUE = total;

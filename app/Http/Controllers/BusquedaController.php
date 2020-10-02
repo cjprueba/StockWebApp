@@ -31,9 +31,24 @@ class BusquedaController extends Controller
 
         /*  *********** SUCURSALES *********** */
 
-        $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))-> where('CODIGO','=',$user->id_sucursal)
-        ->orderBy('CODIGO')
-        ->get();
+        $sucursales = 0;
+
+        // LIMITAR SOLO CRISTIAN Y JOHN
+
+        if ($user->id === 24 || $user->id === 1) {
+
+            $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))
+            ->orderBy('CODIGO')
+            ->get();
+
+        } else {
+
+            $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))-> where('CODIGO','=',$user->id_sucursal)
+            ->orderBy('CODIGO')
+            ->get();
+
+        }
+        
 
         /*  *********** MARCAS *********** */
 

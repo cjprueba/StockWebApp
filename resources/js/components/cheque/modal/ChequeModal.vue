@@ -218,6 +218,11 @@
 <script>
 	 export default {
 	  props: ['cotizacion', 'moneda_principal'],
+	  watch: { 
+        moneda_principal: function(newVal, oldVal) { 
+        	this.moneda.CODIGO = newVal.toString();
+        }
+      },  
       data(){
         return {
           open: false,
