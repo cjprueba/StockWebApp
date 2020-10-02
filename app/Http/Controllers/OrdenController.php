@@ -97,8 +97,8 @@ class OrdenController extends Controller
 
     public function datatable_procesando(Request $request){
 
-        return Orden::datatableProcesando($request);
-
+        $orden = Orden::datatableProcesando($request);
+        return response()->json($orden, 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);    
         /*  --------------------------------------------------------------------------------- */
 
     }

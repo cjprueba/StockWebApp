@@ -355,6 +355,11 @@ export default new Router({
 			path: '/rpt15',
 			name: 'rptTarjeta',
 			component: require('./components/reportes/VentaTarjeta.vue').default
+	    },
+		{
+			path: '/rpt16',
+			name: 'rptVentaVendedor',
+			component: require('./components/reportes/Vendedor.vue').default
 	    }
 
 
