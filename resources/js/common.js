@@ -5434,4 +5434,4 @@ export {
 		reporteVentaTarjetaCommon,
 		aplicarCuponCommon
 
-
+		};
