@@ -6,8 +6,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Mpdf\Mpdf;
 use Fpdf\Fpdf;
+use Illuminate\Support\Facades\Log;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\Parametro;
+use App\Cliente;
 
 class Cupon extends Model
 {
@@ -377,4 +379,102 @@ public static function crear_cupon()
 
         /*  --------------------------------------------------------------------------------- */
     }
+         public static function aplicar_cupon($datos)
+    {
+      $cliente=0;
+
+        $user= auth()->user();
+        $dia = date("Y-m-d");
+        $cliente=Cliente::id_cliente($datos["datos"]["cliente"]);
+
+        $cupon=Cupon::select(DB::raw(
+          'CUPONES.CODIGO,
+          CUPONES.ID as ID,
+          CUPONES.TIPO_CUPON as TIPO,
+          CUPONES.FECHA_CADUCIDAD,
+          CUPONES.IMPORTE,
+          CUPONES.DESCRIPCION,
+          CUPONES.USO_LIMITE,
+          CUPONES.USO,CUPONES.GASTO_MAX,
+          CUPONES.GASTO_MIN,
+          CUPONES.USO_LIMITE_CLIENTE,
+          CUPONES.EXCLUIR_ARTICULOS_CON_DESCUENTO,
+          CUPONES.ACTIVO,
+           count(cliente_tiene_cupon.FK_CLIENTE) AS USO_CLIENTE'))
+        ->leftjoin('cliente_tiene_cupon',function($join) use ($cliente){
+                             $join
+                             ->on('cliente_tiene_cupon.FK_CUPON','=','CUPONES.ID')
+                             ->where('cliente_tiene_cupon.FK_CLIENTE','=',$cliente["ID_CLIENTE"]);
+                             })
+       ->leftjoin('ventas_anulado',function($join) {
+                             $join
+                             ->on('ventas_anulado.FK_VENTA','=','cliente_tiene_cupon.FK_VENTA');
+                             
+                             })
+          ->where('CUPONES.CODIGO','=', $datos["datos"]["cupon"])
+          ->where('CUPONES.ID_SUCURSAL','=', $user->id_sucursal)
+          ->where('ventas_anulado.ANULADO','=',0)
+          ->get()->toArray();
+
+        if($cupon[0]["CODIGO"]!=NULL){
+            if($cupon[0]["FECHA_CADUCIDAD"]<$dia){
+               return ["response"=>false,"statusText"=>"EL CUPÓN ESTA CADUCADO!"];
+            } 
+            if($cupon[0]["ACTIVO"]==1){
+              return ["response"=>false,"statusText"=>"EL CUPÓN NO ESTA ACTIVO!"];
+            }
+            if($cupon[0]["GASTO_MIN"]>0 && $cupon[0]["GASTO_MIN"]>$datos["datos"]["total"]){
+                 return ["response"=>false,"statusText"=>"EL CUPÓN TIENE UN GASTO MINIMO DE:'".$cupon[0]["GASTO_MIN"]."'!"];
+            }
+            if($cupon[0]["GASTO_MAX"]>0 && $cupon[0]["GASTO_MAX"]<$datos["datos"]["total"]){
+                 return ["response"=>false,"statusText"=>"EL CUPÓN TIENE UN GASTO MAXIMO DE:'".$cupon[0]["GASTO_MAX"]."'!"];
+            }
+            if($cupon[0]["USO_LIMITE"]==$cupon[0]["USO"]){
+               return ["response"=>false,"statusText"=>"EL CUPON YA TIENE: ".$cupon[0]["USO"].'/'.$cupon[0]["USO_LIMITE"]." USOS!"];
+            }
+            if($cupon[0]["USO_LIMITE_CLIENTE"]>0 && $cupon[0]["USO_LIMITE_CLIENTE"]==$cupon[0]["USO_CLIENTE"]){
+               return ["response"=>false,"statusText"=>"EL CLIENTE YA TIENE: ".$cupon[0]["USO_CLIENTE"].'/'.$cupon[0]["USO_LIMITE_CLIENTE"]." USOS DE ESTE CUPON!"];
+            }
+            if($cupon[0]["TIPO"]==1 && ($cupon[0]["IMPORTE"]>0 )){
+              $total=($datos["datos"]["total"]*$cupon[0]["IMPORTE"])/100;
+              return["response"=>true,"total"=>$total,'porcentaje'=>$cupon[0]["IMPORTE"],'tipo'=>$cupon[0]["TIPO"],'id'=>$cupon[0]["ID"]];
+            }
+
+            if($cupon[0]["TIPO"]==2 && ($datos["datos"]["total"]>$cupon[0]["IMPORTE"])){
+                $porcentaje=($cupon[0]["IMPORTE"]*100)/$datos["datos"]["total"];
+              return["response"=>true,"total"=>$cupon[0]["IMPORTE"],'porcentaje'=>$porcentaje,'tipo'=>$cupon[0]["TIPO"],'id'=>$cupon[0]["ID"]];
+
+            }else{
+               return ["response"=>false,"statusText"=>"EL IMPORTE DEL CUPON NO PUEDE SER MAYOR AL TOTAL DE LA VENTA!"];
+            }
+
+
+        }else{
+          return ["response"=>false,"statusText"=>"EL CUPÓN NO EXISTE!"];
+        }
+ 
+    }
+     public static function actualizar_uso($id,$tipo){
+          $dia = date("Y-m-d");
+          $hora = date("H:i:s");
+          $user= auth()->user();
+             try{
+                if($tipo==1){
+                     $cantidad=1;
+                     $venta= Cupon::where('id', $id)
+                    ->update(['FECMODIF'=>$dia,'HORMODIF'=>$hora, 'USERM'=>$user->id, 'USO' => \DB::raw('USO + '.$cantidad.'')]);
+                  }else{
+                    $cantidad=-1;
+                     $venta= Cupon::where('id', $id)
+                    ->update(['FECMODIF'=>$dia,'HORMODIF'=>$hora, 'USERM'=>$user->id, 'USO' => \DB::raw('USO + '.$cantidad.'')]);
+                  }
+                    Log::info('Cupon: Éxito al actualizar.', ['CUPON_ID' => $id, 'TIPO' => $tipo]);
+             }catch (Exception $e) {
+                    Log::error('Cupon: Error al actualizar.', ['CUPON_ID' => $id, 'TIPO' => $tipo]);
+             }
+         
+       
+     }
+
+
 }

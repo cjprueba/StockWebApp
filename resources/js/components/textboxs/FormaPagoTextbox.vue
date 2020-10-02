@@ -211,6 +211,7 @@
                                       <!-- ------------------------------------------------------------------------ -->
 
                                     </div>  
+                                  
 
                                     <div class="col-md-12">
 
@@ -277,6 +278,28 @@
                                       <!-- ------------------------------------------------------------------------ -->
 
                                     </div> 
+                                    <!-----------------------CUPONES----------------------------------------------- -->
+
+                                      <div class="col-md-12">
+                                        <div class="row">
+
+                                          <div class="col-md-9 input-group mb-4 border rounded-pill p-2">
+                                            <input type="text" placeholder="Aplicar cupón" v-model='cupon.codigo' v-on:blur="obtener_cupon" aria-describedby="button-addon3" class="form-control form-control-sm border-0">
+                                            <div class="input-group-append border-0">
+                                              <button id="button-addon3" type="button" v-on:click="quitar_cupon" class="btn btn-sm btn-dark px-4 rounded-pill"><i class="fa fa-gift mr-2"></i>Quitar cupón</button>
+                                            </div>
+                                              
+                                          </div>
+
+                                          <div class="col-md-3">
+                                            <input class="form-control form-control-sm" type="text" v-model="medios.CUPON"  disabled>
+                                          </div>
+
+                                       </div>
+                                          
+                                     
+                                    
+                                    </div>
                                   </div>
 
                                   
@@ -714,10 +737,23 @@
 	export default {
       props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo'],
       watch: { 
-        total_crudo: function(newVal, oldVal) { 
+        total_crudo: function(newVal, oldVal) {
             this.sumarMonedas();
             this.formatoDias();
+
         }, 
+        total: function(newVal,oldVal){
+
+             if(this.texto===''){
+            
+              this.textopc=0;
+            }else{
+              
+               this.textopc=1;
+            }
+           
+            this.obtener_cupon();
+        },
         customer: function(newVal, oldVal) {
             this.formatoDias();
             this.datosCliente(newVal);
@@ -738,7 +774,9 @@
 	            {'CODIGO': 4, 'DESCRIPCION': 'VALE'},
             ],
             opciones: [],
+            texto:'',
             opcion: '',
+            textopc:0,
             medios: {
               SALDO: '0',
               MEDIOS: '0',
@@ -750,6 +788,14 @@
               GIROS: '0',
               VALES: '0',
               DESCUENTO: '0',
+              CUPON:'0'
+            },
+            cupon:{
+              codigo: '',
+              total:0,
+              porcentaje:0,
+              tipo:0,
+              id:0
             },
             monedas: {
               GUARANIES: '',
@@ -1394,6 +1440,12 @@
 
             // ------------------------------------------------------------------------
 
+            // CUPON
+
+            total = Common.sumarCommon(Common.darFormatoCommon(this.medios.CUPON, this.candec), total, this.candec);
+
+            // ------------------------------------------------------------------------
+
             // CREDITO
 
             total = Common.sumarCommon(Common.darFormatoCommon(this.cliente.credito.total_agregado, this.candec), total, this.candec);
@@ -1651,7 +1703,12 @@
               CHEQUE: me.cheque,
               TIPO_IMPRESION: me.seleccion.impresion,
               OPCION_VUELTO: me.radio.vuelto,
-              PAGO_AL_ENTREGAR: me.checked.PAGO_AL_ENTREGAR
+              PAGO_AL_ENTREGAR: me.checked.PAGO_AL_ENTREGAR,
+              CUPON_CODIGO:me.cupon.codigo,
+              CUPON_ID:me.cupon.id,
+              CUPON_TOTAL:me.cupon.total,
+              CUPON_PORCENTAJE:me.cupon.porcentaje,
+              CUPON_TIPO:me.cupon.tipo
             }
 
             // ------------------------------------------------------------------------
@@ -1794,8 +1851,91 @@
             
             // ------------------------------------------------------------------------
 
+          },
+          obtener_cupon(){
+            let me=this;
+                if(me.textopc===0){
+                  this.texto="Se aplicara el cupon: " + this.cupon.codigo + " !";
+                }else{
+                  this.texto="Desea recalcular  el cupon: " + this.cupon.codigo + " ?";
+                }
+    
+            if(me.cupon.codigo!==''){
+              var data={
+                cupon:me.cupon.codigo,
+                total:me.total_crudo,
+                candec:me.cotizacion.candec,
+                cliente:me.customer
+              }
+             Swal.fire({
+          title: 'Estas seguro ?',
+          text: this.texto,
+          type: 'warning',
+          showLoaderOnConfirm: true,
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Si, Aplicar!',
+          cancelButtonText: 'Cancelar',
+          preConfirm: () => {
+            return Common.aplicarCuponCommon(data).then(data => {
+              if (!data.response === true) {
+                  throw new Error(data.statusText);
+                }
+              me.medios.CUPON=parseFloat(data.total);
+              me.cupon.total=me.medios.CUPON;
+              me.cupon.porcentaje=data.porcentaje;
+              me.cupon.tipo=data.tipo;
+              me.cupon.id=data.id;
+              console.log(me.cupon);
+              me.medios.CUPON=Common.darFormatoCommon(me.medios.CUPON, me.cotizacion.candec);
+          
+            
+            me.sumarMonedas();
+              return data;
+            }).catch(error => {
+                Swal.showValidationMessage(
+                  `Request failed: ${error}`
+                )
+            });
+          }
+        }).then((result) => {
+          if (result.value) {
+
+            Swal.fire(
+                  'Aplicado !',
+                  'Se ha aplicado el cupon !',
+                  'success'
+          )
+
+            // ------------------------------------------------------------------------
+
+            
+
+          // ------------------------------------------------------------------------
+
+          }else{
+            me.quitar_cupon();
+          } 
+        })
+
+            }
+           
+          },
+          quitar_cupon(){
+              let me=this;
+              me.medios.CUPON=0.00;
+              me.cupon.codigo='';
+              me.cupon.total=0;
+              me.cupon.porcentaje =0;
+              me.cupon.tipo=0;
+              me.cupon.id=0;
+              me.textopc=0;
+
+              me.sumarMonedas();
           }
       },
+     
         mounted() {
         	
         	// ------------------------------------------------------------------------

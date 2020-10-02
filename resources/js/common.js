@@ -5157,6 +5157,19 @@ function reporteVentaTarjetaCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function aplicarCuponCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/cupon/aplicar', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5379,6 +5392,7 @@ export {
 		guardarPagoPECommon,
 		guardarPagoCreditoCommon,
 		generarRptPdfVentaCommon,
-		reporteVentaTarjetaCommon
+		reporteVentaTarjetaCommon,
+		aplicarCuponCommon
 
 		};

@@ -93,7 +93,8 @@ Route::post('transferenciaEnviar', 'TransferenciaControler@enviarTransferencia')
 Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
-Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');	
+Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
+Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');		
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
@@ -546,6 +547,7 @@ Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria'
 
 // REPORTES GENERAR
 Route::get('/cupon/datatable', 'CuponController@datatable');
+Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
 Route::post('cuponHabilitar', 'CuponController@cuponHabilitar');
 Route::get('obtenerCupon', 'CuponController@CrearCupon');

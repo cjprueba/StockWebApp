@@ -18,6 +18,9 @@ use App\VentasAnulado;
 use App\VentasDetDevolucion;
 use App\Ventas_Descuento;
 use App\VentaCredito;
+use App\VentaCupon;
+use App\Cupon;
+use App\Cliente_tiene_Cupon;
 
 class Venta extends Model
 {
@@ -1979,6 +1982,16 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // CUPON 
+
+            if(isset($data["data"]["pago"]["CUPON_TOTAL"])){
+                $cupon = Common::quitar_coma($data["data"]["pago"]["CUPON_TOTAL"], 2);
+            }else{
+                $cupon='0';
+            }
+
+            /*  --------------------------------------------------------------------------------- */            
+
             // CREDITO
 
             $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
@@ -2454,6 +2467,55 @@ class Venta extends Model
                 ]);
                 
             }
+
+
+            /*  --------------------------------------------------------------------------------- */
+            // INSERTAR PAGO CUPON
+
+            
+            if ($cupon !== '0' && $cupon !== '0.00' && $cupon !== NULL) {
+
+                 /*  --------------------------------------------------------------------------------- */ 
+                // GUARDAR VENTA CON CUPON
+                /*  --------------------------------------------------------------------------------- */
+
+                VentaCupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'CUPON_IMPORTE' => $cupon,
+                        'CUPON_PORCENTAJE'=>$data["data"]["pago"]["CUPON_PORCENTAJE"],
+                        'CUPON_TIPO'=>$data["data"]["pago"]["CUPON_TIPO"],
+                        'FK_USER'=>$user->id,
+                        'MONEDA' => $moneda,
+                        'FECALTAS'=>$dia,
+                        'HORALTAS'=>$hora
+                ]);
+
+                /*  --------------------------------------------------------------------------------- */ 
+                // OBTENER ID CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                $id_cliente = (Cliente::id_cliente($cliente))['ID_CLIENTE'];
+
+                /*  --------------------------------------------------------------------------------- */
+                // ACTUALIZAR USO DEL CUPON 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cupon::actualizar_uso($data["data"]["pago"]["CUPON_ID"],1);
+
+                /*  --------------------------------------------------------------------------------- */
+                // GUARDAR USO DEL CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cliente_tiene_Cupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'FK_CLIENTE'=> $id_cliente,
+                        'MONEDA' => $moneda
+                ]);
+
+            }
+
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -4992,9 +5054,13 @@ class Venta extends Model
            return ["response"=>false,'status_text'=> "No existe la venta seleccionada"];
         }
         
-
+         
 
             VentasAnulado::anular_venta($venta["0"]->ID,$dia);
+           $id_cupon=VentaCupon::obtener_id_cupon_venta($venta["0"]->ID);
+           if($id_cupon!==0){
+            Cupon::actualizar_uso($id_cupon,2);
+           }
 
             $venta= DB::connection('retail')->table('VENTAS')->where('CODIGO', $datos['data']['codigo'])
                ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
@@ -5037,6 +5103,7 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
+
             DB::connection('retail')->commit();
 
             return ["response"=>true,"ventas"=>$venta];
