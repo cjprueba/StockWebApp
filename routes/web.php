@@ -550,7 +550,7 @@ Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria'
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
-Route::get('/cupon/datatable', 'CuponController@datatable');
+Route::post('/cupon/datatable', 'CuponController@datatable');
 Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
 Route::post('cuponHabilitar', 'CuponController@cuponHabilitar');
