@@ -4523,8 +4523,13 @@ class Venta extends Model
         if($user->id_sucursal === 4){
              $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
         }
-
-        $totalData = $totalData->count();
+        if($user->id_sucursal===4){
+              $totalData = 2700;
+        }else{
+              $totalData = $totalData->count();
+        }
+        
+      
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4638,8 +4643,13 @@ class Venta extends Model
             if($user->id_sucursal===4){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
+                    if($user->id_sucursal===4){
+              $totalFiltered = 2700;
+        }else{
+              $totalFiltered = $totalFiltered->count();
+        }
 
-            $totalFiltered = $totalFiltered->count();
+           
 
             /*  ************************************************************ */
 
