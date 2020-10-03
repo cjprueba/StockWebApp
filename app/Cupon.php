@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\Parametro;
 use App\Cliente;
+use App\Cliente_tiene_Cupon;
 
 class Cupon extends Model
 {
@@ -387,7 +388,7 @@ public static function crear_cupon()
         $dia = date("Y-m-d");
         $cliente=Cliente::id_cliente($datos["datos"]["cliente"]);
 
-        $cupon=Cupon::select(DB::raw(
+/*        $cupon=Cupon::select(DB::raw(
           'CUPONES.CODIGO,
           CUPONES.ID as ID,
           CUPONES.TIPO_CUPON as TIPO,
@@ -409,14 +410,40 @@ public static function crear_cupon()
        ->leftjoin('ventas_anulado',function($join) {
                              $join
                              ->on('ventas_anulado.FK_VENTA','=','cliente_tiene_cupon.FK_VENTA');
-                             
                              })
           ->where('CUPONES.CODIGO','=', $datos["datos"]["cupon"])
           ->where('CUPONES.ID_SUCURSAL','=', $user->id_sucursal)
-          ->where('ventas_anulado.ANULADO','=',0)
+            ->where('ventas_anulado.ANULADO','=',0)
+         
+          ->get()->toArray();*/
+             $cupon=Cupon::select(DB::raw(
+          'CUPONES.CODIGO,
+          CUPONES.ID as ID,
+          CUPONES.TIPO_CUPON as TIPO,
+          CUPONES.FECHA_CADUCIDAD,
+          CUPONES.IMPORTE,
+          CUPONES.DESCRIPCION,
+          CUPONES.USO_LIMITE,
+          CUPONES.USO,CUPONES.GASTO_MAX,
+          CUPONES.GASTO_MIN,
+          CUPONES.USO_LIMITE_CLIENTE,
+          CUPONES.EXCLUIR_ARTICULOS_CON_DESCUENTO,
+          CUPONES.ACTIVO'))
+          ->where('CUPONES.CODIGO','=', $datos["datos"]["cupon"])
+          ->where('CUPONES.ID_SUCURSAL','=', $user->id_sucursal)
+         
           ->get()->toArray();
+ 
 
-        if($cupon[0]["CODIGO"]!=NULL){
+        if(count($cupon)>0){
+          $uso_c=Cliente_tiene_Cupon::Select(DB::raw(
+            'count(cliente_tiene_cupon.FK_CLIENTE) AS USO_CLIENTE'))
+          ->leftjoin('ventas_anulado','ventas_anulado.FK_VENTA','=','cliente_tiene_cupon.FK_VENTA')
+          ->where('cliente_tiene_cupon.FK_CLIENTE','=',$cliente["ID_CLIENTE"])
+          ->where('ventas_anulado.ANULADO','=',0)
+          ->where('Cliente_tiene_Cupon.FK_CLIENTE','=',$cupon[0]["ID"])
+           ->get()->toArray();
+      
             if($cupon[0]["FECHA_CADUCIDAD"]<$dia){
                return ["response"=>false,"statusText"=>"EL CUPÓN ESTA CADUCADO!"];
             } 
@@ -429,11 +456,11 @@ public static function crear_cupon()
             if($cupon[0]["GASTO_MAX"]>0 && $cupon[0]["GASTO_MAX"]<$datos["datos"]["total"]){
                  return ["response"=>false,"statusText"=>"EL CUPÓN TIENE UN GASTO MAXIMO DE:'".$cupon[0]["GASTO_MAX"]."'!"];
             }
-            if($cupon[0]["USO_LIMITE"]==$cupon[0]["USO"]){
+            if($cupon[0]["USO_LIMITE"]>0 &&($cupon[0]["USO_LIMITE"]==$cupon[0]["USO"])){
                return ["response"=>false,"statusText"=>"EL CUPON YA TIENE: ".$cupon[0]["USO"].'/'.$cupon[0]["USO_LIMITE"]." USOS!"];
             }
-            if($cupon[0]["USO_LIMITE_CLIENTE"]>0 && $cupon[0]["USO_LIMITE_CLIENTE"]==$cupon[0]["USO_CLIENTE"]){
-               return ["response"=>false,"statusText"=>"EL CLIENTE YA TIENE: ".$cupon[0]["USO_CLIENTE"].'/'.$cupon[0]["USO_LIMITE_CLIENTE"]." USOS DE ESTE CUPON!"];
+            if($cupon[0]["USO_LIMITE_CLIENTE"]>0 && $cupon[0]["USO_LIMITE_CLIENTE"]==$uso_c[0]["USO_CLIENTE"]){
+               return ["response"=>false,"statusText"=>"EL CLIENTE YA TIENE: ".$uso_c[0]["USO_CLIENTE"].'/'.$cupon[0]["USO_LIMITE_CLIENTE"]." USOS DE ESTE CUPON!"];
             }
             if($cupon[0]["TIPO"]==1 && ($cupon[0]["IMPORTE"]>0 )){
               $total=($datos["datos"]["total"]*$cupon[0]["IMPORTE"])/100;
