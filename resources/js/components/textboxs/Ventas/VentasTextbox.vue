@@ -159,7 +159,7 @@
 
                     // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
 
-                        
+                        /*console.log(me.tableVenta.row(this).data());*/
                     me.codigo = me.tableVenta.row(this).data().CODIGO;
                     me.caja = me.tableVenta.row(this).data().CAJA;
                     me.fecha=me.tableVenta.row(this).data().FECHA
