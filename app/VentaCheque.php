@@ -46,6 +46,8 @@ class VentaCheque extends Model
 		    	
     		}
 
+    		return ["response" => true];
+
 	    	/*  --------------------------------------------------------------------------------- */
 
     	} catch (Exception $e) {
