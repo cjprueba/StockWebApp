@@ -1070,8 +1070,14 @@ class Orden extends Model
                 // CARGAR EN LA VARIABLE 
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CLIENTE']  = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CLIENTE'] = str_replace  ("'", "",  $nestedData['CLIENTE'] );
+                $nestedData['CLIENTE'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CLIENTE']);
+                $nestedData['CLIENTE'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CLIENTE'] );
                 $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
+                $nestedData['CIUDAD'] = str_replace  ("'", "",  $nestedData['CIUDAD'] );
+                $nestedData['CIUDAD'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CIUDAD']);
+                $nestedData['CIUDAD'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CIUDAD'] );
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
