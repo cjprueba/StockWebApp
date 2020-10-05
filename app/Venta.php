@@ -381,7 +381,7 @@ class Venta extends Model
                                 'VENDIDO'=> $value->VENDIDO,
                                 'DESCUENTO'=>$value->DESCUENTO,
                                 'COSTO'=> $value->COSTO_UNIT,
-                                'COSTO TOTAL'=> $value->COSTO_TOTAL,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
                                 'PRECIO'=> $value->PRECIO_UNIT,
                                 'TOTAL'=> $value->TOTAL,
                                 'MARCAS'=>$value->MARCA
@@ -416,7 +416,7 @@ class Venta extends Model
                                 'VENDIDO'=> $ser[0]->VENDIDO,
                                 'DESCUENTO'=>'0',
                                 'COSTO'=> '0',
-                                'COSTO TOTAL'=> '0',
+                                'COSTO_TOTAL'=> '0',
                                 'PRECIO'=> $ser[0]->PRECIO_UNIT,
                                 'TOTAL'=> $ser[0]->PRECIO_SERVICIO,
                                 
