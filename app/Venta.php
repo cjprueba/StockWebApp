@@ -1987,7 +1987,7 @@ class Venta extends Model
             if(isset($data["data"]["pago"]["CUPON_TOTAL"])){
                 $cupon = Common::quitar_coma($data["data"]["pago"]["CUPON_TOTAL"], 2);
             }else{
-                $cupon='0';
+                $cupon= 0;
             }
 
             /*  --------------------------------------------------------------------------------- */            
@@ -2377,7 +2377,7 @@ class Venta extends Model
                     "BASE5" => $total_base5, 
                     "BASE10" => $total_base10, 
                     "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => ($total_total - $descuento_general), 
+                    "TOTAL" => (($total_total - $descuento_general) - $cupon), 
                     "EFECTIVO" => $efectivo, 
                     "CHEQUE" => 0, 
                     "VALE" => 0, 
@@ -2470,10 +2470,11 @@ class Venta extends Model
 
 
             /*  --------------------------------------------------------------------------------- */
+
             // INSERTAR PAGO CUPON
 
             
-            if ($cupon !== '0' && $cupon !== '0.00' && $cupon !== NULL) {
+            if ($cupon !== '0' && $cupon !== 0 && $cupon !== '0.00' && $cupon !== NULL) {
 
                  /*  --------------------------------------------------------------------------------- */ 
                 // GUARDAR VENTA CON CUPON
