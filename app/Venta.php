@@ -5104,7 +5104,7 @@ class Venta extends Model
             DB::raw('VENTASDET.COD_PROD AS COD_PROD'),
             DB::raw('VENTASDET.ID AS ID'),
             DB::raw('VENTASDET_TIENE_LOTES.ID_LOTE AS ID_LOTE'),
-            DB::raw('VENTASDET.CANTIDAD AS CANTIDAD'),
+            DB::raw('VENTASDET_TIENE_LOTES.CANTIDAD AS CANTIDAD'),
             DB::raw('VENTASDET.PRECIO AS PRECIO'),
             DB::raw('VENTASDET.LOTE AS LOTE'))
             ->Where('VENTASDET.CODIGO','=',$datos['data']['codigo'])
