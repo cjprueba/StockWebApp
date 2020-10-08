@@ -1865,7 +1865,7 @@ class Orden extends Model
            'HORMODIF'=>$hora]);
       }
       //Log::info(["array insert" => $in_ord]);
-        $delete_orden_lote=DB::connection('retail')->table('orden_tiene_lotes')->Where('ORDEN_ID','=',$orden["id"])->delete();
+/*        $delete_orden_lote=DB::connection('retail')->table('orden_tiene_lotes')->Where('ORDEN_ID','=',$orden["id"])->delete();*/
       foreach ($items as $key => $value) {
      //Log::error('entre2',['datos'=>$orden["id"]]);
           $in_ord_det=DB::connection('retail')->table('wp_orden_det')->insertGetId(
