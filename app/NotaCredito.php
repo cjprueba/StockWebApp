@@ -327,6 +327,7 @@ class NotaCredito extends Model
 	    	$caja = $data["caja_codigo"];
 	    	$base5 = 0;
 	    	$procesado = 0;
+	    	$moneda_pago = 0;
 
 	    	/*  --------------------------------------------------------------------------------- */
 
@@ -404,16 +405,22 @@ class NotaCredito extends Model
 
 	    		if ($data['tipo_medio'] == '1') {
 	    			$total_medio = $data['totales']['guaranies'];
+	    			$moneda_pago = 1;
 	    		} else if ($data['tipo_medio'] == '2'){
 	    			$total_medio = $data['totales']['dolares'];
+	    			$moneda_pago = 2;
 	    		} else if ($data['tipo_medio'] == '3'){
 	    			$total_medio = $data['totales']['pesos'];
+	    			$moneda_pago = 3;
 	    		} else if ($data['tipo_medio'] == '4'){
 	    			$total_medio = $data['totales']['reales'];
+	    			$moneda_pago = 4;
 	    		} else if ($data['tipo_medio'] == '5'){
 	    			$total_medio = $data['totales']['cheque'];
+	    			$moneda_pago = 1;
 	    		} else if ($data['tipo_medio'] == '6'){
 	    			$total_medio = $data['totales']['transferencia'];
+	    			$moneda_pago = 1;
 	    		}
 
 	    		/*  --------------------------------------------------------------------------------- */
@@ -421,7 +428,7 @@ class NotaCredito extends Model
 	    		NotaCreditoMedios::guardar_referencia([
 	                'FK_NOTA_CREDITO' => $id_nota_credito,
 	                'TOTAL' => Common::quitar_coma($total_medio, 2),
-	                'FK_MONEDA' => $data['tipo_medio'],
+	                'FK_MONEDA' => $moneda_pago,
 	                'TIPO_MEDIO' => $data['tipo_medio'],
             	]);
 
