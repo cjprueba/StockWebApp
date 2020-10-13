@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\LoteUser;
 use App\VentasDetTieneLotes;
 use App\Ventas_det;
+use App\NotaCreditoTieneLotes;
 
 class Stock extends Model
 {
@@ -437,6 +438,140 @@ class Stock extends Model
 	        /*  --------------------------------------------------------------------------------- */
 
         }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function sumar_stock_producto_nota_credito($codigo, $cantidad, $id_ventas_det, $id_nota_credito)
+    {
+
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+    	$diaHora = date('Y-m-d H:i:s');
+    	$dia = date('Y-m-d');
+    	$hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LOTE NO ES NULO 
+
+        if ($id_ventas_det === NULL) {
+            $id_ventas_det = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($id_ventas_det > 0) {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	$lotes_a_sumar = VentasDetTieneLotes::select(DB::raw('ventasdet_tiene_lotes.ID_LOTE, ventasdet_tiene_lotes.CANTIDAD, IFNULL(nota_credito_tiene_lote.CANTIDAD,0) AS CANTIDAD_DEVUELTA'))
+        	->leftJoin('nota_credito_tiene_lote', function($join){
+                                $join->on('nota_credito_tiene_lote.FK_VENTA_DET', '=', 'ventasdet_tiene_lotes.ID_VENTAS_DET')
+                                     ->on('nota_credito_tiene_lote.ID_LOTE', '=', 'ventasdet_tiene_lotes.ID_LOTE');
+        	})
+	        ->where('ID_VENTAS_DET','=',$id_ventas_det)
+	        ->get();
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// SUMAR ID LOTES 
+
+        	foreach ($lotes_a_sumar as $key => $value) {
+        		
+        		/*  --------------------------------------------------------------------------------- */
+
+        		// RESTAR LA CANTIDAD QUE YA SE DEVOLVIO 
+
+        		$value->CANTIDAD = $value->CANTIDAD - $value->CANTIDAD_DEVUELTA;
+
+        		/*  --------------------------------------------------------------------------------- */
+        		
+        		if ($value->CANTIDAD >= $cantidad) {
+
+        			/*  --------------------------------------------------------------------------------- */
+
+        			Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $cantidad);
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        LoteUser::guardar_referencia($user->id, 3, $value->ID_LOTE, $diaHora);
+
+    				/*  --------------------------------------------------------------------------------- */
+
+    				NotaCreditoTieneLotes::guardar_referencia(
+			            [
+			                'FK_VENTA_DET' => $id_ventas_det,
+			                'FK_NOTA_CREDITO_DET' => $id_nota_credito,
+			                'ID_LOTE' => $value->ID_LOTE,
+			                'CANTIDAD' => $cantidad
+			            ]
+			        );
+
+    				/*  --------------------------------------------------------------------------------- */
+
+    				$cantidad = 0;
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		} else if($value->CANTIDAD > 0) {
+
+        			/*  --------------------------------------------------------------------------------- */
+
+        			Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $value->CANTIDAD);
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        NotaCreditoTieneLotes::guardar_referencia(
+			            [
+			                'FK_VENTA_DET' => $id_ventas_det,
+			                'FK_NOTA_CREDITO_DET' => $id_nota_credito,
+			                'ID_LOTE' => $value->ID_LOTE,
+			                'CANTIDAD' => $value->CANTIDAD
+			            ]
+			        );
+
+    				/*  --------------------------------------------------------------------------------- */
+
+			        $cantidad = $cantidad - $value->CANTIDAD;
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        // INSERTAR REFERENCIA USER 
+
+    				LoteUser::guardar_referencia($user->id, 3, $value->ID_LOTE, $diaHora);
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		}
+
+        		if ($cantidad === 0) {
+        			break;
+        		}
+
+        	}
+
+        	/*  --------------------------------------------------------------------------------- */
+        	
+
+        } 
 
         /*  --------------------------------------------------------------------------------- */
 
