@@ -1024,7 +1024,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
@@ -1069,8 +1070,14 @@ class Orden extends Model
                 // CARGAR EN LA VARIABLE 
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
-                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
+                $nestedData['CLIENTE']  = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CLIENTE'] = str_replace  ("'", "",  $nestedData['CLIENTE'] );
+                $nestedData['CLIENTE'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CLIENTE']);
+                $nestedData['CLIENTE'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CLIENTE'] );
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
+                $nestedData['CIUDAD'] = str_replace  ("'", "",  $nestedData['CIUDAD'] );
+                $nestedData['CIUDAD'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CIUDAD']);
+                $nestedData['CIUDAD'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CIUDAD'] );
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1138,7 +1145,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
@@ -1185,8 +1193,8 @@ class Orden extends Model
                 $cliente = $post->billing->first_name.' '.$post->billing->last_name;
 
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower($cliente));
-                $nestedData['CIUDAD'] = ucwords(strtolower($post->billing->city));
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
                 $nestedData['FECHA'] = substr($post->date_created, 0, -9);
                 $nestedData['HORA'] = substr($post->date_created, 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
@@ -1242,7 +1250,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
         $orden_id=$codigo["codigo"];
@@ -1304,7 +1313,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true ,
+                'verify_ssl' => false
             ]
         );
 
@@ -1372,7 +1382,7 @@ class Orden extends Model
                 $descripcion = utf8_encode($post->name);
                 $nestedData['ITEM'] = $item;
                 $nestedData['SKU'] = $post->sku;
-                $nestedData['DESCRIPCION'] = utf8_decode($descripcion);
+                $nestedData['DESCRIPCION'] = utf8_encode($descripcion);
                 $nestedData['CANTIDAD'] = $post->quantity;
                 $nestedData['PRECIO'] = Common::formato_precio($post->price, 0);
                 $nestedData['TOTAL'] = Common::formato_precio($post->total, 0);
@@ -1422,7 +1432,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true ,
+                'verify_ssl' => false
             ]
         );
 
@@ -1643,7 +1654,8 @@ class Orden extends Model
                 'wp_json' => true, // Enable the WP REST API integration
                 'wp_api' => true, // Enable the WP REST API integration
                 'version' => 'wc/v3',// WooCommerce WP REST API version
-                'query_string_auth' => true 
+                'query_string_auth' => true,
+                'verify_ssl' => false 
             ]
         );
 
@@ -1807,5 +1819,175 @@ class Orden extends Model
 		$mpdf->WriteHTML($html);
 
 		$mpdf->Output();
+    }
+     public static function Completado_wp($datos)
+    {
+
+      try {
+        $dia = date("Y-m-d");
+        $hora = date("H:i:s");
+      /*  --------------------------------------------------------------------------------- */
+      $items=(array)json_decode($datos["items"]);
+      $orden=(array)json_decode($datos["orden"]);
+
+
+      $tb_ord=DB::connection('retail')->table('wp_orden')->select('id')->Where('ORDEN_ID','=',$orden["id"])->limit(1)->get()->toArray();
+      if(count($tb_ord)<=0){
+         $in_ord=DB::connection('retail')->table('wp_orden')->insertGetId(
+           ['ORDEN_ID'=> $orden["id"],
+           'PARENT_ID'=> $orden["parent_id"], 
+           'ESTADO'=>$orden["status"],
+           'MONEDA'=>$orden["currency"],
+           'PRECIO_INCLUYE_TAX'=>$orden["prices_include_tax"],
+           'CREACION_DIA'=>$orden["date_created"]->date,
+           'DIA_MODIF'=>$orden["date_modified"]->date,
+           'ZONA_HORARIA'=>$orden["date_created"]->timezone,
+           'ZONA_HORARIA_MODIF'=>$orden["date_modified"]->timezone,
+           'TOTAL'=>$orden["total"],
+           'TOTAL_TAX'=>$orden["total_tax"],
+           'SHIPPING_TOTAL'=>$orden["total"],
+           'SHIPPING_TAX'=>$orden["total_tax"],
+           'FECALTAS'=>$dia,
+           'HORALTAS'=>$hora,]);
+      }else{
+        $delete_det=DB::connection('retail')->table('wp_orden_det')->Where('ORDEN_ID','=',$orden["id"])->delete();
+        $up_ord=DB::connection('retail')->table('wp_orden')->where('ORDEN_ID',"=",$orden["id"])
+            ->update([
+           'PARENT_ID'=> $orden["parent_id"], 
+           'ESTADO'=>$orden["status"],
+           'MONEDA'=>$orden["currency"],
+           'PRECIO_INCLUYE_TAX'=>$orden["prices_include_tax"],
+           'DIA_MODIF'=>$orden["date_modified"]->date,
+           'ZONA_HORARIA_MODIF'=>$orden["date_modified"]->timezone,
+           'TOTAL'=>$orden["total"],
+           'TOTAL_TAX'=>$orden["total_tax"],
+           'FECMODIF'=>$dia,
+           'HORMODIF'=>$hora]);
+      }
+      //Log::info(["array insert" => $in_ord]);
+/*        $delete_orden_lote=DB::connection('retail')->table('orden_tiene_lotes')->Where('ORDEN_ID','=',$orden["id"])->delete();*/
+      foreach ($items as $key => $value) {
+     //Log::error('entre2',['datos'=>$orden["id"]]);
+          $in_ord_det=DB::connection('retail')->table('wp_orden_det')->insertGetId(
+           ['ORDEN_ID'=> $orden["id"],
+           'PROD_ID'=> $value->id, 
+           'SKU'=>$value->sku,
+           'CANTIDAD'=>$value->quantity,
+           'PRECIO'=>$value->precio,
+           'SUBTOTAL'=>$value->subtotal,
+           'SUBTOTAL_TAX'=>$value->taxas,
+           'TIPO_TAX'=>$value->tipotaxa,
+           'ESTADO_TAX'=>$value->taxstatus,
+           'TOTAL'=>$value->total,         
+           'FECALTAS'=>$dia,
+           'HORALTAS'=>$hora]);
+
+         // $codigo=DB::connection('retail')->table('productos_aux')->select('CODIGO')->where('CODIGO_INTERNO', '=', $value->sku)
+          //->limit(1)->get()->toArray();
+          //Log::error('entre2',['datos'=>]);
+      
+        //  $restarStock = Stock::restar_stock_producto_web($codigo["0"]->CODIGO , $value->quantity);
+
+       // if($restarStock["datos"]){
+
+           
+         // foreach ($restarStock["datos"] as $key => $value2) {
+            # code...
+           
+
+           // $orden_tiene_lotes=DB::connection('retail')->table('orden_tiene_lotes')->insertGetId(
+           //['ORDEN_ID'=> $orden["id"],
+           //'LOTE_ID'=> $value2["id"], 
+           //'CANTIDAD'=>$value2["cantidad"]]);
+
+          //}
+        //}
+
+      }
+
+       $delete_ship=DB::connection('retail')->table('wp_shipping')->Where('ORDEN_ID','=',$orden["id"])->delete();
+
+        $shipp=DB::connection('retail')->table('wp_shipping')->insertGetId(
+             ['ORDEN_ID'=> $orden["id"],
+             'NOMBRES'=>$orden["shipping"]->first_name, 
+             'APELLIDOS'=>$orden["shipping"]->last_name,
+             'COMPANY'=>$orden["shipping"]->company,
+             'DIRECCION_1'=>$orden["shipping"]->address_1,
+             'DIRECCION_2'=>$orden["shipping"]->address_2,
+             'CIUDAD'=>$orden["shipping"]->city,
+             'ESTADO'=>$orden["shipping"]->state,
+             'CODIGO_POSTAL'=>$orden["shipping"]->postcode,
+             'COUNTRY'=>$orden["shipping"]->country,
+             'FECALTAS'=>$dia,
+             'HORALTAS'=>$hora]);
+
+        $delete_bill=DB::connection('retail')->table('wp_billing')->Where('ORDEN_ID','=',$orden["id"])->delete();
+              $ruc="";
+              $ci="";
+              $raz="";
+        foreach ($orden["meta_data"] as $key => $value) {
+             # code...
+            if($value->key=='billing_ruc'){
+              $ruc=$value->value;
+            
+            }
+            if($value->key=='billing_documento'){
+              $ci=$value->value;
+            
+            }
+            if($value->key=='billing_razon_social'){
+              $raz=$value->value;
+           
+            }
+           }
+     $bill=DB::connection('retail')->table('wp_billing')->insertGetId(
+           ['ORDEN_ID'=> $orden["id"],
+           'NOMBRES'=>$orden["billing"]->first_name, 
+           'APELLIDOS'=>$orden["billing"]->last_name,
+           'COMPANY'=>$orden["billing"]->company,
+           'DIRECCION_1'=>$orden["billing"]->address_1,
+           'DIRECCION_2'=>$orden["billing"]->address_2,
+           'CIUDAD'=>$orden["billing"]->city,
+           'ESTADO'=>$orden["billing"]->state,
+           'CODIGO_POSTAL'=>$orden["billing"]->postcode,
+           'COUNTRY'=>$orden["billing"]->country,
+           'EMAIL'=>$orden["billing"]->email,
+           'DOCUMENTO'=>$ci,
+           'RUC'=>$ruc,
+           'RAZON_SOCIAL'=>$raz,
+           'CELULAR'=>$orden["billing"]->phone,
+           'FECALTAS'=>$dia,
+           'HORALTAS'=>$hora]);
+     
+       $delete_pag=DB::connection('retail')->table('wp_pago')->Where('ORDEN_ID','=',$orden["id"])->delete();
+          $pag=DB::connection('retail')->table('wp_pago')->insertGetId(
+           ['ORDEN_ID'=> $orden["id"],
+           'METODO_PAGO'=>$orden["payment_method"], 
+           'METODO_PAGO_TITULO'=>$orden["payment_method_title"],
+           'CLIENTE_IP'=>$orden["customer_ip_address"],
+           'CREADO_VIA'=>$orden["created_via"],
+           'NOTA_DEL_CLIENTE'=>$orden["customer_note"],
+           'FECHA_PAGO'=>$orden["date_paid"]->date,
+           'ZONA_HORARIA'=>$orden["date_paid"]->timezone,
+           'FECALTAS'=>$dia,
+           'HORALTAS'=>$hora]);
+          
+
+        
+       
+
+
+      //Log::error('entre2',['datos'=>$datos]);
+       
+
+
+
+        /*  --------------------------------------------------------------------------------- */
+        return ["response"=>true];
+      } catch (Exception $e) {
+        Log::error(['TIPO'=>$e->getMessage()], ['ORDEN NUMERO:'=>$orden["id"]]);
+        Log::error(['DATOS DE LA ORDEN:'=>$orden]);
+      }
+
     }
 }

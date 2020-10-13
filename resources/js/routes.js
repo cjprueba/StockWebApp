@@ -29,6 +29,7 @@ export default new Router({
 			name: 'transferenciaImportar',
 			component: require('./components/transferencia/ImportarTransferencia.vue').default
 		},
+
 		{
 			path: '/in1',
 			name: 'inventarioMostrar',
@@ -340,6 +341,17 @@ export default new Router({
 			component: require('./components/pedido/MostrarPedido.vue').default
 		},
 		{
+
+			path: '/tr4',
+			name: 'transferenciaMostrarDevolucion',
+			component: require('./components/transferencia/MostrarDevolucionTransferencias.vue').default
+		},
+		{
+			path: '/tr5',
+			name: 'transferenciaImportarDevolucion',
+			component: require('./components/transferencia/ImportarTransferenciaDevolucion.vue').default
+		},
+    {
 			path: '/rpt15',
 			name: 'rptTarjeta',
 			component: require('./components/reportes/VentaTarjeta.vue').default
@@ -348,7 +360,13 @@ export default new Router({
 			path: '/mov2',
 			name: 'notaCredito',
 			component: require('./components/movimientos/CreditoNota.vue').default
+      },
+		{
+			path: '/rpt16',
+			name: 'rptVentaVendedor',
+			component: require('./components/reportes/Vendedor.vue').default
 	    }
+
 
 	],
 	mode: 'history'

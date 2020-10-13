@@ -208,8 +208,6 @@
 						}
 		            });
 
-	        	}else {
-	        		alert("false");
 	        	}
 	        },
 	        generarConsulta(){

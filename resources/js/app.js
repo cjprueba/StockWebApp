@@ -245,6 +245,8 @@ Vue.component('transferencia',  require('./components/transferencia/Inicio.vue')
 Vue.component('transferencia-marca-categoria', require('./components/transferencia/busquedas/TransferenciaMarcaCategoria.vue').default);
 Vue.component('realizarTransferencia', require('./components/transferencia/RealizarTransferencia.vue').default);
 Vue.component('modal-detalle-transferencia', require('./components/transferencia/modal/ModalDetalleTransferencia.vue').default);
+Vue.component('modal-detalle-transferencia-dev', require('./components/transferencia/modal/ModalDetalleTransferenciaDev.vue').default);
+Vue.component('modal-detalle-transferencia-dev-imp', require('./components/transferencia/modal/ModalDetalleTransferenciaDevImp.vue').default);
 Vue.component('modal-devolucion-transferencia', require('./components/transferencia/modal/ModalDevolucionTransferencia.vue').default);
 
 /* ********************************************* */

@@ -1652,6 +1652,120 @@ class Transferencia extends Model
 
 
     }
+        public static function devolverTransferencia($datos){
+            try{
+                 $user = auth()->user();
+            $dia = date("Y-m-d");
+            $hora = date("H:i:s");
+            //TRAER ID_TRANSFERENCIA
+
+            $transferencia = Transferencia::select(DB::raw('ID'))
+            ->where('ID_SUCURSAL','=', $datos["codigos"]["origen"])
+            ->where('CODIGO','=',$datos["codigos"]["codigo"])
+            ->get()->toArray();
+
+           //INSERTAR EN LA TABLA DEVOLUCION
+
+            $data = DB::connection('retail')->table('dev_transferencia')->insertGetId([
+                'ID_TRANSFERENCIA_ENVIA'=> $transferencia[0]["ID"],
+                'ID_SUCURSAL_ENVIA'=>$datos["codigos"]["origen"],
+                'ID_SUCURSAL_RECIBE'=>$user->id_sucursal,
+                'FECALTAS'=> $dia,
+                'HORALTAS'=>$hora,
+                'USER'=>$user->id,
+                'ESTATUS'=>0,
+                'ID_SUCURSAL'=>$user->id_sucursal
+
+
+            ]);
+        
+            $canti_aux=0;
+            foreach ($datos["marcados"] as $key => $value) {
+
+               
+               $td= DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.ID,td.CODIGO_PROD,LOTE_TIENE_TRANSFERENCIADET.ID_LOTE,TRANSFERENCIADET_TIENE_LOTES.ID_LOTE AS ID_LOTE_ENVIO,TRANSFERENCIADET_TIENE_LOTES.CANTIDAD AS CANTIDAD,IFNULL(TRANSFERENCIADET_TIENE_LOTES.CANTIDAD-IFNULL(SUM(dev_transferencia_det.CANTIDAD ),0),0) AS RESTANTE,IFNULL(SUM(dev_transferencia_det.CANTIDAD),0) AS VAMOS '))
+                         ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                         ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                          ->leftJoin('dev_transferencia_det', function($join){
+                            $join->on('dev_transferencia_det.ID_LOTE_ENVIA', '=', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                                 ->on('dev_transferencia_det.ID_TRANSFERENCIA_DET', '=', 'td.ID');
+                         })
+                         ->WHERE('td.CODIGO_PROD','=',$value["CODIGO"])
+                         ->WHERE('t.ID','=',$transferencia[0]["ID"])
+                         ->groupBy('TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                         ->get()->toArray();
+  
+                         foreach ($td as $key => $value_tr) {
+
+                                if($value_tr->RESTANTE>0){
+
+                          
+                               if($value["CANTIDAD"]>$value_tr->CANTIDAD){
+                                 Stock::restar_stock_id_lote($value_tr->ID_LOTE,$value_tr->CANTIDAD);
+                                $value["CANTIDAD"]=$value["CANTIDAD"]-$value_tr->CANTIDAD; 
+                                $canti_aux=$value_tr->CANTIDAD;   
+                               }else{
+                                 Stock::restar_stock_id_lote($value_tr->ID_LOTE,$value["CANTIDAD"]);
+                                $value["CANTIDAD"]=$value["CANTIDAD"]-$value_tr->CANTIDAD; 
+                                $canti_aux=$value["CANTIDAD"];  
+                                $value["CANTIDAD"]=0; 
+                               }
+                                                   
+                                }
+                               $datos = DB::connection('retail')->table('dev_transferencia_det')->insertGetId([
+                                'ID_DEV_TRANSFERENCIA'=> $data,
+                                'ID_TRANSFERENCIA_DET'=>$value_tr->ID,
+                                'COD_PROD'=>$value["CODIGO"],
+                                'CANTIDAD'=>$canti_aux,
+                                'ID_LOTE_ENVIA'=>$value_tr->ID_LOTE_ENVIO,
+                                'ID_LOTE_RECIBE'=>$value_tr->ID_LOTE,
+                                'FECALTAS'=> $dia,
+                                'HORALTAS'=>$hora,
+                                'USER'=>$user->id,
+                                'ID_SUCURSAL'=>$user->id_sucursal
+
+
+                            ]);
+                            if($value["CANTIDAD"]==0){
+                                 break; 
+                            }
+                         }
+
+
+                      
+            }
+            return["response"=>true];
+
+            }  catch (Exception $e) {
+                DB::connection('retail')->rollBack();
+                throw $e;
+            }
+          
+           
+           
+           /* $data = DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.CODIGO_PROD, LOTES.COSTO AS COSTO,LOTE_TIENE_TRANSFERENCIADET.ID_LOTE,TRANSFERENCIADET_TIENE_LOTES.ID_LOTE AS ID_LOTE_ENVIO'))
+                         ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                           ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->where('td.ID_SUCURSAL','=', 4)
+                         ->WHERE('t.SUCURSAl_Destino','=',11)
+                         ->get()->toArray();*/
+                       
+                        
+
+
+    }
         public static function mostrar_productos_devolucion($request) {
 
         /*  --------------------------------------------------------------------------------- */
@@ -1677,9 +1791,10 @@ class Transferencia extends Model
                             2 => 'DESCRIPCION',
                             3 => 'CANTIDAD',
                             4 => 'SALIDA',
-                            5 => 'PRECIO',
-                            6 => 'TOTAL',
-                            7 => 'ACCION'
+                            5 => 'RESTANTE',
+                            6 => 'PRECIO',
+                            7 => 'TOTAL',
+                            8 => 'ACCION'
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1718,7 +1833,7 @@ class Transferencia extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
             $posts = DB::connection('retail')->table('transferencias_det as td')
-                         ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD) AS SALIDA'))
+                         ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD) AS SALIDA,LOTES.CANTIDAD AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
                          ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
                          ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
@@ -1749,7 +1864,7 @@ class Transferencia extends Model
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
             $posts =  DB::connection('retail')->table('transferencias_det as td')
-                        ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA'))
+                        ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA,LOTES.CANTIDAD AS STOCK'))
                          ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA','=','td.ID')
                          ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
                          ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
@@ -1773,7 +1888,7 @@ class Transferencia extends Model
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered = DB::connection('retail')->table('transferencias_det as td')
-                            ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA'))
+                            ->select(DB::raw('td.ITEM, td.CODIGO_PROD, td.DESCRIPCION, td.CANTIDAD, td.PRECIO, td.TOTAL, t.MONEDA,(LOTES.CANTIDAD_INICIAL-LOTES.CANTIDAD ) AS SALIDA,LOTES.CANTIDAD AS STOCK'))
                             ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA','=','td.ID')
                          ->leftJoin('LOTES','LOTES.ID','=','LOTE_TIENE_TRANSFERENCIADET.ID_LOTE')
                              ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'td.CODIGO_PROD')
@@ -1815,8 +1930,16 @@ class Transferencia extends Model
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['SALIDA'] = $post->SALIDA;
+                $nestedData['RESTANTE'] = $post->STOCK; 
                 $nestedData['PRECIO'] = Common::precio_candec($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+                $nestedData['ACCION'] = '<form class="form-inline">
+                                            <div class="custom-control custom-checkbox">
+                                              <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->CODIGO_PROD.'">
+                                              <label for='.$post->CODIGO_PROD.' class="custom-control-label"></label>
+                                              <input type="number" value='.$post->STOCK.' id="'.$post->CODIGO_PROD.'" name="'.$post->CODIGO_PROD.'" class="form-control-sm" min="0" max='.$post->STOCK.'>
+                                            </div>
+                                         </form>';
 
 
                 $data[] = $nestedData;
@@ -1854,6 +1977,9 @@ class Transferencia extends Model
 
         $codigo = $data["codigo"];
         $codigo_origen = $data["codigo_origen"];
+                         $user = auth()->user();
+            $dia = date("Y-m-d");
+            $hora = date("H:i:s");
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1880,7 +2006,9 @@ class Transferencia extends Model
             ->where('CODIGO','=', $codigo)
             ->where('ID_SUCURSAL','=', $codigo_origen)
             ->update([
-                'ESTATUS' => 0
+                'ESTATUS' => 0,
+                'FECMODIF'=>$dia,
+                'USERM'=>$user->id_sucursal
             ]);
 
         }
@@ -1903,6 +2031,10 @@ class Transferencia extends Model
 
         $codigo = $data["codigo"];
         $codigo_origen = $data["codigo_origen"];
+          $user = auth()->user();
+            $dia = date("Y-m-d");
+            $hora = date("H:i:s");
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1929,7 +2061,9 @@ class Transferencia extends Model
             ->where('CODIGO','=', $codigo)
             ->where('ID_SUCURSAL','=', $codigo_origen)
             ->update([
-                'ESTATUS' => 2
+                'ESTATUS' => 2,
+                'FECMODIF'=>$dia,
+                'USERM'=>$user->id_sucursal
             ]);
 
         }
@@ -3223,4 +3357,47 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }  
+     public static function marcar_Transferencia_Devolucion($datos){
+           
+                 
+            //TRAER ID_TRANSFERENCIA
+
+
+
+
+               
+               $td= DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.CODIGO_PROD AS COD_PROD,td.CANTIDAD AS CANTIDAD'))
+                      
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->WHERE('t.ID_SUCURSAL','=',$datos["codigos"]["origen"])
+                         ->WHERE('t.CODIGO','=',$datos["codigos"]["codigo"])
+                         ->get()->toArray();
+
+                      return["productos"=>$td];
+            
+
+           
+           
+           
+           /* $data = DB::connection('retail')->table('transferencias_det as td')
+                         ->select(DB::raw('td.CODIGO_PROD, LOTES.COSTO AS COSTO,LOTE_TIENE_TRANSFERENCIADET.ID_LOTE,TRANSFERENCIADET_TIENE_LOTES.ID_LOTE AS ID_LOTE_ENVIO'))
+                         ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA','=','td.ID')
+                         ->leftJoin('LOTES','LOTES.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
+                           ->leftjoin('LOTE_TIENE_TRANSFERENCIADET','LOTE_TIENE_TRANSFERENCIADET.ID_TRANSFERENCIA_DET','=','td.ID')
+                         ->leftJoin('transferencias as t', function($join){
+                            $join->on('t.CODIGO', '=', 'td.CODIGO')
+                                 ->on('t.ID_SUCURSAL', '=', 'td.ID_SUCURSAL');
+                         })
+                         ->where('td.ID_SUCURSAL','=', 4)
+                         ->WHERE('t.SUCURSAl_Destino','=',11)
+                         ->get()->toArray();*/
+                       
+                        
+
+
+    }
 }
