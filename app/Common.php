@@ -302,4 +302,101 @@ class Common
 
     }
 
+    public static function calculo_porcentaje_descuentos($data){
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // DESCUENTO 
+
+        if ($data['PORCENTAJE_DESCUENTO'] !== 0) {
+            $descuento = ($data['PRECIO_PRODUCTO'] * $data['PORCENTAJE_DESCUENTO']) / 100;
+        } else {
+            $descuento = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD 
+
+        $precio_real = $data['PRECIO_PRODUCTO'] - $descuento;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL CON DESCUENTO 
+
+        $total = $precio_real * $data['CANTIDAD'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR 
+
+        return ['response' => true, 'DESCUENTO' =>  $descuento, 'PRECIO_REAL' => $precio_real, 'TOTAL_REAL' => $total];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function calculo_porcentaje($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $precio=100;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $descuento_precio = round((($data['PRECIO_PRODUCTO'] * $data['PORCENTAJE_GENERAL'])/100),2);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $data['PRECIO_PRODUCTO']  = (round($data['PRECIO_PRODUCTO']  - $descuento_precio,2));
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $data['DESCUENTO_POR_PRODUCTO'] = ($data['DESCUENTO_POR_PRODUCTO'] + round($descuento_precio,2));
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $data['PRECIO_PRODUCTO_UNIT'] = round((($data['PRECIO_PRODUCTO_UNIT'] * $data['PORCENTAJE_GENERAL'])/100),2);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $descuento = ($precio * $data['DESCUENTO_PORCENTAJE_PRODUCTO']) / 100;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $precio_descontado = $precio-$descuento;
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $descuento_general = ($precio_descontado*$data['PORCENTAJE_GENERAL']) / 100;
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $precio_descontado_general = $precio_descontado - $descuento_general;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $precio_descontado_total = $descuento + $descuento_general;
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $descuento_real = ($precio_descontado_total*100) / $precio;
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $data['DESCUENTO_PORCENTAJE_PRODUCTO']=$descuento_real;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR 
+
+        return ['response' => true, 'DESCUENTO_REAL_PORCENTAJE' =>  $data['DESCUENTO_PORCENTAJE_PRODUCTO'], 'DESCUENTO_REAL_MONTO' => $precio_descontado_total];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
 }

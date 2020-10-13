@@ -3,7 +3,7 @@
            
                 <label for="validationTooltip01">Codigo Venta:</label>
             
-            <div class="input-group" id="validationTooltip01" >
+            <div class="input-group mb-3" id="validationTooltip01" >
                 <div class="input-group-prepend">
                     <button  type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".ventas-table"><font-awesome-icon icon="search"/></button>
                 </div>
@@ -36,7 +36,10 @@
                                             <th>Fecha</th>
                                             <th>Hora</th>
                                             <th>Tipo</th>
+                                            <th>Total Crudo</th>
                                             <th>Total</th>
+                                            <th>Candec</th>
+                                            <th>Moneda</th>
                                             <th>Accion</th>
                                         </tr>
                                     </thead>
@@ -72,13 +75,15 @@
        tableVenta.ajax.reload( null, false );
         },
 
-          enviarCodigoPadre(codigo){
+          enviarCodigoPadre(codigo, caja, data){
 
                 // ------------------------------------------------------------------------
            
                 // ENVIAR CODIGO
                 
                  this.$emit('codigo',codigo);
+                 this.$emit('caja',caja);
+                 this.$emit('data', data);
 
                 // ------------------------------------------------------------------------
 
@@ -123,6 +128,9 @@
                       { "data": "HORA" },
                       { "data": "TIPO" },
                       { "data": "TOTAL" },
+                      { "data": "TOTAL_CRUDO", "visible": false },
+                      { "data": "CANDEC", "visible": false },
+                      { "data": "MONEDA", "visible": false },
                       { "data": "ACCION" }
                   ],
                   "createdRow": function( row, data, dataIndex){
@@ -153,8 +161,19 @@
 
                         
                     me.codigo = me.tableVenta.row(this).data().CODIGO;
+                    me.caja = me.tableVenta.row(this).data().CAJA;
 
-                    me.enviarCodigoPadre(me.codigo);
+                    me.enviarCodigoPadre(
+                      me.codigo, 
+                      me.caja, 
+                      {
+                      'TOTAL': me.tableVenta.row(this).data().TOTAL,
+                      'TOTAL_CRUDO': me.tableVenta.row(this).data().TOTAL_CRUDO,
+                      'MONEDA': me.tableVenta.row(this).data().MONEDA,
+                      'CANDEC': me.tableVenta.row(this).data().CANDEC
+                      }
+                      
+                      );
 
                     // CERRAR EL MODAL
                      
