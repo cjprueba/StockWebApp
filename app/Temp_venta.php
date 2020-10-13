@@ -241,8 +241,8 @@ class Temp_venta extends Model
 				    $nestedDataS['DESCUENTO_PRODUCTO']=0;
 				    $nestedDataS['PRECIO']= $value->PRECIO;
 				    $nestedDataS['PRECIO_UNIT']= $value->PRECIO_UNIT;
-				    $nestedDataS['COSTO_UNIT']= $value->COSTO_UNIT;
-				    $nestedDataS['COSTO_TOTAL']= $value->COSTO_TOTAL;
+				    $nestedDataS['COSTO_UNIT']= $value->COSTO_UNIT*-1;
+				    $nestedDataS['COSTO_TOTAL']= $value->COSTO_TOTAL*-1;
 				    $nestedDataS['DESCUENTO']= 0;
 				    $nestedDataS['MARCAS_CODIGO']= $value->MARCA_CODIGO;
 				    $nestedDataS['LINEA_CODIGO']=$value->LINEA_CODIGO;

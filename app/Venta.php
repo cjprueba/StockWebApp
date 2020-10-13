@@ -18,6 +18,9 @@ use App\VentasAnulado;
 use App\VentasDetDevolucion;
 use App\Ventas_Descuento;
 use App\VentaCredito;
+use App\VentaCupon;
+use App\Cupon;
+use App\Cliente_tiene_Cupon;
 
 class Venta extends Model
 {
@@ -378,7 +381,7 @@ class Venta extends Model
                                 'VENDIDO'=> $value->VENDIDO,
                                 'DESCUENTO'=>$value->DESCUENTO,
                                 'COSTO'=> $value->COSTO_UNIT,
-                                'COSTO TOTAL'=> $value->COSTO_TOTAL,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
                                 'PRECIO'=> $value->PRECIO_UNIT,
                                 'TOTAL'=> $value->TOTAL,
                                 'MARCAS'=>$value->MARCA
@@ -413,7 +416,7 @@ class Venta extends Model
                                 'VENDIDO'=> $ser[0]->VENDIDO,
                                 'DESCUENTO'=>'0',
                                 'COSTO'=> '0',
-                                'COSTO TOTAL'=> '0',
+                                'COSTO_TOTAL'=> '0',
                                 'PRECIO'=> $ser[0]->PRECIO_UNIT,
                                 'TOTAL'=> $ser[0]->PRECIO_SERVICIO,
                                 
@@ -1979,6 +1982,16 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // CUPON 
+
+            if(isset($data["data"]["pago"]["CUPON_TOTAL"])){
+                $cupon = Common::quitar_coma($data["data"]["pago"]["CUPON_TOTAL"], 2);
+            }else{
+                $cupon= 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */            
+
             // CREDITO
 
             $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
@@ -2364,7 +2377,7 @@ class Venta extends Model
                     "BASE5" => $total_base5, 
                     "BASE10" => $total_base10, 
                     "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => ($total_total - $descuento_general), 
+                    "TOTAL" => (($total_total - $descuento_general) - $cupon), 
                     "EFECTIVO" => $efectivo, 
                     "CHEQUE" => 0, 
                     "VALE" => 0, 
@@ -2454,6 +2467,56 @@ class Venta extends Model
                 ]);
                 
             }
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CUPON
+
+            
+            if ($cupon !== '0' && $cupon !== 0 && $cupon !== '0.00' && $cupon !== NULL) {
+
+                 /*  --------------------------------------------------------------------------------- */ 
+                // GUARDAR VENTA CON CUPON
+                /*  --------------------------------------------------------------------------------- */
+
+                VentaCupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'CUPON_IMPORTE' => $cupon,
+                        'CUPON_PORCENTAJE'=>$data["data"]["pago"]["CUPON_PORCENTAJE"],
+                        'CUPON_TIPO'=>$data["data"]["pago"]["CUPON_TIPO"],
+                        'FK_USER'=>$user->id,
+                        'MONEDA' => $moneda,
+                        'FECALTAS'=>$dia,
+                        'HORALTAS'=>$hora
+                ]);
+
+                /*  --------------------------------------------------------------------------------- */ 
+                // OBTENER ID CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                $id_cliente = (Cliente::id_cliente($cliente))['ID_CLIENTE'];
+
+                /*  --------------------------------------------------------------------------------- */
+                // ACTUALIZAR USO DEL CUPON 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cupon::actualizar_uso($data["data"]["pago"]["CUPON_ID"],1);
+
+                /*  --------------------------------------------------------------------------------- */
+                // GUARDAR USO DEL CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cliente_tiene_Cupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'FK_CLIENTE'=> $id_cliente,
+                        'MONEDA' => $moneda
+                ]);
+
+            }
+
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -4461,8 +4524,13 @@ class Venta extends Model
         if($user->id_sucursal === 4){
              $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
         }
-
-        $totalData = $totalData->count();
+        if($user->id_sucursal===4){
+              $totalData = 2700;
+        }else{
+              $totalData = $totalData->count();
+        }
+        
+      
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4576,8 +4644,13 @@ class Venta extends Model
             if($user->id_sucursal===4){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
+                    if($user->id_sucursal===4){
+              $totalFiltered = 2700;
+        }else{
+              $totalFiltered = $totalFiltered->count();
+        }
 
-            $totalFiltered = $totalFiltered->count();
+           
 
             /*  ************************************************************ */
 
@@ -5013,9 +5086,13 @@ class Venta extends Model
            return ["response"=>false,'status_text'=> "No existe la venta seleccionada"];
         }
         
-
+         
 
             VentasAnulado::anular_venta($venta["0"]->ID,$dia);
+           $id_cupon=VentaCupon::obtener_id_cupon_venta($venta["0"]->ID);
+           if($id_cupon!==0){
+            Cupon::actualizar_uso($id_cupon,2);
+           }
 
             $venta= DB::connection('retail')->table('VENTAS')->where('CODIGO', $datos['data']['codigo'])
                ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
@@ -5028,7 +5105,7 @@ class Venta extends Model
             DB::raw('VENTASDET.COD_PROD AS COD_PROD'),
             DB::raw('VENTASDET.ID AS ID'),
             DB::raw('VENTASDET_TIENE_LOTES.ID_LOTE AS ID_LOTE'),
-            DB::raw('VENTASDET.CANTIDAD AS CANTIDAD'),
+            DB::raw('VENTASDET_TIENE_LOTES.CANTIDAD AS CANTIDAD'),
             DB::raw('VENTASDET.PRECIO AS PRECIO'),
             DB::raw('VENTASDET.LOTE AS LOTE'))
             ->Where('VENTASDET.CODIGO','=',$datos['data']['codigo'])
@@ -5058,6 +5135,7 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
+
             DB::connection('retail')->commit();
 
             return ["response"=>true,"ventas"=>$venta];

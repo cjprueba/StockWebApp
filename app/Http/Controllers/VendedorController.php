@@ -50,4 +50,30 @@ class VendedorController extends Controller
 
     }
 
+    public function reporteVendedor(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // GUARDAR  
+
+        $vendedor = Vendedores::rptVentaVendedor($request->all());
+        return response()->json($vendedor);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function generarVentaVendedor(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $vendedor = Vendedores::generarReporteVentaVendedor($request);
+        return response()->json($vendedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

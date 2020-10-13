@@ -69,7 +69,17 @@ Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
 Route::post('venta/pago/credito', 'VentaController@pagoCredito');
 Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
 
+/* -------------------------------------------------------------------------- */
 
+// DEV_TRANSFERENCIA
+Route::get('transferenciasDev', 'DevTransferenciaController@mostrarDataTable');
+Route::get('transferenciasMostrarProductosDev', 'DevTransferenciaController@mostrarProductosDevolucion');
+Route::get('transferenciasMostrarProductosDevImp', 'DevTransferenciaController@mostrarProductosDevolucionImp');
+Route::post('devTransferenciaEnviar', 'DevTransferenciaController@enviarDevTransferencia');
+Route::post('transferenciasDevImportar', 'DevTransferenciaController@mostrarImportar');
+Route::post('DevtransferenciaImportar', 'DevTransferenciaController@importarDevTransferencia');
+Route::post('devTransferenciaEliminar', 'DevTransferenciaController@eliminarDevTransferencia');
+Route::post('devTransferenciaRechazar', 'DevTransferenciaController@rechazarDevTransferencia');
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -84,7 +94,7 @@ Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
 Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
-Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');
+Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');		
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
@@ -92,6 +102,9 @@ Route::post('pdf-generar-factura-transferencia','TransferenciaControler@getGener
 Route::post('pdf-generar-transferencia','TransferenciaControler@getRptTransferencia');
 Route::post('pdf-rptTransferencia','TransferenciaControler@rptTransferencia');
 Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT');
+Route::post('devolver_transferencia','TransferenciaControler@devolverTransferencia');
+
+Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
 
 
 /* -------------------------------------------------------------------------- */
@@ -263,6 +276,10 @@ Route::get('giro/datatable/entidades', 'GiroController@datatableEntidades');
 Route::post('devendedores', 'DevolucionController@mostrar');
 Route::post('vendedores', 'VendedorController@mostrar');
 Route::post('/vendedor/datatable', 'VendedorController@datatable');
+
+Route::post('ventaVendedorDatatable', 'VendedorController@generarVentaVendedor');
+Route::post('pdf-rptVendedor', 'VendedorController@reporteVendedor');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -533,7 +550,8 @@ Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria'
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
-Route::get('/cupon/datatable', 'CuponController@datatable');
+Route::post('/cupon/datatable', 'CuponController@datatable');
+Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
 Route::post('cuponHabilitar', 'CuponController@cuponHabilitar');
 Route::get('obtenerCupon', 'CuponController@CrearCupon');

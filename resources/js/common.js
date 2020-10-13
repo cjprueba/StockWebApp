@@ -4989,6 +4989,121 @@ function obtenerProductoOfertaCommon(sucursal){
 
 	// ------------------------------------------------------------------------
 }
+function devolverTransferenciaCommon(codigo_tr,marcado){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('devolver_transferencia', { 'codigos':codigo_tr,'marcados':marcado}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+function marcarTodoTransferenciaCommon(codigo_tr){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('marcar_transferencia_devolucion', { 'codigos':codigo_tr}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+function enviarDevTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaEnviar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function eliminarDevTransferenciaCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaEliminar', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function importarDevTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/DevtransferenciaImportar', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function rechazarDevTransferenciaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/devTransferenciaRechazar', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+
 
 
 function inicioCatalogoCommon(datos){
@@ -5042,6 +5157,57 @@ function reporteVentaTarjetaCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function aplicarCuponCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			
+			return axios.post('/cupon/aplicar', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF VENTA VENDEDOR
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function reporteVentaVendedorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptVendedor', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+}
+
+
 
 function generarCuerpoNotaCreditoCommon(datos){
 
@@ -5310,7 +5476,14 @@ export {
 		eliminarProductoPedidoCommon,
 		cambiarEstatusPedidoCommon,
 		generarRptPdfPedidoCommon,
+		reporteVentaVendedorCommon,
 		obtenerProductoOfertaCommon,
+		devolverTransferenciaCommon,
+		marcarTodoTransferenciaCommon,
+		enviarDevTransferenciaCommon,
+		eliminarDevTransferenciaCommon,
+		importarDevTransferenciaCommon,
+		rechazarDevTransferenciaCommon, 
 		mostrarProductosCatalogoCommon,
 		inicioCatalogoCommon,
 		guardarPagoPECommon,
@@ -5319,5 +5492,6 @@ export {
 		reporteVentaTarjetaCommon,
 		generarCuerpoNotaCreditoCommon,
 		guardarNotaCreditoCommon,
-		generarPdfNotaCreditoCommon
+		generarPdfNotaCreditoCommon,
+		aplicarCuponCommon
 		};

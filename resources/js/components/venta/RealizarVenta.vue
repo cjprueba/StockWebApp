@@ -622,7 +622,7 @@
          		FACTURA: false,
          		TIPO: ''
          	}, deshabilitar: {
-         		DESCRIPCION: true
+         		DESCRIPCION: true,
          	}, servicio: {
          		COD_PROD: '',
 			    DESCRIPCION: '',
