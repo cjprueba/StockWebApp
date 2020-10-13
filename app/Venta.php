@@ -4644,11 +4644,12 @@ class Venta extends Model
             if($user->id_sucursal===4){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
-                    if($user->id_sucursal===4){
-              $totalFiltered = 2700;
-        }else{
-              $totalFiltered = $totalFiltered->count();
-        }
+        
+            if($user->id_sucursal===4){
+                  $totalFiltered = 2700;
+            }else{
+                  $totalFiltered = $totalFiltered->count();
+            }
 
            
 
