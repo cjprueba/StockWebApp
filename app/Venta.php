@@ -4644,11 +4644,12 @@ class Venta extends Model
             if($user->id_sucursal===4){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
-                    if($user->id_sucursal===4){
-              $totalFiltered = 2700;
-        }else{
-              $totalFiltered = $totalFiltered->count();
-        }
+        
+            if($user->id_sucursal===4){
+                  $totalFiltered = 2700;
+            }else{
+                  $totalFiltered = $totalFiltered->count();
+            }
 
            
 
@@ -4679,6 +4680,7 @@ class Venta extends Model
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 $nestedData['TOTAL_SIN_LETRA'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+                $nestedData['TOTAL_CRUDO'] = $post->TOTAL;
                 $nestedData['MONEDA'] = $post->MONEDA;
                 $nestedData['CANDEC'] = $post->CANDEC;
                 $nestedData['CLIENTE_CODIGO'] = $post->CLIENTE_CODIGO;
@@ -5206,17 +5208,21 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE'))
+            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
                                  ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
+                         ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
                          ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+                         ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                          ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
                          ->where('VENTASDET.CODIGO','=', $codigo)
                          ->where('VENTASDET.CAJA','=', $caja)
+                         ->groupBy('VENTASDET.ID')
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -5237,12 +5243,16 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA'))
+            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
                                  ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
+                         ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                          ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
                          ->where('VENTASDET.CODIGO','=', $codigo)
                          ->where('VENTASDET.CAJA','=', $caja)
@@ -5250,6 +5260,7 @@ class Venta extends Model
                                 $query->where('VENTASDET.COD_PROD','LIKE',"%{$search}%")
                                       ->orWhere('VENTASDET.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
+                            ->groupBy('VENTASDET.ID')
                             ->offset($start)
                             ->limit($limit)
                             ->orderBy($order,$dir)
@@ -5285,13 +5296,40 @@ class Venta extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
+                // DESCUENTO GENERAL 
+
+                $desc = Common::calculo_porcentaje_descuentos([
+                    'PRECIO_PRODUCTO' => $post->PRECIO,
+                    'PORCENTAJE_DESCUENTO' => $post->DESCUENTO_GENERAL_PORCENTAJE,
+                    'CANTIDAD' => $post->CANTIDAD,
+                ]);
+
+                $post->PRECIO = $desc['PRECIO_REAL'];
+                $post->TOTAL = $desc['TOTAL_REAL'];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // DESCUENTO CUPON
+                
+                $desc = Common::calculo_porcentaje_descuentos([
+                    'PRECIO_PRODUCTO' => $post->PRECIO,
+                    'PORCENTAJE_DESCUENTO' => $post->DESCUENTO_CUPON_PORCENTAJE,
+                    'CANTIDAD' => $post->CANTIDAD,
+                ]);
+                
+                $post->PRECIO = $desc['PRECIO_REAL'];
+                $post->TOTAL = $desc['TOTAL_REAL'];
+
+                /*  --------------------------------------------------------------------------------- */
+
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['ID'] = $post->ID;
                 $nestedData['ITEM'] = $post->ITEM;
                 $nestedData['COD_PROD'] = $post->COD_PROD;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
-                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD - $post->CANTIDAD_DEVUELTA;
+                $nestedData['CANTIDAD_DEVUELTA'] = $post->CANTIDAD_DEVUELTA;
                 $nestedData['DESCUENTO_TOTAL'] = Common::precio_candec_sin_letra($post->DESCUENTO_TOTAL, $post->MONEDA);
                 $nestedData['DESCUENTO'] = Common::precio_candec_sin_letra($post->DESCUENTO_PORCENTAJE, 1);
                 $nestedData['IVA_PORCENTAJE'] = Common::precio_candec_sin_letra($post->IVA_PORCENTAJE, 1);
@@ -5299,13 +5337,26 @@ class Venta extends Model
                 $nestedData['PRECIO'] = Common::precio_candec_sin_letra($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
 
-                $nestedData['ACCION'] = '<form class="form-inline">
+                if ($nestedData['CANTIDAD'] == 0) {
+                    $nestedData['ACCION'] = 'SIN CANTIDAD';
+                } else {
+                    $nestedData['ACCION'] = '<form class="form-inline">
                                             <div class="custom-control custom-checkbox">
                                               <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->COD_PROD.'">
                                               <label for='.$post->COD_PROD.' class="custom-control-label"></label>
-                                              <input type="number" value='.$post->CANTIDAD.' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$post->CANTIDAD.'>
+                                              <input type="number" value='.$nestedData['CANTIDAD'].' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$nestedData['CANTIDAD'].'>
                                             </div>
                                          </form>';
+                }
+                
+
+                if ($nestedData['CANTIDAD'] == 0) {
+                    $nestedData['ESTATUS'] = 'table-danger';
+                } else if ($nestedData['CANTIDAD_DEVUELTA'] > 0) {
+                    $nestedData['ESTATUS'] = 'table-warning';
+                } else {
+                    $nestedData['ESTATUS'] = '';
+                }
 
                 $data[] = $nestedData;
 
