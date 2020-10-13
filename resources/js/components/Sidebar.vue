@@ -169,7 +169,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'notaRemision'}">Nota de Remisión</router-link>
-            
+            <router-link class="collapse-item" :to="{name: 'notaCredito'}">Nota de Credito</router-link>
           </div>
         </div>
       </li>

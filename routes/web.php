@@ -545,6 +545,16 @@ Route::get('arreglar', 'TransferenciaControler@arreglar');
 
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
 
+/* -------------------------------------------------------------------------- */
+
+// NOTA DE CREDITO
+
+Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerpo');
+Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
+Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
+
+/* -------------------------------------------------------------------------- */
+
 Route::get('{any}', function () {
     return view('home');
 })->where('any','.*');
