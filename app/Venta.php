@@ -21,6 +21,7 @@ use App\VentaCredito;
 use App\VentaCupon;
 use App\Cupon;
 use App\Cliente_tiene_Cupon;
+use App\NotaCredito;
 
 class Venta extends Model
 {
@@ -3246,6 +3247,18 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // NOTA CREDITO VALORES
+
+        $nota_credito_guaranies = 0;
+        $nota_credito_dolares = 0;
+        $nota_credito_pesos = 0;
+        $nota_credito_reales = 0;
+        $nota_credito_cheque = 0;
+        $nota_credito_transferencia = 0;
+        $nota_credito_total = 0;
+        
+        /*  --------------------------------------------------------------------------------- */
+
         // CANTIDAD DE VENTAS 
 
         if ($ventas === 0) {
@@ -3495,6 +3508,38 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // NOTA DE CREDITO
+
+        $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO_MEDIOS.TOTAL), 0) AS TOTAL, NOTA_CREDITO_MEDIOS.TIPO_MEDIO, IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
+        ->leftjoin('NOTA_CREDITO_MEDIOS', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_MEDIOS.FK_NOTA_CREDITO')
+        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('NOTA_CREDITO.FECHA', '=', $fecha)
+        ->where('NOTA_CREDITO.CAJA', '=', $dato['caja'])
+        ->groupBy('NOTA_CREDITO_MEDIOS.TIPO_MEDIO')
+        ->get();
+
+        foreach ($nota_credito as $key => $value) {
+
+            $nota_credito_total = $nota_credito_total + $value->MONTO;
+
+            if ($value->TIPO_MEDIO === 1) {
+                $nota_credito_guaranies = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 2) {
+                $nota_credito_dolares = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 3) {
+                $nota_credito_pesos = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 4) {
+                $nota_credito_reales = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 5) {
+                $nota_credito_cheque = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 6) {
+                $nota_credito_transferencia = $value->TOTAL;    
+            } 
+             
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // PARAMETROS 
 
         $parametro = Parametro::select(DB::raw('EMPRESA, PROPIETARIO, DIRECCION, CIUDAD, ACTIVIDAD, RUC, MONEDA'))
@@ -3601,22 +3646,22 @@ class Venta extends Model
         $pdf->Ln(2);
         $pdf->Cell(25, 4, 'Dolares:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->DOLARES, 2),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->DOLARES - $nota_credito_dolares, 2),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Reales:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->REALES, 4),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->REALES - $nota_credito_reales, 4),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Guaranies:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->GUARANIES, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->GUARANIES - $nota_credito_guaranies, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Pesos:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->PESOS, 3),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->PESOS - $nota_credito_pesos, 3),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
@@ -3647,7 +3692,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Transferencia:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL - $nota_credito_transferencia, 1),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
@@ -3700,7 +3745,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Guaranies', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani - $nota_credito_cheque, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Dolares', 0);
@@ -3790,6 +3835,11 @@ class Venta extends Model
         $pdf->Cell(25, 4, utf8_decode('Ventas PE:'), 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($pe[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Notas Crédito:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
