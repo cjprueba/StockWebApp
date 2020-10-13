@@ -5209,6 +5209,64 @@ function reporteVentaVendedorCommon(data){
 
 
 
+function generarCuerpoNotaCreditoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR EL CUERPO DE LA NOTA DE CREDITO 
+			
+			return axios.post('/nota/credito/generar_cuerpo', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function guardarNotaCreditoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA NOTA DE CREDITO
+			
+			return axios.post('/nota/credito/guardar', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function generarPdfNotaCreditoCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'nota/credito/generar/pdf', method: 'post', responseType: 'arraybuffer', data: {'id': id}}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5432,6 +5490,8 @@ export {
 		guardarPagoCreditoCommon,
 		generarRptPdfVentaCommon,
 		reporteVentaTarjetaCommon,
+		generarCuerpoNotaCreditoCommon,
+		guardarNotaCreditoCommon,
+		generarPdfNotaCreditoCommon,
 		aplicarCuponCommon
-
 		};
