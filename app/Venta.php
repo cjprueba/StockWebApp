@@ -3256,7 +3256,7 @@ class Venta extends Model
         $nota_credito_cheque = 0;
         $nota_credito_transferencia = 0;
         $nota_credito_total = 0;
-        
+
         /*  --------------------------------------------------------------------------------- */
 
         // CANTIDAD DE VENTAS 
@@ -3513,8 +3513,9 @@ class Venta extends Model
         $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO_MEDIOS.TOTAL), 0) AS TOTAL, NOTA_CREDITO_MEDIOS.TIPO_MEDIO, IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
         ->leftjoin('NOTA_CREDITO_MEDIOS', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_MEDIOS.FK_NOTA_CREDITO')
         ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
-        ->whereDate('NOTA_CREDITO.FECHA', '=', $fecha)
+        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $fecha)
         ->where('NOTA_CREDITO.CAJA', '=', $dato['caja'])
+        ->where('NOTA_CREDITO.PROCESADO', '=', 1)
         ->groupBy('NOTA_CREDITO_MEDIOS.TIPO_MEDIO')
         ->get();
 
@@ -4571,10 +4572,10 @@ class Venta extends Model
                 $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
         } 
 
-        if($user->id_sucursal === 4){
+        if($user->id_sucursal === 4 || $user->id_sucursal === 2){
              $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
         }
-        if($user->id_sucursal===4){
+        if($user->id_sucursal===4 || $user->id_sucursal === 2){
               $totalData = 2700;
         }else{
               $totalData = $totalData->count();
@@ -4620,7 +4621,7 @@ class Venta extends Model
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
             }
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                 ->orderby('VENTAS.ID','DESC');
             }else{
@@ -4661,7 +4662,7 @@ class Venta extends Model
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
             } 
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                  $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                  ->orderby('VENTAS.ID','DESC');
             }else{
@@ -4691,11 +4692,11 @@ class Venta extends Model
                 $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
             }
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
         
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                   $totalFiltered = 2700;
             }else{
                   $totalFiltered = $totalFiltered->count();
