@@ -2068,7 +2068,7 @@ function obtenerCuerpoRemisionCommon(codigo){
 
 			// ------------------------------------------------------------------------
 
-			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
+			// CONSEGUIR LOS DATOS DE LA CABECERA 
 			
 			return axios.post('/remisionCuerpo', {'codigo': codigo}).then(function (response) {
 					return response.data;
@@ -5207,7 +5207,55 @@ function reporteVentaVendedorCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						    MOVIMIENTOS POR PRODUCTO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
+function obtenerMovimientosProductosCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE LOS MOVIMIENTOS
+			
+			return axios.post('/producto/movimiento', {'codigo': codigo}).then(function (response) {
+					return response.data.movimientos;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 				   REPORTE TRANSFERENCIA POR CONSIGNACION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarReporteTransferenciaConsignacionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+	return axios.post('/reporte-transferencia', {'data': data}).then(function (response) {
+			return response.data;
+		});
+
+	// ------------------------------------------------------------------------
+
+}
 
 function generarCuerpoNotaCreditoCommon(datos){
 
@@ -5490,8 +5538,11 @@ export {
 		guardarPagoCreditoCommon,
 		generarRptPdfVentaCommon,
 		reporteVentaTarjetaCommon,
+		obtenerMovimientosProductosCommon,
+		generarReporteTransferenciaConsignacionCommon,
 		generarCuerpoNotaCreditoCommon,
 		guardarNotaCreditoCommon,
 		generarPdfNotaCreditoCommon,
 		aplicarCuponCommon
+
 		};

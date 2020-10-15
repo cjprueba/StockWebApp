@@ -365,7 +365,12 @@ export default new Router({
 			path: '/rpt16',
 			name: 'rptVentaVendedor',
 			component: require('./components/reportes/Vendedor.vue').default
-	    }
+	    },
+		{
+			path: '/rpn2',
+			name: 'rptTransferenciaWeb',
+			component: require('./components/reportes/transferencia/Inicio.vue').default
+		}
 
 
 	],

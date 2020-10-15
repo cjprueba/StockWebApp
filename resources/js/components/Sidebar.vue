@@ -65,7 +65,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Lista de Reportes:</h6>
              <router-link class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
-
+             <router-link class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
           </div>
         </div>
       </li>
