@@ -543,13 +543,22 @@ Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
+/* -------------------------------------------------------------------------- */
+
+// REPORTES VENTAS
 Route::post('reporte_ventas', 'VentaController@reporteVenta');
 
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+/* -------------------------------------------------------------------------- */
+
+// REPORTES TRANSFERENCIAS
+Route::post('reporte_transferencias_ventas', 'VentaController@reporteVenta');
+
+Route::post('export-transferencia-consignacion', 'ExportController@descargarTransferenciaVentas');
 
 /* -------------------------------------------------------------------------- */
 
-// REPORTES GENERAR
+// CUPONES
 Route::post('/cupon/datatable', 'CuponController@datatable');
 Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');

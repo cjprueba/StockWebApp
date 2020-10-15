@@ -24,9 +24,9 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Illuminate\Support\Facades\Log;
 use DateTime;
 
-class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAutoSize,WithColumnFormatting 
+class RptTransferenciaVentaTotales implements FromArray, WithTitle,WithEvents,ShouldAutoSize,WithColumnFormatting 
 {
-		private $CODIGO;
+   	private $CODIGO;
     private $ventageneral=[];   
     private $DESCRIPCION;
     private $CODIGOL;
@@ -48,6 +48,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
     private $cantidadvendida;
     private $stock;
     private $stocktotal;
+    private $agrupar;
     public $posicion=1;
     private $stockarray;
      private $hojas;
@@ -65,26 +66,31 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
                 $this->sucursal=$datos['SUCURSAL'];
                 $this->inicio=$datos['INICIO'];
                 $this->fin=$datos['FINAL'];
+                $this->agrupar=$datos['AGRUPAR'];
     }
-          public function  array(): array
+    public function  array(): array
     {
     	$promedio=0;
     	  $temp=DB::connection('retail')->table('temp_ventas')
 	   	
 	           ->select(
-	            DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR'),
-	            DB::raw('temp_ventas.PROVEEDOR_NOMBRE AS DESCRI_P'),
-	            DB::raw('temp_ventas.SUCURSAL_ORIGEN AS SUCURSAL_ORIGEN'),
-	            DB::raw('temp_ventas.SUCURSAL_NOMBRE as DESCRI_S'))
+	            DB::raw('temp_ventas.MARCAS_CODIGO AS MARCA'),
+	            DB::raw('temp_ventas.MARCA AS DESCRI_M'),
+	            DB::raw('temp_ventas.LINEA_CODIGO AS LINEA'),
+	            DB::raw('temp_ventas.CATEGORIA as DESCRI_L'))
 	          ->where('USER_ID','=',$this->user)
 	          ->where('ID_SUCURSAL','=',$this->sucursal)
-	          ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.SUCURSAL_ORIGEN') 
-	          ->orderby('temp_ventas.SUCURSAL_ORIGEN')
-	          ->get()
-	          ->toArray();
-
+	          /*->GROUPBY('temp_ventas.MARCAS_CODIGO','temp_ventas.LINEA_CODIGO') */
+	          ->orderby('temp_ventas.PROVEEDOR');
+	           if($this->agrupar==0){
+                $temp->GROUPBY('temp_ventas.PROVEEDOR');
+	          }else{
+				$temp->GROUPBY('temp_ventas.SUCURSAL_ORIGEN');
+	          }
+	          $temp=$temp->get()->toArray();
+	          
 	            $marcas_array[]=array('TOTALES',"",'VENDIDO','DESCUENTO','COSTO','COSTO TOTAL','PRECIO','TOTAL');
-	             /*$TOTAL=DB::connection('retail')->table('temp_ventas')
+	             $TOTAL=DB::connection('retail')->table('temp_ventas')
 			   			
 			           ->select(
 			           
@@ -123,7 +129,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 				                'TOTAL'=> $TOTAL[0]->TOTAL,
 				                
 				                );
-			          }*/
+			          }
 
 	            foreach ($temp as $key => $value) {
 	            	 $TOTAL=DB::connection('retail')->table('temp_ventas')
@@ -141,9 +147,9 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 			         
 			           	 ->where('USER_ID','=',$this->user)
 	                  ->where('ID_SUCURSAL','=',$this->sucursal)
-	              
-			             ->where('temp_ventas.PROVEEDOR','=',$value->PROVEEDOR)
-			              ->where('temp_ventas.SUCURSAL_ORIGEN','=',$value->SUCURSAL_ORIGEN)
+	                  ->WHERE('PROVEEDOR','<>',19)
+			             ->where('temp_ventas.MARCAS_CODIGO','=',$value->MARCA)
+			              ->where('temp_ventas.Linea_Codigo','=',$value->LINEA)
 			          ->get()
 			          ->toArray();
 			           $this->posicion=$this->posicion+1;
@@ -154,7 +160,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 		               $this->costo=$this->costo+$TOTAL[0]->COSTO_UNIT;
 		               $this->totalcosto=$this->totalcosto+$TOTAL[0]->COSTO_TOTAL;
 		                  $marcas_array[]=array(
-		                'TOTALES'=> $value->DESCRI_S." ".$value->DESCRI_P,
+		                'TOTALES'=> $value->DESCRI_M." ".$value->DESCRI_L,
 		                ''=>"",
 		                'VENDIDO'=> $TOTAL[0]->VENDIDO,
 		                'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
@@ -167,7 +173,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 	            	# code...
 	            }
 
-   /* $ser=DB::connection('retail')->table('ventasdet_servicios')
+    $ser=DB::connection('retail')->table('ventasdet_servicios')
 	   		  ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
              ->on('VENTAS.CAJA','=','ventasdet_servicios.CAJA')
@@ -201,7 +207,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
                 'TOTAL'=> $ser[0]->PRECIO_SERVICIO,
                 
                 );
-	          }*/
+	          }
 
 	             $marcas_array[]=array(
                 'TOTALES'=> 'GENERAL',
