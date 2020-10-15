@@ -24,20 +24,16 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Illuminate\Support\Facades\Log;
 use DateTime;
 
-class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAutoSize,WithColumnFormatting 
+class VentaTransferenciaConsignacionTotales implements FromArray, WithTitle,WithEvents,ShouldAutoSize,WithColumnFormatting 
 {
-		private $CODIGO;
+    private $CODIGO;
     private $ventageneral=[];   
     private $DESCRIPCION;
     private $CODIGOL;
     private $proveedor;
     private $descri_p;
     private $DESCRIPCIONL;
-    private $sucursal;
-    private $user;
     private $marcas;
-    private $inicio;
-    private $fin;
     private  $venta;
     private $total_descuento;
     private $total_utilidad;
@@ -55,76 +51,31 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
     public $marcas_array=[];
      public $marcas_array_aux=[];
     private $descuentogeneral;
-    /private $descuentos;
-    **
+    private $descuentos;
+   /**
     * @return \Illuminate\Support\Collection
     */
-                public function __construct($datos)
+            public function __construct()
     {
-                $this->user=$datos['USER_ID'];
-                $this->sucursal=$datos['SUCURSAL'];
-                $this->inicio=$datos['INICIO'];
-                $this->fin=$datos['FINAL'];
+
     }
-          public function  array(): array
+     public function  array(): array
     {
+    	  $dia2 = date("Y-m-d");
+                $dia1 = new DateTime();
+                $dia1->modify('first day of this month');
+                $dia1= $dia1->format('Y-m-d');
     	$promedio=0;
     	  $temp=DB::connection('retail')->table('temp_ventas')
 	   	
 	           ->select(
 	            DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR'),
-	            DB::raw('temp_ventas.PROVEEDOR_NOMBRE AS DESCRI_P'),
-	            DB::raw('temp_ventas.SUCURSAL_ORIGEN AS SUCURSAL_ORIGEN'),
-	            DB::raw('temp_ventas.SUCURSAL_NOMBRE as DESCRI_S'))
-	          ->where('USER_ID','=',$this->user)
-	          ->where('ID_SUCURSAL','=',$this->sucursal)
-	          ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.SUCURSAL_ORIGEN') 
-	          ->orderby('temp_ventas.SUCURSAL_ORIGEN')
+	            DB::raw('temp_ventas.PROVEEDOR_NOMBRE as DESCRI_P'))
+	       
+	          ->GROUPBY('temp_ventas.PROVEEDOR') 
 	          ->get()
 	          ->toArray();
-
 	            $marcas_array[]=array('TOTALES',"",'VENDIDO','DESCUENTO','COSTO','COSTO TOTAL','PRECIO','TOTAL');
-	             /*$TOTAL=DB::connection('retail')->table('temp_ventas')
-			   			
-			           ->select(
-			           
-		
-			            DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
-			         
-			            DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
-			            DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
-			            DB::raw('SUM(COSTO_UNIT) AS COSTO_UNIT'),
-			            DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
-			            DB::raw('SUM(temp_ventas.PRECIO_UNIT) AS PRECIO_UNIT'))
-			         
-			           	 ->where('USER_ID','=',$this->user)
-	                  ->where('ID_SUCURSAL','=',$this->sucursal)
-			             ->where('proveedor','=',19)
-			              
-			          ->get()
-			          ->toArray();
-			          if(count($TOTAL)==1 && $TOTAL[0]->COSTO_UNIT<>NULL){
-			          
-							   $this->posicion=$this->posicion+1;
-				               $this->total_general=$this->total_general+$TOTAL[0]->TOTAL;
-				               $this->total_descuento=$this->total_descuento+$TOTAL[0]->DESCUENTO;
-				               $this->total_preciounit=$this->total_preciounit+$TOTAL[0]->PRECIO_UNIT;
-				               $this->cantidadvendida=$this->cantidadvendida+$TOTAL[0]->VENDIDO;
-				               $this->costo=$this->costo+$TOTAL[0]->COSTO_UNIT;
-				               $this->totalcosto=$this->totalcosto+$TOTAL[0]->COSTO_TOTAL;
-				                $marcas_array[]=array(
-				                'TOTALES'=> 'TOKUTOKUYA',
-				                ''=>"",
-				                'VENDIDO'=> $TOTAL[0]->VENDIDO,
-				                'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
-				                'COSTO'=> $TOTAL[0]->COSTO_UNIT,
-				                'COSTO TOTAL'=> $TOTAL[0]->COSTO_TOTAL,
-				                'PRECIO'=> $TOTAL[0]->PRECIO_UNIT,
-				                'TOTAL'=> $TOTAL[0]->TOTAL,
-				                
-				                );
-			          }*/
-
 	            foreach ($temp as $key => $value) {
 	            	 $TOTAL=DB::connection('retail')->table('temp_ventas')
 			   			
@@ -139,35 +90,33 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 			            DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
 			            DB::raw('SUM(temp_ventas.PRECIO_UNIT) AS PRECIO_UNIT'))
 			         
-			           	 ->where('USER_ID','=',$this->user)
-	                  ->where('ID_SUCURSAL','=',$this->sucursal)
-	              
-			             ->where('temp_ventas.PROVEEDOR','=',$value->PROVEEDOR)
-			              ->where('temp_ventas.SUCURSAL_ORIGEN','=',$value->SUCURSAL_ORIGEN)
+			            ->where('temp_ventas.proveedor','=',$value->PROVEEDOR)
 			          ->get()
 			          ->toArray();
 			           $this->posicion=$this->posicion+1;
-                       $this->total_general=$this->total_general+$TOTAL[0]->TOTAL;
-              		   $this->total_descuento=$this->total_descuento+$TOTAL[0]->DESCUENTO;
-		               $this->total_preciounit=$this->total_preciounit+$TOTAL[0]->PRECIO_UNIT;
-		               $this->cantidadvendida=$this->cantidadvendida+$TOTAL[0]->VENDIDO;
-		               $this->costo=$this->costo+$TOTAL[0]->COSTO_UNIT;
-		               $this->totalcosto=$this->totalcosto+$TOTAL[0]->COSTO_TOTAL;
-		                  $marcas_array[]=array(
-		                'TOTALES'=> $value->DESCRI_S." ".$value->DESCRI_P,
-		                ''=>"",
-		                'VENDIDO'=> $TOTAL[0]->VENDIDO,
-		                'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
-		                'COSTO'=> $TOTAL[0]->COSTO_UNIT,
-		                'COSTO TOTAL'=> $TOTAL[0]->COSTO_TOTAL,
-		                'PRECIO'=> $TOTAL[0]->PRECIO_UNIT,
-		                'TOTAL'=> $TOTAL[0]->TOTAL,
-		                
-		                );
+                  $this->total_general=$this->total_general+$TOTAL[0]->TOTAL;
+               $this->total_descuento=$this->total_descuento+$TOTAL[0]->DESCUENTO;
+               $this->total_preciounit=$this->total_preciounit+$TOTAL[0]->PRECIO_UNIT;
+               $this->cantidadvendida=$this->cantidadvendida+$TOTAL[0]->VENDIDO;
+              $this->costo=$this->costo+$TOTAL[0]->COSTO_UNIT;
+              $this->totalcosto=$this->totalcosto+$TOTAL[0]->COSTO_TOTAL;
+                  $marcas_array[]=array(
+                'TOTALES'=> $value->DESCRI_P,
+                ''=>"",
+                'VENDIDO'=> $TOTAL[0]->VENDIDO,
+                'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
+                'COSTO'=> $TOTAL[0]->COSTO_UNIT,
+                'COSTO TOTAL'=> $TOTAL[0]->COSTO_TOTAL,
+                'PRECIO'=> $TOTAL[0]->PRECIO_UNIT,
+                'TOTAL'=> $TOTAL[0]->TOTAL,
+                
+                );
 	            	# code...
 	            }
 
-   /* $ser=DB::connection('retail')->table('ventasdet_servicios')
+
+
+/*	         $ser=DB::connection('retail')->table('ventasdet_servicios')
 	   		  ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
              ->on('VENTAS.CAJA','=','ventasdet_servicios.CAJA')
@@ -179,9 +128,9 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 	            	sum(ventasdet_servicios.PRECIO_UNIT) AS PRECIO_UNIT'))
 	           
        ->Where('VENTAS_ANULADO.ANULADO','=',0)
-        ->Where('VENTAS.ID_SUCURSAL','=',$this->sucursal)
+        ->Where('VENTAS.ID_SUCURSAL','=',9)
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
-        ->whereBetween('VENTAS.FECALTAS', [$this->inicio, $this->fin])
+        ->whereBetween('VENTAS.FECALTAS', [$dia1, $dia2])
 	          ->get()
 	          ->toArray();
 	          if(count($ser)>0){
@@ -202,7 +151,6 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
                 
                 );
 	          }*/
-
 	             $marcas_array[]=array(
                 'TOTALES'=> 'GENERAL',
                 ''=>"",
@@ -218,7 +166,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
 
 
     }
-    public function registerEvents(): array
+     public function registerEvents(): array
     {
         
 

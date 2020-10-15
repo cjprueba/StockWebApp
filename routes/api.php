@@ -34,6 +34,6 @@ Route::post('producto/ofertas', 'ProductoController@ofertas');
 
 // CATEGORIA 
 
-Route::post('categorias_cantidad', 'CategoriaController@CategoriasCantidad');
+Route::post('orden_web', 'OrdenController@CompletadoWp');
 
 /* -------------------------------------------------------------------------- */

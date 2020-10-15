@@ -1,11 +1,13 @@
 <template>
-	<!-- VENTA VENDEDOR v-if="$can('reporte.vendedor')" -->
+
+	<!-- VENTA VENDEDOR  -->
 	<div class="container">
-		<div class="card mt-3 shadow border-bottom-primary" >
+		<div class="card mt-3  shadow border-bottom-primary" >
 		  <div class="card-header">Ventas por Vendedor</div>
 			<div class="card-body">
 			  <div class="row">
 				<div class="col-4 mb-3 ">
+
 					<!-- -------------------------------------------SELECCIONAR SUCURSAL----------------------------------------------- -->
 					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
@@ -17,7 +19,9 @@
 						    {{messageInvalidSucursal}}
 						</div>
 					</div>
+
 					<!-- -------------------------------------------SELECCIONAR VENDEDOR----------------------------------------------- -->
+
 					<div class="row mt-3 ml-3">
 				  		<label for="validationTooltip01">Vendedor</label>
 						<select class="custom-select custom-select-sm" v-model="selectedVendedor">
@@ -26,6 +30,7 @@
 						</select>
 					</div>
 				</div>
+
 
 				<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
 
@@ -110,6 +115,7 @@
 			</div>
 		</div>
 
+
 		<!-- ------------------------------------------------------------------------ -->
 		
 		<!-- <div v-else>
@@ -143,6 +149,7 @@
               	cargado: false,
               	descarga: false,
               	selectedTipo: 'GENERAL'
+
             }
         }, 
         methods: {
@@ -167,6 +174,7 @@
 			        	final: String(this.selectedFinalFecha),
 			        	vendedor: this.selectedVendedor,
 			        	tipo: this.selectedTipo
+
 		        	};
 		        	
 		        	Common.reporteVentaVendedorCommon(datos).then(function(){
@@ -212,6 +220,7 @@
 		                  "url": "/ventaVendedorDatatable",
 		                  "dataType": "json",
 		                  "type": "POST"
+
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },

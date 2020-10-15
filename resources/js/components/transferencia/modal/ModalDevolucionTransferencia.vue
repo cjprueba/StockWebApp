@@ -222,6 +222,13 @@
 
 		              $("#"+x).prop('checked', true);
 		            });
+		             me.datos.map(function (x) {
+
+				        if (document.getElementsByName($("#"+x.CODIGO).closest('input').attr('id'))[0] !== undefined) {
+				        	document.getElementsByName($("#"+x.CODIGO).closest('input').attr('id'))[0].value = x.CANTIDAD;
+				        }
+		        
+		   			 });
 		            
                 },
                  Desmarcar(){
@@ -234,36 +241,37 @@
 		            });
 		            
                 },
-            marcar_dev(){
+marcar_dev(){
          
-            	this.tableTransferencia = $('#transferenciaProductosDevolucion').DataTable();
-                    let me=this;
+            this.tableContructorNota = $('#tableConstructorNota').DataTable();
+                    
+            let me=this;
                   //RECORRE TODOS LOS CHECKBOX EXISTENTES EN EL DATATABLE
-                           $( me.tableTransferencia.$('input[type="checkbox"]').map(function ()
+            $( me.tableContructorNota.$('input[type="checkbox"]').map(function ()
                            {
                    	 
                                         //PREGUNTA SI ESTA MARCADO
                                        if  ($(this).prop("checked"))  {
-
                                          // SI ESTA MARCADO AGREGAR 
-
-
                                             if (me.nuevoMarcados.includes($(this).closest('input').attr('id')) === false) { 
                                          	  //PREGUNTA SI ESTE CODIGO NO EXISTE EN EL ARRAY AUXILIAR
                                          	
                                          	    me.nuevoMarcados.push($(this).closest('input').attr('id'));
                                          	   //ACA SE GUARDA EL CODIGO EN UN ARRAY AUXILIAR
-		 											   $( me.tableTransferencia.$('input[type="number"]').map(function () {
+		 											   $( me.tableContructorNota.$('input[type="number"]').map(function () {
 		 											  	//SE RECORRE TODOS LOS INPUT TIPO NUMERO PARA GUARDAR LA CANTIDAD 
 				 												if (me.nuevoMarcados.includes($(this).closest('input').attr('id')) ===true) {
 				 													//PREGUNTA SI ESTE CODIGO YA EXISTE EN EL ARRAY AUXILIAR
-
 				 													 	for (var i=0; i<me.datos.length; i++) { 
 				 													 		//RECORREMOS EL ARRAY ORIGINAL SI TIENE DATOS
-
 				 													 	if(me.datos[i]["CODIGO"]===$(this).closest('input').attr('id')){
 				 													 		//PREGUNTAMOS SI EXISTE UN CODIGO IGUAL EN NUESTRO ARRAY ORIGINAL PARA ACTUALIZAR LA CANTIDAD
- 																			
+ 																			console.log("maximo: "+$(this).closest('input').attr('max'));
+ 																			if (parseInt($(this).closest('input').attr('max')) < parseInt(document.getElementsByName($(this).closest('input').attr('id'))[0].value)) {
+ 																				console.log("entre maximo: "+$(this).closest('input').attr('max'));
+ 																				document.getElementsByName($(this).closest('input').attr('id'))[0].value = $(this).closest('input').attr('max');
+ 																			}
+
 				 													 		me.datos[i]["CANTIDAD"]=document.getElementsByName($(this).closest('input').attr('id'))[0].value;
 				                                                             
 				                                                             me.actualizar=true;
@@ -275,9 +283,14 @@
 				 													 		  me.actualizar=false;
 				 													 	}
 				 													 }
-
 				 													 if(me.actualizar===false){
 				 													 	//PREGUNTAMOS SI ES FALSE PARA PODER INSERTAR EN NUESTRO ARRAY ORIGINAL EL DATO
+
+				 													 	 if (parseInt($(this).closest('input').attr('max')) < parseInt(document.getElementsByName($(this).closest('input').attr('id'))[0].value)) {
+
+ 																				document.getElementsByName($(this).closest('input').attr('id'))[0].value = $(this).closest('input').attr('max');
+ 																			}
+
 				 													 	 me.datos.push({
 																	    "CODIGO": $(this).closest('input').attr('id'),
 																	    "CANTIDAD":document.getElementsByName($(this).closest('input').attr('id'))[0].value,
@@ -295,13 +308,17 @@
 	                                            }else{
 	                                            	me.checked_todo=false;
 	                                         	//ACA ENTRA YA QUE NUESTRO ARRAY ORIGINAL DEVUELVE QUE YA EXISTE EL PRODUCTO EN NUESTROS ARRAYS
-	                                         	  $( me.tableTransferencia.$('input[type="number"]').map(function () {
-
+	                                         	  $( me.tableContructorNota.$('input[type="number"]').map(function () {
 	                                         	  	//RECORREMOS TODOS LOS INPUT TIPO NUMEROS
 	                                         	  		 for (var i=0; i<me.datos.length; i++) { 
 	                                         	  		 	//RECORREMOS NUESTRO ARRAY ORIGINAL
-
 	 													 	if(me.datos[i]["CODIGO"]===$(this).closest('input').attr('id')){
+
+	 													 		if (parseInt($(this).closest('input').attr('max')) < parseInt(document.getElementsByName($(this).closest('input').attr('id'))[0].value)) {
+
+ 																				document.getElementsByName($(this).closest('input').attr('id'))[0].value = $(this).closest('input').attr('max');
+ 																			}
+
 	 													 		//PREGUNTAMOS SI EXISTE ALGUN CODIGO IGUAL PARA PODER ACTUALIZAR LA CANTIDAD AL PRODUCTO EN ESPECIFICO
 	 													 		me.datos[i]["CANTIDAD"]=document.getElementsByName($(this).closest('input').attr('id'))[0].value;
 	                                                             
@@ -310,14 +327,11 @@
 	                                                             //CERRAMOS EL FOR
 	 													 	}
 	 													 }
-
 		                                         } ) );
-
 		        										
 		                                         }
                                          
                                         } else {
-
                                       //ACA ENTRA CUANDO SE DESMARCA UN PRODUCTO ENTONCES PROCEDEMOS A ELIMINAR DE LOS DOS ARRAYS EL ELEMENTO
                                         for (var i=0; i<me.datos.length; i++) { 
                                         	//SE RECORRE EL ARRAY
@@ -332,16 +346,12 @@
                                                               
                                                              
  										  }
-
                                         	}
-
                                         me.Eliminar_Array($(this).closest('input').attr('id'));
                                         //EN ESTA FUNCION ENVIAMOS EL CODIGO DEL PRODUCTO EN UNA FUNCION QUE ELIMINA EL ELEMENTO DE NUESTRO ARRAY AUXILIAR
                                        
                                        };
                              } ) );
-                				console.log(me.datos);
-
             },
             obtenerDatosTranferencia(codigo, codigo_origen){
 
