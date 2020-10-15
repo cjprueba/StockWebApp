@@ -1048,4 +1048,170 @@ class NotaCredito extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function obtener_credito_cliente_datatable($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $cliente = $request->input('cliente');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ID', 
+                            1 => 'VENTA',
+                            2 => 'FECHA',
+                            3 => 'HORA',
+                            4 => 'TOTAL',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+
+        $totalData = NotaCredito::where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = NotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.FK_VENTA, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.HORA, NOTA_CREDITO.TOTAL, NOTA_CREDITO.MONEDA, NOTA_CREDITO.BASE5, NOTA_CREDITO.BASE10, NOTA_CREDITO.IVA'))
+                         ->where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  NotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.FK_VENTA, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.HORA, NOTA_CREDITO.TOTAL, NOTA_CREDITO.MONEDA, NOTA_CREDITO.BASE5, NOTA_CREDITO.BASE10, NOTA_CREDITO.IVA'))
+            ->where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+            ->where(function ($query) use ($search) {
+            $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
+                  ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%");
+            })
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = NotaCredito::
+            where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+            ->where(function ($query) use ($search) {
+                $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
+                ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%");
+            })
+            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['FK_VENTA'] = $post->FK_VENTA;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['HORA'] = $post->HORA;
+                $nestedData['BASE5'] = Common::precio_candec_sin_letra($post->BASE5, $post->MONEDA);
+                $nestedData['BASE10'] = Common::precio_candec_sin_letra($post->BASE10, $post->MONEDA);
+                $nestedData['IVA'] = Common::precio_candec_sin_letra($post->IVA, $post->MONEDA);
+                $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+                $nestedData['TOTAL_CRUDO'] = $post->TOTAL;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

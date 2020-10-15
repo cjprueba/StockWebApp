@@ -341,7 +341,6 @@
 	                    // *******************************************************************
 
 	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
-
 	                    
 	                   	var row  = $(this).parents('tr')[0];
                         me.mostrarModalDevolucion(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
