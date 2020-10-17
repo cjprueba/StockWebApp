@@ -18,6 +18,10 @@ use App\VentasAnulado;
 use App\VentasDetDevolucion;
 use App\Ventas_Descuento;
 use App\VentaCredito;
+use App\VentaCupon;
+use App\Cupon;
+use App\Cliente_tiene_Cupon;
+use App\NotaCredito;
 
 class Venta extends Model
 {
@@ -378,7 +382,7 @@ class Venta extends Model
                                 'VENDIDO'=> $value->VENDIDO,
                                 'DESCUENTO'=>$value->DESCUENTO,
                                 'COSTO'=> $value->COSTO_UNIT,
-                                'COSTO TOTAL'=> $value->COSTO_TOTAL,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
                                 'PRECIO'=> $value->PRECIO_UNIT,
                                 'TOTAL'=> $value->TOTAL,
                                 'MARCAS'=>$value->MARCA
@@ -413,7 +417,7 @@ class Venta extends Model
                                 'VENDIDO'=> $ser[0]->VENDIDO,
                                 'DESCUENTO'=>'0',
                                 'COSTO'=> '0',
-                                'COSTO TOTAL'=> '0',
+                                'COSTO_TOTAL'=> '0',
                                 'PRECIO'=> $ser[0]->PRECIO_UNIT,
                                 'TOTAL'=> $ser[0]->PRECIO_SERVICIO,
                                 
@@ -1979,6 +1983,16 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // CUPON 
+
+            if(isset($data["data"]["pago"]["CUPON_TOTAL"])){
+                $cupon = Common::quitar_coma($data["data"]["pago"]["CUPON_TOTAL"], 2);
+            }else{
+                $cupon= 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */            
+
             // CREDITO
 
             $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
@@ -2364,7 +2378,7 @@ class Venta extends Model
                     "BASE5" => $total_base5, 
                     "BASE10" => $total_base10, 
                     "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => ($total_total - $descuento_general), 
+                    "TOTAL" => (($total_total - $descuento_general) - $cupon), 
                     "EFECTIVO" => $efectivo, 
                     "CHEQUE" => 0, 
                     "VALE" => 0, 
@@ -2454,6 +2468,56 @@ class Venta extends Model
                 ]);
                 
             }
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO CUPON
+
+            
+            if ($cupon !== '0' && $cupon !== 0 && $cupon !== '0.00' && $cupon !== NULL) {
+
+                 /*  --------------------------------------------------------------------------------- */ 
+                // GUARDAR VENTA CON CUPON
+                /*  --------------------------------------------------------------------------------- */
+
+                VentaCupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'CUPON_IMPORTE' => $cupon,
+                        'CUPON_PORCENTAJE'=>$data["data"]["pago"]["CUPON_PORCENTAJE"],
+                        'CUPON_TIPO'=>$data["data"]["pago"]["CUPON_TIPO"],
+                        'FK_USER'=>$user->id,
+                        'MONEDA' => $moneda,
+                        'FECALTAS'=>$dia,
+                        'HORALTAS'=>$hora
+                ]);
+
+                /*  --------------------------------------------------------------------------------- */ 
+                // OBTENER ID CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                $id_cliente = (Cliente::id_cliente($cliente))['ID_CLIENTE'];
+
+                /*  --------------------------------------------------------------------------------- */
+                // ACTUALIZAR USO DEL CUPON 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cupon::actualizar_uso($data["data"]["pago"]["CUPON_ID"],1);
+
+                /*  --------------------------------------------------------------------------------- */
+                // GUARDAR USO DEL CLIENTE 
+                /*  --------------------------------------------------------------------------------- */
+
+                Cliente_tiene_Cupon::guardar_referencia([
+                        'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
+                        'FK_VENTA' => $venta,
+                        'FK_CLIENTE'=> $id_cliente,
+                        'MONEDA' => $moneda
+                ]);
+
+            }
+
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3183,6 +3247,18 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // NOTA CREDITO VALORES
+
+        $nota_credito_guaranies = 0;
+        $nota_credito_dolares = 0;
+        $nota_credito_pesos = 0;
+        $nota_credito_reales = 0;
+        $nota_credito_cheque = 0;
+        $nota_credito_transferencia = 0;
+        $nota_credito_total = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
         // CANTIDAD DE VENTAS 
 
         if ($ventas === 0) {
@@ -3432,6 +3508,39 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // NOTA DE CREDITO
+
+        $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO_MEDIOS.TOTAL), 0) AS TOTAL, NOTA_CREDITO_MEDIOS.TIPO_MEDIO, IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
+        ->leftjoin('NOTA_CREDITO_MEDIOS', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_MEDIOS.FK_NOTA_CREDITO')
+        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $fecha)
+        ->where('NOTA_CREDITO.CAJA', '=', $dato['caja'])
+        ->where('NOTA_CREDITO.PROCESADO', '=', 1)
+        ->groupBy('NOTA_CREDITO_MEDIOS.TIPO_MEDIO')
+        ->get();
+
+        foreach ($nota_credito as $key => $value) {
+
+            $nota_credito_total = $nota_credito_total + $value->MONTO;
+
+            if ($value->TIPO_MEDIO === 1) {
+                $nota_credito_guaranies = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 2) {
+                $nota_credito_dolares = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 3) {
+                $nota_credito_pesos = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 4) {
+                $nota_credito_reales = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 5) {
+                $nota_credito_cheque = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 6) {
+                $nota_credito_transferencia = $value->TOTAL;    
+            } 
+             
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         // PARAMETROS 
 
         $parametro = Parametro::select(DB::raw('EMPRESA, PROPIETARIO, DIRECCION, CIUDAD, ACTIVIDAD, RUC, MONEDA'))
@@ -3538,22 +3647,22 @@ class Venta extends Model
         $pdf->Ln(2);
         $pdf->Cell(25, 4, 'Dolares:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->DOLARES, 2),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->DOLARES - $nota_credito_dolares, 2),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Reales:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->REALES, 4),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->REALES - $nota_credito_reales, 4),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Guaranies:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->GUARANIES, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->GUARANIES - $nota_credito_guaranies, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Pesos:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->PESOS, 3),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($contado[0]->PESOS - $nota_credito_pesos, 3),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
@@ -3584,7 +3693,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Transferencia:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL - $nota_credito_transferencia, 1),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
@@ -3637,7 +3746,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Guaranies', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani - $nota_credito_cheque, 1),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Dolares', 0);
@@ -3727,6 +3836,11 @@ class Venta extends Model
         $pdf->Cell(25, 4, utf8_decode('Ventas PE:'), 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($pe[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Notas Crédito:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
@@ -4458,11 +4572,16 @@ class Venta extends Model
                 $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
         } 
 
-        if($user->id_sucursal === 4){
+        if($user->id_sucursal === 4 || $user->id_sucursal === 2){
              $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
         }
-
-        $totalData = $totalData->count();
+        if($user->id_sucursal===4 || $user->id_sucursal === 2){
+              $totalData = 2700;
+        }else{
+              $totalData = $totalData->count();
+        }
+        
+      
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4502,7 +4621,7 @@ class Venta extends Model
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
             }
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                 ->orderby('VENTAS.ID','DESC');
             }else{
@@ -4543,7 +4662,7 @@ class Venta extends Model
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
             } 
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                  $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                  ->orderby('VENTAS.ID','DESC');
             }else{
@@ -4573,11 +4692,17 @@ class Venta extends Model
                 $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
             }
 
-            if($user->id_sucursal===4){
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
                 $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
             }
+        
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
+                  $totalFiltered = 2700;
+            }else{
+                  $totalFiltered = $totalFiltered->count();
+            }
 
-            $totalFiltered = $totalFiltered->count();
+           
 
             /*  ************************************************************ */
 
@@ -4606,6 +4731,7 @@ class Venta extends Model
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 $nestedData['TOTAL_SIN_LETRA'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+                $nestedData['TOTAL_CRUDO'] = $post->TOTAL;
                 $nestedData['MONEDA'] = $post->MONEDA;
                 $nestedData['CANDEC'] = $post->CANDEC;
                 $nestedData['CLIENTE_CODIGO'] = $post->CLIENTE_CODIGO;
@@ -5012,9 +5138,13 @@ class Venta extends Model
            return ["response"=>false,'status_text'=> "No existe la venta seleccionada"];
         }
         
-
+         
 
             VentasAnulado::anular_venta($venta["0"]->ID,$dia);
+           $id_cupon=VentaCupon::obtener_id_cupon_venta($venta["0"]->ID);
+           if($id_cupon!==0){
+            Cupon::actualizar_uso($id_cupon,2);
+           }
 
             $venta= DB::connection('retail')->table('VENTAS')->where('CODIGO', $datos['data']['codigo'])
                ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
@@ -5027,7 +5157,7 @@ class Venta extends Model
             DB::raw('VENTASDET.COD_PROD AS COD_PROD'),
             DB::raw('VENTASDET.ID AS ID'),
             DB::raw('VENTASDET_TIENE_LOTES.ID_LOTE AS ID_LOTE'),
-            DB::raw('VENTASDET.CANTIDAD AS CANTIDAD'),
+            DB::raw('VENTASDET_TIENE_LOTES.CANTIDAD AS CANTIDAD'),
             DB::raw('VENTASDET.PRECIO AS PRECIO'),
             DB::raw('VENTASDET.LOTE AS LOTE'))
             ->Where('VENTASDET.CODIGO','=',$datos['data']['codigo'])
@@ -5057,6 +5187,7 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
+
             DB::connection('retail')->commit();
 
             return ["response"=>true,"ventas"=>$venta];
@@ -5128,17 +5259,21 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE'))
+            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
                                  ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
+                         ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
                          ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+                         ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                          ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
                          ->where('VENTASDET.CODIGO','=', $codigo)
                          ->where('VENTASDET.CAJA','=', $caja)
+                         ->groupBy('VENTASDET.ID')
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -5159,12 +5294,16 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA'))
+            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
                                  ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
                          })
+                         ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
+                         ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                          ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
                          ->where('VENTASDET.CODIGO','=', $codigo)
                          ->where('VENTASDET.CAJA','=', $caja)
@@ -5172,6 +5311,7 @@ class Venta extends Model
                                 $query->where('VENTASDET.COD_PROD','LIKE',"%{$search}%")
                                       ->orWhere('VENTASDET.DESCRIPCION', 'LIKE',"%{$search}%");
                             })
+                            ->groupBy('VENTASDET.ID')
                             ->offset($start)
                             ->limit($limit)
                             ->orderBy($order,$dir)
@@ -5207,13 +5347,40 @@ class Venta extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
+                // DESCUENTO GENERAL 
+
+                $desc = Common::calculo_porcentaje_descuentos([
+                    'PRECIO_PRODUCTO' => $post->PRECIO,
+                    'PORCENTAJE_DESCUENTO' => $post->DESCUENTO_GENERAL_PORCENTAJE,
+                    'CANTIDAD' => $post->CANTIDAD,
+                ]);
+
+                $post->PRECIO = $desc['PRECIO_REAL'];
+                $post->TOTAL = $desc['TOTAL_REAL'];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // DESCUENTO CUPON
+                
+                $desc = Common::calculo_porcentaje_descuentos([
+                    'PRECIO_PRODUCTO' => $post->PRECIO,
+                    'PORCENTAJE_DESCUENTO' => $post->DESCUENTO_CUPON_PORCENTAJE,
+                    'CANTIDAD' => $post->CANTIDAD,
+                ]);
+                
+                $post->PRECIO = $desc['PRECIO_REAL'];
+                $post->TOTAL = $desc['TOTAL_REAL'];
+
+                /*  --------------------------------------------------------------------------------- */
+
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['ID'] = $post->ID;
                 $nestedData['ITEM'] = $post->ITEM;
                 $nestedData['COD_PROD'] = $post->COD_PROD;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
-                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD - $post->CANTIDAD_DEVUELTA;
+                $nestedData['CANTIDAD_DEVUELTA'] = $post->CANTIDAD_DEVUELTA;
                 $nestedData['DESCUENTO_TOTAL'] = Common::precio_candec_sin_letra($post->DESCUENTO_TOTAL, $post->MONEDA);
                 $nestedData['DESCUENTO'] = Common::precio_candec_sin_letra($post->DESCUENTO_PORCENTAJE, 1);
                 $nestedData['IVA_PORCENTAJE'] = Common::precio_candec_sin_letra($post->IVA_PORCENTAJE, 1);
@@ -5221,13 +5388,26 @@ class Venta extends Model
                 $nestedData['PRECIO'] = Common::precio_candec_sin_letra($post->PRECIO, $post->MONEDA);
                 $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
 
-                $nestedData['ACCION'] = '<form class="form-inline">
+                if ($nestedData['CANTIDAD'] == 0) {
+                    $nestedData['ACCION'] = 'SIN CANTIDAD';
+                } else {
+                    $nestedData['ACCION'] = '<form class="form-inline">
                                             <div class="custom-control custom-checkbox">
                                               <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->COD_PROD.'">
                                               <label for='.$post->COD_PROD.' class="custom-control-label"></label>
-                                              <input type="number" value='.$post->CANTIDAD.' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$post->CANTIDAD.'>
+                                              <input type="number" value='.$nestedData['CANTIDAD'].' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$nestedData['CANTIDAD'].'>
                                             </div>
                                          </form>';
+                }
+                
+
+                if ($nestedData['CANTIDAD'] == 0) {
+                    $nestedData['ESTATUS'] = 'table-danger';
+                } else if ($nestedData['CANTIDAD_DEVUELTA'] > 0) {
+                    $nestedData['ESTATUS'] = 'table-warning';
+                } else {
+                    $nestedData['ESTATUS'] = '';
+                }
 
                 $data[] = $nestedData;
 

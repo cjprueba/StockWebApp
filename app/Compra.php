@@ -55,7 +55,7 @@ class Compra extends Model
 
     		/*  --------------------------------------------------------------------------------- */
 
-    		DB::beginTransaction();
+    		DB::connection('retail')->beginTransaction();
 
     		$compra = new Compra();
 
@@ -140,7 +140,7 @@ class Compra extends Model
 
     		}
 
-    		DB::commit();
+    		DB::connection('retail')->commit();
 
     		/*  --------------------------------------------------------------------------------- */
 
@@ -166,7 +166,7 @@ class Compra extends Model
 
     	} catch (Exception $e) {
 
-    		DB::rollBack();
+    		DB::connection('retail')->rollBack();
 
     		/*  --------------------------------------------------------------------------------- */
 
@@ -1083,6 +1083,8 @@ class Compra extends Model
     	try {
     		
 
+            DB::connection('retail')->beginTransaction();
+            
     		/*  --------------------------------------------------------------------------------- */
 
     		// OBTENER CANDEC 
@@ -1196,7 +1198,7 @@ class Compra extends Model
 
     		}
     		
-    		DB::commit();
+    		DB::connection('retail')->commit();
 
     		/*  --------------------------------------------------------------------------------- */
 
@@ -1231,7 +1233,7 @@ class Compra extends Model
 
     	} catch (Exception $e) {
 
-    		DB::rollBack();
+    		DB::connection('retail')->rollBack();
 
     		/*  --------------------------------------------------------------------------------- */
 

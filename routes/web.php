@@ -93,7 +93,8 @@ Route::post('transferenciaEnviar', 'TransferenciaControler@enviarTransferencia')
 Route::post('transferenciaCabecera', 'TransferenciaControler@mostrarCabecera');
 Route::post('transferenciaCuerpo', 'TransferenciaControler@mostrarCuerpo');
 Route::post('transferencia/mostrar/importar', 'TransferenciaControler@mostrarImportar');
-Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');	
+Route::get('transferenciasMostrarProductos', 'TransferenciaControler@mostrarProductos');
+Route::get('transferenciasMostrarProductosDevolucion', 'TransferenciaControler@mostrarProductosDevolucion');		
 Route::post('transferenciaRechazar', 'TransferenciaControler@rechazarTransferencia');
 Route::post('transferenciaImportar', 'TransferenciaControler@importarTransferencia');
 Route::post('transferenciaDetalle', 'TransferenciaControler@detalleTransferencia');
@@ -275,8 +276,10 @@ Route::get('giro/datatable/entidades', 'GiroController@datatableEntidades');
 Route::post('devendedores', 'DevolucionController@mostrar');
 Route::post('vendedores', 'VendedorController@mostrar');
 Route::post('/vendedor/datatable', 'VendedorController@datatable');
+
 Route::post('ventaVendedorDatatable', 'VendedorController@generarVentaVendedor');
 Route::post('pdf-rptVendedor', 'VendedorController@reporteVendedor');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -540,14 +543,24 @@ Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
+/* -------------------------------------------------------------------------- */
+
+// REPORTES VENTAS
 Route::post('reporte_ventas', 'VentaController@reporteVenta');
 
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+/* -------------------------------------------------------------------------- */
+
+// REPORTES TRANSFERENCIAS
+Route::post('reporte_transferencias_ventas', 'VentaController@reporteVenta');
+
+Route::post('export-transferencia-consignacion', 'ExportController@descargarTransferenciaVentas');
 
 /* -------------------------------------------------------------------------- */
 
-// REPORTES GENERAR
-Route::get('/cupon/datatable', 'CuponController@datatable');
+// CUPONES
+Route::post('/cupon/datatable', 'CuponController@datatable');
+Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
 Route::post('cuponHabilitar', 'CuponController@cuponHabilitar');
 Route::get('obtenerCupon', 'CuponController@CrearCupon');
@@ -558,6 +571,16 @@ Route::post('conseguirCupon', 'CuponController@ConseguirCupon');
 Route::get('arreglar', 'TransferenciaControler@arreglar');
 
 // PERMITE QUE SE PUEDA USAR LOS LINK DE VUE-ROUTER A LA HORA DE RECARGAR 
+
+/* -------------------------------------------------------------------------- */
+
+// NOTA DE CREDITO
+
+Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerpo');
+Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
+Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
+
+/* -------------------------------------------------------------------------- */
 
 Route::get('{any}', function () {
     return view('home');

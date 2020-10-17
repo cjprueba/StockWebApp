@@ -274,7 +274,7 @@
 							  <th>TOTALES</th>
 							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(marca.VENDIDO)}}</th>
 							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(marca.DESCUENTO)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(marca.COSTO)}}</th>
+							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(marca.COSTO_TOTAL)}}</th>
 							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(marca.TOTAL)}}</th>
 							</tr>
 						  </tfoot>
@@ -408,6 +408,7 @@
 						me.responseVenta = data.ventas;
 					    const marcaArray = Object.keys(data.marcas).map(i => data.marcas[i])
 					    me.responseMarca = marcaArray
+					   
 					   
 					    const categoriaArray = Object.keys(data.categorias).map(i => data.categorias[i])
 					    me.responseCategoria = categoriaArray

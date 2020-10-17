@@ -21,4 +21,8 @@ class ExportController extends Controller
     {
         return Excel::download(new RptVentaMarcaExport($request->all()), 'ventasMarcaCategoria.xlsx');
     }
+         public function descargarTransferenciaVentas(Request $request)
+    {
+        return Excel::download(new RptTransferenciaVentaExport($request->all()), 'TransferenciasVentasConsignacion.xlsx');
+    }
 }

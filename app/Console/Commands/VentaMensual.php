@@ -63,7 +63,7 @@ class VentaMensual extends Command
 
         $message->from('tokutokuyapy@gmail.com', 'REPORTE MENSUAL DE VENTAS DEL DIA '.(string)$dia1.' al '.(string)$dia2);
 
-        $message->to('aledanielnexus@gmail.com')->subject('tokutokuya');
+        $message->to('jbonitakim@gmail.com')->subject('tokutokuya');
         //$message->attachFromStorage('/app/2020-06-09.xlsx');
         $message->attach('./storage/app/Venta_'.(string)$dia1.' al '.(string)$dia2.'.xlsx');
          $message->attach('./storage/app/Venta_Marca_Categoria_'.(string)$dia1.' al '.(string)$dia2.'.xlsx');

@@ -152,4 +152,14 @@ class OrdenController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+        public function CompletadoWp(Request $request){
+
+       // OBTENER TODOS LOS DATOS
+
+        $orden = Orden::Completado_wp($request->all());
+        return response()->json($orden);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

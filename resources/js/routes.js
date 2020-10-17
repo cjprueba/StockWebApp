@@ -357,6 +357,11 @@ export default new Router({
 			component: require('./components/reportes/VentaTarjeta.vue').default
 	    },
 		{
+			path: '/mov2',
+			name: 'notaCredito',
+			component: require('./components/movimientos/CreditoNota.vue').default
+      },
+		{
 			path: '/rpt16',
 			name: 'rptVentaVendedor',
 			component: require('./components/reportes/Vendedor.vue').default
