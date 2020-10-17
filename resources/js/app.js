@@ -358,6 +358,8 @@ Vue.component('select-genero', require('./components/textboxs/GeneroCategoria.vu
 /* ********************************************* */
 
 Vue.component('venta-marca-categoria-rpt', require('./components/reportes/venta/Marca_Categoria/Venta_Marca_Categoria_Rpt.vue').default);
+Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
+
 // GONDOLA
 
 Vue.component('select-gondola', require('./components/textboxs/GondolaTextbox.vue').default);
@@ -472,6 +474,12 @@ Vue.component('producto', require('./components/producto/MostrarProductoUno.vue'
 // CATALOGO
 
 Vue.component('catalogo', require('./components/producto/Catalogo.vue').default);
+
+/* ********************************************* */
+
+// NOTA CREDITO
+
+Vue.component('nota-credito-cliente-datatable', require('./components/movimientos/CreditoNotaDatatableTextbox.vue').default);
 
 /* ********************************************* */
 

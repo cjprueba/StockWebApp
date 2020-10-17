@@ -39,4 +39,17 @@ class NotaCreditoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function obtenerCreditoCliente(Request $request)
+    {
+
+		/*  --------------------------------------------------------------------------------- */
+		
+		$nota_credito = NotaCredito::obtener_credito_cliente_datatable($request);
+        return response()->json($nota_credito);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    
 }

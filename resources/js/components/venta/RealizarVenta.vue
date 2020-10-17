@@ -89,8 +89,62 @@
 				    	
 				    <!-- ------------------------------------------------------------------ -->
 
+				    <div class="col-md-12 mb-3">
+						<div class="invoice-price mt-3">
 
-					<div class="col-md-2 mt-3 d-flex align-items-center">
+							<div class="invoice-price-left">
+								<div class="invoice-price-row">
+									<div class="sub-price">
+										<form class="form-inline">
+											<div class="form-group">
+												<div style="font-size:20px">
+											    	<span class="flag-icon flag-icon-py"></span>
+											    </div>
+											    <h5 class="mt-1">&nbsp; - {{cotizacion.GUARANIES}} </h5>
+										    </div>
+									    </form>
+									</div>
+									<div class="sub-price">
+										<form class="form-inline">
+											<div class="form-group">
+											    <div style="font-size:20px">
+											    	<span class="flag-icon flag-icon-us"></span>
+											    </div>
+											    <h5 class="mt-1">&nbsp; - {{cotizacion.DOLARES}}</h5>
+											</div>
+									    </form>	
+									</div>
+									<div class="sub-price">
+										<form class="form-inline">
+											<div class="form-group">
+											    <div style="font-size:20px">
+											    	<span class="flag-icon flag-icon-br"></span>
+											    </div>
+											    <h5 class="mt-1">&nbsp; - {{cotizacion.REALES}}</h5>
+										    </div>
+									    </form>
+									</div>
+									<div class="sub-price">
+										<form class="form-inline">
+											<div class="form-group">
+											    <div style="font-size:20px">
+											    	<span class="flag-icon flag-icon-ar"></span>
+											    </div>
+											    <h5 class="mt-1">&nbsp; - {{cotizacion.PESOS}}</h5>
+									    	</div>
+									    </form>	
+									</div>
+								</div>
+							</div>
+
+							<div class="invoice-price-right">
+								<small>TOTAL {{moneda.DESCRIPCION}}</small> <span class="f-w-600" v-on:change="gravadas">{{venta.TOTAL}}</span>
+							</div>
+
+						</div>
+					</div>
+
+					<!-- <div class="col-md-2 mt-3 d-flex align-items-center">
 						<form class="form-inline">
 							<div class="form-group">
 								<div style="font-size:20px">
@@ -137,12 +191,14 @@
 					<div class="col-md-4 text-right mt-3">
 						<label class="mb-0">Total {{moneda.DESCRIPCION}}</label>
 						<h1 v-on:change="gravadas">{{venta.TOTAL}}</h1>
-					</div>
+					</div> -->
 					
-					<div class="col-md-12">
+					<!-- ------------------------------------------------------------------ -->
+
+					<!-- <div class="col-md-12">
 						<hr>
 					</div>
-
+ -->
 					<div class="col-md-4">
 						<!-- <div>
 							 -->
@@ -185,7 +241,7 @@
 
 					<div class="col-md-12">
 				
-						<div class="mt-3">
+						<div class="mt-2">
 
 							<div class="row">
 								<div class="col-2">
@@ -198,7 +254,7 @@
 								</div>
 
 								<div class="col-md-1">
-									<label for="validationTooltip01">Descuento</label>
+									<label for="validationTooltip01">Desc.</label>
 									<input class="form-control form-control-sm" type="text" v-model="producto.DESCUENTO">
 								</div>
 
@@ -288,7 +344,8 @@
 					</div>
 
 					<div class="col-md-12 mt-3">
-						<div class="text-right">
+						<div class="text-right" v-if="cliente.RETENTOR === 1">
+							RETENCIONES: {{venta.RETENCION}}
 						</div>	
 					</div>
 
@@ -327,19 +384,20 @@
 			
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
-				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente"></busqueda-cliente-modal>
+				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente"></busqueda-cliente-modal>
 
 				<div class="col-md-12">
 					<hr>
 				</div>
 
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
-				<button class="btn btn-primary btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
-				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
-				<button class="btn btn-primary btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
-				<!-- <button class="btn btn-primary btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
+				<button class="btn btn-dark btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
+				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
+				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
 			</div>
 
 		</div>
@@ -348,7 +406,7 @@
 
 		<!-- FORMA PAGO PROVEEDOR -->
 
-		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" :retencion="venta.RETENCION" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
 
@@ -539,6 +597,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- MODAL DETALLE PRODUCTO -->
+
+		<nota-credito-cliente-datatable @data="dataNotaCreditoTextbox"  ref="detalle_nota_credito_cliente" :codigo="codigo_detalle"></nota-credito-cliente-datatable>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -555,7 +619,8 @@
          		CODIGO: 1,
          		CI: '',
          		NOMBRE: '',
-         		TIPO: ''
+         		TIPO: '',
+         		RETENTOR: 0
          	},
          	vendedor: {
          		CODIGO: 1,
@@ -595,7 +660,8 @@
          		GRAVADAS: 0,
          		IMPUESTO: 0,
          		TOTAL_CRUDO: 0,
-         		CODIGO_CAJA: ''
+         		CODIGO_CAJA: '',
+         		RETENCION: 0,
          	}, respuesta: {
          		cabecera: '',
          		moneda: '',
@@ -1084,6 +1150,16 @@
       			} else {
       				this.checked.MAYORISTA = false;
       			}
+
+      			// ------------------------------------------------------------------------
+
+      		},
+      		dataCliente(data){
+
+      			// ------------------------------------------------------------------------
+
+      			this.cliente.RETENTOR = data.retentor;
+      			this.calculoRetencion(this.venta.IMPUESTO);
 
       			// ------------------------------------------------------------------------
 
@@ -1926,6 +2002,76 @@
                     
 	 			// ------------------------------------------------------------------------
 
+			}, nota_credito() {
+				
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+
+				this.$refs.detalle_nota_credito_cliente.mostrarModal(this.cliente.CODIGO);
+
+				// ------------------------------------------------------------------------
+
+			}, dataNotaCreditoTextbox(data){
+
+				// ------------------------------------------------------------------------
+				
+				// INICIAR VARIABLES 
+
+				let me = this;
+                var productoExistente = [];
+                var tableVenta = $('#tablaVenta').DataTable();
+
+                // *******************************************************************
+
+                // OBTENER DATOS DEL PRODUCTO DATATABLE JS
+                	
+                	productoExistente = Common.existeProductoDataTableCommon(tableVenta, data.id+'-NC', 2);
+	           	
+	            	if (productoExistente.respuesta == false) {
+
+	                	me.tabla.ITEM = me.tabla.ITEM + 1;
+	                	
+	                	tableVenta.rows.add( [ {
+	                				"ID": data.id,
+				                    "ITEM": me.tabla.ITEM,
+				                    "CODIGO":  data.id+'-NC',
+				                    "DESCRIPCION":  'NOTA CREDITO',
+				                    "LOTE": 0,
+				                    "DESCUENTO": 0,
+				                    "DESCUENTO_TOTAL": 0,
+				                    "CANTIDAD": 1,
+				                    "IMPUESTO": data.iva * -1,
+				                    "PRECIO": data.total * -1,
+				                    "PRECIO_TOTAL": data.total * -1,
+				                    "ACCION":    "&emsp;<a role='button'  title='Eliminar'><i id='eliminarProducto' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
+				                    "IVA": data.iva * -1,
+				                    "CODIGO_REAL": 0,
+				                    "PREMAYORISTA": 0,
+				                    "DESCUENTO_UNITARIO": 0,
+				                    "TIPO": 4
+				                } ] )
+					     .draw()
+					     .nodes()
+		    			 .to$()
+					     .addClass('table-info');
+
+				    }
+
+				// ------------------------------------------------------------------------
+
+			}, calculoRetencion(total){
+
+				// ------------------------------------------------------------------------
+
+				// CALCULAR EL 30 % DE LA RETENCION \
+
+				if (this.cliente.RETENTOR === 1) {
+					this.venta.RETENCION = Common.multiplicarCommon(0.3, total, this.moneda.DECIMAL);
+				}
+
+				// ------------------------------------------------------------------------
+
 			}
 
       },
@@ -2366,6 +2512,13 @@
                 });
 
                 // ------------------------------------------------------------------------
+
+                $('#tablaVenta').on( 'draw.dt', function () {
+				    me.calculoRetencion(me.venta.IMPUESTO);
+				} );
+
+				// ------------------------------------------------------------------------
+
         }
     }
 				
