@@ -28,7 +28,11 @@ class VentaCupon extends Model
 	    		'FK_USER'=>$data["FK_USER"],
 	    		'MONEDA' => $data["MONEDA"],
 	    		'FECALTAS'=>$data["FECALTAS"],
-	    		'HORALTAS'=>$data["HORALTAS"]
+	    		'HORALTAS'=>$data["HORALTAS"],
+	    		'BASE5' => $data["BASE5"],
+                'BASE10' => $data["BASE10"],
+                'GRAVADAS' => $data["GRAVADAS"],
+                'IVA' => $data["IVA"]
 	    	]);
 
 

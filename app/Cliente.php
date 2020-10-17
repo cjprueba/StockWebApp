@@ -66,7 +66,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -87,7 +87,7 @@ class Cliente extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
@@ -136,6 +136,7 @@ class Cliente extends Model
                 $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
+                $nestedData['RETENTOR'] = $post->RETENTOR;
                 
                 $data[] = $nestedData;
 
@@ -326,7 +327,8 @@ class Cliente extends Model
                         CLIENTES.FK_EMPRESA,
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
                         EMPRESAS.NOMBRE AS EMPRESA,
-                        CLIENTES.CREDITO_DISPONIBLE'))
+                        CLIENTES.CREDITO_DISPONIBLE,
+                        CLIENTES.RETENTOR'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -402,7 +404,8 @@ class Cliente extends Model
                 'USER'=> $user->name,
                 'FECALTAS'=> $dia,
                 'HORALTAS'=> $hora,
-                'ID_SUCURSAL' => $user->id_sucursal]);
+                'ID_SUCURSAL' => $user->id_sucursal,
+                'RETENTOR' => $datos['data']['retentor']]);
 
             }else{
 
@@ -446,7 +449,8 @@ class Cliente extends Model
                     'FK_EMPRESA' => $datos['data']['idEmpresa'],
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
-                    'HORMODIF'=>$hora]);
+                    'HORMODIF'=>$hora,
+                    'RETENTOR' => $datos['data']['retentor']]);
                 }
 
                  /*  --------------------------------------------------------------------------------- */

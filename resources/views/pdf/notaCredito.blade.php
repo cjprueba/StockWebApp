@@ -66,7 +66,7 @@
         border: 1px solid #fff;
     }
     .fisico .tabla3 td{
-        border: 1px solid #000;
+        border: 1px solid #fff;
     }
     .fisico .linea{
         border-bottom: 1px dotted #fff;

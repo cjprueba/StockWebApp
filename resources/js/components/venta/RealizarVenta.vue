@@ -344,7 +344,8 @@
 					</div>
 
 					<div class="col-md-12 mt-3">
-						<div class="text-right">
+						<div class="text-right" v-if="cliente.RETENTOR === 1">
+							RETENCIONES: {{venta.RETENCION}}
 						</div>	
 					</div>
 
@@ -383,7 +384,7 @@
 			
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
-				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente"></busqueda-cliente-modal>
+				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente"></busqueda-cliente-modal>
 
 				<div class="col-md-12">
 					<hr>
@@ -405,7 +406,7 @@
 
 		<!-- FORMA PAGO PROVEEDOR -->
 
-		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" @datos="formaPago" :retencion="venta.RETENCION" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
 
@@ -618,7 +619,8 @@
          		CODIGO: 1,
          		CI: '',
          		NOMBRE: '',
-         		TIPO: ''
+         		TIPO: '',
+         		RETENTOR: 0
          	},
          	vendedor: {
          		CODIGO: 1,
@@ -658,7 +660,8 @@
          		GRAVADAS: 0,
          		IMPUESTO: 0,
          		TOTAL_CRUDO: 0,
-         		CODIGO_CAJA: ''
+         		CODIGO_CAJA: '',
+         		RETENCION: 0,
          	}, respuesta: {
          		cabecera: '',
          		moneda: '',
@@ -1147,6 +1150,16 @@
       			} else {
       				this.checked.MAYORISTA = false;
       			}
+
+      			// ------------------------------------------------------------------------
+
+      		},
+      		dataCliente(data){
+
+      			// ------------------------------------------------------------------------
+
+      			this.cliente.RETENTOR = data.retentor;
+      			this.calculoRetencion(this.venta.IMPUESTO);
 
       			// ------------------------------------------------------------------------
 
@@ -2047,6 +2060,18 @@
 
 				// ------------------------------------------------------------------------
 
+			}, calculoRetencion(total){
+
+				// ------------------------------------------------------------------------
+
+				// CALCULAR EL 30 % DE LA RETENCION \
+
+				if (this.cliente.RETENTOR === 1) {
+					this.venta.RETENCION = Common.multiplicarCommon(0.3, total, this.moneda.DECIMAL);
+				}
+
+				// ------------------------------------------------------------------------
+
 			}
 
       },
@@ -2487,6 +2512,13 @@
                 });
 
                 // ------------------------------------------------------------------------
+
+                $('#tablaVenta').on( 'draw.dt', function () {
+				    me.calculoRetencion(me.venta.IMPUESTO);
+				} );
+
+				// ------------------------------------------------------------------------
+
         }
     }
 				
