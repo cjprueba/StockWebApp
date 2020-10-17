@@ -777,7 +777,7 @@ class NotaCredito extends Model
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
-            $articulos[$c_rows]["descripcion"] = substr($value["DESCRIPCION"], 0,30);
+            $articulos[$c_rows]["descripcion"] = substr('DEVOLUCION '.$value["DESCRIPCION"], 0,30);
             $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
