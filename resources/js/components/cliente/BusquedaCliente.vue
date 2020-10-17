@@ -52,6 +52,7 @@
 	                                        <th>Ciudad</th>
 	                                        <th>Telefono</th>
                                             <th>Tipo</th>
+                                            <th>Retentor</th>
 	                                    </tr>
 	                                </thead>
 	                                <tbody>
@@ -105,7 +106,7 @@
         }
       }, 
       methods: {
-      	  enviarPadre(codigo, nombre, tipo){
+      	  enviarPadre(codigo, nombre, tipo, data){
 
 				// ------------------------------------------------------------------------
 
@@ -114,6 +115,7 @@
 				this.$emit('codigo', codigo);
                 this.$emit('nombre', nombre);
                 this.$emit('tipo', tipo);
+                this.$emit('data', data);
 
 				// ------------------------------------------------------------------------
 
@@ -171,7 +173,8 @@
                             { "data": "DIRECCION" },
                             { "data": "CIUDAD" },
                             { "data": "TELEFONO" },
-                            { "data": "TIPO"}
+                            { "data": "TIPO"},
+                            { "data": "RETENTOR", "visible": false}
                         ]      
                     });
 
@@ -199,7 +202,7 @@
                     me.cliente.NOMBRE = tableClientes.row(this).data().NOMBRE;
                     me.cliente.TIPO = tableClientes.row(this).data().TIPO;
 
-                    me.enviarPadre(me.cliente.CODIGO, me.cliente.NOMBRE, me.cliente.TIPO);
+                    me.enviarPadre(me.cliente.CODIGO, me.cliente.NOMBRE, me.cliente.TIPO, {'retentor': tableClientes.row(this).data().RETENTOR});
 
                     // *******************************************************************
 

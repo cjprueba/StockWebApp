@@ -9,6 +9,7 @@ use Mpdf\Mpdf;
 use Luecano\NumeroALetras\NumeroALetras;
 require_once '../vendor/autoload.php';
 use Automattic\WooCommerce\Client;
+use App\Events\OrdenCompletado;
 
 class Orden extends Model
 {
@@ -1983,7 +1984,39 @@ class Orden extends Model
 
 
         /*  --------------------------------------------------------------------------------- */
-        return ["response"=>true];
+
+        // ENVIAR ORDEN A TRAVES DE EVENTO
+
+        event(new OrdenCompletado(
+            [
+               'ID' => $bill,
+               'ORDEN_ID' => $orden["id"],
+               'NOMBRES' => $orden["billing"]->first_name, 
+               'APELLIDOS' => $orden["billing"]->last_name,
+               'COMPANY' => $orden["billing"]->company,
+               'DIRECCION_1' => $orden["billing"]->address_1,
+               'DIRECCION_2' => $orden["billing"]->address_2,
+               'CIUDAD' => $orden["billing"]->city,
+               'ESTADO' => $orden["billing"]->state,
+               'CODIGO_POSTAL' => $orden["billing"]->postcode,
+               'COUNTRY' => $orden["billing"]->country,
+               'EMAIL' => $orden["billing"]->email,
+               'DOCUMENTO' => $ci,
+               'RUC' => $ruc,
+               'RAZON_SOCIAL' => $raz,
+               'CELULAR' => $orden["billing"]->phone,
+               'FECALTAS' => $dia,
+               'HORALTAS' => $hora,
+               'TOTAL' => $orden["total"]
+            ]
+        ));
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true];
+
+        /*  --------------------------------------------------------------------------------- */
+
       } catch (Exception $e) {
         Log::error(['TIPO'=>$e->getMessage()], ['ORDEN NUMERO:'=>$orden["id"]]);
         Log::error(['DATOS DE LA ORDEN:'=>$orden]);

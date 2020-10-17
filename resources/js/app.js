@@ -477,6 +477,12 @@ Vue.component('catalogo', require('./components/producto/Catalogo.vue').default)
 
 /* ********************************************* */
 
+// NOTA CREDITO
+
+Vue.component('nota-credito-cliente-datatable', require('./components/movimientos/CreditoNotaDatatableTextbox.vue').default);
+
+/* ********************************************* */
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
