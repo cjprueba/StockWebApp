@@ -4827,20 +4827,20 @@ class Venta extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        // $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
+        $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
         
-        // if (!empty($request->input('caja'))){
-        //         $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
-        // } 
+        if (!empty($request->input('caja'))){
+                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
+        } 
 
-        // if($user->id_sucursal === 4 || $user->id_sucursal === 2){
-        //      $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
-        // }
-        // if($user->id_sucursal===4 || $user->id_sucursal === 2){
-        //       $totalData = 2700;
-        // }else{
-        //       $totalData = $totalData->count();
-        // }
+        if($user->id_sucursal === 4 || $user->id_sucursal === 2){
+             $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
+        }
+        if($user->id_sucursal===4 || $user->id_sucursal === 2){
+              $totalData = 2700;
+        }else{
+              $totalData = $totalData->count();
+        }
         
       
 
@@ -4848,7 +4848,7 @@ class Venta extends Model
 
         // INICIAR VARIABLES 
 
-        // $totalFiltered = $totalData; 
+        $totalFiltered = $totalData; 
         $limit = $request->input('length');
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
@@ -4937,32 +4937,32 @@ class Venta extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            // $totalFiltered = Venta::where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
-            //                 ->leftJoin('CLIENTES', function($join){
-            //                     $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
-            //                          ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
-            //                  })
-            //                 ->where(function ($query) use ($search) {
-            //                     $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-            //                            ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
-            //                            ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
-            //                 });
+            $totalFiltered = Venta::where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+                            ->leftJoin('CLIENTES', function($join){
+                                $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                             })
+                            ->where(function ($query) use ($search) {
+                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                       ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
+                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                            });
 
-            // /*  ************************************************************ */  
+            /*  ************************************************************ */  
 
-            // if (!empty($request->input('caja'))){
-            //     $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
-            // }
+            if (!empty($request->input('caja'))){
+                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+            }
 
-            // if($user->id_sucursal===4 || $user->id_sucursal === 2){
-            //     $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
-            // }
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
+                $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
+            }
         
-            // if($user->id_sucursal===4 || $user->id_sucursal === 2){
-            //       $totalFiltered = 2700;
-            // }else{
-            //       $totalFiltered = $totalFiltered->count();
-            // }
+            if($user->id_sucursal===4 || $user->id_sucursal === 2){
+                  $totalFiltered = 2700;
+            }else{
+                  $totalFiltered = $totalFiltered->count();
+            }
 
            
 
@@ -5044,8 +5044,8 @@ class Venta extends Model
 
         $json_data = array(
                     "draw"            => intval($request->input('draw')),  
-                    "recordsTotal"    => 100,  
-                    "recordsFiltered" => 100, 
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
                     "data"            => $data   
                     );
         
