@@ -4886,7 +4886,8 @@ class Venta extends Model
                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                 ->orderby('VENTAS.ID','DESC');
             }else{
-                    $posts->orderby($order,$dir);
+                    //$posts->orderby($order,$dir);
+                ->orderby('VENTAS.ID','DESC');
             } 
 
             $posts = $posts->get();
