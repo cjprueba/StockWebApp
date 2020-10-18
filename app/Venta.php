@@ -4887,7 +4887,7 @@ class Venta extends Model
                 ->orderby('VENTAS.ID','DESC');
             }else{
                     //$posts->orderby($order,$dir);
-                ->orderby('VENTAS.ID','DESC');
+                $posts->orderby('VENTAS.ID','DESC');
             } 
 
             $posts = $posts->get();
