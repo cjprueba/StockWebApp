@@ -1454,14 +1454,14 @@ $lotes= DB::connection('retail')
 
         // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
 
-        $totalData = ProductosAux::where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
-                     ->count();  
+        // $totalData = ProductosAux::where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+        //              ->count();  
         
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
 
-        $totalFiltered = $totalData; 
+        // $totalFiltered = $totalData; 
         $limit = $request->input('length');
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
@@ -1556,43 +1556,43 @@ $lotes= DB::connection('retail')
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-                            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
-                            ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal); 
+            // $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            //                 ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+            //                 ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal); 
 
 
-            if(!empty($request->input('search.value'))) {
-                $totalFiltered->where(function ($query) use ($search) {
-                            $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
-                            ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
-                });
-            }
+            // if(!empty($request->input('search.value'))) {
+            //     $totalFiltered->where(function ($query) use ($search) {
+            //                 $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+            //                 ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+            //     });
+            // }
 
-            if(!empty($request->input('columns.0.search.value'))) {
-                $totalFiltered->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));
-            }
+            // if(!empty($request->input('columns.0.search.value'))) {
+            //     $totalFiltered->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));
+            // }
 
-            if(!empty($request->input('columns.1.search.value'))) {
-                $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
-            }
+            // if(!empty($request->input('columns.1.search.value'))) {
+            //     $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
+            // }
 
-            if(!empty($request->input('columns.2.search.value'))) {
-                $totalFiltered->where('LINEAS.DESCRIPCION', 'LIKE' , ''.$request->input('columns.2.search.value').'%');
-            }           
+            // if(!empty($request->input('columns.2.search.value'))) {
+            //     $totalFiltered->where('LINEAS.DESCRIPCION', 'LIKE' , ''.$request->input('columns.2.search.value').'%');
+            // }           
 
-            if(!empty($request->input('columns.3.search.value'))) {
-                $totalFiltered->where('PRODUCTOS_AUX.PREC_VENTA', '=' , ''.$request->input('columns.3.search.value').'');
-            }
+            // if(!empty($request->input('columns.3.search.value'))) {
+            //     $totalFiltered->where('PRODUCTOS_AUX.PREC_VENTA', '=' , ''.$request->input('columns.3.search.value').'');
+            // }
 
-            if(!empty($request->input('columns.4.search.value'))) {
-                $totalFiltered->where('PRODUCTOS_AUX.PRECOSTO', '=' , ''.$request->input('columns.4.search.value').'');
-            }
+            // if(!empty($request->input('columns.4.search.value'))) {
+            //     $totalFiltered->where('PRODUCTOS_AUX.PRECOSTO', '=' , ''.$request->input('columns.4.search.value').'');
+            // }
 
-            if(!empty($request->input('columns.5.search.value'))) {
-                $totalFiltered->where('PRODUCTOS_AUX.PREMAYORISTA', '=' , ''.$request->input('columns.5.search.value').'');
-            }
+            // if(!empty($request->input('columns.5.search.value'))) {
+            //     $totalFiltered->where('PRODUCTOS_AUX.PREMAYORISTA', '=' , ''.$request->input('columns.5.search.value').'');
+            // }
 
-            $totalFiltered = $totalFiltered->count();
+            // $totalFiltered = $totalFiltered->count();
 
             /*  ************************************************************ */  
 
@@ -1669,8 +1669,8 @@ $lotes= DB::connection('retail')
 
         $json_data = array(
                     "draw"            => intval($request->input('draw')),  
-                    "recordsTotal"    => intval($totalData),  
-                    "recordsFiltered" => intval($totalFiltered), 
+                    "recordsTotal"    => 100,  
+                    "recordsFiltered" => 100, 
                     "data"            => $data   
                     );
         
