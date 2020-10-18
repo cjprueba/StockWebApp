@@ -450,7 +450,17 @@
                 ],
                 "createdRow": function( row, data, dataIndex){
                     $(row).addClass(data['ESTATUS']);
-                }       
+                },
+                initComplete: function(){
+                    var api = this.api();
+                    $('#tablaVentaMostrar_filter input')
+                    .off('.DT')
+                    .on('keyup.DT', function (e) {
+                        if (e.keyCode == 13) {
+                            api.search(this.value).draw();
+                        }
+                    });
+                },       
             });
 
             // ------------------------------------------------------------------------
