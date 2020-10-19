@@ -364,7 +364,8 @@
 					    			<div >
 
 					    				<div class="card">
-										  <img :src="imagen.RUTA" class="card-img-top" alt="...">
+					    				  <span v-html="imagen.RUTA">HOLA</span>
+										  <!-- <img v-if="producto.COD_PROD === ''" :src="imagen.RUTA" class="card-img-top" alt="..."> -->
 										  <div class="card-body text-center">
 										    <p class="card-text">CAJA: {{caja.CODIGO}}</p>
 										  </div>
@@ -696,7 +697,8 @@
 			    STOCK: 1,
 			    IVA: 0
          	}, imagen: {
-         		RUTA: require('./../../../imagenes/SinImagen.png'),
+         		RUTA: "<img src='http://172.16.249.20:8080/storage/imagenes/productos/product.png'  class='card-img-top'>",
+         		//RUTA: require('./../../../imagenes/SinImagen.png'),
          	}, tabla: {
          		ITEM: 0,
          		tableProductosDevolucion: ''

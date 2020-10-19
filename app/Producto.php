@@ -2674,12 +2674,13 @@ $lotes= DB::connection('retail')
             $data["CODIGO_REAL"] = $value->CODIGO_REAL;
             $data["DESCUENTO"] = $value->DESCUENTO;
             $data["FECALTAS"]= $value->FECALTAS;
+
             /*  --------------------------------------------------------------------------------- */
 
-            // OBTENER LOTE
+            // OBTENER LOTE - SE QUITA PARA OBTENER MAS VELOCIDAD
 
-            $lote = Stock::ultimo_lote($value->CODIGO);
-            $data["LOTE"] = $lote;
+            //$lote = Stock::ultimo_lote($value->CODIGO);
+            $data["LOTE"] = 0;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2770,7 +2771,8 @@ $lotes= DB::connection('retail')
 
         // IMAGEN 
         
-        $imagen = Imagen::obtenerImagen($dato["codigo"]);
+        //$imagen = Imagen::obtenerImagen($dato["codigo"]);
+        $imagen = Imagen::obtenerImagenURL($dato["codigo"]);
 
         /*  --------------------------------------------------------------------------------- */
 
