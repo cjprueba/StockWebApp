@@ -597,9 +597,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<!-- MODAL DETALLE PRODUCTO -->
+		<!-- MODAL NOTA CREDITO -->
 
-		<nota-credito-cliente-datatable @data="dataNotaCreditoTextbox"  ref="detalle_nota_credito_cliente" :codigo="codigo_detalle"></nota-credito-cliente-datatable>
+		<nota-credito-cliente-datatable @data="dataNotaCreditoTextbox"  ref="detalle_nota_credito_cliente"></nota-credito-cliente-datatable>
 
 		<!-- ------------------------------------------------------------------------ -->
 
