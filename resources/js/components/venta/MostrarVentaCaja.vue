@@ -42,7 +42,7 @@
 
 			<div class="col-md-1 mb-0 text-right">
 				<label></label>
-				<button class="btn btn-primary btn-sm" v-on:click="() => tableVentaMostrar.ajax.reload()">Buscar</button>
+				<button class="btn btn-primary btn-sm" v-on:click="obtenerDatatable()">Buscar</button>
 			</div>
 
 			<div class="col-md-12">
@@ -570,7 +570,19 @@
         	me.obtenerCaja();
 
 	        // ------------------------------------------------------------------------
-	 		
+
+	 		// MARCAR LA FECHA DE HOY
+
+			var today = new Date();
+			var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+    		// ------------------------------------------------------------------------
+
+    		me.selectedInicialFecha = date;
+    		me.selectedFinalFecha = date;
+
+			// ------------------------------------------------------------------------
+
 	 		// FECHAS 
 
 	 		$(function(){
@@ -589,19 +601,7 @@
 
 	 		// ------------------------------------------------------------------------
 
-	 		// MARCAR LA FECHA DE HOY
-
-			var today = new Date();
-			var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    		document.querySelector("#selectedInicialFecha").value = date;
-    		document.querySelector("#selectedFinalFecha").value = date;
-
-    		// ------------------------------------------------------------------------
-
-    		me.selectedInicialFecha = date;
-    		me.selectedFinalFecha = date;
-
-			// ------------------------------------------------------------------------
+	 		
 
 	 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
 
