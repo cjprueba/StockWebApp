@@ -91,6 +91,7 @@ class Cliente extends Model
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
@@ -104,6 +105,7 @@ class Cliente extends Model
 
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                              ->where('ID_SUCURSAL','=', $user->id_sucursal)
