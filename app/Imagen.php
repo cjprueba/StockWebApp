@@ -91,5 +91,36 @@ class Imagen extends Model
         }
     }
 
+    public static function obtenerImagenURL($codigo)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+                
+        if(file_exists($filename)) {
+            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+        } else {
+            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/product.png';
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+       
+        return ['imagen' => "<img src='".$imagen_producto."'  class='card-img-top'>"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
 }
