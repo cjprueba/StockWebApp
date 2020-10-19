@@ -46,7 +46,7 @@
 
                               <div class="col-md-12 mb-3 mt-1">
                                 <div class="text-left" v-if="retencion > 0">
-                                  <a href="#" class="badge badge-warning">Retencion: {{retencion}} </a>
+                                  <span class="badge badge-warning">Retencion: {{retencion}} </span>
                                 </div>
                               </div>
 
