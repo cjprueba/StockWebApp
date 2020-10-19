@@ -4885,13 +4885,19 @@ class Venta extends Model
             /*  ************************************************************ */
 
             if (!empty($request->input('caja'))){
+
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
                          ->where('VENTAS.FECALTAS', '=', $dia);
+
+                $posts->orderby($order,$dir);
+
             }
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
+
                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
                 ->orderby('VENTAS.ID','DESC');
+
             }else{
                     //$posts->orderby($order,$dir);
                 //$posts->orderby('VENTAS.ID','DESC');
@@ -4928,8 +4934,12 @@ class Venta extends Model
                             ->limit($limit);
 
             if (!empty($request->input('caja'))){
+
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
                          ->where('VENTAS.FECALTAS', '=', $dia);
+
+                $posts->orderby($order,$dir);
+                
             } 
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
