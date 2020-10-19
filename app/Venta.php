@@ -4825,6 +4825,12 @@ class Venta extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
+        // INICIAR VARIABLES
+
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
         $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
@@ -4879,7 +4885,8 @@ class Venta extends Model
             /*  ************************************************************ */
 
             if (!empty($request->input('caja'))){
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
+                         ->where('VENTAS.FECALTAS', '=', $dia);
             }
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
@@ -4921,7 +4928,8 @@ class Venta extends Model
                             ->limit($limit);
 
             if (!empty($request->input('caja'))){
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
+                         ->where('VENTAS.FECALTAS', '=', $dia);
             } 
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
@@ -4951,7 +4959,8 @@ class Venta extends Model
             /*  ************************************************************ */  
 
             if (!empty($request->input('caja'))){
-                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'))
+                                ->where('VENTAS.FECALTAS', '=', $dia);
             }
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
