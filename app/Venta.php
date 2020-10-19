@@ -4836,7 +4836,9 @@ class Venta extends Model
         $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
         
         if (!empty($request->input('caja'))){
-                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
+                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'))
+                ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));;
         } 
 
         if($user->id_sucursal === 4 || $user->id_sucursal === 2){
@@ -4887,7 +4889,8 @@ class Venta extends Model
             if (!empty($request->input('caja'))){
 
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
-                         ->where('VENTAS.FECALTAS', '=', $dia);
+                         ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
 
                 $posts->orderby($order,$dir);
 
@@ -4936,7 +4939,8 @@ class Venta extends Model
             if (!empty($request->input('caja'))){
 
                 $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
-                         ->where('VENTAS.FECALTAS', '=', $dia);
+                         ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
 
                 $posts->orderby($order,$dir);
                 
@@ -4970,7 +4974,8 @@ class Venta extends Model
 
             if (!empty($request->input('caja'))){
                 $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'))
-                                ->where('VENTAS.FECALTAS', '=', $dia);
+                                ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
             }
 
             if($user->id_sucursal===4 || $user->id_sucursal === 2){
