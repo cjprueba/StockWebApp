@@ -116,7 +116,7 @@ class Imagen extends Model
 
         // RETORNAR EL VALOR
        
-        return ['imagen' => "<img src='".$imagen_producto."'  class='card-img-top'>"];
+        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>"];
 
         /*  --------------------------------------------------------------------------------- */
 
