@@ -3484,7 +3484,7 @@ class Venta extends Model
     public static function resumen_pdf($dato) {
 
         /*  --------------------------------------------------------------------------------- */
-
+        //Venta::ticket_pdf('hola');
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
@@ -4163,6 +4163,365 @@ class Venta extends Model
     }
 
     public static function ticket_pdf($dato) {
+
+        //$dato = ['codigo' => 820671264471, 'caja' => 1];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $ventas = Venta::mostrar_cabecera($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $ventas_det = Venta::mostrar_cuerpo($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = (Parametro::candec($ventas->MONEDA))["CANDEC"];
+        $monedaVenta = $ventas->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PARAMETROS 
+
+        $mensaje = Parametro::select(DB::raw('MENSAJE'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $user->id_sucursal]);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $codigo = $ventas->CODIGO;
+        $cliente = $ventas->CLIENTE;
+        $direccion = $ventas->DIRECCION;
+        $ruc = $ventas->RUC;
+        $tipo = $ventas->TIPO;
+        $fecha = substr($ventas->FECALTAS,0,10);
+        $hora = $ventas->HORALTAS;
+        $caja = $ventas->CAJA;
+        $vendedor = $ventas->VENDEDOR;
+        $cajero = $ventas->CAJERO;
+        $pago = $ventas->PAGO;
+        $vuelto = $ventas->VUELTO;
+        $descuento = $ventas->DESCUENTO;
+        $ticket = $ventas->CODIGO_CA;
+        $tipo = $ventas->TIPO;
+        $documento = $ventas->RUC;
+        $nombre = 'Venta_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+
+        $pdf = new FPDF('P','mm',array(80,400));
+        $pdf->AddPage();
+        
+
+        // CABECERA
+        $pdf->Image('../storage/app/public/imagenes/tiendas/Toku-logo2.3.png',7,7,65,0);
+        $pdf->Ln(10);
+        // $pdf->SetFont('Helvetica','',10);
+        //$pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
+        /*new*/ 
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4, "Av. Luis Maria Argana - Shopping Paris" ,0,1,'C');
+        $pdf->Cell(60,4, "Ciudad del Este - PY" ,0,1,'C');
+        $pdf->Cell(60,4, "IVA Incluido - Consumidor Final" ,0,1,'C');
+        $pdf->Ln(1);
+        $pdf->Cell(60,0,'','T');    
+        /*datos del cliente*/
+        $pdf->Ln(1);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'CLIENTE:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cliente,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(25, 10, 'R.U.C./C.I.:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $documento,0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);     
+        $pdf->Cell(25, 10, 'TIPO VENTA:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $tipo,0,0,'R');
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        /*new se movió acá de abajo*/
+        $pdf->Ln(1);
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(30,4, 'Fecha: '.$fecha ,0,0,'L');
+        $pdf->Cell(30,4, 'Hora: '.$hora ,0,1,'R');  
+        $pdf->Cell(30,4, 'Caja: '.$caja ,0,0,'L');
+        $pdf->Cell(30,4, 'Ticket: '.$ticket ,0,1,'R');
+
+        $pdf->Cell(25, 4, 'Vendedor:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $vendedor,0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Cajero:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $cajero,0,0,'R');
+        $pdf->Ln(5);
+
+        // DATOS FACTURA
+
+        // $pdf->Ln(5);
+        // $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
+        // $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
+        // $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
+         
+        // COLUMNAS
+
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(25, 10, 'Articulo', 0);
+        $pdf->Cell(5, 10, 'Cant.',0,0,'R');
+        $pdf->Cell(15, 10, 'Precio',0,0,'R');
+        $pdf->Cell(15, 10, 'Total',0,0,'R');
+        $pdf->Ln(8);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS
+        
+        foreach ($ventas_det as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+                
+            $articulos["precio"] = $value["PRECIO_UNIT"];
+            $articulos["total"] = $value["PRECIO"];
+            $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+            $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $articulos["cantidad"] = $value["CANTIDAD"];
+            $articulos["cod_prod"] = $value["COD_PROD"];
+            $articulos["descripcion"] = utf8_decode(substr($value["DESCRIPCION"], 0,38));
+            $cantidad = $cantidad + $value["CANTIDAD"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE EXENTAS 
+
+            if ($value["EXENTAS"] > 0) {
+                $articulos["exentas"] = $articulos["total"];
+            } else {
+                $articulos["exentas"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE BASE5 O BASE10
+
+            if ($value["BASE5"] > 0) {
+                $articulos["base10"] = '';
+                $articulos["base5"] = $articulos["total"];
+                $base5 = $base5 + Common::quitar_coma($articulos["total"], $candec);
+            } else if ($value["BASE10"] > 0) {
+                $articulos["base5"] = '';
+                $articulos["base10"] = $articulos["total"];
+                $base10 = $base10 + Common::quitar_coma($articulos["total"], $candec);
+            } else {
+                $articulos["base5"] = '';
+                $articulos["base10"] = '';
+            }
+                
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR PRODUCTOS 
+
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
+            $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["precio"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+            $pdf->Ln(2.3);
+            $pdf->Cell(60,4,$articulos["descripcion"],0,1,'L');
+            $pdf->Cell(60,0,'------------------------------------------------------------------------','');
+            $pdf->Ln(1);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR DESCUENTOS 
+
+            $descuento_producto = Ventas_det_Descuento::select(DB::raw('PORCENTAJE, TOTAL'))
+            ->WHERE('FK_VENTASDET', '=', $value["ID"])
+            ->WHERE('FK_COD_PROD', '=', $value["COD_PROD"])
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if (count($descuento_producto) > 0) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->SetFont('Helvetica', '', 7);
+                $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
+                $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+                $pdf->Cell(15, 4, '',0,0,'R');
+                $pdf->Cell(15, 4, $descuento_producto[0]->TOTAL ,0,0,'R');
+                $pdf->Ln(3);
+                $pdf->Cell(60,4,'DESCUENTO '.$descuento_producto[0]->PORCENTAJE.'%',0,1,'L');
+                $pdf->Ln(2);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+         
+        // SUMATORIO DE LOS PRODUCTOS Y EL IVA
+
+        //$pdf->Ln(1);
+        //$pdf->Cell(60,0,'','T');
+        //$pdf->Ln(2);
+        /*new*/
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'CANT. DE ITEMS:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $articulos["cantidad"],0,0,'R');
+        $pdf->Ln(3); 
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'ITEMS CON DESC.:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, count($descuento_producto),0,0,'R');
+        $pdf->Ln(3); 
+        /*new*/
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra(($total + $descuento), $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'DESCUENTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($descuento, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL A PAGAR:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($total, $monedaVenta),0,0,'R');
+        
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'PAGO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($pago, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'VUELTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($vuelto, $monedaVenta),0,0,'R');
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(3);
+
+        /*new*/
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(13, 10, '', 0);
+        $pdf->Cell(13, 10, 'Total',0,0,'R');
+        $pdf->Cell(18, 10, 'Pagado',0,0,'R');
+        $pdf->Cell(15, 10, 'Vuelto',0,0,'R');
+        $pdf->Ln(8);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+
+        //total en monedas
+        $pdf->SetFont('Helvetica', '', 7);
+        $pdf->Cell(15,4,'Dolares: ',0,'L');
+        $pdf->Cell(10, 4, Common::precio_candec_sin_letra(($total + $descuento), $monedaVenta),0,0,'R');
+        $pdf->Cell(17, 4, $pago,0,0,'R');
+        $pdf->Cell(15, 4, $vuelto,0,0,'R');
+        $pdf->Ln(3);
+        //pagado en monedas
+        $pdf->SetFont('Helvetica', '', 7);
+        $pdf->Cell(15,4,'Guaranies: ',0,'L'); 
+        $pdf->Cell(10, 4, $articulos["total"],0,0,'R');
+        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
+        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+        $pdf->Ln(3);
+        //vuelto en monedas
+        $pdf->SetFont('Helvetica', '', 7);
+        $pdf->Cell(15,4,'Reales: ',0,'L'); 
+        $pdf->Cell(10, 4, $articulos["cantidad"],0,0,'R');
+        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
+        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+        $pdf->Ln(3);
+        //vuelto en monedas
+        $pdf->SetFont('Helvetica', '', 7);
+        $pdf->Cell(15,4,'Pesos: ',0,'L'); 
+        $pdf->Cell(10, 4, $articulos["cantidad"],0,0,'R');
+        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
+        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+        $pdf->Ln(3);    
+        /*new*/
+
+        // PIE DE PAGINA
+
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,$mensaje[0]->MENSAJE,0,1,'C');
+         
+        $pdf->Output('ticket.pdf','i');
+
+    }
+
+    public static function ticket_pdf_viejo($dato) {
 
         //$dato = ['codigo' => 820671264471, 'caja' => 1];
 
