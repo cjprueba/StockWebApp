@@ -971,7 +971,7 @@ $lotes= DB::connection('retail')
         // INSERTAR IMAGEN 
         
         if ($img !== "") { 
-            Imagen::guardar([
+            Imagen::guardar_imagen_storage([
                 'COD_PROD' => $datos["codigo_producto"],
                 'CODIGO_INTERNO' => $datos["codigo_interno"],
                 'PICTURE' => $img
@@ -1104,7 +1104,7 @@ $lotes= DB::connection('retail')
         // INSERTAR IMAGEN 
         
         if ($img !== "") { 
-            Imagen::guardar([
+            Imagen::guardar_imagen_storage([
                 'COD_PROD' => $datos["codigo_producto"],
                 'CODIGO_INTERNO' => $datos["codigo_interno"],
                 'PICTURE' => $img
@@ -3239,7 +3239,7 @@ $lotes= DB::connection('retail')
               var_dump($temp);
                    /* foreach ($interno as $key => $internos) {
 
-                            Imagen::guardar([
+                            Imagen::guardar_imagen_storage([
                                 'COD_PROD' => $codigo,
                                 'CODIGO_INTERNO'=> $internos->CODIGO_INTERNO,
                                 'PICTURE' => $imge
