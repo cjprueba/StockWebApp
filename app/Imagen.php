@@ -107,7 +107,7 @@ class Imagen extends Model
         $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
                 
         if(file_exists($filename)) {
-            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/'.$codigo.'.jpg';
         } else {
             $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/product.png';
         }
