@@ -122,5 +122,68 @@ class Imagen extends Model
 
     }
 
+    public static function guardar_imagen($data){
 
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // $imagen = Imagen::insertGetId([
+            //     'COD_PROD' => $data["COD_PROD"],
+            //     'CODIGO_INTERNO' => $data["CODIGO_INTERNO"],
+            //     'PICTURE' => base64_decode($data["PICTURE"])
+            // ]);
+
+            $imagen = Imagen::updateOrInsert(
+                  ['COD_PROD' => $data["COD_PROD"]],
+                  ['CODIGO_INTERNO' => $data["CODIGO_INTERNO"], 'PICTURE' => base64_decode($data["PICTURE"])]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            Log::info('Imagen: Éxito al guardar.', ['PRODUCTO' => $data["COD_PROD"], 'ID' => $imagen]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ERROR 
+
+            Log::error('Imagen: Error al guardar.', ['PRODUCTO' => $data["COD_PROD"]]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+
+    public static function guardar_imagen_storage($data){
+
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            $file = '../storage/app/public/imagenes/productos/'.$data["COD_PROD"].'.jpg';
+            $handle=fopen($file, 'a+');
+            fwrite($handle, base64_decode($data["PICTURE"]));
+
+            /*  --------------------------------------------------------------------------------- */
+
+            Log::info('Imagen: Éxito al guardar imagen en storage.', ['PRODUCTO' => $data["COD_PROD"]]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ERROR 
+
+            Log::error('Imagen: Error al guardar.', ['PRODUCTO' => $data["COD_PROD"]]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
 }
