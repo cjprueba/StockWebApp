@@ -1220,7 +1220,7 @@ $lotes= DB::connection('retail')
                 ->get()->toArray();
             // IMAGEN 
 
-            $imagen = Imagen::obtenerImagen($codigo);
+            $imagen = Imagen::obtenerImagenURL($codigo);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1702,7 +1702,7 @@ $lotes= DB::connection('retail')
 
         // BUSCAR IMAGEN
 
-        $imagen = Imagen::obtenerImagen($data['codigo']);
+        $imagen = Imagen::obtenerImagenURL($data['codigo']);
 
         /*  --------------------------------------------------------------------------------- */
 

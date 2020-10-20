@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		
-		<div class="mt-3 mb-3" v-if="$can('producto.crear')">
+		<div class="mt-3 mb-3">
 			
 			<!-- ------------------------------------------------------------------ -->
 
@@ -876,7 +876,8 @@
 					    				<div class="card mb-3" v-bind:class="{ 'shadow-sm': shadow }">
 										  <div class="row no-gutters">
 										    <div class="col-md-4">
-										      <img  :src="rutaImagen" class="card-img" alt="..." id="myAwesomeForm">
+										      <span v-html="rutaImagen"></span>	
+										      <!-- <img  :src="rutaImagen" class="card-img" alt="..." id="myAwesomeForm"> -->
 										    </div>
 										    <div class="col-md-8">
 										      <div class="card-body">
@@ -954,9 +955,9 @@
 
 		</div>
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -1003,7 +1004,8 @@
           iva: '10',
           descuento_maximo: 0,
           generado: true,
-          rutaImagen: require('./../../../imagenes/SinImagen.png'),
+          rutaImagen: "<img src='http://172.16.249.20:8080/storage/imagenes/productos/product.png'  class='card-img-top'>",
+          //rutaImagen: require('./../../../imagenes/SinImagen.png'),
           fileName: 'Imagen',
           shadow: true,
           mostrar_precios: true,
