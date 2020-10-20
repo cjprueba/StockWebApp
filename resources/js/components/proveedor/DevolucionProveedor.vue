@@ -304,6 +304,13 @@
                 me.validar.LOTE = false;
             }
 
+            if (me.producto.CANTIDAD > me.producto.STOCK) {
+                me.validar.CANTIDAD = true;
+                return;
+            } else {
+                me.validar.CANTIDAD = false;
+            }
+
             // ------------------------------------------------------------------------
 
             productoExistente = Common.existeProductoLoteDataTableCommon(tableDevolucion, me.producto.CODIGO, me.producto.LOTE, 3);
