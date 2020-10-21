@@ -2952,7 +2952,11 @@ class Venta extends Model
                         VENTAS.CODIGO_CA,
                         VENTAS.TIPO,
                         VENTAS.MONEDA,
-                        VENTAS.TOTAL'
+                        VENTAS.TOTAL,
+                        VENTAS.MONEDA1 AS DOLARES,
+                        VENTAS.MONEDA2 AS REALES,
+                        VENTAS.MONEDA3 AS GUARANIES,
+                        VENTAS.MONEDA4 AS PESOS'
                     ))
         ->leftJoin('CLIENTES', function($join){
                                 $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
@@ -3027,6 +3031,7 @@ class Venta extends Model
         $codigo = $data['codigo'];
         $caja = $data['caja'];
         $data = array();
+        $cantidad_items  = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3298,6 +3303,8 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        $cantidad_items = count($ventas_det);
+
         foreach ($ventas_det as $key => $value) {
             
             /*  --------------------------------------------------------------------------------- */
@@ -3325,6 +3332,7 @@ class Venta extends Model
             $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
+            $nestedData['CANTIDAD_ITEMS'] = $cantidad_items;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3382,6 +3390,7 @@ class Venta extends Model
             $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = 10;
+            $nestedData['CANTIDAD_ITEMS'] = $cantidad_items;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -4195,7 +4204,7 @@ class Venta extends Model
 
         // PARAMETROS 
 
-        $mensaje = Parametro::select(DB::raw('MENSAJE'))
+        $parametro = Parametro::select(DB::raw('MENSAJE, LOGO, TOTAL_MONEDAS_TICKET, NOMBRE_LOGO'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -4220,6 +4229,8 @@ class Venta extends Model
         // INICIAR VARIABLES
 
         $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $direccion_sucursal = $sucursal['sucursal'][0]['DIRECCION'];
+        $ciudad_sucursal = $sucursal['sucursal'][0]['CIUDAD'];
         $codigo = $ventas->CODIGO;
         $cliente = $ventas->CLIENTE;
         $direccion = $ventas->DIRECCION;
@@ -4247,24 +4258,60 @@ class Venta extends Model
         $switch_hojas = false;
         $namefile = 'boleta_de_venta_'.time().'.pdf';
         $letra = '';
-        
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $cantidad_producto_descuento = 0;
+        $cantidad_items = 0;
+
         /*  --------------------------------------------------------------------------------- */
         
+        // TOTAL EN MONEDAS
+
+        $total_dolares = (Cotizacion::CALMONED(['monedaProducto' => 2, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->TOTAL, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $total_guaranies = (Cotizacion::CALMONED(['monedaProducto' => 1, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->TOTAL, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $total_pesos = (Cotizacion::CALMONED(['monedaProducto' => 3, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->TOTAL, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $total_reales = (Cotizacion::CALMONED(['monedaProducto' => 4, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->TOTAL, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VUELTO EN MONEDAS
+
+        $vuelto_dolares = (Cotizacion::CALMONED(['monedaProducto' => 2, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->VUELTO, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $vuelto_guaranies = (Cotizacion::CALMONED(['monedaProducto' => 1, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->VUELTO, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $vuelto_pesos = (Cotizacion::CALMONED(['monedaProducto' => 3, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->VUELTO, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        $vuelto_reales = (Cotizacion::CALMONED(['monedaProducto' => 4, 'monedaSistema' => (int)$ventas->MONEDA, 'precio' => $ventas->VUELTO, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+
+        /*  --------------------------------------------------------------------------------- */
 
         $pdf = new FPDF('P','mm',array(80,400));
         $pdf->AddPage();
         
+        /*  --------------------------------------------------------------------------------- */
 
         // CABECERA
-        $pdf->Image('../storage/app/public/imagenes/tiendas/Toku-logo2.3.png',7,7,65,0);
-        $pdf->Ln(10);
-        // $pdf->SetFont('Helvetica','',10);
-        //$pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
+
+        if ($parametro[0]->LOGO === 1) {
+            $pdf->Image('../storage/app/public/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.'',7,7,65,0);
+            $pdf->Ln(10);
+        } else {
+            $pdf->SetFont('Helvetica','',10);
+            $pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
         /*new*/ 
         $pdf->SetFont('Helvetica','',8);
-        $pdf->Cell(60,4, "Av. Luis Maria Argana - Shopping Paris" ,0,1,'C');
-        $pdf->Cell(60,4, "Ciudad del Este - PY" ,0,1,'C');
-        $pdf->Cell(60,4, "IVA Incluido - Consumidor Final" ,0,1,'C');
+        $pdf->Cell(60,4, $direccion_sucursal ,0,1,'C');
+        $pdf->Cell(60,4, $ciudad_sucursal ,0,1,'C');
+        $pdf->Cell(60,4, "***" ,0,1,'C');
         $pdf->Ln(1);
         $pdf->Cell(60,0,'','T');    
         /*datos del cliente*/
@@ -4383,8 +4430,7 @@ class Venta extends Model
             $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
             $pdf->Ln(2.3);
             $pdf->Cell(60,4,$articulos["descripcion"],0,1,'L');
-            $pdf->Cell(60,0,'------------------------------------------------------------------------','');
-            $pdf->Ln(1);
+            
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -4401,18 +4447,42 @@ class Venta extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
+                $cantidad_producto_descuento = $cantidad_producto_descuento + 1;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->Ln(1);
                 $pdf->SetFont('Helvetica', '', 7);
                 $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
                 $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
                 $pdf->Cell(15, 4, '',0,0,'R');
                 $pdf->Cell(15, 4, $descuento_producto[0]->TOTAL ,0,0,'R');
-                $pdf->Ln(3);
+                $pdf->Ln(2.3);
                 $pdf->Cell(60,4,'DESCUENTO '.$descuento_producto[0]->PORCENTAJE.'%',0,1,'L');
-                $pdf->Ln(2);
+                $pdf->Cell(60,0,'------------------------------------------------------------------------','');
+                $pdf->Ln(1);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->Cell(60,0,'------------------------------------------------------------------------','');
+                $pdf->Ln(1);
 
                 /*  --------------------------------------------------------------------------------- */
 
             }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CANTIDAD ITEMS VENTA
+
+            $cantidad_items = $value["CANTIDAD_ITEMS"];
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
          
         // SUMATORIO DE LOS PRODUCTOS Y EL IVA
@@ -4425,13 +4495,13 @@ class Venta extends Model
         $pdf->Cell(25, 10, 'CANT. DE ITEMS:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, $articulos["cantidad"],0,0,'R');
+        $pdf->Cell(15, 10, $cantidad_items,0,0,'R');
         $pdf->Ln(3); 
         $pdf->SetFont('Helvetica', 'B', 7);    
         $pdf->Cell(25, 10, 'ITEMS CON DESC.:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, count($descuento_producto),0,0,'R');
+        $pdf->Cell(15, 10, $cantidad_producto_descuento,0,0,'R');
         $pdf->Ln(3); 
         /*new*/
         $pdf->SetFont('Helvetica', 'B', 7);    
@@ -4480,42 +4550,50 @@ class Venta extends Model
         $pdf->Cell(60,0,'','T');
         $pdf->Ln(2);
 
-        //total en monedas
-        $pdf->SetFont('Helvetica', '', 7);
-        $pdf->Cell(15,4,'Dolares: ',0,'L');
-        $pdf->Cell(10, 4, Common::precio_candec_sin_letra(($total + $descuento), $monedaVenta),0,0,'R');
-        $pdf->Cell(17, 4, $pago,0,0,'R');
-        $pdf->Cell(15, 4, $vuelto,0,0,'R');
-        $pdf->Ln(3);
-        //pagado en monedas
-        $pdf->SetFont('Helvetica', '', 7);
-        $pdf->Cell(15,4,'Guaranies: ',0,'L'); 
-        $pdf->Cell(10, 4, $articulos["total"],0,0,'R');
-        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
-        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
-        $pdf->Ln(3);
-        //vuelto en monedas
-        $pdf->SetFont('Helvetica', '', 7);
-        $pdf->Cell(15,4,'Reales: ',0,'L'); 
-        $pdf->Cell(10, 4, $articulos["cantidad"],0,0,'R');
-        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
-        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
-        $pdf->Ln(3);
-        //vuelto en monedas
-        $pdf->SetFont('Helvetica', '', 7);
-        $pdf->Cell(15,4,'Pesos: ',0,'L'); 
-        $pdf->Cell(10, 4, $articulos["cantidad"],0,0,'R');
-        $pdf->Cell(17, 4, $articulos["precio"],0,0,'R');
-        $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
-        $pdf->Ln(3);    
-        /*new*/
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR TOTALES MONEDA 
+
+        if ($parametro[0]->TOTAL_MONEDAS_TICKET === 1) { 
+            //total en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Dolares: ',0,'L');
+            $pdf->Cell(10, 4, $total_dolares,0,0,'R');
+            $pdf->Cell(17, 4, $ventas->DOLARES,0,0,'R');
+            $pdf->Cell(15, 4, $vuelto_dolares,0,0,'R');
+            $pdf->Ln(3);
+            //pagado en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Guaranies: ',0,'L'); 
+            $pdf->Cell(10, 4, $total_guaranies,0,0,'R');
+            $pdf->Cell(17, 4, $ventas->GUARANIES,0,0,'R');
+            $pdf->Cell(15, 4, $vuelto_guaranies,0,0,'R');
+            $pdf->Ln(3);
+            //vuelto en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Reales: ',0,'L'); 
+            $pdf->Cell(10, 4, $total_reales,0,0,'R');
+            $pdf->Cell(17, 4, $ventas->REALES,0,0,'R');
+            $pdf->Cell(15, 4, $vuelto_reales,0,0,'R');
+            $pdf->Ln(3);
+            //vuelto en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Pesos: ',0,'L'); 
+            $pdf->Cell(10, 4, $total_pesos,0,0,'R');
+            $pdf->Cell(17, 4, $ventas->PESOS,0,0,'R');
+            $pdf->Cell(15, 4, $vuelto_pesos,0,0,'R');
+            $pdf->Ln(3);    
+            /*new*/
+        }
+
+        /*  --------------------------------------------------------------------------------- */
 
         // PIE DE PAGINA
 
         $pdf->Ln(10);
         $pdf->Cell(60,0,'','T');
         $pdf->Ln(10);
-        $pdf->Cell(60,0,$mensaje[0]->MENSAJE,0,1,'C');
+        $pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
          
         $pdf->Output('ticket.pdf','i');
 
