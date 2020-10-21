@@ -2932,7 +2932,8 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $venta = Venta::select(DB::raw(
-                        'VENTAS.CODIGO,
+                        'VENTAS.ID,
+                        VENTAS.CODIGO,
                         VENTAS.FECALTAS,  
                         CLIENTES.NOMBRE AS CLIENTE,
                         CLIENTES.RAZON_SOCIAL,
@@ -4310,8 +4311,8 @@ class Venta extends Model
         
         /*new*/ 
         $pdf->SetFont('Helvetica','',8);
-        $pdf->Cell(60,4, utf8_encode($direccion_sucursal) ,0,1,'C');
-        $pdf->Cell(60,4, utf8_encode($ciudad_sucursal) ,0,1,'C');
+        $pdf->Cell(60,4, utf8_decode($direccion_sucursal) ,0,1,'C');
+        $pdf->Cell(60,4, utf8_decode($ciudad_sucursal) ,0,1,'C');
         $pdf->Cell(60,4, "***" ,0,1,'C');
         $pdf->Ln(1);
         $pdf->Cell(60,0,'','T');    
@@ -4356,11 +4357,11 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Vendedor:', 0);   
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, utf8_encode($vendedor),0,0,'R');
+        $pdf->Cell(15, 4, utf8_decode($vendedor),0,0,'R');
         $pdf->Ln(4);
         $pdf->Cell(25, 4, 'Cajero:', 0);   
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, utf8_encode($cajero),0,0,'R');
+        $pdf->Cell(15, 4, utf8_decode($cajero),0,0,'R');
         $pdf->Ln(5);
 
         // DATOS FACTURA
