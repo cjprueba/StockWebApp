@@ -4231,6 +4231,7 @@ class Venta extends Model
         $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
         $direccion_sucursal = $sucursal['sucursal'][0]['DIRECCION'];
         $ciudad_sucursal = $sucursal['sucursal'][0]['CIUDAD'];
+        $ticket = $ventas->ID;
         $codigo = $ventas->CODIGO;
         $cliente = $ventas->CLIENTE;
         $direccion = $ventas->DIRECCION;
@@ -4322,18 +4323,28 @@ class Venta extends Model
         $pdf->Cell(20, 10, '', 0);
         $pdf->Cell(15, 10, $cliente,0,0,'R');
         $pdf->Ln(3);
+
         $pdf->SetFont('Helvetica', 'B', 7);
         $pdf->Cell(25, 10, 'R.U.C./C.I.:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
         $pdf->Cell(15, 10, $documento,0,0,'R');
         $pdf->Ln(3);
+
         $pdf->SetFont('Helvetica', 'B', 7);     
         $pdf->Cell(25, 10, 'TIPO VENTA:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
         $pdf->Cell(15, 10, $tipo,0,0,'R');
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Helvetica', 'B', 7);     
+        $pdf->Cell(25, 10, 'TICKET ID:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $ticket,0,0,'R');
         $pdf->Ln(10);
+
         $pdf->Cell(60,0,'','T');
         /*new se movió acá de abajo*/
         $pdf->Ln(1);
@@ -4544,7 +4555,7 @@ class Venta extends Model
         $pdf->SetFont('Helvetica', 'B', 7);
         $pdf->Cell(13, 10, '', 0);
         $pdf->Cell(13, 10, 'Total',0,0,'R');
-        $pdf->Cell(18, 10, 'Pagado',0,0,'R');
+        //$pdf->Cell(18, 10, 'Pagado',0,0,'R');
         $pdf->Cell(15, 10, 'Vuelto',0,0,'R');
         $pdf->Ln(8);
         $pdf->Cell(60,0,'','T');
@@ -4559,28 +4570,28 @@ class Venta extends Model
             $pdf->SetFont('Helvetica', '', 7);
             $pdf->Cell(15,4,'Dolares: ',0,'L');
             $pdf->Cell(10, 4, $total_dolares,0,0,'R');
-            $pdf->Cell(17, 4, $ventas->DOLARES,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->DOLARES,0,0,'R');
             $pdf->Cell(15, 4, $vuelto_dolares,0,0,'R');
             $pdf->Ln(3);
             //pagado en monedas
             $pdf->SetFont('Helvetica', '', 7);
             $pdf->Cell(15,4,'Guaranies: ',0,'L'); 
             $pdf->Cell(10, 4, $total_guaranies,0,0,'R');
-            $pdf->Cell(17, 4, $ventas->GUARANIES,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->GUARANIES,0,0,'R');
             $pdf->Cell(15, 4, $vuelto_guaranies,0,0,'R');
             $pdf->Ln(3);
             //vuelto en monedas
             $pdf->SetFont('Helvetica', '', 7);
             $pdf->Cell(15,4,'Reales: ',0,'L'); 
             $pdf->Cell(10, 4, $total_reales,0,0,'R');
-            $pdf->Cell(17, 4, $ventas->REALES,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->REALES,0,0,'R');
             $pdf->Cell(15, 4, $vuelto_reales,0,0,'R');
             $pdf->Ln(3);
             //vuelto en monedas
             $pdf->SetFont('Helvetica', '', 7);
             $pdf->Cell(15,4,'Pesos: ',0,'L'); 
             $pdf->Cell(10, 4, $total_pesos,0,0,'R');
-            $pdf->Cell(17, 4, $ventas->PESOS,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->PESOS,0,0,'R');
             $pdf->Cell(15, 4, $vuelto_pesos,0,0,'R');
             $pdf->Ln(3);    
             /*new*/
@@ -4593,7 +4604,9 @@ class Venta extends Model
         $pdf->Ln(10);
         $pdf->Cell(60,0,'','T');
         $pdf->Ln(10);
-        $pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
+
+        $pdf->Multicell(0,2,"This is a multi-line text string\nNew line\nNew line"); 
+        //$pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
          
         $pdf->Output('ticket.pdf','i');
 
