@@ -4173,7 +4173,7 @@ class Venta extends Model
 
     public static function ticket_pdf($dato) {
 
-        $dato = ['codigo' => 820671264471, 'caja' => 1];
+        //$dato = ['codigo' => 820671264471, 'caja' => 1];
 
         /*  --------------------------------------------------------------------------------- */
 
