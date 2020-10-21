@@ -3494,7 +3494,7 @@ class Venta extends Model
     public static function resumen_pdf($dato) {
 
         /*  --------------------------------------------------------------------------------- */
-        Venta::ticket_pdf('hola');
+        //Venta::ticket_pdf('hola');
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
@@ -4232,7 +4232,7 @@ class Venta extends Model
         $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
         $direccion_sucursal = $sucursal['sucursal'][0]['DIRECCION'];
         $ciudad_sucursal = $sucursal['sucursal'][0]['CIUDAD'];
-        $ticket = $ventas->ID;
+        $ticket_id = $ventas->ID;
         $codigo = $ventas->CODIGO;
         $cliente = $ventas->CLIENTE;
         $direccion = $ventas->DIRECCION;
@@ -4343,7 +4343,7 @@ class Venta extends Model
         $pdf->Cell(25, 10, 'TICKET ID:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, $ticket,0,0,'R');
+        $pdf->Cell(15, 10, $ticket_id,0,0,'R');
         $pdf->Ln(10);
 
         $pdf->Cell(60,0,'','T');
