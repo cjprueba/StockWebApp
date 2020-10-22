@@ -1080,6 +1080,7 @@ $lotes= DB::connection('retail')
             'PRESENTACION' => $datos["presentacion"],
             'IMPUESTO' => $datos["iva"],
             'DESCUENTO' => $datos["descuentoMaximo"],
+            'PORCENTAJE' => 0,
             'MONEDA' => $datos["moneda"],
             'PREC_VENTA' => Common::quitar_coma($datos["precioVenta"], 2),
             'PREMAYORISTA' => Common::quitar_coma($datos["precioMayorista"], 2),
