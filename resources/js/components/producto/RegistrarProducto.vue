@@ -1246,8 +1246,10 @@
 
             		if (data.imagen === false) {
             			this.rutaImagen = './../../../imagenes/SinImagen.png';
+            			this.imagen.blob = '';
             		} else {
             			this.rutaImagen = data.imagen;
+            			this.imagen.blob = '';
             		}
 
             		// ------------------------------------------------------------------------
