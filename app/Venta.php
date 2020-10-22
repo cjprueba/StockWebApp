@@ -4270,25 +4270,73 @@ class Venta extends Model
         
         // TOTAL EN MONEDAS
 
-        $total_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        $total_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
 
-        $total_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->TOTAL, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        if ($total_dolares['response'] == true) {
+            $total_dolares = $total_dolares['valor'];
+        } else {
+            $total_dolares = 0;
+        }
 
-        $total_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        $total_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->TOTAL, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
 
-        $total_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        if ($total_guaranies['response'] == true) {
+            $total_guaranies = $total_guaranies['valor'];
+        } else {
+            $total_guaranies = 0;
+        }
+
+        $total_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_pesos['response'] == true) {
+            $total_pesos = $total_pesos['valor'];
+        } else {
+            $total_pesos = 0;
+        }
+
+        $total_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_reales['response'] == true) {
+            $total_reales = $total_reales['valor'];
+        } else {
+            $total_reales = 0;
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
         // VUELTO EN MONEDAS
 
-        $vuelto_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        $vuelto_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
 
-        $vuelto_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->VUELTO, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        if ($vuelto_dolares['response'] == true) {
+            $vuelto_dolares = $vuelto_dolares['valor'];
+        } else {
+            $vuelto_dolares = 0;
+        }
 
-        $vuelto_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        $vuelto_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->VUELTO, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
 
-        $vuelto_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))["valor"];
+        if ($vuelto_guaranies['response'] == true) {
+            $vuelto_guaranies = $vuelto_guaranies['valor'];
+        } else {
+            $vuelto_guaranies = 0;
+        }
+
+        $vuelto_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_pesos['response'] == true) {
+            $vuelto_pesos = $vuelto_pesos['valor'];
+        } else {
+            $vuelto_pesos = 0;
+        }
+
+        $vuelto_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_reales['response'] == true) {
+            $vuelto_reales = $vuelto_reales['valor'];
+        } else {
+            $vuelto_reales = 0;
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
