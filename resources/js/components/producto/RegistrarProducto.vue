@@ -1005,6 +1005,9 @@
           descuento_maximo: 0,
           generado: true,
           rutaImagen: "<img src='http://172.16.249.20:8080/storage/imagenes/productos/product.png'  class='card-img-top'>",
+          imagen: {
+          	blob: ''
+          },
           //rutaImagen: require('./../../../imagenes/SinImagen.png'),
           fileName: 'Imagen',
           shadow: true,
@@ -1331,7 +1334,8 @@
 							 //var blob = new Blob([binaryImg], {type: f.type});
 							// blobURL = window.URL.createObjectURL(blob);
 							me.fileName = f.name;
-							me.rutaImagen = base64Img;
+							me.rutaImagen = "<img src='"+base64Img+"' id='myImg'  class='card-img-top'>";
+							me.imagen.blob = base64Img;
 
 							// -------------------------------------------------------------------------------------
 
@@ -2164,7 +2168,7 @@
             		stockMinimo: this.stock_minimo,
             		gondola: this.seleccion_gondola,
             		observacion: this.observacion,
-            		imagen: this.rutaImagen,
+            		imagen: this.imagen.blob,
             		generado: this.generado,
             		modificar: this.estado_boton.boton_warning,
             		vencimiento: this.checked_vencimiento,
