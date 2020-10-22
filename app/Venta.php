@@ -4205,7 +4205,7 @@ class Venta extends Model
 
         // PARAMETROS 
 
-        $parametro = Parametro::select(DB::raw('MENSAJE, LOGO, TOTAL_MONEDAS_TICKET, NOMBRE_LOGO, PIE_TICKET_PERSONALIZABLE'))
+        $parametro = Parametro::select(DB::raw('MENSAJE, LOGO, TOTAL_MONEDAS_TICKET, NOMBRE_LOGO, PIE_TICKET_PERSONALIZABLE, TIPO_IMPRESORA_TICKET'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -4340,9 +4340,14 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        $pdf = new FPDF('P','mm',array(80,400));
-        $pdf->AddPage();
-        
+        if ($parametro[0]->TIPO_IMPRESORA_TICKET === 1) {
+            $pdf = new FPDF('P','mm',array(76,297));
+            $pdf->AddPage();
+        } else if ($parametro[0]->TIPO_IMPRESORA_TICKET === 2){
+            $pdf = new FPDF('P','mm',array(80,400));
+            $pdf->AddPage();
+        }
+
         /*  --------------------------------------------------------------------------------- */
 
         // CABECERA
