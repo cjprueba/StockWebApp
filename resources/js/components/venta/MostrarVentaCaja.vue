@@ -49,6 +49,7 @@
 				<table id="tablaVentaMostrar" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
+		                	<th>ID</th>
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
@@ -533,6 +534,7 @@
 	                  "type": "POST"
 	                },
 	                "columns": [
+	                	{ "data": "ID" },
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },

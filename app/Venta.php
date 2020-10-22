@@ -5348,24 +5348,40 @@ class Venta extends Model
 
         $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
         
-        if (!empty($request->input('caja'))){
-                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'))
-                ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));;
-        } 
+        /*  --------------------------------------------------------------------------------- */
 
-        if($user->id_sucursal === 4 || $user->id_sucursal === 2){
-             $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
+        // VERIFICAR SI NO BUSCAR POR ID VENTA
+
+        if(empty($request->input('columns.0.search.value'))){
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if (!empty($request->input('caja'))){
+                    $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
+            } 
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR VENTAS POR FECHAS
+
+            $totalData = $totalData->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                             ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'))->count();
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } else {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $totalData = $totalData->where('VENTAS.ID', '=', $request->input('columns.0.search.value'))->count();
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
-        if($user->id_sucursal===4 || $user->id_sucursal === 2){
-              $totalData = 2700;
-        }else{
-              $totalData = $totalData->count();
-        }
-        
-      
 
         /*  --------------------------------------------------------------------------------- */
+
+        
 
         // INICIAR VARIABLES 
 
@@ -5382,11 +5398,11 @@ class Venta extends Model
         if(empty($request->input('search.value')))
         {            
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts = Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -5397,43 +5413,56 @@ class Venta extends Model
                          ->offset($start)
                          ->limit($limit);
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
-            if (!empty($request->input('caja'))){
+            if(empty($request->input('columns.0.search.value'))){
 
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
-                         ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                /*  --------------------------------------------------------------------------------- */
 
-                $posts->orderby($order,$dir);
+                if (!empty($request->input('caja'))){
+                    $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                }
 
-            }
+                $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
+                /*  --------------------------------------------------------------------------------- */
 
-                $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
-                ->orderby('VENTAS.ID','DESC');
+            } else {
 
-            }else{
-                    //$posts->orderby($order,$dir);
-                //$posts->orderby('VENTAS.ID','DESC');
+                /*  --------------------------------------------------------------------------------- */
+
+                $posts->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
             } 
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // ORDENAR 
+
+            $posts->orderby($order,$dir);
+
+            /*  --------------------------------------------------------------------------------- */
 
             $posts = $posts->get();
 
+            /*  --------------------------------------------------------------------------------- */
+
         } else {
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR EL VALOR A BUSCAR 
 
             $search = $request->input('search.value'); 
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts =  Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -5449,26 +5478,38 @@ class Venta extends Model
                             ->offset($start)
                             ->limit($limit);
 
-            if (!empty($request->input('caja'))){
+            /*  --------------------------------------------------------------------------------- */
 
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'))
-                         ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                         ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+            if(empty($request->input('columns.0.search.value'))){
 
-                $posts->orderby($order,$dir);
-                
-            } 
+                /*  --------------------------------------------------------------------------------- */
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
-                 ->orderby('VENTAS.ID','DESC');
-            }else{
-                    //$posts->orderby($order,$dir);
-            }
+                if (!empty($request->input('caja'))){
+                    $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                } 
+
+                $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $posts->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }  
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $posts->orderby($order,$dir);
 
             $posts = $posts->get();                
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
@@ -5483,27 +5524,30 @@ class Venta extends Model
                                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             });
 
-            /*  ************************************************************ */  
+            /*  --------------------------------------------------------------------------------- */
 
-            if (!empty($request->input('caja'))){
-                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'))
-                                ->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
-            }
+            if(empty($request->input('columns.0.search.value'))){
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
-            }
-        
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                  $totalFiltered = 2700;
-            }else{
-                  $totalFiltered = $totalFiltered->count();
-            }
+                if (!empty($request->input('caja'))){
+                    $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+                }
 
-           
+                $totalFiltered->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
 
-            /*  ************************************************************ */
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $totalFiltered->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } 
+
+            $totalFiltered = $totalFiltered->count();
+
+            /*  --------------------------------------------------------------------------------- */
 
         }
 
@@ -5522,6 +5566,7 @@ class Venta extends Model
 
                 // CARGAR EN LA VARIABLE 
 
+                $nestedData['ID'] = $post->ID;
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CAJA'] = $post->CAJA;
                 $nestedData['CLIENTE'] = $post->CLIENTE;
