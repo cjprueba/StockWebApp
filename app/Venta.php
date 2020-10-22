@@ -5442,7 +5442,7 @@ class Venta extends Model
 
             // ORDENAR 
 
-            $posts->orderby($order,$dir);
+            //$posts->orderby($order,$dir);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -5505,7 +5505,7 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            $posts->orderby($order,$dir);
+            //$posts->orderby($order,$dir);
 
             $posts = $posts->get();                
 
