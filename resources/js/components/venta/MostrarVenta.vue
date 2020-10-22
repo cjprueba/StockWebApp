@@ -25,10 +25,33 @@
 
 			<!-- ------------------------------------------------------------------------ -->
 
+			<div class="col-md-11 mb-3">	
+						<div id="sandbox-container" class="input-daterange input-group input-group-sm">
+							<input id='selectedInicialFecha' data-date-format="yyyy-mm-dd" class=" form-control " v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validar.inicialFecha }"/>
+							<div class="input-group-append ">
+								<span class="input-group-text">a</span>
+							</div>
+							<input name='end' id='selectedFinalFecha' data-date-format="yyyy-mm-dd" class=" form-control " v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validar.finalFecha }"/>
+							<div class="invalid-feedback">
+						        {{mensaje.fechaInvalida}}
+						    </div>
+						</div>
+
+						
+			</div>
+
+			<div class="col-md-1 mb-0 text-right">
+				<label></label>
+				<button class="btn btn-primary btn-sm" v-on:click="obtenerDatatable()">Buscar</button>
+			</div>
+
+			<!-- ------------------------------------------------------------------------ -->
+
 			<div class="col-md-12">
 				<table id="tablaVentaMostrar" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
+		                	<th>ID</th>
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
@@ -40,6 +63,7 @@
 		                    <th>Total sin letra</th>
 		                    <th>Moneda</th>
 		                    <th>Candec</th>
+		                    <th>Cliente Codigo</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -82,6 +106,60 @@
 
 		<!-- ------------------------------------------------------------------------ -->	
 
+		<!-- MODAL ELECCION DE MONEDA -->
+
+                  <div class="modal fade" id="modalMoneda" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Opciones</h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">Moneda</legend>
+                            <div class="col-sm-10">
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios1" value="1">
+                                <label class="form-check-label" for="gridRadios1">
+                                  Guaranies
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios2" value="2">
+                                <label class="form-check-label" for="gridRadios2">
+                                  Dolares
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <label class="form-check-label" for="gridRadios3">
+                                  Reales
+                                </label>
+                              </div>
+                              <div class="form-check form-check-inline">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <label class="form-check-label" for="gridRadios4">
+                                  Pesos
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="imprimirPDF()">Aceptar</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+        <!-- ------------------------------------------------------------------------ -->
 	</div>
 </template>
 <script>
@@ -109,6 +187,19 @@
           	}, 
           	caja: {
           		CODIGO: null
+          	},
+          	selectedInicialFecha: '',
+          	selectedFinalFecha: '',
+          	validar: {
+          		inicialFecha: '',
+          		finalFecha: ''
+          	},
+          	mensaje: {
+          		fechaInvalida: ''
+          	},
+          	tableVentaMostrar: '',
+          	radio: {
+          		moneda: '1'
           	}
         }
       }, 
@@ -401,6 +492,79 @@
 
                 // ------------------------------------------------------------------------
 
+      		}, obtenerDatatable() {
+
+      			// ------------------------------------------------------------------------
+
+      			let me = this;
+
+      			// ------------------------------------------------------------------------
+
+      			this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
+	                "processing": true,
+	                "serverSide": true,
+	                "destroy": true,
+	                "bAutoWidth": true,
+	                "select": true,
+	                "ajax":{
+	                  "data": {
+	                                    "_token": $('meta[name="csrf-token"]').attr('content'),
+	                                    inicial: me.selectedInicialFecha,
+			                 			final: me.selectedFinalFecha,
+	                                 },	
+	                  "url": "/venta/datatable",
+	                  "dataType": "json",
+	                  "type": "POST"
+	                },
+	                "columns": [
+	                	{ "data": "ID" },
+	                    { "data": "CODIGO" },
+	                    { "data": "CAJA" },
+	                    { "data": "CLIENTE" },
+	                    { "data": "FECHA" },
+	                    { "data": "HORA" },
+	                    { "data": "TIPO" },
+	                    { "data": "TOTAL" },
+	                    { "data": "ACCION" },
+	                    { "data": "TOTAL_SIN_LETRA", "visible": false },
+	                    { "data": "MONEDA", "visible": false },
+	                    { "data": "CANDEC", "visible": false },
+	                    { "data": "CLIENTE_CODIGO", "visible": false },
+	                ],
+                    "columnDefs": [
+                            { "targets": [0], "searchable": true},
+                            { "targets": '_all', "searchable": false },
+                    ],
+	                "createdRow": function( row, data, dataIndex){
+	                    $(row).addClass(data['ESTATUS']);
+	                },
+	                initComplete: function(){
+	                    var api = this.api();
+	                    $('#tablaVentaMostrar_filter input')
+	                    .off('.DT')
+	                    .on('keyup.DT', function (e) {
+	                        if (e.keyCode == 13) {
+	                            api.search(this.value).draw();
+	                        }
+	                    });
+	                },       
+	            });
+
+      			// ------------------------------------------------------------------------
+
+      		}, imprimirPDF() {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+
+      			Common.generarRptPdfVentaCommon(this.codigoVenta, this.caja.CODIGO, this.radio.moneda).then( () => {
+	                   		
+	            });
+
+      			// ------------------------------------------------------------------------
+
       		}
       },
         mounted() {
@@ -418,50 +582,61 @@
 
         	// ------------------------------------------------------------------------
 
+        	// MARCAR LA FECHA DE HOY
+
+			var today = new Date();
+			var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+    		// ------------------------------------------------------------------------
+
+    		me.selectedInicialFecha = date;
+    		me.selectedFinalFecha = date;
+
+			// ------------------------------------------------------------------------
+
+	 		// FECHAS 
+
+	 		$(function(){
+		   		    $('#sandbox-container .input-daterange').datepicker({
+		   		    	    keyboardNavigation: false,
+    						forceParse: false,
+    				});
+    				$("#selectedInicialFecha").datepicker().on(
+			     		"changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
+					);
+					$("#selectedFinalFecha").datepicker().on(
+			     		"changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
+					);
+
+			});
+
+			// ------------------------------------------------------------------------
+
             // PREPARAR DATATABLE 
 
-	 		var tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "destroy": true,
-                "bAutoWidth": true,
-                "select": true,
-                "ajax":{
-                  "data": {
-                                    "_token": $('meta[name="csrf-token"]').attr('content')
-                                 },	
-                  "url": "/venta/datatable",
-                  "dataType": "json",
-                  "type": "POST"
-                },
-                "columns": [
-                    { "data": "CODIGO" },
-                    { "data": "CAJA" },
-                    { "data": "CLIENTE" },
-                    { "data": "FECHA" },
-                    { "data": "HORA" },
-                    { "data": "TIPO" },
-                    { "data": "TOTAL" },
-                    { "data": "ACCION" },
-                    { "data": "TOTAL_SIN_LETRA", "visible": false },
-                    { "data": "MONEDA", "visible": false },
-                    { "data": "CANDEC", "visible": false },
-                    { "data": "CLIENTE_CODIGO", "visible": false },
-                ],
-                "createdRow": function( row, data, dataIndex){
-                    $(row).addClass(data['ESTATUS']);
-                },
-                initComplete: function(){
-                    var api = this.api();
-                    $('#tablaVentaMostrar_filter input')
-                    .off('.DT')
-                    .on('keyup.DT', function (e) {
-                        if (e.keyCode == 13) {
-                            api.search(this.value).draw();
+	 		this.obtenerDatatable();
+	 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
+
+	 		// ------------------------------------------------------------------------
+
+	 		// PARA BUSCAR POR COLUMNA 
+
+	 		$('#tablaVentaMostrar thead tr').clone(true).appendTo( '#tablaVentaMostrar thead' );
+                $('#tablaVentaMostrar thead tr:eq(1) th').each( function (i) {
+                    var title = $(this).text();
+                    $(this).html( '<input type="text" class="form-control form-control-sm" placeholder="Buscar '+title+'" />' );
+             
+                    $( 'input', this ).on( 'keyup change', function () {
+                        if ( me.tableVentaMostrar.column(i).search() !== this.value ) {
+                            me.tableVentaMostrar
+                                .column(i)
+                                .search( this.value )
+                                .draw();
                         }
-                    });
-                },       
-            });
+                    } );
+            } );
+
+            //var tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
 
             // ------------------------------------------------------------------------
 
@@ -474,7 +649,7 @@
 	          	// REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	          	var row  = $(this).parents('tr')[0];
-	          	me.eliminarTransferencia(tableVentaMostrar.row( row ).data().CODIGO);
+	          	me.eliminarTransferencia(me.tableVentaMostrar.row( row ).data().CODIGO);
 
 	          	// *******************************************************************
 
@@ -492,7 +667,7 @@
 	                   	
 	            var row  = $(this).parents('tr')[0];
 	                   	
-	            me.ticket(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
+	            me.ticket(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
 
 	            Swal.fire({
 					title: '¡ Imprimiendo Ticket !',
@@ -518,7 +693,7 @@
 
 	            var row  = $(this).parents('tr')[0];
 
-	            me.factura(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
+	            me.factura(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
 
 	            Swal.fire({
 					title: '¡ Imprimiendo Factura !',
@@ -543,7 +718,7 @@
 		        // REDIRIGIR Y ENVIAR CODIGO VENTA
 
 		        var row  = $(this).parents('tr')[0];
-		        me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
+		        me.mostrarModalVenta(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
 
 		        // *******************************************************************
 
@@ -558,14 +733,14 @@
 		        // REDIRIGIR Y ENVIAR CODIGO VENTA
 
 		        var row  = $(this).parents('tr')[0];
-		        // me.mostrarModalVenta(tableVentaMostrar.row( row ).data().CODIGO, tableVentaMostrar.row( row ).data().CAJA);
-		        me.codigoVenta = tableVentaMostrar.row( row ).data().CODIGO;
-		        me.caja.CODIGO = tableVentaMostrar.row( row ).data().CAJA;
-		        me.venta.TOTAL = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
-		        me.venta.TOTAL_CRUDO = tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
-		        me.moneda.CODIGO = tableVentaMostrar.row( row ).data().MONEDA;
-		        me.moneda.DECIMAL = tableVentaMostrar.row( row ).data().CANDEC;
-		        me.cliente.CODIGO = tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
+		        // me.mostrarModalVenta(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+		        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
+		        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
+		        me.venta.TOTAL = me.tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+		        me.venta.TOTAL_CRUDO = me.tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
+		        me.moneda.CODIGO = me.tableVentaMostrar.row( row ).data().MONEDA;
+		        me.moneda.DECIMAL = me.tableVentaMostrar.row( row ).data().CANDEC;
+		        me.cliente.CODIGO = me.tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
 	        	me.$refs.compontente_medio_pago.procesarFormas();
 
 		        // *******************************************************************
@@ -573,6 +748,23 @@
 	        });
 
 	        // ------------------------------------------------------------------------
+
+	        $('#tablaVentaMostrar').on('click', 'tbody tr #imprimirPdf', function() {
+
+			        // *******************************************************************
+
+			        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+			        $('#modalMoneda').modal('show');
+
+			        var row  = $(this).parents('tr')[0];
+			        
+			        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
+			        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
+
+			        // *******************************************************************
+
+		    });
 	 
         }
     }
