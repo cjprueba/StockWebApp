@@ -4544,7 +4544,9 @@ class Venta extends Model
 
             // CANTIDAD ITEMS VENTA
 
-            $cantidad_items = $value["CANTIDAD_ITEMS"];
+            if(isset($value["CANTIDAD_ITEMS"])) {
+                $cantidad_items = $value["CANTIDAD_ITEMS"];
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
