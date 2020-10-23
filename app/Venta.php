@@ -5364,9 +5364,13 @@ class Venta extends Model
 
             // BUSCAR VENTAS POR FECHAS
 
-            $totalData = $totalData->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+            if (!empty($request->input('inicial'))){
+                $totalData = $totalData->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
                              ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'))->count();
-
+            } else {
+                $totalData = $totalData->count();
+            }
+                             
             /*  --------------------------------------------------------------------------------- */
 
         } else {
@@ -5423,8 +5427,10 @@ class Venta extends Model
                     $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
                 }
 
-                $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                if (!empty($request->input('inicial'))){
+                    $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -5488,8 +5494,10 @@ class Venta extends Model
                     $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
                 } 
 
-                $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                if (!empty($request->input('inicial'))){
+                    $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -5532,8 +5540,10 @@ class Venta extends Model
                     $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
                 }
 
-                $totalFiltered->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
-                ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                if (!empty($request->input('inicial'))){
+                    $totalFiltered->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
 
             } else {
 
