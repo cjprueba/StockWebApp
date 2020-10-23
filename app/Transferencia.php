@@ -2917,6 +2917,12 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // OBTENER PARAMETROS 
+
+        $parametros = Parametro::consultaPersonalizada('DESCUENTO_FACTURA_TRANSFERENCIA');
+        
+        /*  --------------------------------------------------------------------------------- */
+
         // OBTENER SUCURSAL
 
         $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $user->id_sucursal]);
@@ -3019,6 +3025,8 @@ class Transferencia extends Model
                     exit;
                 }
 
+                /*  --------------------------------------------------------------------------------- */
+
                 $articulos[$c_rows]["precio"] = $cotizacion["valor"];
 
                 /*  --------------------------------------------------------------------------------- */
@@ -3035,16 +3043,78 @@ class Transferencia extends Model
                     exit;
                 }
 
+                /*  --------------------------------------------------------------------------------- */
+
+                // CALCULAR SI HAY DESCUENTO PARA TRANSFERENCIA 
+
+                if ($parametros->DESCUENTO_FACTURA_TRANSFERENCIA > 0) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $precio_descuento = Common::calculo_porcentaje_descuentos(
+                        [
+                            'PORCENTAJE_DESCUENTO' => $parametros->DESCUENTO_FACTURA_TRANSFERENCIA,
+                            'PRECIO_PRODUCTO' => Common::quitar_coma($cotizacion["valor"],$candec),
+                            'CANTIDAD' => $value->CANTIDAD
+                        ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // CARGAR LOS VALORES
+
+                    $articulos[$c_rows]["precio"] = $precio_descuento['PRECIO_REAL'];
+                    $articulos[$c_rows]["total"] = $precio_descuento['TOTAL_REAL'];
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                } 
+
+                /*  --------------------------------------------------------------------------------- */
+
                 $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
                 $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
 
                 /*  --------------------------------------------------------------------------------- */
 
             } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CALCULAR SI HAY DESCUENTO PARA TRANSFERENCIA 
+
+                if ($parametros->DESCUENTO_FACTURA_TRANSFERENCIA > 0) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $precio_descuento = Common::calculo_porcentaje_descuentos(
+                        [
+                            'PORCENTAJE_DESCUENTO' => $parametros->DESCUENTO_FACTURA_TRANSFERENCIA,
+                            'PRECIO_PRODUCTO' => $value->PRECIO,
+                            'CANTIDAD' => $value->CANTIDAD
+                        ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // CARGAR LOS VALORES
+
+                    $value->PRECIO = $precio_descuento['PRECIO_REAL'];
+                    $value->TOTAL = $precio_descuento['TOTAL_REAL'];
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                } 
+
+                /*  --------------------------------------------------------------------------------- */
+
                 $articulos[$c_rows]["precio"] = $value->PRECIO;
                 $articulos[$c_rows]["total"] = $value->TOTAL;
                 $exentas = $exentas + Common::quitar_coma($value->EXENTAS, $candec);
                 $total = $total + Common::quitar_coma($value->TOTAL, $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
             }
 
             /*  --------------------------------------------------------------------------------- */
