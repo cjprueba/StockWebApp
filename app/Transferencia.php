@@ -2882,6 +2882,7 @@ class Transferencia extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
+        $formatter = new NumeroALetras;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2920,7 +2921,7 @@ class Transferencia extends Model
         // OBTENER PARAMETROS 
 
         $parametros = Parametro::consultaPersonalizada('DESCUENTO_FACTURA_TRANSFERENCIA');
-        
+
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER SUCURSAL
@@ -3046,7 +3047,7 @@ class Transferencia extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CALCULAR SI HAY DESCUENTO PARA TRANSFERENCIA 
-
+                
                 if ($parametros->DESCUENTO_FACTURA_TRANSFERENCIA > 0) {
 
                     /*  --------------------------------------------------------------------------------- */
@@ -3054,7 +3055,7 @@ class Transferencia extends Model
                     $precio_descuento = Common::calculo_porcentaje_descuentos(
                         [
                             'PORCENTAJE_DESCUENTO' => $parametros->DESCUENTO_FACTURA_TRANSFERENCIA,
-                            'PRECIO_PRODUCTO' => Common::quitar_coma($cotizacion["valor"],$candec),
+                            'PRECIO_PRODUCTO' => Common::quitar_coma($articulos[$c_rows]["precio"],$candec),
                             'CANTIDAD' => $value->CANTIDAD
                         ]
                     );
@@ -3194,7 +3195,8 @@ class Transferencia extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
                 $data['cantidad'] = $cantidad;
-                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                //$data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['letra'] = 'Son Guaranies: '.($formatter->toMoney($total, 0, 'guaranies'));
                 $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
                 $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
                 $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
@@ -3244,7 +3246,8 @@ class Transferencia extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
                 $data['cantidad'] = $cantidad;
-                $data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                //$data['letra'] = 'Son Guaranies: '.substr(NumeroALetras::convertir($total, 'guaranies'), 0, strpos(NumeroALetras::convertir($total, 'guaranies'), "CON"));
+                $data['letra'] = 'Son Guaranies: '.($formatter->toMoney($total, 0, 'guaranies'));
                 $data['total'] = Common::precio_candec_sin_letra($total, $moneda);
                 $data['exentas'] = Common::precio_candec_sin_letra($exentas, $moneda);
                 $data['base5'] = Common::precio_candec_sin_letra($base5 / 21, $moneda);
