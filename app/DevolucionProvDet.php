@@ -13,7 +13,7 @@ class DevolucionProvDet extends Model
     public static function guardar($data, $id){
 
     	try {
-         DB::connection('retail')->beginTransaction();
+       
     		/*  --------------------------------------------------------------------------------- */
 
     		if (is_array($data)) {
@@ -46,7 +46,7 @@ class DevolucionProvDet extends Model
 		    		}
 
 			    	/*  --------------------------------------------------------------------------------- */
-			    	 DB::connection('retail')->commit();
+			    	
 
 
 		    		Log::info('Devolucion Prov Det: Éxito al guardar.', ['DEVOLUCION PROV DET' => $devolucion_prov_det, 'DEVOLUCION PROV' => $id]);
@@ -64,7 +64,7 @@ class DevolucionProvDet extends Model
 			/*  --------------------------------------------------------------------------------- */
 
 			// ERROR 
-			 DB::connection('retail')->rollBack();
+			
 
 			Log::error('Devolucion Prov Det: Error al guardar.', ['DEVOLUCION PROV ID' => $id]);
 
