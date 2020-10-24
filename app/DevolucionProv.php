@@ -14,7 +14,7 @@ class DevolucionProv extends Model
     public static function guardar($data){
 
     	try {
-    		DB::connection('retail')->beginTransaction();
+    	
 
     		/*  --------------------------------------------------------------------------------- */
 
@@ -47,13 +47,13 @@ class DevolucionProv extends Model
 	    	Log::info('Devolucion Prov: Éxito al guardar.', ['DEVOLUCION PROV ID' => $devolucion, 'PROVEEDOR' => $data["FK_PROVEEDOR"]]);
 
 	    	/*  --------------------------------------------------------------------------------- */
-  			DB::connection('retail')->commit();
+  			
 	    	return ["response" => true, "id" => $devolucion];
 
 	    	/*  --------------------------------------------------------------------------------- */
 
     	} catch (Exception $e) {
-    		 DB::connection('retail')->rollBack();
+    	
 
 			/*  --------------------------------------------------------------------------------- */
 
