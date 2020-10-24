@@ -2008,7 +2008,7 @@ class Transferencia extends Model
             ->update([
                 'ESTATUS' => 0,
                 'FECMODIF'=>$dia,
-                'USERM'=>$user->id_sucursal
+              /*  'USERM'=>$user->id_sucursal*/
             ]);
 
         }
@@ -2063,7 +2063,7 @@ class Transferencia extends Model
             ->update([
                 'ESTATUS' => 2,
                 'FECMODIF'=>$dia,
-                'USERM'=>$user->id_sucursal
+             /*   'USERM'=>$user->id_sucursal*/
             ]);
 
         }
@@ -2085,6 +2085,7 @@ class Transferencia extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
+          $dia = date("Y-m-d");
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2117,7 +2118,8 @@ class Transferencia extends Model
             ->where('CODIGO','=', $codigo)
             ->where('ID_SUCURSAL','=', $user->id_sucursal)
             ->update([
-                'ESTATUS' => 1
+                'ESTATUS' => 1,
+                'FECMODIF'=>  $dia
             ]);
 
         }
