@@ -32,7 +32,7 @@
 
                                 <!-- ------------------------------------------------------------------------ -->
 
-                                <div class="row">
+                                <!-- <div class="row">
                                   <div class="col-md-11 mb-3">  
                                         <div id="sandbox-container" class="input-daterange input-group input-group-sm">
                                           <input id='selectedInicialFecha' data-date-format="yyyy-mm-dd" class=" form-control " v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validar.inicialFecha }"/>
@@ -50,9 +50,9 @@
 
                                   <div class="col-md-1 mb-0 text-right">
                                     <label></label>
-                                    <button class="btn btn-primary btn-sm" v-on:click="obtenerDatatable()">Buscar</button>
+                                    <button class="btn btn-primary btn-sm" v-on:click="obtenerDatatable2()">Buscar</button>
                                   </div>
-                                </div>
+                                </div> -->
 
                                 <!-- ------------------------------------------------------------------------ -->
 
@@ -110,7 +110,8 @@
             },
             venta: {
               ID: ''
-            }
+            },
+            open: false
         }
       }, 
        
@@ -142,11 +143,16 @@
     
                 // ------------------------------------------------------------------------
 
-            }, obtenerDatatable(){
+            }, obtenerDatatable2(){
 
-              let me = this;
+                //$('#tablaModalVentas').DataTable().clear();
+                //$('#tablaModalVentas').DataTable().destroy();
+                $('#tablaModalVentas').DataTable().clear().destroy();
+                let me = this;
 
               // ------------------------------------------------------------------------
+
+              
 
               this.tableVenta = $('#tablaModalVentas').DataTable({
                   "processing": true,
@@ -185,106 +191,62 @@
 
               // ------------------------------------------------------------------------
 
-            }, datatableMostrar(caja){
+            }, obtenerDatatable(){
 
-              let me=this;
-
-
-              // ------------------------------------------------------------------------
-
-              // PREPARAR DATATABLE 
-
-              // this.tableVenta = $('#tablaModalVentas').DataTable({
-              //     "processing": true,
-              //     "serverSide": true,
-              //     "destroy": true,
-              //     "bAutoWidth": true,
-              //     "select": true,
-              //     "ajax":{
-              //       "data": {
-              //                       "_token": $('meta[name="csrf-token"]').attr('content'),
-              //                       inicial: me.selectedInicialFecha,
-              //                       final: me.selectedFinalFecha,
-              //       },
-              //       "url": "/venta/datatable",
-              //       "dataType": "json",
-              //       "type": "POST"
-              //     },
-              //     "columns": [
-              //         { "data": "ID" },
-              //         { "data": "CODIGO" },
-              //         { "data": "CAJA" },
-              //         { "data": "CLIENTE" },
-              //         { "data": "FECHA" },
-              //         { "data": "HORA" },
-              //         { "data": "TIPO" },
-              //         { "data": "TOTAL" },
-              //         { "data": "TOTAL_CRUDO", "visible": false },
-              //         { "data": "CANDEC", "visible": false },
-              //         { "data": "MONEDA", "visible": false },
-              //         { "data": "ACCION" }
-              //     ],
-              //     "createdRow": function( row, data, dataIndex){
-              //         $(row).addClass(data['ESTATUS']);
-              //     }       
-              // });   
+              let me = this;
 
               // ------------------------------------------------------------------------
 
-              // MARCAR LA FECHA DE HOY
-
-              var today = new Date();
-              var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-
-              // ------------------------------------------------------------------------
-
-                me.selectedInicialFecha = date;
-                me.selectedFinalFecha = date;
-
-              // ------------------------------------------------------------------------
               
-              // FECHAS 
 
-              $(function(){
-                      $('#sandbox-container .input-daterange').datepicker({
-                            keyboardNavigation: false,
-                        forceParse: false,
-                    });
-                    $("#selectedInicialFecha").datepicker().on(
-                      "changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
-                  );
-                  $("#selectedFinalFecha").datepicker().on(
-                      "changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
-                  );
-
-              });
+              this.tableVenta = $('#tablaModalVentas').DataTable({
+                  "processing": true,
+                  "serverSide": true,
+                  "destroy": true,
+                  "bAutoWidth": true,
+                  "select": true,
+                  "ajax":{
+                    "data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content'),
+                                    inicial: me.selectedInicialFecha,
+                                    final: me.selectedFinalFecha,
+                    },
+                    "url": "/venta/datatable",
+                    "dataType": "json",
+                    "type": "POST"
+                  },
+                  "columns": [
+                      { "data": "ID" },
+                      { "data": "CODIGO" },
+                      { "data": "CAJA" },
+                      { "data": "CLIENTE" },
+                      { "data": "FECHA" },
+                      { "data": "HORA" },
+                      { "data": "TIPO" },
+                      { "data": "TOTAL" },
+                      { "data": "TOTAL_CRUDO", "visible": false },
+                      { "data": "CANDEC", "visible": false },
+                      { "data": "MONEDA", "visible": false },
+                      { "data": "ACCION" }
+                  ],
+                  "createdRow": function( row, data, dataIndex){
+                      $(row).addClass(data['ESTATUS']);
+                  }       
+              });   
 
               // ------------------------------------------------------------------------
+
               
-              this.obtenerDatatable();
 
-      },
+            }, buscadores(){
 
+              let me = this;
 
-        mounted() {
-            
-            // ------------------------------------------------------------------------
+              // ------------------------------------------------------------------------
 
-            let me = this;
+              var tablaVenta = $('#tablaModalVentas').DataTable();
 
-            // ------------------------------------------------------------------------
-
-            // INICIAR VARIABLES 
-
-            
-
-            // PREPARAR DATATABLE 
-
-            //this.obtenerDatatable();
-            //this.datatableMostrar(1);
-            this.tableVentaMostrar = $('#tablaModalVentas').DataTable();
-
-            // ------------------------------------------------------------------------
+              // ------------------------------------------------------------------------
 
               $('#tablaModalVentas thead tr').clone(true).appendTo( '#tablaModalVentas thead' );
                     $('#tablaModalVentas thead tr:eq(1) th').each( function (i) {
@@ -302,21 +264,102 @@
                 } );
 
                 // ------------------------------------------------------------------------
-                // >>
-                // INICIAR EL DATATABLE PRODUCTOS MODAL
-                // ------------------------------------------------------------------------
-                
-
-                 $(document).ready( function () {
-
-                // ------------------------------------------------------------------------
                 
                 // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
 
 
-                $('#tablaModalVentas').on('click', 'tbody tr', function() {
-
                 
+
+            }, datatableMostrar(caja){
+
+              let me=this;
+
+              if (this.open === false) {
+                this.open = true;
+
+                // ------------------------------------------------------------------------
+
+                // PREPARAR DATATABLE 
+
+                // this.tableVenta = $('#tablaModalVentas').DataTable({
+                //     "processing": true,
+                //     "serverSide": true,
+                //     "destroy": true,
+                //     "bAutoWidth": true,
+                //     "select": true,
+                //     "ajax":{
+                //       "data": {
+                //                       "_token": $('meta[name="csrf-token"]').attr('content'),
+                //                       inicial: me.selectedInicialFecha,
+                //                       final: me.selectedFinalFecha,
+                //       },
+                //       "url": "/venta/datatable",
+                //       "dataType": "json",
+                //       "type": "POST"
+                //     },
+                //     "columns": [
+                //         { "data": "ID" },
+                //         { "data": "CODIGO" },
+                //         { "data": "CAJA" },
+                //         { "data": "CLIENTE" },
+                //         { "data": "FECHA" },
+                //         { "data": "HORA" },
+                //         { "data": "TIPO" },
+                //         { "data": "TOTAL" },
+                //         { "data": "TOTAL_CRUDO", "visible": false },
+                //         { "data": "CANDEC", "visible": false },
+                //         { "data": "MONEDA", "visible": false },
+                //         { "data": "ACCION" }
+                //     ],
+                //     "createdRow": function( row, data, dataIndex){
+                //         $(row).addClass(data['ESTATUS']);
+                //     }       
+                // });   
+
+                // ------------------------------------------------------------------------
+
+                // MARCAR LA FECHA DE HOY
+
+                var today = new Date();
+                var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+                // ------------------------------------------------------------------------
+
+                  me.selectedInicialFecha = date;
+                  me.selectedFinalFecha = date;
+
+                // ------------------------------------------------------------------------
+                
+                // FECHAS 
+
+                $(function(){
+                        $('#sandbox-container .input-daterange').datepicker({
+                              keyboardNavigation: false,
+                          forceParse: false,
+                      });
+                      $("#selectedInicialFecha").datepicker().on(
+                        "changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
+                    );
+                    $("#selectedFinalFecha").datepicker().on(
+                        "changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
+                    );
+
+                });
+
+                // ------------------------------------------------------------------------
+                
+                this.obtenerDatatable(function(){
+                  
+                });
+
+                this.buscadores(function() {
+                    
+                  
+                  });
+              }
+              
+              $(document).ready( function () {
+                     $('#tablaModalVentas').on('click', 'tbody tr', function() {
 
                     // *******************************************************************
 
@@ -345,11 +388,54 @@
                     // *******************************************************************
 
                 });
+            });
+            
+              // this.tableVentaMostrar = $('#tablaModalVentas').DataTable();
+              // $('#tablaModalVentas thead tr').clone(true).appendTo( '#tablaModalVentas thead' );
+              //       $('#tablaModalVentas thead tr:eq(1) th').each( function (i) {
+              //           var title = $(this).text();
+              //           $(this).html( '<input type="text" class="form-control form-control-sm" placeholder="Buscar '+title+'" />' );
+                 
+              //           $( 'input', this ).on( 'keyup change', function () {
+              //               if ( me.tableVenta.column(i).search() !== this.value ) {
+              //                   me.tableVenta
+              //                       .column(i)
+              //                       .search( this.value )
+              //                       .draw();
+              //               }
+              //           } );
+              //   } );
 
-                //FIN TABLA MODAL PRODUCTOS
-                // <<   
+              //   // ------------------------------------------------------------------------
+
+      },
+
+
+        mounted() {
+            
+            // ------------------------------------------------------------------------
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            
+
+            // PREPARAR DATATABLE 
+
+            //this.obtenerDatatable();
+            //this.datatableMostrar(1);
+            
+
+            
+                // >>
+                // INICIAR EL DATATABLE PRODUCTOS MODAL
                 // ------------------------------------------------------------------------
-            }); 
+                
+
+                 
             }
 /*
           Common.hello(function(){*/
