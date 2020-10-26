@@ -110,7 +110,8 @@
             },
             venta: {
               ID: ''
-            }
+            },
+            open: false
         }
       }, 
        
@@ -273,87 +274,90 @@
 
               let me=this;
 
+              if (this.open === false) {
+                this.open = true;
 
-              // ------------------------------------------------------------------------
+                // ------------------------------------------------------------------------
 
-              // PREPARAR DATATABLE 
+                // PREPARAR DATATABLE 
 
-              // this.tableVenta = $('#tablaModalVentas').DataTable({
-              //     "processing": true,
-              //     "serverSide": true,
-              //     "destroy": true,
-              //     "bAutoWidth": true,
-              //     "select": true,
-              //     "ajax":{
-              //       "data": {
-              //                       "_token": $('meta[name="csrf-token"]').attr('content'),
-              //                       inicial: me.selectedInicialFecha,
-              //                       final: me.selectedFinalFecha,
-              //       },
-              //       "url": "/venta/datatable",
-              //       "dataType": "json",
-              //       "type": "POST"
-              //     },
-              //     "columns": [
-              //         { "data": "ID" },
-              //         { "data": "CODIGO" },
-              //         { "data": "CAJA" },
-              //         { "data": "CLIENTE" },
-              //         { "data": "FECHA" },
-              //         { "data": "HORA" },
-              //         { "data": "TIPO" },
-              //         { "data": "TOTAL" },
-              //         { "data": "TOTAL_CRUDO", "visible": false },
-              //         { "data": "CANDEC", "visible": false },
-              //         { "data": "MONEDA", "visible": false },
-              //         { "data": "ACCION" }
-              //     ],
-              //     "createdRow": function( row, data, dataIndex){
-              //         $(row).addClass(data['ESTATUS']);
-              //     }       
-              // });   
+                // this.tableVenta = $('#tablaModalVentas').DataTable({
+                //     "processing": true,
+                //     "serverSide": true,
+                //     "destroy": true,
+                //     "bAutoWidth": true,
+                //     "select": true,
+                //     "ajax":{
+                //       "data": {
+                //                       "_token": $('meta[name="csrf-token"]').attr('content'),
+                //                       inicial: me.selectedInicialFecha,
+                //                       final: me.selectedFinalFecha,
+                //       },
+                //       "url": "/venta/datatable",
+                //       "dataType": "json",
+                //       "type": "POST"
+                //     },
+                //     "columns": [
+                //         { "data": "ID" },
+                //         { "data": "CODIGO" },
+                //         { "data": "CAJA" },
+                //         { "data": "CLIENTE" },
+                //         { "data": "FECHA" },
+                //         { "data": "HORA" },
+                //         { "data": "TIPO" },
+                //         { "data": "TOTAL" },
+                //         { "data": "TOTAL_CRUDO", "visible": false },
+                //         { "data": "CANDEC", "visible": false },
+                //         { "data": "MONEDA", "visible": false },
+                //         { "data": "ACCION" }
+                //     ],
+                //     "createdRow": function( row, data, dataIndex){
+                //         $(row).addClass(data['ESTATUS']);
+                //     }       
+                // });   
 
-              // ------------------------------------------------------------------------
+                // ------------------------------------------------------------------------
 
-              // MARCAR LA FECHA DE HOY
+                // MARCAR LA FECHA DE HOY
 
-              var today = new Date();
-              var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                var today = new Date();
+                var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
-              // ------------------------------------------------------------------------
+                // ------------------------------------------------------------------------
 
-                me.selectedInicialFecha = date;
-                me.selectedFinalFecha = date;
+                  me.selectedInicialFecha = date;
+                  me.selectedFinalFecha = date;
 
-              // ------------------------------------------------------------------------
-              
-              // FECHAS 
-
-              $(function(){
-                      $('#sandbox-container .input-daterange').datepicker({
-                            keyboardNavigation: false,
-                        forceParse: false,
-                    });
-                    $("#selectedInicialFecha").datepicker().on(
-                      "changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
-                  );
-                  $("#selectedFinalFecha").datepicker().on(
-                      "changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
-                  );
-
-              });
-
-              // ------------------------------------------------------------------------
-              
-              this.obtenerDatatable(function(){
+                // ------------------------------------------------------------------------
                 
-              });
+                // FECHAS 
 
-              this.buscadores(function() {
-                  
-                
+                $(function(){
+                        $('#sandbox-container .input-daterange').datepicker({
+                              keyboardNavigation: false,
+                          forceParse: false,
+                      });
+                      $("#selectedInicialFecha").datepicker().on(
+                        "changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
+                    );
+                    $("#selectedFinalFecha").datepicker().on(
+                        "changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
+                    );
+
                 });
 
+                // ------------------------------------------------------------------------
+                
+                this.obtenerDatatable(function(){
+                  
+                });
+
+                this.buscadores(function() {
+                    
+                  
+                  });
+              }
+              
               $(document).ready( function () {
                      $('#tablaModalVentas').on('click', 'tbody tr', function() {
 
