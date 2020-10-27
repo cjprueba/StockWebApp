@@ -2743,7 +2743,7 @@ class Venta extends Model
 
         // OBTENER PARAMETRO
 
-        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO'))
+        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -2761,7 +2761,7 @@ class Venta extends Model
 
         // return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'Microsoft Print to PDF'];
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA'];
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA','SUPERVISOR'=>$parametro[0]['SUPERVISOR']];
         
         /*  --------------------------------------------------------------------------------- */
 
