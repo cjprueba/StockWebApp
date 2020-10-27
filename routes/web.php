@@ -38,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
 
+
 /* -------------------------------------------------------------------------- */
 
 // CAJAS
@@ -579,6 +580,14 @@ Route::get('arreglar', 'TransferenciaControler@arreglar');
 Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerpo');
 Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
 Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
+
+/* -------------------------------------------------------------------------- */
+
+
+// CONTROL DE CODIGO DE SUPERVISOR
+
+Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autorizacion');
+
 
 /* -------------------------------------------------------------------------- */
 
