@@ -69,6 +69,7 @@ Route::get('venta/cuenta/datatable', 'VentaController@obtenerCuentas');
 Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
 Route::post('venta/pago/credito', 'VentaController@pagoCredito');
 Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
+Route::post('/venta/nota/credito/asingar/credito/cliente', 'VentaController@asignarNotaCreditoCreditoCliente');
 
 /* -------------------------------------------------------------------------- */
 
@@ -580,6 +581,13 @@ Route::get('arreglar', 'TransferenciaControler@arreglar');
 Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerpo');
 Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
 Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
+Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtenerCreditoCliente');
+
+/* -------------------------------------------------------------------------- */
+
+// AGENCIA
+
+Route::get('/agencia/datatable', 'AgenciaController@datatable');
 
 /* -------------------------------------------------------------------------- */
 

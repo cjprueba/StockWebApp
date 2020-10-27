@@ -30,7 +30,7 @@
 			    	<div class="form-group row">
 			    		<label class="col-sm-3 col-form-label">Código Cliente</label>
 			    		<div class="col-sm-9">
-					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" @razonSocial="cargarRazonSocial" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" @razonSocial="cargarRazonSocial" @retentor="cargarRetentor" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
 					    </div>
 			    	</div>
 
@@ -171,6 +171,24 @@
 			    		<label class="col-sm-3 col-form-label">Crédito Disponible</label>
 			    		<div class="col-sm-9">
 					    	<input type="number" v-model="creditoDisponible" class="form-control form-control-sm" disabled>
+					    </div>
+			    	</div>
+
+			    	<!-- --------------------------------------- RETENTOR -------------------------------------------- -->
+
+			    	<div class="col-md-12">
+			    		<hr>
+			    	</div>
+
+			    	<!-- --------------------------------------- RETENTOR -------------------------------------------- -->
+
+			    	<div class="row mst-3">
+			    		<label class="col-sm-3 col-form-label"></label>
+			    		<div class="col-sm-9">
+			    			<div class="custom-control custom-switch mr-sm-3">
+									<input type="checkbox" class="custom-control-input" id="switchRetentor" v-model="switcher.retentor">
+									<label class="custom-control-label" for="switchRetentor">Retentor</label>
+								</div>
 					    </div>
 			    	</div>
 
@@ -317,6 +335,9 @@
       			center: { 
       				lat: -25.5131,
                     lng: -54.6069 
+                },
+                switcher: {
+                	retentor: false
                 }
 			}
 		},
@@ -389,7 +410,8 @@
 					existe: this.existe,
 					idEmpresa: this.idEmpresa,
 					diaLimite: this.limiteCreditoDia,
-					razonSocial: this.razonSocial
+					razonSocial: this.razonSocial,
+					retentor: this.switcher.retentor
 				}
 
 				// ENVIA LOS DATOS PARA GUARDAR O MODIFICAR
@@ -697,6 +719,15 @@
 			    resto = total % 11;
 			    digito = resto > 1 ? 11 - resto : 0;
 			    this.ruc = cedula+'-'+digito;
+			},
+			cargarRetentor(valor) {
+
+				// ------------------------------------------------------------------
+
+				this.switcher.retentor = valor;
+
+				// ------------------------------------------------------------------
+
 			}
 		},
 

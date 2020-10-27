@@ -246,7 +246,7 @@
 
                 <div class="col-md-4 order-md-1 col-lg-3 sidebar-filter">
                   <label>BUSQUEDA</label>
-                  <input type="text" class="form-control mb-3" name="" v-model="opciones.busqueda">
+                  <input type="text" class="form-control mb-3" name="" v-model="opciones.busqueda" v-on:keyup.13="actualizar()">
 
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" v-model="opciones.tipo" name="inlineRadioOptions" id="inlineRadio1" value="1">
