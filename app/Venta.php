@@ -24,6 +24,7 @@ use App\Cliente_tiene_Cupon;
 use App\NotaCredito;
 use App\VentaTieneNotaCredito;
 use App\VentaRetencion;
+use App\VentasTieneAgencia;
 
 class Venta extends Model
 {
@@ -2028,6 +2029,16 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // AGENCIA 
+
+            if(isset($data["data"]["agencia"]["CODIGO"])){
+                $agencia = $data["data"]["agencia"]["CODIGO"];
+            }else{
+                $agencia = 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
             $cliente = $data["data"]["cliente"]["CODIGO"];
             $vendedor = $data["data"]["vendedor"]["CODIGO"];
             $cheques = $data["data"]["pago"]["CHEQUE"];
@@ -2350,6 +2361,17 @@ class Venta extends Model
 
                     /*  --------------------------------------------------------------------------------- */
 
+                    // CAMBIAR ESTATUS NOTA DE CREDITO 
+
+                    NotaCredito::where('ID', '=', $data["data"]["productos"][$c]["ID"]) 
+                    ->update(
+                        [ 
+                            'PROCESADO' => 1
+                        ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
+
                     // IMPUESTO 
 
                     $total_nota_credito_base5 =  $total_nota_credito_base5 + $nota_credito_impuesto[0]['BASE5'];
@@ -2600,6 +2622,19 @@ class Venta extends Model
                 VentaRetencion::guardar_referencia([
                         'FK_VENTA' => $venta,
                         'MONTO' => $retencion,
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR AGENCIA
+
+            if ($agencia !== '0' && $agencia !== '0.00' && $agencia !== 0 && $agencia !== NULL) {
+
+                VentasTieneAgencia::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'FK_AGENCIA' => $agencia,
                 ]);
                 
             }
@@ -7278,7 +7313,7 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        // PAGO AL ENTREGAR FUNCION
+        // PAGO CREDITO
         
         try {
 
@@ -7660,4 +7695,198 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
     }
 
+    public static function asignarNotaCreditoCreditoCliente($data){
+
+        // PAGO AL ENTREGAR FUNCION
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $data = $data["datos"];
+            $fecha = date('Y-m-d');
+            $hora = date('H:i:s');
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER ID CLIENTE 
+
+            $id_cliente = (Cliente::id_cliente($data['cliente']))['ID_CLIENTE'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO 
+
+            $venta_abono_id = (VentaAbono::insertar_abono([
+                                'PAGO' => $data['total'], 
+                                'MONEDA' => $data['moneda'], 
+                                'FECHA' => $fecha,
+                                'SALDO' => $data['saldo'],
+                                'VUELTO' => $data['vuelto'],
+                                'CAJA' => $data['caja'],
+                                'FK_CLIENTE' => $id_cliente,
+                                'FK_USER' => $user->id,
+                                'FK_SUCURSAL' => $user->id_sucursal
+            ]))['valor'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CALCULO DE PAGO PRO VENTA 
+
+            $creditos = VentaCredito::obtener_creditos_cliente($data["cliente"]);
+                
+            if ($creditos["response"] === false) {
+                return $creditos;
+            } else {
+                $creditos = $creditos["creditos"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RECORRER VENTAS CON CREDITO 
+
+            foreach ($creditos as $key => $value) {
+                    
+                if ($value->SALDO >= $data['total']) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR VENTAS DET CREDITO 
+
+                        VentaAbonoDet::guardar_referencia([
+                            'FK_VENTA' => $value->FK_VENTA,
+                            'FK_VENTAS_ABONO' => $venta_abono_id,
+                            'PAGO' => $data['total']
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // ACTUALIZAR VENTA CREDITO 
+
+                        VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                        ->update([
+                            'PAGO' => \DB::raw('PAGO + '.$data['total'].''),
+                            'SALDO' => ($value->SALDO - $data['total'])
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // GUARDAR REFERENCIA
+
+                        VentaTieneNotaCredito::guardar_referencia(
+                            [
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
+                            ]
+                        );
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // FIJAR CERO EFECTIVO 
+
+                        $data['total'] = 0;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    } else {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR VENTAS DET CREDITO 
+
+                        VentaAbonoDet::guardar_referencia([
+                            'FK_VENTA' => $value->FK_VENTA,
+                            'FK_VENTAS_ABONO' => $venta_abono_id,
+                            'PAGO' => $value->SALDO
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // ACTUALIZAR VENTA CREDITO 
+
+                        VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                        ->update([
+                            'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
+                            'SALDO' => 0
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // GUARDAR REFERENCIA
+
+                        VentaTieneNotaCredito::guardar_referencia(
+                            [
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
+                            ]
+                        );
+
+                        /*  --------------------------------------------------------------------------------- */
+                        
+                        // FIJAR CERO EFECTIVO 
+
+                        $data['total'] = $data['total'] - $value->SALDO;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CAMBIAR ESTATUS NOTA DE CREDITO 
+
+            NotaCredito::where('ID', '=', $data['id_nota_credito']) 
+            ->update(
+                [ 
+                    'PROCESADO' => 1
+                ]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ACTUALIZAR CREDITO CLIENTE 
+                
+            Cliente::actualizarCredito($id_cliente);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente la nota de credito !"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+        
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
 }
