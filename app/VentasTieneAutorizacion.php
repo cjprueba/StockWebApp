@@ -15,7 +15,7 @@ class VentasTieneAutorizacion extends Model
 
 	    	/*  --------------------------------------------------------------------------------- */
 
-	    	$autorizacion = User_Supervisor::insertGetId([
+	    	$autorizacion = VentasTieneAutorizacion::insertGetId([
 	    		'FK_VENTA' => $data["FK_VENTA"],
 	    		'FK_USER'=> $data["FK_USER"],
 	    		'FK_USER_SUPERVISOR' => $data["FK_USER_SUPERVISOR"]
