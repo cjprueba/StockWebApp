@@ -48,6 +48,9 @@ class BusquedaController extends Controller
             ->get();
 
         }
+            $sucursalesgeneral = Sucursal::select(DB::raw('CODIGO, DESCRIPCION'))
+            ->orderBy('CODIGO')
+            ->get();
         
 
         /*  *********** MARCAS *********** */
@@ -85,8 +88,9 @@ class BusquedaController extends Controller
 
         /*  *********** RETORNAR VALORES *********** */
 
-        return ['sucursales' => $sucursales, 'marcas' => $marcas, 'categorias' => $categorias,'vendedor'=>$vendedor,'cliente'=>$cliente,'proveedores'=>$proveedores];
+        return ['sucursales' => $sucursales, 'marcas' => $marcas, 'categorias' => $categorias,'vendedor'=>$vendedor,'cliente'=>$cliente,'proveedores'=>$proveedores,'sucursalesgeneral'=>$sucursalesgeneral];
     }
+
 
     
 }

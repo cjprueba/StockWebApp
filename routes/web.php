@@ -38,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
 
+
 /* -------------------------------------------------------------------------- */
 
 // CAJAS
@@ -544,13 +545,22 @@ Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
+/* -------------------------------------------------------------------------- */
+
+// REPORTES VENTAS
 Route::post('reporte_ventas', 'VentaController@reporteVenta');
 
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+/* -------------------------------------------------------------------------- */
+
+// REPORTES TRANSFERENCIAS
+Route::post('reporte_transferencias_ventas', 'VentaController@reporteVenta');
+
+Route::post('export-transferencia-consignacion', 'ExportController@descargarTransferenciaVentas');
 
 /* -------------------------------------------------------------------------- */
 
-// REPORTES GENERAR
+// CUPONES
 Route::post('/cupon/datatable', 'CuponController@datatable');
 Route::post('/cupon/aplicar', 'CuponController@cuponAplicar');
 Route::post('cuponDeshabilitar', 'CuponController@cuponDeshabilitar');
@@ -578,6 +588,14 @@ Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtene
 // AGENCIA
 
 Route::get('/agencia/datatable', 'AgenciaController@datatable');
+
+/* -------------------------------------------------------------------------- */
+
+
+// CONTROL DE CODIGO DE SUPERVISOR
+
+Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autorizacion');
+
 
 /* -------------------------------------------------------------------------- */
 

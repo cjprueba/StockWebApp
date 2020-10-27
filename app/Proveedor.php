@@ -9,7 +9,7 @@ use App\Pagos_Prov_Det;
 use App\Compra;
 use App\DevolucionProv;
 use App\DevolucionProvDet;
-
+use App\Inventario;
 class Proveedor extends Model
 {
 
@@ -788,6 +788,7 @@ class Proveedor extends Model
                              ->on('LOTES.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL')
                              ->on('LOTES.LOTE', '=', 'COMPRASDET.LOTE');
                     })
+
                     ->where([
                         'COMPRAS.PROVEEDOR' => $proveedor,
                         'COMPRASDET.COD_PROD' => $codigo,
@@ -796,6 +797,29 @@ class Proveedor extends Model
                     ])
                     ->where('LOTES.CANTIDAD', '>', 0)
                     ->count(); 
+
+                    $totalData2=DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL')
+                             ->on('LOTES.ID', '=', 'LOTE_TIENE_CONTEODET.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    ->where([
+                        'PRODUCTOS_AUX.PROVEEDOR' => $proveedor,
+                        'CONTEO_DET.COD_PROD' => $codigo,
+                        'PRODUCTOS_AUX.MONEDA' => $moneda,
+                        'CONTEO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                    ->count();
+                    $totalData=$totalData+$totalData2;
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -842,6 +866,30 @@ class Proveedor extends Model
                          ->orderBy($order,$dir)
                          ->get();
 
+                          $posts2 = DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL')
+                             ->on('LOTES.ID', '=', 'LOTE_TIENE_CONTEODET.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    ->where([
+                        'PRODUCTOS_AUX.PROVEEDOR' => $proveedor,
+                        'CONTEO_DET.COD_PROD' => $codigo,
+                        'PRODUCTOS_AUX.MONEDA' => $moneda,
+                        'CONTEO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
             /*  ************************************************************ */
 
         } else {
@@ -884,6 +932,35 @@ class Proveedor extends Model
                     ->orderBy($order,$dir)
                     ->get();
 
+                    $posts2 = DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                    ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL')
+                             ->on('LOTES.ID', '=', 'LOTE_TIENE_CONTEODET.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'CONTEO_DET.COD_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    ->where([
+                        'PRODUCTOS_AUX.PROVEEDOR' => $proveedor,
+                        'CONTEO_DET.COD_PROD' => $codigo,
+                        'PRODUCTOS_AUX.MONEDA' => $moneda,
+                        'CONTEO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                     ->where(function ($query) use ($search) {
+                                $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                      ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
             /*  ************************************************************ */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
@@ -909,6 +986,8 @@ class Proveedor extends Model
                                     ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
                             })
                             ->count();
+
+            $totalFiltered = $totalFiltered + count($posts2);
 
             /*  ************************************************************ */  
 
@@ -951,6 +1030,29 @@ class Proveedor extends Model
                 /*  --------------------------------------------------------------------------------- */
 
             }
+            if(!empty($posts2)){
+                foreach ($posts2 as  $post) {
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['COSTO'] = Common::formato_precio($post->COSTO, $post->CANDEC);
+                $nestedData['INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->CANTIDAD;
+
+                if ($post->VENCIMIENTO === 1) {
+                    $nestedData['VENCIMIENTO'] = $post->FECHA_VENC;
+                } else {
+                    $nestedData['VENCIMIENTO'] = 'N/A';
+                }
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['DECIMAL'] = $post->CANDEC;
+                $nestedData['LOTE_ID'] = $post->LOTE_ID;
+
+                $data[] = $nestedData;
+                    # code...
+                }
+            }
         }
         
         /*  --------------------------------------------------------------------------------- */
@@ -977,7 +1079,7 @@ class Proveedor extends Model
     public static function devolucion($data) {
 
         try {
-
+         DB::connection('retail')->beginTransaction();
             /*  --------------------------------------------------------------------------------- */
 
             // GUARDAR DEVOLUCION PROVEEDOR 
@@ -1002,13 +1104,13 @@ class Proveedor extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // RETORNAR VALOR 
-
+            DB::connection('retail')->commit();
             return ["response" => true, "statusText" => "Se ha realizado con éxito la devolución"];
 
             /*  --------------------------------------------------------------------------------- */
 
         } catch (Exception $e) {
-
+            DB::connection('retail')->rollBack();
             /*  --------------------------------------------------------------------------------- */
 
             // ERROR 

@@ -1013,9 +1013,9 @@
             } else if (this.radio.vuelto === "2") {
               this.vuelto.seleccion = this.vuelto.dolares;
             } else if (this.radio.vuelto === "3") {
-              this.vuelto.seleccion = this.vuelto.pesos;
-            } else if (this.radio.vuelto === "4") {
               this.vuelto.seleccion = this.vuelto.reales;
+            } else if (this.radio.vuelto === "4") {
+              this.vuelto.seleccion = this.vuelto.pesos;
             } 
 
             // ------------------------------------------------------------------------
