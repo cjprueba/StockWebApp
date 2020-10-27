@@ -483,6 +483,12 @@ Vue.component('nota-credito-cliente-datatable', require('./components/movimiento
 
 /* ********************************************* */
 
+// AGENCIA
+
+Vue.component('agencia-datatable-textbox', require('./components/agencia/AgenciaDatatable.vue').default);
+
+/* ********************************************* */
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
