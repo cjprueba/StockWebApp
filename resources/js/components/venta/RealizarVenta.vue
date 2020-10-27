@@ -207,13 +207,17 @@
 					</div>
 
 					<div class="col-md-4">
-						<label class="text-primary">Cliente</label>
-						<h6>{{cliente.NOMBRE}}</h6>
+						<label><span class="text-primary">Cliente:</span> {{cliente.NOMBRE}}</label><br>
+						<label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label>
+						<!-- <label class="text-primary">Cliente</label>
+						<h6>{{cliente.NOMBRE}}</h6> -->
 					</div> 
 
 					<div class="col-md-4">
-						<label class="text-primary">Vendedor</label>
-						<h6>{{vendedor.NOMBRE}}</h6>
+						<label><span class="text-primary">Agencia:</span> {{agencia.NOMBRE}}</label><br>
+						<!-- <label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label> -->
+						<!-- <label class="text-primary">Vendedor</label>
+						<h6>{{vendedor.NOMBRE}}</h6> -->
 					</div> 
 
 					<!-- <div class="col-md-2">
@@ -364,7 +368,7 @@
 					    			<div >
 
 					    				<div class="card">
-					    				  <span v-html="imagen.RUTA">HOLA</span>
+					    				  <span v-html="imagen.RUTA"></span>
 										  <!-- <img v-if="producto.COD_PROD === ''" :src="imagen.RUTA" class="card-img-top" alt="..."> -->
 										  <div class="card-body text-center">
 										    <p class="card-text">CAJA: {{caja.CODIGO}}</p>
@@ -398,6 +402,7 @@
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
 			</div>
 
@@ -604,6 +609,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- MODAL AGENCIA -->
+
+		<agencia-datatable-textbox @data="dataAgenciaTextbox"  ref="lista_agencia"></agencia-datatable-textbox>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -707,6 +718,9 @@
          		PRODUCTO: {
          			CODIGO: ''
          		}
+         	}, agencia: {
+         		CODIGO: '',
+         		NOMBRE: 'NINGUNO'
          	}
 
         }
@@ -739,6 +753,7 @@
 	        		cabecera: this.venta,
 	        		cliente: this.cliente,
 	        		vendedor: this.vendedor,
+	        		agencia: this.agencia,
 	        		caja: this.caja,
 	        		moneda: this.moneda.CODIGO,
 	        		pago: datos,
@@ -2014,6 +2029,18 @@
 
 				// ------------------------------------------------------------------------
 
+			}, agencia_seleccionar() {
+				
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+
+				this.$refs.lista_agencia.mostrarModal();
+				this.agencia.CODIGO = '';
+				this.agencia.NOMBRE = 'NINGUNO';
+				
+				// ------------------------------------------------------------------------
+
 			}, dataNotaCreditoTextbox(data){
 
 				// ------------------------------------------------------------------------
@@ -2071,6 +2098,15 @@
 				if (this.cliente.RETENTOR === 1) {
 					this.venta.RETENCION = Common.multiplicarCommon(0.3, total, this.moneda.DECIMAL);
 				}
+
+				// ------------------------------------------------------------------------
+
+			}, dataAgenciaTextbox(agencia){
+
+				// ------------------------------------------------------------------------
+
+				this.agencia.CODIGO = agencia.id;
+				this.agencia.NOMBRE = agencia.nombre;
 
 				// ------------------------------------------------------------------------
 
