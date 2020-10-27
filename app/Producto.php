@@ -971,7 +971,7 @@ $lotes= DB::connection('retail')
         // INSERTAR IMAGEN 
         
         if ($img !== "") { 
-            Imagen::guardar([
+            Imagen::guardar_imagen_storage([
                 'COD_PROD' => $datos["codigo_producto"],
                 'CODIGO_INTERNO' => $datos["codigo_interno"],
                 'PICTURE' => $img
@@ -1080,6 +1080,7 @@ $lotes= DB::connection('retail')
             'PRESENTACION' => $datos["presentacion"],
             'IMPUESTO' => $datos["iva"],
             'DESCUENTO' => $datos["descuentoMaximo"],
+            'PORCENTAJE' => 0,
             'MONEDA' => $datos["moneda"],
             'PREC_VENTA' => Common::quitar_coma($datos["precioVenta"], 2),
             'PREMAYORISTA' => Common::quitar_coma($datos["precioMayorista"], 2),
@@ -1104,7 +1105,7 @@ $lotes= DB::connection('retail')
         // INSERTAR IMAGEN 
         
         if ($img !== "") { 
-            Imagen::guardar([
+            Imagen::guardar_imagen_storage([
                 'COD_PROD' => $datos["codigo_producto"],
                 'CODIGO_INTERNO' => $datos["codigo_interno"],
                 'PICTURE' => $img
@@ -1220,7 +1221,7 @@ $lotes= DB::connection('retail')
                 ->get()->toArray();
             // IMAGEN 
 
-            $imagen = Imagen::obtenerImagen($codigo);
+            $imagen = Imagen::obtenerImagenURL($codigo);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -1470,9 +1471,6 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
         
-        if(!empty($request->input('columns.0.search.value'))){
-            //var_dump($request->input('columns.0.search.value'));
-        }
         // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
 
         if(empty($request->input('search.value')) && empty($request->input('columns.0.search.value')) && empty($request->input('columns.1.search.value')) && empty($request->input('columns.2.search.value')) && empty($request->input('columns.3.search.value')) && empty($request->input('columns.4.search.value')) && empty($request->input('columns.5.search.value')))
@@ -1531,11 +1529,11 @@ $lotes= DB::connection('retail')
             }
 
             if(!empty($request->input('columns.1.search.value'))) {
-                $posts->where('PRODUCTOS.DESCRIPCION', $request->input('columns.1.search.value'));
+                $posts->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
             }
 
             if(!empty($request->input('columns.2.search.value'))) {
-                $posts->where('PRODUCTOS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.1.search.value').'%');
+                $posts->where('PRODUCTOS.CATEGORIA', 'LIKE' , ''. $request->input('columns.2.search.value').'%');
             }           
 
             if(!empty($request->input('columns.3.search.value'))) {
@@ -1604,9 +1602,9 @@ $lotes= DB::connection('retail')
 
         // CONVERT IMAGE DEFAULT TO BLOB 
 
-        $path = '../storage/app/imagenes/product.png';
-        $type = pathinfo($path, PATHINFO_EXTENSION);
-        $dataDefaultImage = file_get_contents($path);
+        // $path = '../storage/app/imagenes/product.png';
+        // $type = pathinfo($path, PATHINFO_EXTENSION);
+        // $dataDefaultImage = file_get_contents($path);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1621,9 +1619,9 @@ $lotes= DB::connection('retail')
 
                 // BUSCAR IMAGEN
 
-                $imagen = Imagen::select(DB::raw('PICTURE'))
-                ->where('COD_PROD','=', $post->CODIGO)
-                ->get();
+                // $imagen = Imagen::select(DB::raw('PICTURE'))
+                // ->where('COD_PROD','=', $post->CODIGO)
+                // ->get();
                 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -1643,17 +1641,18 @@ $lotes= DB::connection('retail')
 
                 // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
 
-                if (count($imagen) > 0) {
-                   foreach ($imagen as $key => $image) {
-                        $imagen_producto = $image->PICTURE;
-                    }
-                } else {
-                    $imagen_producto = $dataDefaultImage;
-                }
+                // if (count($imagen) > 0) {
+                //    foreach ($imagen as $key => $image) {
+                //         $imagen_producto = $image->PICTURE;
+                //     }
+                // } else {
+                //     $imagen_producto = $dataDefaultImage;
+                // }
 
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+                //$nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+                $nestedData['IMAGEN'] = (Imagen::obtenerImagenURL($post->CODIGO))['imagen'];
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -1702,7 +1701,7 @@ $lotes= DB::connection('retail')
 
         // BUSCAR IMAGEN
 
-        $imagen = Imagen::obtenerImagen($data['codigo']);
+        $imagen = Imagen::obtenerImagenURL($data['codigo']);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2674,12 +2673,13 @@ $lotes= DB::connection('retail')
             $data["CODIGO_REAL"] = $value->CODIGO_REAL;
             $data["DESCUENTO"] = $value->DESCUENTO;
             $data["FECALTAS"]= $value->FECALTAS;
+
             /*  --------------------------------------------------------------------------------- */
 
-            // OBTENER LOTE
+            // OBTENER LOTE - SE QUITA PARA OBTENER MAS VELOCIDAD
 
-            $lote = Stock::ultimo_lote($value->CODIGO);
-            $data["LOTE"] = $lote;
+            //$lote = Stock::ultimo_lote($value->CODIGO);
+            $data["LOTE"] = 0;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2770,7 +2770,8 @@ $lotes= DB::connection('retail')
 
         // IMAGEN 
         
-        $imagen = Imagen::obtenerImagen($dato["codigo"]);
+        //$imagen = Imagen::obtenerImagen($dato["codigo"]);
+        $imagen = Imagen::obtenerImagenURL($dato["codigo"]);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3237,7 +3238,7 @@ $lotes= DB::connection('retail')
               var_dump($temp);
                    /* foreach ($interno as $key => $internos) {
 
-                            Imagen::guardar([
+                            Imagen::guardar_imagen_storage([
                                 'COD_PROD' => $codigo,
                                 'CODIGO_INTERNO'=> $internos->CODIGO_INTERNO,
                                 'PICTURE' => $imge
