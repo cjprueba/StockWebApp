@@ -2710,7 +2710,7 @@ class Venta extends Model
             }
 
             if($autorizacion==1){
-              VentaTieneAutorizacion::guardar_referencia([
+              VentasTieneAutorizacion::guardar_referencia([
                 'FK_VENTA'=>$venta,
                 'FK_USER'=>$data["data"]["autorizacion"]["ID_USUARIO"],
                 'FK_USER_SUPERVISOR'=>$data["data"]["autorizacion"]["ID_USER_SUPERVISOR"]
