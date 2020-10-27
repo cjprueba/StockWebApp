@@ -11,7 +11,7 @@ class User_Supervisor extends Model
 
     //
 
-     public static function caja_obtener($datos)
+     public static function obtener_autorizacion($datos)
     {
     	/*var_dump($datos);*/
         /*  --------------------------------------------------------------------------------- */
