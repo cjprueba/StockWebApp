@@ -22,6 +22,7 @@ use App\VentaCupon;
 use App\Cupon;
 use App\Cliente_tiene_Cupon;
 use App\NotaCredito;
+use App\User_Supervisor;
 use App\VentaTieneNotaCredito;
 use App\VentaRetencion;
 use App\VentasTieneAgencia;
@@ -2698,9 +2699,28 @@ class Venta extends Model
                 ]);
 
             }
+            /*  --------------------------------------------------------------------------------- */
+            // AUTORIZACION
+            if(isset($data["data"]["autorizacion"]["PERMITIDO"])){
+                $autorizacion = $data["data"]["autorizacion"]["PERMITIDO"];
+
+            }else{
+                $autorizacion= 0;
+            }
+
+            if($autorizacion==1){
+              User_Supervisor::guardar_referencia([
+                'FK_VENTA'=>$venta,
+                'FK_USER'=>$data["data"]["autorizacion"]["ID_USUARIO"],
+                'FK_USER_SUPERVISOR'=>$data["data"]["autorizacion"]["ID_USER_SUPERVISOR"]
+
+
+              ]);
+            }            
 
 
             /*  --------------------------------------------------------------------------------- */
+
 
             // INSERTAR PAGO CREDITO
             
