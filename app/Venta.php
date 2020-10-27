@@ -26,6 +26,7 @@ use App\User_Supervisor;
 use App\VentaTieneNotaCredito;
 use App\VentaRetencion;
 use App\VentasTieneAgencia;
+use App\VentasTieneAutorizacion;
 
 class Venta extends Model
 {
@@ -2709,7 +2710,7 @@ class Venta extends Model
             }
 
             if($autorizacion==1){
-              User_Supervisor::guardar_referencia([
+              VentaTieneAutorizacion::guardar_referencia([
                 'FK_VENTA'=>$venta,
                 'FK_USER'=>$data["data"]["autorizacion"]["ID_USUARIO"],
                 'FK_USER_SUPERVISOR'=>$data["data"]["autorizacion"]["ID_USER_SUPERVISOR"]
