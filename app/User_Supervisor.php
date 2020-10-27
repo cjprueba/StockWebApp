@@ -8,7 +8,7 @@ class User_Supervisor extends Model
 {
 	protected $connection = 'retail';
 	protected $table = 'users_supervisores';
-	
+
     //
 
      public static function obtener_autorizacion($datos)
@@ -19,7 +19,7 @@ class User_Supervisor extends Model
         // OBTENER TODOS LOS DATOS DEL TALLE
         $autorizacion = User_Supervisor::select(DB::raw('ID,FK_USER, CODIGO'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('CODIGO','=',$datos['codigo'])->get()->toArray();
         if(count($autorizacion)<=0){
-           return ["response"=>false,"statustext"=>"Esta sucursal no posee este codigo de autorizacion! Consulte con su Gerente."];
+           return ["response"=>false,"statusText"=>"Esta sucursal no posee este codigo de autorizacion! Consulte con su Gerente."];
         }
     
         // RETORNAR EL VALOR
