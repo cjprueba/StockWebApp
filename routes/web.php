@@ -38,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
 
+
 /* -------------------------------------------------------------------------- */
 
 // CAJAS
@@ -587,6 +588,14 @@ Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtene
 // AGENCIA
 
 Route::get('/agencia/datatable', 'AgenciaController@datatable');
+
+/* -------------------------------------------------------------------------- */
+
+
+// CONTROL DE CODIGO DE SUPERVISOR
+
+Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autorizacion');
+
 
 /* -------------------------------------------------------------------------- */
 

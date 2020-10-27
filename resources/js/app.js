@@ -489,6 +489,12 @@ Vue.component('agencia-datatable-textbox', require('./components/agencia/Agencia
 
 /* ********************************************* */
 
+// AUTORIZACION
+
+Vue.component('autorizacion', require('./components/autorizacion/Autorizacion.vue').default);
+
+/* ********************************************* */
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

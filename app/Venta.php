@@ -22,9 +22,11 @@ use App\VentaCupon;
 use App\Cupon;
 use App\Cliente_tiene_Cupon;
 use App\NotaCredito;
+use App\User_Supervisor;
 use App\VentaTieneNotaCredito;
 use App\VentaRetencion;
 use App\VentasTieneAgencia;
+use App\VentasTieneAutorizacion;
 
 class Venta extends Model
 {
@@ -2698,9 +2700,28 @@ class Venta extends Model
                 ]);
 
             }
+            /*  --------------------------------------------------------------------------------- */
+            // AUTORIZACION
+            if(isset($data["data"]["autorizacion"]["PERMITIDO"])){
+                $autorizacion = $data["data"]["autorizacion"]["PERMITIDO"];
+
+            }else{
+                $autorizacion= 0;
+            }
+
+            if($autorizacion==1){
+              VentasTieneAutorizacion::guardar_referencia([
+                'FK_VENTA'=>$venta,
+                'FK_USER'=>$data["data"]["autorizacion"]["ID_USUARIO"],
+                'FK_USER_SUPERVISOR'=>$data["data"]["autorizacion"]["ID_USER_SUPERVISOR"]
+
+
+              ]);
+            }            
 
 
             /*  --------------------------------------------------------------------------------- */
+
 
             // INSERTAR PAGO CREDITO
             
@@ -2924,7 +2945,7 @@ class Venta extends Model
 
         // OBTENER PARAMETRO
 
-        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO'))
+        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -2942,7 +2963,7 @@ class Venta extends Model
 
         // return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'Microsoft Print to PDF'];
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA'];
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA','SUPERVISOR'=>$parametro[0]['SUPERVISOR']];
         
         /*  --------------------------------------------------------------------------------- */
 
