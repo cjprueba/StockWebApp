@@ -2104,7 +2104,7 @@ class Stock extends Model
                              ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL');
                     })
                     ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'CONTEO_DET.COD_PROD')
-                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'TRANSFERENCIAS.MONEDA_ENVIAR')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                     ->where([
                         'CONTEO_DET.COD_PROD' => $codigo,
                         'PRODUCTOS_AUX.MONEDA' => $moneda,
