@@ -79,4 +79,16 @@ class StockController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+        public function loteProducto(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $lote = Stock::loteProducto($request);
+        return response()->json($lote);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
