@@ -9,6 +9,8 @@ use App\LoteUser;
 use App\VentasDetTieneLotes;
 use App\Ventas_det;
 use App\NotaCreditoTieneLotes;
+use App\Parametro;
+use App\Common;
 
 class Stock extends Model
 {
@@ -1001,6 +1003,9 @@ class Stock extends Model
 
     	$data = [];
 
+        $parametro = Parametro::consultaPersonalizada('MONEDA');
+        $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
+
     	/*  --------------------------------------------------------------------------------- */
 
     	// CONSEGUIR LOTE 
@@ -1010,6 +1015,9 @@ class Stock extends Model
 	    ->where('ID_SUCURSAL','=',$user->id_sucursal)
 	    ->get();
 
+        foreach ($lote as $key => $value) {
+           $value->COSTO = Common::formato_precio($value->COSTO, $candec);
+        }
 	    /*  --------------------------------------------------------------------------------- */
 
 	    // RETORNAR VALOR  

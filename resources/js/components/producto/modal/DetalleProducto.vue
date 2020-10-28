@@ -64,13 +64,16 @@
 			                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="true" v-on:click="obtenerProveedores">Compras</a>
 			                                </li>
 			                                <!-- <li class="nav-item">
-			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>
+			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>aria-controls="movivmientos" aria-selected="true" v-on:click="obtenerMovimientosProductos" :selected="seleccion.movimientos"
 			                                </li> -->
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="ubicacion-tab" data-toggle="tab" href="#ubicacion" role="tab" aria-controls="ubicacion" aria-selected="true" v-on:click="obtenerUbicacion">Ubicación</a>
 			                                </li>
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
+			                                </li>
+			                                <li class="nav-item">
+			                                    <a class="nav-link" id="movimientos-tab" data-toggle="tab" href="#movimientos" role="tab"  aria-controls="movimientos" aria-selected="true" v-on:click="obtenerMovimientosProductos">Movimientos</a>
 			                                </li>
 			                            </ul>
 			                            <div class="row">
@@ -374,9 +377,9 @@
 						                            
 						                            <div class="tab-pane fade show " id="ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
 
-						                            			<div v-if="loading.ubicacion" class="d-flex justify-content-center">
-														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
-																</div>
+						                            	<div v-if="loading.ubicacion" class="d-flex justify-content-center">
+														    <div class="spinner-grow" role="status" aria-hidden="true"></div>
+														</div>
 
 						                                        <div class="row" v-if="ubicacion !== false">
 						                                            <div class="col-md-6">
@@ -439,23 +442,171 @@
 																	  <font-awesome-icon icon="info-circle" /> No hay ubicaciones designadas
 																	</div>
 																</div>
-						                                        
 						                            </div>
-						                        	
+
+							                        <div class="tab-pane fade" id="movimientos" role="tabpanel" aria-labelledby="movimientos-tab">
+
+							                        	<div v-if="loading.movimientos" class="d-flex justify-content-center">
+														    <div class="spinner-grow" role="status" aria-hidden="true"></div>
+														</div>
+
+														<div v-if="loading.movimientos === false">
+														 <div class="col-md-6">
+							                                    <label>Ventas</label>
+							                             </div>
+														 <!-- TABLA DE VENTAS -->
+
+														 <div class="mt-2" v-if="ventas.length > 0">
+														 	<producto-detalle-venta ref="venta_producto" :codigo="codigo"></producto-detalle-venta>
+														 </div>
+														 <div v-if="ventas.length === 0 && loading.movimientos === false">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay ventas realizadas.
+															</div>
+														 </div>
+
+														 <!-- TABLA DEVOLUCION A PORVEEDOR -->
+														 <div class="col-md-6 mt-3">
+							                                    <label>Devoluciones a Proveedor</label>
+							                             </div>
+														 <table class="table" v-if="devolucionesProv.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">Proveedor</th>
+																    <th scope="col">ID</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Costo</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Lote</th>
+																    <th scope="col">Fecha</th>
+																    <th scope="col">Motivo</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(devolucionProv, index) in devolucionesProv" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <th>{{devolucionProv.PROVEEDOR}}</th>
+																    <td>{{devolucionProv.CODIGO}}</td>
+																    <td>{{devolucionProv.CANTIDAD}}</td>
+																    <td>{{devolucionProv.COSTO}}</td>
+																    <td>{{devolucionProv.TOTAL}}</td>
+																    <td>{{devolucionProv.LOTE}}</td>
+																    <td>{{devolucionProv.FECHA}}</td>
+																    <td>{{devolucionProv.MOTIVO}}</td>
+																</tr>
+															</tbody>
+														 </table>
+														 <div v-if="devolucionesProv.length === 0 && loading.movimientos === false">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay devoluciones a proveedor.
+															</div>
+														 </div>
+														 <!-- TABLA DE VECIMIENTO -->
+
+														 <div class="col-md-12" v-if="vencidos.length > 0">
+							                                    <label>Vencidos</label>
+														 <table class="table">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">Lote</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Costo</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Entrada</th>
+																    <th scope="col">Vencimiento</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(vencido, index) in vencidos" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <th>{{vencido.LOTE}}</th>
+																    <td>{{vencido.CANTIDAD}}</td>
+																    <td>{{vencido.COSTO}}</td>
+																    <td>{{vencido.TOTAL}}</td>
+																    <td>{{vencido.ENTRADA}}</td>
+																    <td>{{vencido.VENCIMIENTO}}</td>
+																</tr>
+															</tbody>
+														 </table>
+							                             </div>
+														 <!-- TABLA DE NOTA DE CREDITO -->
+														 <div class="col-md-6">
+							                                    <label>Notas de Crédito</label>
+							                             </div>
+														 <table class="table" v-if="creditos.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">CodNota</th>
+																    <th scope="col">Cliente</th>
+																    <th scope="col">Precio</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(credito, index) in creditos" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <th>{{credito.CODIGO}}</th>
+																    <td>{{credito.CLIENTE}}</td>
+																    <td>{{credito.PRECIO}}</td>
+																    <td>{{credito.CANTIDAD}}</td>
+																    <td>{{credito.TOTAL}}</td>
+																    <td>{{credito.FECHA}}</td>
+																</tr>
+															</tbody>
+														 </table>
+														 <div v-if="creditos.length === 0">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay Notas de Crédito.
+															</div>
+														 </div>
+														 <!-- TABLA DE DEVOLUCIONES -->
+														 <div class="col-md-6">
+							                                    <label>Devoluciones del Producto</label>
+							                             </div>
+														 <table class="table" v-if="devolucionProd.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">Código</th>
+																    <th scope="col">Cliente</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Precio</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(devolucion, index) in devolucionProd" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>
+																    <td>{{devolucion.CODIGO}}</td>
+																    <td>{{devolucion.CLIENTE}}</td>
+																    <td>{{devolucion.CANTIDAD}}</td>
+																    <td>{{devolucion.PRECIO}}</td>
+																    <td>{{devolucion.TOTAL}}</td>
+																    <td>{{devolucion.FECHA}}</td>
+
+																</tr>
+															</tbody>
+														  </table>
+														  <div v-if="devolucionProd.length === 0 && loading.movimientos === false">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay devoluciones.
+															</div>
+														 </div>
+														</div>
+							                        </div>
 						                        </div>
 						                    </div>
 			                            </div>	
 			                        </div>
 			                    </div>
-			                </div>
-			                <div class="row">
-			                    
-			                    
-			                </div>     
+			                </div>  
 				      </div>
-
-				      
-
 				      <div class="modal-footer">
 				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 				      </div>
@@ -539,7 +690,8 @@
           		transferencias: false,
           		lotes: false,
           		gondolas: false,
-          		ubicacion: false
+          		ubicacion: false,
+          		movimientos: false
           	}, ubicacion: {
           		SHELF: '', 
           		LINE: '',
@@ -547,7 +699,48 @@
           		OCCUPATION: '',
           		WAY: '',
           		MAIN_CATEGORY: ''
-          	}      
+          	},
+          	ventas: {
+          		CODIGO: '',
+          		PRECIO: '',
+          		CANTIDAD: '',
+          		TOTAL: '',
+          		FECHA: '',
+          		CLIENTE: ''
+          	},
+          	vencidos: {
+          		LOTE: '',
+          		CANTIDAD: '',
+          		COSTO: '',
+          		ENTRADA: '',
+          		VENCIMIENTO: ''
+          	},
+          	devolucionesProv: {
+          		CODIGO: '',
+				CANTIDAD: '',
+				COSTO: '',
+				TOTAL: '',
+				LOTE: '',
+				FECHA: '',
+				PROVEEDOR: '',
+				MOTIVO: ''
+          	},
+          	devolucionProd: {
+          		CODIGO: '',
+          		PRECIO: '',
+          		CANTIDAD: '',
+          		TOTAL: '',
+          		FECHA: '',
+          		CLIENTE: ''
+          	},
+          	creditos: {
+          		CODIGO: '',
+          		PRECIO: '',
+          		CANTIDAD: '',
+          		TOTAL: '',
+          		FECHA: '',
+          		CLIENTE: ''
+          	},    
          }
       },
       watch: { 
@@ -692,6 +885,31 @@
       		Common.obtenerUbicacionCommon(me.codigo).then(data => {
       			me.loading.ubicacion = false;
            		me.ubicacion = data; 
+           	}).catch((err) => {
+           		
+           	});
+
+      		// ------------------------------------------------------------------------
+
+      	},
+      	obtenerMovimientosProductos(){
+
+      		// ------------------------------------------------------------------------
+
+      		let me = this;
+      		me.loading.movimientos = true;
+
+      		// ------------------------------------------------------------------------
+
+      		// LLAMAR DATOS 
+
+      		Common.obtenerMovimientosProductosCommon(me.codigo).then(data => {
+      			me.loading.movimientos = false;
+           		me.ventas = data.ventas;
+           		me.vencidos = data.vencidos;
+           		me.devolucionesProv = data.devolucionesProv;
+           		me.devolucionProd = data.devolucionProd;
+           		me.creditos = data.notaCredito;
            	}).catch((err) => {
            		
            	});
