@@ -10,7 +10,7 @@ class SalidaProductoDet extends Model
 {
     //
      protected $connection = 'retail';
-    protected $table = 'salida_producto_det';
+    protected $table = 'salida_productos_det';
     public static function guardar($data, $id){
 
     	try {
@@ -32,7 +32,7 @@ class SalidaProductoDet extends Model
 				    		'CANTIDAD' => $value["CANTIDAD"],
 				    		'COSTO' => Common::quitar_coma($value["COSTO"], 2),
 				    		'COSTO_TOTAL' => Common::quitar_coma($value["COSTO"], 2),
-				    		'FK_DEVOLUCION_PROV' => $id,
+				    		'FK_SALIDA_PRODUCTOS' => $id,
 				    		'FK_ID_LOTE' => $value["LOTE_ID"],
 				    	]);
 

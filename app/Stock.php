@@ -2049,7 +2049,6 @@ class Stock extends Model
         // INICIAR VARIABLES
 
         $codigo = $request->input('codigo');
-        $proveedor = $request->input('proveedor');
         $moneda = $request->input('moneda');
 
         /*  --------------------------------------------------------------------------------- */
@@ -2091,7 +2090,7 @@ class Stock extends Model
                     ])
                     ->where('LOTES.CANTIDAD', '>', 0)
                     ->count(); 
-
+        
                     $totalData2=DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
                     ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
                     ->leftJoin('LOTES', function($join){
