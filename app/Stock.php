@@ -1992,7 +1992,7 @@ class Stock extends Model
                         $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
                              ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
                     })
-                    ->leftJoin('Lotes_tiene_TransferenciaDet', 'Lotes_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
+                    ->leftJoin('Lote_tiene_TransferenciaDet', 'Lote_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
                     ->leftJoin('LOTES', function($join){
                         $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
                              ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
