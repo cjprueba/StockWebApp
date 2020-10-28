@@ -2104,7 +2104,7 @@ class Stock extends Model
                              ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'CONTEO_DET.ID_SUCURSAL');
                     })
                     ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'CONTEO_DET.COD_PROD')
-                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'TRANSFERENCIAS.MONEDA_ENVIAR')
                     ->where([
                         'CONTEO_DET.COD_PROD' => $codigo,
                         'PRODUCTOS_AUX.MONEDA' => $moneda,
@@ -2112,7 +2112,32 @@ class Stock extends Model
                     ])
                     ->where('LOTES.CANTIDAD', '>', 0)
                     ->count();
-                    $totalData=$totalData+$totalData2;
+
+                    $totalData3=DB::connection('retail')->table('TRANSFERENCIAS')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, TRANSFERENCIAS.MONEDA_ENVIAR, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                     ->leftJoin('TRANSFERENCIAS_DET', function($join){
+                        $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                             ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('Lotes_tiene_TransferenciaDet', 'Lotes_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
+                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'TRANSFERENCIAS.MONEDA_ENVIAR')
+                    ->where([
+                        'TRANSFERENCIAS_DET.CODIGO_PROD' => $codigo,
+                        'TRANSFERENCIAS.MONEDA_ENVIAR' => $moneda,
+                        'TRANSFERENCIAS.SUCURSAL_DESTINO' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                    ->count();
+                    $totalData=$totalData+$totalData2+$totalData3;
 
                 
         
@@ -2159,7 +2184,7 @@ class Stock extends Model
                          ->limit($limit)
                          ->orderBy($order,$dir)
                          ->get();
-                                      var_dump($posts);
+                          
 
                           $posts2 = DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
                     ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
@@ -2182,6 +2207,34 @@ class Stock extends Model
                     ])
                     ->where('LOTES.CANTIDAD', '>', 0)
                          ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+                         $posts3=DB::connection('retail')->table('TRANSFERENCIAS')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, TRANSFERENCIAS.MONEDA_ENVIAR as MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                     ->leftJoin('TRANSFERENCIAS_DET', function($join){
+                        $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                             ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('Lotes_tiene_TransferenciaDet', 'Lotes_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
+                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'TRANSFERENCIAS.MONEDA_ENVIAR')
+                    ->where([
+                        'TRANSFERENCIAS_DET.CODIGO_PROD' => $codigo,
+                        'TRANSFERENCIAS.MONEDA_ENVIAR' => $moneda,
+                        'TRANSFERENCIAS.SUCURSAL_DESTINO' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                    ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
                          ->get();
@@ -2255,6 +2308,38 @@ class Stock extends Model
                          ->orderBy($order,$dir)
                          ->get();
 
+                         $posts3=DB::connection('retail')->table('TRANSFERENCIAS')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, TRANSFERENCIAS.MONEDA_ENVIAR as MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
+                     ->leftJoin('TRANSFERENCIAS_DET', function($join){
+                        $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                             ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                    })
+                    ->leftJoin('Lotes_tiene_TransferenciaDet', 'Lotes_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
+                    ->leftJoin('LOTES', function($join){
+                        $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
+                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                    })
+                    ->leftJoin('PRODUCTOS_AUX', function($join){
+                        $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                             ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
+                    })
+                    ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                    ->leftJoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'TRANSFERENCIAS.MONEDA_ENVIAR')
+                    ->where([
+                        'TRANSFERENCIAS_DET.CODIGO_PROD' => $codigo,
+                        'TRANSFERENCIAS.MONEDA_ENVIAR' => $moneda,
+                        'TRANSFERENCIAS.SUCURSAL_DESTINO' => $user->id_sucursal,
+                    ])
+                    ->where('LOTES.CANTIDAD', '>', 0)
+                      ->where(function ($query) use ($search) {
+                                $query->where('LOTES.LOTE','LIKE',"{$search}%")
+                                      ->orWhere('LOTES.CANTIDAD', 'LIKE',"{$search}%");
+                            })
+                    ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
             /*  ************************************************************ */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
@@ -2281,7 +2366,7 @@ class Stock extends Model
                             })
                             ->count();
 
-            $totalFiltered = $totalFiltered + count($posts2);
+            $totalFiltered = $totalFiltered + count($posts2)+count($posts3);
 
             /*  ************************************************************ */  
 
@@ -2325,7 +2410,9 @@ class Stock extends Model
 
             }
 
-            if(!empty($posts2)){
+            
+        }
+        if(!empty($posts2)){
                 foreach ($posts2 as  $post) {
                 $nestedData['COD_PROD'] = $post->COD_PROD;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
@@ -2348,7 +2435,29 @@ class Stock extends Model
                     # code...
                 }
             }
-        }
+            if(!empty($posts3)){
+                foreach ($posts3 as  $post) {
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['COSTO'] = Common::formato_precio($post->COSTO, $post->CANDEC);
+                $nestedData['INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->CANTIDAD;
+
+                if ($post->VENCIMIENTO === 1) {
+                    $nestedData['VENCIMIENTO'] = $post->FECHA_VENC;
+                } else {
+                    $nestedData['VENCIMIENTO'] = 'N/A';
+                }
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['MONEDA'] = $post->MONEDA;
+                $nestedData['DECIMAL'] = $post->CANDEC;
+                $nestedData['LOTE_ID'] = $post->LOTE_ID;
+
+                $data[] = $nestedData;
+                    # code...
+                }
+            }
         
         /*  --------------------------------------------------------------------------------- */
 
