@@ -13,7 +13,7 @@ class SalidaProducto extends Model
 {
     //
     protected $connection = 'retail';
-    protected $table = 'salida_producto';
+    protected $table = 'salida_productos';
 
     public static function salida($data) {
 
@@ -34,7 +34,7 @@ class SalidaProducto extends Model
 
             // GUARDAR DEVOLUCION PROVEEDOR DETALLE 
 
-            if ($salidaProducto"response"] === true) {
+            if ($salidaProducto["response"] === true) {
                 SalidaProductoDet::guardar($data['data']['productos'], $salidaProducto["id"]);
             } else {
                 return $devolucionProv;
