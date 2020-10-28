@@ -173,6 +173,8 @@
             <h6 class="collapse-header">Opciones:</h6>
             <router-link class="collapse-item" :to="{name: 'notaRemision'}">Nota de Remisión</router-link>
             <router-link class="collapse-item" :to="{name: 'notaCredito'}">Nota de Credito</router-link>
+            <router-link class="collapse-item" :to="{name: 'salidaProducto'}">Salida de Productos</router-link>
+            <router-link class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
           </div>
         </div>
       </li>

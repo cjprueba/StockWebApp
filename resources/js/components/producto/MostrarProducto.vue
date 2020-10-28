@@ -125,6 +125,8 @@
                         "bAutoWidth": true,
                         "select": true,
                         "responsive": true,
+                        "pagingType": "simple",
+                        "paging": true,
                         "rowReorder": {
                             "selector": 'td:nth-child(2)'
                         },
@@ -152,7 +154,17 @@
                             { "targets": '_all', "searchable": false },
                              
                             //{ width: "40%", "targets": [5] }
-                        ]      
+                        ],
+                        initComplete: function(){
+                          var api = this.api();
+                          $('#tablaModalProductos_filter input')
+                              .off('.DT')
+                              .on('keyup.DT', function (e) {
+                                  if (e.keyCode == 13) {
+                                      api.search(this.value).draw();
+                                  }
+                              });
+                       },      
                     });
 
                 // ------------------------------------------------------------------------

@@ -46,7 +46,7 @@
             </div>
 
             <div class="col-md-12 mt-3">
-                <caja-lote-cero @codigo_producto="detalle"></caja-lote-cero>
+                <!-- <caja-lote-cero @codigo_producto="detalle"></caja-lote-cero> -->
             </div>
            
           </div>

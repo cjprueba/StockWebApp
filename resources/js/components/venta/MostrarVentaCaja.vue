@@ -25,10 +25,31 @@
 
 			<!-- ------------------------------------------------------------------------ -->
 
+			<div class="col-md-11 mb-3">	
+						<div id="sandbox-container" class="input-daterange input-group input-group-sm">
+							<input id='selectedInicialFecha' data-date-format="yyyy-mm-dd" class=" form-control " v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validar.inicialFecha }"/>
+							<div class="input-group-append ">
+								<span class="input-group-text">a</span>
+							</div>
+							<input name='end' id='selectedFinalFecha' data-date-format="yyyy-mm-dd" class=" form-control " v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validar.finalFecha }"/>
+							<div class="invalid-feedback">
+						        {{mensaje.fechaInvalida}}
+						    </div>
+						</div>
+
+						
+			</div>
+
+			<div class="col-md-1 mb-0 text-right">
+				<label></label>
+				<button class="btn btn-primary btn-sm" v-on:click="obtenerDatatable()">Buscar</button>
+			</div>
+
 			<div class="col-md-12">
 				<table id="tablaVentaMostrar" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
+		                	<th>ID</th>
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
@@ -169,7 +190,16 @@
           	radio: {
           		moneda: '1'
           	},
-          	tableVentaMostrar: ''
+          	tableVentaMostrar: '',
+          	selectedInicialFecha: '',
+          	selectedFinalFecha: '',
+          	validar: {
+          		inicialFecha: '',
+          		finalFecha: ''
+          	},
+          	mensaje: {
+          		fechaInvalida: ''
+          	}
         }
       }, 
       methods: {
@@ -495,6 +525,8 @@
 	                "ajax":{
 	                  "data": {
 		                 				caja: me.caja.CODIGO,
+		                 				inicial: me.selectedInicialFecha,
+		                 				final: me.selectedFinalFecha,
 		                 				"_token": $('meta[name="csrf-token"]').attr('content')
 		                 			},  	
 	                  "url": "/venta/datatable",
@@ -502,6 +534,7 @@
 	                  "type": "POST"
 	                },
 	                "columns": [
+	                	{ "data": "ID" },
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },
@@ -539,7 +572,39 @@
         	me.obtenerCaja();
 
 	        // ------------------------------------------------------------------------
+
+	 		// MARCAR LA FECHA DE HOY
+
+			var today = new Date();
+			var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+    		// ------------------------------------------------------------------------
+
+    		me.selectedInicialFecha = date;
+    		me.selectedFinalFecha = date;
+
+			// ------------------------------------------------------------------------
+
+	 		// FECHAS 
+
+	 		$(function(){
+		   		    $('#sandbox-container .input-daterange').datepicker({
+		   		    	    keyboardNavigation: false,
+    						forceParse: false,
+    				});
+    				$("#selectedInicialFecha").datepicker().on(
+			     		"changeDate", () => {me.selectedInicialFecha = $('#selectedInicialFecha').val()}
+					);
+					$("#selectedFinalFecha").datepicker().on(
+			     		"changeDate", () => {me.selectedFinalFecha = $('#selectedFinalFecha').val()}
+					);
+
+			});
+
+	 		// ------------------------------------------------------------------------
+
 	 		
+
 	 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
 
 	 		// ------------------------------------------------------------------------

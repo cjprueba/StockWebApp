@@ -477,6 +477,7 @@ class Vendedores extends Model
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('CODIGO', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
@@ -490,6 +491,7 @@ class Vendedores extends Model
 
             $totalFiltered = Vendedores::where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('CODIGO', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->where('ID_SUCURSAL', '=', $user->id_sucursal)

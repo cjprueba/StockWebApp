@@ -39,7 +39,22 @@
 
                         <div class="modal-body">  
                             <div class="row">
+
+                              <!-- ------------------------------------------------------------------------ -->
+
+                              <!-- RETENCION -->
+
+                              <div class="col-md-12 mb-3 mt-1">
+                                <div class="text-left" v-if="retencion > 0">
+                                  <span class="badge badge-warning">Retencion: {{retencion}} </span>
+                                </div>
+                              </div>
+
+                              <!-- ------------------------------------------------------------------------ -->
+
                               <div class="col-md-12">
+
+                                <!-- ------------------------------------------------------------------------ -->
 
                                 <div class="card  bg-light card-body border-left-info">
 
@@ -735,7 +750,7 @@
 </template>
 <script>
 	export default {
-      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo'],
+      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo', 'retencion'],
       watch: { 
         total_crudo: function(newVal, oldVal) {
             this.sumarMonedas();
@@ -764,6 +779,9 @@
         moneda: function(newVal, oldVal) {
             this.radio.vuelto = String(newVal);
         },
+        retencion: function(newVal, oldVal) {
+            this.sumarMonedas();
+        }
       },
       data(){
         return {
@@ -1443,6 +1461,12 @@
             // CUPON
 
             total = Common.sumarCommon(Common.darFormatoCommon(this.medios.CUPON, this.candec), total, this.candec);
+
+            // ------------------------------------------------------------------------
+
+            // RETENCION
+
+            total = Common.sumarCommon(Common.darFormatoCommon(this.retencion, this.candec), total, this.candec);
 
             // ------------------------------------------------------------------------
 

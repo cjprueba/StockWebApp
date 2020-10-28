@@ -76,9 +76,9 @@
 
 				// LLAMAR FUNCION PARA FILTRAR PRODUCTOS
 
-				Common.filtrarProductosCommon(codigo).then(data => {
-				  this.productos = data
-				});
+				// Common.filtrarProductosCommon(codigo).then(data => {
+				//   this.productos = data
+				// });
 
 				// ------------------------------------------------------------------------
 

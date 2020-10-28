@@ -9,6 +9,7 @@ use Mpdf\Mpdf;
 use Luecano\NumeroALetras\NumeroALetras;
 require_once '../vendor/autoload.php';
 use Automattic\WooCommerce\Client;
+use App\Events\OrdenCompletado;
 
 class Orden extends Model
 {
@@ -1068,18 +1069,18 @@ class Orden extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
-                $cliente = $post->billing->first_name.' '.$post->billing->last_name;
+                $cliente = utf8_encode($post->billing->first_name).' '.utf8_encode($post->billing->last_name);
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE']  = ucwords(strtolower(utf8_encode($cliente)));
-                $nestedData['CLIENTE'] = str_replace  ("'", "",  $nestedData['CLIENTE'] );
-                $nestedData['CLIENTE'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CLIENTE']);
-                $nestedData['CLIENTE'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CLIENTE'] );
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
-                $nestedData['CIUDAD'] = str_replace  ("'", "",  $nestedData['CIUDAD'] );
-                $nestedData['CIUDAD'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CIUDAD']);
-                $nestedData['CIUDAD'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CIUDAD'] );
-                $nestedData['FECHA'] = substr($post->date_created, 0, -9);
-                $nestedData['HORA'] = substr($post->date_created, 11);
+                $nestedData['CLIENTE']  = ucwords(strtolower(utf8_decode($cliente)));
+                // $nestedData['CLIENTE'] = str_replace  ("'", "",  $nestedData['CLIENTE'] );
+                // $nestedData['CLIENTE'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CLIENTE']);
+                // $nestedData['CLIENTE'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CLIENTE'] );
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode(utf8_encode($post->billing->city))));
+                // $nestedData['CIUDAD'] = str_replace  ("'", "",  $nestedData['CIUDAD'] );
+                // $nestedData['CIUDAD'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CIUDAD']);
+                // $nestedData['CIUDAD'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CIUDAD'] );
+                $nestedData['FECHA'] = substr(utf8_encode($post->date_created), 0, -9);
+                $nestedData['HORA'] = substr(utf8_encode($post->date_created), 11);
                 $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
 
                 // if ($post->status === "pending") {
@@ -1156,7 +1157,23 @@ class Orden extends Model
 		];
 
         $posts = ($woocommerce->get('orders', $data));
+        //$posts = array_map("utf8_decode", $posts );
 
+        // if (is_string($input)) {
+        //     $input = utf8_encode($input);
+        // } else if (is_array($input)) {
+        //     foreach ($input as &$value) {
+        //         utf8_encode_deep($value);
+        //     }
+            
+        //     unset($value);
+        // } else if (is_object($input)) {
+        //     $vars = array_keys(get_object_vars($input));
+            
+        //     foreach ($vars as $var) {
+        //         utf8_encode_deep($input->$var);
+        //     }
+        // }
         /*  --------------------------------------------------------------------------------- */
 
         // CONTAR LA CANTIDAD DE ORDENES ENCONTRADAS 
@@ -1190,14 +1207,14 @@ class Orden extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = $post->billing->first_name.' '.$post->billing->last_name;
+                $cliente = utf8_encode($post->billing->first_name).' '.utf8_encode($post->billing->last_name);
 
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_encode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_encode($post->billing->city)));
-                $nestedData['FECHA'] = substr($post->date_created, 0, -9);
-                $nestedData['HORA'] = substr($post->date_created, 11);
-                $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
+                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_decode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode($post->billing->city)));
+                $nestedData['FECHA'] = substr(utf8_encode($post->date_created), 0, -9);
+                $nestedData['HORA'] = substr(utf8_encode($post->date_created), 11);
+                $nestedData['TOTAL'] =Common::formato_precio(utf8_encode($post->total),0);
 
                 // if ($post->status === "pending") {
                 //     $nestedData['ESTADO'] = '<span class="badge badge-secondary">Pendiente de Pago</span>';
@@ -1983,7 +2000,39 @@ class Orden extends Model
 
 
         /*  --------------------------------------------------------------------------------- */
-        return ["response"=>true];
+
+        // ENVIAR ORDEN A TRAVES DE EVENTO
+
+        event(new OrdenCompletado(
+            [
+               'ID' => $bill,
+               'ORDEN_ID' => $orden["id"],
+               'NOMBRES' => $orden["billing"]->first_name, 
+               'APELLIDOS' => $orden["billing"]->last_name,
+               'COMPANY' => $orden["billing"]->company,
+               'DIRECCION_1' => $orden["billing"]->address_1,
+               'DIRECCION_2' => $orden["billing"]->address_2,
+               'CIUDAD' => $orden["billing"]->city,
+               'ESTADO' => $orden["billing"]->state,
+               'CODIGO_POSTAL' => $orden["billing"]->postcode,
+               'COUNTRY' => $orden["billing"]->country,
+               'EMAIL' => $orden["billing"]->email,
+               'DOCUMENTO' => $ci,
+               'RUC' => $ruc,
+               'RAZON_SOCIAL' => $raz,
+               'CELULAR' => $orden["billing"]->phone,
+               'FECALTAS' => $dia,
+               'HORALTAS' => $hora,
+               'TOTAL' => $orden["total"]
+            ]
+        ));
+
+        /*  --------------------------------------------------------------------------------- */
+
+        return ["response" => true];
+
+        /*  --------------------------------------------------------------------------------- */
+
       } catch (Exception $e) {
         Log::error(['TIPO'=>$e->getMessage()], ['ORDEN NUMERO:'=>$orden["id"]]);
         Log::error(['DATOS DE LA ORDEN:'=>$orden]);

@@ -296,6 +296,7 @@ Vue.component('subcategoria-nombre', require('./components/textboxs/Atributos/Su
 Vue.component('nombre-textbox', require('./components/textboxs/Atributos/NombreTextbox.vue').default);
 Vue.component('forma-pago-textbox', require('./components/textboxs/FormaPagoTextbox.vue').default);
 Vue.component('lote-proveedor', require('./components/textboxs/LotesProveedor.vue').default);
+Vue.component('lote-general', require('./components/textboxs/LotesGeneral.vue').default);
 Vue.component('search-marca', require('./components/textboxs/MarcaSearch.vue').default);
 Vue.component('ventas-id', require('./components/textboxs/Ventas/VentasTextbox.vue').default);
 Vue.component('ventas-global-textbox', require('./components/textboxs/Ventas/VentasGlobalTextbox.vue').default);
@@ -475,6 +476,25 @@ Vue.component('producto', require('./components/producto/MostrarProductoUno.vue'
 // CATALOGO
 
 Vue.component('catalogo', require('./components/producto/Catalogo.vue').default);
+
+/* ********************************************* */
+
+// NOTA CREDITO
+
+Vue.component('nota-credito-cliente-datatable', require('./components/movimientos/CreditoNotaDatatableTextbox.vue').default);
+Vue.component('modal-detalle-salida-productos', require('./components/movimientos/modal/ModalDetalleSalidaProductos.vue').default);
+
+/* ********************************************* */
+
+// AGENCIA
+
+Vue.component('agencia-datatable-textbox', require('./components/agencia/AgenciaDatatable.vue').default);
+
+/* ********************************************* */
+
+// AUTORIZACION
+
+Vue.component('autorizacion', require('./components/autorizacion/Autorizacion.vue').default);
 
 /* ********************************************* */
 

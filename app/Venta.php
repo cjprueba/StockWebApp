@@ -22,6 +22,11 @@ use App\VentaCupon;
 use App\Cupon;
 use App\Cliente_tiene_Cupon;
 use App\NotaCredito;
+use App\User_Supervisor;
+use App\VentaTieneNotaCredito;
+use App\VentaRetencion;
+use App\VentasTieneAgencia;
+use App\VentasTieneAutorizacion;
 
 class Venta extends Model
 {
@@ -1991,6 +1996,10 @@ class Venta extends Model
                 $cupon= 0;
             }
 
+            $total_cupon_iva = 0;
+            $total_cupon_base10 = 0;
+            $total_cupon_gravadas = 0;
+
             /*  --------------------------------------------------------------------------------- */            
 
             // CREDITO
@@ -1998,6 +2007,37 @@ class Venta extends Model
             $credito = Common::quitar_coma($data["data"]["pago"]["CREDITO"], 2);
             $dias_credito = $data["data"]["pago"]["DIAS_CREDITO"];
             $credito_fin = $data["data"]["pago"]["CREDITO_FIN"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // NOTA DE CREDITO 
+
+            $nota_credito_data = array();
+            $total_nota_credito = 0;
+            $total_nota_credito_base5 =  0;
+            $total_nota_credito_base10 =  0;
+            $total_nota_credito_gravadas =  0;
+            $total_nota_credito_iva =  0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETENCION 
+
+            if(isset($data["data"]["cabecera"]["RETENCION"])){
+                $retencion = Common::quitar_coma($data["data"]["cabecera"]["RETENCION"], 2);
+            }else{
+                $retencion= 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // AGENCIA 
+
+            if(isset($data["data"]["agencia"]["CODIGO"])){
+                $agencia = $data["data"]["agencia"]["CODIGO"];
+            }else{
+                $agencia = 0;
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2020,6 +2060,7 @@ class Venta extends Model
             $total_exentas = 0;
             $descuento = 0;
             $descuento_total = 0;
+            $impuesto_cupon = 0;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2305,6 +2346,48 @@ class Venta extends Model
                     
                     /*  --------------------------------------------------------------------------------- */
 
+                } else if ($data["data"]["productos"][$c]["TIPO"] === 4) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $nestedData['ID'] = $data["data"]["productos"][$c]["ID"];
+                    $nestedData['TOTAL'] = $total;
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // OBTENER DATOS DE LA NOTA DE CREDITO
+
+                    $nota_credito_impuesto = NotaCredito::select(DB::raw('BASE5, BASE10, SUB_TOTAL, IVA, TOTAL'))
+                    ->where('ID', '=', $data["data"]["productos"][$c]["ID"])
+                    ->get();
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // CAMBIAR ESTATUS NOTA DE CREDITO 
+
+                    NotaCredito::where('ID', '=', $data["data"]["productos"][$c]["ID"]) 
+                    ->update(
+                        [ 
+                            'PROCESADO' => 1
+                        ]
+                    );
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    // IMPUESTO 
+
+                    $total_nota_credito_base5 =  $total_nota_credito_base5 + $nota_credito_impuesto[0]['BASE5'];
+                    $total_nota_credito_base10 =  $total_nota_credito_base10 + $nota_credito_impuesto[0]['BASE10'];
+                    $total_nota_credito_gravadas =  $total_nota_credito_gravadas + $nota_credito_impuesto[0]['SUB_TOTAL'];
+                    $total_nota_credito_iva =  $total_nota_credito_iva + $nota_credito_impuesto[0]['IVA'];
+                    $total_nota_credito =  $total_nota_credito + $nota_credito_impuesto[0]['TOTAL'];
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                    $nota_credito_data[] = $nestedData;
+
+                    /*  --------------------------------------------------------------------------------- */
+
                 }
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2314,6 +2397,35 @@ class Venta extends Model
                 $c++;
                         
                 /*  --------------------------------------------------------------------------------- */
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if ($cupon !== '0' && $cupon !== 0 && $cupon !== '0.00' && $cupon !== NULL) {
+
+                /*  --------------------------------------------------------------------------------- */ 
+
+                // GUARDAR VENTA CON CUPON
+
+                /*  --------------------------------------------------------------------------------- */
+                
+                $impuesto_cupon = Common::calculo_iva(10, (float)$cupon, $candec);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $total_iva = $total_iva - $impuesto_cupon["impuesto"];
+                $total_base10 = $total_base10 - $impuesto_cupon["base10"];
+                $total_gravadas = $total_gravadas - $impuesto_cupon["gravadas"];
+
+                /*  --------------------------------------------------------------------------------- */
+                
+                $total_cupon_iva = $impuesto_cupon["impuesto"];
+                $total_cupon_base10 = $impuesto_cupon["base10"];
+                $total_cupon_gravadas = $impuesto_cupon["gravadas"];
+
+                /*  --------------------------------------------------------------------------------- */
+                
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2326,6 +2438,18 @@ class Venta extends Model
                 $total_base5 = $total_base5 - (($total_base5 * $descuento_general_porcentaje) / 100);
                 $total_exentas = $total_exentas - (($total_exentas * $descuento_general_porcentaje) / 100);
                 $total_gravadas = $total_gravadas - (($total_gravadas * $descuento_general_porcentaje) / 100);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CALCULAR TOTAL GENERAL IVA  CON NOTA DE CREDITO
+
+            if ($total_nota_credito !== 0) {
+                $total_iva = $total_iva - $total_nota_credito_iva;
+                $total_base10 = $total_base10 - $total_nota_credito_base10;
+                $total_base5 = $total_base5 - $total_nota_credito_base5;
+                $total_gravadas = $total_gravadas - $total_nota_credito_gravadas;
+                $total_total = $total_total - $total_nota_credito;
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2352,6 +2476,7 @@ class Venta extends Model
                 $estatus_venta = 2;
 
                 /*  --------------------------------------------------------------------------------- */
+
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2378,7 +2503,7 @@ class Venta extends Model
                     "BASE5" => $total_base5, 
                     "BASE10" => $total_base10, 
                     "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => (($total_total - $descuento_general) - $cupon), 
+                    "TOTAL" => ((($total_total - $descuento_general) - $cupon)), 
                     "EFECTIVO" => $efectivo, 
                     "CHEQUE" => 0, 
                     "VALE" => 0, 
@@ -2409,6 +2534,27 @@ class Venta extends Model
                     'ANULADO' => $estatus_venta,
                     'FECHA' => date('Y-m-d H:i:s')
             ]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR NOTA DE CREDITO 
+
+            foreach ($nota_credito_data as $key => $value) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // GUARDAR REFERENCIA
+
+                VentaTieneNotaCredito::guardar_referencia(
+                    [
+                        'FK_VENTA' => $venta,
+                        'FK_NOTA_CREDITO' => $value['ID']
+                    ]
+                );
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2469,6 +2615,31 @@ class Venta extends Model
                 
             }
 
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR VENTA RETENCION 
+
+            if ($retencion !== '0' && $retencion !== '0.00' && $retencion !== 0 && $retencion !== NULL) {
+
+                VentaRetencion::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'MONTO' => $retencion,
+                ]);
+                
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR AGENCIA
+
+            if ($agencia !== '0' && $agencia !== '0.00' && $agencia !== 0 && $agencia !== NULL) {
+
+                VentasTieneAgencia::guardar_referencia([
+                        'FK_VENTA' => $venta,
+                        'FK_AGENCIA' => $agencia,
+                ]);
+                
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2477,10 +2648,12 @@ class Venta extends Model
             
             if ($cupon !== '0' && $cupon !== 0 && $cupon !== '0.00' && $cupon !== NULL) {
 
-                 /*  --------------------------------------------------------------------------------- */ 
-                // GUARDAR VENTA CON CUPON
-                /*  --------------------------------------------------------------------------------- */
+                /*  --------------------------------------------------------------------------------- */ 
 
+                // GUARDAR VENTA CON CUPON
+
+                /*  --------------------------------------------------------------------------------- */
+                
                 VentaCupon::guardar_referencia([
                         'FK_CUPON'=> $data["data"]["pago"]["CUPON_ID"],
                         'FK_VENTA' => $venta,
@@ -2490,23 +2663,33 @@ class Venta extends Model
                         'FK_USER'=>$user->id,
                         'MONEDA' => $moneda,
                         'FECALTAS'=>$dia,
-                        'HORALTAS'=>$hora
+                        'HORALTAS'=>$hora,
+                        'BASE5' => 0,
+                        'BASE10' => $total_cupon_base10,
+                        'GRAVADAS' => $total_cupon_gravadas,
+                        'IVA' => $total_cupon_iva
                 ]);
 
                 /*  --------------------------------------------------------------------------------- */ 
+
                 // OBTENER ID CLIENTE 
+
                 /*  --------------------------------------------------------------------------------- */
 
                 $id_cliente = (Cliente::id_cliente($cliente))['ID_CLIENTE'];
 
                 /*  --------------------------------------------------------------------------------- */
+
                 // ACTUALIZAR USO DEL CUPON 
+
                 /*  --------------------------------------------------------------------------------- */
 
                 Cupon::actualizar_uso($data["data"]["pago"]["CUPON_ID"],1);
 
                 /*  --------------------------------------------------------------------------------- */
+
                 // GUARDAR USO DEL CLIENTE 
+
                 /*  --------------------------------------------------------------------------------- */
 
                 Cliente_tiene_Cupon::guardar_referencia([
@@ -2517,9 +2700,28 @@ class Venta extends Model
                 ]);
 
             }
+            /*  --------------------------------------------------------------------------------- */
+            // AUTORIZACION
+            if(isset($data["data"]["autorizacion"]["PERMITIDO"])){
+                $autorizacion = $data["data"]["autorizacion"]["PERMITIDO"];
+
+            }else{
+                $autorizacion= 0;
+            }
+
+            if($autorizacion==1){
+              VentasTieneAutorizacion::guardar_referencia([
+                'FK_VENTA'=>$venta,
+                'FK_USER'=>$data["data"]["autorizacion"]["ID_USUARIO"],
+                'FK_USER_SUPERVISOR'=>$data["data"]["autorizacion"]["ID_USER_SUPERVISOR"]
+
+
+              ]);
+            }            
 
 
             /*  --------------------------------------------------------------------------------- */
+
 
             // INSERTAR PAGO CREDITO
             
@@ -2743,7 +2945,7 @@ class Venta extends Model
 
         // OBTENER PARAMETRO
 
-        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO'))
+        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
@@ -2761,7 +2963,7 @@ class Venta extends Model
 
         // return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'Microsoft Print to PDF'];
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA'];
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA','SUPERVISOR'=>$parametro[0]['SUPERVISOR']];
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -2786,7 +2988,8 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $venta = Venta::select(DB::raw(
-                        'VENTAS.CODIGO,
+                        'VENTAS.ID,
+                        VENTAS.CODIGO,
                         VENTAS.FECALTAS,  
                         CLIENTES.NOMBRE AS CLIENTE,
                         CLIENTES.RAZON_SOCIAL,
@@ -2806,7 +3009,11 @@ class Venta extends Model
                         VENTAS.CODIGO_CA,
                         VENTAS.TIPO,
                         VENTAS.MONEDA,
-                        VENTAS.TOTAL'
+                        VENTAS.TOTAL,
+                        VENTAS.MONEDA1 AS DOLARES,
+                        VENTAS.MONEDA2 AS REALES,
+                        VENTAS.MONEDA3 AS GUARANIES,
+                        VENTAS.MONEDA4 AS PESOS'
                     ))
         ->leftJoin('CLIENTES', function($join){
                                 $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
@@ -2881,6 +3088,7 @@ class Venta extends Model
         $codigo = $data['codigo'];
         $caja = $data['caja'];
         $data = array();
+        $cantidad_items  = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3010,6 +3218,121 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // CUPON 
+
+        $ventas_cupon = VentaCupon::select(DB::raw(
+                        'VENTAS_CUPON.ID,
+                        0 AS ITEM, 
+                        2 AS COD_PROD, 
+                        0 AS DESCRIPCION, 
+                        1 AS CANTIDAD, 
+                        VENTAS_CUPON.CUPON_IMPORTE AS PRECIO_UNIT,
+                        VENTAS_CUPON.IVA AS IVA,
+                        0 AS EXENTAS,
+                        VENTAS_CUPON.BASE5 AS BASE5,
+                        VENTAS_CUPON.BASE10 AS BASE10,
+                        VENTAS_CUPON.CUPON_IMPORTE AS PRECIO,
+                        VENTAS.MONEDA,
+                        10 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.ID', '=', 'VENTAS_CUPON.FK_VENTA');
+                            })
+        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.CODIGO','=', $codigo)
+        ->where('VENTAS.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        foreach ($ventas_cupon as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = 'DESCUENTO CUPON';
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT * -1, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA * -1, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS * -1;
+            $nestedData['BASE5'] = $value->BASE5 * -1;
+            $nestedData['BASE10'] = ($value->PRECIO * -1 / 11);
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO * -1, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // NOTA CREDITO
+
+        $ventas_nota_credito = VentaTieneNotaCredito::select(DB::raw(
+                        'VENTAS_TIENE_NOTA_CREDITO.ID,
+                        0 AS ITEM, 
+                        3 AS COD_PROD, 
+                        0 AS DESCRIPCION, 
+                        1 AS CANTIDAD, 
+                        NOTA_CREDITO.TOTAL AS PRECIO_UNIT,
+                        NOTA_CREDITO.IVA AS IVA,
+                        0 AS EXENTAS,
+                        NOTA_CREDITO.BASE5 AS BASE5,
+                        NOTA_CREDITO.BASE10 AS BASE10,
+                        NOTA_CREDITO.TOTAL AS PRECIO,
+                        VENTAS.MONEDA,
+                        10 AS IVA_PORCENTAJE'
+                    ))
+        ->leftJoin('VENTAS', function($join){
+                                $join->on('VENTAS.ID', '=', 'VENTAS_TIENE_NOTA_CREDITO.FK_VENTA');
+                            })
+        ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.CODIGO','=', $codigo)
+        ->where('VENTAS.CAJA','=', $caja)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        foreach ($ventas_nota_credito as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $nestedData['ID'] = $value->ID;
+            $nestedData['ITEM'] = $value->ITEM;
+            $nestedData['COD_PROD'] = $value->COD_PROD;
+            $nestedData['DESCRIPCION'] = 'DESCUENTO NC';
+            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT * -1, $value->MONEDA);
+            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA * -1, $value->MONEDA);
+            $nestedData['EXENTAS'] = $value->EXENTAS * -1;
+            $nestedData['BASE5'] = $value->BASE5 * -1;
+            $nestedData['BASE10'] = ($value->PRECIO * -1 / 11);
+            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO * -1, $value->MONEDA);
+            $nestedData['MONEDA'] = $value->MONEDA;
+            $nestedData['IVA_PORCENTAJE'] = 0;
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DATOS EN ARRAY
+
+            $data[] = $nestedData;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
         $ventas_det = Ventas_det::select(DB::raw(
                         'VENTASDET.ID,
                         VENTASDET.ITEM, 
@@ -3036,6 +3359,8 @@ class Venta extends Model
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
+
+        $cantidad_items = count($ventas_det);
 
         foreach ($ventas_det as $key => $value) {
             
@@ -3064,6 +3389,7 @@ class Venta extends Model
             $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
+            $nestedData['CANTIDAD_ITEMS'] = $cantidad_items;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3121,6 +3447,7 @@ class Venta extends Model
             $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = 10;
+            $nestedData['CANTIDAD_ITEMS'] = $cantidad_items;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3223,7 +3550,7 @@ class Venta extends Model
     public static function resumen_pdf($dato) {
 
         /*  --------------------------------------------------------------------------------- */
-
+        //Venta::ticket_pdf('hola');
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
@@ -3934,6 +4261,511 @@ class Venta extends Model
 
         // PARAMETROS 
 
+        $parametro = Parametro::select(DB::raw('MENSAJE, LOGO, TOTAL_MONEDAS_TICKET, NOMBRE_LOGO, PIE_TICKET_PERSONALIZABLE, TIPO_IMPRESORA_TICKET'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $sucursal = Sucursal::encontrarSucursal(['codigoOrigen' => $user->id_sucursal]);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $nombre_sucursal = $sucursal['sucursal'][0]['DESCRIPCION'];
+        $direccion_sucursal = $sucursal['sucursal'][0]['DIRECCION'];
+        $ciudad_sucursal = $sucursal['sucursal'][0]['CIUDAD'];
+        $ticket_id = $ventas->ID;
+        $codigo = $ventas->CODIGO;
+        $cliente = $ventas->CLIENTE;
+        $direccion = $ventas->DIRECCION;
+        $ruc = $ventas->RUC;
+        $tipo = $ventas->TIPO;
+        $fecha = substr($ventas->FECALTAS,0,10);
+        $hora = $ventas->HORALTAS;
+        $caja = $ventas->CAJA;
+        $vendedor = $ventas->VENDEDOR;
+        $cajero = $ventas->CAJERO;
+        $pago = $ventas->PAGO;
+        $vuelto = $ventas->VUELTO;
+        $descuento = $ventas->DESCUENTO;
+        $ticket = $ventas->CODIGO_CA;
+        $tipo = $ventas->TIPO;
+        $documento = $ventas->RUC;
+        $nombre = 'Venta_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $exentas = 0;
+        $base5 = 0;
+        $base10 = 0;
+        $iva = 0;
+        $total = 0;
+        $switch_hojas = false;
+        $namefile = 'boleta_de_venta_'.time().'.pdf';
+        $letra = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $cantidad_producto_descuento = 0;
+        $cantidad_items = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // TOTAL EN MONEDAS
+
+        $total_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_dolares['response'] == true) {
+            $total_dolares = $total_dolares['valor'];
+        } else {
+            $total_dolares = 0;
+        }
+
+        $total_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->TOTAL, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_guaranies['response'] == true) {
+            $total_guaranies = $total_guaranies['valor'];
+        } else {
+            $total_guaranies = 0;
+        }
+
+        $total_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_pesos['response'] == true) {
+            $total_pesos = $total_pesos['valor'];
+        } else {
+            $total_pesos = 0;
+        }
+
+        $total_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($total_reales['response'] == true) {
+            $total_reales = $total_reales['valor'];
+        } else {
+            $total_reales = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VUELTO EN MONEDAS
+
+        $vuelto_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_dolares['response'] == true) {
+            $vuelto_dolares = $vuelto_dolares['valor'];
+        } else {
+            $vuelto_dolares = 0;
+        }
+
+        $vuelto_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->VUELTO, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_guaranies['response'] == true) {
+            $vuelto_guaranies = $vuelto_guaranies['valor'];
+        } else {
+            $vuelto_guaranies = 0;
+        }
+
+        $vuelto_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_pesos['response'] == true) {
+            $vuelto_pesos = $vuelto_pesos['valor'];
+        } else {
+            $vuelto_pesos = 0;
+        }
+
+        $vuelto_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+        if ($vuelto_reales['response'] == true) {
+            $vuelto_reales = $vuelto_reales['valor'];
+        } else {
+            $vuelto_reales = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($parametro[0]->TIPO_IMPRESORA_TICKET === 1) {
+            $pdf = new FPDF('P','mm',array(76,297));
+            $pdf->AddPage();
+        } else if ($parametro[0]->TIPO_IMPRESORA_TICKET === 2){
+            $pdf = new FPDF('P','mm',array(80,400));
+            $pdf->AddPage();
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CABECERA
+
+        if ($parametro[0]->LOGO === 1) {
+            $pdf->Image('../storage/app/public/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.'',7,7,65,0);
+            $pdf->Ln(10);
+        } else {
+            $pdf->SetFont('Helvetica','',10);
+            $pdf->Cell(60,4, $nombre_sucursal ,0,1,'C');
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        /*new*/ 
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4, utf8_decode($direccion_sucursal) ,0,1,'C');
+        $pdf->Cell(60,4, utf8_decode($ciudad_sucursal) ,0,1,'C');
+        $pdf->Cell(60,4, "***" ,0,1,'C');
+        $pdf->Ln(1);
+        $pdf->Cell(60,0,'','T');    
+        /*datos del cliente*/
+        $pdf->Ln(1);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'CLIENTE:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cliente,0,0,'R');
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(25, 10, 'R.U.C./C.I.:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $documento,0,0,'R');
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Helvetica', 'B', 7);     
+        $pdf->Cell(25, 10, 'TIPO VENTA:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $tipo,0,0,'R');
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Helvetica', 'B', 7);     
+        $pdf->Cell(25, 10, 'TICKET ID:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $ticket_id,0,0,'R');
+        $pdf->Ln(10);
+
+        $pdf->Cell(60,0,'','T');
+        /*new se movió acá de abajo*/
+        $pdf->Ln(1);
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(30,4, 'Fecha: '.$fecha ,0,0,'L');
+        $pdf->Cell(30,4, 'Hora: '.$hora ,0,1,'R');  
+        $pdf->Cell(30,4, 'Caja: '.$caja ,0,0,'L');
+        $pdf->Cell(30,4, 'Ticket: '.$ticket ,0,1,'R');
+
+        $pdf->Cell(25, 4, 'Vendedor:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, utf8_decode($vendedor),0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Cajero:', 0);   
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, utf8_decode($cajero),0,0,'R');
+        $pdf->Ln(5);
+
+        // DATOS FACTURA
+
+        // $pdf->Ln(5);
+        // $pdf->Cell(60,4,'Factura Simpl.: F2019-000001',0,1,'');
+        // $pdf->Cell(60,4,'Fecha: 28/10/2019',0,1,'');
+        // $pdf->Cell(60,4,'Metodo de pago: Tarjeta',0,1,'');
+         
+        // COLUMNAS
+
+        $pdf->SetFont('Helvetica', 'B', 7);
+        $pdf->Cell(25, 10, 'Articulo', 0);
+        $pdf->Cell(5, 10, 'Cant.',0,0,'R');
+        $pdf->Cell(15, 10, 'Precio',0,0,'R');
+        $pdf->Cell(15, 10, 'Total',0,0,'R');
+        $pdf->Ln(8);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS
+        
+        foreach ($ventas_det as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+                
+            $articulos["precio"] = $value["PRECIO_UNIT"];
+            $articulos["total"] = $value["PRECIO"];
+            $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+            $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR VARIABLES 
+
+            $articulos["cantidad"] = $value["CANTIDAD"];
+            $articulos["cod_prod"] = $value["COD_PROD"];
+            $articulos["descripcion"] = utf8_decode(substr($value["DESCRIPCION"], 0,38));
+            $cantidad = $cantidad + $value["CANTIDAD"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE EXENTAS 
+
+            if ($value["EXENTAS"] > 0) {
+                $articulos["exentas"] = $articulos["total"];
+            } else {
+                $articulos["exentas"] = '';
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI EXISTE BASE5 O BASE10
+
+            if ($value["BASE5"] > 0) {
+                $articulos["base10"] = '';
+                $articulos["base5"] = $articulos["total"];
+                $base5 = $base5 + Common::quitar_coma($articulos["total"], $candec);
+            } else if ($value["BASE10"] > 0) {
+                $articulos["base5"] = '';
+                $articulos["base10"] = $articulos["total"];
+                $base10 = $base10 + Common::quitar_coma($articulos["total"], $candec);
+            } else {
+                $articulos["base5"] = '';
+                $articulos["base10"] = '';
+            }
+                
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR PRODUCTOS 
+
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
+            $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["precio"],0,0,'R');
+            $pdf->Cell(15, 4, $articulos["total"],0,0,'R');
+            $pdf->Ln(2.3);
+            $pdf->Cell(60,4,$articulos["descripcion"],0,1,'L');
+            
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR DESCUENTOS 
+
+            $descuento_producto = Ventas_det_Descuento::select(DB::raw('PORCENTAJE, TOTAL'))
+            ->WHERE('FK_VENTASDET', '=', $value["ID"])
+            ->WHERE('FK_COD_PROD', '=', $value["COD_PROD"])
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if (count($descuento_producto) > 0) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $cantidad_producto_descuento = $cantidad_producto_descuento + 1;
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->Ln(1);
+                $pdf->SetFont('Helvetica', '', 7);
+                $pdf->Cell(25,4,$articulos["cod_prod"],0,'L'); 
+                $pdf->Cell(5, 4, $articulos["cantidad"],0,0,'R');
+                $pdf->Cell(15, 4, '',0,0,'R');
+                $pdf->Cell(15, 4, $descuento_producto[0]->TOTAL ,0,0,'R');
+                $pdf->Ln(2.3);
+                $pdf->Cell(60,4,'DESCUENTO '.$descuento_producto[0]->PORCENTAJE.'%',0,1,'L');
+                $pdf->Cell(60,0,'------------------------------------------------------------------------','');
+                $pdf->Ln(1);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $pdf->Cell(60,0,'------------------------------------------------------------------------','');
+                $pdf->Ln(1);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CANTIDAD ITEMS VENTA
+
+            if(isset($value["CANTIDAD_ITEMS"])) {
+                $cantidad_items = $value["CANTIDAD_ITEMS"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+         
+        // SUMATORIO DE LOS PRODUCTOS Y EL IVA
+
+        //$pdf->Ln(1);
+        //$pdf->Cell(60,0,'','T');
+        //$pdf->Ln(2);
+        /*new*/
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'CANT. DE ITEMS:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cantidad_items,0,0,'R');
+        $pdf->Ln(3); 
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'ITEMS CON DESC.:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $cantidad_producto_descuento,0,0,'R');
+        $pdf->Ln(3); 
+        /*new*/
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra(($total + $descuento), $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'DESCUENTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($descuento, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'TOTAL A PAGAR:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec_sin_letra($total, $monedaVenta),0,0,'R');
+        
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'PAGO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($pago, $monedaVenta),0,0,'R');
+        $pdf->Ln(3);
+        $pdf->SetFont('Helvetica', 'B', 7);    
+        $pdf->Cell(25, 10, 'VUELTO:', 0);
+        $pdf->SetFont('Helvetica', '', 7);    
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, Common::precio_candec($vuelto, $monedaVenta),0,0,'R');
+        $pdf->Ln(10);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(3);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR TOTALES MONEDA 
+
+        if ($parametro[0]->TOTAL_MONEDAS_TICKET === 1) { 
+
+            /*new*/
+            $pdf->SetFont('Helvetica', 'B', 7);
+            $pdf->Cell(13, 10, '', 0);
+            $pdf->Cell(23, 10, 'Total',0,0,'R');
+            //$pdf->Cell(18, 10, 'Pagado',0,0,'R');
+            $pdf->Cell(24, 10, 'Vuelto',0,0,'R');
+            $pdf->Ln(8);
+            $pdf->Cell(60,0,'','T');
+            $pdf->Ln(2);
+
+            //total en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Dolares: ',0,'L');
+            $pdf->Cell(22, 4, $total_dolares,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->DOLARES,0,0,'R');
+            $pdf->Cell(23, 4, $vuelto_dolares,0,0,'R');
+            $pdf->Ln(3);
+            //pagado en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Guaranies: ',0,'L'); 
+            $pdf->Cell(22, 4, $total_guaranies,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->GUARANIES,0,0,'R');
+            $pdf->Cell(23, 4, $vuelto_guaranies,0,0,'R');
+            $pdf->Ln(3);
+            //vuelto en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Reales: ',0,'L'); 
+            $pdf->Cell(22, 4, $total_reales,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->REALES,0,0,'R');
+            $pdf->Cell(23, 4, $vuelto_reales,0,0,'R');
+            $pdf->Ln(3);
+            //vuelto en monedas
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->Cell(15,4,'Pesos: ',0,'L'); 
+            $pdf->Cell(22, 4, $total_pesos,0,0,'R');
+            //$pdf->Cell(17, 4, $ventas->PESOS,0,0,'R');
+            $pdf->Cell(23, 4, $vuelto_pesos,0,0,'R');
+            /*new*/
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PIE DE PAGINA
+
+        $pdf->Ln(5);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(3);
+
+        if ($parametro[0]->PIE_TICKET_PERSONALIZABLE === 1) {
+            $pdf->Multicell(0,2,"Guarde este ticket.\n\nPara compras online visite www.calbea.com.\n\n ** GRACIAS POR SU COMPRA **", 0, 'C', false);
+        } else {
+            $pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // EJECTUAR TICKET 
+
+        $pdf->Output('ticket.pdf','i');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function ticket_pdf_viejo($dato) {
+
+        //$dato = ['codigo' => 820671264471, 'caja' => 1];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $ventas = Venta::mostrar_cabecera($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $ventas_det = Venta::mostrar_cuerpo($dato);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE DECIMALES Y MONEDA
+
+        $candec = (Parametro::candec($ventas->MONEDA))["CANDEC"];
+        $monedaVenta = $ventas->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PARAMETROS 
+
         $mensaje = Parametro::select(DB::raw('MENSAJE'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
@@ -4564,26 +5396,54 @@ class Venta extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
+        // INICIAR VARIABLES
+
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
         $totalData = Venta::where('ID_SUCURSAL','=', $user->id_sucursal);  
         
-        if (!empty($request->input('caja'))){
-                $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
-        } 
+        /*  --------------------------------------------------------------------------------- */
 
-        if($user->id_sucursal === 4 || $user->id_sucursal === 2){
-             $totalData->whereYear('VENTAS.FECALTAS', '=', '2020');
+        // VERIFICAR SI NO BUSCAR POR ID VENTA
+
+        if(empty($request->input('columns.0.search.value'))){
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if (!empty($request->input('caja'))){
+                    $totalData = $totalData->where('VENTAS.CAJA','=', $request->input('caja'));
+            } 
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // BUSCAR VENTAS POR FECHAS
+
+            if (!empty($request->input('inicial'))){
+                $totalData = $totalData->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                             ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'))->count();
+            } else {
+                $totalData = $totalData->count();
+            }
+                             
+            /*  --------------------------------------------------------------------------------- */
+
+        } else {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $totalData = $totalData->where('VENTAS.ID', '=', $request->input('columns.0.search.value'))->count();
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
-        if($user->id_sucursal===4 || $user->id_sucursal === 2){
-              $totalData = 2700;
-        }else{
-              $totalData = $totalData->count();
-        }
-        
-      
 
         /*  --------------------------------------------------------------------------------- */
+
+        
 
         // INICIAR VARIABLES 
 
@@ -4600,11 +5460,11 @@ class Venta extends Model
         if(empty($request->input('search.value')))
         {            
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts = Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -4615,34 +5475,58 @@ class Venta extends Model
                          ->offset($start)
                          ->limit($limit);
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
-            if (!empty($request->input('caja'))){
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
-            }
+            if(empty($request->input('columns.0.search.value'))){
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
-                ->orderby('VENTAS.ID','DESC');
-            }else{
-                    $posts->orderby($order,$dir);
+                /*  --------------------------------------------------------------------------------- */
+
+                if (!empty($request->input('caja'))){
+                    $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                }
+
+                if (!empty($request->input('inicial'))){
+                    $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $posts->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
             } 
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // ORDENAR 
+
+            //$posts->orderby($order,$dir);
+
+            /*  --------------------------------------------------------------------------------- */
 
             $posts = $posts->get();
 
+            /*  --------------------------------------------------------------------------------- */
+
         } else {
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR EL VALOR A BUSCAR 
 
             $search = $request->input('search.value'); 
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts =  Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -4658,20 +5542,40 @@ class Venta extends Model
                             ->offset($start)
                             ->limit($limit);
 
-            if (!empty($request->input('caja'))){
-                $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
-            } 
+            /*  --------------------------------------------------------------------------------- */
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                 $posts->whereYear('VENTAS.FECALTAS','=', date('Y'))
-                 ->orderby('VENTAS.ID','DESC');
-            }else{
-                    $posts->orderby($order,$dir);
-            }
+            if(empty($request->input('columns.0.search.value'))){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                if (!empty($request->input('caja'))){
+                    $posts = $posts->where('VENTAS.CAJA','=', $request->input('caja'));
+                } 
+
+                if (!empty($request->input('inicial'))){
+                    $posts->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $posts->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }  
+
+            /*  --------------------------------------------------------------------------------- */
+
+            //$posts->orderby($order,$dir);
 
             $posts = $posts->get();                
 
-            /*  ************************************************************ */
+            /*  --------------------------------------------------------------------------------- */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
@@ -4686,25 +5590,32 @@ class Venta extends Model
                                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
                             });
 
-            /*  ************************************************************ */  
+            /*  --------------------------------------------------------------------------------- */
 
-            if (!empty($request->input('caja'))){
-                $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
-            }
+            if(empty($request->input('columns.0.search.value'))){
 
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                $totalFiltered->whereYear('VENTAS.FECALTAS', date('Y'));
-            }
-        
-            if($user->id_sucursal===4 || $user->id_sucursal === 2){
-                  $totalFiltered = 2700;
-            }else{
-                  $totalFiltered = $totalFiltered->count();
-            }
+                if (!empty($request->input('caja'))){
+                    $totalFiltered = $totalFiltered->where('VENTAS.CAJA','=', $request->input('caja'));
+                }
 
-           
+                if (!empty($request->input('inicial'))){
+                    $totalFiltered->whereDate('VENTAS.FECALTAS', '>=', $request->input('inicial'))
+                    ->whereDate('VENTAS.FECALTAS', '<=', $request->input('final'));
+                }
 
-            /*  ************************************************************ */
+            } else {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $totalFiltered->where('VENTAS.ID', '=', $request->input('columns.0.search.value'));
+
+                /*  --------------------------------------------------------------------------------- */
+
+            } 
+
+            $totalFiltered = $totalFiltered->count();
+
+            /*  --------------------------------------------------------------------------------- */
 
         }
 
@@ -4723,6 +5634,7 @@ class Venta extends Model
 
                 // CARGAR EN LA VARIABLE 
 
+                $nestedData['ID'] = $post->ID;
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CAJA'] = $post->CAJA;
                 $nestedData['CLIENTE'] = $post->CLIENTE;
@@ -6422,7 +7334,7 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        // PAGO AL ENTREGAR FUNCION
+        // PAGO CREDITO
         
         try {
 
@@ -6804,4 +7716,198 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
     }
 
+    public static function asignarNotaCreditoCreditoCliente($data){
+
+        // PAGO AL ENTREGAR FUNCION
+        
+        try {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $data = $data["datos"];
+            $fecha = date('Y-m-d');
+            $hora = date('H:i:s');
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER ID CLIENTE 
+
+            $id_cliente = (Cliente::id_cliente($data['cliente']))['ID_CLIENTE'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR PAGO 
+
+            $venta_abono_id = (VentaAbono::insertar_abono([
+                                'PAGO' => $data['total'], 
+                                'MONEDA' => $data['moneda'], 
+                                'FECHA' => $fecha,
+                                'SALDO' => $data['saldo'],
+                                'VUELTO' => $data['vuelto'],
+                                'CAJA' => $data['caja'],
+                                'FK_CLIENTE' => $id_cliente,
+                                'FK_USER' => $user->id,
+                                'FK_SUCURSAL' => $user->id_sucursal
+            ]))['valor'];
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CALCULO DE PAGO PRO VENTA 
+
+            $creditos = VentaCredito::obtener_creditos_cliente($data["cliente"]);
+                
+            if ($creditos["response"] === false) {
+                return $creditos;
+            } else {
+                $creditos = $creditos["creditos"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RECORRER VENTAS CON CREDITO 
+
+            foreach ($creditos as $key => $value) {
+                    
+                if ($value->SALDO >= $data['total']) {
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR VENTAS DET CREDITO 
+
+                        VentaAbonoDet::guardar_referencia([
+                            'FK_VENTA' => $value->FK_VENTA,
+                            'FK_VENTAS_ABONO' => $venta_abono_id,
+                            'PAGO' => $data['total']
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // ACTUALIZAR VENTA CREDITO 
+
+                        VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                        ->update([
+                            'PAGO' => \DB::raw('PAGO + '.$data['total'].''),
+                            'SALDO' => ($value->SALDO - $data['total'])
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // GUARDAR REFERENCIA
+
+                        VentaTieneNotaCredito::guardar_referencia(
+                            [
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
+                            ]
+                        );
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // FIJAR CERO EFECTIVO 
+
+                        $data['total'] = 0;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    } else {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // INSERTAR VENTAS DET CREDITO 
+
+                        VentaAbonoDet::guardar_referencia([
+                            'FK_VENTA' => $value->FK_VENTA,
+                            'FK_VENTAS_ABONO' => $venta_abono_id,
+                            'PAGO' => $value->SALDO
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // ACTUALIZAR VENTA CREDITO 
+
+                        VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                        ->update([
+                            'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
+                            'SALDO' => 0
+                        ]);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // GUARDAR REFERENCIA
+
+                        VentaTieneNotaCredito::guardar_referencia(
+                            [
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
+                            ]
+                        );
+
+                        /*  --------------------------------------------------------------------------------- */
+                        
+                        // FIJAR CERO EFECTIVO 
+
+                        $data['total'] = $data['total'] - $value->SALDO;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+
+                }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // CAMBIAR ESTATUS NOTA DE CREDITO 
+
+            NotaCredito::where('ID', '=', $data['id_nota_credito']) 
+            ->update(
+                [ 
+                    'PROCESADO' => 1
+                ]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ACTUALIZAR CREDITO CLIENTE 
+                
+            Cliente::actualizarCredito($id_cliente);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+
+            return ["response" => true, "statusText" => "Se ha guardado correctamente la nota de credito !"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+        
+           /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
 }
