@@ -1734,7 +1734,9 @@ $lotes= DB::connection('retail')
                 PRODUCTOS_AUX.BAJA,
                 PRODUCTOS.TEMPORADA,
                 PRODUCTOS.PERIODO'),
-        DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+        DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'),
+        DB::raw('IFNULL((SELECT FECALTAS FROM VENTASDET WHERE (COD_PROD=PRODUCTOS_AUX.CODIGO and ID_SUCURSAL=PRODUCTOS_AUX.ID_SUCURSAL and ANULADO<>1) order by ID desc limit 1), 0) AS FECHAULT_V'),
+        DB::raw('(SELECT FECALTAS FROM COMPRASDET WHERE (COD_PROD=PRODUCTOS_AUX.CODIGO and ID_SUCURSAL=PRODUCTOS_AUX.ID_SUCURSAL) order by ID desc limit 1) AS FECHAULT_C'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
@@ -1829,8 +1831,8 @@ $lotes= DB::connection('retail')
 
             $dato["FECALTAS"] = date('Y-m-d', strtotime($value->FECALTAS));
             $dato["FECMODIF"] = date('Y-m-d', strtotime($value->FECMODIF));
-            $dato["FECHULT_C"] = date('Y-m-d', strtotime($value->FECHULT_C));
-            $dato["FECHULT_V"] = date('Y-m-d', strtotime($value->FECHULT_V));
+            $dato["FECHULT_C"] = date('Y-m-d', strtotime($value->FECHAULT_C));
+            $dato["FECHULT_V"] = date('Y-m-d', strtotime($value->FECHAULT_V));
             $dato["STOCK"] = $value->STOCK;
             $dato["STOCK_MIN"] = $value->STOCK_MIN;
 
@@ -2787,8 +2789,7 @@ $lotes= DB::connection('retail')
 
     }
 
-    public static function ubicacion($codigo)
-    {
+    public static function ubicacion($codigo){
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -3203,11 +3204,6 @@ $lotes= DB::connection('retail')
 
                 // SACA EL .JPG
     
-
-
-               
-                  
-
                     // UNE LA UBICACION DEL ARCHIVO CON EL NOMBRE DE LA IMAGEN
                     
                     $image= $directory."/".$archivo;
@@ -3968,5 +3964,313 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
     }
-    
+
+    public static function movimientoProducto($codigo){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $fecha = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $data = [];
+        $vencimiento = '0000-00-00';
+        $cod_prod = $codigo["codigo"];
+
+        $parametro = Parametro::consultaPersonalizada('MONEDA');
+        $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
+      
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER VENCIDOS 
+
+        $vencidos = DB::connection('retail')->table('Lotes')
+        ->select(DB::raw('LOTE,
+                    IFNULL(CANTIDAD, 0) AS CANTIDAD,
+                    COSTO,
+                    substr(FECALTAS, 1, 10) AS ENTRADA,
+                    substr(FECHA_VENC, 1, 10) AS VENCIMIENTO,
+                    COSTO AS TOTAL'))
+            ->where('COD_PROD', '=', $cod_prod)
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('CANTIDAD', '>', '0')
+            ->where('FECHA_VENC', '<>', $vencimiento)
+            ->where('FECHA_VENC', '<=', $fecha)
+            ->orderBy('FECHA_VENC', 'DESC')
+            ->get();
+       
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER VENTAS
+
+        $vendidos = Ventas_det::select(
+            DB::raw('VENTASDET.CODIGO AS CODIGO,
+                VENTASDET.PRECIO_UNIT AS PRECIO,
+                IFNULL(VENTASDET.CANTIDAD, 0) AS CANTIDAD,
+                VENTASDET.PRECIO AS TOTAL,
+                substr(VENTASDET.FECALTAS, 1, 10) AS FECHA,
+                substr(CLIENTES.NOMBRE, 1, 25) AS CLIENTE'))
+            ->leftjoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL');
+                            })
+            ->leftjoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+            ->where('VENTASDET.COD_PROD', '=', $cod_prod)
+            ->where('VENTASDET.DESCRIPCION','NOT LIKE', 'DESCUENTO%')
+            ->where('VENTASDET.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('VENTASDET.ANULADO', '<>', '1')
+            ->orderBy('VENTASDET.FECALTAS', 'DESC')
+            ->limit(1)
+            ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DEVOLUCIONES A PROVEEDOR
+        
+        $devolucionProv = DB::connection('retail')->table('DEVOLUCION_PROV_DET')->select(
+            DB::raw('DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV AS CODIGO,
+                    IFNULL(DEVOLUCION_PROV_DET.CANTIDAD, 0) AS CANTIDAD,
+                    DEVOLUCION_PROV_DET.COSTO AS COSTO,
+                    DEVOLUCION_PROV_DET.COSTO_TOTAL AS TOTAL,
+                    substr(DEVOLUCION_PROV.FECALTAS, 1, 10) AS FECHA,
+                    LOTES.LOTE AS LOTE,
+                    PROVEEDORES.NOMBRE AS PROVEEDOR,
+                    DEVOLUCION_PROV.OBSERVACION AS MOTIVO'))
+            ->join('DEVOLUCION_PROV', 'DEVOLUCION_PROV.ID', '=', 'DEVOLUCION_PROV_DET.FK_DEVOLUCION_PROV')
+            ->leftjoin('LOTES', function($join){
+                                $join->on('LOTES.ID', '=', 'DEVOLUCION_PROV_DET.FK_ID_LOTE')
+                                     ->on('LOTES.ID_SUCURSAL', '=', 'DEVOLUCION_PROV.ID_SUCURSAL');
+                            })
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'DEVOLUCION_PROV.FK_PROVEEDOR')
+            ->where('DEVOLUCION_PROV_DET.COD_PROD', '=', $cod_prod)
+            ->where('DEVOLUCION_PROV.ID_SUCURSAL', '=',$user->id_sucursal)
+            ->orderBy('DEVOLUCION_PROV.FECALTAS', 'DESC')
+            ->get();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DEVOLUCIONES DEL PRODUCTO
+        
+        $ventasDev =  DB::connection('retail')->table('VENTASDET_DEVOLUCIONES')->select(
+            DB::raw('VENTAS.CODIGO AS CODIGO,
+                VENTASDET_DEVOLUCIONES.PRECIO_UNIT AS PRECIO,
+                IFNULL(VENTASDET_DEVOLUCIONES.CANTIDAD, 0) AS CANTIDAD,
+                VENTASDET_DEVOLUCIONES.PRECIO AS TOTAL,
+                substr(VENTASDET_DEVOLUCIONES.FECALTAS, 1, 10) AS FECHA,
+                substr(CLIENTES.NOMBRE, 1, 25) AS CLIENTE'))
+            ->leftjoin('VENTASDET', function($join){
+                                $join->on('VENTASDET.ID', '=', 'VENTASDET_DEVOLUCIONES.FK_VENTASDET')
+                                     ->on('VENTASDET.CAJA', '=', 'VENTASDET_DEVOLUCIONES.CAJA')
+                                     ->on('VENTASDET.ID_SUCURSAL', '=', 'VENTASDET_DEVOLUCIONES.ID_SUCURSAL');
+                            })
+            ->leftjoin('VENTAS', function($join){
+                                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA')
+                                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL');
+                            })
+            ->leftjoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+            ->where('VENTASDET_DEVOLUCIONES.COD_PROD', '=', $cod_prod)
+            ->where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL', '=',$user->id_sucursal)
+            ->orderBy('VENTASDET_DEVOLUCIONES.FECALTAS', 'DESC')
+            ->get();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER NOTAS DE CREDITO
+        
+        $credito = DB::connection('retail')->table('NOTA_CREDITO_DET')->select(
+            DB::raw('NOTA_CREDITO_DET.FK_NOTA_CREDITO AS CODIGO,
+                NOTA_CREDITO_DET.PRECIO AS PRECIO,
+                IFNULL(NOTA_CREDITO_DET.CANTIDAD, 0) AS CANTIDAD,
+                NOTA_CREDITO_DET.TOTAL AS TOTAL,
+                substr(NOTA_CREDITO_DET.FECALTAS, 1, 10) AS FECHA,
+                substr(CLIENTES.NOMBRE, 1, 25) AS CLIENTE'))
+            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
+            ->leftjoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+                            })
+            ->where('NOTA_CREDITO_DET.CODIGO_PROD', '=', $cod_prod)
+            ->where('NOTA_CREDITO_DET.ID_SUCURSAL', '=',$user->id_sucursal)
+            ->orderBy('NOTA_CREDITO_DET.FECALTAS', 'DESC')
+            ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        //DAR FORMATO
+
+        foreach ($vencidos as $key => $value) {
+            $value->COSTO = Common::formato_precio($value->COSTO, $candec);
+            $value->TOTAL = Common::formato_precio(($value->TOTAL *$value->COSTO), $candec);
+        }
+
+        foreach ($devolucionProv as $key => $value) {
+            $value->COSTO = Common::formato_precio($value->COSTO, $candec);
+            $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
+            $value->PROVEEDOR = ucwords(strtolower($value->PROVEEDOR));
+            $value->MOTIVO = ucfirst(strtolower($value->MOTIVO));
+        }
+        foreach ($ventasDev as $key => $value) {
+            $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
+            $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
+            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+        }
+
+        foreach ($credito as $key => $value) {
+            $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
+            $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
+            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+        }   
+        /*  --------------------------------------------------------------------------------- */
+
+        $movimientos = array(
+            'ventas' => $vendidos,
+            'vencidos' => $vencidos,
+            'devolucionesProv' => $devolucionProv,
+            'devolucionProd' => $ventasDev,
+            'notaCredito' => $credito
+        );
+        
+        // RETORNAR VALOR  
+
+        if (count($movimientos) > 0) {
+            return ['movimientos' => $movimientos];
+        } else {
+            return ["movimientos" => false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public static function ventaProducto($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'VENTASDET.FECALTAS', 
+                            1 => 'VENTAS.CODIGO',
+                            2 => 'CLIENTES.NOMBRE',
+                            3 => 'VENTASDET.CANTIDAD',
+                            4 => 'VENTASDET.PRECIO_UNIT',
+                            5 => 'VENTASDET.PRECIO',
+                            6 => 'VENTASDET.FECALTAS'
+                        );
+        
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $item = 1;
+        $codigoP = $request->input('codigo');
+        $parametro = Parametro::consultaPersonalizada('MONEDA');
+        $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
+
+        $totalData = Ventas_det::where('VENTASDET.COD_PROD', '=', $codigoP)
+                    ->where('VENTASDET.DESCRIPCION','NOT LIKE', 'DESCUENTO%')
+                    ->where('VENTASDET.ID_SUCURSAL', '=', $user->id_sucursal)
+                    ->where('VENTASDET.ANULADO', '<>', '1')
+                    ->count();
+
+        $totalFiltered = $totalData;
+        /*  --------------------------------------------------------------------------------- */
+
+        //  CARGAR TODOS LOS DATOS ENCONTRADOS 
+
+        $posts = Ventas_det::select(DB::raw('VENTASDET.CODIGO AS CODIGO,
+                        VENTASDET.PRECIO_UNIT AS PRECIO,
+                        IFNULL(VENTASDET.CANTIDAD, 0) AS CANTIDAD,
+                        VENTASDET.PRECIO AS TOTAL,
+                        substr(VENTASDET.FECALTAS, 1, 10) AS FECHA,
+                        substr(CLIENTES.NOMBRE, 1, 25) AS CLIENTE'))
+                    ->leftjoin('VENTAS', function($join){
+                            $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+                                 ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA')
+                                 ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL');
+                            })
+                    ->leftjoin('CLIENTES', function($join){
+                            $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                            })
+                ->where('VENTASDET.COD_PROD', '=', $codigoP)
+                ->where('VENTASDET.DESCRIPCION','NOT LIKE', 'DESCUENTO%')
+                ->where('VENTASDET.ID_SUCURSAL', '=', $user->id_sucursal)
+                ->where('VENTASDET.ANULADO', '<>', '1')
+                ->offset($start)
+                ->limit($limit)
+                ->orderBy($order, $dir)
+                ->get();
+
+        $data = array();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts)){
+            foreach ($posts as $post){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $cliente = strtolower($post->CLIENTE);
+                $nestedData['ITEM'] = $item;
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, $candec);
+                $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
+                $nestedData['FECHA'] = $post->FECHA;
+                $data[] = $nestedData;
+                $item = $item +1;
+
+                /*  --------------------------------------------------------------------------------- */
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

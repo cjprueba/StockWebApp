@@ -382,6 +382,7 @@ Vue.component('select-proveedor', require('./components/textboxs/ProveedorTextbo
 // PRODUCTO
 
 Vue.component('producto-detalle', require('./components/producto/modal/DetalleProducto.vue').default);
+Vue.component('producto-detalle-venta', require('./components/producto/modal/VentaProducto.vue').default);
 
 /* ********************************************* */
 

@@ -349,7 +349,6 @@ class Cliente extends Model
         $user = auth()->user();
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
-
          
         try {
 
@@ -455,13 +454,15 @@ class Cliente extends Model
                     'RETENTOR' => $datos['data']['retentor']]);
                 }
 
-                 /*  --------------------------------------------------------------------------------- */
+                /*  --------------------------------------------------------------------------------- */
 
                 // ACTUALIZAR CREDITO 
 
                 Cliente::actualizarCredito($id_cliente);
 
                 /*  --------------------------------------------------------------------------------- */
+
+            }
 
             // ENVIA UNA RESPUESTA A LA FUNCION
 

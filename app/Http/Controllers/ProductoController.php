@@ -323,4 +323,30 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }     
+
+    public function productoMovimiento(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::movimientoProducto($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function detalleProductoVenta(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS 
+
+        $ventasP = Producto::ventaProducto($request);
+        return response()->json($ventasP);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
