@@ -2122,7 +2122,7 @@ class Stock extends Model
                     ->leftJoin('LOTES', function($join){
                         $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
                              ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
-                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                             ->on('LOTES.ID', '=', 'Lote_tiene_TransferenciaDet.ID_LOTE');
                     })
                     ->leftJoin('PRODUCTOS_AUX', function($join){
                         $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
@@ -2220,7 +2220,7 @@ class Stock extends Model
                     ->leftJoin('LOTES', function($join){
                         $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
                              ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
-                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                             ->on('LOTES.ID', '=', 'Lote_tiene_TransferenciaDet.ID_LOTE');
                     })
                     ->leftJoin('PRODUCTOS_AUX', function($join){
                         $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
@@ -2313,11 +2313,11 @@ class Stock extends Model
                         $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
                              ->on('TRANSFERENCIAS.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
                     })
-                    ->leftJoin('Lotes_tiene_TransferenciaDet', 'Lote_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
+                    ->leftJoin('Lote_tiene_TransferenciaDet', 'Lote_tiene_TransferenciaDet.FK_TRANSFERENCIADET', '=', 'TRANSFERENCIAS_DET.ID')
                     ->leftJoin('LOTES', function($join){
                         $join->on('LOTES.COD_PROD', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
                              ->on('LOTES.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
-                             ->on('LOTES.ID', '=', 'Lotes_tiene_TransferenciaDet.ID_LOTE');
+                             ->on('LOTES.ID', '=', 'Lote_tiene_TransferenciaDet.ID_LOTE');
                     })
                     ->leftJoin('PRODUCTOS_AUX', function($join){
                         $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
