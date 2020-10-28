@@ -765,7 +765,7 @@
 
 	        	// REVISAR AUTORIZACION 
 
-	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
+	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
 	        		this.revisarAutorizacion();
 	        		return;
 	        	}
