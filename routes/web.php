@@ -596,6 +596,13 @@ Route::get('/agencia/datatable', 'AgenciaController@datatable');
 
 Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autorizacion');
 
+/* -------------------------------------------------------------------------- */
+
+//SALIDA DE PRODUCTOS
+Route::post('lote/salida', 'StockController@loteProducto');
+Route::post('salida/producto', 'SalidaProductoController@salida');
+
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 
