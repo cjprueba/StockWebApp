@@ -16,7 +16,7 @@ class Especificacion extends Model
         try{
              DB::connection('retail')->beginTransaction();
         $user = auth()->user();
-        $dia = date('Y-m-d');
+         $dia = date("Y-m-d H:i:s");
         /*  --------------------------------------------------------------------------------- */
      
         // OBTENER TODOS LOS DATOS DEL AVISO
