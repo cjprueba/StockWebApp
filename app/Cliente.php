@@ -452,7 +452,6 @@ class Cliente extends Model
                     'FECMODIF'=>$dia,
                     'HORMODIF'=>$hora,
                     'RETENTOR' => $datos['data']['retentor']]);
-                }
 
                 /*  --------------------------------------------------------------------------------- */
 
