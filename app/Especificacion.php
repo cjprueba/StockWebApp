@@ -21,14 +21,15 @@ class Especificacion extends Model
      
         // OBTENER TODOS LOS DATOS DEL AVISO
         $Especificacion = Especificacion::select(DB::raw(
-           'Especificacion.ERRORES,
-            Especificacion.CODIGO,
-            Especificacion.FUNCIONES, 
-            Especificacion.FECHAESPECIFICACION,
-            Especificacion.VERSION,
-            Especificacion.FILTRAR,
-            Especificacion.ID_SUCURSAL'))
-        ->Where('Especificacion.FECHAESPECIFICACION','=',$dia)
+           'ESPECIFICACION.ERRORES,
+            ESPECIFICACION.CODIGO,
+            ESPECIFICACION.FUNCIONES, 
+            ESPECIFICACION.FECHAESPECIFICACION,
+            ESPECIFICACION.VERSION,
+            ESPECIFICACION.FILTRAR,
+            ESPECIFICACION.ID_SUCURSAL'))
+        ->Where('ESPECIFICACION.FECHAESPECIFICACION','=',$dia)
+         ->Where('ESPECIFICACION.MOSTRAR','=',1)
         ->get()
         ->toArray();
 
