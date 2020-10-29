@@ -16,7 +16,8 @@ class Especificacion extends Model
         try{
              DB::connection('retail')->beginTransaction();
         $user = auth()->user();
-         $dia = date("Y-m-d");
+        $dia = date("Y-m-d");
+        $dia2 = date("Y-m-d H:i:s");
         /*  --------------------------------------------------------------------------------- */
      
         // OBTENER TODOS LOS DATOS DEL AVISO
@@ -51,7 +52,7 @@ class Especificacion extends Model
           $avisos_users = EspecificacionAux::insertGetId([
                 'FK_USER' => $user->id,
                 'CODIGO' => $Especificacion[0]["CODIGO"],
-                'FECHAESPECIFICACION' => $Especificacion[0]["FECHAESPECIFICACION"],
+                'FECHAESPECIFICACION' => $dia2,
                 'ACTIVO' => 0,
                 'ID_SUCURSAL' => $user->id_sucursal
             ]);
