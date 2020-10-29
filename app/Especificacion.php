@@ -10,24 +10,25 @@ class Especificacion extends Model
 {
     //
     protected $connection = 'retail';
-    protected $table = 'especificaciones';
+    protected $table = 'especificacion';
      public static function obtener_avisos()
     {
-
+        try{
+             DB::connection('retail')->beginTransaction();
         $user = auth()->user();
-	    $dia = date('Y-m-d');
+        $dia = date('Y-m-d');
         /*  --------------------------------------------------------------------------------- */
      
         // OBTENER TODOS LOS DATOS DEL AVISO
         $Especificacion = Especificacion::select(DB::raw(
-           'Especificaciones.ERRORES,
-        	Especificaciones.CODIGO,
-        	Especificaciones.FUNCIONES, 
-        	Especificaciones.FECHAESPECIFICACION,
-        	Especificaciones.VERSION,
-            Especificaciones.FILTRAR,
-            Especificaciones.ID_SUCURSAL'))
-        ->Where('ESPECIFICACIONES.FECHAESPECIFICACION','=',$dia)
+           'Especificacion.ERRORES,
+            Especificacion.CODIGO,
+            Especificacion.FUNCIONES, 
+            Especificacion.FECHAESPECIFICACION,
+            Especificacion.VERSION,
+            Especificacion.FILTRAR,
+            Especificacion.ID_SUCURSAL'))
+        ->Where('Especificacion.FECHAESPECIFICACION','=',$dia)
         ->get()
         ->toArray();
 
@@ -55,18 +56,45 @@ class Especificacion extends Model
             ]);
           $activo=0;
         }else{
-            $activo=$avisos_users[0]["ACTIVO"];
+            $activo=$user_aviso[0]["ACTIVO"];
         }
 
         
 
 
         // RETORNAR EL VALOR
+          DB::connection('retail')->commit();
 
        return ["response"=>true,"aviso"=>$Especificacion, "activo"=>$activo];
+        }catch (Exception $e) {
+               DB::connection('retail')->rollBack();
+                return ["response"=>false];
+
+        }
+
+        
 
         /*  --------------------------------------------------------------------------------- */
 
     }
-    
+     public static function aceptar_terminos($datos)
+    {
+          try{
+             $dia = date("Y-m-d H:i:s");
+
+             $user = auth()->user();
+               DB::connection('retail')->beginTransaction();
+
+            $user_aviso=EspecificacionAux::where('CODIGO', $datos["codigo"])->where('FK_USER','=',$user->id)
+            ->update(['ACTIVO'=>1,'FECHA_CONFIRMACION'=>$dia]);
+
+
+                 DB::connection('retail')->commit();
+                 return["response"=>true];
+          }catch (Exception $e){
+               DB::connection('retail')->rollBack();
+                return ["response"=>false];
+          }
+    }
+
 }
