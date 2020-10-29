@@ -10,7 +10,7 @@ class Especificacion extends Model
 {
     //
     protected $connection = 'retail';
-    protected $table = 'especificaciones';
+    protected $table = 'especificacion';
      public static function obtener_avisos()
     {
 
@@ -20,14 +20,14 @@ class Especificacion extends Model
      
         // OBTENER TODOS LOS DATOS DEL AVISO
         $Especificacion = Especificacion::select(DB::raw(
-           'Especificaciones.ERRORES,
-        	Especificaciones.CODIGO,
-        	Especificaciones.FUNCIONES, 
-        	Especificaciones.FECHAESPECIFICACION,
-        	Especificaciones.VERSION,
-            Especificaciones.FILTRAR,
-            Especificaciones.ID_SUCURSAL'))
-        ->Where('ESPECIFICACIONES.FECHAESPECIFICACION','=',$dia)
+           'ESPECIFICACION.ERRORES,
+        	ESPECIFICACION.CODIGO,
+        	ESPECIFICACION.FUNCIONES, 
+        	ESPECIFICACION.FECHAESPECIFICACION,
+        	ESPECIFICACION.VERSION,
+            ESPECIFICACION.FILTRAR,
+            ESPECIFICACION.ID_SUCURSAL'))
+        ->Where('ESPECIFICACION.FECHAESPECIFICACION','=',$dia)
         ->get()
         ->toArray();
 
@@ -55,7 +55,7 @@ class Especificacion extends Model
             ]);
           $activo=0;
         }else{
-            $activo=$avisos_users[0]["ACTIVO"];
+            $activo=$user_aviso[0]["ACTIVO"];
         }
 
         
