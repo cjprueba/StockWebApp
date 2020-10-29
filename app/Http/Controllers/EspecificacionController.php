@@ -7,7 +7,7 @@ use App\Especificacion;
 class EspecificacionController extends Controller
 {
     //
-        public function obtenerAvisos(){
+        public function obtenerAviso(){
         
         /*  --------------------------------------------------------------------------------- */
 
