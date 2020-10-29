@@ -7,7 +7,7 @@ use App\Especificacion;
 class EspecificacionController extends Controller
 {
     //
-        public function obtenerAvisos(){
+        public function obtenerAviso(){
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -17,5 +17,17 @@ class EspecificacionController extends Controller
         return response()->json($Especificacion);
 
         /*  --------------------------------------------------------------------------------- */
+    }
+        public function aceptarTerminos(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $aceptar = Especificacion::aceptar_terminos($request->all());
+        return response()->json($aceptar);
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }
