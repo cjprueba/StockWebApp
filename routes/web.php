@@ -606,6 +606,11 @@ Route::post('salida/producto', 'SalidaProductoController@salida');
 Route::get('salida/mostrar', 'SalidaProductoController@salidaMostrar');
 Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDetalle');
 
+//AVISOS
+
+/* -------------------------------------------------------------------------- */
+Route::get('aviso/obtener', 'EspecificacionController@obtenerAviso');
+
 
 /* -------------------------------------------------------------------------- */
 
