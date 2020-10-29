@@ -13,7 +13,7 @@ class SalidaProducto extends Model
 {
     //
     protected $connection = 'retail';
-    protected $table = 'salida_producto';
+    protected $table = 'salida_productos';
 
     public static function salida($data) {
 
@@ -34,7 +34,7 @@ class SalidaProducto extends Model
 
             // GUARDAR DEVOLUCION PROVEEDOR DETALLE 
 
-            if ($salidaProducto"response"] === true) {
+            if ($salidaProducto["response"] === true) {
                 SalidaProductoDet::guardar($data['data']['productos'], $salidaProducto["id"]);
             } else {
                 return $salidaProducto;
@@ -207,7 +207,7 @@ class SalidaProducto extends Model
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered = DevolucionProv::
-                         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                         where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"{$search}%")
                                       ->orWhere('OBSERVACION', 'LIKE',"%{$search}%");
@@ -325,7 +325,7 @@ class SalidaProducto extends Model
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
         $totalData = SalidaProducto::
-                    leftjoin('SALIDA_PRODUCTOS_DET', 'SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTO', '=', 'SALIDA_PRODUCTOS.ID')
+                    leftjoin('SALIDA_PRODUCTOS_DET', 'SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS', '=', 'SALIDA_PRODUCTOS.ID')
                     ->where([
                         'SALIDA_PRODUCTOS.ID_SUCURSAL' => $user->id_sucursal,
                         'SALIDA_PRODUCTOS.ID' => $codigo

@@ -57,7 +57,9 @@
 				<div class="col-md-3">
 					<label for="validationTooltip01">Seleccione Sucursal Origen</label> 
 					<select multiple class="form-control" size="4" v-model="selectedSucursalOrigen" :disabled="onSucursalOrigen" v-bind:class="{ 'is-invalid': validarSucursalOrigen }" v-on:change="habilitar_insert">
+
 						<option v-for="sucursal in sucursalesOrigen " :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
+
 					</select>
 					<div class="invalid-feedback">
 					    {{messageInvalidSucursalOrigen}}
@@ -364,6 +366,7 @@
 	           	this.sucursalesOrigen = response.data.sucursalesgeneral;
 	           	this.sucursales=response.data.sucursales;
 	           	this.proveedores = response.data.proveedores;
+	           	this.sucursalesOrigen = response.data.sucursalesgeneral;
 	          });
 	        },
 

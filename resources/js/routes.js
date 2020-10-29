@@ -351,7 +351,7 @@ export default new Router({
 			name: 'transferenciaImportarDevolucion',
 			component: require('./components/transferencia/ImportarTransferenciaDevolucion.vue').default
 		},
-    {
+    	{
 			path: '/rpt15',
 			name: 'rptTarjeta',
 			component: require('./components/reportes/VentaTarjeta.vue').default
@@ -360,7 +360,7 @@ export default new Router({
 			path: '/mov2',
 			name: 'notaCredito',
 			component: require('./components/movimientos/CreditoNota.vue').default
-      },
+      	},
 		{
 			path: '/rpt16',
 			name: 'rptVentaVendedor',
@@ -370,6 +370,16 @@ export default new Router({
 			path: '/rpn2',
 			name: 'rptTransferenciaWeb',
 			component: require('./components/reportes/transferencia/Inicio.vue').default
+		},
+		{
+			path: '/mov3',
+			name: 'salidaProducto',
+			component: require('./components/movimientos/SalidaProductos.vue').default
+		},
+		{
+			path: '/mov4',
+			name: 'salidaMostrar',
+			component: require('./components/movimientos/SalidaProductosMostrar.vue').default
 		}
 
 
