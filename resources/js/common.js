@@ -5367,6 +5367,46 @@ function guardarSalidaProductoCommon(data) {
 			// ------------------------------------------------------------------------
 }
 
+function obtenerAvisoDiaCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/aviso/obtener').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function confirmarAvisoDiaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/aviso/confirmar', {codigo: codigo}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5599,4 +5639,6 @@ export {
 		notaCreditoClienteCreditoCommon,
 		obtenerAutorizacion,
 		guardarSalidaProductoCommon,
+		obtenerAvisoDiaCommon,
+		confirmarAvisoDiaCommon
 		};
