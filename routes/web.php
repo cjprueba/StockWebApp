@@ -608,7 +608,7 @@ Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDe
 
 /* -------------------------------------------------------------------------- */
 Route::get('aviso/obtener', 'EspecificacionController@obtenerAviso');
-Route::post('aviso/confirmar', 'EspecificacionController@obtenerAviso');
+Route::post('aviso/confirmar', 'EspecificacionController@aceptarTerminos');
 
 
 /* -------------------------------------------------------------------------- */
