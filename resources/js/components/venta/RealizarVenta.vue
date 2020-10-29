@@ -399,7 +399,7 @@
 				<button class="btn btn-dark btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
+				<button class="btn btn-dark btn-sm btn-block" v-on:click="revisarAutorizacion"><small>Última Factura</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
 				<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
@@ -615,6 +615,12 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- AUTORIZAR VENTA -->
+
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 	</div>
 </template>
 <script>
@@ -721,7 +727,13 @@
          	}, agencia: {
          		CODIGO: '',
          		NOMBRE: 'NINGUNO'
-         	}
+         	}, autorizacion: {
+         		HABILITAR: 0,
+         		CODIGO: 0,
+         		ID_USUARIO: 0,
+         		PERMITIDO: 0,
+         		ID_USER_SUPERVISOR: 0
+         	}, datos: '',
 
         }
       }, 
@@ -747,9 +759,23 @@
 
 	        	// ------------------------------------------------------------------------
 
+	        	this.datos = datos;
+
+	        	// ------------------------------------------------------------------------
+
+	        	// REVISAR AUTORIZACION 
+
+	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
+	        		this.revisarAutorizacion();
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
 	        	// GUARDAR 
 
 	        	this.respuesta = {
+	        		autorizacion: this.autorizacion,
 	        		cabecera: this.venta,
 	        		cliente: this.cliente,
 	        		vendedor: this.vendedor,
@@ -1802,6 +1828,7 @@
 					me.ajustes.LIMITE_MAYORISTA = data.LIMITE_MAYORISTA;
 					me.ajustes.IMPRESORA_TICKET = data.IMPRESORA_TICKET;
 					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
+					me.autorizacion.HABILITAR = data.SUPERVISOR;
 
 					// ------------------------------------------------------------------------ 
 
@@ -2038,7 +2065,7 @@
 				this.$refs.lista_agencia.mostrarModal();
 				this.agencia.CODIGO = '';
 				this.agencia.NOMBRE = 'NINGUNO';
-				
+
 				// ------------------------------------------------------------------------
 
 			}, dataNotaCreditoTextbox(data){
@@ -2107,6 +2134,31 @@
 
 				this.agencia.CODIGO = agencia.id;
 				this.agencia.NOMBRE = agencia.nombre;
+
+				// ------------------------------------------------------------------------
+
+			}, revisarAutorizacion(){
+
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+
+				this.$refs.autorizacion_componente.mostrarModal();
+
+				// ------------------------------------------------------------------------
+
+			}, autorizacionData(data){
+
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+				
+				if (data.response === true) {
+					this.autorizacion.PERMITIDO = 1;
+					this.autorizacion.ID_USUARIO = data.usuario;
+					this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+					this.formaPago(this.datos);
+				}
 
 				// ------------------------------------------------------------------------
 

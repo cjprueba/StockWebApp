@@ -5348,6 +5348,25 @@ function obtenerAutorizacion(data){
 			// ------------------------------------------------------------------------
 }
 
+function guardarSalidaProductoCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/salida/producto', {data: data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5578,5 +5597,6 @@ export {
 		generarPdfNotaCreditoCommon,
 		aplicarCuponCommon,
 		notaCreditoClienteCreditoCommon,
-		obtenerAutorizacion
+		obtenerAutorizacion,
+		guardarSalidaProductoCommon,
 		};
