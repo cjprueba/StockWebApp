@@ -10,4 +10,5 @@ class EspecificacionAux extends Model
     //
         protected $connection = 'retail';
     protected $table = 'especificaciones_aux';
+    public $timestamps = false;
 }

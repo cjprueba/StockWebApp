@@ -461,6 +461,8 @@
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
       </div>
 
+      <caja-aviso></caja-aviso>
+      
     </ul>
     <!-- End of Sidebar -->
 </template>
