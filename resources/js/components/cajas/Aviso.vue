@@ -8,7 +8,7 @@
 		  <div class="modal-dialog">
 		    <div class="modal-content">
 		      <div class="modal-header">
-		        <h5 class="modal-title" id="staticBackdropLabel"><b>AVISO</b></h5>
+		        <h5 class="modal-title" id="staticBackdropLabel"><b>AVISO  </b></h5><span class="text-right">{{aviso.version}}</span>
 		      </div>
 		      <div class="modal-body">
 		      	<div class="container">
@@ -39,7 +39,8 @@
         		errores: '',
         		funciones: '',
         		informacion: '',
-        		codigo: ''
+        		codigo: '',
+        		version: ''
         	}
         }
       }, 
@@ -73,6 +74,7 @@
 		  		 me.aviso.funciones = data.aviso[0].FUNCIONES;
 		  		 me.aviso.informacion = data.aviso[0].ERRORES;
 		  		 me.aviso.codigo = data.aviso[0].CODIGO;
+		  		 me.aviso.version = data.aviso[0].VERSION;
 
 		  		 if (data.activo === 0) {
 		  		 	$('#avisoModal').modal('show');
