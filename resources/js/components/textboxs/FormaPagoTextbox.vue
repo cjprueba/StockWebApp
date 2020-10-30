@@ -1207,7 +1207,7 @@
 
             // DAR FORMATO A CANTIDAD
             
-            me.medios.CHEQUE = Common.darFormatoCommon(me.medios.CHEQUE, me.cotizacion.candec_gs);
+            me.medios.CHEQUE = Common.darFormatoCommon(me.medios.CHEQUE, me.cotizacion.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1533,23 +1533,23 @@
               // TOTALES MONEDAS CHEQUE
               
               if (x.MONEDA === "1") {
-
-                valor = Common.formulaCommon(me.cotizacion.formula_gs_reves, x.IMPORTE, me.cotizacion.guaranies, me.cotizacion.candec_gs, me.moneda, me.cotizacion.moneda_gs);
+                
+                valor = Common.formulaCommon(me.cotizacion.formula_gs_reves, x.IMPORTE, me.cotizacion.guaranies, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_gs);
                 guaranies = Common.sumarCommon(guaranies, valor, me.candec);
 
               } else if (x.MONEDA === "2") {
 
-                valor =  Common.formulaCommon(me.cotizacion.formula_usd_reves, x.IMPORTE, me.cotizacion.dolares, me.cotizacion.candec_$, me.moneda, me.cotizacion.moneda_$);
+                valor =  Common.formulaCommon(me.cotizacion.formula_usd_reves, x.IMPORTE, me.cotizacion.dolares, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_$);
                 dolares = Common.sumarCommon(dolares, valor, me.candec);
 
               } else if (x.MONEDA === "3") {
 
-                valor =  Common.formulaCommon(me.cotizacion.formula_ps_reves, x.IMPORTE, me.cotizacion.pesos, me.cotizacion.candec_ps, me.moneda, me.cotizacion.moneda_ps);
+                valor =  Common.formulaCommon(me.cotizacion.formula_ps_reves, x.IMPORTE, me.cotizacion.pesos, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_ps);
                 pesos = Common.sumarCommon(pesos, valor, me.candec);
 
               } else if (x.MONEDA === "4") {
 
-                valor = Common.formulaCommon(me.cotizacion.formula_rs_reves, x.IMPORTE, me.cotizacion.reales, me.cotizacion.candec_rs, me.moneda, me.cotizacion.moneda_rs);
+                valor = Common.formulaCommon(me.cotizacion.formula_rs_reves, x.IMPORTE, me.cotizacion.reales, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_rs);
                 reales = Common.sumarCommon(reales, valor, me.candec);
 
               }
