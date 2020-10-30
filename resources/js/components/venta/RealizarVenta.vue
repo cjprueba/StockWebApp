@@ -61,12 +61,12 @@
 
 							<!-- DEVOLUCION -->
 									
-							<div class="my-1">
+							<!-- <div class="my-1">
 								<div class="custom-control custom-switch mr-sm-3">
 									<input type="checkbox" class="custom-control-input" v-on:change="devolucionLlamar" id="switchDevolucion" v-model="checked.DEVOLUCION" data-target=".modal-devolucion">
 									<label class="custom-control-label" for="switchDevolucion" >Devolución</label>
 								</div>
-							</div>
+							</div> -->
 
 							<!-- ------------------------------------------------------------------ -->
 
@@ -2144,6 +2144,7 @@
 				// LLAMAR MODAL 
 
 				this.$refs.autorizacion_componente.mostrarModal();
+				this.$refs.autorizacion_componente.enfocar();
 
 				// ------------------------------------------------------------------------
 
