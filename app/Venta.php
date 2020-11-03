@@ -7910,4 +7910,272 @@ class Venta extends Model
 
         }
     }
+  public static function resumen_dia($datos){
+      /*  --------------------------------------------------------------------------------- */
+        //Venta::ticket_pdf('hola');
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $fecha = date('Y-m-d');
+        $hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
+
+        $ventas = Venta::select('CODIGO')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('FECHA', '=', $datos["fecha"])
+        ->GROUPBY('CAJA')
+
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // NOTA CREDITO VALORES
+
+        $nota_credito_guaranies = 0;
+        $nota_credito_dolares = 0;
+        $nota_credito_pesos = 0;
+        $nota_credito_reales = 0;
+        $nota_credito_cheque = 0;
+        $nota_credito_transferencia = 0;
+        $nota_credito_total = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANTIDAD DE VENTAS 
+
+        if ($ventas === 0) {
+            return ["response" => false, "statusText" => "No se ha encontrado ningúna venta !"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER EL PRIMER TICKET 
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES CONTADO POR CAJA
+
+        $cajas = Venta::select(DB::raw('SUM(EFECTIVO) AS T_EFECTIVO, SUM(TARJETAS) AS T_TARJETAS, SUM(VALE) AS T_VALES, SUM(CHEQUE) AS T_CHEQUE, SUM(DONACION) AS T_DONACION, SUM(GIROS) AS T_GIROS, SUM(VUELTO) AS T_VUELTOS, SUM(BASE5) AS T_BASE5, SUM(BASE10) AS T_BASE10, SUM(EXENTAS) AS T_EXENTAS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+         ->GROUPBY('CAJA')
+        ->get();
+
+         /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES CONTADO GENERAL
+
+        $contado=Venta::select(DB::raw('SUM(TOTAL) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '=', 'CO')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+         ->GROUPBY('CAJA')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES CREDITO
+
+        $credito = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '=', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR TODOS LOS VALORES PAGO A ENTREGAR
+
+        $pe = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '=', 'PE')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 2)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TARJETA 
+        
+        $tarjeta = VentaTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_TARJETA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->get(); 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRANSFERENCIA
+        
+        $transferencia = VentaTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_TRANSFERENCIA.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO
+        
+        $giro = VentaGiro::select(DB::raw('IFNULL(SUM(VENTAS_GIRO.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_GIRO.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_GIRO.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VALE
+        
+        $vale = VentaVale::select(DB::raw('IFNULL(SUM(VENTAS_VALE.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_VALE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CHEQUE
+        
+        $cheque = VentaCheque::select(DB::raw('IFNULL(SUM(VENTAS_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_CHEQUE.MONEDA'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CHEQUE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_CHEQUE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->groupBy('VENTAS_CHEQUE.MONEDA')
+        ->get();
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // SUMAR ANULADOS
+
+        $anulados = Venta::select('CODIGO')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 1)
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ************************************ ABONO *****************************************
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // SUMAR TODOS LOS VALORES ABONO
+
+        $abono = VentaAbono::select(DB::raw('IFNULL(SUM(PAGO), 0) AS T_TOTAL'))
+        ->where('FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('FECHA', '=', $datos["fecha"])
+        ->where('CAJA', '=', $dato['caja'])
+        ->get();
+
+ 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // NOTA DE CREDITO
+
+        $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
+        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $datos["fecha"])
+        ->where('NOTA_CREDITO.PROCESADO', '=', 1)
+        ->get();
+
+
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCUENTO GENERAL
+
+        $descuento_general = Venta::select(DB::raw('SUM(VENTAS_DESCUENTO.TOTAL) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_DESCUENTO', 'VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTAS')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+                /*  --------------------------------------------------------------------------------- */
+
+        // RETENCION 30%
+
+        $retencion = Venta::select(DB::raw('SUM(VENTAS_RETENCION.MONTO) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+
+
+       
+
+        /*  --------------------------------------------------------------------------------- */
+        // SALIDA DE PRODUCTOS %
+        $salida_p = DB::connection('retail')
+        ->table('SALIDA_PRODUCTOS')
+        ->select(DB::raw('SUM(TOTAL) AS T_TOTAL'))
+        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('FECALTAS', '=', $datos["fecha"])
+        ->get();
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CUPON
+
+        $cupon = Venta::select(DB::raw('SUM(CUPON.IMPORTE) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_CUPON', 'VENTAS.ID', '=', 'VENTAS_CUPON.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+        /*  --------------------------------------------------------------------------------- */
+        // DESCUENTO POR PRODUCTO
+
+        $descuento_producto = Venta::select(DB::raw('SUM(ventasdet_descuento.TOTAL) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTASDET',function($join){
+                             $join->on('VENTASDET.CODIGO','=','VENTAS.CODIGO')
+                             ->on('VENTASDET.CAJA','=','VENTAS.CAJA')
+                             ->on('VENTASDET.ID_SUCURSAL','=','VENTAS.ID_SUCURSAL');
+                             })
+        ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->get();
+        /*  --------------------------------------------------------------------------------- */
+  }
 }
