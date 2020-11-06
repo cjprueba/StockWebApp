@@ -253,6 +253,7 @@
 																  <thead>
 																    <tr>
 																      <th scope="col">#</th>
+																      <th scope="col">Código</th>
 																      <th scope="col">Proveedor</th>
 																      <th scope="col">Cantidad</th>
 																      <th scope="col">Guaranies</th>
@@ -265,6 +266,7 @@
 																  <tbody>
 																    <tr v-for="proveedor in proveedores" class="cuerpoTabla">
 																      <th scope="row">{{proveedor.C}}</th>	
+																      <th>{{proveedor.CODIGO}}</th>
 																      <th>{{proveedor.NOMBRE}}</th>
 																      <td>{{proveedor.CANTIDAD}}</td>
 																      <td>{{proveedor.GUARANIES}}</td>
@@ -452,22 +454,89 @@
 
 														<div v-if="loading.movimientos === false">
 														 <div class="col-md-6">
-							                                    <label>Ventas</label>
+							                                    <label>VENTAS</label>
 							                             </div>
 														 <!-- TABLA DE VENTAS -->
 
 														 <div class="mt-2" v-if="ventas.length > 0">
 														 	<producto-detalle-venta ref="venta_producto" :codigo="codigo"></producto-detalle-venta>
 														 </div>
-														 <div v-if="ventas.length === 0 && loading.movimientos === false">
+														 <div v-if="ventas.length === 0">
 															<div class="alert alert-primary" role="alert">
 																<font-awesome-icon icon="info-circle" /> No hay ventas realizadas.
 															</div>
 														 </div>
+														 <!-- TABLA DE NOTA DE CREDITO -->
+														 <div class="col-md-6 mt-3">
+							                                    <label>NOTAS DE CRÉDITO</label>
+							                             </div>
+														 <table class="table" v-if="creditos.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">ID</th>
+																    <th scope="col">Cliente</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Precio</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(credito, index) in creditos" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <th>{{credito.CODIGO}}</th>
+																    <td>{{credito.CLIENTE}}</td>
+																    <td>{{credito.CANTIDAD}}</td>
+																    <td>{{credito.PRECIO}}</td>
+																    <td>{{credito.TOTAL}}</td>
+																    <td>{{credito.FECHA}}</td>
+																</tr>
+															</tbody>
+														 </table>
+														 <div v-if="creditos.length === 0">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay Notas de Crédito.
+															</div>
+														 </div>
+														 
+														 <!-- TABLA DE DEVOLUCIONES -->
+														 <div class="col-md-6">
+							                                    <label>DEVOLUCIONES DEL PRODUCTO</label>
+							                             </div>
+														 <table class="table" v-if="devolucionProd.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">ID</th>
+																    <th scope="col">Cliente</th>
+																    <th scope="col">Cantidad</th>
+																    <th scope="col">Precio</th>
+																    <th scope="col">Total</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(devolucion, index) in devolucionProd" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>
+																    <td>{{devolucion.ID}}</td>
+																    <td>{{devolucion.CLIENTE}}</td>
+																    <td>{{devolucion.CANTIDAD}}</td>
+																    <td>{{devolucion.PRECIO}}</td>
+																    <td>{{devolucion.TOTAL}}</td>
+																    <td>{{devolucion.FECHA}}</td>
 
+																</tr>
+															</tbody>
+														  </table>
+														  <div v-if="devolucionProd.length === 0">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay devoluciones.
+															</div>
+														 </div>
 														 <!-- TABLA DEVOLUCION A PORVEEDOR -->
 														 <div class="col-md-6 mt-3">
-							                                    <label>Devoluciones a Proveedor</label>
+							                                    <label>DEVOLUCIONES A PROVEEDOR</label>
 							                             </div>
 														 <table class="table" v-if="devolucionesProv.length > 0">
 															<thead>
@@ -497,7 +566,7 @@
 																</tr>
 															</tbody>
 														 </table>
-														 <div v-if="devolucionesProv.length === 0 && loading.movimientos === false">
+														 <div v-if="devolucionesProv.length === 0">
 															<div class="alert alert-primary" role="alert">
 																<font-awesome-icon icon="info-circle" /> No hay devoluciones a proveedor.
 															</div>
@@ -505,7 +574,7 @@
 														 <!-- TABLA DE VECIMIENTO -->
 
 														 <div class="col-md-12" v-if="vencidos.length > 0">
-							                                    <label>Vencidos</label>
+							                                    <label>VENCIDOS</label>
 														 <table class="table">
 															<thead>
 																<tr>
@@ -531,71 +600,41 @@
 															</tbody>
 														 </table>
 							                             </div>
-														 <!-- TABLA DE NOTA DE CREDITO -->
-														 <div class="col-md-6">
-							                                    <label>Notas de Crédito</label>
+
+														 <!-- TABLA SALIDA DE PRODUCTO -->
+
+														 <div class="col-md-6 mt-3">
+							                                    <label>SALIDAS</label>
 							                             </div>
-														 <table class="table" v-if="creditos.length > 0">
+														 <table class="table" v-if="salidas.length > 0">
 															<thead>
 																<tr>
 																    <th scope="col">#</th>
-																    <th scope="col">CodNota</th>
-																    <th scope="col">Cliente</th>
-																    <th scope="col">Precio</th>
+																    <th scope="col">ID</th>
 																    <th scope="col">Cantidad</th>
+																    <th scope="col">Costo</th>
 																    <th scope="col">Total</th>
+																    <th scope="col">Lote</th>
 																    <th scope="col">Fecha</th>
+																    <th scope="col">Motivo</th>
 																</tr>
 															</thead>
 															<tbody>
-																<tr v-for="(credito, index) in creditos" class="cuerpoTabla">
+																<tr v-for="(salida, index) in salidas" class="cuerpoTabla">
 																    <th scope="row">{{index + 1}}</th>	
-																    <th>{{credito.CODIGO}}</th>
-																    <td>{{credito.CLIENTE}}</td>
-																    <td>{{credito.PRECIO}}</td>
-																    <td>{{credito.CANTIDAD}}</td>
-																    <td>{{credito.TOTAL}}</td>
-																    <td>{{credito.FECHA}}</td>
+																    <td>{{salida.ID}}</td>
+																    <td>{{salida.CANTIDAD}}</td>
+																    <td>{{salida.COSTO}}</td>
+																    <td>{{salida.TOTAL}}</td>
+																    <td>{{salida.LOTE}}</td>
+																    <td>{{salida.FECHA}}</td>
+																    <td>{{salida.MOTIVO}}</td>
 																</tr>
 															</tbody>
 														 </table>
-														 <div v-if="creditos.length === 0">
+														 <div v-if="salidas.length === 0">
 															<div class="alert alert-primary" role="alert">
-																<font-awesome-icon icon="info-circle" /> No hay Notas de Crédito.
-															</div>
-														 </div>
-														 <!-- TABLA DE DEVOLUCIONES -->
-														 <div class="col-md-6">
-							                                    <label>Devoluciones del Producto</label>
-							                             </div>
-														 <table class="table" v-if="devolucionProd.length > 0">
-															<thead>
-																<tr>
-																    <th scope="col">#</th>
-																    <th scope="col">Código</th>
-																    <th scope="col">Cliente</th>
-																    <th scope="col">Cantidad</th>
-																    <th scope="col">Precio</th>
-																    <th scope="col">Total</th>
-																    <th scope="col">Fecha</th>
-																</tr>
-															</thead>
-															<tbody>
-																<tr v-for="(devolucion, index) in devolucionProd" class="cuerpoTabla">
-																    <th scope="row">{{index + 1}}</th>
-																    <td>{{devolucion.CODIGO}}</td>
-																    <td>{{devolucion.CLIENTE}}</td>
-																    <td>{{devolucion.CANTIDAD}}</td>
-																    <td>{{devolucion.PRECIO}}</td>
-																    <td>{{devolucion.TOTAL}}</td>
-																    <td>{{devolucion.FECHA}}</td>
-
-																</tr>
-															</tbody>
-														  </table>
-														  <div v-if="devolucionProd.length === 0 && loading.movimientos === false">
-															<div class="alert alert-primary" role="alert">
-																<font-awesome-icon icon="info-circle" /> No hay devoluciones.
+																<font-awesome-icon icon="info-circle" /> No hay salidas.
 															</div>
 														 </div>
 														</div>
@@ -666,7 +705,8 @@
           		CANTIDAD: '',
           		PROVEEDOR: '',
           		NOMBRE: '',
-          		FECALTAS: ''
+          		FECALTAS: '',
+          		CODIGO: ''
           	},
           	importados: {
           		DESCRIPCION: '',
@@ -726,7 +766,7 @@
 				MOTIVO: ''
           	},
           	devolucionProd: {
-          		CODIGO: '',
+          		ID: '',
           		PRECIO: '',
           		CANTIDAD: '',
           		TOTAL: '',
@@ -740,7 +780,16 @@
           		TOTAL: '',
           		FECHA: '',
           		CLIENTE: ''
-          	},    
+          	}, 
+          	salidas: {
+          		ID: '',
+				CANTIDAD: '',
+				COSTO: '',
+				TOTAL: '',
+				LOTE: '',
+				FECHA: '',
+				MOTIVO: ''
+          	}   
          }
       },
       watch: { 
@@ -910,6 +959,7 @@
            		me.devolucionesProv = data.devolucionesProv;
            		me.devolucionProd = data.devolucionProd;
            		me.creditos = data.notaCredito;
+           		me.salidas = data.salida;
            	}).catch((err) => {
            		
            	});
