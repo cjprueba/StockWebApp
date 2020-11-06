@@ -133,4 +133,18 @@ class ClienteController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     } 
+
+    public function notaCreditoDatatable(Request $request){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER MARCAS
+
+        $cliente = Cliente::notaCreditoDatatable($request);
+        return response()->json($cliente);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 }

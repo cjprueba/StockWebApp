@@ -27,6 +27,7 @@ use App\VentaTieneNotaCredito;
 use App\VentaRetencion;
 use App\VentasTieneAgencia;
 use App\VentasTieneAutorizacion;
+use App\VentasCreditoTieneNotaCredito;
 
 class Venta extends Model
 {
@@ -7409,7 +7410,7 @@ class Venta extends Model
 
             foreach ($creditos as $key => $value) {
                 
-                if ($value->SALDO >= $datos['EFECTIVO']) {
+                if ($value->SALDO >= $datos['EFECTIVO'] && $datos['EFECTIVO'] !== 0) {
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -7439,7 +7440,7 @@ class Venta extends Model
 
                     /*  --------------------------------------------------------------------------------- */
 
-                } else {
+                } else if($value->SALDO > 0) {
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -7739,28 +7740,13 @@ class Venta extends Model
             $data = $data["datos"];
             $fecha = date('Y-m-d');
             $hora = date('H:i:s');
+            $total_saldo = 0;
 
             /*  --------------------------------------------------------------------------------- */
 
             // OBTENER ID CLIENTE 
 
             $id_cliente = (Cliente::id_cliente($data['cliente']))['ID_CLIENTE'];
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // INSERTAR PAGO 
-
-            $venta_abono_id = (VentaAbono::insertar_abono([
-                                'PAGO' => $data['total'], 
-                                'MONEDA' => $data['moneda'], 
-                                'FECHA' => $fecha,
-                                'SALDO' => $data['saldo'],
-                                'VUELTO' => $data['vuelto'],
-                                'CAJA' => $data['caja'],
-                                'FK_CLIENTE' => $id_cliente,
-                                'FK_USER' => $user->id,
-                                'FK_SUCURSAL' => $user->id_sucursal
-            ]))['valor'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -7776,20 +7762,32 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            foreach ($creditos as $key => $value) {
+                $total_saldo = $value->SALDO + $total_saldo;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            if ($data['total'] > $total_saldo) {
+                return ["response" => false, "statusText" => "La nota de crédito supera el saldo !"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
             // RECORRER VENTAS CON CREDITO 
 
             foreach ($creditos as $key => $value) {
                     
-                if ($value->SALDO >= $data['total']) {
+                    if ($value->SALDO >= $data['total'] && $data['total'] !== 0) {
 
-                    /*  --------------------------------------------------------------------------------- */
+                        /*  --------------------------------------------------------------------------------- */
 
                         // INSERTAR VENTAS DET CREDITO 
 
-                        VentaAbonoDet::guardar_referencia([
+                        VentasCreditoTieneNotaCredito::guardar_referencia([
                             'FK_VENTA' => $value->FK_VENTA,
-                            'FK_VENTAS_ABONO' => $venta_abono_id,
-                            'PAGO' => $data['total']
+                            'FK_NOTA_CREDITO' => $data['id_nota_credito'],
+                            'MONTO' => $data['total']
                         ]);
 
                         /*  --------------------------------------------------------------------------------- */
@@ -7804,34 +7802,13 @@ class Venta extends Model
 
                         /*  --------------------------------------------------------------------------------- */
 
-                        // GUARDAR REFERENCIA
-
-                        VentaTieneNotaCredito::guardar_referencia(
-                            [
-                                'FK_VENTA' => $value->FK_VENTA,
-                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
-                            ]
-                        );
-
-                        /*  --------------------------------------------------------------------------------- */
-
                         // FIJAR CERO EFECTIVO 
 
                         $data['total'] = 0;
 
                         /*  --------------------------------------------------------------------------------- */
 
-                    } else {
-
-                        /*  --------------------------------------------------------------------------------- */
-
-                        // INSERTAR VENTAS DET CREDITO 
-
-                        VentaAbonoDet::guardar_referencia([
-                            'FK_VENTA' => $value->FK_VENTA,
-                            'FK_VENTAS_ABONO' => $venta_abono_id,
-                            'PAGO' => $value->SALDO
-                        ]);
+                    } else if($value->SALDO > 0) {
 
                         /*  --------------------------------------------------------------------------------- */
 
@@ -7847,12 +7824,11 @@ class Venta extends Model
 
                         // GUARDAR REFERENCIA
 
-                        VentaTieneNotaCredito::guardar_referencia(
-                            [
-                                'FK_VENTA' => $value->FK_VENTA,
-                                'FK_NOTA_CREDITO' => $data['id_nota_credito']
-                            ]
-                        );
+                        VentasCreditoTieneNotaCredito::guardar_referencia([
+                            'FK_VENTA' => $value->FK_VENTA,
+                            'FK_NOTA_CREDITO' => $data['id_nota_credito'],
+                            'MONTO' => $value->SALDO
+                        ]);
 
                         /*  --------------------------------------------------------------------------------- */
                         
