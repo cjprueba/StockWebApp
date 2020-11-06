@@ -86,12 +86,21 @@
                         			<button class="btn btn-primary" v-on:click="abonar"><font-awesome-icon icon="plus" /> Abonar</button>
                         			<button class="btn btn-danger"><font-awesome-icon icon="trash" /> Eliminar</button>
                         			<button class="btn btn-primary"><font-awesome-icon icon="print" /> Recibo</button>
+                        			<button class="btn btn-info" v-on:click="nota_credito"><font-awesome-icon icon="document" /> Nota Credito</button>
                         		</div>
 
                         		<div class="col-md-12 mb-1">
                         			<hr>
                         		</div>
-                        			
+                        		
+                        		<div class="col-md-12 mb-1">
+                        			<label>VENTAS</label>
+                        		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+
                         		<div class="col-md-12">
                         			<table id="tablaClienteCreditoDet" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
 							            <thead>
@@ -114,6 +123,14 @@
                         			<hr>
                         		</div>
 
+                        		<div class="col-md-12 mb-1">
+                        			<label>ABONOS</label>
+                        		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+
                         		<div class="col-md-12">
                         			<table id="tablaClienteCreditoAbono" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
 							            <thead>
@@ -123,6 +140,34 @@
 							                    <th>PAGO</th>
 							                    <th>SALDO</th>
 							                    <!-- <th>Acción</th> -->
+							                </tr>
+							            </thead>
+							            <tbody>
+							                <td></td>
+							            </tbody>
+							        </table> 
+                        		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<label>NOTA DE CREDITO</label>
+                        		</div>
+
+                        		<div class="col-md-12 mb-1">
+                        			<hr>
+                        		</div>
+
+                        		<div class="col-md-12 mb-4">
+                        			<table id="tablaClienteCreditoNotaCredito" class="table table-striped table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+							            <thead>
+							                <tr>
+							                    <th>ID</th>
+							                    <th>FECHA</th>
+							                    <th>VENTA ANTERIOR</th>
+							                    <th>TOTAL</th>
 							                </tr>
 							            </thead>
 							            <tbody>
@@ -144,6 +189,13 @@
 		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" :tipo="3" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
+
+		<!-- MODAL DETALLE PRODUCTO -->
+
+		<nota-credito-cliente-datatable @data="dataNotaCreditoTextbox"  ref="detalle_nota_credito_cliente"></nota-credito-cliente-datatable>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 
 	</div>
 </template>
@@ -169,6 +221,10 @@
           	},
           	cliente: {
           		CODIGO: ''
+          	}, nc: {
+          		TOTAL: '',
+          		SALDO: '',
+          		VUELTO: ''
           	}
         }
       }, 
@@ -221,6 +277,16 @@
 
       			// ------------------------------------------------------------------------
 
+      			$('#tablaClienteCreditoDet tbody').on( 'click', 'tr', function () {
+			        if ( $(this).hasClass('table-dark') ) {
+			            $(this).removeClass('table-dark');
+			        }
+			        else {
+			            tableClienteCreditoDet.$('tr.table-dark').removeClass('table-dark');
+			            $(this).addClass('table-dark');
+			        }
+			    } );
+
       		}, detalleAbono(codigo){
 
       			// ------------------------------------------------------------------------
@@ -247,6 +313,38 @@
                             { "data": "FECHA" },
                             { "data": "PAGO" },
                             { "data": "SALDO" }
+                        ],
+                        "order": [[ 0, "desc" ]]         
+                });
+
+      			// ------------------------------------------------------------------------
+
+      		}, detalleNotaCredito(codigo){
+
+      			// ------------------------------------------------------------------------
+
+      			// DETALLE CREDITOS VENTAS
+
+      			var tableClienteCreditoDetNotaCredito = $('#tablaClienteCreditoNotaCredito').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                        		 "data": {
+                        		 	codigo: codigo,
+                        		 	"_token": $('meta[name="csrf-token"]').attr('content')
+                        		 },
+                                 "url": "/cliente/credito/detalle/nc/datatable",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "ID" },
+                            { "data": "FECALTAS" },
+                            { "data": "VENTA_ANTERIOR" },
+                            { "data": "TOTAL" }
                         ],
                         "order": [[ 0, "desc" ]]         
                 });
@@ -421,7 +519,80 @@
 				  	
 
 				})
-      		}
+      		}, nota_credito() {
+				
+				// ------------------------------------------------------------------------
+
+				// LLAMAR MODAL 
+
+				this.$refs.detalle_nota_credito_cliente.mostrarModal(this.cliente.CODIGO);
+
+				// ------------------------------------------------------------------------
+
+			}, dataNotaCreditoTextbox(data){
+				console.log(data);
+				// ------------------------------------------------------------------------
+
+				let me = this;
+
+				// ------------------------------------------------------------------------
+
+				// NOTA DE CREDITO CALCULOS 
+
+				this.nc.TOTAL = data.total;
+				this.nc.SALDO = Common.restarCommon(this.venta.TOTAL, data.total, this.moneda.DECIMAL);
+
+				if (Common.quitarComaCommon(this.nc.SALDO) < 0) {
+					this.nc.VUELTO = this.nc.SALDO;
+				} else if (Common.quitarComaCommon(this.nc.SALDO) >= 0) {
+					this.nc.VUELTO = 0;
+				}
+
+ 				// ------------------------------------------------------------------------
+
+				Swal.fire({
+				  title: 'Estas seguro ?',
+				  text: "Aplicar nota de crédito " + data.id + " !",
+				  type: 'warning',
+				  showLoaderOnConfirm: true,
+				  showCancelButton: true,
+				  confirmButtonColor: '#d33',
+				  cancelButtonColor: '#3085d6',
+				  confirmButtonText: 'Aplicar !',
+				  cancelButtonText: 'Cancelar',
+				  preConfirm: () => {
+				    return Common.notaCreditoClienteCreditoCommon({id_nota_credito: data.id, cliente: me.cliente.CODIGO,
+	        		caja: me.caja.CODIGO,
+	        		moneda: me.moneda.CODIGO, total: data.total, saldo: this.nc.SALDO, vuelto: this.nc.VUELTO}).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+				  	}).catch(error => {
+				        Swal.showValidationMessage(
+				          `Request failed: ${error}`
+				        )
+				    });
+				  }
+				}).then((result) => {
+				  if (result.value) {
+				  	Swal.fire(
+						      'Aplicado !',
+						      'Se ha aplicado la nota de crédito !',
+						      'success'
+					)
+
+				  	// ------------------------------------------------------------------------
+
+				  	// RECARGAR TABLA 
+				  	
+					//tableTransferencia.ajax.reload( null, false );
+
+					// ------------------------------------------------------------------------
+
+				  } 
+				})
+			}
       },
         mounted() {
         	
@@ -520,7 +691,8 @@
 	                   	 var row  = $(this).parents('tr')[0];
 	                   	 me.detalleCredito(tableClienteCredito.row( row ).data().CODIGO);
 	                   	 me.detalleAbono(tableClienteCredito.row( row ).data().CODIGO);
-
+	                   	 me.detalleNotaCredito(tableClienteCredito.row( row ).data().CODIGO);
+	                   	 
 				         me.venta.TOTAL = tableClienteCredito.row( row ).data().DEUDA;
 				         me.venta.TOTAL_CRUDO = tableClienteCredito.row( row ).data().DEUDA_CRUDO;
 				         me.moneda.CODIGO = tableClienteCredito.row( row ).data().MONEDA;
