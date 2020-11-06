@@ -499,7 +499,7 @@
 								tableClienteCreditoDet.ajax.reload( null, false );
       							tableClienteCreditoDetAbono.ajax.reload( null, false );
       							tableClienteCreditoDetNotaCredito.ajax.reload( null, false );
-      							
+
 								// ------------------------------------------------------------------------
 
 								me.$refs.compontente_medio_pago.limpiar();
@@ -544,6 +544,7 @@
       			var tableClienteCredito = $('#tablaClienteCredito').DataTable();
       			var tableClienteCreditoDet = $('#tablaClienteCreditoAbono').DataTable();
       			var tableClienteCreditoDetAbono = $('#tablaClienteCreditoAbono').DataTable();
+      			var tableClienteCreditoDetNotaCredito = $('#tablaClienteCreditoNotaCredito').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -595,7 +596,8 @@
 				  	tableClienteCredito.ajax.reload( null, false );
 					tableClienteCreditoDet.ajax.reload( null, false );
       				tableClienteCreditoDetAbono.ajax.reload( null, false );
-
+      				tableClienteCreditoDetNotaCredito.ajax.reload( null, false );
+      				
 				  	// ------------------------------------------------------------------------
 
 				  	// RECARGAR TABLA 
