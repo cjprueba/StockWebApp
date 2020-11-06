@@ -449,6 +449,7 @@ Route::post('cliente/credito/datatable', 'ClienteController@creditoClienteDatata
 Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
 Route::post('/cliente/credito/detalle/datatable', 'ClienteController@creditoClienteDatatableDetalle');
 Route::post('/cliente/credito/detalle/abono/datatable', 'ClienteController@creditoClienteAbonoDatatable');
+Route::post('/cliente/credito/detalle/nc/datatable', 'ClienteController@notaCreditoDatatable');
 
 /* -------------------------------------------------------------------------- */
 
