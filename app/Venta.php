@@ -3562,8 +3562,7 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        $fecha = '2020-10-30';
-        $dato['caja'] = 10;
+
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
@@ -7411,7 +7410,7 @@ class Venta extends Model
 
             foreach ($creditos as $key => $value) {
                 
-                if ($value->SALDO >= $datos['EFECTIVO']) {
+                if ($value->SALDO >= $datos['EFECTIVO'] && $datos['EFECTIVO'] !== 0) {
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -7772,7 +7771,7 @@ class Venta extends Model
             if ($data['total'] > $total_saldo) {
                 return ["response" => false, "statusText" => "La nota de crédito supera el saldo !"];
             }
-            
+
             /*  --------------------------------------------------------------------------------- */
 
             // RECORRER VENTAS CON CREDITO 
