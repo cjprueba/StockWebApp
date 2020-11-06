@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Venta;
 use App\VentaAbono;
+use App\VentasCreditoTieneNotaCredito;
+use App\NotaCredito;
 
 class Cliente extends Model
 {
@@ -1352,6 +1354,175 @@ class Cliente extends Model
         /*  --------------------------------------------------------------------------------- */
 
         return ["response" => true, "statusText" => "Se actualizo correctamente el credito"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function notaCreditoDatatable($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                        0 => 'ID',
+                        1 => 'FECHA',
+                        2 => 'TOTAL'
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $codigo = $request->input('codigo');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER ID CLIENTE 
+
+        $id = (Cliente::id_cliente($codigo))['ID_CLIENTE'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = VentasCreditoTieneNotaCredito::where([
+            'NOTA_CREDITO.CLIENTE' => $codigo,
+            'ID_SUCURSAL' => $user->id_sucursal
+        ])
+        ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+        ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL DATA 
+
+        $totalData = count($totalData);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = VentasCreditoTieneNotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.TOTAL, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.FK_VENTA AS VENTA_ANTERIOR, NOTA_CREDITO.MONEDA'))
+                         ->where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                         ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                         ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+            $posts =        VentasCreditoTieneNotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.TOTAL, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.FK_VENTA AS VENTA_ANTERIOR, NOTA_CREDITO.MONEDA'))
+                            ->where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO.ID','LIKE',"%{$search}%")
+                                      ->orWhere('NOTA_CREDITO.FK_VENTA', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = VentasCreditoTieneNotaCredito::where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO.ID','LIKE',"%{$search}%")
+                                      ->orWhere('NOTA_CREDITO.FK_VENTA', 'LIKE',"%{$search}%");
+                            })
+                             ->get();
+
+            /*  ************************************************************ */  
+
+            $totalFiltered = count($totalFiltered);
+
+            /*  ************************************************************ */  
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['VENTA_ANTERIOR'] = $post->VENTA_ANTERIOR;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
 

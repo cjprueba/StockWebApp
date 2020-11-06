@@ -293,4 +293,15 @@ class VentaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function asignarNotaCreditoCreditoCliente(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $nota_credito = Venta::asignarNotaCreditoCreditoCliente($request);
+        return response()->json($nota_credito);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }
