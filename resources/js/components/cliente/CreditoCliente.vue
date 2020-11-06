@@ -431,6 +431,7 @@
       			var tableClienteCredito = $('#tablaClienteCredito').DataTable();
       			var tableClienteCreditoDet = $('#tablaClienteCreditoAbono').DataTable();
       			var tableClienteCreditoDetAbono = $('#tablaClienteCreditoAbono').DataTable();
+      			var tableClienteCreditoDetNotaCredito = $('#tablaClienteCreditoNotaCredito').DataTable();
 
       			// ------------------------------------------------------------------------
 
@@ -497,7 +498,8 @@
 								tableClienteCredito.ajax.reload( null, false );
 								tableClienteCreditoDet.ajax.reload( null, false );
       							tableClienteCreditoDetAbono.ajax.reload( null, false );
-
+      							tableClienteCreditoDetNotaCredito.ajax.reload( null, false );
+      							
 								// ------------------------------------------------------------------------
 
 								me.$refs.compontente_medio_pago.limpiar();
@@ -536,6 +538,14 @@
 				let me = this;
 
 				// ------------------------------------------------------------------------
+
+				// INICIAR VARIABLES
+
+      			var tableClienteCredito = $('#tablaClienteCredito').DataTable();
+      			var tableClienteCreditoDet = $('#tablaClienteCreditoAbono').DataTable();
+      			var tableClienteCreditoDetAbono = $('#tablaClienteCreditoAbono').DataTable();
+
+      			// ------------------------------------------------------------------------
 
 				// NOTA DE CREDITO CALCULOS 
 
@@ -581,6 +591,10 @@
 						      'Se ha aplicado la nota de crédito !',
 						      'success'
 					)
+
+				  	tableClienteCredito.ajax.reload( null, false );
+					tableClienteCreditoDet.ajax.reload( null, false );
+      				tableClienteCreditoDetAbono.ajax.reload( null, false );
 
 				  	// ------------------------------------------------------------------------
 
