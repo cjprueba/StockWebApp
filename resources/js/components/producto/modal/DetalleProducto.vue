@@ -502,6 +502,7 @@
 														 </div>
 														 
 														 <!-- TABLA DE DEVOLUCIONES -->
+														 
 														 <div class="col-md-6">
 							                                    <label>DEVOLUCIONES DEL PRODUCTO</label>
 							                             </div>

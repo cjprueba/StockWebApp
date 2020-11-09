@@ -3982,7 +3982,6 @@ $lotes= DB::connection('retail')
         $data = [];
         $vencimiento = '0000-00-00';
         $cod_prod = $codigo["codigo"];
-
         $parametro = Parametro::consultaPersonalizada('MONEDA');
         $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
       
@@ -4107,6 +4106,10 @@ $lotes= DB::connection('retail')
             ->where('NOTA_CREDITO_DET.ID_SUCURSAL', '=',$user->id_sucursal)
             ->orderBy('NOTA_CREDITO_DET.FECALTAS', 'DESC')
             ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER SALIDAS
 
         $salida = DB::connection('retail')->table('SALIDA_PRODUCTOS_DET')->select(
             DB::raw('SALIDA_PRODUCTOS.ID AS ID, 

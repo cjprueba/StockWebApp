@@ -20,7 +20,7 @@
 	export default{
 	  props: ["codigo"],
 		data(){
-			 return {
+			return {
 			}
 		},
 
