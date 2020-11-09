@@ -4,12 +4,13 @@
 			<thead>
 				<tr>
 					<th>#</th>
-					<th>Código</th>
+					<th>ID</th>
 					<th>Cliente</th>
 					<th>Cantidad</th>
 					<th>Precio</th>
 					<th>Total</th>
 					<th>Fecha</th>
+					<th>Hora</th>
 				</tr>
 			</thead>
 		</table>
@@ -19,7 +20,7 @@
 	export default{
 	  props: ["codigo"],
 		data(){
-			 return {
+			return {
 			}
 		},
 
@@ -47,12 +48,13 @@
                                },
                         "columns": [
                             { "data": "ITEM" },
-                            { "data": "CODIGO" },
+                            { "data": "ID" },
                             { "data": "CLIENTE" },
                             { "data": "CANTIDAD" },
                             { "data": "PRECIO" },
                             { "data": "TOTAL" },
-                            { "data": "FECHA" }
+                            { "data": "FECHA" },
+                            { "data": "HORA" }
                         ]      
             });
 		}

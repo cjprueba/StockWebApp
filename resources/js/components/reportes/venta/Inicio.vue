@@ -10,6 +10,7 @@
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
 					<option value="3">Ventas por Marca y Categoria</option>
+          <option value="4">Reporte Diario</option>
 				</select>			
 			</div>
 
@@ -19,15 +20,23 @@
 			<transition name="slide-fade">	
 				<venta-marca-categoria-rpt v-if="reporte === '3'" id="reporte2"></venta-marca-categoria-rpt>
 			</transition>
+
+      <!-- REPORTE DIARIO -->
+
+      <transition name="slide-fade">  
+        <venta-diaria-rpt v-if="reporte === '4'" id="reporte4"></venta-diaria-rpt>
+      </transition>
+
+      <!-- FIN REPORTE DIARIO -->
+
 		</div>
    <div v-else>
       <cuatrocientos-cuatro></cuatrocientos-cuatro>
     </div>
 		<!-- ------------------------------------------------------------------------ -->
-	</div>
-		
+	</div>	
 
-		<!-- ------------------------------------------------------------------------ -->
+	<!-- ------------------------------------------------------------------------ -->
 
 
 </template>
