@@ -292,7 +292,7 @@ class Sucursal extends Model
     	   
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$sucursal = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
+    	$sucursal = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, CIUDAD, RUC'))
         ->where('CODIGO', '=', $data['codigoOrigen'])
         ->get();
 

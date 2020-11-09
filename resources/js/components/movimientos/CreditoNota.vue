@@ -282,7 +282,7 @@
 			                        <!-- ------------------------------------------------------------------------ -->
 
 			                        <div class="modal-footer" v-if="nota.tipo === '2'">
-					                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="generar()">Aceptar</button>
+					                    <button type="button" class="btn btn-primary" data-dismiss="modal"  v-on:click="generar()">Aceptar</button>
 					                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
 					                </div>
 
@@ -302,7 +302,7 @@
 	                      <div class="modal-content">
 
 	                        <div class="modal-header">
-	                          <h5 class="modal-title" id="exampleModalLabel">Total Nota de Crédito: <b>{{respuesta.total}}</b></h5>
+	                          <h5 class="modal-title" id="exampleModalLabel">Total Nota de Crédito: <b>{{mostrar.total}}</b></h5>
 	                        </div>
 
 	                        <div class="modal-body">
@@ -444,7 +444,8 @@
           		constructor: ''
           	}, 
           	caja: {
-          		codigo: ''
+          		codigo: '',
+          		caja_proceso: ''
           	},
           	venta: {
           		codigo: ''
@@ -545,6 +546,9 @@
           		pesos: '',
           		cheque: '',
           		transferencia: ''
+          	},
+          	mostrar: {
+          		total: 0
           	}
         }
       }, 
@@ -904,71 +908,95 @@
 
         	// ------------------------------------------------------------------------
 
-        	// CARGAR DATOS 
+        	if (this.nota.tipo === '1') {
 
-        	this.data = {
-        		codigo: this.venta.codigo,
-        		caja: this.caja.codigo,
-        		datos: this.datos,
-        		tipo: this.nota.tipo
+	        	// ------------------------------------------------------------------------
+
+	        	// CARGAR DATOS 
+
+	        	this.data = {
+	        		codigo: this.venta.codigo,
+	        		caja: this.caja.codigo,
+	        		datos: this.datos,
+	        		tipo: this.nota.tipo
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	// GENERAR CUERPO CON EL RESULTADO
+
+	        	Common.generarCuerpoNotaCreditoCommon(this.data).then(data => {
+
+	        		if (data.response !== false) {
+
+	        			// ------------------------------------------------------------------------
+	        		
+		        		me.respuesta.productos = data.data;
+		        		me.respuesta.total = data.total;
+		        		me.respuesta.total_crudo = data.total_crudo;
+		        		me.respuesta.base5 = data.base5;
+		        		me.respuesta.base10 = data.base10;
+		        		me.respuesta.exentas = data.exentas;
+		        		me.respuesta.gravadas = data.gravadas;
+		        		me.respuesta.impuesto = data.impuesto;
+		        		me.respuesta.moneda = data.moneda;
+
+		        		me.respuesta.cliente_codigo = data.cliente_codigo;
+		          		me.respuesta.nombre = data.cliente_nombre;
+		          		me.respuesta.razon_social = data.razon_social;
+		          		me.respuesta.ruc = data.ruc;
+		          		me.respuesta.imagen_cliente = data.imagen_cliente;
+
+		        		tablaNotaFinal.clear();
+		                tablaNotaFinal.rows.add(data.data);
+		                tablaNotaFinal.draw(); 
+		        		//tablaNotaFinal.ajax.reload( null, false );
+
+		        		me.calcularTotalesMoneda();
+
+		        		// ------------------------------------------------------------------------
+
+		        		// MOSTRAR TOTAL
+
+		        		me.mostrar.total = me.respuesta.total;
+
+		        		// ------------------------------------------------------------------------
+
+	        		} else {
+
+	        			// ------------------------------------------------------------------------
+
+	        			Swal.fire(
+							'Error !',
+							 data.statusText,
+							'error'
+						)
+
+	        			// ------------------------------------------------------------------------
+
+	        		}
+
+	        	}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+				});
+
+	        	// ------------------------------------------------------------------------
+
+        	} else if (this.nota.tipo === '2') {
+        		me.calcularTotalesMoneda();
+        		$('#modalDevolver').modal('show');
+
+        		// ------------------------------------------------------------------------
+
+        		// MOSTRAR TOTAL
+		        		
+		        me.mostrar.total = me.nota.total;
+
+		        // ------------------------------------------------------------------------
+
         	}
-
-        	// ------------------------------------------------------------------------
-
-        	// GENERAR CUERPO CON EL RESULTADO
-
-        	Common.generarCuerpoNotaCreditoCommon(this.data).then(data => {
-
-        		if (data.response !== false) {
-
-        			// ------------------------------------------------------------------------
-        		
-	        		me.respuesta.productos = data.data;
-	        		me.respuesta.total = data.total;
-	        		me.respuesta.total_crudo = data.total_crudo;
-	        		me.respuesta.base5 = data.base5;
-	        		me.respuesta.base10 = data.base10;
-	        		me.respuesta.exentas = data.exentas;
-	        		me.respuesta.gravadas = data.gravadas;
-	        		me.respuesta.impuesto = data.impuesto;
-	        		me.respuesta.moneda = data.moneda;
-
-	        		me.respuesta.cliente_codigo = data.cliente_codigo;
-	          		me.respuesta.nombre = data.cliente_nombre;
-	          		me.respuesta.razon_social = data.razon_social;
-	          		me.respuesta.ruc = data.ruc;
-	          		me.respuesta.imagen_cliente = data.imagen_cliente;
-
-	        		tablaNotaFinal.clear();
-	                tablaNotaFinal.rows.add(data.data);
-	                tablaNotaFinal.draw(); 
-	        		//tablaNotaFinal.ajax.reload( null, false );
-
-	        		me.calcularTotalesMoneda();
-
-	        		// ------------------------------------------------------------------------
-
-        		} else {
-
-        			// ------------------------------------------------------------------------
-
-        			Swal.fire(
-						'Error !',
-						 data.statusText,
-						'error'
-					)
-
-        			// ------------------------------------------------------------------------
-
-        		}
-
-        	}).catch(error => {
-				        Swal.showValidationMessage(
-				          `Request failed: ${error}`
-				        )
-			});
-
-        	// ------------------------------------------------------------------------
 
         }, guardar(tipo) {
 
@@ -979,6 +1007,8 @@
         	// ------------------------------------------------------------------------
 
         	if (this.nota.tipo === '1') {
+
+        		// ------------------------------------------------------------------------
 
         		this.envio = {
 	          		cliente_codigo: this.respuesta.cliente_codigo,
@@ -996,10 +1026,15 @@
 	          		tipo_iva: this.radio.iva,
 	          		tipo_proceso: this.devolver.tipo,
 	          		tipo_medio: this.radio.medio,
-	          		totales: this.totales
+	          		totales: this.totales,
+	          		caja_proceso: this.caja.caja_proceso
 	          	}
 
+	          	// ------------------------------------------------------------------------
+
 	          } else if (this.nota.tipo === '2') {
+
+	          	// ------------------------------------------------------------------------
 
 	          	this.envio = {
 	          		cliente_codigo: this.respuesta.cliente_codigo,
@@ -1017,12 +1052,15 @@
 	          		tipo_iva: this.radio.iva,
 	          		tipo_proceso: this.devolver.tipo,
 	          		tipo_medio: this.radio.medio,
-	          		totales: this.totales
+	          		totales: this.totales,
+	          		descuento: this.nota.descuento,
+	          		caja_proceso: this.caja.caja_proceso
 	          	}
+
+	          	// ------------------------------------------------------------------------
 
 	          }
         	
-
         	// ------------------------------------------------------------------------
 
         	Swal.fire({
@@ -1057,15 +1095,20 @@
 						'success'
 					)
 
-					if (result.value === true) {
-						window.location.href = '/mov2';
-					}
+					
+					//window.location.href = '/mov2';
+					
+
+					// ------------------------------------------------------------------------
+
+					me.generarPdf(result.value.ID);
 
 					// ------------------------------------------------------------------------
 
 					// REDIRIGIR A MOSTRAR NOTA DE CREDITO
-					  	
-					//me.$router.push('/cr1');
+					
+					
+					//me.$router.push('/mov2');
 
 					// ------------------------------------------------------------------------
 
@@ -1306,58 +1349,174 @@
 
          }, calcularTotalesMoneda(){
 
-            // ------------------------------------------------------------------------
+         	if (this.nota.tipo === '1') {
 
-            // GUARANIES 
+	            // ------------------------------------------------------------------------
 
-            this.totales.guaranies = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+	            // GUARANIES 
 
-            // ------------------------------------------------------------------------
+	            this.totales.guaranies = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
 
-            // DOLARES 
+	            // ------------------------------------------------------------------------
 
-            this.totales.dolares = Common.formulaCommon(this.cotizacion.formula_$, this.respuesta.total_crudo, this.cotizacion.dolares, this.cotizacion.candec_$, this.nota.moneda, this.cotizacion.moneda_$);
+	            // DOLARES 
 
-            // ------------------------------------------------------------------------
+	            this.totales.dolares = Common.formulaCommon(this.cotizacion.formula_$, this.respuesta.total_crudo, this.cotizacion.dolares, this.cotizacion.candec_$, this.nota.moneda, this.cotizacion.moneda_$);
 
-            // PESOS
+	            // ------------------------------------------------------------------------
 
-            this.totales.pesos = Common.formulaCommon(this.cotizacion.formula_ps, this.respuesta.total_crudo, this.cotizacion.pesos, this.cotizacion.candec_ps, this.nota.moneda, this.cotizacion.moneda_ps);
+	            // PESOS
 
-            // ------------------------------------------------------------------------
+	            this.totales.pesos = Common.formulaCommon(this.cotizacion.formula_ps, this.respuesta.total_crudo, this.cotizacion.pesos, this.cotizacion.candec_ps, this.nota.moneda, this.cotizacion.moneda_ps);
 
-            // REALES
+	            // ------------------------------------------------------------------------
 
-            this.totales.reales = Common.formulaCommon(this.cotizacion.formula_rs, this.respuesta.total_crudo, this.cotizacion.reales, this.cotizacion.candec_rs, this.nota.moneda, this.cotizacion.moneda_rs);
+	            // REALES
 
-            // ------------------------------------------------------------------------
+	            this.totales.reales = Common.formulaCommon(this.cotizacion.formula_rs, this.respuesta.total_crudo, this.cotizacion.reales, this.cotizacion.candec_rs, this.nota.moneda, this.cotizacion.moneda_rs);
 
-            // REALES
+	            // ------------------------------------------------------------------------
 
-            this.totales.cheque = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+	            // REALES
 
-            // ------------------------------------------------------------------------
+	            this.totales.cheque = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
 
-            // REALES
+	            // ------------------------------------------------------------------------
 
-            this.totales.transferencia = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+	            // REALES
 
-            // ------------------------------------------------------------------------
+	            this.totales.transferencia = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total_crudo, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+            } else if (this.nota.tipo === '2') {
+
+	            // ------------------------------------------------------------------------
+
+	            // GUARANIES 
+
+	            this.totales.guaranies = Common.formulaCommon(this.cotizacion.formula_gs, this.nota.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+	            // DOLARES 
+
+	            this.totales.dolares = Common.formulaCommon(this.cotizacion.formula_$, this.nota.total, this.cotizacion.dolares, this.cotizacion.candec_$, this.nota.moneda, this.cotizacion.moneda_$);
+
+	            // ------------------------------------------------------------------------
+
+	            // PESOS
+
+	            this.totales.pesos = Common.formulaCommon(this.cotizacion.formula_ps, this.nota.total, this.cotizacion.pesos, this.cotizacion.candec_ps, this.nota.moneda, this.cotizacion.moneda_ps);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.reales = Common.formulaCommon(this.cotizacion.formula_rs, this.nota.total, this.cotizacion.reales, this.cotizacion.candec_rs, this.nota.moneda, this.cotizacion.moneda_rs);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.cheque = Common.formulaCommon(this.cotizacion.formula_gs, this.nota.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.transferencia = Common.formulaCommon(this.cotizacion.formula_gs, this.nota.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+            }
 
           }, pruebaNota() {
 
           	// ------------------------------------------------------------------------
 
-          	Common.generarPdfNotaCreditoCommon(35);
+          	Common.generarPdfNotaCreditoCommon(6);
 
           	// ------------------------------------------------------------------------
 
-          } 
+          }, generarPdf(id) {
+
+          	// ------------------------------------------------------------------------
+
+          	Common.generarPdfNotaCreditoCommon(id).then(data => {
+						window.location.href = '/mov2';	
+			});
+
+          	// ------------------------------------------------------------------------
+
+          }, obtenerCaja() {
+
+          		// ------------------------------------------------------------------------
+
+      			let me=this;
+          		
+          		// ------------------------------------------------------------------------
+
+          		// OBTENER CAJA 
+
+          		Common.obtenerIPCommon(function(){
+
+          			if (window.IPv !== false) {
+          				axios.post('/cajaObtener', {'id': window.IPv}).then(function (response) {
+	                	  if (response.data.response === true) {
+
+	                	  	  me.caja.caja_proceso  =   response.data.caja[0].CAJA;
+
+	                	  } else {
+	                	  		
+	                	  	  	Swal.fire({
+									title: 'NO SE PUDO OBTENER CAJA',
+									type: 'warning',
+									confirmButtonColor: '#d33',
+									confirmButtonText: 'Aceptar',
+								}).then((result) => {
+									
+									window.location.href = '/mov2';
+
+								})	
+
+	                	  }		
+			              
+			            })
+          			} else {
+
+
+          				Swal.fire({
+							title: 'NO SE PUDO OBTENER LA IP DE LA MAQUINA',
+							type: 'warning',
+							confirmButtonColor: '#d33',
+							confirmButtonText: 'Aceptar',
+						}).then((result) => {
+									
+							window.location.href = '/vt0';
+
+						})
+
+          			}
+                	
+                });
+
+                // ------------------------------------------------------------------------
+
+      		} 
       },
         mounted() {
         	
+        	// ------------------------------------------------------------------------
+
         	let me=this;
            	
+           	// ------------------------------------------------------------------------
+
+           	// OBTENER CAJA 
+
+           	me.obtenerCaja();
+
            	// ------------------------------------------------------------------------
 
            	// LLAMAR FORMATOS 

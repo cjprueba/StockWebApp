@@ -38,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
 
+
 /* -------------------------------------------------------------------------- */
 
 // CAJAS
@@ -68,6 +69,7 @@ Route::get('venta/cuenta/datatable', 'VentaController@obtenerCuentas');
 Route::post('venta/pago/pe', 'VentaController@pagoEntrega');
 Route::post('venta/pago/credito', 'VentaController@pagoCredito');
 Route::post('/venta/reporte/unico', 'VentaController@reporteUnico');
+Route::post('/venta/nota/credito/asingar/credito/cliente', 'VentaController@asignarNotaCreditoCreditoCliente');
 
 /* -------------------------------------------------------------------------- */
 
@@ -447,6 +449,7 @@ Route::post('cliente/credito/datatable', 'ClienteController@creditoClienteDatata
 Route::post('empresasDatatable', 'ClienteController@datatableEmpresa');
 Route::post('/cliente/credito/detalle/datatable', 'ClienteController@creditoClienteDatatableDetalle');
 Route::post('/cliente/credito/detalle/abono/datatable', 'ClienteController@creditoClienteAbonoDatatable');
+Route::post('/cliente/credito/detalle/nc/datatable', 'ClienteController@notaCreditoDatatable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -581,6 +584,37 @@ Route::get('arreglar', 'TransferenciaControler@arreglar');
 Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerpo');
 Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
 Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
+Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtenerCreditoCliente');
+
+/* -------------------------------------------------------------------------- */
+
+// AGENCIA
+
+Route::get('/agencia/datatable', 'AgenciaController@datatable');
+
+/* -------------------------------------------------------------------------- */
+
+
+// CONTROL DE CODIGO DE SUPERVISOR
+
+Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autorizacion');
+
+/* -------------------------------------------------------------------------- */
+
+//SALIDA DE PRODUCTOS
+Route::post('lote/salida', 'StockController@loteProducto');
+Route::post('salida/producto', 'SalidaProductoController@salida');
+Route::get('salida/mostrar', 'SalidaProductoController@salidaMostrar');
+Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDetalle');
+
+//AVISOS
+
+/* -------------------------------------------------------------------------- */
+Route::get('aviso/obtener', 'EspecificacionController@obtenerAviso');
+Route::post('aviso/confirmar', 'EspecificacionController@aceptarTerminos');
+
+
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 

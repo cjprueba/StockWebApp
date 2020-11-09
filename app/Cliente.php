@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Venta;
 use App\VentaAbono;
+use App\VentasCreditoTieneNotaCredito;
+use App\NotaCredito;
 
 class Cliente extends Model
 {
@@ -66,7 +68,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -87,10 +89,11 @@ class Cliente extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
@@ -104,6 +107,7 @@ class Cliente extends Model
 
             $totalFiltered = Cliente::where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('RUC', 'LIKE',"%{$search}%")
                                       ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
                             })
                              ->where('ID_SUCURSAL','=', $user->id_sucursal)
@@ -136,6 +140,7 @@ class Cliente extends Model
                 $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
+                $nestedData['RETENTOR'] = $post->RETENTOR;
                 
                 $data[] = $nestedData;
 
@@ -326,7 +331,8 @@ class Cliente extends Model
                         CLIENTES.FK_EMPRESA,
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
                         EMPRESAS.NOMBRE AS EMPRESA,
-                        CLIENTES.CREDITO_DISPONIBLE'))
+                        CLIENTES.CREDITO_DISPONIBLE,
+                        CLIENTES.RETENTOR'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -401,7 +407,8 @@ class Cliente extends Model
                 'USER'=> $user->name,
                 'FECALTAS'=> $dia,
                 'HORALTAS'=> $hora,
-                'ID_SUCURSAL' => $user->id_sucursal]);
+                'ID_SUCURSAL' => $user->id_sucursal,
+                'RETENTOR' => $datos['data']['retentor']]);
 
             }else{
 
@@ -445,7 +452,8 @@ class Cliente extends Model
                     'FK_EMPRESA' => $datos['data']['idEmpresa'],
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
-                    'HORMODIF'=>$hora]);
+                    'HORMODIF'=>$hora,
+                    'RETENTOR' => $datos['data']['retentor']]);
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -972,14 +980,15 @@ class Cliente extends Model
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['PAGO'] = Common::precio_candec($post->PAGO, $post->MONEDA);
                 $nestedData['SALDO'] =  Common::precio_candec($post->SALDO, $post->MONEDA);
-
-                if ($post->FECHA_CREDITO_FIN <= $dia) {
+                
+                if ($post->SALDO == 0) {
+                    $nestedData['ESTATUS'] = 'table-success';
+                } else if ($post->FECHA_CREDITO_FIN <= $dia) {
                     $nestedData['ESTATUS'] = 'table-danger';
                 } else if ($post->SALDO > 0) {
                     $nestedData['ESTATUS'] = 'table-warning';
-                } else {
-                    $nestedData['ESTATUS'] = 'table-success';
-                }
+                } 
+
                 $data[] = $nestedData;
 
              /*  --------------------------------------------------------------------------------- */
@@ -1345,6 +1354,175 @@ class Cliente extends Model
         /*  --------------------------------------------------------------------------------- */
 
         return ["response" => true, "statusText" => "Se actualizo correctamente el credito"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function notaCreditoDatatable($request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        $user = auth()->user();
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                        0 => 'ID',
+                        1 => 'FECHA',
+                        2 => 'TOTAL'
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $codigo = $request->input('codigo');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER ID CLIENTE 
+
+        $id = (Cliente::id_cliente($codigo))['ID_CLIENTE'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE CLIENTES ENCONTRADOS 
+
+        $totalData = VentasCreditoTieneNotaCredito::where([
+            'NOTA_CREDITO.CLIENTE' => $codigo,
+            'ID_SUCURSAL' => $user->id_sucursal
+        ])
+        ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+        ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTAL DATA 
+
+        $totalData = count($totalData);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = VentasCreditoTieneNotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.TOTAL, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.FK_VENTA AS VENTA_ANTERIOR, NOTA_CREDITO.MONEDA'))
+                         ->where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                         ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                         ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        }else{
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            // CARGAR LOS CLIENTES FILTRADOS EN DATATABLE
+            $posts =        VentasCreditoTieneNotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.TOTAL, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.FK_VENTA AS VENTA_ANTERIOR, NOTA_CREDITO.MONEDA'))
+                            ->where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO.ID','LIKE',"%{$search}%")
+                                      ->orWhere('NOTA_CREDITO.FK_VENTA', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            // CARGAR LA CANTIDAD DE CLIENTES FILTRADOS 
+
+            $totalFiltered = VentasCreditoTieneNotaCredito::where([
+                                'NOTA_CREDITO.CLIENTE' => $codigo,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                            ])
+                            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->groupBy('VENTAS_CREDITO_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO.ID','LIKE',"%{$search}%")
+                                      ->orWhere('NOTA_CREDITO.FK_VENTA', 'LIKE',"%{$search}%");
+                            })
+                             ->get();
+
+            /*  ************************************************************ */  
+
+            $totalFiltered = count($totalFiltered);
+
+            /*  ************************************************************ */  
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+             /*  --------------------------------------------------------------------------------- */
+
+             // CARGA EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['VENTA_ANTERIOR'] = $post->VENTA_ANTERIOR;
+                $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
+                $data[] = $nestedData;
+
+             /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
 

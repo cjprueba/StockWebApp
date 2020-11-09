@@ -5315,6 +5315,98 @@ function generarPdfNotaCreditoCommon(id){
 
 }
 
+function notaCreditoClienteCreditoCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR LA NOTA DE CREDITO
+			
+			return axios.post('/venta/nota/credito/asingar/credito/cliente', {'datos': datos}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function obtenerAutorizacion(data){
+	
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// OBTENER PERMISO
+
+			return axios.post('/obtener/autorizacion', {'codigo':data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+}
+
+function guardarSalidaProductoCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.post('/salida/producto', {data: data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+}
+
+function obtenerAvisoDiaCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/aviso/obtener').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function confirmarAvisoDiaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/aviso/confirmar', {codigo: codigo}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5543,6 +5635,10 @@ export {
 		generarCuerpoNotaCreditoCommon,
 		guardarNotaCreditoCommon,
 		generarPdfNotaCreditoCommon,
-		aplicarCuponCommon
-
+		aplicarCuponCommon,
+		notaCreditoClienteCreditoCommon,
+		obtenerAutorizacion,
+		guardarSalidaProductoCommon,
+		obtenerAvisoDiaCommon,
+		confirmarAvisoDiaCommon
 		};

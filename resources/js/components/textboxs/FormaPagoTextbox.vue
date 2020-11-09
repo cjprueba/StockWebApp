@@ -39,7 +39,22 @@
 
                         <div class="modal-body">  
                             <div class="row">
+
+                              <!-- ------------------------------------------------------------------------ -->
+
+                              <!-- RETENCION -->
+
+                              <div class="col-md-12 mb-3 mt-1">
+                                <div class="text-left" v-if="retencion > 0">
+                                  <span class="badge badge-warning">Retencion: {{retencion}} </span>
+                                </div>
+                              </div>
+
+                              <!-- ------------------------------------------------------------------------ -->
+
                               <div class="col-md-12">
+
+                                <!-- ------------------------------------------------------------------------ -->
 
                                 <div class="card  bg-light card-body border-left-info">
 
@@ -735,7 +750,7 @@
 </template>
 <script>
 	export default {
-      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo'],
+      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo', 'retencion'],
       watch: { 
         total_crudo: function(newVal, oldVal) {
             this.sumarMonedas();
@@ -764,6 +779,9 @@
         moneda: function(newVal, oldVal) {
             this.radio.vuelto = String(newVal);
         },
+        retencion: function(newVal, oldVal) {
+            this.sumarMonedas();
+        }
       },
       data(){
         return {
@@ -1189,7 +1207,7 @@
 
             // DAR FORMATO A CANTIDAD
             
-            me.medios.CHEQUE = Common.darFormatoCommon(me.medios.CHEQUE, me.cotizacion.candec_gs);
+            me.medios.CHEQUE = Common.darFormatoCommon(me.medios.CHEQUE, me.cotizacion.candec);
 
             // ------------------------------------------------------------------------
 
@@ -1446,6 +1464,12 @@
 
             // ------------------------------------------------------------------------
 
+            // RETENCION
+
+            total = Common.sumarCommon(Common.darFormatoCommon(this.retencion, this.candec), total, this.candec);
+
+            // ------------------------------------------------------------------------
+
             // CREDITO
 
             total = Common.sumarCommon(Common.darFormatoCommon(this.cliente.credito.total_agregado, this.candec), total, this.candec);
@@ -1509,23 +1533,23 @@
               // TOTALES MONEDAS CHEQUE
               
               if (x.MONEDA === "1") {
-
-                valor = Common.formulaCommon(me.cotizacion.formula_gs_reves, x.IMPORTE, me.cotizacion.guaranies, me.cotizacion.candec_gs, me.moneda, me.cotizacion.moneda_gs);
+                
+                valor = Common.formulaCommon(me.cotizacion.formula_gs_reves, x.IMPORTE, me.cotizacion.guaranies, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_gs);
                 guaranies = Common.sumarCommon(guaranies, valor, me.candec);
 
               } else if (x.MONEDA === "2") {
 
-                valor =  Common.formulaCommon(me.cotizacion.formula_usd_reves, x.IMPORTE, me.cotizacion.dolares, me.cotizacion.candec_$, me.moneda, me.cotizacion.moneda_$);
+                valor =  Common.formulaCommon(me.cotizacion.formula_usd_reves, x.IMPORTE, me.cotizacion.dolares, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_$);
                 dolares = Common.sumarCommon(dolares, valor, me.candec);
 
               } else if (x.MONEDA === "3") {
 
-                valor =  Common.formulaCommon(me.cotizacion.formula_ps_reves, x.IMPORTE, me.cotizacion.pesos, me.cotizacion.candec_ps, me.moneda, me.cotizacion.moneda_ps);
+                valor =  Common.formulaCommon(me.cotizacion.formula_ps_reves, x.IMPORTE, me.cotizacion.pesos, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_ps);
                 pesos = Common.sumarCommon(pesos, valor, me.candec);
 
               } else if (x.MONEDA === "4") {
 
-                valor = Common.formulaCommon(me.cotizacion.formula_rs_reves, x.IMPORTE, me.cotizacion.reales, me.cotizacion.candec_rs, me.moneda, me.cotizacion.moneda_rs);
+                valor = Common.formulaCommon(me.cotizacion.formula_rs_reves, x.IMPORTE, me.cotizacion.reales, me.cotizacion.candec, me.moneda, me.cotizacion.moneda_rs);
                 reales = Common.sumarCommon(reales, valor, me.candec);
 
               }

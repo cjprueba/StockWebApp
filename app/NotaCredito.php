@@ -12,6 +12,7 @@ use App\NotaCreditoMedios;
 use Mpdf\Mpdf;
 use Fpdf\Fpdf;
 use Luecano\NumeroALetras\NumeroALetras;
+use App\Events\OrdenCompletado;
 
 class NotaCredito extends Model
 {
@@ -150,119 +151,120 @@ class NotaCredito extends Model
 
 	    	}
 
-    	} else if ($tipo === '2') {
+    	} 
+    	// else if ($tipo === '2') {
 
-    		/*  --------------------------------------------------------------------------------- */
+    	// 	/*  --------------------------------------------------------------------------------- */
 
-    		$productos = Ventas_det::select(DB::raw('VENTASDET.COD_PROD, VENTASDET.ID, VENTASDET.BASE5, VENTASDET.BASE10, VENTASDET.EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.CANTIDAD, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, VENTAS.MONEDA, PRODUCTOS.IMPUESTO, MONEDAS.CANDEC, VENTAS.CLIENTE, CLIENTES.NOMBRE, CLIENTES.RAZON_SOCIAL, CLIENTES.RUC, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
-	    		->leftJoin('VENTAS', function($join){
-	                        $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-	                             ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-	                             ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-	                    })
-	    		->leftJoin('CLIENTES', function($join){
-	                                $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-	                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL');
-	        	})
-	    		->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-	    		->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
-	    		->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
-	            ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
-		    	->where([
-		    		'VENTASDET.CODIGO' => $codigo,
-		    		'VENTASDET.CAJA' => $caja,
-		    		'VENTASDET.ID_SUCURSAL' => $user->id_sucursal
-		    	])
-		    	->get();
+    	// 	$productos = Ventas_det::select(DB::raw('VENTASDET.COD_PROD, VENTASDET.ID, VENTASDET.BASE5, VENTASDET.BASE10, VENTASDET.EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.CANTIDAD, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, VENTAS.MONEDA, PRODUCTOS.IMPUESTO, MONEDAS.CANDEC, VENTAS.CLIENTE, CLIENTES.NOMBRE, CLIENTES.RAZON_SOCIAL, CLIENTES.RUC, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
+	    // 		->leftJoin('VENTAS', function($join){
+	    //                     $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+	    //                          ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+	    //                          ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
+	    //                 })
+	    // 		->leftJoin('CLIENTES', function($join){
+	    //                             $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+	    //                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL');
+	    //     	})
+	    // 		->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+	    // 		->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+	    // 		->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+	    //         ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
+		   //  	->where([
+		   //  		'VENTASDET.CODIGO' => $codigo,
+		   //  		'VENTASDET.CAJA' => $caja,
+		   //  		'VENTASDET.ID_SUCURSAL' => $user->id_sucursal
+		   //  	])
+		   //  	->get();
 
-    		/*  --------------------------------------------------------------------------------- */
+    	// 	/*  --------------------------------------------------------------------------------- */
 
-    		foreach ($productos as $key => $value) {
+    	// 	foreach ($productos as $key => $value) {
 
-    			/*  --------------------------------------------------------------------------------- */
+    	// 		/*  --------------------------------------------------------------------------------- */
 
-    			// SI ENCUENTRA UN DATO EN NOTA DE CREDITO DETALLE DEVOLVER
+    	// 		// SI ENCUENTRA UN DATO EN NOTA DE CREDITO DETALLE DEVOLVER
 
-    			$ntd = NotaCreditoDet::select('FK_VENTASDET')
-    			->where('FK_VENTASDET', '=', $value->ID)
-    			->get();
+    	// 		$ntd = NotaCreditoDet::select('FK_VENTASDET')
+    	// 		->where('FK_VENTASDET', '=', $value->ID)
+    	// 		->get();
 
-    			/*  --------------------------------------------------------------------------------- */
+    	// 		/*  --------------------------------------------------------------------------------- */
 
-    			if (count($ntd) > 0) {
-    				return ['response' => false, 'statusText' => 'No se puede procesar de esta manera porque ya tiene productos devueltos.'];
-    			}
+    	// 		if (count($ntd) > 0) {
+    	// 			return ['response' => false, 'statusText' => 'No se puede procesar de esta manera porque ya tiene productos devueltos.'];
+    	// 		}
 
-    			/*  --------------------------------------------------------------------------------- */
+    	// 		/*  --------------------------------------------------------------------------------- */
 
-		    	// DESCUENTO GENERAL 
+		   //  	// DESCUENTO GENERAL 
 
-	            $desc = Common::calculo_porcentaje_descuentos([
-	                'PRECIO_PRODUCTO' => $value->PRECIO_UNIT,
-	                'PORCENTAJE_DESCUENTO' => $value->DESCUENTO_GENERAL_PORCENTAJE,
-	                'CANTIDAD' => $value->CANTIDAD,
-	            ]);
+	    //         $desc = Common::calculo_porcentaje_descuentos([
+	    //             'PRECIO_PRODUCTO' => $value->PRECIO_UNIT,
+	    //             'PORCENTAJE_DESCUENTO' => $value->DESCUENTO_GENERAL_PORCENTAJE,
+	    //             'CANTIDAD' => $value->CANTIDAD,
+	    //         ]);
 
-	            $value->PRECIO_UNIT = $desc['PRECIO_REAL'];
-	            $value->TOTAL = $desc['TOTAL_REAL'];
+	    //         $value->PRECIO_UNIT = $desc['PRECIO_REAL'];
+	    //         $value->TOTAL = $desc['TOTAL_REAL'];
 
-	            /*  --------------------------------------------------------------------------------- */
+	    //         /*  --------------------------------------------------------------------------------- */
 
-	            // DESCUENTO CUPON
+	    //         // DESCUENTO CUPON
 	                
-	            $desc = Common::calculo_porcentaje_descuentos([
-	                    'PRECIO_PRODUCTO' => $value->PRECIO_UNIT,
-	                    'PORCENTAJE_DESCUENTO' => $value->DESCUENTO_CUPON_PORCENTAJE,
-	                    'CANTIDAD' => $value->CANTIDAD,
-	            ]);
+	    //         $desc = Common::calculo_porcentaje_descuentos([
+	    //                 'PRECIO_PRODUCTO' => $value->PRECIO_UNIT,
+	    //                 'PORCENTAJE_DESCUENTO' => $value->DESCUENTO_CUPON_PORCENTAJE,
+	    //                 'CANTIDAD' => $value->CANTIDAD,
+	    //         ]);
 	                
-	            $value->PRECIO_UNIT = $desc['PRECIO_REAL'];
-	            $value->TOTAL = $desc['TOTAL_REAL'];
+	    //         $value->PRECIO_UNIT = $desc['PRECIO_REAL'];
+	    //         $value->TOTAL = $desc['TOTAL_REAL'];
 
-	            /*  --------------------------------------------------------------------------------- */
+	    //         /*  --------------------------------------------------------------------------------- */
 
-		    	$nestedData['ID'] = $value->ID;
-		    	$nestedData['CODIGO'] = $value->COD_PROD;
-	            $nestedData['CANTIDAD'] = $value->CANTIDAD;
-	            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
-	            $nestedData['PRECIO_UNIT'] = $value->PRECIO_UNIT;
-	            $nestedData['TOTAL'] = $value->PRECIO_UNIT * $value->CANTIDAD;
+		   //  	$nestedData['ID'] = $value->ID;
+		   //  	$nestedData['CODIGO'] = $value->COD_PROD;
+	    //         $nestedData['CANTIDAD'] = $value->CANTIDAD;
+	    //         $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
+	    //         $nestedData['PRECIO_UNIT'] = $value->PRECIO_UNIT;
+	    //         $nestedData['TOTAL'] = $value->PRECIO_UNIT * $value->CANTIDAD;
 
-	            $total = $total + ($value->PRECIO_UNIT * $value->CANTIDAD);
-	            $moneda = $value->MONEDA;
-	            $cliente_codigo = $value->CLIENTE;
-	            $cliente_nombre = $value->NOMBRE;
-	            $razon_social = $value->RAZON_SOCIAL;
-	            $ruc =  $value->RUC;
+	    //         $total = $total + ($value->PRECIO_UNIT * $value->CANTIDAD);
+	    //         $moneda = $value->MONEDA;
+	    //         $cliente_codigo = $value->CLIENTE;
+	    //         $cliente_nombre = $value->NOMBRE;
+	    //         $razon_social = $value->RAZON_SOCIAL;
+	    //         $ruc =  $value->RUC;
 
-	            $iva = Common::calculo_iva($value->IMPUESTO, ($value->PRECIO_UNIT * $value->CANTIDAD), $value->CANDEC);
+	    //         $iva = Common::calculo_iva($value->IMPUESTO, ($value->PRECIO_UNIT * $value->CANTIDAD), $value->CANDEC);
 
-	            /*  --------------------------------------------------------------------------------- */
+	    //         /*  --------------------------------------------------------------------------------- */
 
-	            // CARGAR IMPUESTOS 
+	    //         // CARGAR IMPUESTOS 
 
-	            $nestedData['BASE5'] = $iva['base5'];
-	            $nestedData['BASE10'] = $iva['base10'];
-	            $nestedData['EXENTAS'] = $iva['exentas'];
-	            $nestedData['GRAVADAS'] = $iva['gravadas'];
-	            $nestedData['IMPUESTO'] = $iva['impuesto'];
+	    //         $nestedData['BASE5'] = $iva['base5'];
+	    //         $nestedData['BASE10'] = $iva['base10'];
+	    //         $nestedData['EXENTAS'] = $iva['exentas'];
+	    //         $nestedData['GRAVADAS'] = $iva['gravadas'];
+	    //         $nestedData['IMPUESTO'] = $iva['impuesto'];
 
-	            /*  --------------------------------------------------------------------------------- */
+	    //         /*  --------------------------------------------------------------------------------- */
 
-	            $base5 = $base5 + $iva['base5'];
-	            $base10 = $base10 + $iva['base10'];
-	            $exenta = $exenta + $iva['exentas'];
-	            $gravadas = $gravadas + $iva['gravadas'];
-	            $impuesto = $impuesto + $iva['impuesto'];
+	    //         $base5 = $base5 + $iva['base5'];
+	    //         $base10 = $base10 + $iva['base10'];
+	    //         $exenta = $exenta + $iva['exentas'];
+	    //         $gravadas = $gravadas + $iva['gravadas'];
+	    //         $impuesto = $impuesto + $iva['impuesto'];
 
-		    	//var_dump("CODIGO: ".$value["CODIGO"]." PRECIO_UNIT: ".$data[0]->PRECIO_UNIT." PRECIO: ".($data[0]->PRECIO_UNIT * $value['CANTIDAD']));
+		   //  	//var_dump("CODIGO: ".$value["CODIGO"]." PRECIO_UNIT: ".$data[0]->PRECIO_UNIT." PRECIO: ".($data[0]->PRECIO_UNIT * $value['CANTIDAD']));
 
-		    	$data[] = $nestedData;
+		   //  	$data[] = $nestedData;
 
-		    	/*  --------------------------------------------------------------------------------- */
+		   //  	/*  --------------------------------------------------------------------------------- */
 
-    		}
-    	}
+    	// 	}
+    	// }
 
     	/*  --------------------------------------------------------------------------------- */
 
@@ -392,7 +394,8 @@ class NotaCredito extends Model
 	    		'ID_SUCURSAL' => $user->id_sucursal,
 	    		'TIPO' => $data['tipo'],
 	    		'TIPO_PROCESO' => $data['tipo_proceso'],
-	    		'PROCESADO' => $procesado
+	    		'PROCESADO' => $procesado,
+	    		'CAJA' => $data['caja_proceso']
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */
@@ -477,88 +480,89 @@ class NotaCredito extends Model
 
 		    	}
 
-	    	} else if ($data['tipo'] === '2') {
+		    }
+	    	// } else if ($data['tipo'] === '2') {
 
-	    		$dato = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.COD_PROD, VENTASDET.CANTIDAD, VENTASDET.BASE5, VENTASDET.BASE10, VENTASDET.EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, PRODUCTOS.IMPUESTO, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
-	    		->leftJoin('VENTAS', function($join){
-                        $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                             ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                             ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-                    })
-	    		->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-	    		->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
-	            ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
-		    	->where([
-		    		'VENTASDET.CODIGO' => $data['venta_codigo'],
-		    		'VENTASDET.CAJA' => $data['caja_codigo'],
-		    		'VENTASDET.ID_SUCURSAL' => $user->id_sucursal
-		    	])
-		    	->get();
+	    	// 	$dato = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.COD_PROD, VENTASDET.CANTIDAD, VENTASDET.BASE5, VENTASDET.BASE10, VENTASDET.EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, PRODUCTOS.IMPUESTO, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
+	    	// 	->leftJoin('VENTAS', function($join){
+      //                   $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
+      //                        ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
+      //                        ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
+      //               })
+	    	// 	->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+	    	// 	->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+	     //        ->leftjoin('VENTAS_CUPON', 'VENTAS_CUPON.FK_VENTA', '=', 'VENTAS.ID')
+		    // 	->where([
+		    // 		'VENTASDET.CODIGO' => $data['venta_codigo'],
+		    // 		'VENTASDET.CAJA' => $data['caja_codigo'],
+		    // 		'VENTASDET.ID_SUCURSAL' => $user->id_sucursal
+		    // 	])
+		    // 	->get();
 
-		    	/*  --------------------------------------------------------------------------------- */
+		    // 	/*  --------------------------------------------------------------------------------- */
 
-		    	foreach ($dato as $key => $value) {
+		    // 	foreach ($dato as $key => $value) {
 
-		    		/*  --------------------------------------------------------------------------------- */
+		    // 		/*  --------------------------------------------------------------------------------- */
 
-		    		// DESCUENTO GENERAL 
+		    // 		// DESCUENTO GENERAL 
 
-		            $desc = Common::calculo_porcentaje_descuentos([
-		                'PRECIO_PRODUCTO' => $value['PRECIO_UNIT'],
-		                'PORCENTAJE_DESCUENTO' => $dato[0]->DESCUENTO_GENERAL_PORCENTAJE,
-		                'CANTIDAD' => $value["CANTIDAD"],
-		            ]);
+		    //         $desc = Common::calculo_porcentaje_descuentos([
+		    //             'PRECIO_PRODUCTO' => $value['PRECIO_UNIT'],
+		    //             'PORCENTAJE_DESCUENTO' => $dato[0]->DESCUENTO_GENERAL_PORCENTAJE,
+		    //             'CANTIDAD' => $value["CANTIDAD"],
+		    //         ]);
 
-		            $value['PRECIO_UNIT'] = $desc['PRECIO_REAL'];
-		            $value['PRECIO'] = $desc['TOTAL_REAL'];
+		    //         $value['PRECIO_UNIT'] = $desc['PRECIO_REAL'];
+		    //         $value['PRECIO'] = $desc['TOTAL_REAL'];
 
-		            /*  --------------------------------------------------------------------------------- */
+		    //           --------------------------------------------------------------------------------- 
 
-		            // DESCUENTO CUPON
+		    //         // DESCUENTO CUPON
 		                
-		            $desc = Common::calculo_porcentaje_descuentos([
-		                    'PRECIO_PRODUCTO' => $value['PRECIO_UNIT'],
-		                    'PORCENTAJE_DESCUENTO' => $dato[0]->DESCUENTO_CUPON_PORCENTAJE,
-		                    'CANTIDAD' => $value["CANTIDAD"],
-		            ]);
+		    //         $desc = Common::calculo_porcentaje_descuentos([
+		    //                 'PRECIO_PRODUCTO' => $value['PRECIO_UNIT'],
+		    //                 'PORCENTAJE_DESCUENTO' => $dato[0]->DESCUENTO_CUPON_PORCENTAJE,
+		    //                 'CANTIDAD' => $value["CANTIDAD"],
+		    //         ]);
 		                
-		            $value['PRECIO_UNIT'] = $desc['PRECIO_REAL'];
-		            $value['PRECIO'] = $desc['TOTAL_REAL'];
+		    //         $value['PRECIO_UNIT'] = $desc['PRECIO_REAL'];
+		    //         $value['PRECIO'] = $desc['TOTAL_REAL'];
 
-		            /*  --------------------------------------------------------------------------------- */
+		    //         /*  --------------------------------------------------------------------------------- */
 
-		    		$id_nota_credito_det = NotaCreditoDet::insertGetId([
-			         	'FK_VENTASDET' => $value['ID'],
-			         	'FK_NOTA_CREDITO' => $id_nota_credito,   
-			         	'CODIGO_PROD' => $value['COD_PROD'], 
-			         	'DESCRIPCION' => $value['DESCRIPCION'], 
-			            'CANTIDAD' => $value['CANTIDAD'], 
-			            'GRABADAS' => $value['GRAVADA'],
-			            'IVA' => $value['IVA'],
-			            'EXENTAS' => $value['EXENTA'],
-			            'TOTAL' => $value['PRECIO'], 
-			            'PRECIO' => $value['PRECIO_UNIT'], 
-			            'BASE5' => $value['BASE5'],
-			            'BASE10' =>  $value['BASE10'],
-			            //'TIVA' => '', 
-			            'USERALTAS' => $user->name, 
-			            'FECALTAS' => $dia, 
-			            'HORALTAS' => $hora, 
-			            'ID_SUCURSAL' => $user->id_sucursal, 
-			            ]
-			        );
+		    // 		$id_nota_credito_det = NotaCreditoDet::insertGetId([
+			   //       	'FK_VENTASDET' => $value['ID'],
+			   //       	'FK_NOTA_CREDITO' => $id_nota_credito,   
+			   //       	'CODIGO_PROD' => $value['COD_PROD'], 
+			   //       	'DESCRIPCION' => $value['DESCRIPCION'], 
+			   //          'CANTIDAD' => $value['CANTIDAD'], 
+			   //          'GRABADAS' => $value['GRAVADA'],
+			   //          'IVA' => $value['IVA'],
+			   //          'EXENTAS' => $value['EXENTA'],
+			   //          'TOTAL' => $value['PRECIO'], 
+			   //          'PRECIO' => $value['PRECIO_UNIT'], 
+			   //          'BASE5' => $value['BASE5'],
+			   //          'BASE10' =>  $value['BASE10'],
+			   //          //'TIVA' => '', 
+			   //          'USERALTAS' => $user->name, 
+			   //          'FECALTAS' => $dia, 
+			   //          'HORALTAS' => $hora, 
+			   //          'ID_SUCURSAL' => $user->id_sucursal, 
+			   //          ]
+			   //      );
 
-		    		/*  --------------------------------------------------------------------------------- */
+		    // 		/*  --------------------------------------------------------------------------------- */
 
-			        // DEVOLVER STOCK 
+			   //      // DEVOLVER STOCK 
 
-			        Stock::sumar_stock_producto_nota_credito($value['CODIGO'], $value['CANTIDAD'], $value['ID'], $id_nota_credito_det);
+			   //      Stock::sumar_stock_producto_nota_credito($value['CODIGO'], $value['CANTIDAD'], $value['ID'], $id_nota_credito_det);
 
-			        /*  --------------------------------------------------------------------------------- */
+			   //      /*  --------------------------------------------------------------------------------- */
 
-		    	}
+		    // 	}
 
-	    	}
+	    	// }
 
 	        /*  --------------------------------------------------------------------------------- */ 
 
@@ -570,7 +574,7 @@ class NotaCredito extends Model
 
 	        // RETORNAR RESPUESTA 
 
-	        return ["response" =>  true, "statusText" => "Se ha registrado con éxito la nota de crédito !"];
+	        return ["response" =>  true, "statusText" => "Se ha registrado con éxito la nota de crédito !", "ID" => $id_nota_credito];
 
 	        /*  --------------------------------------------------------------------------------- */            	
 		
@@ -589,7 +593,16 @@ class NotaCredito extends Model
 
     public static function factura_pdf($dato)
     {
-        
+        // event(new OrdenCompletado([
+        // 	'ID' => '5678',
+        // 	'ID_WP' => '25547',
+        // 	'NOMBRES' => 'CRISTIAN JUNNIOR',
+        // 	'APELLIDOS' => 'CASTRO VAZQUEZ',
+        // 	'CELULAR' => '595973855499',
+        // 	'TOTAL' => '120.000'
+        // ]));
+        // return;
+
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -764,7 +777,7 @@ class NotaCredito extends Model
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
-            $articulos[$c_rows]["descripcion"] = substr($value["DESCRIPCION"], 0,30);
+            $articulos[$c_rows]["descripcion"] = substr('DEVOLUCION '.$value["DESCRIPCION"], 0,30);
             $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
@@ -1048,4 +1061,171 @@ class NotaCredito extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function obtener_credito_cliente_datatable($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $cliente = $request->input('cliente');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ID', 
+                            1 => 'VENTA',
+                            2 => 'FECHA',
+                            3 => 'HORA',
+                            4 => 'TOTAL',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+
+        $totalData = NotaCredito::where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+                    ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = NotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.FK_VENTA, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.HORA, NOTA_CREDITO.TOTAL, NOTA_CREDITO.MONEDA, NOTA_CREDITO.BASE5, NOTA_CREDITO.BASE10, NOTA_CREDITO.IVA'))
+                         ->where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts =  NotaCredito::select(DB::raw('NOTA_CREDITO.ID, NOTA_CREDITO.FK_VENTA, NOTA_CREDITO.FECALTAS, NOTA_CREDITO.HORA, NOTA_CREDITO.TOTAL, NOTA_CREDITO.MONEDA, NOTA_CREDITO.BASE5, NOTA_CREDITO.BASE10, NOTA_CREDITO.IVA'))
+            ->where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+            ->where(function ($query) use ($search) {
+            $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
+                  ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%");
+            })
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = NotaCredito::
+            where([
+                         	'NOTA_CREDITO.CLIENTE' => $cliente,
+                         	'PROCESADO' => 0
+                         ])
+            ->where(function ($query) use ($search) {
+                $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
+                ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%");
+            })
+            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['FK_VENTA'] = $post->FK_VENTA;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['HORA'] = $post->HORA;
+                $nestedData['BASE5'] = Common::precio_candec_sin_letra($post->BASE5, $post->MONEDA);
+                $nestedData['BASE10'] = Common::precio_candec_sin_letra($post->BASE10, $post->MONEDA);
+                $nestedData['IVA'] = Common::precio_candec_sin_letra($post->IVA, $post->MONEDA);
+                $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->MONEDA);
+                $nestedData['TOTAL_CRUDO'] = $post->TOTAL;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
 }

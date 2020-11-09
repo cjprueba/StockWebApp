@@ -13,7 +13,7 @@ class DevolucionProvDet extends Model
     public static function guardar($data, $id){
 
     	try {
-
+       
     		/*  --------------------------------------------------------------------------------- */
 
     		if (is_array($data)) {
@@ -46,6 +46,8 @@ class DevolucionProvDet extends Model
 		    		}
 
 			    	/*  --------------------------------------------------------------------------------- */
+			    	
+
 
 		    		Log::info('Devolucion Prov Det: Éxito al guardar.', ['DEVOLUCION PROV DET' => $devolucion_prov_det, 'DEVOLUCION PROV' => $id]);
 
@@ -62,6 +64,7 @@ class DevolucionProvDet extends Model
 			/*  --------------------------------------------------------------------------------- */
 
 			// ERROR 
+			
 
 			Log::error('Devolucion Prov Det: Error al guardar.', ['DEVOLUCION PROV ID' => $id]);
 
