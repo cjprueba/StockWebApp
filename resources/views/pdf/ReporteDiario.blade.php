@@ -249,6 +249,11 @@
             <th width="50%" align="left"><b>TOTAL GENERAL</b></th>
             <th width="50%" align="right"><b>{{$total}}</b></th>
         </tr>
+
+        <tr>
+            <th width="50%" align="left"><b>TOTAL VENTAL</b></th>
+            <th width="50%" align="right"><b>{{$totalV}}</b></th>
+        </tr>
     </table>
   
     <br><br><br>
