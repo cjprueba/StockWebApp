@@ -30,7 +30,7 @@ class DevolucionProvDet extends Model
 				    		'COD_PROD' => $value["CODIGO"],
 				    		'CANTIDAD' => $value["CANTIDAD"],
 				    		'COSTO' => Common::quitar_coma($value["COSTO"], 2),
-				    		'COSTO_TOTAL' => Common::quitar_coma($value["COSTO"], 2),
+				    		'COSTO_TOTAL' => Common::quitar_coma($value["COSTO_TOTAL"], 2),
 				    		'FK_DEVOLUCION_PROV' => $id,
 				    		'FK_ID_LOTE' => $value["LOTE_ID"],
 				    	]);
