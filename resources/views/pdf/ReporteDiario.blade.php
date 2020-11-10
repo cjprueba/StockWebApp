@@ -67,15 +67,27 @@
 </style>
 
 <body>
-    @if($sucursal == '9')
-        <div align="center"><img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
-        </div>
-    @else
-        <div class="titulo"><strong>REPORTE DIARIO</strong></div>
-    @endif
 
-    <br><br>
+
+   <htmlpageheader name="myheader">
+        
+        @if($sucursal == '9')
+            <div align="center"><img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
+            </div>
+        @else
+            <div class="titulo"><strong>REPORTE DIARIO</strong></div>
+        @endif
+    </htmlpageheader>
+    <htmlpagefooter name="myfooter">
+        
+        <div width="35%" align="center" class="firma"><b>FIRMA RESPONSABLE</b></div>
+    </htmlpagefooter>
+
+    <sethtmlpagefooter name="myfooter" value="on"/>
+    <sethtmlpageheader name="myheader" value="on"/>
+
     <div align="center">FECHA: {{$fecha}}</div><br>
+
     <!-- TABLA -->
 
     <div width="30%" align="center">EFECTIVO</div>
@@ -249,15 +261,11 @@
             <th width="50%" align="left"><b>TOTAL VENTA</b></th>
             <th width="50%" align="right"><b>{{$totalV}}</b></th>
         </tr>
-        
+
         <tr>
             <th width="50%" align="left"><b>TOTAL GENERAL</b></th>
             <th width="50%" align="right"><b>{{$total}}</b></th>
         </tr>
     </table>
-  
-    <br><br><br>
-    <div width="35%" align="center" class="firma"><b>FIRMA RESPONSABLE</b></div>
-    
 </body>
 </html>
