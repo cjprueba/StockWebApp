@@ -67,13 +67,15 @@
 </style>
 
 <body>
-
-
-   <htmlpageheader name="myheader">
-        
+    
+    <htmlpageheader name="myheader">    
         @if($sucursal == '9')
-            <div align="center"><img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
-            </div>
+        <table width="100%"><tr>
+            <td width="50%" align="center">
+                <img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
+   
+            </td>
+        </tr></table>
         @else
             <div class="titulo"><strong>REPORTE DIARIO</strong></div>
         @endif
@@ -84,8 +86,9 @@
     </htmlpagefooter>
 
     <sethtmlpagefooter name="myfooter" value="on"/>
-    <sethtmlpageheader name="myheader" value="on"/>
-
+    <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
+    
+    <br /><br />
     <div align="center">FECHA: {{$fecha}}</div><br>
 
     <!-- TABLA -->
