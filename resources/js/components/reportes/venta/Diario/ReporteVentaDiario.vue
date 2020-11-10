@@ -17,13 +17,9 @@
 					    </div>
 					</div>
 			  		<div class="col-md-4 ml-3">
-					  	<label for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
+					  	<label for="validationTooltip01">Seleccione Fecha</label>
 						<div id="sandbox-container">
 							<div class="input-daterange input-group">
-								   <input   type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
-								   <div class="input-group-append form-control-sm">
-								   		<span class="input-group-text">a</span>
-								   </div>
 								   <input   type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
 							</div>
 							<div class="invalid-feedback">
@@ -71,8 +67,6 @@
               	selectedSucursal: 'null',
               	validarSucursal: false,
               	messageInvalidSucursal: '',
-              	selectedInicialFecha: '',
-              	validarInicialFecha: false,
               	messageInvalidFecha: '',
               	selectedFinalFecha: '',
               	validarFinalFecha: false,
@@ -95,7 +89,6 @@
 
 		        	var datos = {
 			        	sucursal: this.selectedSucursal,
-			        	inicio: String(this.selectedInicialFecha),
 			        	final: String(this.selectedFinalFecha)
 		        	};
 		        	
@@ -118,18 +111,9 @@
 	        		me.messageInvalidSucursal = '';
 	        	}	
 
-	        	if(me.selectedInicialFecha === null || me.selectedInicialFecha === "") {
-	        		me.validarInicialFecha = true;
-	        		me.messageInvalidFecha = 'Por favor seleccione una fecha Inicial';
-	        		return false;
-	        	} else {
-	        		me.validarInicialFecha = false;
-	        		me.messageInvalidFecha = '';
-	        	}
-
 	        	if(me.selectedFinalFecha === null || me.selectedFinalFecha === "") {
 	        		me.validarFinalFecha = true;
-	        		me.messageInvalidFecha = 'Por favor seleccione una fecha Final';
+	        		me.messageInvalidFecha = 'Por favor seleccione una fecha';
 	        		return false;
 	        	} else {
 	        		me.validarFinalFecha = false;
@@ -147,11 +131,7 @@
 		   		    	    keyboardNavigation: false,
     						forceParse: false
     				});
-    				$("#selectedInicialFecha").datepicker().on(
-			     		"changeDate", () => {
-			     			me.selectedInicialFecha = $('#selectedInicialFecha').val();
-			     		}
-					);
+
 					$("#selectedFinalFecha").datepicker().on(
 						
 			     		"changeDate", () => {
