@@ -464,7 +464,7 @@
 						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="nuevo"><font-awesome-icon size="1x" icon="file-alt" /><br><small>Nuevo</small></button>
 					</div>
 					<div class="col-md-6">
-						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="guardar"><font-awesome-icon size="1x" icon="cash-register" /><br><small>Facturar</small></button>
+						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="guardar"><font-awesome-icon size="1x" icon="cash-register" /><br><small>(F4) Facturar</small></button>
 					</div>	
 				</div>
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
@@ -922,7 +922,8 @@
          		DECIMAL: 0,
          		MONEDA: '0',
          		COMENTARIO: '',
-         		CAJA: null
+         		CAJA: null,
+         		MONEDA_DESCRIPCION: '' 
          	}, mostrar: {
          		SINCOTIZACION: ''
          	}
@@ -2022,7 +2023,7 @@
 					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
 					me.autorizacion.HABILITAR = data.SUPERVISOR;
 					me.movimiento.MONEDA = data.MONEDA.CODIGO.toString();
-					me.movimiento.CANDEC = data.MONEDA.CANDEC.toString();
+					me.movimiento.DECIMAL = data.MONEDA.CANDEC.toString();
 
 					// ------------------------------------------------------------------------ 
 
@@ -2376,7 +2377,7 @@
 
 				// ------------------------------------------------------------------------	
 
-				this.movimiento.MONEDA = moneda;
+				this.movimiento.MONEDA_DESCRIPCION= moneda;
 
 				// ------------------------------------------------------------------------	
 
@@ -2502,6 +2503,15 @@
         	// ------------------------------------------------------------------------
 
         	me.inicio();
+
+        	// ------------------------------------------------------------------------
+
+        	// ATAJOS DE TECLADO 
+
+        	hotkeys('f4', function(event, handler){
+				event.preventDefault() 
+				alert("hello");
+			});
 
         	// ------------------------------------------------------------------------
 
