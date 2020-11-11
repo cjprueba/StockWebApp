@@ -201,7 +201,76 @@
     </table>
     </div>
     <br>
-
+    <div width="30%" align="center">ENTRADA</div>
+    <div class="border">
+    <table class="items" width="100%">
+        <thead>
+            <tr>
+                <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>DOLARES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>GUARANIES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>REALES</b></td>
+                <td width="20%" class="borde-iz-bot" align="center"><b>PESOS</b></td>
+            </tr>
+        </thead>
+        <tbody>
+           @for ($i = 0; $i < $c_rows; $i++)
+                @if($i <= $c_rows-1)
+                <tr>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['PESOS'] }}</span></td>
+                </tr>
+                @endif
+            @endfor
+           <tr>
+                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalDls}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalGs}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalRls}}</b></td>
+                    <td width="20%" class="borde-iz-top" align="center"><b>{{$entradaTotalPs}}</b></td>
+                </tr>
+        </tbody>
+    </table>
+    </div>
+    <br>
+    <div width="30%" align="center">SALIDA</div>
+    <div class="border">
+    <table class="items" width="100%">
+        <thead>
+            <tr>
+                <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>DOLARES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>GUARANIES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>REALES</b></td>
+                <td width="20%" class="borde-iz-bot" align="center"><b>PESOS</b></td>
+            </tr>
+        </thead>
+        <tbody>
+           @for ($i = 0; $i < $c_rows; $i++)
+                @if($i <= $c_rows-1)
+                <tr>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['PESOS'] }}</span></td>
+                </tr>
+                @endif
+            @endfor
+           <tr>
+                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalDls}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalGs}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalRls}}</b></td>
+                    <td width="20%" class="borde-iz-top" align="center"><b>{{$salidaTotalPs}}</b></td>
+                </tr>
+        </tbody>
+    </table>
+    </div>
+    <br>
     <div width="30%" align="center">VENTAS</div>
     <div class="border">
     <table width="100%">
