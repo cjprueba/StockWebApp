@@ -921,7 +921,8 @@
          		IMPORTE: 0,
          		DECIMAL: 0,
          		MONEDA: '0',
-         		COMENTARIO: ''
+         		COMENTARIO: '',
+         		CAJA: null
          	}, mostrar: {
          		SINCOTIZACION: ''
          	}
@@ -2457,7 +2458,11 @@
 
 	        	// ------------------------------------------------------------------------
 
+	        	// MOVIMIENTO CAJA 
+
+	        	this.movimiento.CAJA = this.caja.CODIGO;
 	        	
+	        	// ------------------------------------------------------------------------
 
 	        	Common.guardarMovimientoCajaCommon(this.movimiento).then(data => {
 
