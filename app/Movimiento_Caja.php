@@ -30,7 +30,7 @@ class Movimiento_Caja extends Model
 	    		'MONEDA' => $data["data"]["MONEDA"],
 	    		'MOVIMIENTO' => $data["data"]["MEDIO"],
 	    		'COMENTARIO' => $data["data"]["COMENTARIO"],
-	    		'IMPORTE' => $data["data"]["IMPORTE"],
+	    		'IMPORTE' => Common::quitar_coma($data["data"]["IMPORTE"]),
 	    		'ID_SUCURSAL' => $user->id_sucursal,
 	    		'FECALTAS' => $dia
 	    	]);
