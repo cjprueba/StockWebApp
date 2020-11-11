@@ -5435,6 +5435,42 @@ function guardarMovimientoCajaCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 							    PDF REPORTE DIARIO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarReporteDiarioCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-generar-rptDiario', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+
+}
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5666,5 +5702,6 @@ export {
 		guardarSalidaProductoCommon,
 		obtenerAvisoDiaCommon,
 		confirmarAvisoDiaCommon,
-		guardarMovimientoCajaCommon
+		guardarMovimientoCajaCommon,
+		generarReporteDiarioCommon,
 		};

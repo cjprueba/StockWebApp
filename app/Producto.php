@@ -2010,7 +2010,7 @@ $lotes= DB::connection('retail')
         $producto = Compra::
         leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
-        ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, COMPRAS.PROVEEDOR, PROVEEDORES.NOMBRE, SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, COMPRAS.FECALTAS'))
+        ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, COMPRAS.PROVEEDOR, PROVEEDORES.NOMBRE, SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, COMPRAS.FECALTAS, COMPRAS.CODIGO'))
         ->where([
             ['COMPRASDET.COD_PROD', '=', $codigo],
             ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
@@ -2049,6 +2049,7 @@ $lotes= DB::connection('retail')
             $data[$value->PROVEEDOR]['DOLARES'] = 0;
             $data[$value->PROVEEDOR]['PESOS'] = 0;
             $data[$value->PROVEEDOR]['REALES'] = 0;
+            $data[$value->PROVEEDOR]['CODIGO'] = $value->CODIGO;
             
 
             /*  --------------------------------------------------------------------------------- */
@@ -3981,7 +3982,6 @@ $lotes= DB::connection('retail')
         $data = [];
         $vencimiento = '0000-00-00';
         $cod_prod = $codigo["codigo"];
-
         $parametro = Parametro::consultaPersonalizada('MONEDA');
         $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
       
@@ -4009,7 +4009,7 @@ $lotes= DB::connection('retail')
         // OBTENER VENTAS
 
         $vendidos = Ventas_det::select(
-            DB::raw('VENTASDET.CODIGO AS CODIGO,
+            DB::raw('VENTAS.ID AS ID,
                 VENTASDET.PRECIO_UNIT AS PRECIO,
                 IFNULL(VENTASDET.CANTIDAD, 0) AS CANTIDAD,
                 VENTASDET.PRECIO AS TOTAL,
@@ -4061,7 +4061,7 @@ $lotes= DB::connection('retail')
         // OBTENER DEVOLUCIONES DEL PRODUCTO
         
         $ventasDev =  DB::connection('retail')->table('VENTASDET_DEVOLUCIONES')->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO,
+            DB::raw('VENTAS.ID AS ID,
                 VENTASDET_DEVOLUCIONES.PRECIO_UNIT AS PRECIO,
                 IFNULL(VENTASDET_DEVOLUCIONES.CANTIDAD, 0) AS CANTIDAD,
                 VENTASDET_DEVOLUCIONES.PRECIO AS TOTAL,
@@ -4109,11 +4109,30 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
+        // OBTENER SALIDAS
+
+        $salida = DB::connection('retail')->table('SALIDA_PRODUCTOS_DET')->select(
+            DB::raw('SALIDA_PRODUCTOS.ID AS ID, 
+                SALIDA_PRODUCTOS_DET.CANTIDAD AS CANTIDAD, 
+                SALIDA_PRODUCTOS_DET.COSTO AS COSTO,
+                SALIDA_PRODUCTOS_DET.COSTO_TOTAL AS TOTAL,
+                SALIDA_PRODUCTOS.OBSERVACION AS MOTIVO,
+                substr(SALIDA_PRODUCTOS.FECALTAS, 1, 10) AS FECHA,
+                LOTES.LOTE AS LOTE'))
+            ->leftjoin('SALIDA_PRODUCTOS', 'SALIDA_PRODUCTOS.ID','=', 'SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS')
+            ->leftjoin('LOTES', 'LOTES.ID', '=', 'SALIDA_PRODUCTOS_DET.FK_ID_LOTE')
+            ->where('SALIDA_PRODUCTOS_DET.COD_PROD', '=', $cod_prod)
+            ->where('SALIDA_PRODUCTOS.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->orderBy('SALIDA_PRODUCTOS.FECALTAS', 'DESC')
+            ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
         //DAR FORMATO
 
         foreach ($vencidos as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
-            $value->TOTAL = Common::formato_precio(($value->TOTAL *$value->COSTO), $candec);
+            $value->TOTAL = Common::formato_precio(($value->CANTIDAD *$value->COSTO), $candec);
         }
 
         foreach ($devolucionProv as $key => $value) {
@@ -4122,6 +4141,7 @@ $lotes= DB::connection('retail')
             $value->PROVEEDOR = ucwords(strtolower($value->PROVEEDOR));
             $value->MOTIVO = ucfirst(strtolower($value->MOTIVO));
         }
+
         foreach ($ventasDev as $key => $value) {
             $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
@@ -4133,6 +4153,12 @@ $lotes= DB::connection('retail')
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
             $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
         }   
+
+        foreach ($salida as $key => $value) {
+            $value->COSTO = Common::formato_precio($value->COSTO, $candec);
+            $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
+            $value->MOTIVO = ucfirst(strtolower($value->MOTIVO));
+        }
         /*  --------------------------------------------------------------------------------- */
 
         $movimientos = array(
@@ -4140,7 +4166,8 @@ $lotes= DB::connection('retail')
             'vencidos' => $vencidos,
             'devolucionesProv' => $devolucionProv,
             'devolucionProd' => $ventasDev,
-            'notaCredito' => $credito
+            'notaCredito' => $credito,
+            'salida' => $salida
         );
         
         // RETORNAR VALOR  
@@ -4169,12 +4196,13 @@ $lotes= DB::connection('retail')
 
         $columns = array( 
                             0 => 'VENTASDET.FECALTAS', 
-                            1 => 'VENTAS.CODIGO',
+                            1 => 'VENTAS.ID',
                             2 => 'CLIENTES.NOMBRE',
                             3 => 'VENTASDET.CANTIDAD',
                             4 => 'VENTASDET.PRECIO_UNIT',
                             5 => 'VENTASDET.PRECIO',
-                            6 => 'VENTASDET.FECALTAS'
+                            6 => 'VENTASDET.FECALTAS',
+                            7 => 'VENTASDET.HORALTAS'
                         );
         
 
@@ -4198,15 +4226,17 @@ $lotes= DB::connection('retail')
                     ->count();
 
         $totalFiltered = $totalData;
+
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS DATOS ENCONTRADOS 
 
-        $posts = Ventas_det::select(DB::raw('VENTASDET.CODIGO AS CODIGO,
+        $posts = Ventas_det::select(DB::raw('VENTAS.ID AS ID,
                         VENTASDET.PRECIO_UNIT AS PRECIO,
                         IFNULL(VENTASDET.CANTIDAD, 0) AS CANTIDAD,
                         VENTASDET.PRECIO AS TOTAL,
                         substr(VENTASDET.FECALTAS, 1, 10) AS FECHA,
+                        VENTASDET.HORALTAS AS HORA,
                         substr(CLIENTES.NOMBRE, 1, 25) AS CLIENTE'))
                     ->leftjoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
@@ -4241,12 +4271,13 @@ $lotes= DB::connection('retail')
 
                 $cliente = strtolower($post->CLIENTE);
                 $nestedData['ITEM'] = $item;
-                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['ID'] = $post->ID;
                 $nestedData['CLIENTE'] = ucwords($cliente);
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, $candec);
                 $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
                 $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['HORA'] = $post->HORA;
                 $data[] = $nestedData;
                 $item = $item +1;
 
