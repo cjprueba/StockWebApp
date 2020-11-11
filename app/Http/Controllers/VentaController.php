@@ -304,4 +304,15 @@ class VentaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+        public function reporteDiario(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $resumen_dia = Venta::resumen_dia($request);
+        return response()->json($resumen_dia);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
 }
