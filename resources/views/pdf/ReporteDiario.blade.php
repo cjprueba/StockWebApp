@@ -179,7 +179,7 @@
             </tr>
         </thead>
         <tbody>
-           @for ($i = 0; $i < $c_rows; $i++)
+           @for ($i = 0; $i < $c_rows_cheque; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['CAJA'] }}</span></td>
@@ -214,7 +214,7 @@
             </tr>
         </thead>
         <tbody>
-           @for ($i = 0; $i < $c_rows; $i++)
+           @for ($i = 0; $i < $c_rows_entrada; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['CAJA'] }}</span></td>
@@ -249,7 +249,7 @@
             </tr>
         </thead>
         <tbody>
-           @for ($i = 0; $i < $c_rows; $i++)
+           @for ($i = 0; $i < $c_rows_salida; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['CAJA'] }}</span></td>
