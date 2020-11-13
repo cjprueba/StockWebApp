@@ -10,7 +10,7 @@
 
     .firma{
         font-family: "Arial";
-        font-size: 10pt;
+        font-size: 9pt;
         color: #c0c0c0;
         border-top: 1px solid #c0c0c0;
         padding: 5px;
@@ -64,6 +64,10 @@
         border-left: 1px solid #dbdbdb;
     }
 
+    .pieDePagina{
+        font-size: 9pt; 
+        color: #c0c0c0;
+    }
 </style>
 
 <body>
@@ -80,12 +84,14 @@
     </htmlpageheader>
 
     <htmlpagefooter name="myfooter">
-        <div width="35%" align="center" class="firma"><b>FIRMA RESPONSABLE</b></div>
+        <table width="100%"><tr>
+            <td width="35%" align="center" class="firma">FIRMA RESPONSABLE</td>
+            <td width="65%" align="right" class="pieDePagina">PÁGINA {PAGENO} DE {nb}</td></tr>
+        </table>
     </htmlpagefooter>
 
     <sethtmlpagefooter name="myfooter" value="on"/>
     <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
-    <br><br>
 
     <div align="center">FECHA: {{$fecha}}</div><br>
 
