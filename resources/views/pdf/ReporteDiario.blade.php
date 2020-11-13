@@ -114,7 +114,7 @@
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['DOLARES'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['GUARANIES']}}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['REALES'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['PESOS'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $efectivo[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
             @endfor 
@@ -150,7 +150,7 @@
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['TARJETAS'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['VALES']}}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['TRANSFERENCIAS'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['GIROS'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $medios[$i]['GIROS'] }}</span></td>
                 </tr>
                 @endif
             @endfor 
@@ -182,10 +182,10 @@
            @for ($i = 0; $i < $c_rows_cheque; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['CAJA'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['DOLARES'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['GUARANIES']}}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['REALES'] }}</span></td>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
@@ -217,10 +217,10 @@
            @for ($i = 0; $i < $c_rows_entrada; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['CAJA'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['DOLARES'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['GUARANIES']}}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['REALES'] }}</span></td>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
@@ -252,10 +252,10 @@
            @for ($i = 0; $i < $c_rows_salida; $i++)
                 @if($i <= $c_rows-1)
                 <tr>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['CAJA'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['DOLARES'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['GUARANIES']}}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['REALES'] }}</span></td>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
