@@ -251,13 +251,13 @@
         </thead>
         <tbody>
            @for ($i = 0; $i < $c_rows_salida; $i++)
-                @if(array_key_exists($i, $salida))
+                @if(array_key_exists($i, $salidaC))
                 <tr>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['CAJA'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['DOLARES'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['GUARANIES']}}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salida[$i]['REALES'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salida[$i]['PESOS'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salidaC[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
             @endfor
