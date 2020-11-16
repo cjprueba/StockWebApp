@@ -14,7 +14,7 @@
 
 				<!-- <input ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm" type="text" list="productos" v-model="value" v-bind:class="{ 'is-invalid': validarCodigoProducto }" v-on:keyup="filtrarProductos()" v-on:keyup.prevent.13="enviarCodigoPadre()" v-on:blur="enviarCodigoPadre()" > -->
 
-                <input :tabindex="tabIndexPadre" :disabled="checked_codigo_real" ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm shadow-sm" type="text" list="productos" :value="value" @input="$emit('input', $event.target.value)" v-bind:class="{ 'is-invalid': validar_codigo_producto }" v-on:keyup="filtrarProductos($event.target.value)" v-on:keyup.prevent.13="enviarCodigoPadre($event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)">
+                <input :tabindex="tabIndexPadre" :disabled="checked_codigo_real" ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm shadow-sm mousetrap" type="text" list="productos" :value="value" @input="$emit('input', $event.target.value)" v-bind:class="{ 'is-invalid': validar_codigo_producto }" v-on:keyup="filtrarProductos($event.target.value)" v-on:keyup.prevent.13="enviarCodigoPadre($event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)">
 
 			</div>
 
@@ -114,6 +114,14 @@
 
         	// ------------------------------------------------------------------------
         	
+            // FOCUS EN SEARCH INPUT DESPUES DE ABRIR MODAL 
+            
+            $('.producto-modal').on('shown.bs.modal', function() {
+              $('div#tablaModalProductos_filter input').focus();
+            })
+
+            // ------------------------------------------------------------------------
+
         	$(document).ready( function () {
 
         	 	// ------------------------------------------------------------------------

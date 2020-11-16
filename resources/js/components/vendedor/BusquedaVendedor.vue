@@ -79,6 +79,14 @@
 
         	// ------------------------------------------------------------------------
         	
+            // FOCUS EN SEARCH DEL DATATABLE DESPUES DE ABRIR EL MODAL 
+            
+            $('.busqueda-vendedor-modal').on('shown.bs.modal', function() {
+              $('div#tablaModalVendedores_filter input').focus();
+            })
+
+            // ------------------------------------------------------------------------
+
         	$(document).ready( function () {
 
         	 	// ------------------------------------------------------------------------

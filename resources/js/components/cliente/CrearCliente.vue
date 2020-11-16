@@ -385,6 +385,8 @@
 
 			guardar(){
 
+				let me = this;
+
 				// CONTROL DE DATOS NULOS
 
 				if(this.controlador() === false){
@@ -414,6 +416,8 @@
 					retentor: this.switcher.retentor
 				}
 
+				// *******************************************************************
+
 				// ENVIA LOS DATOS PARA GUARDAR O MODIFICAR
 
 				Common.guardarClienteCommon(data).then(data=>{
@@ -423,15 +427,37 @@
 
 	                if(data.response===true){
 
+	                	// *******************************************************************
+
 	                  	Swal.fire(
 	                     	'¡Guardado!',
 	                     	'¡Se ha guardado correctamente el cliente!',
 	                     	'success'
-	                  	)
+	                  	)	
+
+	                  	// *******************************************************************
+
+	                  	// CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
+
+            			if (me.existe === false) {
+
+		                    me.enviarPadre({'codigo': data.codigo, 'nombre': me.cliente, 'tipo': me.tipo, 'retentor': me.switcher.retentor});
+
+            			}
+	                    
+	                    // *******************************************************************
+
+	                    // LIMPIAR DATOS
 
 	                  	this.limpiar();
 
+	                  	// *******************************************************************
+
+	                  	// RECARGAR CLIENTE TEXTBOX 
+
             			this.$refs.componente_textbox_cliente.recargar();
+
+            			// *******************************************************************
 
 	                }else{
 
@@ -728,7 +754,18 @@
 
 				// ------------------------------------------------------------------
 
-			}
+			},
+			enviarPadre(data){
+
+				// ------------------------------------------------------------------------
+
+				// ENVIAR CODIGO
+				
+                this.$emit('data', data);
+
+				// ------------------------------------------------------------------------
+
+		  	}
 		},
 
 		mounted(){

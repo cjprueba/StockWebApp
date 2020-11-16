@@ -37,6 +37,7 @@ Vue.use(FlagIcon);
 // HOTKEYS
 /* ********************************************* */
 import hotkeys from 'hotkeys-js';
+import Mousetrap from 'mousetrap';
 /* ********************************************* */
 // Funciones utiles 
 

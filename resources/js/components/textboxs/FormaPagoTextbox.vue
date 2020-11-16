@@ -7,7 +7,7 @@
             </select>
 			        -->
 
-              <div class="modal fade producto-modal" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
                       <div class="modal-content">
 
@@ -28,7 +28,7 @@
                           <!-- ------------------------------------------------------------------------ -->
 
                           <div class="text-right" v-if="cliente.credito.total_agregado > 0">
-                            <a href="#" class="badge badge-primary">Crédito: {{cliente.credito.total_agregado}} </a>
+                            <span class="badge badge-primary">Crédito: {{cliente.credito.total_agregado}} </span>
                           </div>
 
                           <div class="float-right" v-if="deshabilitar.credito && tipo !== 3 && tipo !== 4">
@@ -56,30 +56,30 @@
 
                                 <!-- ------------------------------------------------------------------------ -->
 
-                                <div class="card  bg-light card-body border-left-info">
+                                <div class="card  bg-dark card-body border-left-info">
 
                                   <div class="row">
 
                                     <!-- ------------------------------------------------------------------------ -->
                                       
                                     <div class="col-md-3 mt-3"">
-                                      <label for="validationTooltip01">TOTAL</label>
-                                      <h2 class="text-success">{{total}}</h2>
+                                      <label for="validationTooltip01" class="text-light">TOTAL</label>
+                                      <h1 class="text-success"><b>{{total}}</b></h1>
                                     </div>
 
                                     <div class="col-md-3 mt-3"">
-                                      <label for="validationTooltip01">SALDO</label>
-                                      <h2 class="text-secondary">{{medios.SALDO}}</h2>
+                                      <label for="validationTooltip01" class="text-light">SALDO</label>
+                                      <h2 class="text-light">{{medios.SALDO}}</h2>
                                     </div>
 
                                     <div class="col-md-3 mt-3"">
-                                      <label for="validationTooltip01">MEDIOS</label>
+                                      <label for="validationTooltip01" class="text-light">MEDIOS</label>
                                       <h2 class="text-info">{{medios.MEDIOS}}</h2>
                                     </div>
 
                                     <div class="col-md-3 mt-3"">
-                                      <label for="validationTooltip01">VUELTO</label>
-                                      <h2 class="text-muted">{{medios.VUELTO}}</h2>
+                                      <label for="validationTooltip01" class="text-light">VUELTO</label>
+                                      <h2 class="text-light">{{medios.VUELTO}}</h2>
                                     </div>
 
                                     <!-- ------------------------------------------------------------------------ -->
@@ -143,7 +143,7 @@
                                               <div class="input-group-prepend">
                                                 <span class="input-group-text" id="inputGroup-sizing-sm">{{cotizacion.descripcion_gs}}</span>
                                               </div>
-                                              <input class="form-control form-control-sm" type="text"  v-model="monedas.GUARANIES" v-on:blur="formatoGuaranies" :disabled="cotizacion.deshabilitar_gs">
+                                              <input class="form-control form-control-sm" type="text" id="guaranies_input"  v-model="monedas.GUARANIES" v-on:blur="formatoGuaranies" :disabled="cotizacion.deshabilitar_gs">
                                             </div>
                                           </div>
 
@@ -178,7 +178,7 @@
                                               <div class="input-group-prepend">
                                                 <span class="input-group-text" id="inputGroup-sizing-sm">{{cotizacion.descripcion_$}}</span>
                                               </div>
-                                              <input class="form-control form-control-sm" type="text" v-model="monedas.DOLARES"  v-on:blur="formatoDolares" :disabled="cotizacion.deshabilitar_$">
+                                              <input class="form-control form-control-sm" type="text" id="dolares_input"  v-model="monedas.DOLARES"  v-on:blur="formatoDolares" :disabled="cotizacion.deshabilitar_$">
                                             </div>
                                           </div>
 
@@ -213,7 +213,7 @@
                                               <div class="input-group-prepend">
                                                 <span class="input-group-text" id="inputGroup-sizing-sm">{{cotizacion.descripcion_ps}}</span>
                                               </div>
-                                              <input class="form-control form-control-sm" type="text" v-model="monedas.PESOS" v-on:blur="formatoPesos" :disabled="cotizacion.deshabilitar_ps">
+                                              <input class="form-control form-control-sm" type="text" id="pesos_input"  v-model="monedas.PESOS" v-on:blur="formatoPesos" :disabled="cotizacion.deshabilitar_ps">
                                             </div>
                                           </div>
 
@@ -249,7 +249,7 @@
                                               <div class="input-group-prepend">
                                                 <span class="input-group-text" id="inputGroup-sizing-sm">{{cotizacion.descripcion_rs}}</span>
                                               </div>
-                                              <input class="form-control form-control-sm" type="text" v-model="monedas.REALES" v-on:blur="formatoReales" :disabled="cotizacion.deshabilitar_rs">
+                                              <input class="form-control form-control-sm" type="text" id="reales_input"  v-model="monedas.REALES" v-on:blur="formatoReales" :disabled="cotizacion.deshabilitar_rs">
                                             </div>
                                           </div>
 
@@ -509,15 +509,9 @@
                         <!-- FOOTER -->
 
                         <div class="modal-footer">
-                          <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <button type="button" class="btn btn-primary btn-lg btn-block" v-on:click="aceptar">Aceptar</button>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <button type="button" class="btn btn-secondary btn-lg btn-block" data-dismiss="modal">Cancelar</button>
-                            </div>
-                          </div> 
+                                <button type="button" class="btn btn-primary btn-sm" v-on:click="aceptar">(Esc) Aceptar</button>
+                            
+                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
                         </div>
 
                         <!-- ------------------------------------------------------------------------ -->
@@ -1976,9 +1970,45 @@
           
           // ------------------------------------------------------------------------
 
+          // FOCUS EN SEARCH DEL DATATABLE DESPUES DE ABRIR EL MODAL 
+            
+          $('#staticBackdrop').on('shown.bs.modal', function() {
+
+            if (me.moneda === 1) {
+              $('#guaranies_input').focus();
+            } else if (me.moneda === 2) {
+              $('#dolares_input').focus();
+            } else if (me.moneda === 3) {
+              $('#pesos_input').focus();
+            } else if (me.moneda === 4) {
+              $('#reales_input').focus();
+            }
+            
+          })
+
+          // ------------------------------------------------------------------------
+
           $("#credito_vencimiento").datepicker().on(
                 "changeDate", () => {me.cliente.credito.vencimiento = $('#credito_vencimiento').val()}
           );
+
+          // ------------------------------------------------------------------------
+
+          Mousetrap.bind('esc', function() { 
+            if ($("#modalImpresion").data('bs.modal')) {
+              if (($("#modalImpresion").data('bs.modal'))._isShown){
+                me.enviar();
+              }
+            }; 
+
+            if ($("#staticBackdrop").data('bs.modal')) {
+              if (($("#staticBackdrop").data('bs.modal'))._isShown){
+                if ($("#modalImpresion").data('bs.modal') === undefined) {
+                    me.aceptar();
+                }; 
+              }
+            }; 
+          });
 
           // ------------------------------------------------------------------------
 
