@@ -410,7 +410,11 @@ class Cliente extends Model
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'RETENTOR' => $datos['data']['retentor']]);
 
+                $codigo = $codigo["0"]["CODIGO"]+1;
+                
             }else{
+
+                $codigo = $datos['data']['codigo'];
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -467,7 +471,7 @@ class Cliente extends Model
 
             // ENVIA UNA RESPUESTA A LA FUNCION
 
-            return ["response"=>true];
+            return ["response"=>true, "codigo" => $codigo];
 
         // ERROR 
         

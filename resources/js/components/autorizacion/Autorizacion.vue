@@ -9,7 +9,7 @@
 			      </div>
 			      <div class="modal-body">
 			      	<label>{{validar.informacion}}</label>
-			        <input type="password" v-bind:class="{ 'is-invalid': validar.autorizacion }" v-model="autorizacion.CODIGO" class="form-control form-control-xl" name="" v-on:keyup.13="revisar">
+			        <input :tabindex="100" id="codigo_autorizacion" type="password" v-bind:class="{ 'is-invalid': validar.autorizacion }" v-model="autorizacion.CODIGO" class="form-control form-control-xl" name="" v-on:keyup.13="revisar" autofocus>
 			      </div>
 			    </div>
 			  </div>
@@ -84,7 +84,19 @@
 
             	// ------------------------------------------------------------------------
 
-            }
+            }, enfocar(){
+
+				// ------------------------------------------------------------------------
+
+				// VACIAR Y DEVOLVER FOCUS AL TEXTBOX
+
+	        	//$("#codigo_autorizacion").focus();
+				//this.$refs.autorizacion.CODIGO.focus()
+				$(':input[tabindex=100]').focus();
+
+				// ------------------------------------------------------------------------
+
+			}
       },
         mounted() {
 
@@ -92,11 +104,15 @@
 
             let me = this;
 
+          // ------------------------------------------------------------------------
+
+	 		    // FOCUS EN SEARCH DEL DATATABLE DESPUES DE ABRIR EL MODAL 
+            
+            $('#modalAutorizacion').on('shown.bs.modal', function() {
+              $('#codigo_autorizacion').focus();
+            })
+
             // ------------------------------------------------------------------------
-
-            // PREPARAR DATATABLE 
-
-	 		
 
     		// ------------------------------------------------------------------------
 

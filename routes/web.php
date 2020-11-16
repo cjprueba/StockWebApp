@@ -82,6 +82,8 @@ Route::post('transferenciasDevImportar', 'DevTransferenciaController@mostrarImpo
 Route::post('DevtransferenciaImportar', 'DevTransferenciaController@importarDevTransferencia');
 Route::post('devTransferenciaEliminar', 'DevTransferenciaController@eliminarDevTransferencia');
 Route::post('devTransferenciaRechazar', 'DevTransferenciaController@rechazarDevTransferencia');
+
+
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -107,7 +109,7 @@ Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT'
 Route::post('devolver_transferencia','TransferenciaControler@devolverTransferencia');
 
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
-
+Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
 
 /* -------------------------------------------------------------------------- */
 

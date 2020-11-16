@@ -81,7 +81,7 @@
                             </button>
                           </div>
                           <div class="modal-body">
-                                <crear-cliente></crear-cliente>  
+                                <crear-cliente  @data="dataCliente"></crear-cliente>  
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -132,6 +132,15 @@
 
             // ------------------------------------------------------------------------
 
+          },
+          dataCliente(data){
+
+            // ------------------------------------------------------------------------
+
+            this.enviarPadre(data.codigo, data.nombre, data.tipo, {'retentor': data.retentor});
+            
+            // ------------------------------------------------------------------------
+
           }
       },
         mounted() {
@@ -144,6 +153,14 @@
 
         	// ------------------------------------------------------------------------
         	
+            // FOCUS EN SEARCH DEL DATATABLE DESPUES DE ABRIR EL MODAL 
+            
+            $('.busqueda-cliente-modal').on('shown.bs.modal', function() {
+              $('div#tablaModalClientes_filter input').focus();
+            })
+
+            // ------------------------------------------------------------------------
+
         	$(document).ready( function () {
 
         	 	// ------------------------------------------------------------------------
