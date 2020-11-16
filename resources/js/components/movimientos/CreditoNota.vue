@@ -1575,7 +1575,7 @@
 	}
 
 	.section-title {
-	    padding-bottom: 45px;
+	    padding-bottom: 10px;
 	}
 
 	.section-title h4 {

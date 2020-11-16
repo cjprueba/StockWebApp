@@ -351,6 +351,11 @@ export default new Router({
 			name: 'transferenciaImportarDevolucion',
 			component: require('./components/transferencia/ImportarTransferenciaDevolucion.vue').default
 		},
+		{
+			path: '/tr6',
+			name: 'transferenciaCobrar',
+			component: require('./components/transferencia/CobrarTransferencia.vue').default
+		},
     	{
 			path: '/rpt15',
 			name: 'rptTarjeta',

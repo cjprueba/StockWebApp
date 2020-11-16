@@ -113,7 +113,7 @@
             <router-link class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencia</router-link>
             <router-link class="collapse-item" :to="{name: 'transferenciaMostrarDevolucion'}">Mostrar Devolucion</router-link>
             <router-link class="collapse-item" :to="{name: 'transferenciaImportarDevolucion'}">Importar Devolucion</router-link>
-
+            <router-link class="collapse-item" :to="{name: 'transferenciaCobrar'}">Cobrar Devolucion</router-link>
           </div>
         </div>
       </li>
