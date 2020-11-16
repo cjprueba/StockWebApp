@@ -28,6 +28,8 @@ use App\VentaRetencion;
 use App\VentasTieneAgencia;
 use App\VentasTieneAutorizacion;
 use App\VentasCreditoTieneNotaCredito;
+use App\Movimiento_Caja;
+use DateTime;
 
 class Venta extends Model
 {
@@ -7895,6 +7897,7 @@ class Venta extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
+        $final = date('Y-m-d', strtotime($datos['data']['final']));
         // INICIAR VARIABLES 
 
         $fecha = date('Y-m-d');
@@ -7905,8 +7908,8 @@ class Venta extends Model
         // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
 
         $ventas = Venta::select('CODIGO')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('FECHA', '=', $final)
         ->GROUPBY('CAJA')
 
         ->count();
@@ -7922,6 +7925,18 @@ class Venta extends Model
         $nota_credito_cheque = 0;
         $nota_credito_transferencia = 0;
         $nota_credito_total = 0;
+         // INICIAR MPDF 
+
+        $mpdf = new \Mpdf\Mpdf([
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 25,
+            'margin_bottom' => 30,
+            'margin_header' => 8,
+            'margin_footer' => 10
+        ]);
+
+        $mpdf->SetDisplayMode('fullpage');
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -7934,19 +7949,34 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER EL PRIMER TICKET 
+         $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CANDEC
+
+        $candec = Parametro::candec($parametro[0]['MONEDA']);
 
 
         /*  --------------------------------------------------------------------------------- */
 
         // SUMAR TODOS LOS VALORES CONTADO POR CAJA
 
-        $cajas = Venta::select(DB::raw('SUM(EFECTIVO) AS T_EFECTIVO, SUM(TARJETAS) AS T_TARJETAS, SUM(VALE) AS T_VALES, SUM(CHEQUE) AS T_CHEQUE, SUM(DONACION) AS T_DONACION, SUM(GIROS) AS T_GIROS, SUM(VUELTO) AS T_VUELTOS, SUM(BASE5) AS T_BASE5, SUM(BASE10) AS T_BASE10, SUM(EXENTAS) AS T_EXENTAS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL'))
+        $cajas = Venta::select(DB::raw('ventas.CAJA AS CAJAS,SUM(EFECTIVO) AS T_EFECTIVO, SUM(VENTAS_TARJETA.MONTO) AS T_TARJETAS, SUM(VENTAS_VALE.MONTO) AS T_VALES, SUM(VENTAS_GIRO.MONTO) AS T_GIROS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL,SUM(VENTAS_TRANSFERENCIA.MONTO) AS T_TRANSFERENCIA'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->leftjoin('VENTAS_TRANSFERENCIA','VENTAS_TRANSFERENCIA.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_TARJETA','VENTAS_TARJETA.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_GIRO','VENTAS_GIRO.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_VALE','VENTAS_VALE.FK_VENTA','=','VENTAS.ID')
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
          ->GROUPBY('CAJA')
+         ->orderBy('CAJA')
+
         ->get();
 
          /*  --------------------------------------------------------------------------------- */
@@ -7955,8 +7985,8 @@ class Venta extends Model
 
         $contado=Venta::select(DB::raw('SUM(TOTAL) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '=', 'CO')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
          ->GROUPBY('CAJA')
@@ -7968,8 +7998,8 @@ class Venta extends Model
 
         $credito = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '=', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
@@ -7980,8 +8010,8 @@ class Venta extends Model
 
         $pe = Venta::select(DB::raw('IFNULL(SUM(TOTAL), 0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '=', 'PE')
         ->where('VENTAS_ANULADO.ANULADO', '=', 2)
         ->get();
@@ -7992,8 +8022,8 @@ class Venta extends Model
         
         $tarjeta = VentaTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_TARJETA.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->get(); 
 
         /*  --------------------------------------------------------------------------------- */
@@ -8003,8 +8033,8 @@ class Venta extends Model
         $transferencia = VentaTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TRANSFERENCIA.FK_VENTA')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS_TRANSFERENCIA.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
@@ -8015,8 +8045,8 @@ class Venta extends Model
         $giro = VentaGiro::select(DB::raw('IFNULL(SUM(VENTAS_GIRO.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_GIRO.FK_VENTA')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS_GIRO.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
@@ -8027,8 +8057,8 @@ class Venta extends Model
         $vale = VentaVale::select(DB::raw('IFNULL(SUM(VENTAS_VALE.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_VALE.FK_VENTA')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS_VALE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
@@ -8036,13 +8066,14 @@ class Venta extends Model
 
         // CHEQUE
         
-        $cheque = VentaCheque::select(DB::raw('IFNULL(SUM(VENTAS_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_CHEQUE.MONEDA'))
+        $cheque = VentaCheque::select(DB::raw('VENTAS.CAJA AS CAJAS,IFNULL(SUM(VENTAS_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_CHEQUE.MONEDA'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CHEQUE.FK_VENTA')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS_CHEQUE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
-        ->groupBy('VENTAS_CHEQUE.MONEDA')
+        ->groupBy('VENTAS_CHEQUE.MONEDA','VENTAS.CAJA')
+        ->orderBy('VENTAS.CAJA')
         ->get();
 
 
@@ -8053,8 +8084,8 @@ class Venta extends Model
         $anulados = Venta::select('CODIGO')
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('VENTAS_ANULADO.ANULADO', '=', 1)
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->count();
 
         /*  --------------------------------------------------------------------------------- */
@@ -8066,9 +8097,8 @@ class Venta extends Model
         // SUMAR TODOS LOS VALORES ABONO
 
         $abono = VentaAbono::select(DB::raw('IFNULL(SUM(PAGO), 0) AS T_TOTAL'))
-        ->where('FK_SUCURSAL', '=', $user->id_sucursal)
-        ->whereDate('FECHA', '=', $datos["fecha"])
-        ->where('CAJA', '=', $dato['caja'])
+        ->where('FK_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('FECHA', '=', $final)
         ->get();
 
  
@@ -8078,8 +8108,8 @@ class Venta extends Model
         // NOTA DE CREDITO
 
         $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
-        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $datos["fecha"])
+        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $final)
         ->where('NOTA_CREDITO.PROCESADO', '=', 1)
         ->get();
 
@@ -8090,11 +8120,11 @@ class Venta extends Model
 
         // DESCUENTO GENERAL
 
-        $descuento_general = Venta::select(DB::raw('SUM(VENTAS_DESCUENTO.TOTAL) AS T_TOTAL'))
+        $descuento_general = Venta::select(DB::raw('IFNULL(SUM(VENTAS_DESCUENTO.TOTAL),0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->leftjoin('VENTAS_DESCUENTO', 'VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTAS')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
@@ -8102,11 +8132,11 @@ class Venta extends Model
 
         // RETENCION 30%
 
-        $retencion = Venta::select(DB::raw('SUM(VENTAS_RETENCION.MONTO) AS T_TOTAL'))
+        $retencion = Venta::select(DB::raw('IFNULL(SUM(VENTAS_RETENCION.MONTO),0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTA')
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_RETENCION.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
@@ -8118,9 +8148,9 @@ class Venta extends Model
         // SALIDA DE PRODUCTOS %
         $salida_p = DB::connection('retail')
         ->table('SALIDA_PRODUCTOS')
-        ->select(DB::raw('SUM(TOTAL) AS T_TOTAL'))
-        ->where('ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('FECALTAS', '=', $datos["fecha"])
+        ->select(DB::raw('IFNULL(SUM(TOTAL),0) AS T_TOTAL'))
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('FECALTAS', '=', $final)
         ->get();
 
 
@@ -8128,18 +8158,18 @@ class Venta extends Model
 
         // CUPON
 
-        $cupon = Venta::select(DB::raw('SUM(CUPON.IMPORTE) AS T_TOTAL'))
+        $cupon = Venta::select(DB::raw('IFNULL(SUM(VENTAS_CUPON.CUPON_IMPORTE),0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->leftjoin('VENTAS_CUPON', 'VENTAS.ID', '=', 'VENTAS_CUPON.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
         /*  --------------------------------------------------------------------------------- */
         // DESCUENTO POR PRODUCTO
 
-        $descuento_producto = Venta::select(DB::raw('SUM(ventasdet_descuento.TOTAL) AS T_TOTAL'))
+        $descuento_producto = Venta::select(DB::raw('IFNULL(SUM(ventasdet_descuento.TOTAL),0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->leftjoin('VENTASDET',function($join){
                              $join->on('VENTASDET.CODIGO','=','VENTAS.CODIGO')
@@ -8147,11 +8177,423 @@ class Venta extends Model
                              ->on('VENTASDET.ID_SUCURSAL','=','VENTAS.ID_SUCURSAL');
                              })
         ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
-        ->where('VENTAS.ID_SUCURSAL', '=', $datos["sucursal"])
-        ->where('VENTAS.FECHA', '=', $datos["fecha"])
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
+
+      
+        $cajas_totales = Venta::select(DB::raw('ventas.CAJA AS CAJAS,SUM(EFECTIVO) AS T_EFECTIVO, SUM(VENTAS_TARJETA.MONTO) AS T_TARJETAS, SUM(VENTAS_VALE.MONTO) AS T_VALES, SUM(VENTAS_GIRO.MONTO) AS T_GIROS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL,SUM(VENTAS_TRANSFERENCIA.MONTO) AS T_TRANSFERENCIA'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_TRANSFERENCIA','VENTAS_TRANSFERENCIA.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_TARJETA','VENTAS_TARJETA.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_GIRO','VENTAS_GIRO.FK_VENTA','=','VENTAS.ID')
+        ->leftjoin('VENTAS_VALE','VENTAS_VALE.FK_VENTA','=','VENTAS.ID')
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
+        ->where('TIPO', '<>', 'CR')
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        
+        ->get();
+
+        $ventas_cheque=VentaCheque::select(DB::raw('IFNULL(SUM(VENTAS_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_CHEQUE.MONEDA'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CHEQUE.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS_CHEQUE.FK_VENTA', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
+        ->groupBy('VENTAS_CHEQUE.MONEDA')
+        ->orderBy('VENTAS.CAJA')
+        ->get();
+
+        $movimiento_caja_entrada=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+         ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',1)
+        ->groupBy('MOVIMIENTOS_CAJAS.MONEDA','MOVIMIENTOS_CAJAS.CAJA')
+        ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
+        ->get();
+
+        $movimiento_caja_salida=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',2)
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+        ->groupBy('MOVIMIENTOS_CAJAS.MONEDA','MOVIMIENTOS_CAJAS.CAJA')
+        ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
+        ->get();
+
+         $movimiento_caja_entrada_t=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+         ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',1)
+        ->groupBy('MOVIMIENTOS_CAJAS.MONEDA')
+        ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
+        ->get();
+
+        $movimiento_caja_salida_t=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',2)
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+        ->groupBy('MOVIMIENTOS_CAJAS.MONEDA')
+        ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
+        ->get();
+
+        //ARMAR ARRAY DE MOVIMIENTO ENTRADA
+        $caja_aux=0;
+        $c_rows_entrada=0;
+        $c_rows_salida=0;   
+        $c_rows=0;
+
+        $guaranies_e = Common::precio_candec(0, 1);
+        $dolares_e = Common::precio_candec(0, 2);
+        $pesos_e = Common::precio_candec(0, 3);
+        $reales_e = Common::precio_candec(0, 4);
+        $entrada=array();
+        $entrada2=array();
+        $salida=array();
+        $salida2=array();
+        $efectivo=array();
+        $medios=array();
+        $cheques_c=array();
+      
+        foreach ($movimiento_caja_entrada as $key => $value) {
+           
+          
+          if($c_rows_entrada==0 && $caja_aux==0){
+            $entrada2[$c_rows_entrada]['GUARANIES'] =0;
+            $entrada2[$c_rows_entrada]['DOLARES'] =0;
+            $entrada2[$c_rows_entrada]['PESOS'] =0;
+            $entrada2[$c_rows_entrada]['REALES'] =0;
+            $caja_aux=$value["CAJAS"];
+          }
+          if($caja_aux!=$value["CAJAS"]){
+            $c_rows_entrada=$c_rows_entrada+1;
+            $caja_aux=$value["CAJAS"];
+            $guaranies_e = Common::precio_candec(0, 1);
+            $dolares_e = Common::precio_candec(0, 2);
+            $pesos_e = Common::precio_candec(0, 3);
+            $reales_e = Common::precio_candec(0, 4);
+            $entrada2[$c_rows_entrada]['GUARANIES'] =0;
+            $entrada2[$c_rows_entrada]['DOLARES'] =0;
+            $entrada2[$c_rows_entrada]['PESOS'] =0;
+            $entrada2[$c_rows_entrada]['REALES'] =0;
+          }
+
+          if($caja_aux==$value["CAJAS"]){
+           
+             $entrada[$c_rows_entrada]['CAJA'] = $value["CAJAS"] ;
+             $entrada2[$c_rows_entrada]['CAJA'] = $value["CAJAS"] ;
+            if($value["MONEDA"]==1){
+            $guaranies_e = Common::precio_candec($value["TOTAL"], 1);
+            $entrada2[$c_rows_entrada]['GUARANIES'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==2){
+            $dolares_e = Common::precio_candec($value["TOTAL"], 2);
+            $entrada2[$c_rows_entrada]['DOLARES'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==3){
+            $pesos_e = Common::precio_candec($value["TOTAL"], 3);
+            $entrada2[$c_rows_entrada]['PESOS'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==4){
+            $reales_e = Common::precio_candec($value["TOTAL"], 4);
+            $entrada2[$c_rows_entrada]['REALES'] =$value["TOTAL"];
+
+            }
+             $entrada[$c_rows_entrada]['GUARANIES'] =$guaranies_e;
+             $entrada[$c_rows_entrada]['DOLARES'] =$dolares_e;
+             $entrada[$c_rows_entrada]['PESOS'] =$pesos_e;
+             $entrada[$c_rows_entrada]['REALES'] =$reales_e;
+          }
+        }
+
+
+        //FIN DE MOVIMIENTO ENTRADA
+        //--------------------------------------------------------------------------------------
+        //ARMAR ARRAY DE MOVIMIENTO SALIDA
+
+        $guaranies_s = Common::precio_candec(0, 1);
+        $dolares_s = Common::precio_candec(0, 2);
+        $pesos_s = Common::precio_candec(0, 3);
+        $reales_s = Common::precio_candec(0, 4);
+       
+
+        foreach ($movimiento_caja_salida as $key => $value) {
+          if($c_rows_salida==0 && $caja_aux==0){
+            $caja_aux=$value["CAJAS"];
+            $salida2[$c_rows_salida]['GUARANIES'] =0;
+            $salida2[$c_rows_salida]['DOLARES'] =0;
+            $salida2[$c_rows_salida]['PESOS'] =0;
+            $salida2[$c_rows_salida]['REALES'] =0;
+          }
+          if($caja_aux!=$value["CAJAS"]){
+            $c_rows_salida=$c_rows_salida+1;
+            $caja_aux=$value["CAJAS"];
+            $guaranies_s = Common::precio_candec(0, 1);
+            $dolares_s = Common::precio_candec(0, 2);
+            $pesos_s = Common::precio_candec(0, 3);
+            $reales_s = Common::precio_candec(0, 4);
+            $salida2[$c_rows_salida]['GUARANIES'] =0;
+            $salida2[$c_rows_salida]['DOLARES'] =0;
+            $salida2[$c_rows_salida]['PESOS'] =0;
+            $salida2[$c_rows_salida]['REALES'] =0;
+          }
+          if($caja_aux==$value["CAJAS"]){
+             $salida[$c_rows_salida]['CAJAS'] = $value["CAJAS"] ;
+             $salida2[$c_rows_salida]['CAJAS'] = $value["CAJAS"] ;
+            if($value["MONEDA"]==1){
+            $guaranies_s = Common::precio_candec($value["TOTAL"], 1);
+            $salida2[$c_rows_salida]['GUARANIES'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==2){
+            $dolares_s = Common::precio_candec($value["TOTAL"], 2);
+            $salida2[$c_rows_salida]['DOLARES'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==3){
+             $pesos_s = Common::precio_candec($value["TOTAL"], 3);
+             $salida2[$c_rows_salida]['PESOS'] =$value["TOTAL"];
+            }
+            if($value["MONEDA"]==4){
+            $reales_s = Common::precio_candec($value["TOTAL"], 4);
+            $salida2[$c_rows_salida]['REALES'] =$value["TOTAL"];
+
+            }
+             $salida[$c_rows_salida]['GUARANIES'] =$guaranies_s;
+             $salida[$c_rows_salida]['DOLARES'] =$dolares_s;
+             $salida[$c_rows_salida]['PESOS'] =$pesos_s;
+             $salida[$c_rows_salida]['REALES'] =$reales_s;
+          }
+        }
+        //FIN DE MOVIMIENTO SALIDA
+        //--------------------------------------------------------------------------------------
+        //MOVIMIENTO ENTRADA TOTALES
+
+        $guaranies_e = 0;
+        $dolares_e = 0;
+        $pesos_e = 0;
+        $reales_e = 0;
+        foreach ($movimiento_caja_entrada_t as $key => $value) {
+
+           if($value["MONEDA"]==1){
+            $guaranies_e = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==2){
+            $dolares_e = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==3){
+             $pesos_e = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==4){
+            $reales_e = $value["TOTAL"];
+
+            }
+        }
+
+
+        //FIN MOVIMIENTO ENTRADA TOTALES
+        //--------------------------------------------------------------------------------------
+        //MOVIMIENTO SALIDA TOTALES
+        $guaranies_s = 0;
+        $dolares_s = 0;
+        $pesos_s = 0;
+        $reales_s = 0;
+        foreach ($movimiento_caja_salida_t as $key => $value) {
+
+           if($value["MONEDA"]==1){
+            $guaranies_s = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==2){
+            $dolares_s = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==3){
+             $pesos_s = $value["TOTAL"];
+            }
+            if($value["MONEDA"]==4){
+            $reales_s = $value["TOTAL"];
+
+            }
+        }
+
+        //FIN MOVIMIENTO SALIDA TOTALES
+        //--------------------------------------------------------------------------------------
+
+        //ARMAR ARRAY DE EFECTIVO Y MEDIOS
+        foreach ($cajas as $key => $value) {
+
+            foreach ($entrada2 as $key => $entrada_m) {
+               if($entrada_m["CAJA"]==$value["CAJAS"]){
+                $value["DOLARES"]=$value["DOLARES"]+$entrada_m["DOLARES"];
+                $value["GUARANIES"]=$value["GUARANIES"]+$entrada_m["GUARANIES"];
+                $value["REALES"]=$value["REALES"]+$entrada_m["REALES"];
+                $value["PESOS"]=$value["PESOS"]+$entrada_m["PESOS"];
+               }
+                
+               
+            }
+            foreach ($salida2 as $key => $salida_m) {
+               if($salida_m["CAJAS"]==$value["CAJAS"]){
+                $value["DOLARES"]=$value["DOLARES"]-$salida_m["DOLARES"];
+                $value["GUARANIES"]=$value["GUARANIES"]-$salida_m["GUARANIES"];
+                $value["REALES"]=$value["REALES"]-$salida_m["REALES"];
+                $value["PESOS"]=$value["PESOS"]-$salida_m["PESOS"];
+               }
+                
+               
+            }
+
+            $efectivo[$c_rows]['CAJA'] = $value["CAJAS"] ;
+            $efectivo[$c_rows]['DOLARES'] = Common::precio_candec($value["DOLARES"], $candec);
+            $efectivo[$c_rows]['REALES'] = Common::precio_candec($value["REALES"], 4);
+            $efectivo[$c_rows]['GUARANIES'] = Common::precio_candec($value["GUARANIES"], 1);
+            $efectivo[$c_rows]['PESOS'] = Common::precio_candec($value["PESOS"], 3);
+
+
+            $medios[$c_rows]['CAJAS'] = $value["CAJAS"] ;
+            $medios[$c_rows]['TARJETAS'] = Common::precio_candec($value["T_TARJETAS"], 1);
+            $medios[$c_rows]['VALES'] = Common::precio_candec($value["T_VALES"], $candec);
+            $medios[$c_rows]['TRANSFERENCIAS'] = Common::precio_candec($value["T_TRANSFERENCIA"], 1);
+            $medios[$c_rows]['GIROS'] = Common::precio_candec($value["T_GIROS"], 1);
+            $c_rows=$c_rows+1;
+        }
+
+        //FIN DE EFECTIVO Y MEDIOS
+        //-------------------------------------------------------------------------------------
+
+        //ARMAR ARRAY DE CHEQUE
+        $c_rows_cheque=0;
+        $caja_aux=0;
+        $guaranies_c = Common::precio_candec(0, 1);
+        $dolares_c = Common::precio_candec(0, 2);
+        $pesos_c = Common::precio_candec(0, 3);
+        $reales_c = Common::precio_candec(0, 4);
+
+        foreach ($cheque as $key => $value) {
+          if($c_rows_cheque==0 && $caja_aux==0){
+            $caja_aux=$value["CAJAS"];
+          }
+          if($caja_aux!=$value["CAJAS"]){
+            $c_rows_cheque=$c_rows_cheque+1;
+            $caja_aux=$value["CAJAS"];
+            $guaranies_c = Common::precio_candec(0, 1);
+            $dolares_c = Common::precio_candec(0, 2);
+            $pesos_c = Common::precio_candec(0, 3);
+            $reales_c = Common::precio_candec(0, 4);
+          }
+          if($caja_aux==$value["CAJAS"]){
+             $cheques_c[$c_rows_cheque]['CAJA'] = $value["CAJAS"] ;
+            if($value["MONEDA"]==1){
+            $guaranies_c = Common::precio_candec($value["TOTAL"],1);
+            }
+            if($value["MONEDA"]==2){
+            $dolares_c = Common::precio_candec($value["TOTAL"], 2);
+            }
+            if($value["MONEDA"]==3){
+             $pesos_c = Common::precio_candec($value["TOTAL"], 3);
+            }
+            if($value["MONEDA"]==4){
+            $reales_c = Common::precio_candec($value["TOTAL"], 4);
+
+            }
+             $cheques_c[$c_rows_cheque]['GUARANIES'] =$guaranies_c;
+             $cheques_c[$c_rows_cheque]['DOLARES'] =$dolares_c;
+             $cheques_c[$c_rows_cheque]['PESOS'] =$pesos_c;
+             $cheques_c[$c_rows_cheque]['REALES'] =$reales_c;
+          }
+
+        }
+        //FIN ARRAY CHEQUE
+        //----------------------------------------------------------------------------------
+        //ARMAR ARRAY DE CHEQUE TOTALES
+
+        $guaranies_c = Common::precio_candec(0, 1);
+        $dolares_c = Common::precio_candec(0, 2);
+        $pesos_c = Common::precio_candec(0, 3);
+        $reales_c = Common::precio_candec(0, 4);
+
+        foreach ($ventas_cheque as $key => $value) {
+
+           if($value["MONEDA"]==1){
+            $guaranies_c = Common::precio_candec($value["TOTAL"], 1);
+            }
+            if($value["MONEDA"]==2){
+            $dolares_c = Common::precio_candec($value["TOTAL"], 2);
+            }
+            if($value["MONEDA"]==3){
+             $pesos_c = Common::precio_candec($value["TOTAL"], 3);
+            }
+            if($value["MONEDA"]==4){
+            $reales_c = Common::precio_candec($value["TOTAL"], 4);
+
+            }
+        }
+        //FIN ARRAY DE CHEQUE TOTALES
+        //----------------------------------------------------------------------------------
+
+
+        $data['efectivo'] = $efectivo;
+        $data['medios'] = $medios;
+        $data['cheques'] = $cheques_c;
+        $data['contado'] = Common::precio_candec($contado[0]["T_TOTAL"],$candec);
+        $data['creditoV'] = Common::precio_candec($credito[0]["T_TOTAL"],$candec);
+        $data['pago'] = Common::precio_candec($pe[0]["T_TOTAL"],$candec);
+        $data['anulado'] = $anulados;
+        $data['descuentoP'] = Common::precio_candec($descuento_producto[0]["T_TOTAL"],$candec);
+        $data['retencion'] = Common::precio_candec($retencion[0]["T_TOTAL"],$candec);
+        $data['credito'] = Common::precio_candec($nota_credito[0]["T_TOTAL"],$candec);   
+        $data['descuentoG'] = Common::precio_candec($descuento_general[0]["T_TOTAL"],$candec);
+        $data['salida'] = Common::precio_candec($salida_p[0]->T_TOTAL,$candec);
+        $data['cupon'] = Common::precio_candec($cupon[0]->T_TOTAL,$candec);
+        $data['abono'] = Common::precio_candec($abono[0]["T_TOTAL"],$candec);
+        $data['totalV'] = $abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL;
+        $data['totalV']=Common::precio_candec($data['totalV'],$candec);
+        $data['total'] = $abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL-$salida_p[0]->T_TOTAL;
+        $data['total']=Common::precio_candec($data['total'],$candec);
+        $data['totalGes']=Common::precio_candec($cajas_totales[0]['GUARANIES'],1);
+        $data['totalDles']=Common::precio_candec($cajas_totales[0]['DOLARES'],$candec);
+        $data['totalRles']=Common::precio_candec($cajas_totales[0]['REALES'],4);
+        $data['totalPes']=Common::precio_candec($cajas_totales[0]['PESOS'],3);
+        $data['totalTjs']=Common::precio_candec($cajas_totales[0]['T_TARJETAS'],1);
+        $data['totalVls']=Common::precio_candec($cajas_totales[0]['T_VALES'],$candec);
+        $data['totalTrs']=Common::precio_candec($cajas_totales[0]['T_TRANSFERENCIA'],1);
+        $data['totalGrs']=Common::precio_candec($cajas_totales[0]['T_GIROS'],1);
+        $data['totalGs']=$guaranies_c;
+        $data['totalDls']=$dolares_c;
+        $data['totalRls']=$reales_c;
+        $data['totalPs']=$pesos_c;
+        $data['entrada']=$entrada;
+        $data['salidaC']=$salida;
+        $data['entradaTotalGs']=Common::precio_candec($guaranies_e,1);
+        $data['entradaTotalDls']=Common::precio_candec($dolares_e,2);
+        $data['entradaTotalRls']=Common::precio_candec($reales_e,4);
+        $data['entradaTotalPs']=Common::precio_candec($pesos_e,3);
+
+        $data['salidaTotalGs']=Common::precio_candec($guaranies_s,1);
+        $data['salidaTotalDls']=Common::precio_candec($dolares_s,2);
+        $data['salidaTotalRls']=Common::precio_candec($reales_s,4);
+        $data['salidaTotalPs']=Common::precio_candec($pesos_s,3);
+
+        $data['sucursal']=$datos["data"]["sucursal"];
+        $data['fecha']=$final;
+        $data['c_rows']=$c_rows;
+        $data['c_rows_cheque']=$c_rows_cheque;
+        $data['c_rows_salida']=$c_rows_salida;
+        $data['c_rows_entrada']=$c_rows_entrada;
+        $namefile = 'ReporteDiario'.time().'.pdf';
+
+        // CREAR HOJA 
+
+        $html = view('pdf.ReporteDiario', $data)->render();
+
+        $mpdf->WriteHTML($html);
+
+        $mpdf->SetProtection(array('print'));
+        $mpdf->SetTitle("ReporteDiario");
+
+        // DESCARGAR ARCHIVO PDF 
+
+        $mpdf->Output();
+       /* return ["response"=>true, "efectivo"=>$cajas,"medios"=>$cajas,"contado"=>$contado,"credito"=>$credito,"pe"=>$pe, "descuento_producto"=>$descuento_producto,"retencion"=>$retencion,"nota_credito"=>$nota_credito,"descuento_general"=>$descuento_general,"salida_p"=>$salida_p,"cupon"=>$cupon,"abonos"=>$abono]*/
         /*  --------------------------------------------------------------------------------- */
   }
 }

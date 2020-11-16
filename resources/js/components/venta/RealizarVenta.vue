@@ -1,6 +1,132 @@
 <template>
 	<div class="container-fluid bg-light">
 
+		<!-- ------------------------------------------------------------------ -->
+
+		<!-- SIDEBAR -->
+
+		<b-sidebar id="sidebar-right" title="Opciones"  right shadow>
+	      <div class="px-3 py-2">
+
+	      				<!-- ------------------------------------------------------------------ -->
+
+	      				<button class="btn btn-outline-primary btn-sm btn-block" data-toggle="modal"data-target=".modal-atajos"><small>Atajos de Teclado</small></button>
+
+	      				<!-- ------------------------------------------------------------------ -->
+
+						<div class="col-md-12">
+							<hr>
+						</div>
+						
+						<!-- ------------------------------------------------------------------ -->
+
+						<form class="form-inline">
+
+							<div class="row">
+
+								<!-- ------------------------------------------------------------------ -->
+
+							    <!-- HABILITAR MAYORISTA -->
+
+								<div class="col-md-6">
+
+									<div class="my-1">
+										<div class="custom-control custom-switch mr-sm-3 ">
+											<input type="checkbox" class="custom-control-input" id="switchMayorista" v-model="checked.MAYORISTA">
+											<label style="font-size: 12px" class="custom-control-label float-left" for="switchMayorista">Mayorista</label>
+										</div>
+									</div>
+
+								</div>
+
+								<!-- ------------------------------------------------------------------ -->
+
+								<!-- MOSTRAR TICKET -->
+								
+								<div class="col-md-6">			
+									<div class="my-1">
+										<div class="custom-control custom-switch mr-sm-3">
+											<input type="checkbox" class="custom-control-input" id="switchTicket" v-model="checked.TICKET">
+											<label style="font-size: 12px" class="custom-control-label float-left" for="switchTicket">Most. Ticket</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- ------------------------------------------------------------------ -->
+
+								<!-- MOSTRAR FACTURA -->
+
+								<div class="col-md-6">		
+									<div class="my-1">
+										<div class="custom-control custom-switch mr-sm-3">
+											<input type="checkbox" class="custom-control-input" id="switchFactura" v-model="checked.FACTURA">
+											<label style="font-size: 12px" class="custom-control-label float-left" for="switchFactura">Most. Factura</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- ------------------------------------------------------------------ -->
+
+								<!-- MOSTRAR FACTURA -->
+								
+								<div class="col-md-6">		
+									<div class="my-1">
+										<div class="custom-control custom-switch mr-sm-3">
+											<input type="checkbox" class="custom-control-input" id="switchDescuento" v-model="checked.DESCUENTO">
+											<label style="font-size: 12px" class="custom-control-label float-left" for="switchDescuento">Desc. Auto</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- ------------------------------------------------------------------ -->
+
+								<!-- DEVOLUCION -->
+										
+								<!-- <div class="my-1">
+									<div class="custom-control custom-switch mr-sm-3">
+										<input type="checkbox" class="custom-control-input" v-on:change="devolucionLlamar" id="switchDevolucion" v-model="checked.DEVOLUCION" data-target=".modal-devolucion">
+										<label class="custom-control-label" for="switchDevolucion" >Devolución</label>
+									</div>
+								</div> -->
+
+								<!-- ------------------------------------------------------------------ -->
+
+								<!-- HABILITAR MAYORISTA AUTOMATICO -->
+								
+								<div class="col-md-6">		
+									<div class="my-1">
+										<div class="custom-control custom-switch mr-sm-3">
+											<input type="checkbox" class="custom-control-input" id="switchMayoristaAut" v-model="checked.MAYORISTA_AUT">
+											<label style="font-size: 12px" class="custom-control-label float-left" for="switchMayoristaAut">Mayorista Aut.</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- ------------------------------------------------------------------ -->
+								
+
+							</div>
+
+						</form>
+
+						<!-- ------------------------------------------------------------------ -->
+
+						<div class="col-md-12">
+							<hr>
+						</div>
+
+						<!-- ------------------------------------------------------------------ -->
+					  
+	      	<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
+			<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
+			<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
+			<button class="btn btn-dark btn-sm btn-block" v-on:click="movimiento_caja"><small>Movimiento de Caja</small></button>
+			<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
+	      </div>
+	    </b-sidebar>
+
+	    <!-- ------------------------------------------------------------------ -->
+
 		<div class="row">
 
 			<div class="col-md-10">
@@ -9,88 +135,35 @@
 
 					<!-- ------------------------------------------------------------------ -->
 
-				    <div class="col-md-12 mt-3">
+				    <!-- TITULO  -->
+			
+					<div class="col-md-6 mt-3 mb-0">
+						<div class="section-title">
+		                    <h4>Realizar Venta</h4>
+		                    <p>Crear ventas de productos y servicios.</p>
+		                </div>
+					</div>
+					
+			        <!-- ------------------------------------------------------------------------------------- -->
+				    
+				    <div class="col-md-6 mt-3 mb-0">
+						<div class="row mb-3">
+							<div class="col-md-7 text-right">
+								<h3 class="card-text text-primary">CAJA: {{caja.CODIGO}}</h3>
+							</div>
 							
-						<form class="form-inline">
+							<div class="col-md-5 text-right">
+								<button v-b-toggle.sidebar-right class=" btn-menu btn btn-outline-dark btn-toggle-menu" type="button">
+			                        <i class=" fa fa-bars"></i>
+			                    </button>
+							</div>		    		
+						</div>
+					</div>
 
-						    <!-- ------------------------------------------------------------------ -->
-
-						    <!-- HABILITAR MAYORISTA -->
-									
-							<div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchMayorista" v-model="checked.MAYORISTA">
-									<label class="custom-control-label" for="switchMayorista">Mayorista</label>
-								</div>
-							</div>
-
-							<!-- ------------------------------------------------------------------ -->
-
-							<!-- MOSTRAR TICKET -->
-									
-							<div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchTicket" v-model="checked.TICKET">
-									<label class="custom-control-label" for="switchTicket">Mostrar Ticket</label>
-								</div>
-							</div>
-
-							<!-- ------------------------------------------------------------------ -->
-
-							<!-- MOSTRAR FACTURA -->
-									
-							<div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchFactura" v-model="checked.FACTURA">
-									<label class="custom-control-label" for="switchFactura">Mostrar Factura</label>
-								</div>
-							</div>
-
-							<!-- ------------------------------------------------------------------ -->
-
-							<!-- MOSTRAR FACTURA -->
-									
-							<div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchDescuento" v-model="checked.DESCUENTO">
-									<label class="custom-control-label" for="switchDescuento">Descuento Automático</label>
-								</div>
-							</div>
-
-							<!-- ------------------------------------------------------------------ -->
-
-							<!-- DEVOLUCION -->
-									
-							<!-- <div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" v-on:change="devolucionLlamar" id="switchDevolucion" v-model="checked.DEVOLUCION" data-target=".modal-devolucion">
-									<label class="custom-control-label" for="switchDevolucion" >Devolución</label>
-								</div>
-							</div> -->
-
-							<!-- ------------------------------------------------------------------ -->
-
-							<!-- HABILITAR MAYORISTA AUTOMATICO -->
-									
-							<div class="my-1">
-								<div class="custom-control custom-switch mr-sm-3">
-									<input type="checkbox" class="custom-control-input" id="switchMayoristaAut" v-model="checked.MAYORISTA_AUT">
-									<label class="custom-control-label" for="switchMayoristaAut">Mayorista Aut.</label>
-								</div>
-							</div>
-
-							<!-- ------------------------------------------------------------------ -->
-
-						</form>
-
-						<!-- ------------------------------------------------------------------ -->
-
-				    </div>	
-				    	
 				    <!-- ------------------------------------------------------------------ -->
 
 				    <div class="col-md-12 mb-3">
-						<div class="invoice-price mt-3">
+						<div class="invoice-price">
 
 							<div class="invoice-price-left">
 								<div class="invoice-price-row">
@@ -138,7 +211,7 @@
 							</div>
 
 							<div class="invoice-price-right">
-								<small>TOTAL {{moneda.DESCRIPCION}}</small> <span class="f-w-600" v-on:change="gravadas">{{venta.TOTAL}}</span>
+								<small>TOTAL {{moneda.DESCRIPCION}}</small> <span class="f-20 f-w-900" v-on:change="gravadas">{{venta.TOTAL}}</span>
 							</div>
 
 						</div>
@@ -199,25 +272,46 @@
 						<hr>
 					</div>
  -->
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<!-- <div>
 							 -->
-						<label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO + 1}}</label><br>
-						<label><span class="text-primary">Nro. Caja:</span> {{venta.CODIGO_CAJA}}</label>
+						<span class="text-primary"><small>Nro. Ticket / Nro. Caja</small></span><br>
+						<h6 class="text-secondary">{{venta.CODIGO + 1}} / {{venta.CODIGO_CAJA}}</h6>	 
+						<!-- <label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO + 1}}</label><br>
+						<label><span class="text-primary">Nro. Caja:</span> {{venta.CODIGO_CAJA}}</label> -->
 					</div>
 
-					<div class="col-md-4">
-						<label><span class="text-primary">Cliente:</span> {{cliente.NOMBRE}}</label><br>
-						<label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label>
-						<!-- <label class="text-primary">Cliente</label>
-						<h6>{{cliente.NOMBRE}}</h6> -->
+					<!-- <div class="project col-md-3">
+					    <div class="row bg-white has-shadow">
+					      <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
+					        <div class="project-title d-flex align-items-center">
+					          <div class="image has-shadow">
+					          	<span v-html="cliente.imagen"></span>
+					          </div>
+					          <div class="text">
+					            <h3 class="h4">{{cliente.NOMBRE}}</h3><small>{{cliente.NOMBRE}}</small>
+					          </div>
+					        </div>
+					        <div class="project-date"><span class="hidden-sm-down">{{cliente.NOMBRE}}</span></div>
+					      </div>
+					    </div>
+					</div> -->
+
+					<div class="col-md-3">
+						<span class="text-primary"><small>Cliente</small></span><br>
+						<h6 class="text-secondary">{{cliente.NOMBRE}}</h6>
 					</div> 
 
-					<div class="col-md-4">
-						<label><span class="text-primary">Agencia:</span> {{agencia.NOMBRE}}</label><br>
-						<!-- <label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label> -->
-						<!-- <label class="text-primary">Vendedor</label>
-						<h6>{{vendedor.NOMBRE}}</h6> -->
+					<div class="col-md-3">
+						<span class="text-primary"><small>Vendedor</small></span><br>
+						<h6 class="text-secondary">{{vendedor.NOMBRE}}</h6>
+					</div> 
+
+					<div class="col-md-3">
+						<span class="text-primary"><small>Agencia</small></span><br>
+						<h6 class="text-secondary">{{agencia.NOMBRE}}</h6>
+						<!-- <label><span class="text-primary">Agencia:</span> {{agencia.NOMBRE}}</label><br> -->
+						
 					</div> 
 
 					<!-- <div class="col-md-2">
@@ -359,23 +453,16 @@
 
 			<div class="col-md-2 mt-3">
 
-					    		
+				<!-- ------------------------------------------------------------------ -->
 
-			<!-- ------------------------------------------------------------------ -->
+				<!-- IMAGEN -->
 
-					    			<!-- IMAGEN -->
-
-					    			<div >
-
-					    				<div class="card">
-					    				  <span v-html="imagen.RUTA"></span>
+				<div>
+					<div class="card">
+					    <span v-html="imagen.RUTA"></span>
 										  <!-- <img v-if="producto.COD_PROD === ''" :src="imagen.RUTA" class="card-img-top" alt="..."> -->
-										  <div class="card-body text-center">
-										    <p class="card-text">CAJA: {{caja.CODIGO}}</p>
-										  </div>
-										</div>
-
-					    			</div>
+					</div>
+				</div>
 
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
@@ -389,20 +476,25 @@
 			
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
-				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente"></busqueda-cliente-modal>
+				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente" ref="componente_cliente_modal" ></busqueda-cliente-modal>
 
 				<div class="col-md-12">
 					<hr>
 				</div>
 
 				<busqueda-vendedor-modal @codigo="codigoVendedor" @nombre="nombreVendedor"></busqueda-vendedor-modal>
-				<button class="btn btn-dark btn-sm btn-block mt-2" v-on:click="nuevo"><small>Nuevo</small></button>
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="guardar"><small>Facturar</small></button>
+				
+				<div class="row mt-3 mb-3">
+					<div class="col-md-6">
+						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="nuevo"><font-awesome-icon size="1x" icon="file-alt" /><br><small>(F1) Nuevo</small></button>
+					</div>
+					<div class="col-md-6">
+						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="guardar"><font-awesome-icon size="1x" icon="cash-register" /><br><small>(Esc) Fact.</small></button>
+					</div>	
+				</div>
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="revisarAutorizacion"><small>Última Factura</small></button>
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
-				<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
+				
+				
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="test_factura"><small>Test Factura</small></button> -->
 			</div>
 
@@ -476,6 +568,245 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- MOVIMIENTO CAJA -->
+
+		<div class="modal fade modal-mov-caja" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+
+                      <div class="modal-content">
+
+                      	<!-- ------------------------------------------------------------------------ -->
+
+                      	<!-- HEADER -->
+
+                      	<div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalCenterTitle"><small>MOVIMIENTO CAJA</small></h5>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+                        <div class="modal-body">
+
+                        	<div class="row">
+
+	                            <div class="col-md-6">
+	                                <label>Movimiento</label>
+	                                <select v-model="movimiento.TIPO" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validar.MOVIMIENTO.TIPO }">
+	                                        <option :value="null">SELECCIONAR</option>
+	                                        <option :value="1">Entrada</option>
+	                                        <option :value="2">Salida</option>
+	                                </select>       
+	                            </div>
+
+	                            <div class="col-md-6">
+	                                <label>Tipo</label>
+	                                <select v-model="movimiento.MEDIO" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validar.MOVIMIENTO.MEDIO }">
+	                                        <option :value="null">SELECCIONAR</option>
+	                                        <option :value="1">Efectivo</option>
+	                                        <option :value="2">Cheque</option>
+	                                </select>       
+	                            </div>
+
+	                            <!-- ------------------------------------------------------------------------ -->
+
+	                            <!-- MONEDA -->
+
+	                            <div class="col-md-6 mt-3">
+	                            	
+									<select-moneda v-model="movimiento.MONEDA" @descripcion_moneda="descripcionMoneda" @cantidad_decimales="cantidadDecimal"></select-moneda>
+									<span class="badge badge-danger" v-if="mostrar.SINCOTIZACION">No hay cotización</span>
+
+	                            </div>
+
+	                            <!-- ------------------------------------------------------------------------ -->
+
+	                            <!-- IMPORTE -->
+
+	                            <div class="col-md-6 mt-3">
+				        			<label>Importe</label>
+									<input class="form-control form-control-sm" type="text" v-model="movimiento.IMPORTE" v-bind:class="{ 'is-invalid': validar.MOVIMIENTO.IMPORTE }" v-on:blur="formatoImporte" :disabled="deshabilitar.movimiento.IMPORTE">
+				        		</div>
+
+				        		<!-- ------------------------------------------------------------------------ -->
+
+				        		<div class="col-md-12 mt-3">
+				        			<label for="comentarioTextArea">Comentario</label>
+				        			<textarea v-model="movimiento.COMENTARIO" v-bind:class="{ 'is-invalid': validar.MOVIMIENTO.COMENTARIO }" class="form-control" id="comentarioTextArea" rows="3"></textarea>
+				        		</div>
+
+                            </div>
+
+                        </div>	
+		      			
+		      			<!-- ------------------------------------------------------------------------ -->
+
+		      			<!-- FOOTER -->
+
+                        <div class="modal-footer">
+                        	<button type="button" v-on:click="guardar_movimiento_caja()" class="btn btn-outline-dark"><font-awesome-icon size="1x" icon="save"  /> GUARDAR</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">CERRAR</button>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+		    		  </div>
+
+		  			</div>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
+
+		<!-- ATAJOS DE TECLADO -->
+
+		<div class="modal fade modal-atajos" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+
+                      <div class="modal-content">
+
+                      	<!-- ------------------------------------------------------------------------ -->
+
+                      	<!-- HEADER -->
+
+                      	<div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalCenterTitle"><small>ATAJOS</small></h5>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+                        <div class="modal-body">
+
+                        	<div class="row">
+
+                        		
+
+	                            <div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  F1
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Nueva Venta.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Esc
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Facturar Venta.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + p
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar productos.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + c
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar clientes.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + r
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Registrar cliente.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + m
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Movimiento caja.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + v
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar vendedor.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + n
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar nota de crédito.</p>
+				        		</div>
+
+                            </div>
+
+                        </div>	
+		      			
+		      			<!-- ------------------------------------------------------------------------ -->
+
+		      			<!-- FOOTER -->
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">CERRAR</button>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+		    		  </div>
+
+		  			</div>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
 		<!-- TOAST STOCK CERO -->
 
 			<b-toast id="toast-stock-cero" variant="warning" solid>
@@ -597,6 +928,21 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- TOAST  -->
+
+			<b-toast id="toast-falta-completar-movimiento-caja" variant="warning" solid>
+		      <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">Error !</strong>
+		          <small class="text-muted mr-2">completar</small>
+		        </div>
+		      </template>
+		      Completar todos los datos por favor !
+		    </b-toast>
+
+		<!-- ------------------------------------------------------------------------ -->
+
 		<!-- MODAL DETALLE PRODUCTO -->
 
 		<producto-detalle ref="detalle_producto" :codigo="codigo_detalle"></producto-detalle>
@@ -670,7 +1016,15 @@
          		DESCUENTO_CATEGORIA: 0
          	},
          	validar: {
-         		COD_PROD: false
+         		COD_PROD: false,
+         		MOVIMIENTO: {
+         			MEDIO: false,
+         			MONTO: false,
+         			TIPO: false,
+         			COMENTARIO: false,
+         			IMPORTE: false
+         		},
+         		IMPORTE: false
          	}, 
          	venta: {
          		CODIGO: '',
@@ -707,6 +1061,9 @@
          		TIPO: ''
          	}, deshabilitar: {
          		DESCRIPCION: true,
+         		movimiento: {
+         			IMPORTE: false
+         		}
          	}, servicio: {
          		COD_PROD: '',
 			    DESCRIPCION: '',
@@ -734,6 +1091,18 @@
          		PERMITIDO: 0,
          		ID_USER_SUPERVISOR: 0
          	}, datos: '',
+         	movimiento: {
+         		TIPO: null,
+         		MEDIO: null,
+         		IMPORTE: 0,
+         		DECIMAL: 0,
+         		MONEDA: '0',
+         		COMENTARIO: '',
+         		CAJA: null,
+         		MONEDA_DESCRIPCION: '' 
+         	}, mostrar: {
+         		SINCOTIZACION: ''
+         	}
 
         }
       }, 
@@ -1136,7 +1505,7 @@
         		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(252845, this.caja.CODIGO);
+        		Common.generarPdfFacturaVentaVisualizarCommon(43, 10);
         		//this.factura(8, 1);
         	},
         	test_factura(){
@@ -1175,6 +1544,10 @@
 
       			// ------------------------------------------------------------------------
 
+      			$('.registrar-cliente-modal').modal('hide');
+
+      			// ------------------------------------------------------------------------
+
       		},
       		tipoCliente(cliente){
 
@@ -1198,6 +1571,17 @@
 
       		},
       		dataCliente(data){
+
+      			// ------------------------------------------------------------------------
+
+      			// RETENTOR 
+
+      			if (data.retentor === true) {
+
+      				data.retentor = 1;
+      			} else if (data.retentor === false) {
+      				data.retentor = 0;
+      			}
 
       			// ------------------------------------------------------------------------
 
@@ -1829,6 +2213,8 @@
 					me.ajustes.IMPRESORA_TICKET = data.IMPRESORA_TICKET;
 					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
 					me.autorizacion.HABILITAR = data.SUPERVISOR;
+					me.movimiento.MONEDA = data.MONEDA.CODIGO.toString();
+					me.movimiento.DECIMAL = data.MONEDA.CANDEC.toString();
 
 					// ------------------------------------------------------------------------ 
 
@@ -2163,7 +2549,155 @@
 
 				// ------------------------------------------------------------------------
 
-			}
+			}, movimiento_caja(){
+
+			   // ------------------------------------------------------------------------
+			   	
+				$('.modal-mov-caja').modal('show');
+
+			   // ------------------------------------------------------------------------	
+			}, cantidadDecimal(decimal){
+
+				// ------------------------------------------------------------------------	
+
+				this.movimiento.DECIMAL = decimal;
+
+				// ------------------------------------------------------------------------	
+
+			}, descripcionMoneda(moneda){
+
+				// ------------------------------------------------------------------------	
+
+				this.movimiento.MONEDA_DESCRIPCION= moneda;
+
+				// ------------------------------------------------------------------------	
+
+			}, formatoImporte() {
+
+	        	// ------------------------------------------------------------------------
+
+	            // INICIAR VARIABLES 
+
+	            let me = this;
+
+	            // ------------------------------------------------------------------------
+
+	            // REVISAR LA CANTIDAD DE DECIMALES PARA DAR FORMATO A IMPORTE
+
+	            me.movimiento.IMPORTE = Common.darFormatoCommon(me.movimiento.IMPORTE, me.movimiento.DECIMAL);
+
+	            // ------------------------------------------------------------------------
+
+	        }, 
+		    controlador_movimiento() {
+
+		            // ------------------------------------------------------------------------
+
+		            let me = this;
+		            var falta = false;
+
+		            // ------------------------------------------------------------------------
+		            
+		            // CONTROLADOR
+
+		            if (me.movimiento.TIPO === null) {
+		                me.validar.MOVIMIENTO.TIPO = true;
+		                falta = true;
+		            } else {
+		                me.validar.MOVIMIENTO.TIPO = false;
+		            }
+
+		            if (me.movimiento.MEDIO === null) {
+		                me.validar.MOVIMIENTO.MEDIO = true;
+		                falta = true;
+		            } else {
+		                me.validar.MOVIMIENTO.MEDIO = false;
+		            }
+
+		            if (me.movimiento.IMPORTE.length === 0 || me.movimiento.IMPORTE === '0' || me.movimiento.IMPORTE === '0.00' || me.movimiento.IMPORTE === 0 || me.movimiento.IMPORTE === 0.00 ) {
+		                me.validar.MOVIMIENTO.IMPORTE = true;
+		                falta = true;
+		            } else {
+		                me.validar.MOVIMIENTO.IMPORTE = false;
+		            }
+
+		            if (me.movimiento.COMENTARIO === '') {
+		                me.validar.MOVIMIENTO.COMENTARIO = true;
+		                falta = true;
+		            } else {
+		                me.validar.MOVIMIENTO.COMENTARIO = false;
+		            }
+
+		            // ------------------------------------------------------------------------
+
+		            // RETORNAR FALTA - SI ES TRUE SE DETIENE EL GUARDADO 
+		            // SI ES FALSE CONTINUA LA OPERACION 
+
+		            return falta;
+
+		            // ------------------------------------------------------------------------
+
+		    }, limpiar_movimiento_caja(){
+
+		    	this.movimiento.TIPO = null;
+
+	         	this.movimiento.MEDIO = null;
+
+	         	this.movimiento.IMPORTE = 0;
+
+	         	this.movimiento.COMENTARIO = '';
+
+		    },guardar_movimiento_caja(){
+
+		    	// ------------------------------------------------------------------------
+	        	
+	        	// INICIAR VARIABLES
+
+	        	let me = this;
+
+	        	// ------------------------------------------------------------------------
+
+	        	// CONTROLADOR
+
+	        	if (this.controlador_movimiento() === true) {
+	        		this.$bvToast.show('toast-falta-completar-movimiento-caja');
+	        		return;
+	        	}
+
+	        	// ------------------------------------------------------------------------
+
+	        	// MOVIMIENTO CAJA 
+
+	        	this.movimiento.CAJA = this.caja.CODIGO;
+	        	
+	        	// ------------------------------------------------------------------------
+
+	        	Common.guardarMovimientoCajaCommon(this.movimiento).then(data => {
+
+	        		if (data.response === true){
+
+	        			Swal.fire(
+									'Guardado !',
+									'Se ha guardado el movimiento correctamente',
+									'success'
+								)
+
+	        			this.limpiar_movimiento_caja();
+
+
+	        		} else if (data.response === false) {
+
+	        			Swal.showValidationMessage(
+					          `Request failed: ${data.statusText}`
+					        )
+
+	        		}
+
+	        	});
+
+	        	// ------------------------------------------------------------------------
+
+		    }
 
       },
         mounted() {
@@ -2182,6 +2716,46 @@
 
         	me.inicio();
 
+        	// ------------------------------------------------------------------------
+
+        	// ATAJOS DE TECLADO 
+
+        	Mousetrap.bind('f1', function() { me.nuevo(); });
+
+			Mousetrap.bind('esc', function() { 
+
+				if ($("#modalImpresion").data('bs.modal')) {
+	              if (($("#modalImpresion").data('bs.modal'))._isShown){
+	                me.$refs.compontente_medio_pago.enviar();
+	              }
+	            };
+
+				if ($("#staticBackdrop").data('bs.modal')) {
+	              if (($("#staticBackdrop").data('bs.modal'))._isShown){
+	              	if ($("#modalImpresion").data('bs.modal') === undefined) {
+	                    me.$refs.compontente_medio_pago.aceptar();
+	                };
+	                
+	              }
+	            }; 
+
+				if ($("#staticBackdrop").data('bs.modal') === undefined) {
+	              me.guardar();
+	            }; 
+
+
+			});
+
+			Mousetrap.bind('shift+m', function() { me.movimiento_caja(); });
+			Mousetrap.bind('shift+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
+			Mousetrap.bind('shift+r', function() { $('.registrar-cliente-modal').modal('show'); });
+			Mousetrap.bind('shift+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
+			Mousetrap.bind('shift+p', function() { 
+				$('.producto-modal').modal('show'); 
+			});
+
+			Mousetrap.bind('shift+n', function() { me.nota_credito(); });
+				
         	// ------------------------------------------------------------------------
 
         	// FIJAR CURSOR

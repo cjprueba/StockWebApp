@@ -82,6 +82,8 @@ Route::post('transferenciasDevImportar', 'DevTransferenciaController@mostrarImpo
 Route::post('DevtransferenciaImportar', 'DevTransferenciaController@importarDevTransferencia');
 Route::post('devTransferenciaEliminar', 'DevTransferenciaController@eliminarDevTransferencia');
 Route::post('devTransferenciaRechazar', 'DevTransferenciaController@rechazarDevTransferencia');
+
+
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -107,7 +109,7 @@ Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT'
 Route::post('devolver_transferencia','TransferenciaControler@devolverTransferencia');
 
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
-
+Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -552,7 +554,7 @@ Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 
 // REPORTES VENTAS
 Route::post('reporte_ventas', 'VentaController@reporteVenta');
-
+Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
 /* -------------------------------------------------------------------------- */
 
@@ -613,6 +615,11 @@ Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDe
 Route::get('aviso/obtener', 'EspecificacionController@obtenerAviso');
 Route::post('aviso/confirmar', 'EspecificacionController@aceptarTerminos');
 
+
+//MOVIMIENTO DE CAJA
+
+/* -------------------------------------------------------------------------- */
+Route::post('/movimiento/caja/guardar', 'Movimiento_CajaController@guardarMovimiento');
 
 /* -------------------------------------------------------------------------- */
 

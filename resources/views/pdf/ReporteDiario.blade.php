@@ -67,28 +67,26 @@
 </style>
 
 <body>
-    
     <htmlpageheader name="myheader">    
         @if($sucursal == '9')
         <table width="100%"><tr>
             <td width="50%" align="center">
                 <img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
-   
-            </td>
-        </tr></table>
+            </td></tr>
+        </table>
         @else
             <div class="titulo"><strong>REPORTE DIARIO</strong></div>
         @endif
     </htmlpageheader>
+
     <htmlpagefooter name="myfooter">
-        
         <div width="35%" align="center" class="firma"><b>FIRMA RESPONSABLE</b></div>
     </htmlpagefooter>
 
     <sethtmlpagefooter name="myfooter" value="on"/>
     <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
-    
-    <br /><br />
+    <br><br>
+
     <div align="center">FECHA: {{$fecha}}</div><br>
 
     <!-- TABLA -->
@@ -96,7 +94,7 @@
     <div width="30%" align="center">EFECTIVO</div>
 
     <div class="border">
-    <table class="items" width="100%">
+      <table class="items" width="100%">
         <thead>
             <tr>
                 <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
@@ -108,31 +106,31 @@
         </thead>
         <tbody>
            @for ($i = 0; $i < $c_rows; $i++)
-                @if($i <= $c_rows-1)
+                @if(array_key_exists($i, $efectivo))
                 <tr>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['CAJA'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['DOLARES'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['GUARANIES']}}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['REALES'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $efectivo[$i]['PESOS'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $efectivo[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
             @endfor 
            <tr>
-                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalDles}}</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalGes}}</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalRles}}</b></td>
-                    <td width="20%" class="borde-iz-top" align="center"><b>{{$totalPes}}</b></td>
-                </tr>
+                <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalDles}}</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalGes}}</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalRles}}</b></td>
+                <td width="20%" class="borde-iz-top" align="center"><b>{{$totalPes}}</b></td>
+            </tr>
         </tbody>
-    </table>
-    </div>
-    <br>
+      </table>
+    </div><br>
+
     <div width="30%" align="center">MEDIOS</div>
     
     <div class="border">
-    <table class="items" width="100%">
+      <table class="items" width="100%">
         <thead>
             <tr>
                 <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
@@ -144,31 +142,32 @@
         </thead>
         <tbody>
            @for ($i = 0; $i < $c_rows; $i++)
-                @if($i <= $c_rows-1)
+                @if(array_key_exists($i, $medios))
                 <tr>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['CAJAS'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['TARJETAS'] }}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['VALES']}}</span></td>
                     <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['TRANSFERENCIAS'] }}</span></td>
-                    <td width="20%" class="borde-der-top" align="center"><span>{{ $medios[$i]['GIROS'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $medios[$i]['GIROS'] }}</span></td>
                 </tr>
                 @endif
             @endfor 
            <tr>
-                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalTjs}}</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalVls}}</b></td>
-                    <td width="20%" class="borde-der-top" align="center"><b>{{$totalTrs}}</b></td>
-                    <td width="20%" class="borde-iz-top" align="center"><b>{{$totalGrs}}</b></td>
-                </tr>
+                <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalTjs}}</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalVls}}</b></td>
+                <td width="20%" class="borde-der-top" align="center"><b>{{$totalTrs}}</b></td>
+                <td width="20%" class="borde-iz-top" align="center"><b>{{$totalGrs}}</b></td>
+            </tr>
         </tbody>
-    </table>
+      </table>
     </div>
     <br>
 
     <div width="30%" align="center">CHEQUES</div>
+
     <div class="border">
-    <table class="items" width="100%">
+      <table class="items" width="100%">
         <thead>
             <tr>
                 <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
@@ -179,13 +178,13 @@
             </tr>
         </thead>
         <tbody>
-           @for ($i = 0; $i < $c_rows; $i++)
-                @if($i <= $c_rows-1)
+           @for ($i = 0; $i < $c_rows_cheque; $i++)
+                @if(array_key_exists($i, $cheques))
                 <tr>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['CAJA'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['DOLARES'] }}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['GUARANIES']}}</span></td>
-                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $cheques[$i]['REALES'] }}</span></td>
                     <td width="20%" class="borde-iz-top" align="center"><span>{{ $cheques[$i]['PESOS'] }}</span></td>
                 </tr>
                 @endif
@@ -198,31 +197,102 @@
                     <td width="20%" class="borde-iz-top" align="center"><b>{{$totalPs}}</b></td>
                 </tr>
         </tbody>
-    </table>
-    </div>
-    <br>
+      </table>
+    </div><br>
+
+    <div width="30%" align="center">ENTRADA</div>
+
+    <div class="border">
+      <table class="items" width="100%">
+        <thead>
+            <tr>
+                <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>DOLARES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>GUARANIES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>REALES</b></td>
+                <td width="20%" class="borde-iz-bot" align="center"><b>PESOS</b></td>
+            </tr>
+        </thead>
+        <tbody>
+           @for ($i = 0; $i < $c_rows_entrada; $i++)
+                @if(array_key_exists($i, $entrada))
+                <tr>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $entrada[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $entrada[$i]['PESOS'] }}</span></td>
+                </tr>
+                @endif
+            @endfor
+           <tr>
+                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalDls}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalGs}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$entradaTotalRls}}</b></td>
+                    <td width="20%" class="borde-iz-top" align="center"><b>{{$entradaTotalPs}}</b></td>
+                </tr>
+        </tbody>
+      </table>
+    </div><br>
+
+    <div width="30%" align="center">SALIDA</div>
+
+    <div class="border">
+      <table class="items" width="100%">
+        <thead>
+            <tr>
+                <td width="20%" class="borde-inicio" align="center"><b>CAJAS</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>DOLARES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>GUARANIES</b></td>
+                <td width="20%" class="borde-inicio" align="center"><b>REALES</b></td>
+                <td width="20%" class="borde-iz-bot" align="center"><b>PESOS</b></td>
+            </tr>
+        </thead>
+        <tbody>
+           @for ($i = 0; $i < $c_rows_salida; $i++)
+                @if(array_key_exists($i, $salidaC))
+                <tr>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['CAJA'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['DOLARES'] }}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['GUARANIES']}}</span></td>
+                    <td width="20%" class="borde-der-top" align="center"><span>{{ $salidaC[$i]['REALES'] }}</span></td>
+                    <td width="20%" class="borde-iz-top" align="center"><span>{{ $salidaC[$i]['PESOS'] }}</span></td>
+                </tr>
+                @endif
+            @endfor
+           <tr>
+                    <td width="20%" class="borde-der-top" align="right"><b>TOTALES</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalDls}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalGs}}</b></td>
+                    <td width="20%" class="borde-der-top" align="center"><b>{{$salidaTotalRls}}</b></td>
+                    <td width="20%" class="borde-iz-top" align="center"><b>{{$salidaTotalPs}}</b></td>
+                </tr>
+        </tbody>
+      </table>
+    </div><br>
 
     <div width="30%" align="center">VENTAS</div>
-    <div class="border">
-    <table width="100%">
-      <tr>
-        <th width="25%" align="center" class="borde-inicio"><b>CONTADO</b></th>
-        <th width="25%" align="center" class="borde-inicio"><b>CRÉDITO</b></th>
-        <th width="25%" align="center" class="borde-inicio"><b>PAGO AL ENTREGAR</b></th>
-        <th width="25%" align="center" class="borde-iz-bot"><b>ANULADO</b></th>
-      </tr>
-      <tr>
-        <td width="25%" align="center" class="borde-der"><b>{{$contado}}</b></td>
-        <td width="25%" align="center" class="borde-der"><b>{{$creditoV}}</b></td>
-        <td width="25%" align="center" class="borde-der"><b>{{$pago}}</b></td>
-        <td width="25%" align="center" class="borde-fin"><b>{{$anulado}}</b></td>
-      </tr>
-    </table>
-    </div>
-    <br><br>
 
     <div class="border">
-    <table width="100%">
+      <table width="100%">
+        <tr>
+            <th width="25%" align="center" class="borde-inicio"><b>CONTADO</b></th>
+            <th width="25%" align="center" class="borde-inicio"><b>CRÉDITO</b></th>
+            <th width="25%" align="center" class="borde-inicio"><b>PAGO AL ENTREGAR</b></th>
+            <th width="25%" align="center" class="borde-iz-bot"><b>ANULADO</b></th>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der"><b>{{$contado}}</b></td>
+            <td width="25%" align="center" class="borde-der"><b>{{$creditoV}}</b></td>
+            <td width="25%" align="center" class="borde-der"><b>{{$pago}}</b></td>
+            <td width="25%" align="center" class="borde-fin"><b>{{$anulado}}</b></td>
+        </tr>
+      </table>
+    </div><br><br>
+
+    <div class="border">
+     <table width="100%">
       <tr>
         <th width="50%" align="left" class="borde-inicio"><b>OTROS</b></th>
         <th width="50%" align="right"><b>MONTO</b></th>
@@ -255,16 +325,14 @@
           <td width="50%" align="left">ABONOS</td>
           <td width="50%" align="right" class="borde-fin">{{$abono}}</td>
       </tr>
-    </table>
-    </div>
-    <br>
+     </table>
+    </div><br>
 
     <table width="100%">
         <tr>
             <th width="50%" align="left"><b>TOTAL VENTA</b></th>
             <th width="50%" align="right"><b>{{$totalV}}</b></th>
         </tr>
-
         <tr>
             <th width="50%" align="left"><b>TOTAL GENERAL</b></th>
             <th width="50%" align="right"><b>{{$total}}</b></th>
