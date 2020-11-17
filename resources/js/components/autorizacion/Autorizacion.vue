@@ -5,7 +5,7 @@
 			  <div class="modal-dialog modal-lg " role="document">
 			    <div class="modal-content">
 			      <div class="modal-header text-center">
-			        <h5 class="modal-title text-primary" id="exampleModalLabel"><small>AUTORIZACION</small></h5>
+			        <h5 class="modal-title text-primary" id="exampleModalLabel"><small>AUTORIZACIÓN</small></h5><h5 class="modal-title text-primary" id="exampleModalLabel"><font-awesome-icon size="2x" icon="barcode" /></h5>
 			      </div>
 			      <div class="modal-body">
 			      	<label>{{validar.informacion}}</label>

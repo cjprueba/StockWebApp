@@ -3564,7 +3564,9 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-
+        //$fecha = '2020-11-15';
+        //$dato['caja'] = 3;
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
