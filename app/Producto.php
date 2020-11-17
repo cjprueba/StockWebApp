@@ -3295,7 +3295,7 @@ $lotes= DB::connection('retail')
 
         if($tipo === '1') {
 
-            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,'%'.$busqueda.'%');
 
         } else if ($tipo === '2'){
 
@@ -3347,7 +3347,7 @@ $lotes= DB::connection('retail')
         }
 
         if($tipo === '1') {
-            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,'%'.$busqueda.'%');
         } else if ($tipo === '2'){
             $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
         }
