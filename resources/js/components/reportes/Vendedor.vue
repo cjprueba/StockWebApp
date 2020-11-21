@@ -1,14 +1,14 @@
 <template>
 
 	<!-- VENTA VENDEDOR  -->
-	<div class="container">
-		<div class="card mt-3  shadow border-bottom-primary" >
+	<div class="container"> 
+		<div class="card mt-3  shadow border-bottom-primary" v-if="$can('reporte.venta')">
 		  <div class="card-header">Ventas por Vendedor</div>
 			<div class="card-body">
 			  <div class="row">
 				<div class="col-4 mb-3 ">
 
-					<!-- -------------------------------------------SELECCIONAR SUCURSAL----------------------------------------------- -->
+					<!-- --------------------------------------SELECCIONAR SUCURSAL----------------------------------------------- -->
 					<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
@@ -20,7 +20,7 @@
 						</div>
 					</div>
 
-					<!-- -------------------------------------------SELECCIONAR VENDEDOR----------------------------------------------- -->
+					<!-- ---------------------------------------SELECCIONAR VENDEDOR----------------------------------------------- -->
 
 					<div class="row mt-3 ml-3">
 				  		<label for="validationTooltip01">Vendedor</label>
@@ -30,7 +30,6 @@
 						</select>
 					</div>
 				</div>
-
 
 				<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
 
@@ -83,13 +82,13 @@
 				    </div>
 			    </div>
 
-				<!-- -------------------------------------------DATATABLE VENTAS VENDEDOR---------------------------------------------- -->
+				<!-- -------------------------------------------DATATABLE VENTAS VENDEDOR------------------------------------------ -->
 				<div class="col-md-12">
 					<table id="tablaVentaVendedor" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>Ref</th>
-			                    <th>Codigo</th>
+			                    <th>ID</th>
 			                    <th>Cliente</th>
 			                    <th>Fecha</th>
 			                    <th>Tipo</th>
@@ -115,12 +114,11 @@
 			</div>
 		</div>
 
-
 		<!-- ------------------------------------------------------------------------ -->
 		
-		<!-- <div v-else>
+		<div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
+		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -134,7 +132,7 @@
         data(){
             return {
               	sucursales: [],
-              	selectedSucursal: '',
+              	selectedSucursal: 'null',
               	validarSucursal: false,
               	messageInvalidSucursal: '',
               	selectedVendedor: '',
@@ -224,7 +222,7 @@
 		                },
 		                "columns": [
 		                    { "data": "ITEM" },
-		                    { "data": "CODIGO" },
+		                    { "data": "ID" },
 		                    { "data": "CLIENTE" },
 		                    { "data": "FECHA" },
 		                    { "data": "TIPO" },
