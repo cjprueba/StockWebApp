@@ -4,7 +4,7 @@
     
     body {
         font-family: "Arial";
-        font-size: 11px;
+        font-size: 9px;
         color: grey;
     }
 
@@ -64,14 +64,19 @@
         border-left: 1px solid #dbdbdb;
     }
 
+    hr {
+        color: {{$color}};
+    }
+
 </style>
 
 <body>
     <htmlpageheader name="myheader">    
-        @if($sucursal == '9')
+        @if($logo == '1')
         <table width="100%"><tr>
             <td width="50%" align="center">
-                <img src="C:\inetpub\wwwroot\Master\public\storage\imagenes\tiendas\Toku-logo2.3.png" width="350px">
+                <img src={{$IMAGEN}} width="150px">
+                <!-- <img src="..\storage\imagenes\tiendas\tokutokuya.png" width="150px"> -->
             </td></tr>
         </table>
         @else
@@ -90,8 +95,8 @@
     <div align="center">FECHA: {{$fecha}}</div><br>
 
     <!-- TABLA -->
-
-    <div width="30%" align="center">EFECTIVO</div>
+    <div width="100%" align="center" ><hr></div>
+    <div width="100%" align="center">EFECTIVO</div>
 
     <div class="border">
       <table class="items" width="100%">
@@ -127,7 +132,8 @@
       </table>
     </div><br>
 
-    <div width="30%" align="center">MEDIOS</div>
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">MEDIOS</div>
     
     <div class="border">
       <table class="items" width="100%">
@@ -163,8 +169,8 @@
       </table>
     </div>
     <br>
-
-    <div width="30%" align="center">CHEQUES</div>
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">CHEQUES</div>
 
     <div class="border">
       <table class="items" width="100%">
@@ -199,8 +205,8 @@
         </tbody>
       </table>
     </div><br>
-
-    <div width="30%" align="center">ENTRADA</div>
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">ENTRADA</div>
 
     <div class="border">
       <table class="items" width="100%">
@@ -235,8 +241,8 @@
         </tbody>
       </table>
     </div><br>
-
-    <div width="30%" align="center">SALIDA</div>
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">SALIDA</div>
 
     <div class="border">
       <table class="items" width="100%">
@@ -271,8 +277,8 @@
         </tbody>
       </table>
     </div><br>
-
-    <div width="30%" align="center">VENTAS</div>
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">VENTAS</div>
 
     <div class="border">
       <table width="100%">
@@ -289,7 +295,59 @@
             <td width="25%" align="center" class="borde-fin"><b>{{$anulado}}</b></td>
         </tr>
       </table>
-    </div><br><br>
+    </div><br>
+
+    <div width="100%" align="center"  ><hr></div>
+    <div width="100%" align="center">ENTRADAS / SALIDAS</div>
+
+    <div class="border">
+      <table width="100%">
+        <tr>
+            <th width="25%" align="center" class="borde-inicio"><b>ENTRADAS</b></th>
+            <th width="25%" align="center" class="borde-inicio"><b>ENTRADAS / MONTO</b></th>
+            <th width="25%" align="center" class="borde-inicio"><b>SALIDAS</b></th>
+            <th width="25%" align="center" class="borde-iz-bot"><b>SALIDAS / MONTO</b></th>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top">VENTAS</td>
+            <td width="25%" align="center" class="borde-der-top">{{$contado}}</td>
+            <td width="25%" align="center" class="borde-der-top">COMPRAS</td>
+            <td width="25%" align="center" class="borde-fin">{{$compraTotal}}</td>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top">MOVIMIENTOS CAJA</td>
+            <td width="25%" align="center" class="borde-der-top">{{$movimientoCajaEntrada}}</td>
+            <td width="25%" align="center" class="borde-der-top">MOVIMIENTOS CAJA</td>
+            <td width="25%" align="center" class="borde-fin">{{$movimientoCajaSalida}}</td>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top">ABONOS</td>
+            <td width="25%" align="center" class="borde-der-top">{{$abono}}</td>
+            <td width="25%" align="center" class="borde-der-top">PAGO DE CREDITOS</td>
+            <td width="25%" align="center" class="borde-fin">{{$pagoProveedor}}</td>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top"></td>
+            <td width="25%" align="center" class="borde-der-top"></td>
+            <td width="25%" align="center" class="borde-der-top">NOTAS DE CREDITO</td>
+            <td width="25%" align="center" class="borde-fin">{{$credito}}</td>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top"></td>
+            <td width="25%" align="center" class="borde-der-top"></td>
+            <td width="25%" align="center" class="borde-der-top">VENTAS CANCELADAS</td>
+            <td width="25%" align="center" class="borde-fin">{{$anulados_total}}</td>
+        </tr>
+        <tr>
+            <td width="25%" align="center" class="borde-der-top"><b>TOTALES</b></td>
+            <td width="25%" align="center" class="borde-der-top"><b>{{$totales_entrada}}</b></td>
+            <td width="25%" align="center" class="borde-der-top"><b>TOTALES</b></td>
+            <td width="25%" align="center" class="borde-fin"><b>{{$totales_salida}}</b></td>
+        </tr>
+      </table>
+    </div><br>
+
+    <div width="100%" align="center"  ><hr></div>
 
     <div class="border">
      <table width="100%">
@@ -322,8 +380,12 @@
           <td width="50%" class="borde-fin" align="right">{{$cupon}}</td>
       </tr>
       <tr>
-          <td width="50%" align="left">ABONOS</td>
-          <td width="50%" align="right" class="borde-fin">{{$abono}}</td>
+          <td width="50%" class="borde-inicio" align="left">ABONOS</td>
+          <td width="50%" class="borde-fin" align="right">{{$abono}}</td>
+      </tr>
+      <tr>
+          <td width="50%" align="left">AUTORIZACIONES</td>
+          <td width="50%" align="right" class="borde-fin">{{$autorizaciones}}</td>
       </tr>
      </table>
     </div><br>
