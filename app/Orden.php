@@ -148,8 +148,8 @@ class Orden extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post->CLIENTE.' '.$post->APELLIDOS);
-                $ciudad = strtolower($post->CIUDAD);
+                $cliente = mb_strtolower($post->CLIENTE.' '.$post->APELLIDOS);
+                $ciudad = mb_strtolower($post->CIUDAD);
                 $nestedData['ORDEN_ID'] = $post->ORDEN_ID;
                 $nestedData['CLIENTE'] = ucwords(utf8_encode($cliente));
                 $nestedData['CIUDAD'] = ucwords(utf8_encode($ciudad));
@@ -514,9 +514,9 @@ class Orden extends Model
 
         $cliente = $orden[0]->CLIENTE.' '.$orden[0]->APELLIDOS;
 
-        $orden[0]->CIUDAD = ucwords(strtolower($orden[0]->CIUDAD));
+        $orden[0]->CIUDAD = ucwords(mb_strtolower($orden[0]->CIUDAD));
 
-        $orden[0]->CLIENTE = ucwords(strtolower($cliente));
+        $orden[0]->CLIENTE = ucwords(mb_strtolower($cliente));
 
         if(empty($orden[0]->NOTA)){
             $orden[0]->NOTA = '--';
@@ -683,9 +683,9 @@ class Orden extends Model
         // CARGAR VARIABLES CABECERA
         
         $data['metodo'] = $metodo;
-        $data['cliente'] = ucwords(strtolower($cliente));
+        $data['cliente'] = ucwords(mb_strtolower($cliente));
         $data['documento'] = $documento;
-        $data['ciudad'] = ucwords(strtolower($ciudad));
+        $data['ciudad'] = ucwords(mb_strtolower($ciudad));
         $data['direccion'] = $direccion;
         $data['direccion_2'] = $direccion_2;
         $data['telefono'] = $telefono;
@@ -840,8 +840,8 @@ class Orden extends Model
     	$orden = Orden::mostrarCabecera($codigo);
     	$orden_id = $orden->ORDEN_ID;
         $cliente = $orden->CLIENTE.' '.$orden->APELLIDOS;
-    	$cliente = ucwords(strtolower($cliente));
-        $ciudad = ucwords(strtolower($orden->CIUDAD));
+    	$cliente = ucwords(mb_strtolower($cliente));
+        $ciudad = ucwords(mb_strtolower($orden->CIUDAD));
 
     	$mpdf = new \Mpdf\Mpdf([
 			'mode' => 'B',
@@ -1071,11 +1071,11 @@ class Orden extends Model
                 // CARGAR EN LA VARIABLE 
                 $cliente = utf8_encode($post->billing->first_name).' '.utf8_encode($post->billing->last_name);
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE']  = ucwords(strtolower(utf8_decode($cliente)));
+                $nestedData['CLIENTE']  = ucwords(mb_strtolower(utf8_decode($cliente)));
                 // $nestedData['CLIENTE'] = str_replace  ("'", "",  $nestedData['CLIENTE'] );
                 // $nestedData['CLIENTE'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CLIENTE']);
                 // $nestedData['CLIENTE'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CLIENTE'] );
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode(utf8_encode($post->billing->city))));
+                $nestedData['CIUDAD'] = ucwords(mb_strtolower(utf8_decode(utf8_encode($post->billing->city))));
                 // $nestedData['CIUDAD'] = str_replace  ("'", "",  $nestedData['CIUDAD'] );
                 // $nestedData['CIUDAD'] = preg_replace('/[\x00-\x1F\x7F]/', '',  $nestedData['CIUDAD']);
                 // $nestedData['CIUDAD'] = preg_replace ('/[^\p{L}\p{N}]/u', '',  $nestedData['CIUDAD'] );
@@ -1210,8 +1210,8 @@ class Orden extends Model
                 $cliente = utf8_encode($post->billing->first_name).' '.utf8_encode($post->billing->last_name);
 
                 $nestedData['ORDEN_ID'] = $post->id;
-                $nestedData['CLIENTE'] = ucwords(strtolower(utf8_decode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(strtolower(utf8_decode($post->billing->city)));
+                $nestedData['CLIENTE'] = ucwords(mb_strtolower(utf8_decode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(mb_strtolower(utf8_decode($post->billing->city)));
                 $nestedData['FECHA'] = substr(utf8_encode($post->date_created), 0, -9);
                 $nestedData['HORA'] = substr(utf8_encode($post->date_created), 11);
                 $nestedData['TOTAL'] =Common::formato_precio(utf8_encode($post->total),0);
@@ -1296,9 +1296,9 @@ class Orden extends Model
         }
 
         $orden = array(
-        		'NOMBRE' => ucwords(strtolower($nombre)),
+        		'NOMBRE' => ucwords(mb_strtolower($nombre)),
         		'DIRECCION_1' => $posts->billing->address_1,
-        		'CIUDAD' => ucwords(strtolower($posts->billing->city)),
+        		'CIUDAD' => ucwords(mb_strtolower($posts->billing->city)),
         		'CELULAR' => $posts->billing->phone,
         		'DOCUMENTO' => $posts->meta_data[0]->value,
         		'ESTADO' => $posts->billing->state,
@@ -1501,9 +1501,9 @@ class Orden extends Model
         // CARGAR VARIABLES CABECERA
         
         $data['metodo'] = $metodo;
-        $data['cliente'] = ucwords(strtolower($cliente));
+        $data['cliente'] = ucwords(mb_strtolower($cliente));
         $data['ruc'] = $ruc;
-        $data['ciudad'] = ucwords(strtolower($ciudad));
+        $data['ciudad'] = ucwords(mb_strtolower($ciudad));
         $data['direccion'] = $direccion;
         $data['direccion_2'] = $direccion_2;
         $data['telefono'] = $telefono;
@@ -1787,9 +1787,9 @@ class Orden extends Model
 					</span>
 				</td>
 				<td width="50%" align="justify">
-					<p><br />Nombre: '.ucwords(strtolower($nombre)).'<br />
+					<p><br />Nombre: '.ucwords(mb_strtolower($nombre)).'<br />
 					Tel: '.$orden->billing->phone.'<br /><br /></p>
-					<p>'.$codigoPostal.''.$orden->shipping->state.', '.ucwords(strtolower($orden->shipping->city)).'.<br />'.$direccion.'.
+					<p>'.$codigoPostal.''.$orden->shipping->state.', '.ucwords(mb_strtolower($orden->shipping->city)).'.<br />'.$direccion.'.
 				</td>
 			</tr></table><br />
 			<div class="text">
