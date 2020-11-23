@@ -1399,7 +1399,7 @@ class Orden extends Model
                 $descripcion = utf8_encode($post->name);
                 $nestedData['ITEM'] = $item;
                 $nestedData['SKU'] = $post->sku;
-                $nestedData['DESCRIPCION'] = utf8_encode($descripcion);
+                $nestedData['DESCRIPCION'] = utf8_decode($descripcion);
                 $nestedData['CANTIDAD'] = $post->quantity;
                 $nestedData['PRECIO'] = Common::formato_precio($post->price, 0);
                 $nestedData['TOTAL'] = Common::formato_precio($post->total, 0);
