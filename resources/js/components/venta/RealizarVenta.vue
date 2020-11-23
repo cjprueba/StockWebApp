@@ -453,6 +453,22 @@
 
 			<div class="col-md-2 mt-3">
 
+				
+
+				<!-- ------------------------------------------------------------------ -->
+
+				<div>
+					<div class="text-center" v-if="ajustes.LOGO !== 0">
+						<span v-html="ajustes.LOGO"></span>
+					</div>
+				</div>
+
+				<!-- ------------------------------------------------------------------ -->
+
+				<div class="col-md-12 mb-2">
+					<hr>
+				</div>
+
 				<!-- ------------------------------------------------------------------ -->
 
 				<!-- IMAGEN -->
@@ -1046,7 +1062,8 @@
          	}, ajustes: {
          		LIMITE_MAYORISTA: 0,
          		IMPRESORA_TICKET: '',
-         		IMPRESORA_MATRICIAL: ''
+         		IMPRESORA_MATRICIAL: '',
+         		LOGO: ''
          	}, checked: {
          		MAYORISTA: false,
          		TICKET: false,
@@ -1099,7 +1116,8 @@
          		MONEDA: '0',
          		COMENTARIO: '',
          		CAJA: null,
-         		MONEDA_DESCRIPCION: '' 
+         		MONEDA_DESCRIPCION: '',
+         		MONEDA_SISTEMA: '0'
          	}, mostrar: {
          		SINCOTIZACION: ''
          	}
@@ -2212,6 +2230,7 @@
 					me.ajustes.LIMITE_MAYORISTA = data.LIMITE_MAYORISTA;
 					me.ajustes.IMPRESORA_TICKET = data.IMPRESORA_TICKET;
 					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
+					me.ajustes.LOGO = data.LOGO;
 					me.autorizacion.HABILITAR = data.SUPERVISOR;
 					me.movimiento.MONEDA = data.MONEDA.CODIGO.toString();
 					me.movimiento.DECIMAL = data.MONEDA.CANDEC.toString();
@@ -2669,6 +2688,7 @@
 	        	// MOVIMIENTO CAJA 
 
 	        	this.movimiento.CAJA = this.caja.CODIGO;
+	        	this.movimiento.MONEDA_SISTEMA = this.moneda.CODIGO;
 	        	
 	        	// ------------------------------------------------------------------------
 
