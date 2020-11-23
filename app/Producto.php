@@ -4157,9 +4157,9 @@ $lotes= DB::connection('retail')
         foreach ($salida as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->MOTIVO = utf8_encode(utf8_decode(ucfirst(strtolower($value->MOTIVO))));
+            $value->MOTIVO = ucfirst(strtolower(strval($value->MOTIVO)));
         }
-        /*  --------------------------------------------------------------------------------- */
+        /*  ----------------------------------------------utf8_encode(utf8_decode(ucfirst(strtolower($value->MOTIVO))))----------------------------------- */
 
         $movimientos = array(
             'ventas' => $vendidos,
