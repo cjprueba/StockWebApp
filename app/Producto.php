@@ -4138,26 +4138,26 @@ $lotes= DB::connection('retail')
         foreach ($devolucionProv as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->PROVEEDOR = ucwords(strtolower($value->PROVEEDOR));
-            $value->MOTIVO = ucfirst(strtolower($value->MOTIVO));
+            $value->PROVEEDOR = utf8_decode(utf8_encode(ucwords(strtolower($value->PROVEEDOR))));
+            $value->MOTIVO = utf8_decode(utf8_encode(ucfirst(strtolower($value->MOTIVO))));
         }
 
         foreach ($ventasDev as $key => $value) {
             $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+            $value->CLIENTE = utf8_decode(utf8_encode(ucwords(strtolower($value->CLIENTE))));
         }
 
         foreach ($credito as $key => $value) {
             $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+            $value->CLIENTE = utf8_decode(utf8_encode(ucwords(strtolower($value->CLIENTE))));
         }   
 
         foreach ($salida as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->MOTIVO = utf8_decode(utf8_encode(ucfirst(strtolower($value->MOTIVO))));
+            $value->MOTIVO = utf8_encode(utf8_decode(ucfirst(mb_strtolower($value->MOTIVO))));
         }
         /*  --------------------------------------------------------------------------------- */
 
@@ -4272,7 +4272,7 @@ $lotes= DB::connection('retail')
                 $cliente = strtolower($post->CLIENTE);
                 $nestedData['ITEM'] = $item;
                 $nestedData['ID'] = $post->ID;
-                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, $candec);
                 $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
