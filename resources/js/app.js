@@ -475,6 +475,7 @@ Vue.component('sidebar', require('./components/Sidebar.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('home', require('./components/Home.vue').default);
 Vue.component('producto', require('./components/producto/MostrarProductoUno.vue').default);
+Vue.component('productoqr', require('./components/producto/MostrarProductoQR.vue').default);
 
 /* ********************************************* */
 
