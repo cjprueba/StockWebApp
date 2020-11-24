@@ -335,7 +335,7 @@
         <tr>
             <td width="25%" align="center" class="borde-der-top"></td>
             <td width="25%" align="center" class="borde-der-top"></td>
-            <td width="25%" align="center" class="borde-der-top">VENTAS CANCELADAS</td>
+            <td width="25%" align="center" class="borde-der-top">VENTAS ANULADAS</td>
             <td width="25%" align="center" class="borde-fin">{{$anulados_total}}</td>
         </tr>
         <tr>
