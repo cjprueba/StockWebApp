@@ -652,8 +652,8 @@ class Vendedores extends Model
             $total = $total + $value->TOTAL;
             $iva = $iva + $value->IVA;
             $subtotal = $subtotal + $value->SUBTOTAL;
-            $nombre = strtolower($value->CLIENTE);
-            $vendedor = strtolower($value->VENDEDOR);
+            $nombre = mb_strtolower($value->CLIENTE);
+            $vendedor = mb_strtolower($value->VENDEDOR);
             $nombre = substr($nombre,0,27);
             $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $articulos[$c_rows]['CODIGO'] = $value->ID;
@@ -796,11 +796,12 @@ class Vendedores extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post->CLIENTE);
-                $vendedor = strtolower($post->VENDEDOR);
+                $cliente = mb_strtolower($post->CLIENTE);
+                $vendedor = mb_strtolower($post->VENDEDOR);
+                $cliente = substr($cliente,0,27);
                 $nestedData['ITEM'] = $item;
                 $nestedData['ID'] = $post->ID;
-                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
+                $nestedData['CLIENTE'] = utf8_encode(ucwords($cliente));
                 $fecha = substr($post->FECHA,0,-9);
                 $nestedData['FECHA'] = $fecha;
                 $nestedData['TIPO'] = $post->TIPO;       
