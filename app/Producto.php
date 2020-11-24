@@ -3275,13 +3275,13 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
-                                    
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')           
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
                          //->where('PRODUCTOS.LINEA','=', 34)
                          ->offset($start)
@@ -3426,7 +3426,13 @@ $lotes= DB::connection('retail')
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
+
                 $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
                 $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREC_VENTA, 2);
@@ -3711,13 +3717,13 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
-                                    
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')           
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', 9)
                          //->where('PRODUCTOS.LINEA','=', 34)
                          ->offset($start)
@@ -3864,7 +3870,11 @@ $lotes= DB::connection('retail')
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
                 $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
                 $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREC_VENTA, 2);
