@@ -107,16 +107,16 @@ class Imagen extends Model
         $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
                 
         if(file_exists($filename)) {
-            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
         } else {
-            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/product.png';
+            $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
         }
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
        
-        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>"];
+        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>"];
 
         /*  --------------------------------------------------------------------------------- */
 

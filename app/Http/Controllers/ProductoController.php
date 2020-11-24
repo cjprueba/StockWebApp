@@ -349,4 +349,18 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+    
+        $productos = Producto::productoqr($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
