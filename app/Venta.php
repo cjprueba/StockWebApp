@@ -5085,8 +5085,8 @@ class Venta extends Model
         $c_rows_array = count($ventas_det);
         $c_filas_total = count($ventas_det);
         $codigo = $ventas->CODIGO;
-        $cliente = $ventas->CLIENTE;
-        $direccion = $ventas->DIRECCION;
+        $cliente = utf8_decode(utf8_encode($ventas->CLIENTE));
+        $direccion = utf8_decode(utf8_encode($ventas->DIRECCION));
         $ruc = $ventas->RUC;
         $tipo = $ventas->TIPO;
         $fecha = $ventas->FECALTAS;
@@ -5216,7 +5216,7 @@ class Venta extends Model
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
-            $articulos[$c_rows]["descripcion"] = substr($value["DESCRIPCION"], 0,30);
+            $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,30)));
             $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
