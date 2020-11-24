@@ -4304,4 +4304,130 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public static function productoqr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo = $data["data"]["codigo"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
+                     DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')            
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $sucursal)
+                         ->where('PRODUCTOS_AUX.CODIGO', '=' , $codigo)
+                         ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($codigo);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
+                
+                if ($post->DESCRIPCION_LARGA === null) {
+                    $nestedData['DESCRIPCION_LARGA'] = 'NO DISPONE DE INFORMACIÓN POR EL MOMENTO';
+                } else {
+                    $nestedData['DESCRIPCION_LARGA'] = $post->DESCRIPCION_LARGA;
+                }
+
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
+                $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
+                
+                $nestedData['DESCUENTO'] = $post->DESCUENTO;
+
+                
+                $nestedData['LINEA'] = $post->LINEA;
+                $nestedData['MARCA'] = $post->MARCA;
+
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+
+                if ($nestedData['STOCK'] === '0') {
+                    $nestedData['BACKGROUND'] = 'bg-danger';
+                    $nestedData['ESTATUS'] = 'AGOTADO';
+                } else if($post->DESCUENTO > 0) {
+                    $nestedData['BACKGROUND'] = 'bg-warning';
+                    $nestedData['ESTATUS'] = ''.$post->DESCUENTO.'% OFF';
+                } else {
+                    $nestedData['BACKGROUND'] = 'bg-success';
+                    $nestedData['ESTATUS'] = 'DISPONIBLE';
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $descuento_unit = (Common::quitar_coma($post->PREC_VENTA, 2) * Common::quitar_coma($post->DESCUENTO, 2)) / 100;
+                $precio_unit = Common::quitar_coma($post->PREC_VENTA, 2) - $descuento_unit;
+                $nestedData['PREC_DESCUENTO'] = Common::precio_candec($precio_unit, $post->MONEDA);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_2"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

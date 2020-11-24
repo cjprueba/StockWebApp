@@ -5468,6 +5468,26 @@ function generarReporteDiarioCommon(data){
 	// ------------------------------------------------------------------------
 
 }
+
+function obtenerProductoQRCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/producto/qr', {'data': data}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -5704,4 +5724,5 @@ export {
 		confirmarAvisoDiaCommon,
 		guardarMovimientoCajaCommon,
 		generarReporteDiarioCommon,
+		obtenerProductoQRCommon
 		};
