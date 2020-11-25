@@ -4129,7 +4129,7 @@ function generarPdfQrProductoCommon(datos){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-/*			return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+			return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4153,8 +4153,8 @@ function generarPdfQrProductoCommon(datos){
 					// };
 				},
 				(error) => { return error }
-			);*/
-return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+			);
+/*return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4166,7 +4166,7 @@ return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data: 
 					link.click();
 				},
 				(error) => { return error }
-			);
+			);*/
 			// ------------------------------------------------------------------------
 
 }
