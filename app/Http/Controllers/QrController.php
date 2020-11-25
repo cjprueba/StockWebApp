@@ -17,7 +17,7 @@ class QrController extends Controller
 /*      $file=public_path('qr.png');
        return \QRCode::text('QR Code Generator for Laravel! xD')->setOutfile($file)->png();*/
 
-        $qr = Qr::crear_pdf($request->all());
+        $qr = Qr::crear_pdf_qr_2($request->all());
         return response()->json($qr);
         
         /*  --------------------------------------------------------------------------------- */

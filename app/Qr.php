@@ -89,12 +89,89 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+         public static function crear_pdf_qr_2($datos)
+    {
+     $c=0;
+
+
+       $file=public_path('qr.png');
+        /*  --------------------------------------------------------------------------------- */
+/*       var_dump($datos);*/
+        $pag=1;
+          $pdf = new FPDF('L','mm',array(110,31));
+          $pdf->AddPage();
+          $x=10;
+         $y = 1;
+      foreach ($datos["data"] as $key => $value) {
+        # code...
+           
+               while ($c<$value["CANTIDAD"]){
+                  $c=$c+1;
+                      if($x>77){
+                         $y=$y+31;
+                          if($y > 31){
+
+                           $pag=$pag+1;
+                           $pdf->AddPage();
+    
+                              $y =1;
+                      }
+           
+                    $x=10;
+             }
+
+              
+             Qr::crear_qr($value["CODIGO"]);
+
+             $file=public_path(''.$value["CODIGO"].'.png');
+           $pdf->Image($file,$x,$y,28,28);
+           File::delete(''.$value["CODIGO"].'.png');
+           //$y=$y+35;
+           $x=$x+60-2;
+         }
+         $c=0;
+      }
+
+
+     
+/*        foreach ($codigos as $key => $value) {
+           if($x>73){
+             $y=$y+27;
+             if($y > 22){
+
+                $pag=$pag+1;
+                $pdf->AddPage();
+    
+                $y = -3;
+            }
+           
+            $x=-1;
+           }
+
+           
+             Qr::crear_qr($value->CODIGO);
+
+             $file=public_path(''.$value->CODIGO.'.png');
+           $pdf->Image($file,$x,$y,28,28);
+           File::delete(''.$value->CODIGO.'.png');
+           //$y=$y+35;
+           $x=$x+37-1.5;
+      
+        }*/
+
+
+
+        return $pdf->Output('qr.pdf','i');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
          public static function crear_qr($codigo)
     {
      
         /*  --------------------------------------------------------------------------------- */
         $file=public_path(''.$codigo.'.png');
-       return \QRCode::text('☺'.$codigo)->setOutfile($file)->png();
+       return \QRCode::text('http://131.196.192.165:8080/productoqr?s=9&c='.$codigo)->setOutfile($file)->png();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -197,7 +274,7 @@ class Qr extends Model
         $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 17, "(MADE IN CHINA)");
         $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 17, "(MADE IN CHINA)");*/
   
-        return $pdf->Output($name . ".pdf", 'i'); //D Download I Show
+        return $pdf->Output($name . ".pdf", 'I'); //D Download I Show
         
 
     }
