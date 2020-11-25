@@ -3823,7 +3823,17 @@ class Venta extends Model
         ->groupBy('VENTAS_ABONO_MONEDAS.FK_MONEDA')
         ->get();
 
-        
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETENCION 30%
+
+        $retencion = Venta::select(DB::raw('IFNULL(SUM(VENTAS_RETENCION.MONTO),0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_RETENCION.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS_ANULADO.ANULADO', '<>', 1)
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4178,6 +4188,11 @@ class Venta extends Model
         $pdf->Cell(25, 4, utf8_decode('Notas Crédito:'), 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Retención 30%:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($retencion[0]["T_TOTAL"], $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
@@ -8696,6 +8711,7 @@ class Venta extends Model
 
         // TOTALES ENTRADA 
 
+        $contado_entrada = $contado[0]["T_TOTAL"] + $anulados_total[0]['T_TOTAL'] + $nota_credito[0]["T_TOTAL"] + $movimiento_caja_salida_total[0]->TOTAL_SISTEMA;
         $totales_entrada = $contado[0]["T_TOTAL"] + $movimiento_caja_entrada_total[0]->TOTAL_SISTEMA + $abono[0]["T_TOTAL"];
         $data['totales_entrada'] = Common::precio_candec($totales_entrada, (int)$parametro[0]['MONEDA']);
 
