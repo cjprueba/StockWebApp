@@ -1523,7 +1523,7 @@
         		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(43, 10);
+        		Common.generarPdfFacturaVentaVisualizarCommon(1, 1);
         		//this.factura(8, 1);
         	},
         	test_factura(){
