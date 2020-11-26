@@ -113,10 +113,10 @@ class Imagen extends Model
         }
 
         /*  --------------------------------------------------------------------------------- */
-
+        
         // RETORNAR EL VALOR
        
-        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>"];
+        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>", 'imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>"];
 
         /*  --------------------------------------------------------------------------------- */
 
