@@ -108,17 +108,17 @@ class Imagen extends Model
                 
         if(file_exists($filename)) {
             $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
-            $imagen_producto = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
         } else {
             $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
-            $imagen_producto = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
         }
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
        
-        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>", 'imagen_3' => "<img src='".$imagen_producto."' id='myImg'  style='width:80px;height:80px;'>", 'imagen_external' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>"];
+        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>", 'imagen_3' => "<img src='".$imagen_producto."' id='myImg'  style='width:80px;height:80px;'>", 'imagen_external' => "<img src='".$imagen_producto_external."' class='block' id='u255_img' width='100%'>"];
 
         /*  --------------------------------------------------------------------------------- */
 
