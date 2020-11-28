@@ -30,6 +30,7 @@
                                         <option :value="4">MUESTRA</option>
                                         <option :value="5">EXTRAVIADO</option>
                                         <option :value="6">REGALO</option>
+                                        <option :value="7">USO INTERNO</option>
                                 </select>       
                             </div>
 
