@@ -251,7 +251,12 @@ class SalidaProducto extends Model
                           	}else{
                           		if($post->TIPO==6){
                           			$nestedData['TIPO'] = 'REGALO';
-                          		}
+                          		}else{
+                                    if($post->TIPO==7){
+                                        $nestedData['TIPO'] = 'USO INTERNO';
+                                    }
+                                    
+                                }
                           	}
                           }
                  		}
