@@ -84,6 +84,7 @@ class Temp_venta extends Model
 	        }
 
 	        $reporte=$reporte->get()->toArray();
+	        /*var_dump($reporte);*/
 
 		         $precio=100;
 		        $descuento_precio=0;
@@ -164,6 +165,7 @@ class Temp_venta extends Model
 						             if ($value->PORCENTAJE_GENERAL>0 ) {
 						             	$descuento_precio=round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
 						             	$total_des=$total_des+$descuento_precio;
+
 						             	$value->PRECIO=(round($value->PRECIO-$descuento_precio,2));
 						             	$value->DESCUENTO=($value->DESCUENTO+round($descuento_precio,2));
 						             	$value->PRECIO_UNIT=round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
@@ -229,7 +231,7 @@ class Temp_venta extends Model
 
 		        };
 		       // log::error(["dev"=>$total_dev]);
-		      /*   log::error(["des"=>$total_des]);*/
+		         log::error(["des"=>$total_des]);
 		           foreach (array_chunk($venta_in,1000) as $t) {
 
                               	Temp_venta::insert($t);
@@ -255,6 +257,11 @@ class Temp_venta extends Model
             ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
+             ->leftjoin('VENTAS',function($join){
+             $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
+             ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
+               ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+         })
            /* ->leftjoin('VENTASDET_DEVOLUCIONES','VENTASDET_DEVOLUCIONES.FK_VENTASDET','=','VENTASDET.ID')*/
 
             ->select(
@@ -277,10 +284,11 @@ class Temp_venta extends Model
             DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'))
 
         ->Where('VENTASDET.ANULADO','<>',1)
+        ->where('VENTAS.TIPO','<>','CR')
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
         ->whereBetween('VENTASDET_DEVOLUCIONES.FECALTAS', [$datos["inicio"], $datos["final"] ])
         ->Where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=',$datos["sucursal"]) 
-        ->groupBy('VENTASDET.ID')
+    
         ->orderby('VENTASDET.COD_PROD');
 	        if(!$datos["checkedMarca"]){
 	        	$reporte->whereIn('PRODUCTOS.MARCA', $datos["marcas"]);
@@ -347,6 +355,11 @@ class Temp_venta extends Model
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
+                         ->leftjoin('VENTAS',function($join){
+             $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
+             ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
+               ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+         })
            /* ->leftjoin('NOTA_CREDITO_DET','NOTA_CREDITO_DET.FK_VENTASDET','=','VENTASDET.ID')*/
 
             ->select(
@@ -369,6 +382,7 @@ class Temp_venta extends Model
             DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'))
 
         ->Where('VENTASDET.ANULADO','<>',1)
+         ->Where('VENTAS.TIPO','<>','CR')
         ->Where('NOTA_CREDITO.PROCESADO','=',1)
        //->Where('VENTASdet.FECALTAS','like',$dia.'%')
         ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$datos["inicio"], $datos["final"] ])
@@ -712,6 +726,112 @@ class Temp_venta extends Model
          }
 
                        foreach (array_chunk($venta_in,1000) as $t) {
+
+                              	Temp_venta::insert($t);
+
+
+                            } 
+                            $reporte=DB::connection('retail')->table('NOTA_CREDITO_DET')
+           
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'NOTA_CREDITO_DET.CODIGO_PROD')
+            ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+            ->leftjoin('PRODUCTOS_AUX',function($join){
+             $join->on('PRODUCTOS_AUX.CODIGO','=','NOTA_CREDITO_DET.CODIGO_PROD')
+               ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','NOTA_CREDITO_DET.ID_SUCURSAL');
+         })
+           
+            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+             ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
+            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_VENTA_DET', '=', 'VENTASDET.ID')
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
+            ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
+            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
+            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
+                ->leftjoin('lote_tiene_transferenciadet','lote_tiene_transferenciadet.ID_LOTE','=','LOTES.ID')
+			->leftjoin('transferencias_det','transferencias_det.ID','=','lote_tiene_transferenciadet.ID_TRANSFERENCIA_DET')
+			 ->leftjoin('TRANSFERENCIAS',function($join){
+             $join->on('TRANSFERENCIAS.CODIGO','=','transferencias_det.CODIGO')
+             ->on('TRANSFERENCIAS.SUCURSAL_DESTINO','=','VENTASDET.ID_SUCURSAL')
+             ->on('TRANSFERENCIAS.SUCURSAL_ORIGEN','=','transferencias_det.ID_SUCURSAL');
+         })
+			 ->leftjoin('SUCURSALES','SUCURSALES.CODIGO','TRANSFERENCIAS.SUCURSAL_ORIGEN')
+            
+           /* ->leftjoin('NOTA_CREDITO_DET','NOTA_CREDITO_DET.FK_VENTASDET','=','VENTASDET.ID')*/
+
+            ->select(
+            DB::raw('NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD,
+            
+             nota_credito_tiene_lote.CANTIDAD AS VENDIDO,
+             MARCA.DESCRIPCION AS MARCA,
+             LOTES.LOTE AS LOTE,
+             LOTES.COSTO AS COSTO_UNIT,
+             (nota_credito_tiene_lote.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
+             LINEAS.DESCRIPCION AS CATEGORIA,
+             SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
+             SUBLINEA_DET.DESCRIPCION AS NOMBRE,
+             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+             PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
+               SUCURSALES.CODIGO AS SUCURSAL_ORIGEN,
+             SUCURSALES.DESCRIPCION AS SUCURSAL_NOMBRE,
+            (nota_credito_tiene_lote.CANTIDAD*NOTA_CREDITO_DET.PRECIO) AS PRECIO,
+             NOTA_CREDITO_DET.PRECIO AS PRECIO_UNIT'),
+            DB::raw('IFNULL(MARCA.CODIGO,0) AS MARCA_CODIGO'),
+            DB::raw('IFNULL(LINEAS.CODIGO,0) AS LINEA_CODIGO'),
+            DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'))
+
+        ->Where('VENTASDET.ANULADO','<>',1)
+            ->WHERE('TRANSFERENCIAS.CONSIGNACION','=',1)
+        ->Where('NOTA_CREDITO.PROCESADO','=',1)
+       //->Where('VENTASdet.FECALTAS','like',$dia.'%')
+        ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$datos["inicio"], $datos["final"] ])
+        ->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos["sucursal"]) 
+        ->orderby('VENTASDET.COD_PROD');
+	        if(!$datos["checkedProveedor"]){
+	        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR', $datos["proveedores"]);
+	        }
+	        if(!$datos["checkedSucursal"]){ 
+	        	$reporte->whereIn('TRANSFERENCIAS.SUCURSAL_ORIGEN',$datos["sucursales"]);
+	        }
+	        
+	        $reporte=$reporte->get()->toArray();
+/*	     Log::error(['VENTA NOTA CREDITO REVISAR' => $reporte]);  */ 
+         foreach ($reporte as $key => $value) {
+         	         	if($value->NOMBRE==NULL){
+				                $value->NOMBRE='';
+				             }
+
+				              if($value->MARCA==NULL){
+
+				                $value->MARCA=' ';
+				             }
+         	  		$nestedDataNC['COD_PROD'] = $value->COD_PROD;
+					$nestedDataNC['VENDIDO'] =-$value->VENDIDO;
+				    $nestedDataNC['CATEGORIA'] =$value->CATEGORIA;
+             		$nestedDataNC['SUBCATEGORIA']=$value->SUBCATEGORIA;
+				    $nestedDataNC['NOMBRE']='DEVOLUCION:'.$value->NOMBRE;
+				    $nestedDataNC['DESCUENTO_PORCENTAJE']=0;
+				    $nestedDataNC['DESCUENTO_PRODUCTO']=0;
+				    $nestedDataNC['PRECIO']= $value->PRECIO*-1;
+				    $nestedDataNC['PRECIO_UNIT']= $value->PRECIO_UNIT*-1;
+				    $nestedDataNC['COSTO_UNIT']= $value->COSTO_UNIT*-1;
+				    $nestedDataNC['COSTO_TOTAL']= $value->COSTO_TOTAL*-1;
+				    $nestedDataNC['DESCUENTO']= 0;
+				    $nestedDataNC['MARCAS_CODIGO']= $value->MARCA_CODIGO;
+				    $nestedDataNC['LINEA_CODIGO']=$value->LINEA_CODIGO;
+				    $nestedDataNC['SUBLINEA_CODIGO']= $value->SUBLINEA_CODIGO;
+				    $nestedDataNC['PROVEEDOR']= $value->PROVEEDOR;
+				    $nestedDataNC['PROVEEDOR_NOMBRE']= $value->PROVEEDOR_NOMBRE;
+				      $nestedDataNC['SUCURSAL_ORIGEN']= $value->SUCURSAL_ORIGEN;
+				    $nestedDataNC['SUCURSAL_NOMBRE']= $value->SUCURSAL_NOMBRE;
+				    $nestedDataNC['MARCA']= $value->MARCA;
+				    $nestedDataNC['LOTE']= $value->LOTE;
+				    $nestedDataNC['ID_SUCURSAL']=$datos["sucursal"];
+				    $nestedDataNC['USER_ID']=$user->id;
+				     $venta_nc[]=$nestedDataNC;
+         	# code...
+         }
+                       foreach (array_chunk($venta_nc,1000) as $t) {
 
                               	Temp_venta::insert($t);
 
