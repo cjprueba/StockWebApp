@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Mpdf\Mpdf;
 use App\Lote_tiene_ConteoDet;
 use App\Ventas_det;
+use Illuminate\Support\Facades\Log;
 
 class Inventario extends Model
 {
@@ -619,6 +620,7 @@ class Inventario extends Model
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
+
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
@@ -670,15 +672,22 @@ class Inventario extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // OBTENER LA CANTIDAD QUE SE VENDIO DESPUES DE INICIAR A CONTAR 
+                $hora=substr($value->CREATED_AT, 11);
+                $fecha = substr($value->CREATED_AT, 0,-8);
 
             $vendido = Ventas_det::select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
-            ->where('FECALTAS', '>', $value->CREATED_AT)
-            ->where('HORALTAS', '>', date("H:i:s",strtotime($value->CREATED_AT)))
+            ->WhereDate('FECALTAS', '=', $fecha)
+            ->where('ANULADO', '=', 0)
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            /*->where('HORALTAS', '>=', date("H:i:s",strtotime($hora)))*/
+          //->whereRaw('HOUR(HORALTAS)>="'.date("H:i:s",strtotime($hora)).'"')
+            ->WHERE('COD_PROD', '=', $value->COD_PROD)
+          /*->WhereDate(DB::raw("CONCAT(FECALTAS, ' ', HORALTAS)"), '>=', $value->CREATED_AT) */
             ->groupBy('COD_PROD')
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
-
+ 
             if(count($vendido) > 0) {
                 $conteo_det[$key]->VENDIDO = $vendido[0]['CANTIDAD'];
             } else {
