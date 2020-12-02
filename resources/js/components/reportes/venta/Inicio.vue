@@ -11,6 +11,7 @@
 					<option value="0" selected>Seleccionar</option>
 					<option value="3">Ventas por Marca y Categoria</option>
           <option value="4">Reporte Diario</option>
+          <option value="5">Ventas por Vendedor</option>
 				</select>			
 			</div>
 
@@ -28,6 +29,14 @@
       </transition>
 
       <!-- FIN REPORTE DIARIO -->
+
+      <!-- REPORTE VENDEDOR -->
+
+      <transition name="slide-fade">  
+        <venta-vendedor-rpt v-if="reporte === '5'" id="reporte5"></venta-vendedor-rpt>
+      </transition>
+
+      <!-- FIN REPORTE VENDEDOR -->
 
 		</div>
    <div v-else>

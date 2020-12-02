@@ -554,6 +554,7 @@ class Vendedores extends Model
         $codigoVendedor = $data['vendedor'];
         $sucursal = $data['sucursal'];
         $tipo = $data['tipo'];
+        $cod_cliente = $data['codigoCliente'];
 
         $ventaVendedor = DB::connection('retail')->table('VENTAS')
                 ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
@@ -594,6 +595,11 @@ class Vendedores extends Model
             $ventaVendedor->where('VENTAS.TIPO', '=', $tipo);
         }
 
+        if(!empty($cod_cliente)){
+
+            $ventaVendedor->where('VENTAS.CLIENTE', '=', $cod_cliente);
+        }
+
         $ventaVendedor = $ventaVendedor->get();
 
         return $ventaVendedor;
@@ -612,6 +618,7 @@ class Vendedores extends Model
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $vendedor = $datos['data']['vendedor'];
         $sucursal = $datos['data']['sucursal'];
+
         $order ='VENTAS.FECALTAS';
         $dir = 'ASC';
 
@@ -760,13 +767,13 @@ class Vendedores extends Model
         $dir = $request->input('order.0.dir');
         $item = 1;
 
-
         $datos = array(
                 'sucursal' => $request->input('sucursal'),
                 'inicio' => date('Y-m-d', strtotime($request->input('inicio'))),
                 'final' => date('Y-m-d', strtotime($request->input('final'))),
                 'vendedor' => $request->input('vendedor'),
                 'tipo' => $request->input('tipo'),
+                'codigoCliente' => $request->input('codigoCliente'),
             );
         
 
