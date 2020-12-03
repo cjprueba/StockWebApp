@@ -119,12 +119,12 @@ class VentaVale extends Model
         foreach ($vales as $key => $value) {
             $total = $total + $value["TOTAL"];
             $nombre = mb_strtolower($value["CLIENTE"]);
-            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre));
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $articulos[$c_rows]['TOTAL_VALE'] = Common::precio_candec($value["TOTAL"], $candec);
             $empresa = mb_strtolower($value["EMPRESA"]);
             $fecha = substr($value["FECHA"],0,-9);
             $articulos[$c_rows]['FECHA'] = $fecha;
-            $articulos[$c_rows]['EMPRESA'] = utf8_decode(utf8_encode(ucwords($empresa));
+            $articulos[$c_rows]['EMPRESA'] = utf8_decode(utf8_encode(ucwords($empresa)));
 
             if($c_rows == $limite){
                 $articulos[$c_rows]['SALTO'] = true;
