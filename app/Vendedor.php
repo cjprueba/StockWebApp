@@ -808,7 +808,7 @@ class Vendedores extends Model
                 $cliente = substr($cliente,0,27);
                 $nestedData['ITEM'] = $item;
                 $nestedData['ID'] = $post->ID;
-                $nestedData['CLIENTE'] = utf8_encode(ucwords($cliente));
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
                 $fecha = substr($post->FECHA,0,-9);
                 $nestedData['FECHA'] = $fecha;
                 $nestedData['TIPO'] = $post->TIPO;       
