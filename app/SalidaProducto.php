@@ -237,7 +237,7 @@ class SalidaProducto extends Model
                  if($post->TIPO==1){
                  	$nestedData['TIPO'] = 'AVERIO';
                  }else{
-                 	if($post->tipo==2){
+                 	if($post->TIPO==2){
                  		$nestedData['TIPO'] = 'VENCIDO';
                  	}else{
                  		if($post->TIPO==3){
