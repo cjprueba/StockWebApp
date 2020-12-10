@@ -3569,8 +3569,8 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        //$fecha = '2020-11-15';
-        //$dato['caja'] = 3;
+        //$fecha = '2020-12-02';
+        //$dato['caja'] = 1;
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -5681,7 +5681,7 @@ class Venta extends Model
 
                     $nestedData['ESTATUS'] = 'table-danger';
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirPdf' title='Pdf'><i class='fa fa-file text-danger' aria-hidden='true'></i></a>";
 
                     /*  --------------------------------------------------------------------------------- */
 
