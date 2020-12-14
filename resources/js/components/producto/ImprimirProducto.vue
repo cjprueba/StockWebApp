@@ -8,9 +8,9 @@
 				Imprimir Codigo QR o Codigo de Barra
 		</vs-divider>
 			
-	    <div class=" ml-2 row my-2">
+	    <div v-if="ok" class=" ml-2 row my-2">
 				<div class="custom-control custom-switch">
-					<input v-on:change="eliminar_valores" type="checkbox" class="mr-4 custom-control-input" id="switchQr" v-model="checkedQr">
+					<input  v-on:change="eliminar_valores" type="checkbox" class="mr-4 custom-control-input" id="switchQr" v-model="checkedQr">
 					<label class="custom-control-label" for="switchQr">Imprimir Qr</label>
 				</div>
 		</div>
@@ -116,8 +116,11 @@
 					<div class="row mt-4"> <div class="col text-center">
 						<button v-on:click="Imprimir_barcode" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo de Barra</button>
 					</div></div>
-						<div class="row mt-4"> <div class="col text-center">
+					<div class="row mt-4"> <div class="col text-center">
 						<button v-on:click="Imprimir_barinterno" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo Interno</button>
+					</div></div>
+					<div class="row mt-4"> <div class="col text-center">
+						<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Qr Link</button>
 					</div></div>
 				</div>
 
@@ -388,8 +391,9 @@
 		data(){
 
 			return{
+				ok:false,
   				selected: '',
-  				checkedQr:true,
+  				checkedQr:false,
 				moneda: '1',
 				decimal: 0,
 				existe: false, 

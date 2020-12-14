@@ -137,8 +137,8 @@ class Servicios extends Model
 
             $articulos[$c_rows]['CODIGO'] = $value->CODIGO_VENTA;
             $total = $total + $value->TOTAL;
-            $nombre = strtolower($value->CLIENTE);
-            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $nombre = mb_strtolower($value->CLIENTE);
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value->TOTAL, $candec);
             $fechaV = substr($value->FECHA,0,-9);
             $articulos[$c_rows]['FECHA'] = $fechaV;
@@ -243,10 +243,10 @@ class Servicios extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post->CLIENTE);
+                $cliente = mb_strtolower($post->CLIENTE);
                 $nestedData['ITEM'] = $item;
                 $nestedData['CODIGO'] = $post->CODIGO_VENTA;
-                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
                 $fechaV = substr($post->FECHA,0,-9);
                 $nestedData['FECHA'] = $fechaV;
                 $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);

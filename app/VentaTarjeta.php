@@ -118,12 +118,12 @@ class VentaTarjeta extends Model
         foreach ($ventaTarjeta as $key => $value) {
 
             $total = $total + $value["TOTAL"];
-            $nombre = strtolower($value["CLIENTE"]);
-            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $nombre = mb_strtolower($value["CLIENTE"]);
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $fecha = substr($value["FECHA"],0,-9);
             $articulos[$c_rows]['FECHA'] = $fecha;
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value["TOTAL"], $candec);
-            $tarjeta = strtolower($value["TARJETAS"]);
+            $tarjeta = mb_strtolower($value["TARJETAS"]);
             $articulos[$c_rows]['TARJETA'] = ucwords($tarjeta);
             if($c_rows == $limite){
             	$articulos[$c_rows]['SALTO'] = true;
@@ -222,10 +222,10 @@ class VentaTarjeta extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post["CLIENTE"]);
+                $cliente = mb_strtolower($post["CLIENTE"]);
                 $nestedData['ITEM'] = $item;
-                $nestedData['CLIENTE'] = ucwords($cliente);
-                $tarjeta = strtolower($post["TARJETAS"]);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
+                $tarjeta = mb_strtolower($post["TARJETAS"]);
                 $nestedData['TARJETA'] = ucwords($tarjeta);
                 $fecha = substr($post["FECHA"],0,-9);
                 $nestedData['FECHA'] = $fecha;

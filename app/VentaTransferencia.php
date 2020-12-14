@@ -120,11 +120,11 @@ class VentaTransferencia extends Model
         foreach ($ventaTransferencia as $key => $value) {
 
             $total = $total + $value["TOTAL"];
-            $nombre = strtolower($value["CLIENTE"]);
-            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $nombre = mb_strtolower($value["CLIENTE"]);
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value["TOTAL"], $candec);
-            $banco = strtolower($value["BANCO"]);
-            $articulos[$c_rows]['BANCO'] = ucwords($banco);
+            $banco = mb_strtolower($value["BANCO"]);
+            $articulos[$c_rows]['BANCO'] = utf8_decode(utf8_encode(ucwords($banco)));
             $fecha = substr($value["FECHA"],0,-9);
             $articulos[$c_rows]['FECHA'] = $fecha;
 
@@ -226,11 +226,11 @@ class VentaTransferencia extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post["CLIENTE"]);
+                $cliente = mb_strtolower($post["CLIENTE"]);
                 $nestedData['ITEM'] = $item;
-                $nestedData['CLIENTE'] = ucwords($cliente);
-                $banco = strtolower($post["BANCO"]);
-                $nestedData['BANCO'] = ucwords($banco);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
+                $banco = mb_strtolower($post["BANCO"]);
+                $nestedData['BANCO'] = utf8_decode(utf8_encode(ucwords($banco)));
                 $fecha = substr($post["FECHA"],0,-9);
                 $nestedData['FECHA'] = $fecha;
                 $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], 0);
