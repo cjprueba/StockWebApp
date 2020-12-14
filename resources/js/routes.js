@@ -382,12 +382,18 @@ export default new Router({
 			component: require('./components/movimientos/SalidaProductosMostrar.vue').default
 		},
 		{
+			path: '/rptp',
+			name: 'rptProducto',
+			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+		{
 			path: '/maq1',
 			component: require('./components/maquinas/CrearSucursalSector.vue').default
 		},
 		{
 			path: '/maq2',
 			component: require('./components/maquinas/RegistroMaquina.vue').default
+
 		}
 
 
