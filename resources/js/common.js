@@ -5489,6 +5489,31 @@ function obtenerProductoQRCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+
+function generarRptPdfSalidaCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/salida/reporte', method: 'post', responseType: 'blob', data: {'id': id}}).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							FILTRAR SUCURSALES RM
@@ -6066,6 +6091,7 @@ export {
 		guardarMovimientoCajaCommon,
 		generarReporteDiarioCommon,
 		obtenerProductoQRCommon,
+		generarRptPdfSalidaCommon,
 		filtrarSucursalesRmCommon,
 		filtrarSectoresRmCommon,
 		guardarSucursalRmCommon,
