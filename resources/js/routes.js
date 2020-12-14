@@ -385,6 +385,11 @@ export default new Router({
 			path: '/mov4',
 			name: 'salidaMostrar',
 			component: require('./components/movimientos/SalidaProductosMostrar.vue').default
+		},
+		{
+			path: '/rptp',
+			name: 'rptProducto',
+			component: require('./components/reportes/producto/Inicio.vue').default
 		}
 
 

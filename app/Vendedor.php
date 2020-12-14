@@ -566,7 +566,8 @@ class Vendedores extends Model
                     DB::raw('VENTAS.MONEDA AS MONEDA'),
                     DB::raw('CLIENTES.CODIGO AS COD_CLI'),
                     DB::raw('EMPlEADOS.NOMBRE AS VENDEDOR'),
-                    DB::raw('VENTAS_CREDITO.PAGO AS PAGADO'))
+                    DB::raw('VENTAS_CREDITO.PAGO AS PAGADO'),
+                    DB::raw('VENTAS_ANULADO.ANULADO AS ESTATUS'))
                 ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
                 ->leftjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
                 ->leftJoin('CLIENTES', function($join){
@@ -670,6 +671,17 @@ class Vendedores extends Model
             if($tipo == 'CR'){
                 $totalPagado = $totalPagado + $value->PAGADO;
                 $articulos[$c_rows]['PAGADO'] = Common::formato_precio($value->PAGADO, $candec);
+            }
+
+            if($value->TIPO == 'PE'){
+
+                if ($value->ESTATUS === 2){
+                    $articulos[$c_rows]['TIPO'] = $value->TIPO.' - '.'PENDIENTE';
+                } else if ($value->ESTATUS === 0) {
+                    $articulos[$c_rows]['TIPO'] = $value->TIPO.' - '.'PAGADO';
+                }
+
+                
             }
 
             // CREAR HOJA 
