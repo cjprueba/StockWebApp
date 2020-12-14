@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use  App\SalidaProductoDet;
+use Mpdf\Mpdf;
+use App\SalidaProductoDet;
 Use App\Common;
 use Illuminate\Support\Facades\Log;
 
@@ -261,7 +262,7 @@ class SalidaProducto extends Model
                 $nestedData['OBSERVACION'] = $post->OBSERVACION;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 $nestedData['CREACION'] = $post->FECALTAS;
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>";
+                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
                 $data[] = $nestedData;
 
                 /*  --------------------------------------------------------------------------------- */
@@ -466,6 +467,224 @@ class SalidaProducto extends Model
 
        return $json_data; 
 
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function mostrar_tipo($TIPO){
+
+        $tipo = '';
+
+        if($TIPO==1){
+            $tipo = 'AVERIO';
+        }else if($TIPO==2){
+            $tipo = 'VENCIDO';
+        }else if($TIPO==3){
+            $tipo = 'ROBADO';
+        }else if($TIPO==4){
+            $tipo = 'MUESTRA';
+        }else if($TIPO==5){
+            $tipo = 'EXTRAVIADO';
+        }else if($TIPO==6){
+            $tipo = 'REGALO';                   
+        }
+         
+        return ['TIPO' => $tipo];
+                    
+    }
+    public static function mostrar_cabecera($codigo)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $salida = SalidaProducto::select(DB::raw(
+                        'ID,
+                        OBSERVACION,
+                        FECALTAS,
+                        TIPO'
+                    ))
+        ->where('ID','=', $codigo)
+        ->where('ID_SUCURSAL','=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $tipo = SalidaProducto::mostrar_tipo($salida[0]->TIPO);
+        $salida[0]->TIPO = $tipo['TIPO'];
+
+        return $salida[0];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function mostrar_cuerpo($codigo)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $salida_det = SalidaProducto::select(DB::raw(
+                        'salida_productos_det.ID,
+                        salida_productos_det.COD_PROD, 
+                        PRODUCTOS.DESCRIPCION,
+                        salida_productos_det.CANTIDAD,
+                        salida_productos_det.COSTO,
+                        0 AS COSTO_TOTAL'
+                    ))
+        ->leftjoin('SALIDA_PRODUCTOS_DET', 'SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS', '=', 'SALIDA_PRODUCTOS.ID')
+        ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'salida_productos_det.COD_PROD')
+        ->where('salida_productos.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('salida_productos_det.FK_SALIDA_PRODUCTOS','=', $codigo)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($salida_det as $key => $value) {
+
+            /*  --------------------------------------------------------------------------------- */
+
+            $salida_det[$key]->COD_PROD = $value->COD_PROD;
+            $salida_det[$key]->DESCRIPCION = $value->DESCRIPCION;
+            $salida_det[$key]->CANTIDAD = $value->CANTIDAD;
+            $salida_det[$key]->COSTO = $value->COSTO;
+            $salida_det[$key]->COSTO_TOTAL = $value->COSTO * $value->CANTIDAD;
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        return $salida_det;
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function reporte($dato)
+    {
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        ini_set("pcre.backtrack_limit", "10000000"); 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DE CABECERA 
+
+        $salida = SalidaProducto::mostrar_cabecera($dato['id']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER DATOS DETALLE 
+
+        $salida_det = SalidaProducto::mostrar_cuerpo($dato['id']);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $c = 0;
+        $codigo = $salida->ID;
+        $observacion = $salida->OBSERVACION;
+        $fecaltas = $salida->FECALTAS;
+        $tipo = $salida->TIPO;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $nombre = 'Salida_'.$codigo.'_'.time().'';
+        $articulos = [];
+        $cantidad = 0;
+        $total_salida = 0;
+        $total = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // CARGAR DETALLE DE TRANSFERENCIA DET 
+
+        foreach ($salida_det as $key => $value) {
+
+            
+
+                $articulos[$c]["cod_prod"] = $value->COD_PROD;
+                $articulos[$c]["descripcion"] = $value->DESCRIPCION;
+                $articulos[$c]["cantidad"] = $value->CANTIDAD;
+                $articulos[$c]["costo"] = $value->COSTO;
+                $articulos[$c]["costo_total"] = $value->COSTO_TOTAL * $value->CANTIDAD;
+                $total += $value->COSTO;
+                $cantidad = $cantidad + $value->CANTIDAD;
+                $total_salida = $total_salida + $articulos[$c]["costo_total"];
+                $c = $c + 1;
+
+            
+        
+           
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CARGAR VARIABLES 
+        
+        $data['codigo'] = $codigo;
+        $data['nombre'] = $nombre;
+        $data['observacion'] = $observacion;
+        $data['fecaltas'] = $fecaltas;
+        $data['tipo'] = $tipo;
+        $data['articulos'] = $articulos;
+        $data['c'] = $c;
+        $data['cantidad'] = $cantidad;
+        $data['total_salida'] = $total_salida;
+        $data['total'] = $total;
+        $data['nombre_sucursal'] = '';
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $html = view('pdf.rptSalidaProducto',$data)->render();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+ 
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        $mpdf = new Mpdf([
+            'fontDir' => array_merge($fontDirs, [
+                public_path() . '/fonts',
+            ]),
+            'fontdata' => $fontData + [
+                'arial' => [
+                    'R' => 'arial.ttf',
+                    'B' => 'arialbd.ttf',
+                ],
+            ],
+            'default_font' => 'arial',
+             "format" => "A4",
+        ]);
+        
+        $mpdf->SetDisplayMode('fullpage');
+        $mpdf->WriteHTML($html);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GENERAR ARCHIVO 
+
+        $mpdf->Output($nombre,"I");
+        
         /*  --------------------------------------------------------------------------------- */
 
     }

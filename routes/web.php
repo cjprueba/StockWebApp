@@ -605,10 +605,12 @@ Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autoriza
 /* -------------------------------------------------------------------------- */
 
 //SALIDA DE PRODUCTOS
+
 Route::post('lote/salida', 'StockController@loteProducto');
 Route::post('salida/producto', 'SalidaProductoController@salida');
 Route::get('salida/mostrar', 'SalidaProductoController@salidaMostrar');
 Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDetalle');
+Route::post('/salida/reporte', 'SalidaProductoController@reporte');
 
 //AVISOS
 
