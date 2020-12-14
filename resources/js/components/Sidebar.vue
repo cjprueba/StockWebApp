@@ -95,7 +95,6 @@
              <router-link class="collapse-item" :to="{name: 'rptTransferencia2'}">Venta Transferencia</router-link>
              <router-link class="collapse-item" :to="{name: 'rptDelivery'}">Delivery</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTarjeta'}">Venta Tarjeta</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptVentaVendedor'}">Venta Vendedor</router-link>
           </div>
         </div>
       </li>
@@ -409,6 +408,19 @@
         </div>
       </li>
 
+      <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaquinas" aria-expanded="true" aria-controls="collapseMaquinas">
+          <font-awesome-icon icon="user-circle" />
+          <span>Máquinas</span>
+        </a>
+        <div id="collapseMaquinas" class="collapse" aria-labelledby="headingMaquinas" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'crearSectorSucursal'}">Crear Sucursal/Sector</router-link>
+            <router-link class="collapse-item" :to="{name: 'regristrarMaquina'}">Registrar Máquina</router-link>
+          </div>
+        </div>
+      </li> -->
 
       <!-- ------------------------------------------------------------------------------------- -->
 

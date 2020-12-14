@@ -2,39 +2,119 @@
 	<div class="container-fluid">
 		
     <div class="row">
-
-      <div class="col-md-12 text-right">
-
-      <!-- ------------------------------------------------------------------------ -->
-
-      <!-- BOTON CAMARA -->
-
-      <camara-bardcode @codigo_camara="codigo_camara"></camara-bardcode>
+      <!-- -->
+        
       
-      <!-- ------------------------------------------------------------------------ -->
+
+    
+    
+    <!-- v-if="$can('producto.mostrar')" -->
+    <div class="mt-3 d-none d-xl-block d-none d-lg-block d-xl-none col-lg-12" >
+			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-lg mb-3" style="width:100%">
+		    <thead>
+		      <tr>
+		        <th>Codigo</th>
+		        <th>Descripcion</th>
+            <th>Categoria</th>
+		        <th>Precio Venta</th>
+		        <th>Precio Costo</th>
+		        <th>Precio Mayorista</th>
+		        <th>Stock</th>
+		        <th>Imagen</th>
+		        <th>Accion</th>
+		      </tr>
+		    </thead>
+		  </table>
+		</div>
+    
+    <div class="mt-3 d-none d-md-block d-lg-none" >
+			<div class="container">
+			<div class="row">
+              <div class="col-xs-12 col-sm-4 col-md-1 col-lg-1 col-xl-1 text-left">
+
+        <!-- ------------------------------------------------------------------------ -->
+
+        <!-- BOTON CAMARA -->
+        
+        <camara-bardcode @codigo_camara="codigo_camara"></camara-bardcode>
+
+        <!-- ------------------------------------------------------------------------ -->
 
       </div>
-    
-    </div>
-    <!-- v-if="$can('producto.mostrar')" -->
-    <div class="mt-3" >
-			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
-		        <thead>
-		            <tr>
-		                <th>Codigo</th>
-		                <th>Descripcion</th>
-                    <th>Categoria</th>
-		                <th>Precio Venta</th>
-		                <th>Precio Costo</th>
-		                <th>Precio Mayorista</th>
-		                <th>Stock</th>
-		                <th>Imagen</th>
-		                <th>Accion</th>
-		            </tr>
-		        </thead>
-		     </table>
-		</div>
+      <div class="mt-4 col-md-11 mb-4">
+        <input class="form-control  " type="text" placeholder="Buscar...">
+      </div>
+      </div>
 
+        <!-- Cabecera -->
+        <div class="shadow mb-4 bg-success rounded text-white text-center">
+          BERSHKA ROPA PANTALON FEMENINO 32 NEGRO JEANS
+          <br>
+          Código: 00001211800328
+        </div>
+      
+        <!-- Portfolio Item Row --> 
+      <div class="row">
+
+        <div class="col-md-7">
+          <img class="img-fluid rounded" src="http://placehold.it/750x500" alt="">
+        </div>
+
+        <div class="col-md-5">
+          <table class="table  table-sm"> <!-- Tabla de Precios --> 
+            <thead class="bg-success text-white">
+              <tr>
+                <th colspan="2" class="text-center"><h5>Precios</h5></th>
+              </tr>
+            </thead>
+            <tbody class="table-warning text-dark">
+              <tr>
+                <th scope="row">Venta</th>
+                <td>$21.00</td>
+              </tr>
+              <tr>
+                <th scope="row">Mayorista</th>
+                <td>$21.00</td>
+              </tr>
+              <tr>
+                <th scope="row">Costo</th>
+                <td>$21.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <br>
+      <table class="table  table-sm"> <!-- Tabla de Información --> 
+        <thead class="bg-success text-white">
+          <tr>
+            <th colspan="2" class="text-center"><h5>Información</h5></th>
+          </tr>
+        </thead>
+        <tbody class="table-warning text-dark">
+          <tr>
+            <th scope="row">Stock</th>
+            <td>25</td>
+          </tr>
+          <tr>
+            <th scope="row">Cod. Interno</th>
+            <td>8005535</td>
+          </tr>
+          <tr>
+            <th scope="row">Categoría</th>
+            <td>Ropa</td>
+          </tr>
+          <tr>
+            <th scope="row">Sub. Categoría</th>
+            <td>Pantalón</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    </div>
+  </div>
 		<!-- ------------------------------------------------------------------------ -->
 
 		<!-- <div v-else>
@@ -125,8 +205,6 @@
                         "bAutoWidth": true,
                         "select": true,
                         "responsive": true,
-                        "pagingType": "simple",
-                        "paging": true,
                         "rowReorder": {
                             "selector": 'td:nth-child(2)'
                         },
@@ -154,17 +232,7 @@
                             { "targets": '_all', "searchable": false },
                              
                             //{ width: "40%", "targets": [5] }
-                        ],
-                        initComplete: function(){
-                          var api = this.api();
-                          $('#tablaModalProductos_filter input')
-                              .off('.DT')
-                              .on('keyup.DT', function (e) {
-                                  if (e.keyCode == 13) {
-                                      api.search(this.value).draw();
-                                  }
-                              });
-                       },      
+                        ]      
                     });
 
                 // ------------------------------------------------------------------------

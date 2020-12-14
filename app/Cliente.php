@@ -274,16 +274,16 @@ class Cliente extends Model
 
              // CARGA EN LA VARIABLE 
 
-                $cliente = strtolower($post->NOMBRE);
+                $cliente = mb_strtolower($post->NOMBRE);
                 $nestedData['ID'] = $post->ID;
-                $nestedData['NOMBRE'] = ucwords(utf8_encode($cliente));
+                $nestedData['NOMBRE'] = ucwords(utf8_decode(utf8_encode($cliente)));
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['CI'] = utf8_encode($post->CI);
-                $nestedData['RUC'] = utf8_encode($post->RUC);
-                $nestedData['TELEFONO'] = utf8_encode($post->TELEFONO);
-                $nestedData['RAZON_SOCIAL'] = utf8_encode($post->RAZON_SOCIAL);
-                $nestedData['DIRECCION'] = utf8_encode($post->DIRECCION);
-                $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
+                $nestedData['CI'] = $post->CI;
+                $nestedData['RUC'] = $post->RUC;
+                $nestedData['TELEFONO'] = $post->TELEFONO;
+                $nestedData['RAZON_SOCIAL'] = utf8_decode(utf8_encode($post->RAZON_SOCIAL));
+                $nestedData['DIRECCION'] = utf8_decode(utf8_encode($post->DIRECCION));
+                $nestedData['CIUDAD'] = utf8_decode(utf8_encode($post->CIUDAD));
 
                 $data[] = $nestedData;
 

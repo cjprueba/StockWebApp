@@ -367,11 +367,6 @@ export default new Router({
 			component: require('./components/movimientos/CreditoNota.vue').default
       	},
 		{
-			path: '/rpt16',
-			name: 'rptVentaVendedor',
-			component: require('./components/reportes/Vendedor.vue').default
-	    },
-		{
 			path: '/rpn2',
 			name: 'rptTransferenciaWeb',
 			component: require('./components/reportes/transferencia/Inicio.vue').default
@@ -390,6 +385,15 @@ export default new Router({
 			path: '/rptp',
 			name: 'rptProducto',
 			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+		{
+			path: '/maq1',
+			component: require('./components/maquinas/CrearSucursalSector.vue').default
+		},
+		{
+			path: '/maq2',
+			component: require('./components/maquinas/RegistroMaquina.vue').default
+
 		}
 
 

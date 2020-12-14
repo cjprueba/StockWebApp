@@ -38,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
+Route::apiResource('busqueda-sector-sucursal', 'BusquedaRmController');
 
 
 /* -------------------------------------------------------------------------- */
@@ -547,6 +548,31 @@ Route::post('pedido/reporte', 'PedidoController@reporte');
 Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 
 /* -------------------------------------------------------------------------- */
+
+// CONTROL DE MAQUINAS
+
+	// SUCURSALES
+Route::post('sucursalRmGuardar', 'Sucursal_RmController@guardarSucursalRm');
+Route::get('sucursalesRmDatatable', 'Sucursal_RmController@sucursalRmDatatable');
+Route::post('sucursalRmFiltrar', 'Sucursal_RmController@filtrarSucursalRm');
+Route::post('sucursalEliminarRM', 'Sucursal_RmController@eliminarSucursalRm');
+Route::get('nuevaSucursalRm', 'Sucursal_RmController@sucursalNuevaRm');
+
+	//SECTORES
+Route::post('sectorEliminarRM', 'Sector_RmController@eliminarSectorRm');
+Route::post('sectorRmGuardar', 'Sector_RmController@guardarSectorRm');
+Route::post('sectorRmFiltrar', 'Sector_RmController@filtrarSectorRm');
+Route::get('sectoresRmDatatable', 'Sector_RmController@sectorRmDatatable');
+Route::get('nuevoSectorRm', 'Sector_RmController@sectorNuevoRm');
+
+	//REGISTRO DE MAQUINAS 
+Route::post('ultimoSectorRm', 'Registro_MaquinaController@ultimoRegistroSectorRm');
+Route::post('ultimaSucursalRm', 'Registro_MaquinaController@ultimoRegistroSucursalRm');
+Route::post('guardarRegistroM', 'Registro_MaquinaController@registroMaquinaGuardar');
+Route::post('maquinaDatatable', 'Registro_MaquinaController@registrosDatatable');
+Route::get('nuevoRegistroM', 'Registro_MaquinaController@nuevoRegistroMaquina');
+Route::post('filtrarRm', 'Registro_MaquinaController@registroMaquinaFiltrar');
+Route::post('registroMaEliminar', 'Registro_MaquinaController@eliminarRegistroMaquina');
 
 /* -------------------------------------------------------------------------- */
 
