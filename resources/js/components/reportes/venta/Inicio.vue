@@ -3,7 +3,7 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-if="$can('reporte.venta')">
+		<div >
 			
 			<div class="mb-3">
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
@@ -39,9 +39,9 @@
       <!-- FIN REPORTE VENDEDOR -->
 
 		</div>
-   <div v-else>
+   <!-- <div v-else>
       <cuatrocientos-cuatro></cuatrocientos-cuatro>
-    </div>
+    </div> -->
 		<!-- ------------------------------------------------------------------------ -->
 	</div>	
 
