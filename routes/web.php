@@ -351,6 +351,7 @@ Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
 Route::post('producto/catalogo', 'ProductoController@catalogo_cliente');
 Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
+Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 
 /* -------------------------------------------------------------------------- */
 
