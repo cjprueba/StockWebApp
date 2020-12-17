@@ -34,7 +34,7 @@
         "bootstrap-datepicker": "^1.9.0",
         "bootstrap-vue": "^2.15.0",
         "datatables": "^1.10.18",
-        "datatables.net": "^1.10.21",
+        "datatables.net": "^1.10.22",
         "datatables.net-bs4": "^1.10.21",
         "datatables.net-buttons": "^1.6.2",
         "datatables.net-dt": "^1.10.21",
