@@ -39,7 +39,7 @@
 
         </div>
 
-        <div class="mt-4 col-md-12 mb-4">
+        <div class="mt-4 col-md-11 mb-4">
           <multiselect id="ajax" label="CODIGO" track-by="CODIGO" placeholder="Buscar..." open-direction="bottom"
             :options="barcode"
             :loading="isLoading"
@@ -224,8 +224,8 @@
             // LLAMAR DATOS 
 
           Common.obtenerGondolasProductoCommon(valor.CODIGO).then(data => {
-
-              me.gondolas = data[0];
+              if(data.length > 0){
+              me.gondolas = data[0];}
             }).catch((err) => {
               
             });
