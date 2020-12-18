@@ -2316,14 +2316,14 @@ class Transferencia extends Model
             ->select(DB::raw(
                             'TRANSFERENCIAS_DET.ID,
                             TRANSFERENCIAS_DET.CODIGO_PROD, 
-                            TRANSFERENCIAS_DET.CANTIDAD, 
+                            TRANSFERENCIADET_TIENE_LOTES.CANTIDAD, 
                             TRANSFERENCIAS_DET.PRECIO,
                             LOTES.FECHA_VENC AS VENCIMIENTO,
                             LOTES.COSTO'
                         ))
             ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
             ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
-            ->groupBy('TRANSFERENCIAS_DET.ID')
+            ->groupBy('TRANSFERENCIAS_DET.ID', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
             ->get();
             
             /*  --------------------------------------------------------------------------------- */
@@ -2428,22 +2428,48 @@ class Transferencia extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // CREAR LOTE DEL PRODUCTO 
+                // VERIFICAR SI PRODUCTO TIENE VENCIMIENTO PARA PODER INSERTAR POR LOTE ORIGEN CON SU RESPECTIVO VENCIMIENTO 
 
-                $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere, $td->VENCIMIENTO))["id"];
+                // if ($producto[0]->VENCIMIENTO === 1) {
 
-                /*  --------------------------------------------------------------------------------- */
+                //     $lotesVencimientoTransferencia = TransferenciaDet_tiene_Lotes::select(DB::raw(
+                //             'TRANSFERENCIADET_TIENE_LOTES.CANTIDAD,
+                //             TRANSFERENCIADET_TIENE_LOTES.ID_LOTE,
+                //             LOTES.COSTO,
+                //             LOTES.FECHA_VENC'
+                //     ))
+                //     ->leftjoin('LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE', '=', 'LOTES.ID')
+                //     ->where('ID_TRANSFERENCIA', '=', $td->ID)
+                //     ->get();
 
-                // MODIFICAR TRANSFERENCIA DET 
+                //     foreach ($lotesVencimientoTransferencia as $key => $value) {
 
-                /*  --------------------------------------------------------------------------------- */
+                //         $lote = (Stock::insetar_lote($td->CODIGO_PROD, $value->CANTIDAD, $value->COSTO, 2, $usere, $value->FECHA_VENC))["id"];
 
-                // MODOS
-                // MODO 1 - COMPRA
-                // MODO 2 - TRANSFERENCIA 
+                //         // MODOS
+                //         // MODO 1 - COMPRA
+                //         // MODO 2 - TRANSFERENCIA 
 
-                Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
-                //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+                //         Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+
+                //     }
+
+                // } else {
+
+                    // CREAR LOTE DEL PRODUCTO 
+
+                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO, 2, $usere, $td->VENCIMIENTO))["id"];
+
+                    // MODOS
+                    // MODO 1 - COMPRA
+                    // MODO 2 - TRANSFERENCIA 
+
+                    Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+                    //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                //}
 
                 /*  --------------------------------------------------------------------------------- */
 
