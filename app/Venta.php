@@ -3569,8 +3569,8 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        //$fecha = '2020-12-02';
-        //$dato['caja'] = 1;
+        $fecha = '2020-12-17';
+        $dato['caja'] = 2;
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -3669,9 +3669,11 @@ class Venta extends Model
         
         $tarjeta = VentaTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_TARJETA.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
         ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
