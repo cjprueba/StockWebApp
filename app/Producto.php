@@ -1690,7 +1690,7 @@ $lotes= DB::connection('retail')
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES
@@ -4436,6 +4436,32 @@ $lotes= DB::connection('retail')
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
 
         return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function barcodeFiltrar($data){
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS GONDOLAS
+
+        $barcode = ProductosAux::select(DB::raw('CODIGO'))
+        ->where('CODIGO', 'LIKE', '%'.$data['codigo'].'%')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->limit(10)
+        ->get()->toArray();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        return ['barcode' => $barcode];
 
         /*  --------------------------------------------------------------------------------- */
 

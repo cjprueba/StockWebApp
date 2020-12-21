@@ -351,6 +351,7 @@ Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
 Route::post('producto/catalogo', 'ProductoController@catalogo_cliente');
 Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
+Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 
 /* -------------------------------------------------------------------------- */
 
@@ -651,6 +652,9 @@ Route::post('aviso/confirmar', 'EspecificacionController@aceptarTerminos');
 Route::post('/movimiento/caja/guardar', 'Movimiento_CajaController@guardarMovimiento');
 
 /* -------------------------------------------------------------------------- */
+//NEW COTIZACION
+Route::get('cotizacionDatatable', 'NewCotizacionController@obtenerCotizaciones');
+Route::post('cotizacion\guardar', 'NewCotizacionController@guardarCotizacion');
 
 /* -------------------------------------------------------------------------- */
 
