@@ -1751,6 +1751,25 @@ function guardarCotizacionCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+function guardarNuevaCotizacionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/cotizacion/guardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							    FILTRAR COTIZACION
@@ -6105,5 +6124,6 @@ export {
 		guardarMaquinaRmCommon,
 		obtenerUltimoRegistroCommon,
 		filtrarMaquinasRegistradasCommon,
-		eliminarRegistroMaquinaCommon
+		eliminarRegistroMaquinaCommon,
+		guardarNuevaCotizacionCommon
 		};
