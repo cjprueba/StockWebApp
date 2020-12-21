@@ -16,30 +16,196 @@ class NewCotizacion extends Model
     public static function obtener_cotizaciones()
     {
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // INICIAR VARIABLES 
-
-        $hoy = date("Y-m-d");
-        $dia = date("d");
-        $mes = date("m");
-        $ano = date("Y");
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-
+        $dia = date("Y-m-d");
         $user = auth()->user();
-
-        /*  --------------------------------------------------------------------------------- */
-          $cotizaciones=NewCotizacion::
-            select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
+           $cotizaciones=NewCotizacion::
+            ->select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->get()
             ->toArray();
 
       
-        return $cotizaciones;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIARA VARIABLES
+
+        //global $search;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'ID', 
+                            1 => 'DE',
+                            2 => 'A',
+                            3 => 'VALOR',
+                            4 => 'FECHA',
+                            5 => 'FECALTAS',
+                         
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = NewCotizacion::
+            ->select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->COUNT();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+             $posts =NewCotizacion::
+            ->select(DB::raw('NewCotizacion.ID,moneda1.DESCRIPCION AS DE,monedas2.DESCRIPCION AS A,NewCotizacion.VALOR,NewCotizacion.FECHA,NewCotizacion.FECALTAS'))
+            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+
+            ->offset($start)
+                ->limit($limit)
+                ->orderBy($order,$dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            
+                $posts = NewCotizacion::
+            ->select(DB::raw(
+            	'NewCotizacion.ID,
+            	moneda1.DESCRIPCION AS DE,
+            	monedas2.DESCRIPCION AS A,
+            	NewCotizacion.VALOR,
+            	NewCotizacion.FECHA,
+            	NewCotizacion.FECALTAS'))
+            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where(function ($query) use ($search) {
+                                $query->where('monedas1.DESCRIPCION','LIKE',"%{$search}%")
+                                      ->orWhere('monedas2.DESCRIPCION', 'LIKE',"%{$search}%")
+                                      ->orWhere('NewCotizacion.ID', 'LIKE',"%{$search}%");
+                            })
+
+                ->offset($start)
+                ->limit($limit)
+                ->orderBy($order,$dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered =NewCotizacion::
+            ->select(DB::raw(
+            	'NewCotizacion.ID,
+            	moneda1.DESCRIPCION AS DE,
+            	monedas2.DESCRIPCION AS A,
+            	NewCotizacion.VALOR,
+            	NewCotizacion.FECHA,
+            	NewCotizacion.FECALTAS'))
+            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where(function ($query) use ($search) {
+                                  $query->where('monedas1.DESCRIPCION','LIKE',"%{$search}%")
+                                      ->orWhere('monedas2.DESCRIPCION', 'LIKE',"%{$search}%")
+                                      ->orWhere('NewCotizacion.ID', 'LIKE',"%{$search}%");
+                            }) 
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['DE'] = $post->DE;
+                $nestedData['A'] = $post->A;
+                $nestedData['FECHA'] = $post->FECHA;
+                $nestedData['FECALTAS'] = $post->FECALTAS;
+                $nestedData['VALOR'] = $post->VALOR;
+               
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+
+        /*  --------------------------------------------------------------------------------- */
+       
 
         /*  --------------------------------------------------------------------------------- */    
          
