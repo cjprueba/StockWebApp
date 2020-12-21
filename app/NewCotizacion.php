@@ -13,7 +13,7 @@ class NewCotizacion extends Model
     protected $connection = 'retail';
     protected $table = 'cotizaciones';
     public $timestamps = false;
-    public static function obtener_cotizacion()
+    public static function obtener_cotizaciones()
     {
 
         /*  --------------------------------------------------------------------------------- */
@@ -33,7 +33,7 @@ class NewCotizacion extends Model
 
         /*  --------------------------------------------------------------------------------- */
           $cotizaciones=NewCotizacion::
-            ->select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
+            select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->get()
             ->toArray();
@@ -49,24 +49,24 @@ class NewCotizacion extends Model
       		DB::connection('retail')->beginTransaction();
 
         // INICIAR VARIABLES 
-
+      $user = auth()->user();
 			$dia = date("Y-m-d");
 			$hora = date("H:i:s");
-			$user = auth()->user();
-
+        
 			 // OBTENER ID DE FORMULA
 			 $FORMULA = DB::connection('retail')
             ->table('FORMULAS_COTIZACION')
-            ->select(DB::raw('ifnull(ID,0)')
-            ->where('FK_DE', '=',$datos['data']['DE'])
-            ->where('FK_A', '=', $datos['data']['A'])
+            ->select(DB::raw('ifnull(ID,0) AS ID'))
+            ->where('FK_DE', '=',$datos['data']['de'])
+            ->where('FK_A', '=', $datos['data']['a'])
             ->get()->toArray();
-
+            
               $cotizacion=NewCotizacion::insert([
-                'FK_DE'=> $datos['data']['DE'], 
-                'FK_A'=> $datos['data']['A'],
-                'VALOR'=> Common::quitar_coma($datos['data']['VALOR'], 2),
-                'FK_FORMULA'=> $FORMULA[0]["ID"],
+                'FK_DE'=> $datos['data']['de'], 
+                'FK_A'=> $datos['data']['a'],
+                'VALOR'=> Common::quitar_coma($datos['data']['valor'], 2),
+                'FECHA'=> $datos['data']['fecha'],
+                'FK_FORMULA'=> $FORMULA[0]->ID,
                 'FK_USER'=> $user->id,
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'FECALTAS'=> $dia,
