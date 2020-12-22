@@ -342,6 +342,16 @@ class Cotizacion extends Model
         $formula_pesos_reves = '';
         $formula_reales_reves = '';
 
+        $formula_guaranies_id = '';
+        $formula_dolares_id = '';
+        $formula_pesos_id = '';
+        $formula_reales_id = '';
+
+        $formula_guaranies_reves_id = '';
+        $formula_dolares_reves_id = '';
+        $formula_pesos_reves_id = '';
+        $formula_reales_reves_id = '';
+
         $activar_guaranies = false;
         $activar_dolares = false;
         $activar_pesos = false;
@@ -374,7 +384,7 @@ class Cotizacion extends Model
             /*  --------------------------------------------------------------------------------- */
 
              $guaranies_new = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+              select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 1)
@@ -387,7 +397,7 @@ class Cotizacion extends Model
             }
 
             $dolares_new = NewCotizacion::
-            select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+             select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 2)
@@ -400,7 +410,7 @@ class Cotizacion extends Model
             }
 
            $pesos_new = NewCotizacion::
-            select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 3)
@@ -413,7 +423,7 @@ class Cotizacion extends Model
             }
 
            $reales_new = NewCotizacion::
-              select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+         select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 4)
@@ -429,7 +439,7 @@ class Cotizacion extends Model
 
             // FORMULA REVES
             $formula_gs = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+           select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', 1)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
@@ -442,7 +452,7 @@ class Cotizacion extends Model
             }
 
             $formula_usd = NewCotizacion::
-              select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', 2)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
@@ -455,7 +465,7 @@ class Cotizacion extends Model
             }
 
            $formula_ps = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+             select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', 3)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
@@ -468,7 +478,7 @@ class Cotizacion extends Model
             }
 
            $formula_rs = NewCotizacion::
-               select(DB::raw('COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0),COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', 4)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
@@ -501,7 +511,9 @@ class Cotizacion extends Model
             } else {
                 $valor_guaranies =  Common::precio_candec_sin_letra((float)$guaranies[0]->CAMBIO, $monedaSistema);
                 $formula_guaranies = $guaranies[0]->FORMULA;
+                $formula_guaranies_id = $guaranies[0]->ID;
                 $formula_guaranies_reves = $formula_gs_reves[0]->FORMULA;
+                $formula_guaranies_reves_id= $formula_gs_reves[0]->ID;
             }
 
             if (count($dolares) <= 0) {
@@ -514,7 +526,9 @@ class Cotizacion extends Model
             } else {
                 $valor_dolares = Common::precio_candec_sin_letra((float)$dolares[0]->CAMBIO, $monedaSistema);
                 $formula_dolares = $dolares[0]->FORMULA;
+                $formula_dolares_id = $dolares[0]->ID;
                 $formula_dolares_reves = $formula_usd_reves[0]->FORMULA;
+                $formula_dolares_reves_id = $formula_usd_reves[0]->ID;
             }
 
             if (count($pesos) <= 0) {
@@ -527,7 +541,9 @@ class Cotizacion extends Model
             } else {
                 $valor_pesos = Common::precio_candec_sin_letra((float)$pesos[0]->CAMBIO, $monedaSistema);
                 $formula_pesos = $pesos[0]->FORMULA;
+                $formula_pesos_id = $pesos[0]->ID;
                 $formula_pesos_reves = $formula_ps_reves[0]->FORMULA;
+                $formula_pesos_reves_id = $formula_ps_reves[0]->ID;
             }
 
             if (count($reales) <= 0) {
@@ -540,6 +556,7 @@ class Cotizacion extends Model
             } else {
                $valor_reales = Common::precio_candec_sin_letra((float)$reales[0]->CAMBIO, $monedaSistema); 
                $formula_reales = $reales[0]->FORMULA;
+               $formula_reales_id = $reales[0]->ID;
                $formula_reales_reves = $formula_rs_reves[0]->FORMULA;
             }
 
@@ -570,6 +587,14 @@ class Cotizacion extends Model
             'formula_usd_reves' => $formula_dolares_reves,
             'formula_ps_reves' => $formula_pesos_reves,
             'formula_rs_reves' => $formula_reales_reves,
+            'formula_gs_id' => $formula_guaranies_id,
+            'formula_$_id' => $formula_dolares_id,
+            'formula_ps_id' => $formula_pesos_id,
+            'formula_rs_id' => $formula_reales_id,
+            'formula_gs_reves_id' => $formula_guaranies_reves_id,
+            'formula_usd_reves_id' => $formula_dolares_reves_id,
+            'formula_ps_reves_id' => $formula_pesos_reves_id,
+            'formula_rs_reves_id' => $formula_reales_reves_id,
             'candec_gs' => $monedas[0]->CANDEC,
             'candec_$' => $monedas[1]->CANDEC,
             'candec_ps' => $monedas[2]->CANDEC,
@@ -588,6 +613,22 @@ class Cotizacion extends Model
 
         /*  --------------------------------------------------------------------------------- */    
          
+    }
+          public static function obtener_venta_cotizacion($fk_venta)
+    {
+
+          $cotizaciones = DB::connection('retail')
+            ->table('ventas_tiene_cotizacion')
+            ->select(DB::raw('IFNULL(COTIZACIONES.ID,0),FK_DE AS DE,FK_A AS A,moneda1.DESCRIPCION AS MONDE,moneda2.DESCRIPCION AS MONA,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('COTIZACIONES','COTIZACIONES.ID','=','ventas_tiene_cotizacion.FK_COTIZACION')
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->get();
+            return["response"=>true];
+     
     }
 /*    public static function CALMONED($data)
     {
