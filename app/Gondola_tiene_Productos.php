@@ -98,6 +98,12 @@ class Gondola_tiene_Productos extends Model
           
           if (count($gondolas[0]) > 0) {
 
+            // ELIMINAR GONDOLAS NO ASIGNADAS 
+
+            Gondola_tiene_Productos::where('GONDOLA_COD_PROD', '=', $codigo)
+              ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+              ->delete();
+
             foreach ($gondolas as $key => $value) {
 
               /*  --------------------------------------------------------------------------------- */
@@ -116,15 +122,6 @@ class Gondola_tiene_Productos extends Model
               /*  --------------------------------------------------------------------------------- */
 
             }
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // ELIMINAR GONDOLAS NO ASIGNADAS 
-
-            Gondola_tiene_Productos::where('FECMODIF', '<', $dia)
-              ->where('GONDOLA_COD_PROD', '=', $codigo)
-              ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-              ->delete();
 
             /*  --------------------------------------------------------------------------------- */
 
