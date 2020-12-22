@@ -654,7 +654,7 @@ Route::post('/movimiento/caja/guardar', 'Movimiento_CajaController@guardarMovimi
 /* -------------------------------------------------------------------------- */
 //NEW COTIZACION
 Route::get('cotizacionDatatable', 'NewCotizacionController@obtenerCotizaciones');
-Route::post('cotizacion\guardar', 'NewCotizacionController@guardarCotizacion');
+Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 
 /* -------------------------------------------------------------------------- */
 
