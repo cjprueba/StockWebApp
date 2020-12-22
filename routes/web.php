@@ -386,6 +386,7 @@ Route::get('cotizacion/compra-dia', 'CotizacionController@cotizacionCompraDia');
 Route::post('cotizacionGuardar', 'CotizacionController@guardarCotizacion');
 Route::post('cotizacionFiltrar', 'CotizacionController@filtrarCotizacion');
 Route::post('eliminarCotizacion', 'CotizacionController@eliminarCotizacion');
+Route::post('/obtener/Cotizaciones/Venta', 'CotizacionController@obtenerVentaCotizacion');
 
 /* -------------------------------------------------------------------------- */
 
