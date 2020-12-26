@@ -3393,7 +3393,7 @@ class Transferencia extends Model
         foreach ($transferencia_det as $key => $value) {
             $articulos[$key]["cantidad"] = $value->CANTIDAD;
             $articulos[$key]["cod_prod"] = $value->CODIGO_PROD;
-            $articulos[$key]["descripcion"] = $value->DESCRIPCION;
+            $articulos[$key]["descripcion"] = utf8_decode(utf8_encode($value->DESCRIPCION));
             $articulos[$key]["precio"] = $value->PRECIO;
             $articulos[$key]["total"] = $value->TOTAL;
             $cantidad = $cantidad + $value->CANTIDAD;
@@ -3406,19 +3406,19 @@ class Transferencia extends Model
         // CARGAR VARIABLES 
         
         $data['codigo'] = $codigo;
-        $data['origen'] = $origen;
-        $data['destino'] = $destino;
-        $data['envia'] = $envia;
-        $data['transporta'] = $transporta;
-        $data['recibe'] = $recibe;
+        $data['origen'] = utf8_decode(utf8_encode($origen));
+        $data['destino'] = utf8_decode(utf8_encode($destino));
+        $data['envia'] = utf8_decode(utf8_encode($envia));
+        $data['transporta'] = utf8_decode(utf8_encode($transporta));
+        $data['recibe'] = utf8_decode(utf8_encode($recibe));
         $data['fecha'] = $fecha;
         $data['nombre'] = $nombre;
         $data['articulos'] = $articulos;
         $data['c'] = $c;
         $data['cantidad'] = $cantidad;
         $data['total'] = Common::precio_candec($total, $moneda);
-        $data['sucursal'] = $nombre_sucursal;
-        $data['direccion'] = $direccion;
+        $data['sucursal'] = utf8_decode(utf8_encode($nombre_sucursal));
+        $data['direccion'] = utf8_decode(utf8_encode($direccion));
 
         /*  --------------------------------------------------------------------------------- */
         
