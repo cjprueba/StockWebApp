@@ -197,58 +197,114 @@ class Cotizacion extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        /*  --------------------------------------------------------------------------------- */
 
-
-            $guaranies_new = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
-            ->where('COTIZACIONES.FK_DE', '=', 1)
-            ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
+            $guaranies = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 1)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $guaranies=$guaranies_new->where('FECHA','=',$hoy)->get();
+            ->limit(1)
+            ->get();
+
             if(count($guaranies)<=0){
-                $guaranies=$guaranies_new->get();
+
+                $guaranies = NewCotizacion::
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+                ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+                ->where('COTIZACIONES.FK_A', '=', 1)
+                ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                ->orderBy('COTIZACIONES.ID','DESC')
+                ->limit(1)
+                ->get();
+
             }
 
-            $dolares_new = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
-            ->where('COTIZACIONES.FK_DE', '=', 2)
-            ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
+        /*  --------------------------------------------------------------------------------- */
+
+            $dolares = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 2)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('FECHA','=', $hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $dolares=$dolares_new->where('FECHA','=',$hoy)->get();
+            ->limit(1)
+            ->get();
+
             if(count($dolares)<=0){
-                $dolares=$dolares_new->get();
+
+                $dolares = NewCotizacion::
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+                ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+                ->where('COTIZACIONES.FK_A', '=', 2)
+                ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                ->orderBy('COTIZACIONES.ID','DESC')
+                ->limit(1)
+                ->get();
+
             }
 
-           $pesos_new = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
-            ->where('COTIZACIONES.FK_DE', '=', 3)
-            ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
+        /*  --------------------------------------------------------------------------------- */
+
+        $pesos = NewCotizacion::
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+        ->where('COTIZACIONES.FK_A', '=', 3)
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA','=',$hoy)
+        ->orderBy('COTIZACIONES.ID','DESC')
+        ->limit(1)
+        ->get();
+
+        if(count($pesos)<=0){
+
+            $pesos = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 3)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $pesos=$pesos_new->where('FECHA','=',$hoy)->get();
-            if(count($pesos)<=0){
-                $pesos=$pesos_new->get();
-            }
+            ->limit(1)
+            ->get();
 
-           $reales_new = NewCotizacion::
-             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
-            ->where('COTIZACIONES.FK_DE', '=', 4)
-            ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $reales = NewCotizacion::
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+        ->where('COTIZACIONES.FK_A', '=', 4)
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('FECHA','=',$hoy)
+        ->orderBy('COTIZACIONES.ID','DESC')
+        ->limit(1)
+        ->get();
+            
+
+        if(count($reales)<=0){
+
+            $reales = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 4)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $reales=$reales_new->where('FECHA','=',$hoy)->get();
-            if(count($reales)<=0){
-                $reales=$reales_new->get();
-            }
+            ->limit(1)
+            ->get();
 
-            /*  --------------------------------------------------------------------------------- */
-
+        }
 
       
         /*  --------------------------------------------------------------------------------- */
