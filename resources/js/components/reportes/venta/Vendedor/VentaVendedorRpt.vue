@@ -1,7 +1,7 @@
 <template>
 
 	<!-- VENTA VENDEDOR  -->
-	<div class="container"> 
+	<div> 
 		<div class="card mt-3  shadow border-bottom-primary" v-if="$can('reporte.venta')">
 		  <div class="card-header">Ventas por Vendedor</div>
 			<div class="card-body">
@@ -47,7 +47,16 @@
 					</div>
 					<!-- -------------------------------------------MOSTRAR FECHA----------------------------------------------- -->
 
-					<div class="row mt-3 ml-3">	
+					<div class="row mt-3 ml-3">
+			    		<div class="col-sm">
+			    			<label>Cliente</label>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigoCliente" @codigo="cargarCodigo" v-model='codigoCliente'></cliente-filtrar>
+					    </div>
+			    	</div>
+				</div>
+				<!-- -------------------------------------------MOSTRAR BOTONES----------------------------------------------- -->
+				<div class="col-4 mb-3">
+					<div class="row mr-3 ml-3">	
 						<label>Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container" class="input-daterange input-group">
 							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
@@ -60,9 +69,6 @@
 						    </div>
 						</div>
 					</div>
-				</div>
-				<!-- -------------------------------------------MOSTRAR BOTONES----------------------------------------------- -->
-				<div class="col-4 mb-3">
 					<div class="row mt-4 ml-3">
 						<div class="col-auto">
 							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
@@ -146,8 +152,8 @@
               	validarFinalFecha: false,
               	cargado: false,
               	descarga: false,
-              	selectedTipo: 'GENERAL'
-
+              	selectedTipo: 'GENERAL',
+              	codigoCliente: ''
             }
         }, 
         methods: {
@@ -171,8 +177,8 @@
 			        	inicio: String(this.selectedInicialFecha),
 			        	final: String(this.selectedFinalFecha),
 			        	vendedor: this.selectedVendedor,
-			        	tipo: this.selectedTipo
-
+			        	tipo: this.selectedTipo,
+			        	codigoCliente: this.codigoCliente
 		        	};
 		        	
 		        	Common.reporteVentaVendedorCommon(datos).then(function(){
@@ -213,6 +219,7 @@
 						        	final: String(me.selectedFinalFecha),
 						        	vendedor: me.selectedVendedor,
 						        	tipo: me.selectedTipo,
+			        				codigoCliente: me.codigoCliente,
 						        	"_token": $('meta[name="csrf-token"]').attr('content')
 	                 			},
 		                  "url": "/ventaVendedorDatatable",
@@ -376,7 +383,12 @@
 	        	}		
 
 	        	return true;
-	        }
+	        },
+
+	        cargarCodigo(valor){
+
+				this.codigoCliente = valor;
+			}
         },
         mounted() {
         	let me = this;

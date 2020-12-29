@@ -28,6 +28,7 @@ Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/producto', 'ApiController@producto')->name('producto');
+Route::get('/productoqr', 'ApiController@productoqr')->name('productoqr');
 Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 //Route::apiResource('categorias', 'CategoriaController');
 
@@ -37,6 +38,7 @@ Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 
 Route::apiResource('charts', 'ChartController');
 Route::apiResource('busquedas', 'BusquedaController');
+Route::apiResource('busqueda-sector-sucursal', 'BusquedaRmController');
 
 
 /* -------------------------------------------------------------------------- */
@@ -82,6 +84,8 @@ Route::post('transferenciasDevImportar', 'DevTransferenciaController@mostrarImpo
 Route::post('DevtransferenciaImportar', 'DevTransferenciaController@importarDevTransferencia');
 Route::post('devTransferenciaEliminar', 'DevTransferenciaController@eliminarDevTransferencia');
 Route::post('devTransferenciaRechazar', 'DevTransferenciaController@rechazarDevTransferencia');
+
+
 /* -------------------------------------------------------------------------- */
 
 // TRANSFERENCIA
@@ -107,7 +111,7 @@ Route::get('ventaTransferenciaDatatable', 'TransferenciaControler@generarVentaT'
 Route::post('devolver_transferencia','TransferenciaControler@devolverTransferencia');
 
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
-
+Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
 
 /* -------------------------------------------------------------------------- */
 
@@ -347,6 +351,7 @@ Route::post('producto/mostrar_new', 'ProductoController@mostrar_new');
 Route::post('producto/catalogo', 'ProductoController@catalogo_cliente');
 Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
+Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 
 /* -------------------------------------------------------------------------- */
 
@@ -546,6 +551,31 @@ Route::post('pedido/inicio_catalogo', 'PedidoController@inicio_catalogo');
 
 /* -------------------------------------------------------------------------- */
 
+// CONTROL DE MAQUINAS
+
+	// SUCURSALES
+Route::post('sucursalRmGuardar', 'Sucursal_RmController@guardarSucursalRm');
+Route::get('sucursalesRmDatatable', 'Sucursal_RmController@sucursalRmDatatable');
+Route::post('sucursalRmFiltrar', 'Sucursal_RmController@filtrarSucursalRm');
+Route::post('sucursalEliminarRM', 'Sucursal_RmController@eliminarSucursalRm');
+Route::get('nuevaSucursalRm', 'Sucursal_RmController@sucursalNuevaRm');
+
+	//SECTORES
+Route::post('sectorEliminarRM', 'Sector_RmController@eliminarSectorRm');
+Route::post('sectorRmGuardar', 'Sector_RmController@guardarSectorRm');
+Route::post('sectorRmFiltrar', 'Sector_RmController@filtrarSectorRm');
+Route::get('sectoresRmDatatable', 'Sector_RmController@sectorRmDatatable');
+Route::get('nuevoSectorRm', 'Sector_RmController@sectorNuevoRm');
+
+	//REGISTRO DE MAQUINAS 
+Route::post('ultimoSectorRm', 'Registro_MaquinaController@ultimoRegistroSectorRm');
+Route::post('ultimaSucursalRm', 'Registro_MaquinaController@ultimoRegistroSucursalRm');
+Route::post('guardarRegistroM', 'Registro_MaquinaController@registroMaquinaGuardar');
+Route::post('maquinaDatatable', 'Registro_MaquinaController@registrosDatatable');
+Route::get('nuevoRegistroM', 'Registro_MaquinaController@nuevoRegistroMaquina');
+Route::post('filtrarRm', 'Registro_MaquinaController@registroMaquinaFiltrar');
+Route::post('registroMaEliminar', 'Registro_MaquinaController@eliminarRegistroMaquina');
+
 /* -------------------------------------------------------------------------- */
 
 // REPORTES GENERAR
@@ -603,10 +633,12 @@ Route::post('/obtener/autorizacion', 'User_SupervisorController@obtener_autoriza
 /* -------------------------------------------------------------------------- */
 
 //SALIDA DE PRODUCTOS
+
 Route::post('lote/salida', 'StockController@loteProducto');
 Route::post('salida/producto', 'SalidaProductoController@salida');
 Route::get('salida/mostrar', 'SalidaProductoController@salidaMostrar');
 Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDetalle');
+Route::post('/salida/reporte', 'SalidaProductoController@reporte');
 
 //AVISOS
 
@@ -623,7 +655,7 @@ Route::post('/movimiento/caja/guardar', 'Movimiento_CajaController@guardarMovimi
 /* -------------------------------------------------------------------------- */
 //NEW COTIZACION
 Route::get('cotizacionDatatable', 'NewCotizacionController@obtenerCotizaciones');
-Route::post('cotizacion\guardar', 'NewCotizacionController@guardarCotizacion');
+Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 
 /* -------------------------------------------------------------------------- */
 

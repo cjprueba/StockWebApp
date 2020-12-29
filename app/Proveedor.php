@@ -10,9 +10,10 @@ use App\Compra;
 use App\DevolucionProv;
 use App\DevolucionProvDet;
 use App\Inventario;
+
 class Proveedor extends Model
 {
-
+    public $timestamps = false;
     protected $connection = 'retail';
     protected $table = 'proveedores';
 
@@ -1458,8 +1459,7 @@ class Proveedor extends Model
     }
 
 
-              public static function filtrar_proveedor($datos)
-    {
+    public static function filtrar_proveedor($datos){
 
         /*  --------------------------------------------------------------------------------- */
      
@@ -1475,42 +1475,63 @@ class Proveedor extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
-            public static function proveedor_guardar($datos)
-    {
+    
+    public static function proveedor_guardar($datos){
+        
         $user = auth()->user();
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
         $codigo_proveedor=$datos['data']['Codigo'];
 
+        try{ 
 
-        try { 
+         /*  --------------------------------------------------------------------------------- */
 
-        /*  --------------------------------------------------------------------------------- */
          if($datos['data']['Existe']=== false){
-         $proveedor=Proveedor::insertGetId(
-         ['NOMBRE'=> $datos['data']['Descripcion'],'RUC'=> $datos['data']['Ruc'], 'DIRECCION'=> $datos['data']['Direccion'],'TELEFONO'=> $datos['data']['Telefono'],'celular'=> $datos['data']['cel'],'CONTACTO'=> $datos['data']['contacto'],'EMAIL'=> $datos['data']['email'],'USER'=>$user->name,'FECALTAS'=>$dia,'HORALTAS'=>$hora]);
-         $codigo_proveedor = $proveedor;
-        }else{
-            $proveedor=Proveedor::where('CODIGO', $codigo_proveedor)
-            ->update(['NOMBRE'=> $datos['data']['Descripcion'],'RUC'=> $datos['data']['Ruc'], 'DIRECCION'=> $datos['data']['Direccion'],'TELEFONO'=> $datos['data']['Telefono'],'celular'=> $datos['data']['cel'],'CONTACTO'=> $datos['data']['contacto'],'EMAIL'=> $datos['data']['email'], 'USERM'=>$user->name,'FECMODIF'=>$dia,'HORMODIF'=>$hora]);
-        }
-       return ["response"=>true];
+
+            $proveedor=Proveedor::insertGetId(
+                    ['NOMBRE'=> $datos['data']['Descripcion'],
+                    'RUC'=> $datos['data']['Ruc'], 
+                    'DIRECCION'=> $datos['data']['Direccion'],
+                    'TELEFONO'=> $datos['data']['Telefono'],
+                    'celular'=> $datos['data']['cel'],
+                    'CONTACTO'=> $datos['data']['contacto'],
+                    'EMAIL'=> $datos['data']['email'],
+                    'USER'=>$user->name,
+                    'FECALTAS'=>$dia,
+                    'HORALTAS'=>$hora]
+                );
+            $codigo_proveedor = $proveedor;
+
+          }else{
+
+            $proveedor=Proveedor::where('CODIGO', '=',$codigo_proveedor)
+                ->update(['NOMBRE'=> $datos['data']['Descripcion'],
+                    'RUC'=> $datos['data']['Ruc'],
+                    'DIRECCION'=> $datos['data']['Direccion'],
+                    'TELEFONO'=> $datos['data']['Telefono'],
+                    'celular'=> $datos['data']['cel'],
+                    'CONTACTO'=> $datos['data']['contacto'],
+                    'EMAIL'=> $datos['data']['email'], 
+                    'USERM'=>$user->name,
+                    'FECMODIF'=>$dia,
+                    'HORMODIF'=>$hora]);
+          }
+          return ["response"=>true];
 
         /*  --------------------------------------------------------------------------------- */
-        } catch(Exception $ex){ 
+        }catch(Exception $ex){ 
 
- 
-        if($ex->errorInfo[1]===1062){
-      return ["response"=>false,'statusText'=>'Esta descripcion de proveedor ya fue registrada!!'];
-       }else{
-      return ["response"=>false,'statusText'=>$ex->getMessage()];
-      }
-  
-      }
-
-
+            if($ex->errorInfo[1]===1062){
+                return ["response"=>false,'statusText'=>'Esta descripcion de proveedor ya fue registrada!!'];
+            }else{
+                return ["response"=>false,'statusText'=>$ex->getMessage()];
+            }
+      
+        }
     }
-         public static function proveedor_eliminar($datos)
+    
+    public static function proveedor_eliminar($datos)
     {
         $user = auth()->user();
         $dia = date("Y-m-d");

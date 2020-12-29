@@ -107,16 +107,18 @@ class Imagen extends Model
         $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
                 
         if(file_exists($filename)) {
-            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
         } else {
-            $imagen_producto = 'http://172.16.249.20:8080/storage/imagenes/productos/product.png';
+            $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
+            $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';
         }
 
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR EL VALOR
        
-        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>"];
+        return ['imagen' => "<img src='".$imagen_producto."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_producto."' class='block' id='u255_img' width='100%'>", 'imagen_3' => "<img src='".$imagen_producto."' id='myImg'  style='width:80px;height:80px;'>", 'imagen_external' => "<img src='".$imagen_producto_external."' class='block' id='u255_img' width='100%'>"];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -185,5 +187,45 @@ class Imagen extends Model
             /*  --------------------------------------------------------------------------------- */
 
         }
+    }
+
+    public static function obtenerLogoURL()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETRO
+
+        $parametro = Parametro::select(DB::raw('NOMBRE_LOGO'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LOGO
+
+        $imagen = '../storage/app/public/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.'';
+           
+        if(!file_exists($imagen)) {
+            $imagen = 0;
+        } else {
+            $imagen = "<img src='".''.env("URL_FILE").'/storage/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.''."' width='100%' >";
+        } 
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+       
+        return ['imagen' => $imagen];
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

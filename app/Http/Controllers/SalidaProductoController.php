@@ -45,4 +45,16 @@ class SalidaProductoController extends Controller
 
     }
 
+        public function reporte(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $salida = SalidaProducto::reporte($request);
+        return response()->json($salida);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

@@ -10,6 +10,10 @@
 
 	      				<!-- ------------------------------------------------------------------ -->
 
+	      				<button class="btn btn-outline-primary btn-sm btn-block" data-toggle="modal"data-target=".modal-atajos"><small>Atajos de Teclado</small></button>
+
+	      				<!-- ------------------------------------------------------------------ -->
+
 						<div class="col-md-12">
 							<hr>
 						</div>
@@ -112,7 +116,7 @@
 						</div>
 
 						<!-- ------------------------------------------------------------------ -->
-				  
+					  
 	      	<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
@@ -136,7 +140,7 @@
 					<div class="col-md-6 mt-3 mb-0">
 						<div class="section-title">
 		                    <h4>Realizar Venta</h4>
-		                    <p>Las notas de crédito se pueden crear por producto y por descuento.</p>
+		                    <p>Crear ventas de productos y servicios.</p>
 		                </div>
 					</div>
 					
@@ -268,25 +272,46 @@
 						<hr>
 					</div>
  -->
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<!-- <div>
 							 -->
-						<label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO + 1}}</label><br>
-						<label><span class="text-primary">Nro. Caja:</span> {{venta.CODIGO_CAJA}}</label>
+						<span class="text-primary"><small>Nro. Ticket / Nro. Caja</small></span><br>
+						<h6 class="text-secondary">{{venta.CODIGO + 1}} / {{venta.CODIGO_CAJA}}</h6>	 
+						<!-- <label><span class="text-primary">Nro. Ticket:</span> {{venta.CODIGO + 1}}</label><br>
+						<label><span class="text-primary">Nro. Caja:</span> {{venta.CODIGO_CAJA}}</label> -->
 					</div>
 
-					<div class="col-md-4">
-						<label><span class="text-primary">Cliente:</span> {{cliente.NOMBRE}}</label><br>
-						<label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label>
-						<!-- <label class="text-primary">Cliente</label>
-						<h6>{{cliente.NOMBRE}}</h6> -->
+					<!-- <div class="project col-md-3">
+					    <div class="row bg-white has-shadow">
+					      <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
+					        <div class="project-title d-flex align-items-center">
+					          <div class="image has-shadow">
+					          	<span v-html="cliente.imagen"></span>
+					          </div>
+					          <div class="text">
+					            <h3 class="h4">{{cliente.NOMBRE}}</h3><small>{{cliente.NOMBRE}}</small>
+					          </div>
+					        </div>
+					        <div class="project-date"><span class="hidden-sm-down">{{cliente.NOMBRE}}</span></div>
+					      </div>
+					    </div>
+					</div> -->
+
+					<div class="col-md-3">
+						<span class="text-primary"><small>Cliente</small></span><br>
+						<h6 class="text-secondary">{{cliente.NOMBRE}}</h6>
 					</div> 
 
-					<div class="col-md-4">
-						<label><span class="text-primary">Agencia:</span> {{agencia.NOMBRE}}</label><br>
-						<!-- <label><span class="text-primary">Vendedor:</span> {{vendedor.NOMBRE}}</label> -->
-						<!-- <label class="text-primary">Vendedor</label>
-						<h6>{{vendedor.NOMBRE}}</h6> -->
+					<div class="col-md-3">
+						<span class="text-primary"><small>Vendedor</small></span><br>
+						<h6 class="text-secondary">{{vendedor.NOMBRE}}</h6>
+					</div> 
+
+					<div class="col-md-3">
+						<span class="text-primary"><small>Agencia</small></span><br>
+						<h6 class="text-secondary">{{agencia.NOMBRE}}</h6>
+						<!-- <label><span class="text-primary">Agencia:</span> {{agencia.NOMBRE}}</label><br> -->
+						
 					</div> 
 
 					<!-- <div class="col-md-2">
@@ -428,6 +453,22 @@
 
 			<div class="col-md-2 mt-3">
 
+				
+
+				<!-- ------------------------------------------------------------------ -->
+
+				<div>
+					<div class="text-center" v-if="ajustes.LOGO !== 0">
+						<span v-html="ajustes.LOGO"></span>
+					</div>
+				</div>
+
+				<!-- ------------------------------------------------------------------ -->
+
+				<div class="col-md-12 mb-2">
+					<hr>
+				</div>
+
 				<!-- ------------------------------------------------------------------ -->
 
 				<!-- IMAGEN -->
@@ -451,7 +492,7 @@
 			
 	        	<!-- ------------------------------------------------------------------------------------- -->
 
-				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente"></busqueda-cliente-modal>
+				<busqueda-cliente-modal @codigo="codigoCliente" @nombre="nombreCliente" @tipo="tipoCliente" @data="dataCliente" ref="componente_cliente_modal" ></busqueda-cliente-modal>
 
 				<div class="col-md-12">
 					<hr>
@@ -461,10 +502,10 @@
 				
 				<div class="row mt-3 mb-3">
 					<div class="col-md-6">
-						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="nuevo"><font-awesome-icon size="1x" icon="file-alt" /><br><small>Nuevo</small></button>
+						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="nuevo"><font-awesome-icon size="1x" icon="file-alt" /><br><small>(F1) Nuevo</small></button>
 					</div>
 					<div class="col-md-6">
-						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="guardar"><font-awesome-icon size="1x" icon="cash-register" /><br><small>(F4) Facturar</small></button>
+						<button class="btn btn-outline-dark btn-sm btn-block" v-on:click="guardar"><font-awesome-icon size="1x" icon="cash-register" /><br><small>(Esc) Fact.</small></button>
 					</div>	
 				</div>
 				<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="ticket_mostrar"><small>Último Ticket</small></button> -->
@@ -631,6 +672,157 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		<!-- ATAJOS DE TECLADO -->
+
+		<div class="modal fade modal-atajos" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+
+                      <div class="modal-content">
+
+                      	<!-- ------------------------------------------------------------------------ -->
+
+                      	<!-- HEADER -->
+
+                      	<div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalCenterTitle"><small>ATAJOS</small></h5>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+                        <div class="modal-body">
+
+                        	<div class="row">
+
+                        		
+
+	                            <div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  F1
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Nueva Venta.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Esc
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Facturar Venta.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + p
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar productos.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + c
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar clientes.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + r
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Registrar cliente.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + m
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Movimiento caja.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + v
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar vendedor.</p>
+				        		</div>
+
+				        		<div class="col-md-12">
+	                            	<hr/>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
+									  Shift + n
+									</div>
+				        		</div>
+
+				        		<div class="col-md-6">
+	                            	<p class="text-monospace">Mostrar nota de crédito.</p>
+				        		</div>
+
+                            </div>
+
+                        </div>	
+		      			
+		      			<!-- ------------------------------------------------------------------------ -->
+
+		      			<!-- FOOTER -->
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">CERRAR</button>
+                        </div>
+
+                        <!-- ------------------------------------------------------------------------ -->
+
+		    		  </div>
+
+		  			</div>
+		</div>
+
+		<!-- ------------------------------------------------------------------------ -->
 		<!-- TOAST STOCK CERO -->
 
 			<b-toast id="toast-stock-cero" variant="warning" solid>
@@ -870,7 +1062,8 @@
          	}, ajustes: {
          		LIMITE_MAYORISTA: 0,
          		IMPRESORA_TICKET: '',
-         		IMPRESORA_MATRICIAL: ''
+         		IMPRESORA_MATRICIAL: '',
+         		LOGO: ''
          	}, checked: {
          		MAYORISTA: false,
          		TICKET: false,
@@ -923,7 +1116,8 @@
          		MONEDA: '0',
          		COMENTARIO: '',
          		CAJA: null,
-         		MONEDA_DESCRIPCION: '' 
+         		MONEDA_DESCRIPCION: '',
+         		MONEDA_SISTEMA: '0'
          	}, mostrar: {
          		SINCOTIZACION: ''
          	}
@@ -957,8 +1151,8 @@
 	        	// ------------------------------------------------------------------------
 
 	        	// REVISAR AUTORIZACION 
-
-	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
+	        	
+	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0 || parseFloat(Common.quitarComaCommon(datos.VALE)) > 0) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
 	        		this.revisarAutorizacion();
 	        		return;
 	        	}
@@ -1329,7 +1523,7 @@
         		Common.generarPdfTicketVentaVisualizarCommon(this.venta.CODIGO, this.caja.CODIGO);
         	},
         	factura_test(){
-        		Common.generarPdfFacturaVentaVisualizarCommon(43, 10);
+        		Common.generarPdfFacturaVentaVisualizarCommon(1, 1);
         		//this.factura(8, 1);
         	},
         	test_factura(){
@@ -1368,6 +1562,10 @@
 
       			// ------------------------------------------------------------------------
 
+      			$('.registrar-cliente-modal').modal('hide');
+
+      			// ------------------------------------------------------------------------
+
       		},
       		tipoCliente(cliente){
 
@@ -1391,6 +1589,17 @@
 
       		},
       		dataCliente(data){
+
+      			// ------------------------------------------------------------------------
+
+      			// RETENTOR 
+
+      			if (data.retentor === true) {
+
+      				data.retentor = 1;
+      			} else if (data.retentor === false) {
+      				data.retentor = 0;
+      			}
 
       			// ------------------------------------------------------------------------
 
@@ -2021,6 +2230,7 @@
 					me.ajustes.LIMITE_MAYORISTA = data.LIMITE_MAYORISTA;
 					me.ajustes.IMPRESORA_TICKET = data.IMPRESORA_TICKET;
 					me.ajustes.IMPRESORA_MATRICIAL = data.IMPRESORA_MATRICIAL;
+					me.ajustes.LOGO = data.LOGO;
 					me.autorizacion.HABILITAR = data.SUPERVISOR;
 					me.movimiento.MONEDA = data.MONEDA.CODIGO.toString();
 					me.movimiento.DECIMAL = data.MONEDA.CANDEC.toString();
@@ -2446,10 +2656,26 @@
 
 		            // ------------------------------------------------------------------------
 
-		    }, guardar_movimiento_caja(){
+		    }, limpiar_movimiento_caja(){
+
+		    	this.movimiento.TIPO = null;
+
+	         	this.movimiento.MEDIO = null;
+
+	         	this.movimiento.IMPORTE = 0;
+
+	         	this.movimiento.COMENTARIO = '';
+
+		    },guardar_movimiento_caja(){
 
 		    	// ------------------------------------------------------------------------
 	        	
+	        	// INICIAR VARIABLES
+
+	        	let me = this;
+
+	        	// ------------------------------------------------------------------------
+
 	        	// CONTROLADOR
 
 	        	if (this.controlador_movimiento() === true) {
@@ -2462,17 +2688,23 @@
 	        	// MOVIMIENTO CAJA 
 
 	        	this.movimiento.CAJA = this.caja.CODIGO;
+	        	this.movimiento.MONEDA_SISTEMA = this.moneda.CODIGO;
 	        	
 	        	// ------------------------------------------------------------------------
 
 	        	Common.guardarMovimientoCajaCommon(this.movimiento).then(data => {
 
 	        		if (data.response === true){
+
 	        			Swal.fire(
 									'Guardado !',
 									'Se ha guardado el movimiento correctamente',
 									'success'
 								)
+
+	        			this.limpiar_movimiento_caja();
+
+
 	        		} else if (data.response === false) {
 
 	        			Swal.showValidationMessage(
@@ -2508,11 +2740,42 @@
 
         	// ATAJOS DE TECLADO 
 
-        	hotkeys('f4', function(event, handler){
-				event.preventDefault() 
-				alert("hello");
+        	Mousetrap.bind('f1', function() { me.nuevo(); });
+
+			Mousetrap.bind('esc', function() { 
+
+				if ($("#modalImpresion").data('bs.modal')) {
+	              if (($("#modalImpresion").data('bs.modal'))._isShown){
+	                me.$refs.compontente_medio_pago.enviar();
+	              }
+	            };
+
+				if ($("#staticBackdrop").data('bs.modal')) {
+	              if (($("#staticBackdrop").data('bs.modal'))._isShown){
+	              	if ($("#modalImpresion").data('bs.modal') === undefined) {
+	                    me.$refs.compontente_medio_pago.aceptar();
+	                };
+	                
+	              }
+	            }; 
+
+				if ($("#staticBackdrop").data('bs.modal') === undefined) {
+	              me.guardar();
+	            }; 
+
+
 			});
 
+			Mousetrap.bind('shift+m', function() { me.movimiento_caja(); });
+			Mousetrap.bind('shift+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
+			Mousetrap.bind('shift+r', function() { $('.registrar-cliente-modal').modal('show'); });
+			Mousetrap.bind('shift+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
+			Mousetrap.bind('shift+p', function() { 
+				$('.producto-modal').modal('show'); 
+			});
+
+			Mousetrap.bind('shift+n', function() { me.nota_credito(); });
+				
         	// ------------------------------------------------------------------------
 
         	// FIJAR CURSOR

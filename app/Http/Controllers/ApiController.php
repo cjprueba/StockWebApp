@@ -15,4 +15,9 @@ class ApiController extends Controller
     {
         return view('catalogo');
     }
+
+    public function productoqr()
+    {
+        return view('productoQR');
+    }
 }

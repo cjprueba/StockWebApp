@@ -434,7 +434,7 @@ class Venta extends Model
 
    
                                  //TOTALES POR CATEGORIA AGRUPADOS POR MARCA
-                                 //---------------------------------------------------------------------------------------------------------
+                                 /*  --------------------------------------------------------------------------------- */
                               
                    
                              $temp=DB::connection('retail')->table('temp_ventas')
@@ -471,9 +471,9 @@ class Venta extends Model
                                  # code...
                              }
 
-                   //-------------------------------------------------------------------------------------------------------------------  
+                   /*  --------------------------------------------------------------------------------- */  
                    //TRAER TODOS LOS PRODUCTOS CON EL CODIGO DE MARCA
-                   //-------------------------------------------------------------------------------------------------------------------
+                   /*  --------------------------------------------------------------------------------- */
                    
                   $temp=DB::connection('retail')->table('temp_ventas')
                  
@@ -2925,7 +2925,7 @@ class Venta extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
+        //var_dump($user->hasRole('Admin'));
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER CLIENTE 
@@ -2961,12 +2961,17 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+        // LOGO
+
+        $imagen = (Imagen::obtenerLogoURL())['imagen'];
+
+        /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
 
         // return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'EPSON TM-U220 Receipt', 'IMPRESORA_MATRICIAL' => 'Microsoft Print to PDF'];
 
-        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA','SUPERVISOR'=>$parametro[0]['SUPERVISOR']];
+        return ['CLIENTE' => $cliente[0], 'EMPLEADO' => $empleado[0], 'MONEDA' => $candec, 'LIMITE_MAYORISTA' => $parametro[0]['DESTINO'], 'IMPRESORA_TICKET' => 'TICKET', 'IMPRESORA_MATRICIAL' => 'FACTURA','SUPERVISOR'=>$parametro[0]['SUPERVISOR'], 'LOGO' => $imagen];
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -3564,7 +3569,9 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-
+        // $fecha = '2020-12-17';
+        // $dato['caja'] = 2;
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER TODAS LAS VENTAS DEL DIA DE HOY
@@ -3662,9 +3669,11 @@ class Venta extends Model
         
         $tarjeta = VentaTarjeta::select(DB::raw('IFNULL(SUM(VENTAS_TARJETA.MONTO), 0) AS TOTAL'))
         ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TARJETA.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
         ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -3816,7 +3825,17 @@ class Venta extends Model
         ->groupBy('VENTAS_ABONO_MONEDAS.FK_MONEDA')
         ->get();
 
-        
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETENCION 30%
+
+        $retencion = Venta::select(DB::raw('IFNULL(SUM(VENTAS_RETENCION.MONTO),0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_RETENCION.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.FECHA', '=', $fecha)
+        ->where('VENTAS_ANULADO.ANULADO', '<>', 1)
+        ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4171,6 +4190,11 @@ class Venta extends Model
         $pdf->Cell(25, 4, utf8_decode('Notas Crédito:'), 0);
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Retención 30%:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($retencion[0]["T_TOTAL"], $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
@@ -5078,8 +5102,8 @@ class Venta extends Model
         $c_rows_array = count($ventas_det);
         $c_filas_total = count($ventas_det);
         $codigo = $ventas->CODIGO;
-        $cliente = $ventas->CLIENTE;
-        $direccion = $ventas->DIRECCION;
+        $cliente = utf8_decode(utf8_encode($ventas->CLIENTE));
+        $direccion = utf8_decode(utf8_encode($ventas->DIRECCION));
         $ruc = $ventas->RUC;
         $tipo = $ventas->TIPO;
         $fecha = $ventas->FECALTAS;
@@ -5209,7 +5233,7 @@ class Venta extends Model
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
-            $articulos[$c_rows]["descripcion"] = substr($value["DESCRIPCION"], 0,30);
+            $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,30)));
             $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
@@ -5659,7 +5683,7 @@ class Venta extends Model
 
                     $nestedData['ESTATUS'] = 'table-danger';
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='imprimirTicket' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirPdf' title='Pdf'><i class='fa fa-file text-danger' aria-hidden='true'></i></a>";
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -7888,9 +7912,11 @@ class Venta extends Model
 
         }
     }
-  public static function resumen_dia($datos){
-      /*  --------------------------------------------------------------------------------- */
-        //Venta::ticket_pdf('hola');
+
+    public static function resumen_dia($datos){
+
+        /*  --------------------------------------------------------------------------------- */
+        
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
@@ -7913,6 +7939,18 @@ class Venta extends Model
         ->GROUPBY('CAJA')
 
         ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI ES TABLA UNICA 
+
+        $tab_unica = Parametro::tab_unica();
+
+        if ($tab_unica === "SI") {
+            $tab_unica = true;
+        } else {
+            $tab_unica = false;
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -7942,14 +7980,15 @@ class Venta extends Model
 
         // CANTIDAD DE VENTAS 
 
-        if ($ventas === 0) {
-            return ["response" => false, "statusText" => "No se ha encontrado ningúna venta !"];
-        }
+        // if ($ventas === 0) {
+        //     return ["response" => false, "statusText" => "No se ha encontrado ningúna venta !"];
+        // }
 
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER EL PRIMER TICKET 
-         $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
+
+        $parametro = Parametro::select(DB::raw('MONEDA, DESTINO, SUPERVISOR'))
         ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->get();
 
@@ -7989,7 +8028,6 @@ class Venta extends Model
         ->where('VENTAS.FECHA', '=', $final)
         ->where('TIPO', '=', 'CO')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
-         ->GROUPBY('CAJA')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -8113,9 +8151,6 @@ class Venta extends Model
         ->where('NOTA_CREDITO.PROCESADO', '=', 1)
         ->get();
 
-
-
-
         /*  --------------------------------------------------------------------------------- */
 
         // DESCUENTO GENERAL
@@ -8128,7 +8163,8 @@ class Venta extends Model
         ->where('TIPO', '<>', 'CR')
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
-                /*  --------------------------------------------------------------------------------- */
+        
+        /*  --------------------------------------------------------------------------------- */
 
         // RETENCION 30%
 
@@ -8141,18 +8177,16 @@ class Venta extends Model
         ->where('VENTAS_ANULADO.ANULADO', '=', 0)
         ->get();
 
-
-       
-
         /*  --------------------------------------------------------------------------------- */
+
         // SALIDA DE PRODUCTOS %
+
         $salida_p = DB::connection('retail')
         ->table('SALIDA_PRODUCTOS')
         ->select(DB::raw('IFNULL(SUM(TOTAL),0) AS T_TOTAL'))
         ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->whereDate('FECALTAS', '=', $final)
         ->get();
-
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -8207,6 +8241,22 @@ class Venta extends Model
         ->orderBy('VENTAS.CAJA')
         ->get();
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOVIMIENTO CAJA 
+
+        $movimiento_caja_entrada_total = Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE_SISTEMA), 0) AS TOTAL_SISTEMA, MovimientoS_CajaS.MONEDA_SISTEMA'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+        ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=', 1)
+        ->get();
+
+        $movimiento_caja_salida_total = Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE_SISTEMA), 0) AS TOTAL_SISTEMA, MovimientoS_CajaS.MONEDA_SISTEMA'))
+        ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',2)
+        ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
+        ->get();
+
         $movimiento_caja_entrada=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
         ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->whereDate('MOVIMIENTOS_CAJAS.FECALTAS', '=', $final)
@@ -8214,7 +8264,7 @@ class Venta extends Model
         ->groupBy('MOVIMIENTOS_CAJAS.MONEDA','MOVIMIENTOS_CAJAS.CAJA')
         ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
         ->get();
-
+        
         $movimiento_caja_salida=Movimiento_Caja::select(DB::raw('IFNULL(SUM(MovimientoS_CajaS.IMPORTE), 0) AS TOTAL, MovimientoS_CajaS.MONEDA,MOVIMIENTOS_CAJAS.CAJA AS CAJAS'))
         ->where('MOVIMIENTOS_CAJAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->where('MOVIMIENTOS_CAJAS.MOVIMIENTO','=',2)
@@ -8239,7 +8289,50 @@ class Venta extends Model
         ->orderBy('MOVIMIENTOS_CAJAS.CAJA','ASC')
         ->get();
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // AUTORIZACIONES 
+
+        $autorizacion = VentasTieneAutorizacion::
+        leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TIENE_AUTORIZACION.FK_VENTA')
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('VENTAS.ID_SUCURSAL', '=' , $datos['data']["sucursal"])
+        ->where('VENTAS.FECALTAS', '=', $final)
+        ->where('VENTAS_ANULADO.ANULADO', '<>', 1)
+        ->count();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // COMPRAS 
+
+        $compras = Compra::select(DB::raw('IFNULL(SUM(COMPRAS.TOTAL), 0) AS TOTAL, COMPRAS.MONEDA'))
+        ->where('COMPRAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('COMPRAS.FECALTAS', '=', $final)
+        ->groupBy('COMPRAS.MONEDA')
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PAGO A PROVEEDOR 
+
+        $pago_proveedor = Pagos_Prov::select(DB::raw('IFNULL(SUM(PAGOS_PROV.PAGO), 0) AS TOTAL'))
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->whereDate('FECALTAS', '=', $final)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $anulados_total = Venta::select(DB::raw('IFNULL(SUM(TOTAL),0) AS T_TOTAL'))
+        ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+        ->where('ID_SUCURSAL', '=', $datos['data']["sucursal"])
+        ->where('VENTAS.FECHA', '=', $final)
+        ->where('VENTAS_ANULADO.ANULADO', '=', 1)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
         //ARMAR ARRAY DE MOVIMIENTO ENTRADA
+
         $caja_aux=0;
         $c_rows_entrada=0;
         $c_rows_salida=0;   
@@ -8256,7 +8349,9 @@ class Venta extends Model
         $efectivo=array();
         $medios=array();
         $cheques_c=array();
-      
+        $entrada_prueba = array();
+        $compras_total = 0; 
+
         foreach ($movimiento_caja_entrada as $key => $value) {
            
           
@@ -8310,7 +8405,7 @@ class Venta extends Model
 
 
         //FIN DE MOVIMIENTO ENTRADA
-        //--------------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
         //ARMAR ARRAY DE MOVIMIENTO SALIDA
 
         $guaranies_s = Common::precio_candec(0, 1);
@@ -8318,6 +8413,7 @@ class Venta extends Model
         $pesos_s = Common::precio_candec(0, 3);
         $reales_s = Common::precio_candec(0, 4);
        
+        $caja_aux=0;
 
         foreach ($movimiento_caja_salida as $key => $value) {
           if($c_rows_salida==0 && $caja_aux==0){
@@ -8366,7 +8462,7 @@ class Venta extends Model
           }
         }
         //FIN DE MOVIMIENTO SALIDA
-        //--------------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
         //MOVIMIENTO ENTRADA TOTALES
 
         $guaranies_e = 0;
@@ -8392,7 +8488,7 @@ class Venta extends Model
 
 
         //FIN MOVIMIENTO ENTRADA TOTALES
-        //--------------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
         //MOVIMIENTO SALIDA TOTALES
         $guaranies_s = 0;
         $dolares_s = 0;
@@ -8416,9 +8512,11 @@ class Venta extends Model
         }
 
         //FIN MOVIMIENTO SALIDA TOTALES
-        //--------------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
 
         //ARMAR ARRAY DE EFECTIVO Y MEDIOS
+        
+
         foreach ($cajas as $key => $value) {
 
             foreach ($entrada2 as $key => $entrada_m) {
@@ -8433,13 +8531,11 @@ class Venta extends Model
             }
             foreach ($salida2 as $key => $salida_m) {
                if($salida_m["CAJAS"]==$value["CAJAS"]){
-                $value["DOLARES"]=$value["DOLARES"]-$salida_m["DOLARES"];
-                $value["GUARANIES"]=$value["GUARANIES"]-$salida_m["GUARANIES"];
-                $value["REALES"]=$value["REALES"]-$salida_m["REALES"];
-                $value["PESOS"]=$value["PESOS"]-$salida_m["PESOS"];
+                    $value["DOLARES"]=$value["DOLARES"]-$salida_m["DOLARES"];
+                    $value["GUARANIES"]=$value["GUARANIES"]-$salida_m["GUARANIES"];
+                    $value["REALES"]=$value["REALES"]-$salida_m["REALES"];
+                    $value["PESOS"]=$value["PESOS"]-$salida_m["PESOS"];
                }
-                
-               
             }
 
             $efectivo[$c_rows]['CAJA'] = $value["CAJAS"] ;
@@ -8458,7 +8554,7 @@ class Venta extends Model
         }
 
         //FIN DE EFECTIVO Y MEDIOS
-        //-------------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
 
         //ARMAR ARRAY DE CHEQUE
         $c_rows_cheque=0;
@@ -8503,7 +8599,7 @@ class Venta extends Model
 
         }
         //FIN ARRAY CHEQUE
-        //----------------------------------------------------------------------------------
+        /*  --------------------------------------------------------------------------------- */
         //ARMAR ARRAY DE CHEQUE TOTALES
 
         $guaranies_c = Common::precio_candec(0, 1);
@@ -8528,33 +8624,56 @@ class Venta extends Model
             }
         }
         //FIN ARRAY DE CHEQUE TOTALES
-        //----------------------------------------------------------------------------------
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR COMPRAS, EL TOTAL POR LA MONEDA DEL SISTEMA
+
+        foreach ($compras as $key => $value) {
+
+            if ($value->MONEDA === $parametro[0]['MONEDA']) {
+
+                $compras_total = $compras_total + $value->TOTAL;
+
+            } else {
+
+                $total_sistema_compra = (Cotizacion::CALMONED(['monedaProducto' => (int)$parametro[0]['MONEDA'], 'monedaSistema' => (int)$value->MONEDA, 'precio' => $value->TOTAL, 'decSistema' => $candec, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+
+                if ($total_sistema_compra['response'] == true) {
+                    $compras_total = $compras_total + $total_sistema_compra['valor'];
+                } 
+            }
+            
+        }
+
+        /*  --------------------------------------------------------------------------------- */
 
         $data['efectivo'] = $efectivo;
         $data['medios'] = $medios;
         $data['cheques'] = $cheques_c;
-        $data['contado'] = Common::precio_candec($contado[0]["T_TOTAL"],$candec);
-        $data['creditoV'] = Common::precio_candec($credito[0]["T_TOTAL"],$candec);
-        $data['pago'] = Common::precio_candec($pe[0]["T_TOTAL"],$candec);
+        $data['contado'] = Common::precio_candec($contado[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
+        $data['creditoV'] = Common::precio_candec($credito[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
+        $data['pago'] = Common::precio_candec($pe[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
         $data['anulado'] = $anulados;
-        $data['descuentoP'] = Common::precio_candec($descuento_producto[0]["T_TOTAL"],$candec);
-        $data['retencion'] = Common::precio_candec($retencion[0]["T_TOTAL"],$candec);
-        $data['credito'] = Common::precio_candec($nota_credito[0]["T_TOTAL"],$candec);   
-        $data['descuentoG'] = Common::precio_candec($descuento_general[0]["T_TOTAL"],$candec);
-        $data['salida'] = Common::precio_candec($salida_p[0]->T_TOTAL,$candec);
-        $data['cupon'] = Common::precio_candec($cupon[0]->T_TOTAL,$candec);
-        $data['abono'] = Common::precio_candec($abono[0]["T_TOTAL"],$candec);
-        $data['totalV'] = $abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL;
-        $data['totalV']=Common::precio_candec($data['totalV'],$candec);
+        $data['descuentoP'] = Common::precio_candec($descuento_producto[0]["T_TOTAL"],(int)$parametro[0]['MONEDA']);
+        $data['retencion'] = Common::precio_candec($retencion[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
+        $data['credito'] = Common::precio_candec($nota_credito[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);   
+        $data['descuentoG'] = Common::precio_candec($descuento_general[0]["T_TOTAL"],(int)$parametro[0]['MONEDA']);
+        $data['salida'] = Common::precio_candec($salida_p[0]->T_TOTAL, (int)$parametro[0]['MONEDA']);
+        $data['cupon'] = Common::precio_candec($cupon[0]->T_TOTAL, (int)$parametro[0]['MONEDA']);
+        $data['abono'] = Common::precio_candec($abono[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
+        $data['movimientoCajaEntrada'] = Common::precio_candec($movimiento_caja_entrada_total[0]->TOTAL_SISTEMA, (int)$parametro[0]['MONEDA']);
+        $data['movimientoCajaSalida'] = Common::precio_candec($movimiento_caja_salida_total[0]->TOTAL_SISTEMA, (int)$parametro[0]['MONEDA']);
+        $data['totalV'] = ($abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL+$movimiento_caja_entrada_total[0]->TOTAL_SISTEMA) - $movimiento_caja_salida_total[0]->TOTAL_SISTEMA;
+        $data['totalV']=Common::precio_candec($data['totalV'],(int)$parametro[0]['MONEDA']);
         $data['total'] = $abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL-$salida_p[0]->T_TOTAL;
-        $data['total']=Common::precio_candec($data['total'],$candec);
+        $data['total']=Common::precio_candec($data['total'],(int)$parametro[0]['MONEDA']);
         $data['totalGes']=Common::precio_candec($cajas_totales[0]['GUARANIES'],1);
-        $data['totalDles']=Common::precio_candec($cajas_totales[0]['DOLARES'],$candec);
+        $data['totalDles']=Common::precio_candec($cajas_totales[0]['DOLARES'], (int)$parametro[0]['MONEDA']);
         $data['totalRles']=Common::precio_candec($cajas_totales[0]['REALES'],4);
         $data['totalPes']=Common::precio_candec($cajas_totales[0]['PESOS'],3);
         $data['totalTjs']=Common::precio_candec($cajas_totales[0]['T_TARJETAS'],1);
-        $data['totalVls']=Common::precio_candec($cajas_totales[0]['T_VALES'],$candec);
+        $data['totalVls']=Common::precio_candec($cajas_totales[0]['T_VALES'], (int)$parametro[0]['MONEDA']);
         $data['totalTrs']=Common::precio_candec($cajas_totales[0]['T_TRANSFERENCIA'],1);
         $data['totalGrs']=Common::precio_candec($cajas_totales[0]['T_GIROS'],1);
         $data['totalGs']=$guaranies_c;
@@ -8580,6 +8699,60 @@ class Venta extends Model
         $data['c_rows_salida']=$c_rows_salida;
         $data['c_rows_entrada']=$c_rows_entrada;
         $namefile = 'ReporteDiario'.time().'.pdf';
+        $data['logo'] = 0;
+        $data['IMAGEN'] = '';
+        $data['autorizaciones'] = $autorizacion;
+        
+        $data['compraTotal'] = Common::precio_candec($compras_total, (int)$parametro[0]['MONEDA']);
+
+        $data['pagoProveedor'] = Common::precio_candec($pago_proveedor[0]['TOTAL'], (int)$parametro[0]['MONEDA']);
+
+        $data['anulados_total'] = Common::precio_candec($anulados_total[0]['T_TOTAL'], (int)$parametro[0]['MONEDA']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTALES ENTRADA 
+
+        $contado_entrada = $contado[0]["T_TOTAL"] + $anulados_total[0]['T_TOTAL'] + $nota_credito[0]["T_TOTAL"] + $movimiento_caja_salida_total[0]->TOTAL_SISTEMA;
+        $totales_entrada = $contado[0]["T_TOTAL"] + $movimiento_caja_entrada_total[0]->TOTAL_SISTEMA + $abono[0]["T_TOTAL"];
+        $data['totales_entrada'] = Common::precio_candec($totales_entrada, (int)$parametro[0]['MONEDA']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TOTALES SALIDA 
+
+        $totales_salida = $compras_total + $movimiento_caja_salida_total[0]->TOTAL_SISTEMA + $pago_proveedor[0]['TOTAL'] + $nota_credito[0]["T_TOTAL"] + $anulados_total[0]['T_TOTAL'];
+        $data['totales_salida'] = Common::precio_candec($totales_salida, (int)$parametro[0]['MONEDA']);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PARAMETROS 
+
+        $parametro = Parametro::select(DB::raw('LOGO, NOMBRE_LOGO, COLOR'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CABECERA
+
+        $filename = '../storage/app/public/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.'';
+                
+        if(file_exists($filename)) {
+            $data['logo'] = 1;
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($data['logo'] === 1) {
+            $data['IMAGEN'] = $filename;
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // COLOR 
+
+        $data['color'] = $parametro[0]->COLOR;
 
         // CREAR HOJA 
 
