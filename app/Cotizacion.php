@@ -617,7 +617,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', 1)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
@@ -656,7 +655,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', 2)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
@@ -696,7 +694,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', 3)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
@@ -737,7 +734,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', 4)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
