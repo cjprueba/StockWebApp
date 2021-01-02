@@ -2034,6 +2034,16 @@ class Venta extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            // COTIZACION 
+
+            if(isset($data["data"]["pago"]["COTIZACION"])){
+                $cotizacion = $data["data"]["pago"]["COTIZACION"];
+            }else{
+                $cotizacion = 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
             // AGENCIA 
 
             if(isset($data["data"]["agencia"]["CODIGO"])){
@@ -2536,6 +2546,15 @@ class Venta extends Model
                     'FK_VENTA' => $venta,
                     'ANULADO' => $estatus_venta,
                     'FECHA' => date('Y-m-d H:i:s')
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR REFERENCIA COTIZACION 
+
+            VentasTieneCotizacion::guardar_referencia([
+                    'FK_VENTA' => $venta,
+                    'COTIZACION' => $cotizacion
             ]);
 
             /*  --------------------------------------------------------------------------------- */
@@ -3569,8 +3588,8 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
-        // $fecha = '2020-12-17';
-        // $dato['caja'] = 2;
+        $fecha = '2020-12-21';
+        $dato['caja'] = 3;
         
         /*  --------------------------------------------------------------------------------- */
 
