@@ -841,7 +841,15 @@
               moneda_ps: '',
               moneda_rs: '',
               moneda: '',
-              candec: ''
+              candec: '',
+              formula_gs_id: '',
+              formula_usd_id: '',
+              formula_ps_id: '',
+              formula_rs_id: '',
+              formula_gs_reves_id: '',
+              formula_usd_reves_id: '',
+              formula_ps_reves_id: '',
+              formula_rs_reves_id: '',
             },
             totales: {
               GUARANIES: '',
@@ -882,6 +890,7 @@
               impresion: '1',
               vuelto: '1'
             }, respuesta: {
+              COTIZACION: '',
               EFECTIVO: '',
               CODIGO_TARJETA: '',
               TARJETA: '',
@@ -1699,6 +1708,7 @@
             // ENVIAR DATOS
 
             me.respuesta = {
+              COTIZACION: me.cotizacion,
               EFECTIVO: me.medios.EFECTIVO,
               CODIGO_TARJETA: me.tarjeta.codigo,
               TARJETA: me.medios.TARJETA,
