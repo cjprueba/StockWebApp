@@ -98,6 +98,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */    
          
     }
+  
     public static function cotizacion_dia($monedaSistema, $monedaEnviar)
     {
 
@@ -191,11 +192,6 @@ class Cotizacion extends Model
 
         $parametros = Parametro::mostrarParametro();
         $monedaSistema = $parametros['parametros'][0]->MONEDA;
-
-        /*  --------------------------------------------------------------------------------- */
-      
-
-        /*  --------------------------------------------------------------------------------- */
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -306,6 +302,7 @@ class Cotizacion extends Model
 
         }
 
+
       
         /*  --------------------------------------------------------------------------------- */
         
@@ -373,6 +370,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */    
          
     }
+  
     public static function cotizacion_dia_monedas_compra($fk_venta)
     {
 
@@ -421,9 +419,11 @@ class Cotizacion extends Model
 
         $user = auth()->user();
 
+
         if(isset($fk_venta["fk_venta"])) {
             $fk_var_venta = $fk_venta["fk_venta"];
         }
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -624,6 +624,7 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->orderBy('COTIZACIONES.ID','DESC')
+
             ->limit(1)
             ->get();
          }else{
@@ -889,22 +890,108 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */    
          
     }
-          public static function obtener_venta_cotizacion($fk_venta )
-    {
 
-          $cotizaciones = DB::connection('retail')
-            ->table('ventas_tiene_cotizacion')
-            ->select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,FK_DE AS DE,FK_A AS A,moneda1.DESCRIPCION AS MONDE,moneda2.DESCRIPCION AS MONA,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
-            ->leftjoin('COTIZACIONES','COTIZACIONES.ID','=','ventas_tiene_cotizacion.FK_COTIZACION')
-            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
-            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
-            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
-            ->orderBy('COTIZACIONES.ID','DESC')
-            ->get();
-            return["response"=>true];
+    public static function obtener_venta_cotizacion($fk_venta){
+
+
+        $cotizacionVenta = DB::connection('retail')
+        ->table('VENTAS_TIENE_COTIZACION')
+        ->select(DB::raw('VENTAS_TIENE_COTIZACION.FK_VENTA AS ID_VENTA'),
+            DB::raw('IFNULL(COTIZACIONES.ID, 0) AS COTIZACION_ID'),
+            DB::raw('COTIZACIONES.VALOR AS VALOR'),
+            DB::raw('COTIZACIONES.FK_DE AS MON_DE'),
+            DB::raw('COTIZACIONES.FK_A AS MON_A'),
+            DB::raw('MONEDA1.DESCRIPCION AS MON_DE_DESC'),
+            DB::raw('MONEDA2.DESCRIPCION AS MON_A_DESC'),
+            DB::raw('FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('COTIZACIONES', 'COTIZACIONES.ID','=','VENTAS_TIENE_COTIZACION.FK_COTIZACION')
+        ->leftjoin('MONEDAS AS MONEDA1','MONEDA1.CODIGO', '=', 'COTIZACIONES.FK_DE')
+        ->leftjoin('MONEDAS AS MONEDA2','MONEDA2.CODIGO', '=', 'COTIZACIONES.FK_A')
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('VENTAS_TIENE_COTIZACION.FK_VENTA', '=', $fk_venta)
+        ->orderby('COTIZACIONES.VALOR', 'DESC')
+        ->get()
+        ->toArray();
+
+        return["cotizaciones"=>$cotizacionVenta];
      
     }
+
+
+    public static function ventaCotizacion($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DEVOLVER VALOR SI ES QUE LAS MONEDAS SON IGUALES
+
+        if ($data['monedaProducto'] === $data['monedaSistema']) {
+            return ["response" => true, "valor" => Common::formato_precio($data['precio'], $data['decSistema'])];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $valor = 0;
+        $cotizacion_final = '';
+        $formula = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRAER LAS COTIZACIONES LIGADAS A LA VENTA
+
+        $cotizacionVenta = Cotizacion::obtener_venta_cotizacion($data['venta'])['cotizaciones'];
+
+         /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR SI NO ENCUENTRA COTIZACIÓN 
+        
+        if (count($cotizacionVenta) <= 0) {
+            return ["response" => false, "statusText" => "No se ha encontrado ninguna cotización"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($cotizacionVenta as $key => $value) {
+            
+            //SELECCIONAR CAMBIO 
+
+            if(($data['monedaProducto'] == $value->MON_DE) && ($value->MON_A === $data['monedaSistema'])){
+               $cotizacion_final = $value->VALOR;
+               $formula =  $value->FORMULA;
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REALIZAR CALCULO 
+
+        if ($formula === '*') {
+            $valor = Common::formato_precio(((float)$data['precio'] * (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '/') {
+            $valor = Common::formato_precio(((float)$data['precio'] / (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '+') {
+            $valor = Common::formato_precio(((float)$data['precio'] + (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '-') {
+            $valor = Common::formato_precio(((float)$data['precio'] - (float)$cotizacion_final), $data['decSistema']);
+        }   
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR
+        
+        return ["response" => true, "valor" => $valor];
+
+        /*  --------------------------------------------------------------------------------- */    
+         
+    }
+
 /*    public static function CALMONED($data)
     {
 

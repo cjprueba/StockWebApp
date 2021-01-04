@@ -4372,7 +4372,7 @@ class Venta extends Model
         
         // TOTAL EN MONEDAS
 
-        $total_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $total_dolares = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($total_dolares['response'] == true) {
             $total_dolares = $total_dolares['valor'];
@@ -4380,7 +4380,7 @@ class Venta extends Model
             $total_dolares = 0;
         }
 
-        $total_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->TOTAL, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $total_guaranies = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->TOTAL, 'decSistema' => 0, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($total_guaranies['response'] == true) {
             $total_guaranies = $total_guaranies['valor'];
@@ -4388,7 +4388,7 @@ class Venta extends Model
             $total_guaranies = 0;
         }
 
-        $total_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $total_pesos = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($total_pesos['response'] == true) {
             $total_pesos = $total_pesos['valor'];
@@ -4396,7 +4396,7 @@ class Venta extends Model
             $total_pesos = 0;
         }
 
-        $total_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $total_reales = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->TOTAL, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($total_reales['response'] == true) {
             $total_reales = $total_reales['valor'];
@@ -4408,7 +4408,7 @@ class Venta extends Model
 
         // VUELTO EN MONEDAS
 
-        $vuelto_dolares = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $vuelto_dolares = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 2, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($vuelto_dolares['response'] == true) {
             $vuelto_dolares = $vuelto_dolares['valor'];
@@ -4416,7 +4416,7 @@ class Venta extends Model
             $vuelto_dolares = 0;
         }
 
-        $vuelto_guaranies = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->VUELTO, 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $vuelto_guaranies = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 1, 'precio' => $ventas->VUELTO, 'decSistema' => 0, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($vuelto_guaranies['response'] == true) {
             $vuelto_guaranies = $vuelto_guaranies['valor'];
@@ -4424,7 +4424,7 @@ class Venta extends Model
             $vuelto_guaranies = 0;
         }
 
-        $vuelto_pesos = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $vuelto_pesos = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 3, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($vuelto_pesos['response'] == true) {
             $vuelto_pesos = $vuelto_pesos['valor'];
@@ -4432,7 +4432,7 @@ class Venta extends Model
             $vuelto_pesos = 0;
         }
 
-        $vuelto_reales = (Cotizacion::CALMONED(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]));
+        $vuelto_reales = (Cotizacion::ventaCotizacion(['monedaProducto' => (int)$ventas->MONEDA, 'monedaSistema' => 4, 'precio' => $ventas->VUELTO, 'decSistema' => 2, 'venta' => $ticket_id, "id_sucursal" => $user->id_sucursal]));
 
         if ($vuelto_reales['response'] == true) {
             $vuelto_reales = $vuelto_reales['valor'];
@@ -5138,6 +5138,7 @@ class Venta extends Model
         $switch_hojas = false;
         $namefile = 'boleta_de_venta_'.time().'.pdf';
         $letra = '';
+        $id_venta = $ventas->ID;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -5207,7 +5208,7 @@ class Venta extends Model
 
                 // PRECIO 
                 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
+                $cotizacion = Cotizacion::ventaCotizacion(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'venta' => $id_venta, "id_sucursal" => $user["id_sucursal"]]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -5222,7 +5223,7 @@ class Venta extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
+                $cotizacion = Cotizacion::ventaCotizacion(['monedaProducto' => $monedaVenta, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'venta' => $id_venta, "id_sucursal" => $user["id_sucursal"]]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
@@ -7577,15 +7578,16 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+
         // REVISAR SI ES TABLA UNICA 
 
-        $tab_unica = Parametro::tab_unica();
+        // $tab_unica = Parametro::tab_unica();
 
-        if ($tab_unica === "SI") {
-            $tab_unica = true;
-        } else {
-            $tab_unica = false;
-        }
+        // if ($tab_unica === "SI") {
+        //     $tab_unica = true;
+        // } else {
+        //     $tab_unica = false;
+        // }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -7613,9 +7615,32 @@ class Venta extends Model
         $switch_hojas = false;
         $namefile = 'boleta_de_pedido_'.time().'.pdf';
         $letra = '';
+        $cotizaciones = [];
+        $count = 0;
+        $cotizacion_aux = '';
         
-        
-        $total =  (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($pedido->TOTAL, 2), 'decSistema' => $pedido->CANDEC, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+        // OBTENER COTIZACIONES
+
+        $cotizacionVenta = Cotizacion::obtener_venta_cotizacion($codigo)['cotizaciones'];
+
+        foreach ($cotizacionVenta as $key => $value){
+            if($count == 0){
+                $cotizacion_aux = $value->VALOR;
+                $cotizaciones[$count]["nombre"] = $value->MON_DE_DESC.' a '.$value->MON_A_DESC;
+                $cotizaciones[$count]["cambio"] = $value->VALOR;
+            }else if($cotizacion_aux != $value->VALOR){
+
+                $cotizacion_aux = $value->VALOR;
+                $cotizaciones[$count]["nombre"] = $value->MON_DE_DESC.' a '.$value->MON_A_DESC;
+                $cotizaciones[$count]["cambio"] = $value->VALOR;
+            }
+
+            $count = $count + 1;   
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $total =  (Cotizacion::ventaCotizacion(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($pedido->TOTAL, 2), 'decSistema' => $pedido->CANDEC, 'venta' => $codigo, "id_sucursal" => $user->id_sucursal]))['valor'];
         $factura = $pedido->ID;
 
         $total = Common::precio_candec(Common::quitar_coma($total, 2), (int)$dato['moneda']);
@@ -7640,6 +7665,7 @@ class Venta extends Model
         $data['ruc'] = $ruc;
         $data['factura'] = $factura;
         $data['email'] = $email;
+        $data['cotizaciones'] = $cotizaciones;
 
         $total = 0;
         
@@ -7660,25 +7686,22 @@ class Venta extends Model
 
             $totalP = $value["PRECIO"];
 
-            //COTIZACION
-
-           $cotizacion = $totalP/($value["CANTIDAD"]*$value["PRECIO_UNIT"]);
-
             // PRECIO 
 
-           $precio = $cotizacion*$value["PRECIO_UNIT"];
+           $precio = $value["PRECIO_UNIT"];
 
             // SI NO ENCUENTRA COTIZACION RETORNAR 
 
-            $articulos[$c_rows]["precio"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($precio, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+            $articulos[$c_rows]["precio"] = (Cotizacion::ventaCotizacion(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($precio, 2), 'decSistema' => 2, 'venta' => $codigo, "id_sucursal" => $user->id_sucursal]))['valor'];
 
             $articulos[$c_rows]["precio"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["precio"], 2), (int)$dato['moneda']);
+
             // CARGAR VARIABLES 
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
             $articulos[$c_rows]["descripcion"] = $value["DESCRIPCION"];
-            $articulos[$c_rows]["total"] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($totalP, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+            $articulos[$c_rows]["total"] = (Cotizacion::ventaCotizacion(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($totalP, 2), 'decSistema' => 2, 'venta' => $codigo, "id_sucursal" => $user->id_sucursal]))['valor'];
             $articulos[$c_rows]["peso"] = 'INDEFINIDO';
 
             $articulos[$c_rows]["total"] = Common::precio_candec(Common::quitar_coma($articulos[$c_rows]["total"], 2), (int)$dato['moneda']);
@@ -7713,7 +7736,7 @@ class Venta extends Model
                 // CARGAR SUB TOTALES POR HOJA
 
 
-                $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+                $data['total'] = (Cotizacion::ventaCotizacion(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'venta' => $codigo, "id_sucursal" => $user->id_sucursal]))['valor'];
                 $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
 
                 $html = view('pdf.facturaPedido', $data)->render();
@@ -7737,7 +7760,7 @@ class Venta extends Model
                 // AGREGAR ARTICULOS 
                 
                 $data['articulos'] = $articulos;
-                $data['total'] = (Cotizacion::CALMONED(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]))['valor'];
+                $data['total'] = (Cotizacion::ventaCotizacion(['monedaProducto' => $moneda, 'monedaSistema' => (int)$dato['moneda'], 'precio' => Common::quitar_coma($total, 2), 'decSistema' => 2, 'venta' => $codigo, "id_sucursal" => $user->id_sucursal]))['valor'];
                 $data['total'] = Common::precio_candec(Common::quitar_coma($data['total'], 2), (int)$dato['moneda']);
 
                 // CREAR HOJA 
