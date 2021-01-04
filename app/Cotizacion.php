@@ -413,11 +413,17 @@ class Cotizacion extends Model
         $activar_pesos = false;
         $activar_reales = false;
 
+        $fk_var_venta = 0;
+        
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
-        //$user = auth()->user();
+        $user = auth()->user();
+
+        if(isset($fk_venta["fk_venta"])) {
+            $fk_var_venta = $fk_venta["fk_venta"];
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -443,9 +449,9 @@ class Cotizacion extends Model
             select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
 
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-          if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+          if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $guaranies=$guaranies->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 1)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -483,9 +489,9 @@ class Cotizacion extends Model
             $dolares = NewCotizacion::
             select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-            if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+            if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $dolares=$dolares->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 2)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -525,9 +531,9 @@ class Cotizacion extends Model
         $pesos = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-         if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+         if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $pesos=$pesos->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 3)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -566,9 +572,9 @@ class Cotizacion extends Model
         $reales = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-        if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+        if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $reales=$reales->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 4)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -610,10 +616,10 @@ class Cotizacion extends Model
         $formula_gs_reves = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-         if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+         if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $formula_gs_reves =$formula_gs_reves
             ->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', 1)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -648,10 +654,10 @@ class Cotizacion extends Model
         $formula_usd_reves = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-        if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+        if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $formula_usd_reves =$formula_usd_reves
             ->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', 2)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -687,10 +693,10 @@ class Cotizacion extends Model
         $formula_ps_reves = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-        if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+        if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $formula_ps_reves =$formula_ps_reves
             ->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', 3)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
@@ -727,10 +733,10 @@ class Cotizacion extends Model
         $formula_rs_reves = NewCotizacion::
         select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA');
-         if($fk_venta["fk_venta"] <>NULL || $fk_venta["fk_venta"] <>""){
+         if($fk_var_venta <>NULL || $fk_var_venta <>""){
             $formula_rs_reves =$formula_rs_reves
             ->leftjoin('ventas_tiene_cotizacion','ventas_tiene_cotizacion.FK_COTIZACION','=','COTIZACIONES.ID')
-            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_venta["fk_venta"] )
+            ->WHERE('ventas_tiene_cotizacion.FK_VENTA','=',$fk_var_venta )
             ->where('COTIZACIONES.FK_DE', '=', 4)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
