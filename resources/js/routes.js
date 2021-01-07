@@ -266,6 +266,16 @@ export default new Router({
 			component: require('./components/cotizacion/CotizacionMostrar.vue').default
 		},
 		{
+			path: '/ct3',
+			name: 'cotizacionCrearNuevo',
+			component: require('./components/cotizacion/CotizacionCrearNuevo.vue').default
+		},
+		{
+			path: '/ct4',
+			name: 'cotizacionMostrarNuevo',
+			component: require('./components/cotizacion/MostrarCotizacionNew.vue').default
+		},
+		{
 			path: '/tr1',
 			name: 'transporteCrear',
 			component: require('./components/transporte/crearTransporte.vue').default

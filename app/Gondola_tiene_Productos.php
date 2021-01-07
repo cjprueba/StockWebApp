@@ -97,12 +97,13 @@ class Gondola_tiene_Productos extends Model
         try {
           
           if (count($gondolas[0]) > 0) {
-
-            // ELIMINAR GONDOLAS NO ASIGNADAS 
+              // ELIMINAR GONDOLAS NO ASIGNADAS 
 
             Gondola_tiene_Productos::where('GONDOLA_COD_PROD', '=', $codigo)
               ->where('ID_SUCURSAL', '=', $user->id_sucursal)
               ->delete();
+
+            /*  --------------------------------------------------------------------------------- */
 
             foreach ($gondolas as $key => $value) {
 
@@ -114,7 +115,7 @@ class Gondola_tiene_Productos extends Model
                   ['GONDOLA_COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
                   ['FECMODIF' => $dia, 'ID_SUCURSAL' => $user->id_sucursal]
               );
-
+ 
               /*  --------------------------------------------------------------------------------- */
 
               Log::info('Gondola Asignar: Éxito al modificar.', ['PRODUCTO' => $codigo, 'ID GONDOLA' => $value['ID']]);

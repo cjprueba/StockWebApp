@@ -2008,7 +2008,10 @@ $lotes= DB::connection('retail')
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
 
         $producto = Compra::
-        leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+        leftJoin('COMPRASDET', function($join){
+            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+        })
         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
         ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, COMPRAS.PROVEEDOR, PROVEEDORES.NOMBRE, SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, COMPRAS.FECALTAS, COMPRAS.CODIGO'))
         ->where([
@@ -2025,7 +2028,10 @@ $lotes= DB::connection('retail')
         // ES AGRUPADO POR MONEDA 
 
         $monedas = Compra::
-        leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+        leftJoin('COMPRASDET', function($join){
+            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+        })
         ->select(DB::raw('COMPRAS.PROVEEDOR, COMPRAS.MONEDA, SUM(COMPRAS.TOTAL) AS TOTAL'))
         ->where([
             ['COMPRASDET.COD_PROD', '=', $codigo],
@@ -2057,7 +2063,10 @@ $lotes= DB::connection('retail')
             // OBTENER LA ULTIMA FECHA COMPRA 
 
             $creacion = Compra::
-            leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            leftJoin('COMPRASDET', function($join){
+                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+                ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+            })
             ->select(DB::raw('SUBSTR(COMPRAS.FECALTAS, 1,10) AS CREACION'))
             ->where([
                 ['COMPRASDET.COD_PROD', '=', $codigo],

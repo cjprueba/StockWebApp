@@ -45,6 +45,11 @@ class CotizacionController extends Controller
         $cotizaciones = Cotizacion::cotizacion_guardar($request->all());
         return response()->json($cotizaciones);
     }
+        public function obtenerVentaCotizacion(Request $request){
+
+        $cotizaciones = Cotizacion::obtener_venta_cotizacion($request->all());
+        return response()->json($cotizaciones);
+    }
     
     /*  --------------------------------------------------------------------------------- */
 

@@ -3001,8 +3001,9 @@ class Transferencia extends Model
         $data['nombre'] = $nombre;
         $data['c'] = $c;
         $data['sucursal'] = $nombre_sucursal;
+        $data['razon'] = $sucursal['sucursal'][0]['RAZON_SOCIAL'];
         $data['direccion'] = $direccion;
-        $data['ruc'] = '111111-1';
+        $data['ruc'] = $sucursal['sucursal'][0]['RUC'];
         $data['tipo'] = 'fisico';
 
         /*  --------------------------------------------------------------------------------- */
@@ -3197,7 +3198,7 @@ class Transferencia extends Model
             $c = $c + 1;
 
             /*  --------------------------------------------------------------------------------- */
-
+            
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 10){
