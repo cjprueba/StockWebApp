@@ -180,6 +180,11 @@ class Cotizacion extends Model
         $activar_pesos = false;
         $activar_reales = false;
 
+        $formula_gs_id = '';
+        $formula_usd_id = '';
+        $formula_ps_id = '';
+        $formula_rs_id = '';
+
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
@@ -317,6 +322,7 @@ class Cotizacion extends Model
 
             } else {
                 $valor_guaranies = (float)$guaranies[0]->CAMBIO;
+                $formula_gs_id = $guaranies[0]->ID;
             }
 
             if (count($dolares) <= 0) {
@@ -328,6 +334,7 @@ class Cotizacion extends Model
 
             } else {
                 $valor_dolares = (float)$dolares[0]->CAMBIO;
+                $formula_usd_id = $dolares[0]->ID;
             }
 
             if (count($pesos) <= 0) {
@@ -339,6 +346,7 @@ class Cotizacion extends Model
 
             } else {
                 $valor_pesos = (float)$pesos[0]->CAMBIO;
+                $formula_ps_id = $pesos[0]->ID;
             }
 
             if (count($reales) <= 0) {
@@ -349,7 +357,8 @@ class Cotizacion extends Model
                 }
 
             } else {
-               $valor_reales = (float)$reales[0]->CAMBIO; 
+               $valor_reales = (float)$reales[0]->CAMBIO;
+               $formula_rs_id = $reales[0]->ID;
             }
 
         /*  --------------------------------------------------------------------------------- */
@@ -364,7 +373,11 @@ class Cotizacion extends Model
             'activar_guaranies' => $activar_guaranies,
             'activar_dolares' => $activar_dolares,
             'activar_pesos' => $activar_pesos,
-            'activar_reales' => $activar_reales 
+            'activar_reales' => $activar_reales,
+            'formula_gs_id' => $formula_gs_id, 
+            'formula_usd_id' => $formula_usd_id,
+            'formula_ps_id' => $formula_ps_id,
+            'formula_rs_id' => $formula_rs_id
         ];
 
         /*  --------------------------------------------------------------------------------- */    

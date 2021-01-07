@@ -15,6 +15,7 @@ use App\TransferenciaDet_tiene_Lotes;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
 use App\Central_tiene_Sucursales;
+use App\TransferenciasTieneCotizacion;
 
 class Transferencia extends Model
 {
@@ -505,6 +506,8 @@ class Transferencia extends Model
 
         $lote = 0;
 
+        $cotizacion_data = $datos["cabecera"]["cotizacion"];
+
         /*  --------------------------------------------------------------------------------- */
         
         // PARAMETRO 
@@ -533,7 +536,6 @@ class Transferencia extends Model
         // INSERTAR TRANSFERENCIA SI ES GUARDADO
 
         if ($opcion === 1) {
-       /*  var_dump($datos["cabecera"]);*/
             $transferencia = DB::connection('retail')
             ->table('transferencias')
             ->insertGetId(
@@ -565,6 +567,17 @@ class Transferencia extends Model
                 'CONSIGNACION'=>$datos["cabecera"]["consignacion"]
                 ]
             );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR REFERENCIA COTIZACION 
+
+            TransferenciasTieneCotizacion::guardar_referencia([
+                    'FK_TRANSFERENCIA' => $transferencia,
+                    'COTIZACION' => $cotizacion_data
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
 
         }
 
