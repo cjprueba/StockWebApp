@@ -115,7 +115,7 @@ class Gondola_tiene_Productos extends Model
                   ['GONDOLA_COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
                   ['FECMODIF' => $dia, 'ID_SUCURSAL' => $user->id_sucursal]
               );
-
+ 
               /*  --------------------------------------------------------------------------------- */
 
               Log::info('Gondola Asignar: Éxito al modificar.', ['PRODUCTO' => $codigo, 'ID GONDOLA' => $value['ID']]);

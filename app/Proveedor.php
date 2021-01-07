@@ -866,6 +866,7 @@ class Proveedor extends Model
                          ->limit($limit)
                          ->orderBy($order,$dir)
                          ->get();
+                            
 
                           $posts2 = DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
                     ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
@@ -932,6 +933,7 @@ class Proveedor extends Model
                     ->limit($limit)
                     ->orderBy($order,$dir)
                     ->get();
+
 
                     $posts2 = DB::connection('retail')->table('CONTEO_DET')->select(DB::raw('LOTES.COD_PROD, LOTES.COSTO, LOTES.CANTIDAD_INICIAL, LOTES.CANTIDAD, LOTES.FECHA_VENC, LOTES.LOTE, PRODUCTOS_AUX.MONEDA, MONEDAS.CANDEC, LOTES.ID AS LOTE_ID, PRODUCTOS.DESCRIPCION, PRODUCTOS.VENCIMIENTO'))
                     ->leftJoin('LOTE_TIENE_CONTEODET', 'LOTE_TIENE_CONTEODET.ID_CONTEO_DET', '=', 'CONTEO_DET.ID')
@@ -1031,6 +1033,7 @@ class Proveedor extends Model
                 /*  --------------------------------------------------------------------------------- */
 
             }
+
             if(!empty($posts2)){
                 foreach ($posts2 as  $post) {
                 $nestedData['COD_PROD'] = $post->COD_PROD;

@@ -15,6 +15,7 @@ use App\TransferenciaDet_tiene_Lotes;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
 use App\Central_tiene_Sucursales;
+use App\TransferenciasTieneCotizacion;
 
 class Transferencia extends Model
 {
@@ -505,6 +506,8 @@ class Transferencia extends Model
 
         $lote = 0;
 
+        $cotizacion_data = $datos["cabecera"]["cotizacion"];
+
         /*  --------------------------------------------------------------------------------- */
         
         // PARAMETRO 
@@ -533,7 +536,6 @@ class Transferencia extends Model
         // INSERTAR TRANSFERENCIA SI ES GUARDADO
 
         if ($opcion === 1) {
-       /*  var_dump($datos["cabecera"]);*/
             $transferencia = DB::connection('retail')
             ->table('transferencias')
             ->insertGetId(
@@ -565,6 +567,17 @@ class Transferencia extends Model
                 'CONSIGNACION'=>$datos["cabecera"]["consignacion"]
                 ]
             );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR REFERENCIA COTIZACION 
+
+            TransferenciasTieneCotizacion::guardar_referencia([
+                    'FK_TRANSFERENCIA' => $transferencia,
+                    'COTIZACION' => $cotizacion_data
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
 
         }
 
@@ -909,7 +922,8 @@ class Transferencia extends Model
         $transferencia = DB::connection('retail')
         ->table('transferencias')
         ->select(DB::raw(
-                        'TRANSFERENCIAS.CODIGO,
+                        'TRANSFERENCIAS.ID AS ID,
+                        TRANSFERENCIAS.CODIGO,
                         TRANSFERENCIAS.FECALTAS, 
                         ORIGEN.CODIGO AS CODIGO_ORIGEN, 
                         ORIGEN.DESCRIPCION AS ORIGEN, 
@@ -2936,13 +2950,13 @@ class Transferencia extends Model
 
         // REVISAR SI ES TABLA UNICA 
 
-        $tab_unica = Parametro::tab_unica();
+        // $tab_unica = Parametro::tab_unica();
 
-        if ($tab_unica === "SI") {
-            $tab_unica = true;
-        } else {
-            $tab_unica = false;
-        }
+        // if ($tab_unica === "SI") {
+        //     $tab_unica = true;
+        // } else {
+        //     $tab_unica = false;
+        // }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2964,6 +2978,7 @@ class Transferencia extends Model
         $c_rows = 0;
         $c_rows_array = count($transferencia_det);
         $c_filas_total = count($transferencia_det);
+        $id_transf = $transferencia->ID;
         $codigo = $transferencia->CODIGO;
         $origen = $transferencia->ORIGEN;
         $destino = $transferencia->DESTINO;
@@ -3046,7 +3061,7 @@ class Transferencia extends Model
 
                 // PRECIO 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -3063,7 +3078,7 @@ class Transferencia extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
@@ -3196,7 +3211,7 @@ class Transferencia extends Model
             $c = $c + 1;
 
             /*  --------------------------------------------------------------------------------- */
-
+            
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 10){

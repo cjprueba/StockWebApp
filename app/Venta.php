@@ -3588,6 +3588,7 @@ class Venta extends Model
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
+
         //$fecha = '2020-12-21';
         //$dato['caja'] = 3;
         
