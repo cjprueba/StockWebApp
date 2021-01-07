@@ -641,6 +641,31 @@ class Cotizacion extends Model
      
     }
 
+    public static function obtener_transferencia_cotizacion($fk_transferencia){
+
+
+        $cotizacionVenta = DB::connection('retail')
+        ->table('TRANSFERENCIAS_TIENE_COTIZACION')
+        ->select(DB::raw('TRANSFERENCIAS_TIENE_COTIZACION.FK_TRANSFERENCIA AS ID_TRANSFERENCIA'),
+            DB::raw('IFNULL(COTIZACIONES.ID, 0) AS COTIZACION_ID'),
+            DB::raw('COTIZACIONES.VALOR AS VALOR'),
+            DB::raw('COTIZACIONES.FK_DE AS MON_DE'),
+            DB::raw('COTIZACIONES.FK_A AS MON_A'),
+            DB::raw('MONEDA1.DESCRIPCION AS MON_DE_DESC'),
+            DB::raw('MONEDA2.DESCRIPCION AS MON_A_DESC'),
+            DB::raw('FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('COTIZACIONES', 'COTIZACIONES.ID','=','TRANSFERENCIAS_TIENE_COTIZACION.FK_COTIZACION')
+        ->leftjoin('MONEDAS AS MONEDA1','MONEDA1.CODIGO', '=', 'COTIZACIONES.FK_DE')
+        ->leftjoin('MONEDAS AS MONEDA2','MONEDA2.CODIGO', '=', 'COTIZACIONES.FK_A')
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('TRANSFERENCIAS_TIENE_COTIZACION.FK_TRANSFERENCIA', '=', $fk_transferencia)
+        ->orderby('COTIZACIONES.VALOR', 'DESC')
+        ->get()
+        ->toArray();
+
+        return["cotizaciones"=>$cotizacionVenta];
+     
+    }
 
     public static function ventaCotizacion($data){
 
@@ -683,6 +708,80 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
         foreach ($cotizacionVenta as $key => $value) {
+            
+            //SELECCIONAR CAMBIO 
+
+            if(($data['monedaProducto'] == $value->MON_DE) && ($value->MON_A === $data['monedaSistema'])){
+               $cotizacion_final = $value->VALOR;
+               $formula =  $value->FORMULA;
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REALIZAR CALCULO 
+
+        if ($formula === '*') {
+            $valor = Common::formato_precio(((float)$data['precio'] * (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '/') {
+            $valor = Common::formato_precio(((float)$data['precio'] / (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '+') {
+            $valor = Common::formato_precio(((float)$data['precio'] + (float)$cotizacion_final), $data['decSistema']);
+        } else if ($formula === '-') {
+            $valor = Common::formato_precio(((float)$data['precio'] - (float)$cotizacion_final), $data['decSistema']);
+        }   
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR
+        
+        return ["response" => true, "valor" => $valor];
+
+        /*  --------------------------------------------------------------------------------- */    
+         
+    }
+
+    public static function transferencia_cotizacion($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DEVOLVER VALOR SI ES QUE LAS MONEDAS SON IGUALES
+
+        if ($data['monedaProducto'] === $data['monedaSistema']) {
+            return ["response" => true, "valor" => Common::formato_precio($data['precio'], $data['decSistema'])];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $valor = 0;
+        $cotizacion_final = '';
+        $formula = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRAER LAS COTIZACIONES LIGADAS A LA VENTA
+
+        $cotizacionTransferencia = Cotizacion::obtener_transferencia_cotizacion($data['id_transf'])['cotizaciones'];
+
+         /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR SI NO ENCUENTRA COTIZACIÓN 
+        
+        if (count($cotizacionTransferencia) <= 0) {
+            return ["response" => false, "statusText" => "No se ha encontrado ninguna cotización"];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        foreach ($cotizacionTransferencia as $key => $value) {
             
             //SELECCIONAR CAMBIO 
 
