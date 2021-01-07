@@ -349,4 +349,31 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+    
+        $productos = Producto::productoqr($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public function filtrarBarcode(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+       // OBTENER TODOS LOS DATOS
+
+        $codigos = Producto::barcodeFiltrar($request->all());
+        return response()->json($codigos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

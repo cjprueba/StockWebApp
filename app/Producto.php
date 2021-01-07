@@ -1690,7 +1690,7 @@ $lotes= DB::connection('retail')
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
+        
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES
@@ -2008,7 +2008,10 @@ $lotes= DB::connection('retail')
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
 
         $producto = Compra::
-        leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+        leftJoin('COMPRASDET', function($join){
+            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+        })
         ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
         ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, COMPRAS.PROVEEDOR, PROVEEDORES.NOMBRE, SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, COMPRAS.FECALTAS, COMPRAS.CODIGO'))
         ->where([
@@ -2025,7 +2028,10 @@ $lotes= DB::connection('retail')
         // ES AGRUPADO POR MONEDA 
 
         $monedas = Compra::
-        leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+        leftJoin('COMPRASDET', function($join){
+            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+        })
         ->select(DB::raw('COMPRAS.PROVEEDOR, COMPRAS.MONEDA, SUM(COMPRAS.TOTAL) AS TOTAL'))
         ->where([
             ['COMPRASDET.COD_PROD', '=', $codigo],
@@ -2057,7 +2063,10 @@ $lotes= DB::connection('retail')
             // OBTENER LA ULTIMA FECHA COMPRA 
 
             $creacion = Compra::
-            leftjoin('COMPRASDET', 'COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+            leftJoin('COMPRASDET', function($join){
+                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+                ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+            })
             ->select(DB::raw('SUBSTR(COMPRAS.FECALTAS, 1,10) AS CREACION'))
             ->where([
                 ['COMPRASDET.COD_PROD', '=', $codigo],
@@ -3275,13 +3284,13 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
-                                    
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')           
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
                          //->where('PRODUCTOS.LINEA','=', 34)
                          ->offset($start)
@@ -3295,7 +3304,7 @@ $lotes= DB::connection('retail')
 
         if($tipo === '1') {
 
-            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+            $posts->where('PRODUCTOS.CODIGO', 'LIKE' ,'%'.$busqueda.'%');
 
         } else if ($tipo === '2'){
 
@@ -3347,7 +3356,7 @@ $lotes= DB::connection('retail')
         }
 
         if($tipo === '1') {
-            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,''.$busqueda.'%');
+            $totalFiltered->where('PRODUCTOS.CODIGO', 'LIKE' ,'%'.$busqueda.'%');
         } else if ($tipo === '2'){
             $totalFiltered->where('PRODUCTOS.DESCRIPCION', 'LIKE' ,'%'.$busqueda.'%');
         }
@@ -3426,7 +3435,13 @@ $lotes= DB::connection('retail')
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
+
                 $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
                 $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREC_VENTA, 2);
@@ -3711,13 +3726,13 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA'),
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
                      DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
-                                    
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')           
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', 9)
                          //->where('PRODUCTOS.LINEA','=', 34)
                          ->offset($start)
@@ -3864,7 +3879,11 @@ $lotes= DB::connection('retail')
                 // CARGAR EN LA VARIABLE 
 
                 $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
                 $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
                 $nestedData['PREC_VENTA_CRUDO'] = Common::formato_precio($post->PREC_VENTA, 2);
@@ -4138,26 +4157,26 @@ $lotes= DB::connection('retail')
         foreach ($devolucionProv as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->PROVEEDOR = ucwords(strtolower($value->PROVEEDOR));
-            $value->MOTIVO = ucfirst(strtolower($value->MOTIVO));
+            $value->PROVEEDOR = utf8_decode(utf8_encode(ucwords(strtolower($value->PROVEEDOR))));
+            $value->MOTIVO = utf8_decode(utf8_encode(ucfirst(strtolower($value->MOTIVO))));
         }
 
         foreach ($ventasDev as $key => $value) {
             $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+            $value->CLIENTE = utf8_decode(utf8_encode(ucwords(strtolower($value->CLIENTE))));
         }
 
         foreach ($credito as $key => $value) {
             $value->PRECIO = Common::formato_precio($value->PRECIO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->CLIENTE = ucwords(strtolower($value->CLIENTE));
+            $value->CLIENTE = utf8_decode(utf8_encode(ucwords(strtolower($value->CLIENTE))));
         }   
 
         foreach ($salida as $key => $value) {
             $value->COSTO = Common::formato_precio($value->COSTO, $candec);
             $value->TOTAL = Common::formato_precio($value->TOTAL, $candec);
-            $value->MOTIVO = utf8_decode(utf8_encode(ucfirst(strtolower($value->MOTIVO))));
+            $value->MOTIVO = utf8_encode(utf8_decode(ucfirst(mb_strtolower($value->MOTIVO))));
         }
         /*  --------------------------------------------------------------------------------- */
 
@@ -4272,7 +4291,7 @@ $lotes= DB::connection('retail')
                 $cliente = strtolower($post->CLIENTE);
                 $nestedData['ITEM'] = $item;
                 $nestedData['ID'] = $post->ID;
-                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, $candec);
                 $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
@@ -4303,5 +4322,157 @@ $lotes= DB::connection('retail')
         return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public static function productoqr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo = $data["data"]["codigo"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, LINEAS.DESCRIPCION AS CATEGORIA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.DESCUENTO, LINEAS.CODIGO AS LINEA, MARCA.CODIGO AS MARCA, DETALLE_PROD.NOMBRE, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA'),
+                     DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
+                         ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+                         ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->rightjoin('IMAGENES', 'IMAGENES.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')            
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $sucursal)
+                         ->where('PRODUCTOS_AUX.CODIGO', '=' , $codigo)
+                         ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($codigo);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->CODIGO;
+
+                if ($post->NOMBRE === null) {
+                    $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                } else {
+                    $nestedData['DESCRIPCION'] = $post->NOMBRE;
+                }
+                
+                if ($post->DESCRIPCION_LARGA === null) {
+                    $nestedData['DESCRIPCION_LARGA'] = 'NO DISPONE DE INFORMACIÓN POR EL MOMENTO';
+                } else {
+                    $nestedData['DESCRIPCION_LARGA'] = $post->DESCRIPCION_LARGA;
+                }
+
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PREC_VENTA'] = Common::precio_candec($post->PREC_VENTA, $post->MONEDA);
+                $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);
+                
+                $nestedData['DESCUENTO'] = $post->DESCUENTO;
+
+                
+                $nestedData['LINEA'] = $post->LINEA;
+                $nestedData['MARCA'] = $post->MARCA;
+
+                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+
+                if ($nestedData['STOCK'] === '0') {
+                    $nestedData['BACKGROUND'] = 'bg-danger';
+                    $nestedData['ESTATUS'] = 'AGOTADO';
+                } else if($post->DESCUENTO > 0) {
+                    $nestedData['BACKGROUND'] = 'bg-warning';
+                    $nestedData['ESTATUS'] = ''.$post->DESCUENTO.'% OFF';
+                } else {
+                    $nestedData['BACKGROUND'] = 'bg-success';
+                    $nestedData['ESTATUS'] = 'DISPONIBLE';
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $descuento_unit = (Common::quitar_coma($post->PREC_VENTA, 2) * Common::quitar_coma($post->DESCUENTO, 2)) / 100;
+                $precio_unit = Common::quitar_coma($post->PREC_VENTA, 2) - $descuento_unit;
+                $nestedData['PREC_DESCUENTO'] = Common::precio_candec($precio_unit, $post->MONEDA);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_external"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+    public static function barcodeFiltrar($data){
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS GONDOLAS
+
+        $barcode = ProductosAux::select(DB::raw('CODIGO'))
+        ->where('CODIGO', 'LIKE', '%'.$data['codigo'].'%')
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->limit(10)
+        ->get()->toArray();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        return ['barcode' => $barcode];
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

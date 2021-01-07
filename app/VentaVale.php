@@ -102,6 +102,7 @@ class VentaVale extends Model
         $articulos = [];
         $c_rows = 0;
         $limite = 27;
+
         // INICIAR MPDF 
 
         $mpdf = new \Mpdf\Mpdf([
@@ -117,13 +118,13 @@ class VentaVale extends Model
 
         foreach ($vales as $key => $value) {
             $total = $total + $value["TOTAL"];
-            $nombre = strtolower($value["CLIENTE"]);
-            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
+            $nombre = mb_strtolower($value["CLIENTE"]);
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
             $articulos[$c_rows]['TOTAL_VALE'] = Common::precio_candec($value["TOTAL"], $candec);
-            $empresa = strtolower($value["EMPRESA"]);
+            $empresa = mb_strtolower($value["EMPRESA"]);
             $fecha = substr($value["FECHA"],0,-9);
             $articulos[$c_rows]['FECHA'] = $fecha;
-            $articulos[$c_rows]['EMPRESA'] = ucwords($empresa);
+            $articulos[$c_rows]['EMPRESA'] = utf8_decode(utf8_encode(ucwords($empresa)));
 
             if($c_rows == $limite){
                 $articulos[$c_rows]['SALTO'] = true;
@@ -142,6 +143,7 @@ class VentaVale extends Model
         $data['intervalo'] = $intervalo;
         $data['articulos'] = $articulos;
         $data['total'] = $total;
+        $data['sucursal'] = $sucursal;
 
         $namefile = 'reporteVale'.time().'.pdf';
 
@@ -225,11 +227,11 @@ class VentaVale extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post["CLIENTE"]);
-                $empresa = strtolower($post["EMPRESA"]);
+                $cliente = mb_strtolower($post["CLIENTE"]);
+                $empresa = mb_strtolower($post["EMPRESA"]);
                 $nestedData['ITEM'] = $item;
-                $nestedData['CLIENTE'] = ucwords($cliente);
-                $nestedData['EMPRESA'] = ucwords($empresa);
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
+                $nestedData['EMPRESA'] = utf8_decode(utf8_encode(ucwords($empresa)));
                 $fecha = substr($post["FECHA"],0,-9);
                 $nestedData['FECHA'] = $fecha;
                 $nestedData['TOTAL'] = Common::formato_precio($post["TOTAL"], $candec);

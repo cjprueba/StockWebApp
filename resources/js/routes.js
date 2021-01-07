@@ -266,6 +266,16 @@ export default new Router({
 			component: require('./components/cotizacion/CotizacionMostrar.vue').default
 		},
 		{
+			path: '/ct3',
+			name: 'cotizacionCrearNuevo',
+			component: require('./components/cotizacion/CotizacionCrearNuevo.vue').default
+		},
+		{
+			path: '/ct4',
+			name: 'cotizacionMostrarNuevo',
+			component: require('./components/cotizacion/MostrarCotizacionNew.vue').default
+		},
+		{
 			path: '/tr1',
 			name: 'transporteCrear',
 			component: require('./components/transporte/crearTransporte.vue').default
@@ -351,6 +361,11 @@ export default new Router({
 			name: 'transferenciaImportarDevolucion',
 			component: require('./components/transferencia/ImportarTransferenciaDevolucion.vue').default
 		},
+		{
+			path: '/tr6',
+			name: 'transferenciaCobrar',
+			component: require('./components/transferencia/CobrarTransferencia.vue').default
+		},
     	{
 			path: '/rpt15',
 			name: 'rptTarjeta',
@@ -361,11 +376,6 @@ export default new Router({
 			name: 'notaCredito',
 			component: require('./components/movimientos/CreditoNota.vue').default
       	},
-		{
-			path: '/rpt16',
-			name: 'rptVentaVendedor',
-			component: require('./components/reportes/Vendedor.vue').default
-	    },
 		{
 			path: '/rpn2',
 			name: 'rptTransferenciaWeb',
@@ -380,6 +390,20 @@ export default new Router({
 			path: '/mov4',
 			name: 'salidaMostrar',
 			component: require('./components/movimientos/SalidaProductosMostrar.vue').default
+		},
+		{
+			path: '/rptp',
+			name: 'rptProducto',
+			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+		{
+			path: '/maq1',
+			component: require('./components/maquinas/CrearSucursalSector.vue').default
+		},
+		{
+			path: '/maq2',
+			component: require('./components/maquinas/RegistroMaquina.vue').default
+
 		}
 
 

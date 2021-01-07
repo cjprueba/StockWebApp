@@ -37,6 +37,7 @@ Vue.use(FlagIcon);
 // HOTKEYS
 /* ********************************************* */
 import hotkeys from 'hotkeys-js';
+import Mousetrap from 'mousetrap';
 /* ********************************************* */
 // Funciones utiles 
 
@@ -309,6 +310,24 @@ Vue.component('proveedor-nombre', require('./components/textboxs/Proveedor/Prove
 
 /* ********************************************* */
 
+// SUCURSAL RM
+
+Vue.component('sucursal-rm', require('./components/maquinas/textboxs/SucursalRmTextbox.vue').default);
+
+/* ********************************************* */
+
+// SECTOR RM
+
+Vue.component('sector-rm', require('./components/maquinas/textboxs/SectorRmTextbox.vue').default);
+
+/* ********************************************* */
+
+// REGISTROS DE MAQUINAS
+
+Vue.component('registro-maquinas', require('./components/maquinas/textboxs/RegistroMaquinasTextbox.vue').default);
+
+/* ********************************************* */
+
 // CAMARA
 
 Vue.component('camara-bardcode', require('./components/camara/camara-barcode.vue').default);
@@ -364,6 +383,10 @@ Vue.component('select-genero', require('./components/textboxs/GeneroCategoria.vu
 Vue.component('venta-marca-categoria-rpt', require('./components/reportes/venta/Marca_Categoria/Venta_Marca_Categoria_Rpt.vue').default);
 Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
 Vue.component('venta-diaria-rpt', require('./components/reportes/venta/Diario/ReporteVentaDiario.vue').default);
+Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
+Vue.component('venta-vendedor-rpt', require('./components/reportes/venta/Vendedor/VentaVendedorRpt.vue').default);
+
+/* ********************************************* */
 
 // GONDOLA
 
@@ -474,6 +497,7 @@ Vue.component('sidebar', require('./components/Sidebar.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('home', require('./components/Home.vue').default);
 Vue.component('producto', require('./components/producto/MostrarProductoUno.vue').default);
+Vue.component('productoqr', require('./components/producto/MostrarProductoQR.vue').default);
 
 /* ********************************************* */
 

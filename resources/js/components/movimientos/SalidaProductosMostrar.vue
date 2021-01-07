@@ -56,6 +56,7 @@
 	 export default {
       data(){
         return {
+        	procesar: false
         }
       }, 
       methods: {
@@ -123,6 +124,18 @@
 				})
 
 				// ------------------------------------------------------------------------
+
+      		}, 
+      		generarReporte(id){
+
+      			// ------------------------------------------------------------------------
+
+
+	            Common.generarRptPdfSalidaCommon(id).then( () => {
+	                me.procesar = false;
+	            });
+
+      			// ------------------------------------------------------------------------
 
       		}
       },
@@ -204,15 +217,14 @@
 
                     // GENERAR REPORTE PDF
 
-                    tableSalidaProductos.on('click', 'tbody tr #reporte', function() {
+                    tableSalidaProductos.on('click', 'tbody tr #imprimirReporte', function() {
 
 	                    // *******************************************************************
 
 	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
 
-	                   
 	                   	var row  = $(this).parents('tr')[0];
-	                   	
+	                   	me.generarReporte(tableSalidaProductos.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 

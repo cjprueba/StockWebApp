@@ -122,7 +122,7 @@
         <table width="100%" class="tabla2" >
             <tr>
                 <td width="12%">Señor (es):</td>
-                <td width="36%" class="linea" align="left"><span class="text">05 - Diciembre - 2020</span></td>
+                <td width="36%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
                 <td width="5%">&nbsp;</td>
                 <td width="13%">&nbsp;</td>
                 <td width="4%" align="left" class="border fondo"><span class="text">X</span></td>
@@ -134,7 +134,7 @@
         <table width="100%" class="tablaRazon">
             <tr>
                 <td width="10%">Señor (es):</td>
-                <td width="38%" align="left"><span class="text">GRUPO TEKOKATU S.R.L.</span></td>
+                <td width="38%" align="left"><span class="text">{{ $razon }}</span></td>
                 <td width="9%">&nbsp;</td>
                 <td width="9%"><span class="text">{{ $ruc }}</span></td>
                 <td width="13%">&nbsp;</td>
@@ -144,7 +144,7 @@
             </tr>
             <tr>
                 <td>Dirección:</td>
-                <td ><span class="text">Asunción</span></td>
+                <td ><span class="text">{{ $direccion }}</span></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

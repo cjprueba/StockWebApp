@@ -153,9 +153,11 @@ class ProductosAux extends Model
 
             	// BUSCAR IMAGEN
 
-            	$imagen = Imagen::select(DB::raw('PICTURE'))
-		        ->where('COD_PROD','=', $post->CODIGO)
-		        ->get();
+                $imagen = Imagen::obtenerImagenURL($post->CODIGO);
+
+          //   	$imagen = Imagen::select(DB::raw('PICTURE'))
+		        // ->where('COD_PROD','=', $post->CODIGO)
+		        // ->get();
 
             	/*  --------------------------------------------------------------------------------- */
 
@@ -168,10 +170,12 @@ class ProductosAux extends Model
                 $nestedData['PREMAYORISTA'] = Common::formato_precio($post->PREMAYORISTA, $post->CANDEC);
                 $nestedData['IVA'] = $post->IVA;
                 $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
-                $nestedData['IMAGEN'] = "<img src='' class='img-thumbnail previsualizar width='50px' alt=''>";
-                foreach ($imagen as $key => $image) {
-	                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($image->PICTURE)."' class='img-thumbnail' style='width:60px;height:60px;'>";
-	            }
+                $nestedData['IMAGEN'] = $imagen["imagen_3"];
+
+                //    $nestedData['IMAGEN'] = "<img src='' class='img-thumbnail previsualizar width='50px' alt=''>";
+                //    foreach ($imagen as $key => $image) {
+	            //     $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($image->PICTURE)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+	            // }
                 $nestedData['MONEDA'] = $post->MONEDA;
           		
                 $data[] = $nestedData;

@@ -2316,14 +2316,14 @@ class Transferencia extends Model
             ->select(DB::raw(
                             'TRANSFERENCIAS_DET.ID,
                             TRANSFERENCIAS_DET.CODIGO_PROD, 
-                            TRANSFERENCIAS_DET.CANTIDAD, 
+                            TRANSFERENCIADET_TIENE_LOTES.CANTIDAD, 
                             TRANSFERENCIAS_DET.PRECIO,
                             LOTES.FECHA_VENC AS VENCIMIENTO,
                             LOTES.COSTO'
                         ))
             ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
             ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
-            ->groupBy('TRANSFERENCIAS_DET.ID')
+            ->groupBy('TRANSFERENCIAS_DET.ID', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE')
             ->get();
             
             /*  --------------------------------------------------------------------------------- */
@@ -2428,22 +2428,48 @@ class Transferencia extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
-                // CREAR LOTE DEL PRODUCTO 
+                // VERIFICAR SI PRODUCTO TIENE VENCIMIENTO PARA PODER INSERTAR POR LOTE ORIGEN CON SU RESPECTIVO VENCIMIENTO 
 
-                $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $precio_venta, 2, $usere, $td->VENCIMIENTO))["id"];
+                // if ($producto[0]->VENCIMIENTO === 1) {
 
-                /*  --------------------------------------------------------------------------------- */
+                //     $lotesVencimientoTransferencia = TransferenciaDet_tiene_Lotes::select(DB::raw(
+                //             'TRANSFERENCIADET_TIENE_LOTES.CANTIDAD,
+                //             TRANSFERENCIADET_TIENE_LOTES.ID_LOTE,
+                //             LOTES.COSTO,
+                //             LOTES.FECHA_VENC'
+                //     ))
+                //     ->leftjoin('LOTES', 'TRANSFERENCIADET_TIENE_LOTES.ID_LOTE', '=', 'LOTES.ID')
+                //     ->where('ID_TRANSFERENCIA', '=', $td->ID)
+                //     ->get();
 
-                // MODIFICAR TRANSFERENCIA DET 
+                //     foreach ($lotesVencimientoTransferencia as $key => $value) {
 
-                /*  --------------------------------------------------------------------------------- */
+                //         $lote = (Stock::insetar_lote($td->CODIGO_PROD, $value->CANTIDAD, $value->COSTO, 2, $usere, $value->FECHA_VENC))["id"];
 
-                // MODOS
-                // MODO 1 - COMPRA
-                // MODO 2 - TRANSFERENCIA 
+                //         // MODOS
+                //         // MODO 1 - COMPRA
+                //         // MODO 2 - TRANSFERENCIA 
 
-                Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
-                //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+                //         Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+
+                //     }
+
+                // } else {
+
+                    // CREAR LOTE DEL PRODUCTO 
+
+                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO, 2, $usere, $td->VENCIMIENTO))["id"];
+
+                    // MODOS
+                    // MODO 1 - COMPRA
+                    // MODO 2 - TRANSFERENCIA 
+
+                    Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
+                    //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+
+                    /*  --------------------------------------------------------------------------------- */
+
+                //}
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -2973,8 +2999,9 @@ class Transferencia extends Model
         $data['nombre'] = $nombre;
         $data['c'] = $c;
         $data['sucursal'] = $nombre_sucursal;
+        $data['razon'] = $sucursal['sucursal'][0]['RAZON_SOCIAL'];
         $data['direccion'] = $direccion;
-        $data['ruc'] = '111111-1';
+        $data['ruc'] = $sucursal['sucursal'][0]['RUC'];
         $data['tipo'] = 'fisico';
 
         /*  --------------------------------------------------------------------------------- */
@@ -3169,7 +3196,7 @@ class Transferencia extends Model
             $c = $c + 1;
 
             /*  --------------------------------------------------------------------------------- */
-
+            
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 10){
@@ -3367,7 +3394,7 @@ class Transferencia extends Model
         foreach ($transferencia_det as $key => $value) {
             $articulos[$key]["cantidad"] = $value->CANTIDAD;
             $articulos[$key]["cod_prod"] = $value->CODIGO_PROD;
-            $articulos[$key]["descripcion"] = $value->DESCRIPCION;
+            $articulos[$key]["descripcion"] = utf8_decode(utf8_encode($value->DESCRIPCION));
             $articulos[$key]["precio"] = $value->PRECIO;
             $articulos[$key]["total"] = $value->TOTAL;
             $cantidad = $cantidad + $value->CANTIDAD;
@@ -3380,19 +3407,19 @@ class Transferencia extends Model
         // CARGAR VARIABLES 
         
         $data['codigo'] = $codigo;
-        $data['origen'] = $origen;
-        $data['destino'] = $destino;
-        $data['envia'] = $envia;
-        $data['transporta'] = $transporta;
-        $data['recibe'] = $recibe;
+        $data['origen'] = utf8_decode(utf8_encode($origen));
+        $data['destino'] = utf8_decode(utf8_encode($destino));
+        $data['envia'] = utf8_decode(utf8_encode($envia));
+        $data['transporta'] = utf8_decode(utf8_encode($transporta));
+        $data['recibe'] = utf8_decode(utf8_encode($recibe));
         $data['fecha'] = $fecha;
         $data['nombre'] = $nombre;
         $data['articulos'] = $articulos;
         $data['c'] = $c;
         $data['cantidad'] = $cantidad;
         $data['total'] = Common::precio_candec($total, $moneda);
-        $data['sucursal'] = $nombre_sucursal;
-        $data['direccion'] = $direccion;
+        $data['sucursal'] = utf8_decode(utf8_encode($nombre_sucursal));
+        $data['direccion'] = utf8_decode(utf8_encode($direccion));
 
         /*  --------------------------------------------------------------------------------- */
         

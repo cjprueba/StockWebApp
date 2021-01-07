@@ -554,9 +554,7 @@ class Vendedores extends Model
         $codigoVendedor = $data['vendedor'];
         $sucursal = $data['sucursal'];
         $tipo = $data['tipo'];
-
-
-
+        $cod_cliente = $data['codigoCliente'];
 
         $ventaVendedor = DB::connection('retail')->table('VENTAS')
                 ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
@@ -564,12 +562,13 @@ class Vendedores extends Model
                     DB::raw('VENTAS.SUB_TOTAL AS SUBTOTAL'),
                     DB::raw('VENTAS.IMPUESTOS AS IVA'),
                     DB::raw('VENTAS.TOTAL AS TOTAL'),
-                    DB::raw('VENTAS.CODIGO AS CODIGO'),
+                    DB::raw('VENTAS.ID AS ID'),
                     DB::raw('VENTAS.TIPO AS TIPO'),
                     DB::raw('VENTAS.MONEDA AS MONEDA'),
                     DB::raw('CLIENTES.CODIGO AS COD_CLI'),
                     DB::raw('EMPlEADOS.NOMBRE AS VENDEDOR'),
-                    DB::raw('VENTAS_CREDITO.SALDO AS SALDO'))
+                    DB::raw('VENTAS_CREDITO.PAGO AS PAGADO'),
+                    DB::raw('VENTAS_ANULADO.ANULADO AS ESTATUS'))
                 ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
                 ->leftjoin('VENTAS_CREDITO', 'VENTAS_CREDITO.FK_VENTA', '=', 'VENTAS.ID')
                 ->leftJoin('CLIENTES', function($join){
@@ -597,6 +596,11 @@ class Vendedores extends Model
             $ventaVendedor->where('VENTAS.TIPO', '=', $tipo);
         }
 
+        if(!empty($cod_cliente)){
+
+            $ventaVendedor->where('VENTAS.CLIENTE', '=', $cod_cliente);
+        }
+
         $ventaVendedor = $ventaVendedor->get();
 
         return $ventaVendedor;
@@ -615,14 +619,13 @@ class Vendedores extends Model
         $final = date('Y-m-d', strtotime($datos['data']['final']));
         $vendedor = $datos['data']['vendedor'];
         $sucursal = $datos['data']['sucursal'];
+
         $order ='VENTAS.FECALTAS';
         $dir = 'ASC';
 
         // OBTENER DATOS 
 
-
         $ventaVendedor = Vendedores::obtenerDatos($datos['data'], $order, $dir); 
-
 
         //INICIAR VARIABLES
         
@@ -635,8 +638,8 @@ class Vendedores extends Model
         $subtotal = 0;
         $articulos = [];
         $limite = 35;
-
         $tipo = $datos['data']['tipo'];
+        $totalPagado = 0;
 
 
         // INICIAR MPDF 
@@ -657,30 +660,35 @@ class Vendedores extends Model
             $total = $total + $value->TOTAL;
             $iva = $iva + $value->IVA;
             $subtotal = $subtotal + $value->SUBTOTAL;
-            $nombre = strtolower($value->CLIENTE);
-            $vendedor = strtolower($value->VENDEDOR);
+            $nombre = mb_strtolower($value->CLIENTE);
+            $vendedor = mb_strtolower($value->VENDEDOR);
             $nombre = substr($nombre,0,27);
-            $articulos[$c_rows]['NOMBRE'] = ucwords($nombre);
-            $articulos[$c_rows]['CODIGO'] = $value->CODIGO;
+            $articulos[$c_rows]['NOMBRE'] = utf8_decode(utf8_encode(ucwords($nombre)));
+            $articulos[$c_rows]['CODIGO'] = $value->ID;
             $fecha = substr($value->FECHA,0,-9);
             $articulos[$c_rows]['FECHA'] = $fecha;
             $articulos[$c_rows]['TIPO'] = $value->TIPO;
-            $articulos[$c_rows]['VENDEDOR'] = ucwords($vendedor);
+            $articulos[$c_rows]['VENDEDOR'] = utf8_decode(utf8_encode(ucwords($vendedor)));
             $articulos[$c_rows]['IVA'] = Common::formato_precio($value->IVA, $candec);
             $articulos[$c_rows]['SUBTOTAL'] = Common::formato_precio($value->SUBTOTAL, $candec);
             $articulos[$c_rows]['TOTAL'] = Common::formato_precio($value->TOTAL, $candec);
-
-            
-            // ESTADO DE PAGO 
+ 
+            // ESTADO DE PAGO CREDITO
 
             if($tipo == 'CR'){
-                    
-                $articulos[$c_rows]['SALDO'] = "Pendiente";
-                
-                if($value->SALDO == '0.00'){
+                $totalPagado = $totalPagado + $value->PAGADO;
+                $articulos[$c_rows]['PAGADO'] = Common::formato_precio($value->PAGADO, $candec);
+            }
 
-                    $articulos[$c_rows]['SALDO'] = "Completado";
+            if($value->TIPO == 'PE'){
+
+                if ($value->ESTATUS === 2){
+                    $articulos[$c_rows]['TIPO'] = $value->TIPO.' - '.'PENDIENTE';
+                } else if ($value->ESTATUS === 0) {
+                    $articulos[$c_rows]['TIPO'] = $value->TIPO.' - '.'PAGADO';
                 }
+
+                
             }
 
             // CREAR HOJA 
@@ -692,7 +700,6 @@ class Vendedores extends Model
                 $articulos[$c_rows]['SALTO'] = true;
                 $limite = $limite + 42;
             }
-
 
             $c_rows = $c_rows + 1;
         }
@@ -707,6 +714,7 @@ class Vendedores extends Model
         $data['iva'] = Common::formato_precio($iva, $candec);
         $data['subtotal'] = Common::formato_precio($subtotal, $candec);
         $data['total'] = Common::formato_precio($total, $candec);
+        $data['totalPagado'] = Common::formato_precio($totalPagado, $candec);
 
         $html = view('pdf.rptVentaVendedor', $data)->render();
 
@@ -750,7 +758,7 @@ class Vendedores extends Model
 
         $columns = array( 
                             0 => 'VENTAS.FECALTAS', 
-                            1 => 'VENTAS.CODIGO',
+                            1 => 'VENTAS.ID',
                             2 => 'CLIENTES.NOMBRE',
                             3 => 'VENTAS.FECALTAS',
                             4 => 'VENTAS.TIPO',
@@ -771,13 +779,13 @@ class Vendedores extends Model
         $dir = $request->input('order.0.dir');
         $item = 1;
 
-
         $datos = array(
                 'sucursal' => $request->input('sucursal'),
                 'inicio' => date('Y-m-d', strtotime($request->input('inicio'))),
                 'final' => date('Y-m-d', strtotime($request->input('final'))),
                 'vendedor' => $request->input('vendedor'),
                 'tipo' => $request->input('tipo'),
+                'codigoCliente' => $request->input('codigoCliente'),
             );
         
 
@@ -807,15 +815,16 @@ class Vendedores extends Model
 
                 // CARGAR EN LA VARIABLE 
 
-                $cliente = strtolower($post->CLIENTE);
-                $vendedor = strtolower($post->VENDEDOR);
+                $cliente = mb_strtolower($post->CLIENTE);
+                $vendedor = mb_strtolower($post->VENDEDOR);
+                $cliente = substr($cliente,0,27);
                 $nestedData['ITEM'] = $item;
-                $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['CLIENTE'] = ucwords($cliente);
+                $nestedData['ID'] = $post->ID;
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
                 $fecha = substr($post->FECHA,0,-9);
                 $nestedData['FECHA'] = $fecha;
                 $nestedData['TIPO'] = $post->TIPO;       
-                $nestedData['VENDEDOR'] = ucwords($vendedor);
+                $nestedData['VENDEDOR'] = utf8_decode(utf8_encode(ucwords($vendedor)));
                 $nestedData['IVA'] = Common::formato_precio($post->IVA, $candec);
                 $nestedData['SUBTOTAL'] = Common::formato_precio($post->SUBTOTAL, $candec);
                 $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);

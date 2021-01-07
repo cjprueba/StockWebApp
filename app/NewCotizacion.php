@@ -13,15 +13,12 @@ class NewCotizacion extends Model
     protected $connection = 'retail';
     protected $table = 'cotizaciones';
     public $timestamps = false;
-    public static function obtener_cotizacion()
+    public static function obtener_cotizaciones($request)
     {
 
         $dia = date("Y-m-d");
         $user = auth()->user();
-           $cotizaciones=NewCotizacion::select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->get()
-            ->toArray();
+
 
       
 
@@ -55,9 +52,9 @@ class NewCotizacion extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = NewCotizacion::select(DB::raw('ID,FK_DE AS DE,FK_A AS A,VALOR,FECHA,FECALTAS'))
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->COUNT();
+
+        $totalData = NewCotizacion::where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->count();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -81,10 +78,10 @@ class NewCotizacion extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
              $posts =NewCotizacion::
-            select(DB::raw('NewCotizacion.ID,moneda1.DESCRIPCION AS DE,monedas2.DESCRIPCION AS A,NewCotizacion.VALOR,NewCotizacion.FECHA,NewCotizacion.FECALTAS'))
-            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
-            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            select(DB::raw('cotizaciones.ID,monedas1.DESCRIPCION AS DE,monedas2.DESCRIPCION AS A,cotizaciones.VALOR,cotizaciones.FECHA,cotizaciones.FECALTAS'))
+            ->leftjoin('monedas as monedas1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as monedas2','monedas2.codigo','=','FK_A')
+            ->where('cotizaciones.ID_SUCURSAL', '=', $user->id_sucursal)
 
             ->offset($start)
                 ->limit($limit)
@@ -108,19 +105,20 @@ class NewCotizacion extends Model
             
                 $posts = NewCotizacion::
             select(DB::raw(
-            	'NewCotizacion.ID,
-            	moneda1.DESCRIPCION AS DE,
+            	'cotizaciones.ID,
+            	monedas1.DESCRIPCION AS DE,
             	monedas2.DESCRIPCION AS A,
-            	NewCotizacion.VALOR,
-            	NewCotizacion.FECHA,
-            	NewCotizacion.FECALTAS'))
-            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
-            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            	cotizaciones.VALOR,
+            	cotizaciones.FECHA,
+            	cotizaciones.FECALTAS'))
+            ->leftjoin('monedas as monedas1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as monedas2','monedas2.codigo','=','FK_A')
+            ->where('cotizaciones.ID_SUCURSAL', '=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                                 $query->where('monedas1.DESCRIPCION','LIKE',"%{$search}%")
                                       ->orWhere('monedas2.DESCRIPCION', 'LIKE',"%{$search}%")
-                                      ->orWhere('NewCotizacion.ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('cotizaciones.ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('cotizaciones.FECHA', 'LIKE',"%{$search}%");
                             })
 
                 ->offset($start)
@@ -132,21 +130,15 @@ class NewCotizacion extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered =NewCotizacion::
-            select(DB::raw(
-            	'NewCotizacion.ID,
-            	moneda1.DESCRIPCION AS DE,
-            	monedas2.DESCRIPCION AS A,
-            	NewCotizacion.VALOR,
-            	NewCotizacion.FECHA,
-            	NewCotizacion.FECALTAS'))
-            ->leftjoin('monedas as moneda1','monedas1.codigo','=','FK_DE')
-            ->leftjoin('monedas as moneda2','monedas2.codigo','=','FK_A')
-            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+
+            $totalFiltered =NewCotizacion::leftjoin('monedas as monedas1','monedas1.codigo','=','FK_DE')
+            ->leftjoin('monedas as monedas2','monedas2.codigo','=','FK_A')
+            ->where('cotizaciones.ID_SUCURSAL', '=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                                   $query->where('monedas1.DESCRIPCION','LIKE',"%{$search}%")
                                       ->orWhere('monedas2.DESCRIPCION', 'LIKE',"%{$search}%")
-                                      ->orWhere('NewCotizacion.ID', 'LIKE',"%{$search}%");
+                                      ->orWhere('cotizaciones.ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('cotizaciones.FECHA', 'LIKE',"%{$search}%");
                             }) 
                              ->count();
 
@@ -213,24 +205,24 @@ class NewCotizacion extends Model
       		DB::connection('retail')->beginTransaction();
 
         // INICIAR VARIABLES 
-
+      $user = auth()->user();
 			$dia = date("Y-m-d");
 			$hora = date("H:i:s");
-			$user = auth()->user();
-
+        
 			 // OBTENER ID DE FORMULA
 			 $FORMULA = DB::connection('retail')
             ->table('FORMULAS_COTIZACION')
-            ->select(DB::raw('ifnull(ID,0)'))
-            ->where('FK_DE', '=',$datos['data']['DE'])
-            ->where('FK_A', '=', $datos['data']['A'])
+            ->select(DB::raw('ifnull(ID,0) AS ID'))
+            ->where('FK_DE', '=',$datos['data']['de'])
+            ->where('FK_A', '=', $datos['data']['a'])
             ->get()->toArray();
-
+            
               $cotizacion=NewCotizacion::insert([
-                'FK_DE'=> $datos['data']['DE'], 
-                'FK_A'=> $datos['data']['A'],
-                'VALOR'=> Common::quitar_coma($datos['data']['VALOR'], 2),
-                'FK_FORMULA'=> $FORMULA[0]["ID"],
+                'FK_DE'=> $datos['data']['de'], 
+                'FK_A'=> $datos['data']['a'],
+                'VALOR'=> Common::quitar_coma($datos['data']['valor'], 2),
+                'FECHA'=> $datos['data']['fecha'],
+                'FK_FORMULA'=> $FORMULA[0]->ID,
                 'FK_USER'=> $user->id,
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'FECALTAS'=> $dia,
