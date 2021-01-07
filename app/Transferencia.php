@@ -3196,7 +3196,7 @@ class Transferencia extends Model
             $c = $c + 1;
 
             /*  --------------------------------------------------------------------------------- */
-
+            
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 10){
