@@ -3061,7 +3061,7 @@ class Transferencia extends Model
 
                 // PRECIO 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::transferencia_cotizacion(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->PRECIO, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -3078,7 +3078,7 @@ class Transferencia extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
+                $cotizacion = Cotizacion::transferencia_cotizacion(['monedaProducto' => $monedaTransferencia, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value->TOTAL, $candec), 'decSistema' => 0, 'id_transf' => $id_transf, "id_sucursal" => $user->id_sucursal]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
