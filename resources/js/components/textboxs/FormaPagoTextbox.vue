@@ -134,9 +134,9 @@
                                             <label for="validationTooltip01">Guaranies:</label>
                                           </div>  
 
-                                          <div class="col-md-3">
+                                          <!-- <div class="col-md-3">
                                             <input class="form-control form-control-sm" type="text" v-model="totales.GUARANIES" v-on:blur="formatoGuaranies" disabled>
-                                          </div>
+                                          </div> -->
 
                                           <div class="col-md-4">
                                             <div class="input-group input-group-sm mb-3" >
@@ -147,7 +147,7 @@
                                             </div>
                                           </div>
 
-                                          <div class="col-md-3">
+                                          <div class="col-md-6">
                                             <input class="form-control form-control-sm" type="text" v-model="vuelto.guaranies" disabled>
                                           </div>
 
@@ -169,9 +169,9 @@
                                             <label for="validationTooltip01">Dolares</label>
                                           </div> 
 
-                                          <div class="col-md-3">
+                                          <!-- <div class="col-md-3">
                                             <input class="form-control form-control-sm" type="text"  v-model="totales.DOLARES"  v-on:blur="formatoDolares" disabled>
-                                          </div>
+                                          </div> -->
 
                                           <div class="col-md-4">
                                             <div class="input-group input-group-sm mb-3" >
@@ -182,7 +182,7 @@
                                             </div>
                                           </div>
 
-                                          <div class="col-md-3">
+                                          <div class="col-md-6">
                                             <input class="form-control form-control-sm" type="text"  v-model="vuelto.dolares" disabled>
                                           </div>
 
@@ -204,9 +204,9 @@
                                             <label for="validationTooltip01">Pesos</label>
                                           </div> 
 
-                                          <div class="col-md-3">
+                                          <!-- <div class="col-md-3">
                                             <input class="form-control form-control-sm" type="text"  v-model="totales.PESOS" v-on:blur="formatoPesos" disabled>
-                                          </div>
+                                          </div> -->
 
                                           <div class="col-md-4">
                                             <div class="input-group input-group-sm mb-3" >
@@ -217,7 +217,7 @@
                                             </div>
                                           </div>
 
-                                          <div class="col-md-3">
+                                          <div class="col-md-6">
                                             <input class="form-control form-control-sm" type="text" v-model="vuelto.pesos" disabled>
                                           </div>
 
@@ -240,9 +240,9 @@
                                             <label for="validationTooltip01">Reales</label>
                                           </div> 
 
-                                          <div class="col-md-3">
+                                          <!-- <div class="col-md-3">
                                             <input class="form-control form-control-sm" type="text" v-model="totales.REALES" v-on:blur="formatoReales" disabled>
-                                          </div>
+                                          </div> -->
 
                                           <div class="col-md-4">
                                             <div class="input-group input-group-sm mb-3" >
@@ -253,7 +253,7 @@
                                             </div>
                                           </div>
 
-                                          <div class="col-md-3">
+                                          <div class="col-md-6">
                                             <input class="form-control form-control-sm" type="text" v-model="vuelto.reales" disabled>
                                           </div>
 
