@@ -1011,6 +1011,7 @@
          		CODIGO: null,
          		CANTIDAD_PERSONALIZADA: 1,
          		CANTIDAD_TICKET: 1,
+         		RECARGAR: 0
          	},
          	producto: {
          		COD_PROD: '',
@@ -1232,6 +1233,8 @@
 
 								// ------------------------------------------------------------------------ 
 
+								me.recargar();
+								
 							}
 
 							// ------------------------------------------------------------------------
@@ -1319,6 +1322,7 @@
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
 	                	  	  me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
 	                	  	  me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
+	                	  	  me.caja.RECARGAR = response.data.caja[0].RECARGAR;
 	                	  	  me.numeracion();
 	                	  } else {
 	                	  		
@@ -1365,7 +1369,7 @@
 
       			//this.test();
 
-      			if (this.impresion.TICKET === true && this.impresion.FACTURA === true) {
+      			if ((this.impresion.TICKET === true && this.impresion.FACTURA === true) || this.caja.RECARGAR === 1) {
       				window.location.href = '/vt2';
       			}
 
