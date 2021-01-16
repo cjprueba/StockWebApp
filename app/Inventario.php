@@ -480,7 +480,7 @@ class Inventario extends Model
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
                     ";
                     // &emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
                 $data[] = $nestedData;
