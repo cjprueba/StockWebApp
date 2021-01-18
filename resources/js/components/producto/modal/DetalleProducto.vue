@@ -35,7 +35,12 @@
 					                            <p>STOCK</p>
 					                            <span class="detalle"><strong>Minimo:</strong> <span class="float-right">{{producto.STOCK_MIN}} </span></span><br/>
 					                            <span class="detalle"><strong>Máximo:</strong> <span class="float-right">2,000</span></span><br/>
-												<span class="detalle"><strong>{{producto.DEPOSITO_DESC}}</strong> <span class="float-right">{{producto.DEPOSITO}} </span> </span><br/>
+					                            <table class="table-borderless detalle">
+													<tr v-for="deposito in deposito" >
+														<td align="left" width="100%"><strong>{{deposito.DESCRIPCION}}</strong></td>
+														<td align="right">{{deposito.CANTIDAD}}</td>
+													</tr>
+												</table>
 					                        </div>
 			                    		</div>
 			                        </div>	
@@ -699,6 +704,10 @@
                 DEPOSITO: '',
                 DEPOSITO_DESC: ''
           	},
+          	deposito: {
+          		CANTIDAD: '',
+          		DESCRIPCION: ''
+          	},
           	lotes: {
           		LOTE: '', 
           		CANTIDAD_INICIAL: '', 
@@ -835,6 +844,7 @@
       		Common.obtenerProductoDetalleCommon(valor).then(data => {
            		me.producto = data.producto;
            		me.producto.IMAGEN = data.imagen; 
+           		me.deposito = data.deposito;
            	}).catch((err) => {
            		
            	});
