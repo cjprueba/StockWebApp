@@ -53,41 +53,41 @@ class TransferenciasTieneCotizacion extends Model
 
 	    	}
 
-	    	if ($data['COTIZACION']["formula_gs_reves_id"] !== 0 && $data['COTIZACION']["formula_gs_reves_id"] !== "" && $data['COTIZACION']["formula_gs_reves_id"] !== NULL){
+	    	// if ($data['COTIZACION']["formula_gs_reves_id"] !== 0 && $data['COTIZACION']["formula_gs_reves_id"] !== "" && $data['COTIZACION']["formula_gs_reves_id"] !== NULL){
 	    		
-	    		$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
-		    		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
-		    		'FK_COTIZACION' => $data['COTIZACION']["formula_gs_reves_id"],
-		    	]);
+	    	// 	$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
+		    // 		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
+		    // 		'FK_COTIZACION' => $data['COTIZACION']["formula_gs_reves_id"],
+		    // 	]);
 
-	    	}
+	    	// }
 
-	    	if ($data['COTIZACION']["formula_usd_reves_id"] !== 0 && $data['COTIZACION']["formula_usd_reves_id"] !== "" && $data['COTIZACION']["formula_usd_reves_id"] !== NULL){
+	    	// if ($data['COTIZACION']["formula_usd_reves_id"] !== 0 && $data['COTIZACION']["formula_usd_reves_id"] !== "" && $data['COTIZACION']["formula_usd_reves_id"] !== NULL){
 	    		
-	    		$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
-		    		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
-		    		'FK_COTIZACION' => $data['COTIZACION']["formula_usd_reves_id"],
-		    	]);
+	    	// 	$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
+		    // 		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
+		    // 		'FK_COTIZACION' => $data['COTIZACION']["formula_usd_reves_id"],
+		    // 	]);
 
-	    	}
+	    	// }
 
-	    	if ($data['COTIZACION']["formula_ps_reves_id"] !== 0 && $data['COTIZACION']["formula_ps_reves_id"] !== "" && $data['COTIZACION']["formula_ps_reves_id"] !== NULL){
+	    	// if ($data['COTIZACION']["formula_ps_reves_id"] !== 0 && $data['COTIZACION']["formula_ps_reves_id"] !== "" && $data['COTIZACION']["formula_ps_reves_id"] !== NULL){
 	    		
-	    		$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
-		    		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
-		    		'FK_COTIZACION' => $data['COTIZACION']["formula_ps_reves_id"],
-		    	]);
+	    	// 	$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
+		    // 		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
+		    // 		'FK_COTIZACION' => $data['COTIZACION']["formula_ps_reves_id"],
+		    // 	]);
 
-	    	}
+	    	// }
 
-	    	if ($data['COTIZACION']["formula_rs_reves_id"] !== 0 && $data['COTIZACION']["formula_rs_reves_id"] !== "" && $data['COTIZACION']["formula_rs_reves_id"] !== NULL){
+	    	// if ($data['COTIZACION']["formula_rs_reves_id"] !== 0 && $data['COTIZACION']["formula_rs_reves_id"] !== "" && $data['COTIZACION']["formula_rs_reves_id"] !== NULL){
 	    		
-	    		$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
-		    		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
-		    		'FK_COTIZACION' => $data['COTIZACION']["formula_rs_reves_id"],
-		    	]);
+	    	// 	$id_venta_tiene_cotizacion = TransferenciasTieneCotizacion::insertGetId([
+		    // 		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
+		    // 		'FK_COTIZACION' => $data['COTIZACION']["formula_rs_reves_id"],
+		    // 	]);
 
-	    	}
+	    	// }
 	    	/*  --------------------------------------------------------------------------------- */
 
 	    	Log::info('Transferencias Tiene Contizacion: Éxito al guardar.', ['TRANSFERENCIA' => $data["FK_TRANSFERENCIA"]]);
