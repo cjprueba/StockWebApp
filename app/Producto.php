@@ -1696,6 +1696,8 @@ $lotes= DB::connection('retail')
         // INICIAR VARIABLES
 
         $dato = [];
+        $deposito = [];
+        $count = 0;
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1743,16 +1745,28 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-        $deposito = ProductosAux::select(DB::raw('IFNULL(SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO, 0) AS ID_DEPOSITO'),
+        $datosDeposito = ProductosAux::select(DB::raw('IFNULL(SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO, 0) AS ID_DEPOSITO'),
             DB::raw('IFNULL(SUCURSALES.DESCRIPCION, 0) AS DEPOSITO_DESC'),
             DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO))),0) AS DEPOSITO'))
             ->leftjoin('SUCURSAL_TIENE_DEPOSITOS', 'SUCURSAL_TIENE_DEPOSITOS.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL')
             ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=', 'SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO')
         ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
-        ->get()
-        ->toArray();
+        ->groupBy('ID_DEPOSITO')
+        ->get();
 
+        foreach ($datosDeposito as $key => $value) {
+            
+            $count = $count +1;
+
+            if($value->DEPOSITO_DESC == '0'){
+                $deposito[$count]["DEPOSITO"] = '';
+                $deposito[$count]["DEPOSITO_DESC"] = '';
+            }else{
+                $deposito[$count]["CANTIDAD"] = $value->DEPOSITO;
+                $deposito[$count]["DESCRIPCION"] = ucwords(strtolower($value->DEPOSITO_DESC)).':';
+            }
+        }
         // RECORRER EL ARRAY 
 
         foreach ($producto as $key => $value) {
@@ -1846,14 +1860,6 @@ $lotes= DB::connection('retail')
             $dato["STOCK"] = $value->STOCK;
             $dato["STOCK_MIN"] = $value->STOCK_MIN;
 
-            if($deposito[0]["DEPOSITO_DESC"] == '0'){
-                $dato["DEPOSITO"] = '';
-                $dato["DEPOSITO_DESC"] = '';
-            }else{
-                $dato["DEPOSITO"] = $deposito[0]["DEPOSITO"];
-                $dato["DEPOSITO_DESC"] = ucwords(strtolower($deposito[0]["DEPOSITO_DESC"])).':';
-            }
-
             /*  --------------------------------------------------------------------------------- */
 
             // ULTIMA VENTA
@@ -1881,7 +1887,7 @@ $lotes= DB::connection('retail')
         // RETORNAR EL VALOR
         
         if (count($producto) > 0) {
-            return ['producto' => $dato, 'imagen' => $imagen["imagen"]];
+            return ['producto' => $dato, 'imagen' => $imagen["imagen"], 'deposito' => $deposito];
         } else {
             return ['producto' => 0];
         }
