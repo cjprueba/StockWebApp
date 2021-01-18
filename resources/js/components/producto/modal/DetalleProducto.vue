@@ -35,6 +35,7 @@
 					                            <p>STOCK</p>
 					                            <span class="detalle"><strong>Minimo:</strong> <span class="float-right">{{producto.STOCK_MIN}} </span></span><br/>
 					                            <span class="detalle"><strong>Máximo:</strong> <span class="float-right">2,000</span></span><br/>
+												<span class="detalle"><strong>Deposito:</strong> <span class="float-right">{{producto.DEPOSITO}} </span> </span><br/>
 					                        </div>
 			                    		</div>
 			                        </div>	
@@ -50,7 +51,8 @@
 			                                    <h6>
 			                                       <span v-html="producto.BAJA"></span>
 			                                    </h6>
-			                                    <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span></p>
+			                                    <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span> 
+			                                    </p>
 			                            <ul class="nav nav-tabs" id="myTab" role="tablist">
 			                                <li class="nav-item">
 			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Info</a>
@@ -693,7 +695,8 @@
                 OBSERVACION: '',
                 STOCK_MIN: '',
                 CANT_MAYORISTA: '',
-                BAJA: ''
+                BAJA: '',
+                DEPOSITO: ''
           	},
           	lotes: {
           		LOTE: '', 
