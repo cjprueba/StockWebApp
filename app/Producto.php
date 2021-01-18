@@ -1753,8 +1753,6 @@ $lotes= DB::connection('retail')
         ->get()
         ->toArray();
 
-        // var_dump($deposito);
-
         // RECORRER EL ARRAY 
 
         foreach ($producto as $key => $value) {

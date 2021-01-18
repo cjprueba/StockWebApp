@@ -726,7 +726,8 @@
           	},
           	enviadas: {
 
-          	}, seleccion: {
+          	}, 
+          	seleccion: {
           		informacion: true,
           		lotes: false,
           		transferencias: false
