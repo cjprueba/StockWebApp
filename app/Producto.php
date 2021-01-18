@@ -1744,14 +1744,14 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
         $deposito = ProductosAux::select(DB::raw('IFNULL(SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO, 0) AS ID_DEPOSITO'),
+            DB::raw('IFNULL(SUCURSALES.DESCRIPCION, 0) AS DEPOSITO_DESC'),
             DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO))),0) AS DEPOSITO'))
             ->leftjoin('SUCURSAL_TIENE_DEPOSITOS', 'SUCURSAL_TIENE_DEPOSITOS.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL')
+            ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=', 'SUCURSAL_TIENE_DEPOSITOS.ID_DEPOSITO')
         ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get()
         ->toArray();
-
-        // var_dump($deposito);
 
         // RECORRER EL ARRAY 
 
@@ -1845,7 +1845,14 @@ $lotes= DB::connection('retail')
             $dato["FECHULT_V"] = date('Y-m-d', strtotime($value->FECHAULT_V));
             $dato["STOCK"] = $value->STOCK;
             $dato["STOCK_MIN"] = $value->STOCK_MIN;
-            $dato["DEPOSITO"] = $deposito[0]["DEPOSITO"];
+
+            if($deposito[0]["DEPOSITO_DESC"] == '0'){
+                $dato["DEPOSITO"] = '';
+                $dato["DEPOSITO_DESC"] = '';
+            }else{
+                $dato["DEPOSITO"] = $deposito[0]["DEPOSITO"];
+                $dato["DEPOSITO_DESC"] = ucwords(strtolower($deposito[0]["DEPOSITO_DESC"])).':';
+            }
 
             /*  --------------------------------------------------------------------------------- */
 

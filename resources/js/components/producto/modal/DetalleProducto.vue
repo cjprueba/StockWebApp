@@ -35,7 +35,7 @@
 					                            <p>STOCK</p>
 					                            <span class="detalle"><strong>Minimo:</strong> <span class="float-right">{{producto.STOCK_MIN}} </span></span><br/>
 					                            <span class="detalle"><strong>Máximo:</strong> <span class="float-right">2,000</span></span><br/>
-												<span class="detalle"><strong>Deposito:</strong> <span class="float-right">{{producto.DEPOSITO}} </span> </span><br/>
+												<span class="detalle"><strong>{{producto.DEPOSITO_DESC}}</strong> <span class="float-right">{{producto.DEPOSITO}} </span> </span><br/>
 					                        </div>
 			                    		</div>
 			                        </div>	
@@ -696,7 +696,8 @@
                 STOCK_MIN: '',
                 CANT_MAYORISTA: '',
                 BAJA: '',
-                DEPOSITO: ''
+                DEPOSITO: '',
+                DEPOSITO_DESC: ''
           	},
           	lotes: {
           		LOTE: '', 
@@ -725,7 +726,8 @@
           	},
           	enviadas: {
 
-          	}, seleccion: {
+          	}, 
+          	seleccion: {
           		informacion: true,
           		lotes: false,
           		transferencias: false
