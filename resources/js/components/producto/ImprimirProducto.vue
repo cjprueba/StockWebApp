@@ -1494,7 +1494,7 @@
 				let me = this;
 
 				qz.websocket.connect().then(function() { 
-					return qz.printers.find("etiqueta");              // Pass the printer name into the next Promise
+					return qz.printers.find("QR");              // Pass the printer name into the next Promise
 				}).then(function(printer) {
 
 					var config = qz.configs.create(printer);
