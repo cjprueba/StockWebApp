@@ -3,9 +3,7 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-
-		<div >
-
+		<div v-if="$can('reporte.venta')">
 			
 			<div class="mb-3">
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
@@ -14,6 +12,7 @@
 					<option value="3">Ventas por Marca y Categoria</option>
           <option value="4">Reporte Diario</option>
           <option value="5">Ventas por Vendedor</option>
+          <option value="6">Ventas por Sección</option>
 				</select>			
 			</div>
 
@@ -40,11 +39,23 @@
 
       <!-- FIN REPORTE VENDEDOR -->
 
+      <!-- REPORTE POR SECCION -->
+
+      <transition name="slide-fade">  
+        <venta-seccion-rpt v-if="reporte === '6'" id="reporte6"></venta-seccion-rpt>
+      </transition>
+
+      <!-- FIN REPORTE POR SECCION -->
 		</div>
-   <!-- <div v-else>
+
+    <!-- ------------------------------------------------------------------------ -->
+
+    <div v-else>
       <cuatrocientos-cuatro></cuatrocientos-cuatro>
-    </div> -->
+    </div>
+
 		<!-- ------------------------------------------------------------------------ -->
+    
 	</div>	
 
 	<!-- ------------------------------------------------------------------------ -->
