@@ -62,7 +62,7 @@ class BusquedaController extends Controller
 
         /*  *********** CATEGORIAS *********** */
 
-        $categorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        $categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION'))
         ->orderBy('CODIGO')
         ->get();
 
