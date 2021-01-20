@@ -380,12 +380,12 @@ Vue.component('select-genero', require('./components/textboxs/GeneroCategoria.vu
 
 // REPORTES
 
+Vue.component('venta-seccion-rpt', require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default);
 Vue.component('venta-marca-categoria-rpt', require('./components/reportes/venta/Marca_Categoria/Venta_Marca_Categoria_Rpt.vue').default);
 Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
 Vue.component('venta-diaria-rpt', require('./components/reportes/venta/Diario/ReporteVentaDiario.vue').default);
 Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
 Vue.component('venta-vendedor-rpt', require('./components/reportes/venta/Vendedor/VentaVendedorRpt.vue').default);
-Vue.component('venta-seccion-rpt', require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default);
 
 /* ********************************************* */
 

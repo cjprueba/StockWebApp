@@ -86,7 +86,7 @@ class BusquedaController extends Controller
         ->orderBy('CODIGO')
         ->get();
 
-         /*  *********** OBTENER USER SECCION *********** */
+         /*  *********** OBTENER LA SECCION DEL USER *********** */
 
         $seccion = DB::connection('retail')
             ->table('USERS_TIENE_SECCION')

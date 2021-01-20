@@ -7,6 +7,8 @@
 			  	<div class="form-row">
 			  		<div class="col-md-4 mb-3">
 			  			
+						<!-- -----------------------------------SELECT SUCURSAL------------------------------------- -->
+
 			  			<label for="validationTooltip01">Seleccione Sucursal</label>
 						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
 							 <option value="null" selected>Seleccionar</option>
@@ -15,6 +17,8 @@
 						<div class="invalid-feedback">
 					        {{messageInvalidSucursal}}
 					    </div>
+
+						<!-- -----------------------------------SELECT SECCION------------------------------------- -->
 
 					    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
 						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
@@ -25,6 +29,8 @@
 					        {{messageInvalidSeccion}}
 					    </div>
 
+						<!-- -----------------------------------SELECT INTERVALO------------------------------------- -->
+						
 					  	<label class="mt-3" for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container">
 							<div class="input-daterange input-group">
