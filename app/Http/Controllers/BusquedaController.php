@@ -10,6 +10,7 @@ use App\Categoria;
 use App\Empleado;
 use App\Marca;
 use App\Sucursal;
+use App\SubCategoria;
 
 class BusquedaController extends Controller
 {
@@ -61,7 +62,7 @@ class BusquedaController extends Controller
 
         /*  *********** CATEGORIAS *********** */
 
-        $categorias = Categoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        $categorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
         ->orderBy('CODIGO')
         ->get();
 
@@ -71,7 +72,6 @@ class BusquedaController extends Controller
         ->where('ID_SUCURSAL','=',$user->id_sucursal)
         ->orderBy('CODIGO')
         ->get();
-
 
         /*  *********** CLIENTES *********** */
 
@@ -86,11 +86,67 @@ class BusquedaController extends Controller
         ->orderBy('CODIGO')
         ->get();
 
-        /*  *********** RETORNAR VALORES *********** */
+         /*  *********** OBTENER USER SECCION *********** */
 
-        return ['sucursales' => $sucursales, 'marcas' => $marcas, 'categorias' => $categorias,'vendedor'=>$vendedor,'cliente'=>$cliente,'proveedores'=>$proveedores,'sucursalesgeneral'=>$sucursalesgeneral];
+        $seccion = DB::connection('retail')
+            ->table('USERS_TIENE_SECCION')
+            ->leftjoin('SECCIONES', 'SECCIONES.ID', '=', 'USERS_TIENE_SECCION.FK_SECCION')
+            ->select(DB::raw('IFNULL(FK_SECCION, 0) AS ID_SECCION'),
+                    DB::raw('IFNULL(SECCIONES.DESCRIPCION, 0) AS DESCRIPCION'))
+            ->where('FK_USER', '=', $user->id)
+        ->get()
+        ->toArray();
+
+        if(count($seccion)>0){
+
+            /*  *********** CATEGORIAS POR SECCION *********** */
+
+            $seccionCategorias = DB::connection('retail')
+                ->table('LINEA_SUBLINEA_TIENE_SECCION')
+                ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'LINEA_SUBLINEA_TIENE_SECCION.LINEA')
+                ->select(DB::raw('LINEAS.CODIGO, LINEAS.DESCRIPCION'))
+            ->where('LINEA_SUBLINEA_TIENE_SECCION.SECCION', '=', $seccion[0]->ID_SECCION)
+            ->where('LINEA_SUBLINEA_TIENE_SECCION.ID_SUCURSAL','=',$user->id_sucursal)
+            ->groupBy('LINEA_SUBLINEA_TIENE_SECCION.LINEA')
+            ->orderBy('LINEAS.DESCRIPCION')
+            ->get();
+
+            /*  *********** SUB CATEGORIAS POR SECCION *********** */
+
+            $subCategorias = DB::connection('retail')
+                ->table('LINEA_SUBLINEA_TIENE_SECCION')
+                ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'LINEA_SUBLINEA_TIENE_SECCION.SUBLINEA')
+                ->select(DB::raw('SUBLINEAS.CODIGO, SUBLINEAS.DESCRIPCION'))
+            ->where('LINEA_SUBLINEA_TIENE_SECCION.SECCION', '=', $seccion[0]->ID_SECCION)
+            ->where('LINEA_SUBLINEA_TIENE_SECCION.ID_SUCURSAL','=',$user->id_sucursal)
+            ->groupBy('LINEA_SUBLINEA_TIENE_SECCION.SUBLINEA')
+            ->orderBy('SUBLINEAS.DESCRIPCION')
+            ->get();
+
+            /*  *********** RETORNAR VALORES *********** */
+
+            return ['sucursales' => $sucursales, 
+                    'marcas' => $marcas, 
+                    'categorias' => $categorias,
+                    'vendedor'=>$vendedor,
+                    'cliente'=>$cliente,
+                    'proveedores'=>$proveedores,
+                    'sucursalesgeneral'=>$sucursalesgeneral, 
+                    'seccionCategorias' => $seccionCategorias, 
+                    'subCategorias' => $subCategorias,
+                    'seccion' => $seccion[0]];
+
+        }else{
+
+            /*  *********** RETORNAR VALORES *********** */
+
+            return ['sucursales' => $sucursales, 
+                    'marcas' => $marcas, 
+                    'categorias' => $categorias,
+                    'vendedor'=>$vendedor,
+                    'cliente'=>$cliente,
+                    'proveedores'=>$proveedores,
+                    'sucursalesgeneral'=>$sucursalesgeneral];
+        }
     }
-
-
-    
 }

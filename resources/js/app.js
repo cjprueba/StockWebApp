@@ -385,6 +385,7 @@ Vue.component('transferencia-consignacion-rpt', require('./components/reportes/t
 Vue.component('venta-diaria-rpt', require('./components/reportes/venta/Diario/ReporteVentaDiario.vue').default);
 Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
 Vue.component('venta-vendedor-rpt', require('./components/reportes/venta/Vendedor/VentaVendedorRpt.vue').default);
+Vue.component('venta-seccion-rpt', require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default);
 
 /* ********************************************* */
 

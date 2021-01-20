@@ -5900,6 +5900,32 @@ function obtenerBarcodeCommon(codigo){
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 					GENERAR REPORTE DE VESTAS POR SECCION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarReporteVentaSeccionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR LOS DATOS
+			
+	return axios.post('/reporte_ventas_seccion', {'data': data}).then(function (response) {
+			return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
@@ -6151,6 +6177,6 @@ export {
 		filtrarMaquinasRegistradasCommon,
 		eliminarRegistroMaquinaCommon,
 		guardarNuevaCotizacionCommon,
-		obtenerBarcodeCommon
-
+		obtenerBarcodeCommon,
+		generarReporteVentaSeccionCommon
 		};
