@@ -12,7 +12,7 @@
 					<option value="3">Ventas por Marca y Categoria</option>
           <option value="4">Reporte Diario</option>
           <option value="5">Ventas por Vendedor</option>
-          <option value="6">Ventas por Sección</option>
+          <!-- <option value="6">Ventas por Sección</option> -->
 				</select>			
 			</div>
 
@@ -41,9 +41,9 @@
 
       <!-- REPORTE POR SECCION -->
 
-      <transition name="slide-fade">  
+      <!-- <transition name="slide-fade">  
         <venta-seccion-rpt v-if="reporte === '6'" id="reporte6"></venta-seccion-rpt>
-      </transition>
+      </transition> -->
 
       <!-- FIN REPORTE POR SECCION -->
 		</div>

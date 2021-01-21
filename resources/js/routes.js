@@ -403,7 +403,11 @@ export default new Router({
 		{
 			path: '/maq2',
 			component: require('./components/maquinas/RegistroMaquina.vue').default
-
+		},
+		{
+			path: '/rptsec',
+			name: 'rptSeccion',
+			component: require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default
 		}
 
 
