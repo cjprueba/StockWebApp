@@ -291,12 +291,12 @@ Route::post('pdf-rptVendedor', 'VendedorController@reporteVendedor');
 
 /* LARAVEL EXCEL */
 
-// use App\Exports\VentasMarca;
-// use Maatwebsite\Excel\Facades\Excel;
+ use App\Exports\SeccionExport;
+ use Maatwebsite\Excel\Facades\Excel;
 
-// Route::get('/download', function(){
-// 	return Excel::download(new VentasMarca, 'ventasMarca.xlsx');
-// });
+Route::get('/download', function(){
+	return Excel::download(new SeccionExport(2021), 'VENTASSECCION.xlsx');
+});
 
 // Route::post('/downloadVentaMarca', function(){
 // 	return Excel::download(new VentasMarca(), 'ventasMarca.xlsx');
@@ -653,11 +653,20 @@ Route::post('aviso/confirmar', 'EspecificacionController@aceptarTerminos');
 Route::post('/movimiento/caja/guardar', 'Movimiento_CajaController@guardarMovimiento');
 
 /* -------------------------------------------------------------------------- */
+
 //NEW COTIZACION
+
 Route::get('cotizacionDatatable', 'NewCotizacionController@obtenerCotizaciones');
 Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 
 /* -------------------------------------------------------------------------- */
+
+// SECCION 
+
+Route::post('export_venta_seccion', 'VentaController@seccion_excel');
+
+/* -------------------------------------------------------------------------- */
+
 
 Route::get('{any}', function () {
     return view('home');
