@@ -7,6 +7,9 @@ use App\Venta;
 use App\VentaVale;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SeccionExport;
+use DateTime;
 
 class VentaController extends Controller
 {
@@ -313,6 +316,32 @@ class VentaController extends Controller
         return response()->json($resumen_dia);
 
         /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function seccion_excel(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        $inicio = new DateTime(($request->all())['Inicio']);
+        $inicio = $inicio->format('Y-m-d');
+
+        $final = new DateTime(($request->all())['Final']);
+        $final = $final->format('Y-m-d');
+
+        $categorias = ($request->all())['Categorias'];
+        $subcategorias = ($request->all())['SubCategorias'];
+
+        $sucursal = ($request->all())['Sucursal'];
+
+        $seccion = ($request->all())['Seccion'];
+
+        return Excel::download(new SeccionExport($inicio, $final, $categorias, $sucursal, $subcategorias, $seccion), 'VENTA_SECCION.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 
 }

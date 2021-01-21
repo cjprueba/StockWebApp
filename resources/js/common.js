@@ -4118,7 +4118,7 @@ function datosPagoUnicoCommon(id){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function cotizacionyMonedaFormaPagoCommon() {
+function cotizacionyMonedaFormaPagoCommon(data) {
 
 			// ------------------------------------------------------------------------
 
@@ -4130,7 +4130,7 @@ function cotizacionyMonedaFormaPagoCommon() {
 
 			// OBTENER COTIZACION DE COMPRA
 
-			return axios.get('/cotizacion/compra-dia').then(function (response) {
+			return axios.get('/cotizacion/compra-dia', {fk_venta: data.fk_venta}).then(function (response) {
 					return response.data;
 				});
 
@@ -5900,6 +5900,32 @@ function obtenerBarcodeCommon(codigo){
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 					GENERAR REPORTE DE VENTAS POR SECCION
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function generarReporteVentaSeccionCommon(data){
+
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// CONSEGUIR LOS DATOS
+			
+	return axios.post('/reporte_ventas_seccion', {'data': data}).then(function (response) {
+			return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
@@ -6151,6 +6177,6 @@ export {
 		filtrarMaquinasRegistradasCommon,
 		eliminarRegistroMaquinaCommon,
 		guardarNuevaCotizacionCommon,
-		obtenerBarcodeCommon
-
+		obtenerBarcodeCommon,
+		generarReporteVentaSeccionCommon
 		};
