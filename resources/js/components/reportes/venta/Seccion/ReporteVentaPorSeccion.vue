@@ -1,7 +1,8 @@
 <template>
 		<!-- VENTA POR MARCA Y CATEGORIA -->
-	<div v-if="$can('reporte.venta')">
-		<div class="card shadow border-bottom-primary" >
+ <div class="container">
+	<div v-if="$can('producto.mostrar')">
+		<div class="card shadow border-bottom-primary mt-3">
 		  	<div class="card-header">Venta por Sección</div>
 			<div class="card-body">
 			  	<div class="form-row">
@@ -259,7 +260,6 @@
 					</div>
 				</div>
 			</div>
-		</div>
 
 		<!-- CARD PARA CATEGORIA Y SUB CATEGORIA -->
 
@@ -274,7 +274,7 @@
 	</div>
 
 	<!-- ------------------------------------------------------------------------ -->
-
+  </div>
 </template>
 
 <script >
