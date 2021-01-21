@@ -67,6 +67,7 @@
              <router-link class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
              <router-link class="collapse-item" :to="{name: 'rptProducto'}">Producto</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptSeccion'}">Encargada de Sección</router-link>
           </div>
         </div>
       </li>
