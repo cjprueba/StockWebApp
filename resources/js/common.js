@@ -4118,7 +4118,7 @@ function datosPagoUnicoCommon(id){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
-function cotizacionyMonedaFormaPagoCommon() {
+function cotizacionyMonedaFormaPagoCommon(data) {
 
 			// ------------------------------------------------------------------------
 
@@ -4130,7 +4130,7 @@ function cotizacionyMonedaFormaPagoCommon() {
 
 			// OBTENER COTIZACION DE COMPRA
 
-			return axios.get('/cotizacion/compra-dia').then(function (response) {
+			return axios.get('/cotizacion/compra-dia', {fk_venta: data.fk_venta}).then(function (response) {
 					return response.data;
 				});
 

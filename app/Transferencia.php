@@ -505,8 +505,12 @@ class Transferencia extends Model
         $total_subtotal = 0;
 
         $lote = 0;
-
-        $cotizacion_data = $datos["cabecera"]["cotizacion"];
+        if(isset($datos["cabecera"]["cotizacion"])){
+            $cotizacion_data = $datos["cabecera"]["cotizacion"];
+        }else{
+             $cotizacion_data='';
+        }
+        
 
         /*  --------------------------------------------------------------------------------- */
         
@@ -571,11 +575,13 @@ class Transferencia extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // INSERTAR REFERENCIA COTIZACION 
-
-            TransferenciasTieneCotizacion::guardar_referencia([
-                    'FK_TRANSFERENCIA' => $transferencia,
-                    'COTIZACION' => $cotizacion_data
-            ]);
+            if(isset($datos["cabecera"]["cotizacion"])){
+                TransferenciasTieneCotizacion::guardar_referencia([
+                        'FK_TRANSFERENCIA' => $transferencia,
+                        'COTIZACION' => $cotizacion_data
+                ]);
+            }
+            
 
             /*  --------------------------------------------------------------------------------- */
 
