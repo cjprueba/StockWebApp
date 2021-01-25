@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-//use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
 
-class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEvents
+class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
 
     use Exportable;
@@ -153,7 +153,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
         return [
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-                $event->sheet->getStyle('A1:J1')->applyfromarray($styleArray);
+                $event->sheet->getStyle('A1:K1')->applyfromarray($styleArray);
                 // $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(500);
                 // $event->sheet->getRowDimension(1)->setRowHeight(500);
             }
