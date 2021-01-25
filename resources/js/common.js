@@ -4118,6 +4118,25 @@ function datosPagoUnicoCommon(id){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 
+// function cotizacionyMonedaFormaPagoCommon(data) {
+
+// 			// ------------------------------------------------------------------------
+
+// 			// INICIAR VARIABLES
+
+// 			let me = this;
+
+// 			// ------------------------------------------------------------------------
+
+// 			// OBTENER COTIZACION DE COMPRA
+
+// 			return axios.get('/cotizacion/compra-dia', {fk_venta: data.fk_venta}).then(function (response) {
+// 					return response.data;
+// 				});
+
+// 			// ------------------------------------------------------------------------
+// }
+
 function cotizacionyMonedaFormaPagoCommon(data) {
 
 			// ------------------------------------------------------------------------
@@ -4130,12 +4149,13 @@ function cotizacionyMonedaFormaPagoCommon(data) {
 
 			// OBTENER COTIZACION DE COMPRA
 
-			return axios.get('/cotizacion/compra-dia', {fk_venta: data.fk_venta}).then(function (response) {
+			return axios.get('/cotizacion/compra-dia').then(function (response) {
 					return response.data;
 				});
 
 			// ------------------------------------------------------------------------
 }
+
 function generarPdfQrProductoCommon(datos){
 
 			// ------------------------------------------------------------------------
