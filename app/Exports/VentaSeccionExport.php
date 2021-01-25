@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+//use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
 
-class VentaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize, WithTitle, WithEvents
+class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEvents
 {
 
     use Exportable;
@@ -46,7 +46,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize, Wit
     {
 
         $ventas = Ventas_det::query()->select(
-            DB::raw('VENTASDET.COD_PROD, SUM(CANTIDAD) AS CANTIDAD, VENTASDET.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, 0 as 10OFF, 0 as T, 0 as C, 0 as R, GONDOLAS.DESCRIPCION AS GONDOLA'),
+            DB::raw('VENTASDET.COD_PROD, SUM(CANTIDAD) AS CANTIDAD, SUM(VENTASDET.PRECIO) AS TOTAL, VENTASDET.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, 0 as 10OFF, 0 as T, 0 as C, 0 as R, GONDOLAS.DESCRIPCION AS GONDOLA'),
             DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = VENTASDET.COD_PROD) AND (l.ID_SUCURSAL = VENTASDET.ID_SUCURSAL))),0) AS STOCK')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
@@ -114,7 +114,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize, Wit
 
     public function headings(): array
     {
-        return ["CODIGO", "VENTAS", "DESCRIPCION", "PRECIO", "10% OFF", "30% OFF", "50% OFF", "100% OFF", "GONDOLA", "STOCK"];
+        return ["CODIGO", "VENTAS", "TOTAL", "DESCRIPCION", "PRECIO", "10% OFF", "30% OFF", "50% OFF", "100% OFF", "GONDOLA", "STOCK"];
     }
 
     public function title(): string
@@ -154,6 +154,8 @@ class VentaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize, Wit
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
                 $event->sheet->getStyle('A1:J1')->applyfromarray($styleArray);
+                // $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(500);
+                // $event->sheet->getRowDimension(1)->setRowHeight(500);
             }
 
         ];
