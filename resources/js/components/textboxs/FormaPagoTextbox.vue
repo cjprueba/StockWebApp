@@ -744,7 +744,7 @@
 </template>
 <script>
 	export default {
-      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo', 'retencion'],
+      props: ['shadow', 'total', 'procesar', 'moneda', 'total_crudo', 'candec', 'customer', 'tipo', 'retencion', 'fk_venta'],
       watch: { 
         total_crudo: function(newVal, oldVal) {
             this.sumarMonedas();
@@ -775,6 +775,9 @@
         },
         retencion: function(newVal, oldVal) {
             this.sumarMonedas();
+        },
+        fk_venta: function(newVal, oldVal) {
+          this.obtenerCotizacionyMoneda();
         }
       },
       data(){
@@ -1054,6 +1057,12 @@
             this.respuesta.OPCION_VUELTO = String(this.moneda);
 
             // ------------------------------------------------------------------------
+
+            this.obtenerCotizacionyMoneda();
+            
+            // if(this.tipo === 3) {
+            //   alert("hola");
+            // }
 
           }, formatoGuaranies(){
 
@@ -1354,7 +1363,7 @@
             let me = this;
 
             // ------------------------------------------------------------------------
-
+            //Common.cotizacionyMonedaFormaPagoCommon({fk_venta: me.fk_venta}).then(data => {
             Common.cotizacionyMonedaFormaPagoCommon().then(data => {
                 me.cotizacion = data;
                 me.total_modificable = me.total_crudo;
