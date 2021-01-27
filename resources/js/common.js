@@ -5447,6 +5447,26 @@ function confirmarAvisoDiaCommon(codigo){
 
 }
 
+function devolverSalidaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/salida/devolver', {codigo: codigo}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 						 GUARDAR MOVIMIENTO CAJA
@@ -6198,5 +6218,6 @@ export {
 		eliminarRegistroMaquinaCommon,
 		guardarNuevaCotizacionCommon,
 		obtenerBarcodeCommon,
-		generarReporteVentaSeccionCommon
+		generarReporteVentaSeccionCommon,
+		devolverSalidaCommon
 		};
