@@ -15,12 +15,14 @@ class SalidaProducto extends Model
     //
     protected $connection = 'retail';
     protected $table = 'salida_productos';
+    const CREATED_AT = 'FECALTAS';
+    const UPDATED_AT = 'FECMODIF';
 
     public static function salida($data) {
 
         try {
          DB::connection('retail')->beginTransaction();
-            /*  --------------------------------------------------------------------------------- */
+            /*  ----------------------------------------------------f----------------------------- */
 
             // GUARDAR DEVOLUCION PROVEEDOR 
 
@@ -171,7 +173,7 @@ class SalidaProducto extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = SalidaProducto::select(DB::raw('ID AS CODIGO, TIPO, OBSERVACION, TOTAL, FECALTAS,  FK_MONEDA AS MONEDA'))
+            $posts = SalidaProducto::select(DB::raw('ID AS CODIGO, TIPO, OBSERVACION, TOTAL, FECALTAS,  FK_MONEDA AS MONEDA, ESTADO'))
                          ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -192,7 +194,7 @@ class SalidaProducto extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  SalidaProducto::select(DB::raw('ID AS CODIGO, TIPO, OBSERVACION, TOTAL, FECALTAS,  FK_MONEDA AS MONEDA'))
+            $posts =  SalidaProducto::select(DB::raw('ID AS CODIGO, TIPO, OBSERVACION, TOTAL, FECALTAS,  FK_MONEDA AS MONEDA, ESTADO'))
                          ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('ID','LIKE',"{$search}%")
@@ -267,7 +269,17 @@ class SalidaProducto extends Model
                 $nestedData['OBSERVACION'] = $post->OBSERVACION;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 $nestedData['CREACION'] = $post->FECALTAS;
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+
+                if ($post->ESTADO === 1) {
+
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                    $nestedData['ESTATUS'] = 'table-danger';
+                } else {
+
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolverProducto' title='Devolver'><i class='fa fa-arrow-alt-circle-left text-danger' aria-hidden='true'></i></a>";
+                    $nestedData['ESTATUS'] = '';
+                }
+                
                 $data[] = $nestedData;
 
                 /*  --------------------------------------------------------------------------------- */
@@ -546,7 +558,8 @@ class SalidaProducto extends Model
                         PRODUCTOS.DESCRIPCION,
                         salida_productos_det.CANTIDAD,
                         salida_productos_det.COSTO,
-                        0 AS COSTO_TOTAL'
+                        0 AS COSTO_TOTAL,
+                        salida_productos_det.FK_ID_LOTE'
                     ))
         ->leftjoin('SALIDA_PRODUCTOS_DET', 'SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS', '=', 'SALIDA_PRODUCTOS.ID')
         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'salida_productos_det.COD_PROD')
@@ -692,6 +705,82 @@ class SalidaProducto extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function devolver($data){
+
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER DATOS DETALLE 
+
+            $salida_det = SalidaProducto::mostrar_cuerpo($data['codigo']);
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // CARGAR DETALLE DE TRANSFERENCIA DET 
+
+            foreach ($salida_det as $key => $value) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // DEVOLVER STOCK 
+
+                Stock::sumar_stock_id_lote($value->FK_ID_LOTE, $value->CANTIDAD);
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            SalidaProducto::where('ID','=', $data['codigo'])
+            ->where('ID_SUCURSAL','=', $user->id_sucursal)
+            ->update(['ESTADO' => 1]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RESPONSE
+
+            
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => true, "statusText" => "Se han devuelto los productos"];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        } catch (Exception $e) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
     }
 
 }

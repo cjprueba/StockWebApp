@@ -291,11 +291,11 @@ Route::post('pdf-rptVendedor', 'VendedorController@reporteVendedor');
 
 /* LARAVEL EXCEL */
 
- use App\Exports\SeccionExport;
+ use App\Exports\StockImageExport;
  use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/download', function(){
-	return Excel::download(new SeccionExport(2021), 'VENTASSECCION.xlsx');
+	return Excel::download(new StockImageExport(), 'STOCKIMAGE.xlsx');
 });
 
 // Route::post('/downloadVentaMarca', function(){
@@ -639,6 +639,7 @@ Route::post('salida/producto', 'SalidaProductoController@salida');
 Route::get('salida/mostrar', 'SalidaProductoController@salidaMostrar');
 Route::get('salida/producto/detalle', 'SalidaProductoController@salidaProductoDetalle');
 Route::post('/salida/reporte', 'SalidaProductoController@reporte');
+Route::post('/salida/devolver', 'SalidaProductoController@devolver');
 
 //AVISOS
 

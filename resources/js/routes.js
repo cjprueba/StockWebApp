@@ -408,8 +408,12 @@ export default new Router({
 			path: '/rptsec',
 			name: 'rptSeccion',
 			component: require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default
+		},
+		{
+			path: '/rptstw',
+			name: 'rptStockWeb',
+			component: require('./components/reportes/stock/ReporteStock.vue').default
 		}
-
 
 	],
 	mode: 'history'

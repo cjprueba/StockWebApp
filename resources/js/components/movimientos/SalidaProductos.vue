@@ -605,7 +605,7 @@
 
 					// REDIRIGIR A MOSTRAR COMPRAS
 					  	
-					me.$router.push('/pro4');
+					me.$router.push('/mov4');
 
 					// ------------------------------------------------------------------------
 
