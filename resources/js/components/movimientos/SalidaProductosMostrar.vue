@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('proveedor.mostrar.devolucion')">
+		<!-- <div class="row" v-if="$can('proveedor.mostrar.devolucion')"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -34,13 +34,13 @@
 
 
 			</div>	
-		</div>
+		<!-- </div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 		
 		<!-- ------------------------------------------------------------------------ -->
 		
@@ -137,6 +137,56 @@
 
       			// ------------------------------------------------------------------------
 
+      		}, 
+      		devolverSalida(id){
+
+      			// ------------------------------------------------------------------------
+
+      			var tableSalidaProductos = $('#tablaSalidaProductos').DataTable();
+
+      			Swal.fire({
+					title: 'Estas seguro ?',
+					text: "Devolver los productos !",
+					type: 'warning',
+					showLoaderOnConfirm: true,
+					showCancelButton: true,
+					confirmButtonColor: '#d33',
+					cancelButtonColor: '#3085d6',
+					confirmButtonText: 'Si, devolver !',
+					cancelButtonText: 'Cancelar',
+					preConfirm: () => {
+					    return Common.devolverSalidaCommon(id).then(data => {
+				    	if (!data.response === true) {
+				          throw new Error(data.statusText);
+				        }
+				  		return data;
+					  	}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					    });
+					}
+				}).then((result) => {
+					
+					if (result.value.response) {
+
+						// ------------------------------------------------------------------------
+
+						Swal.fire(
+							'Devuelto !',
+							 result.value.statusText,
+							'success'
+						)
+
+						tableSalidaProductos.ajax.reload( null, false );
+
+						// ------------------------------------------------------------------------ 
+
+					}
+				})
+
+      			// ------------------------------------------------------------------------
+
       		}
       },
         mounted() {
@@ -170,7 +220,10 @@
                             { "data": "ACCION" }
                         ], "drawCallback": function( settings ) {
 					        //tableProveedor.columns.adjust().draw();
-					    }      
+					    },
+		                "createdRow": function( row, data, dataIndex){
+		                    $(row).addClass(data['ESTATUS']);
+		                },      
                     });
                     
 	 				// ------------------------------------------------------------------------
@@ -198,16 +251,16 @@
 
                     // ------------------------------------------------------------------------
 
-                    // ELIMINAR TRANSFERENCIA
+                    // DEVOLVER SALIDA DE PRODUCTO
 
-                    tableSalidaProductos.on('click', 'tbody tr #eliminar', function() {
+                    tableSalidaProductos.on('click', 'tbody tr #devolverProducto', function() {
 
 	                    // *******************************************************************
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.eliminarCompra(tableSalidaProductos.row( row ).data().CODIGO);
+	                    me.devolverSalida(tableSalidaProductos.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 

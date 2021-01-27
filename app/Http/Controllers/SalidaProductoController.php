@@ -57,4 +57,17 @@ class SalidaProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+        public function devolver(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // REALIZAR PAGO
+
+        $salida = SalidaProducto::devolver($request->all());
+        return response()->json($salida);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
