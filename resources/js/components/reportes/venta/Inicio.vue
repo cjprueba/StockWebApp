@@ -12,7 +12,7 @@
 					<option value="3">Ventas por Marca y Categoria</option>
           <option value="4">Reporte Diario</option>
           <option value="5">Ventas por Vendedor</option>
-          <!-- <option value="6">Ventas por Sección</option> -->
+          <option value="6">Top Ventas</option>
 				</select>			
 			</div>
 
@@ -39,13 +39,13 @@
 
       <!-- FIN REPORTE VENDEDOR -->
 
-      <!-- REPORTE POR SECCION -->
+      <!-- REPORTE TOP VENTAS -->
 
-      <!-- <transition name="slide-fade">  
-        <venta-seccion-rpt v-if="reporte === '6'" id="reporte6"></venta-seccion-rpt>
-      </transition> -->
+      <transition name="slide-fade">  
+        <top-venta-rpt v-if="reporte === '6'" id="reporte6"></top-venta-rpt>
+      </transition>
 
-      <!-- FIN REPORTE POR SECCION -->
+      <!-- FIN REPORTE TOP VENTAS -->
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->
