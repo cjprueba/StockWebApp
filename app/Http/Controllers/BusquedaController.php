@@ -134,9 +134,18 @@ class BusquedaController extends Controller
                     'sucursalesgeneral'=>$sucursalesgeneral, 
                     'seccionCategorias' => $seccionCategorias, 
                     'subCategorias' => $subCategorias,
-                    'seccion' => $seccion[0]];
+                    'seccion' => $seccion];
 
         }else{
+
+
+            $seccion = DB::connection('retail')
+                ->table('SECCIONES')
+                ->select(DB::raw('IFNULL(ID, 0) AS ID_SECCION'),
+                        DB::raw('IFNULL(DESCRIPCION, 0) AS DESCRIPCION'))
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+            ->get()
+            ->toArray();
 
             /*  *********** RETORNAR VALORES *********** */
 
@@ -146,7 +155,8 @@ class BusquedaController extends Controller
                     'vendedor'=>$vendedor,
                     'cliente'=>$cliente,
                     'proveedores'=>$proveedores,
-                    'sucursalesgeneral'=>$sucursalesgeneral];
+                    'sucursalesgeneral'=>$sucursalesgeneral,
+                    'seccion' => $seccion];
         }
     }
 }
