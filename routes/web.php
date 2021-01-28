@@ -583,6 +583,7 @@ Route::post('registroMaEliminar', 'Registro_MaquinaController@eliminarRegistroMa
 
 // REPORTES VENTAS
 Route::post('reporte_ventas', 'VentaController@reporteVenta');
+Route::post('reporte_top_articulos', 'VentaController@reporteTopArticulos');
 Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
 /* -------------------------------------------------------------------------- */
