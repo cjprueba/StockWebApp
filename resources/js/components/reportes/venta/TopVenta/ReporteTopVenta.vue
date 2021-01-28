@@ -47,7 +47,7 @@
 
 				<div class="col-md-3">
 					<label>Filtrar Por</label>
-			    	<select v-model="selectedTipo" class="custom-select custom-select-sm">
+			    	<select v-model="selectedFiltro" class="custom-select custom-select-sm">
 			  	  		<option value="SECCION">Sección</option>
 			    		<option value="PROVEEDOR">Proveedor</option>
 			  		</select>
@@ -70,7 +70,7 @@
 
                 <!-- -----------------------------------SELECT SECCION------------------------------------- -->
 
-                <div class="col-md-3" v-if="selectedTipo === 'SECCION'">
+                <div class="col-md-3" v-if="selectedFiltro === 'SECCION'">
 					<label for="validationTooltip01">Seleccione Sección</label>
 					<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
 						<option value="null" selected>Seleccionar</option>
@@ -83,7 +83,7 @@
 
 				<!-- ------------------------------------------- PROVEEDOR ----------------------------------------------- -->
 				
-				<div class="col-md-5" v-if="selectedTipo === 'PROVEEDOR'">
+				<div class="col-md-5" v-if="selectedFiltro === 'PROVEEDOR'">
 					<label  for="validationTooltip01">Seleccione Proveedor</label> 
 					<div class="container_checkbox mr-2"  v-bind:class="{ 'is-invalid': validarProveedor }">
 	                    <div class="mt-2 mb-2 pl-2" v-for="proveedor in proveedores">
@@ -137,85 +137,41 @@
 		    </div>
 	    </div>
 
-	    <!-- -------------------------------------------CHART CATEGORIAS------------------------------------------- -->
-
-      	<div class="col-md-12">
-	        <div class="card-body">
-				<div class="ct-chart">
-					<canvas id="secciones">
-								
-					</canvas>
-				</div>
-			</div>
-	    </div>
-
 	    <!-- -------------------------------------------TABLAS------------------------------------------- -->
 
 	    <div class="col-xl-6 col-lg-6 mt-3">
-	     	<table class="table table-striped table-hover table-light table-sm" v-if="responseSeccion.length > 0">
+	     	<table class="table" v-if="responseVentaTop.length > 0">
 				<thead>
 				    <tr>
 				      <th scope="col">#</th>
-				      <th scope="col">Categoria</th>
-				      <th scope="col">Vendido</th>
-				      <th scope="col">Stock Vendidos</th>
-				      <th scope="col">Stock General</th>
-				      <th scope="col">Totales</th>
+				      <th scope="col">Código</th>
+				      <th scope="col">Descripción</th>
+				      <th scope="col">Cantidad</th>
+				      <th scope="col">Precio</th>
+				      <th scope="col">Total</th>
+				      <th scope="col">Utilidad</th>
 				    </tr>
 				</thead>
 				<tbody>
-				    <tr v-for="(categoria, index) in responseSeccion" v-on:click="clicked(categoria)"  data-toggle="modal" data-target="#exampleModalCenter">
+				    <tr v-for="(venta, index) in responseVentaTop" data-toggle="modal" data-target="#exampleModalCenter" class="cuerpoTabla">
 				      <th scope="row">{{index+1}}</th>
-				      <td>{{categoria.categoria}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.VENDIDO)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.STOCK)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.STOCK_G)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.TOTAL)}}</td>
+				      <td>{{venta.CODIGO}}</td>
+				      <td>{{venta.DESCRIPCION}}</td>
+				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.CANTIDAD)}}</td>
+				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.PRECIO)}}</td>
+				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.TOTAL)}}</td>
+				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.UTILIDAD)}}</td>
 				    </tr>
 				</tbody>
 				<tfoot>
 					<tr>
 					  <th></th>
-					  <th>TOTALES</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.VENDIDO, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.STOCK, 0))}}</th>
-					   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.STOCK_G, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
-					</tr>
-				</tfoot>
-			</table>
-	    </div>
-
-	    <div class="col-xl-6 col-lg-6 mt-3">
-	     	<table class="table table-striped table-hover table-light table-sm" v-if="responseProveedor.length > 0">
-				<thead>
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Proveedor</th>
-				      <th scope="col">Vendido</th>
-				      <th scope="col">Stock Vendidos</th>
-				      <th scope="col">Stock General</th>
-				      <th scope="col">Totales</th>
-				    </tr>
-				</thead>
-				<tbody>
-				    <tr v-for="(proveedor, index) in responseProveedor" v-on:click="clicked(proveedor)"  data-toggle="modal" data-target="#exampleModalCenter">
-				      <th scope="row">{{index+1}}</th>
-				      <td>{{proveedor.proveedor}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedor.VENDIDO)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedor.STOCK)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedor.STOCK_G)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedor.TOTAL)}}</td>
-				    </tr>
-				</tbody>
-				<tfoot>
-					<tr>
 					  <th></th>
 					  <th>TOTALES</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseProveedor.reduce((acc, item) => acc + item.VENDIDO, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseProveedor.reduce((acc, item) => acc + item.STOCK, 0))}}</th>
-					   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseProveedor.reduce((acc, item) => acc + item.STOCK_G, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseProveedor.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
+					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.CANTIDAD, 0))}}</th>
+					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.PRECIO, 0))}}</th>
+					   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
+					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.UTILIDAD, 0))}}</th>
 					</tr>
 				</tfoot>
 			</table>
@@ -256,19 +212,17 @@
               	onProveedor: false,
               	radioAgrupar: '',
               	controlar: true,
-              	responseProveedor: [],
-              	responseSeccion: [],
-              	seccionArray: [],
-              	proveedorArray: [],
-              	varNombreSeccion: [],
-              	varTotalSeccion: [],
-              	varSeccion: '',
-              	charSeccion: '',
-              	seccionTitulo: '',
-              	datosFilas: null,
+              	responseVentaTop: {
+	          		CODIGO: '',
+              		DESCRIPCION: '',
+	          		PRECIO: '',
+	          		CANTIDAD: '',
+	          		TOTAL: '',
+	          		UTILIDAD: ''
+	          	},
               	insert: true,
               	switch_stock: true,
-              	selectedTipo: 'SECCION',
+              	selectedFiltro: 'SECCION'
             }
         }, 
         methods: {
@@ -276,11 +230,6 @@
         	habilitar_insert() {
 	       	  let me = this;
 	       	  me.insert = true;
-		    },
-
-        	clicked(row) {
-	       	  this.seccionTitulo = row.TOTALES; 	
-		      this.datosFilas = row.SECCIONES;
 		    },
 
 			filterItems: function(items, codigo) {
@@ -337,15 +286,9 @@
 	        	if(me.generarConsulta() === true) {
 	        		
 	        		me.cargado = true;
-	        		Common.generarReporteTransferenciaConsignacionCommon(this.datos).then(data => {
-	        		  
+	        		Common.generarReporteTopVentaCommon(me.datos).then(data => {
              			me.cargado = false;
-						me.responseTransferencia = data.transferencia;
-					    const seccionArray = Object.keys(data.secciones).map(i => data.secciones[i])
-					    me.responseSeccion = seccionArray
-					    const proveedorArray = Object.keys(data.proveedores).map(i => data.proveedores[i])
-					    me.responseProveedor = proveedorArray
-					    me.loadSeccion();
+						me.responseVentaTop = data.VentaTop;
               		});
 				}
 	        	me.insert=false;
@@ -382,7 +325,7 @@
 	        		me.messageInvalidFecha = '';
 	        	}
 
-	        	if(me.onProveedor === false && me.selectedProveedor.length === 0 && me.selectedTipo === 'PROVEEDOR') {
+	        	if(me.onProveedor === false && me.selectedProveedor.length === 0 && me.selectedFiltro === 'PROVEEDOR') {
 
 	        		me.validarProveedor = true;
 	        		me.controlar=false;
@@ -390,7 +333,7 @@
 	        		me.validarProveedor = false;
 	        	}
 
-	        	if ((me.selectedSeccion === "null" || me.selectedSeccion === '') && me.selectedTipo === 'SECCION'){
+	        	if ((me.selectedSeccion === "null" || me.selectedSeccion === '') && me.selectedFiltro === 'SECCION'){
 	        		me.validarSeccion = true;
 	        		me.messageInvalidSeccion = 'Por favor seleccione la sección';
 	        		me.controlar=true;
@@ -426,67 +369,13 @@
 			        	AllProveedores: me.onProveedor,
 			        	Agrupar: me.radioAgrupar,
 			        	Stock: me.switch_stock,
-	        			Insert:me.insert
+	        			Insert:me.insert,
+	        			filtro: me.selectedFiltro,
+	        			Top: me.selectedTop
 		        	};
-		        console.log(me.datos);
+
 	        	return true;
-	        },
-
-
-	        loadSecciones(){
-
-				let me = this;
-
-	            if(me.varNombreSeccion.length > 0){
-	   				me.charSeccion.destroy();
-	           	}
-
-				me.varNombreSeccion = [];
-				me.varTotalSeccion = [];
-
-				me.responseSeccion.map(function(x){
-
-					me.varNombreSeccion.push(x.TOTALES);
-					me.varTotalSeccion.push(x.TOTAL);
-				});
-
-				me.varSeccion = document.getElementById('seccion').getContext('2d');
-
-				me.charSeccion = new Chart(me.varSeccion, {
-				    type: 'bar',
-				    data: {
-				        labels: me.varNombreSeccion,
-				        datasets: [{
-				            label: 'Secciones',
-				            data: me.varTotalSeccion,
-				            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-				            borderColor: 'rgba(75, 192, 192, 1)',
-				            borderWidth: 1
-				        }]
-				    },
-				    options: {
-				    	tooltips: {
-				              callbacks: {
-				                  label: function(tooltipItem, data) {
-				                      var value = data.datasets[0].data[tooltipItem.index];
-				                      
-				                      return me.descripcion + ' ' + new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(value) + '';
-				                  }
-				              }
-				          },
-				        scales: {
-				            yAxes: [{
-				                ticks: {
-				                    beginAtZero: true,
-				                    callback: function(value, index, values) {
-							          return value.toLocaleString();
-							        }
-				                }
-				            }]
-				        }
-				    }
-				});
-			}
+	        }
         },
         mounted() {
         	let me = this;
@@ -516,3 +405,10 @@
         }
     }    
 </script>
+
+<style>
+	
+.cuerpoTabla {
+	font-size: 12px;
+}
+</style>>
