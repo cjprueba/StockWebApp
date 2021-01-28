@@ -317,6 +317,17 @@ class VentaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+        public function reporteTopArticulos(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $top = Venta::rpt_top_articulos($request);
+        return response()->json($top);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    
 
     public function seccion_excel(Request $request)
     {
