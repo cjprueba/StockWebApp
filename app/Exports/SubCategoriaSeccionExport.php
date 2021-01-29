@@ -49,6 +49,7 @@ class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSi
         ->leftJoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
         ->leftJoin('PRODUCTOS_TIENE_SECCION', 'PRODUCTOS_TIENE_SECCION.COD_PROD', '=', 'VENTASDET.COD_PROD')
         ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
+        ->whereIn('PRODUCTOS.LINEA', $this->categorias)
         ->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas)
         ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
         ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final])

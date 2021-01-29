@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Stock;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StockExport;
+use App\Exports\StockImageExport;
 
 class StockController extends Controller
 {
@@ -91,4 +92,25 @@ class StockController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function descargarImageStock(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        $categorias = ($request->all())['Categorias'];
+        $subcategorias = ($request->all())['SubCategorias'];
+
+        $stock = ($request->all())['Stock'];
+
+        $sucursal = ($request->all())['Sucursal'];
+
+        return Excel::download(new StockImageExport($categorias, $sucursal, $subcategorias, $stock), 'STOCK_IMAGE.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 }

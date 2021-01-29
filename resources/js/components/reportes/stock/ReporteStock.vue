@@ -21,19 +21,6 @@
 					        {{messageInvalidSucursal}}
 					    </div>
 
-						<!-- ----------------------------------------SELECCIONAR FECHA---------------------------------------- -->
-
-						<label class="mt-3">Seleccione Intervalo de Tiempo</label>
-						<div id="sandbox-container" class="input-daterange input-group">
-							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
-							<div class="input-group-append form-control-sm">
-								<span class="input-group-text">a</span>
-							</div>
-							<input name='end' id='selectedFinalFecha' class="input-sm form-control form-control-sm" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
-							<div class="invalid-feedback">
-							    {{messageInvalidFecha}}
-							</div>
-						</div>
 
 					   	<div class="my-1 mb-3 mt-4">
 							<div class="custom-control custom-switch mr-sm-2" >
