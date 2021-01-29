@@ -327,7 +327,7 @@
 
 	          axios.get('busquedas/').then((response) => {
 	           	this.sucursales = response.data.sucursales;
-	           	this.subCategorias = response.data.subCategorias;
+	           	this.subCategorias = response.data.seccionSubCategorias;
 	           	this.categorias = response.data.seccionCategorias;
 	           	this.secciones = response.data.seccion;
 	          }); 
@@ -567,12 +567,6 @@
         mounted(){
 
         	let me = this;
-
-        	Common.obtenerParametroCommon().then(data => {
-		        me.candec = data.parametros[0].CANDEC;
-                me.monedas_descripcion = data.parametros[0].DESCRIPCION;
-               
-			});
 
         	$(function(){
 		   		    $('#sandbox-container .input-daterange').datepicker({
