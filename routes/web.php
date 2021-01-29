@@ -483,6 +483,7 @@ Route::post('exportdescuento', 'ExportDescuentoController@mostrar');
 Route::post('ExportInventario', 'InventarioController@Inventario_Cerrado');
 Route::post('exportCompra', 'CompraController@Descargar');
 Route::post('export/Stock', 'StockController@descargar');
+Route::post('export/Stock/Image', 'StockController@descargarImageStock');
 
 /* -------------------------------------------------------------------------- */
 

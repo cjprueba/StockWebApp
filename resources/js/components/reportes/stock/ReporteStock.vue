@@ -2,7 +2,7 @@
 	
 	<!-- REPORTE DE STOCK POR CATEGORIA Y SUB CATEGORIA -->
 	<div class="container mt-3">
-	  <div v-if="$can('reporte.stock')">
+	  <!-- <div v-if="$can('reporte.stock')"> -->
 		<div class="card shadow border-bottom-primary" >
 		  	<div class="card-header">Stock Por Categoría y Sub-Categoría</div>
 			<div class="card-body">
@@ -21,19 +21,6 @@
 					        {{messageInvalidSucursal}}
 					    </div>
 
-						<!-- ----------------------------------------SELECCIONAR FECHA---------------------------------------- -->
-
-						<label class="mt-3">Seleccione Intervalo de Tiempo</label>
-						<div id="sandbox-container" class="input-daterange input-group">
-							<input id='selectedInicialFecha' class="input-sm form-control form-control-sm" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
-							<div class="input-group-append form-control-sm">
-								<span class="input-group-text">a</span>
-							</div>
-							<input name='end' id='selectedFinalFecha' class="input-sm form-control form-control-sm" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
-							<div class="invalid-feedback">
-							    {{messageInvalidFecha}}
-							</div>
-						</div>
 
 					   	<div class="my-1 mb-3 mt-4">
 							<div class="custom-control custom-switch mr-sm-2" >
@@ -91,13 +78,14 @@
 	                <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
 	             </div>
             </div>
+
 	  	</div>
 	  </div>
 		<!-- ------------------------------------------------------------------------ -->
 
-	  <div v-else>
+	  <!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-	  </div>
+	  </div> -->
 	</div>
 
 	<!-- FIN REPORTE DE STOCK POR CATEGORIA Y SUB CATEGORIA-->
@@ -142,11 +130,13 @@
 	        },
 
 	        descargar(){
+
+
 	        	let me = this;	
 	        	if(this.generarConsulta() === true) {
 	        		me.descarga = true;
 		        	axios({
-					  url: '/export_stock',
+					  url: '/export/Stock/Image',
 					  method: 'POST',
 					  data: me.datos,
 					  responseType: 'blob', // important
@@ -195,24 +185,6 @@
 	        		me.messageInvalidSucursal = '';
 	        	}
 
-				if(me.selectedInicialFecha === null || me.selectedInicialFecha === "") {
-	        		me.validarInicialFecha = true;
-	        		me.messageInvalidFecha = 'Por favor seleccione una fecha';
-	        		me.controlar = true;
-	        	} else {
-	        		me.validarInicialFecha = false;
-	        		me.messageInvalidFecha = '';
-	        	}
-
-	        	if(me.selectedFinalFecha === null || me.selectedFinalFecha === "") {
-	        		me.validarFinalFecha = true;
-	        		me.messageInvalidFecha = 'Por favor seleccione una fecha';
-	        		me.controlar = true;
-	        	} else {
-	        		me.validarFinalFecha = false;
-	        		me.messageInvalidFecha = '';
-	        	}
-
 	        	if(me.onCategoria === false && me.selectedCategoria.length===0){
 
 	        		me.validarCategoria = true;
@@ -251,8 +223,6 @@
 
 	        	me.datos = {
 		        	Sucursal: me.selectedSucursal,
-		        	Inicio: String(me.selectedInicialFecha),
-		        	Final: String(me.selectedFinalFecha),
 		        	SubCategorias: me.selectedSubCategoria,
 		        	Categorias: me.selectedCategoria,
 		        	AllSubCategory: me.onSubCategoria,
