@@ -3,49 +3,32 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-if="$can('reporte.venta')">
+		<div v-if="$can('producto.mostrar')">
 			
 			<div class="mb-3">
-				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
+				<label for="validationTooltip01">Seleccione Reporte Por Sección</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="3">Ventas por Marca y Categoria</option>
-          <option value="4">Reporte Diario</option>
-          <option value="5">Ventas por Vendedor</option>
-          <option value="6">Top Ventas</option>
+					<option value="1">Venta General</option>
+          <option value="2">Top Venta</option>
 				</select>			
 			</div>
 
-			<!-- VENTA POR MARCA -->
-
-				<!-- FIN DE VENTA POR MARCA -->
-			<transition name="slide-fade">	
-				<venta-marca-categoria-rpt v-if="reporte === '3'" id="reporte2"></venta-marca-categoria-rpt>
-			</transition>
-
-      <!-- REPORTE DIARIO -->
+      <!-- REPORTE POR SECCION -->
 
       <transition name="slide-fade">  
-        <venta-diaria-rpt v-if="reporte === '4'" id="reporte4"></venta-diaria-rpt>
+        <venta-seccion-rpt v-if="reporte === '1'" id="reporte1"></venta-seccion-rpt>
       </transition>
 
-      <!-- FIN REPORTE DIARIO -->
+      <!-- FIN REPORTE POR SECCION -->
 
-      <!-- REPORTE VENDEDOR -->
+      <!-- REPORTE TOP VENTA POR SECCION -->
 
       <transition name="slide-fade">  
-        <venta-vendedor-rpt v-if="reporte === '5'" id="reporte5"></venta-vendedor-rpt>
+        <top-venta-rpt v-if="reporte === '2'" id="reporte2"></top-venta-rpt>
       </transition>
 
-      <!-- FIN REPORTE VENDEDOR -->
-
-      <!-- REPORTE TOP VENTAS -->
-
-      <transition name="slide-fade">  
-        <top-venta-rpt v-if="reporte === '6'" id="reporte6"></top-venta-rpt>
-      </transition>
-
-      <!-- FIN REPORTE TOP VENTAS -->
+      <!-- FIN REPORTE TOP VENTA POR SECCION -->
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->

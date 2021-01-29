@@ -407,7 +407,7 @@ export default new Router({
 		{
 			path: '/rptsec',
 			name: 'rptSeccion',
-			component: require('./components/reportes/venta/Seccion/ReporteVentaPorSeccion.vue').default
+			component: require('./components/reportes/venta/Seccion/Inicio.vue').default
 		},
 		{
 			path: '/rptstw',

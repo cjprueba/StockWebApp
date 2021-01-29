@@ -1525,7 +1525,8 @@ $lotes= DB::connection('retail')
             }
 
             if(!empty($request->input('columns.0.search.value'))) {
-                $posts->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));
+             /*   $posts->where('PRODUCTOS_AUX.CODIGO', $request->input('columns.0.search.value'));*/
+                 $posts->where('PRODUCTOS.CODIGO', 'LIKE' , ''. $request->input('columns.0.search.value').'%');
             }
 
             if(!empty($request->input('columns.1.search.value'))) {
@@ -1533,7 +1534,7 @@ $lotes= DB::connection('retail')
             }
 
             if(!empty($request->input('columns.2.search.value'))) {
-                $posts->where('PRODUCTOS.CATEGORIA', 'LIKE' , ''. $request->input('columns.2.search.value').'%');
+                $posts->where('LINEAS.DESCRIPCION', 'LIKE' , ''. $request->input('columns.2.search.value').'%');
             }           
 
             if(!empty($request->input('columns.3.search.value'))) {

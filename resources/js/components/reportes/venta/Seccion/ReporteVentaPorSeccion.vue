@@ -24,7 +24,7 @@
 					    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
 						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
 							 <option value="null" selected>Seleccionar</option>
-							 <option v-model="secciones" :value="secciones.ID_SECCION">{{ secciones.DESCRIPCION }}</option>
+							 <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
 						</select>
 						<div class="invalid-feedback">
 					        {{messageInvalidSeccion}}
@@ -282,8 +282,8 @@
         data(){
             return{
               	sucursales: [],
-              	selectedSucursal: '',
-              	selectedSeccion: '',
+              	selectedSucursal: 'null',
+              	selectedSeccion: 'null',
               	subCategorias: [],
               	selectedSubCategoria: [],
               	datosFilas: null,
@@ -315,10 +315,7 @@
 				varNombreCategoria: [],
               	cargado: false,
               	descarga: false,
-              	secciones: {
-              		ID_SECCION: '',
-              		SECCION: ''
-              	},
+              	secciones: [],
               	selectedSeccion: '',
               	validarSeccion: false,
               	messageInvalidSeccion: ''
@@ -330,7 +327,7 @@
 
 	          axios.get('busquedas/').then((response) => {
 	           	this.sucursales = response.data.sucursales;
-	           	this.subCategorias = response.data.subCategorias;
+	           	this.subCategorias = response.data.seccionSubCategorias;
 	           	this.categorias = response.data.seccionCategorias;
 	           	this.secciones = response.data.seccion;
 	          }); 
@@ -507,8 +504,7 @@
 		        	Insert:me.insert,
 		        	Seccion: me.selectedSeccion
 	        	};
-	        	
-	        	console.log(me.datos);
+	      
 	        	return true;
 	        },
 
@@ -572,12 +568,6 @@
 
         	let me = this;
 
-        	Common.obtenerParametroCommon().then(data => {
-		        me.candec = data.parametros[0].CANDEC;
-                me.monedas_descripcion = data.parametros[0].DESCRIPCION;
-               
-			});
-
         	$(function(){
 		   		    $('#sandbox-container .input-daterange').datepicker({
 		   		    	    keyboardNavigation: false,
@@ -586,7 +576,6 @@
     				$("#selectedInicialFecha").datepicker().on(
 			     		"changeDate", () => {
 			     			me.insert=true;
-			     			console.log(me.insert);
 			     			me.selectedInicialFecha = $('#selectedInicialFecha').val();
 			     		}
 					);
@@ -594,7 +583,6 @@
 						
 			     		"changeDate", () => {
 			     			me.insert=true;
-			     			console.log(me.insert);
 			     			me.selectedFinalFecha = $('#selectedFinalFecha').val();
 			     		}
 					);
