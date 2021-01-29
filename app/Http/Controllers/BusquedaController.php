@@ -66,6 +66,12 @@ class BusquedaController extends Controller
         ->orderBy('CODIGO')
         ->get();
 
+        /*  *********** SUB CATEGORIAS *********** */
+
+        $subCategorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION')
+        ->get();
+
         /*  *********** VENDEDORES *********** */
 
         $vendedor = Empleado::select(DB::raw('CODIGO, NOMBRE'))
@@ -113,7 +119,7 @@ class BusquedaController extends Controller
 
             /*  *********** SUB CATEGORIAS POR SECCION *********** */
 
-            $subCategorias = DB::connection('retail')
+            $seccionSubCategorias = DB::connection('retail')
                 ->table('LINEA_SUBLINEA_TIENE_SECCION')
                 ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'LINEA_SUBLINEA_TIENE_SECCION.SUBLINEA')
                 ->select(DB::raw('SUBLINEAS.CODIGO, SUBLINEAS.DESCRIPCION'))
@@ -128,12 +134,13 @@ class BusquedaController extends Controller
             return ['sucursales' => $sucursales, 
                     'marcas' => $marcas, 
                     'categorias' => $categorias,
+                    'subCategorias' => $subCategorias,
                     'vendedor'=>$vendedor,
                     'cliente'=>$cliente,
                     'proveedores'=>$proveedores,
                     'sucursalesgeneral'=>$sucursalesgeneral, 
                     'seccionCategorias' => $seccionCategorias, 
-                    'subCategorias' => $subCategorias,
+                    'seccionSubCategorias' => $seccionSubCategorias,
                     'seccion' => $seccion];
 
         }else{
@@ -152,6 +159,7 @@ class BusquedaController extends Controller
             return ['sucursales' => $sucursales, 
                     'marcas' => $marcas, 
                     'categorias' => $categorias,
+                    'subCategorias' => $subCategorias,
                     'vendedor'=>$vendedor,
                     'cliente'=>$cliente,
                     'proveedores'=>$proveedores,
