@@ -1622,6 +1622,9 @@
             	// ------------------------------------------------------------------------
 
             	// REVISAR SI CANTIDAD SUPERA STOCK
+            	if(productoExistente.stock<stock){
+            		productoExistente.stock=stock;
+            	}
 
             	if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
             		me.validarCantidad = true;
