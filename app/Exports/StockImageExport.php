@@ -12,9 +12,11 @@ use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use App\Stock;
 
-class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithDrawings
+class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithDrawings,WithColumnFormatting 
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -63,12 +65,6 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
                                  ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
                          })
         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
-        ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
-         $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','LOTES.COD_PROD')
-              ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','LOTES.ID_SUCURSAL');
-        })
-        ->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
-        ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal);
         
@@ -83,7 +79,13 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
         }
         if($this->filtro=="SECCION"){
-             $ventas->where('SECCIONES.ID','=', $this->seccion);
+             $ventas->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
+             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','LOTES.COD_PROD')
+                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','LOTES.ID_SUCURSAL');
+            })
+            ->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
+            ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
+            ->where('SECCIONES.ID','=', $this->seccion);
              if($this->AllProveedores==false){
                  $ventas->whereIn('PRODUCTOS_AUX.PROVEEDOR',$this->proveedores);
              }
@@ -215,5 +217,12 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
      //   /*  $drawing->ShouldAutoSize(true);*/
 
         return $drawing_array;
+    }
+        public function columnFormats(): array
+    {
+         return [
+           'A' => NumberFormat::FORMAT_NUMBER,
+
+        ];
     }
 }
