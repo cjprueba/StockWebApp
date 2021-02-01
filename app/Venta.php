@@ -5103,13 +5103,13 @@ class Venta extends Model
 
         // REVISAR SI ES TABLA UNICA 
 
-        $tab_unica = Parametro::tab_unica();
+        // $tab_unica = Parametro::tab_unica();
 
-        if ($tab_unica === "SI") {
-            $tab_unica = true;
-        } else {
-            $tab_unica = false;
-        }
+        // if ($tab_unica === "SI") {
+        //     $tab_unica = true;
+        // } else {
+        //     $tab_unica = false;
+        // }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -5512,16 +5512,32 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
-            ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-                         ->leftJoin('CLIENTES', function($join){
-                            $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
-                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+            $posts = Venta::select(DB::raw('VENTAS.ID, 
+                VENTAS.CODIGO, 
+                VENTAS.CAJA, 
+                substring(VENTAS.FECHA, 1, 11) AS FECHA, 
+                VENTAS.HORA, 
+                VENTAS.TIPO, 
+                VENTAS.TOTAL, 
+                VENTAS.MONEDA, 
+                CLIENTES.NOMBRE AS CLIENTE, 
+                EMPLEADOS.NOMBRE AS VENDEDOR,
+                VENTAS_ANULADO.ANULADO, 
+                MONEDAS.CANDEC, 
+                CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+                ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+                ->leftjoin('EMPLEADOS', function($join){
+                        $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                             ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+                ->leftJoin('CLIENTES', function($join){
+                        $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
-                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
-                         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
-                         ->offset($start)
-                         ->limit($limit);
+                ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+              ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+            ->offset($start)
+            ->limit($limit);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -5574,21 +5590,34 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
-            ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-                         ->leftJoin('CLIENTES', function($join){
-                            $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
-                                 ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+            $posts =  Venta::select(DB::raw('VENTAS.ID, 
+                    VENTAS.CODIGO, 
+                    VENTAS.CAJA, 
+                    substring(VENTAS.FECHA, 1, 11) AS FECHA, 
+                    VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, 
+                    VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE,
+                    EMPLEADOS.NOMBRE AS VENDEDOR, 
+                    VENTAS_ANULADO.ANULADO, 
+                    MONEDAS.CANDEC, 
+                    CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+                ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
+                ->leftjoin('EMPLEADOS', function($join){
+                        $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                             ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+                ->leftJoin('CLIENTES', function($join){
+                        $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
+                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
-                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
-                         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
-                            ->where(function ($query) use ($search) {
-                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
-                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
-                            })
-                            ->offset($start)
-                            ->limit($limit);
+                ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+             ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+             ->where(function ($query) use ($search) {
+                    $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                        ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
+                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%");
+                    })
+            ->offset($start)
+            ->limit($limit);
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -5686,6 +5715,7 @@ class Venta extends Model
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CAJA'] = $post->CAJA;
                 $nestedData['CLIENTE'] = $post->CLIENTE;
+                $nestedData['VENDEDOR'] = $post->VENDEDOR;
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TIPO'] = $post->TIPO;
@@ -5856,8 +5886,6 @@ class Venta extends Model
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
-
-
         /*  --------------------------------------------------------------------------------- */
 
         // CREAR COLUMNA DE ARRAY 
@@ -5868,11 +5896,12 @@ class Venta extends Model
                             2 => 'codigo_ca',
                             3 => 'fecha',
                             4 => 'nombre',
-                            5 => 'tipo',
-                            6 => 'tarjeta',
-                            7 => 'descuento',
-                            8 => 'total',
-                            9 => 'moneda'
+                            5 => 'vendedor',
+                            6 => 'tipo',
+                            7 => 'tarjeta',
+                            8 => 'descuento',
+                            9 => 'total',
+                            10 => 'moneda'
                          
                         );
         
@@ -5902,35 +5931,40 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-                          $posts = DB::connection('retail')->table('VENTAS')
-             ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+            $posts = DB::connection('retail')->table('VENTAS')
+              ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
               ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
-            ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+              ->select(DB::raw(
+                'VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
                 CLIENTES.NOMBRE AS NOMBRE,
+                EMPLEADOS.NOMBRE AS VENDEDOR,
                 VENTAS.TIPO AS TIPO,
-              IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                 VENTAS.DESCUENTO AS DESCUENTO,
                 VENTAS.TOTAL AS TOTAL,
                 MONEDAS.DESCRIPCION AS MONEDA'))
-                       ->leftJoin('CLIENTES', function($join){
-                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+              ->leftJoin('CLIENTES', function($join){
+                    $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                        ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                     })
-            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+                ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+                ->leftjoin('EMPLEADOS', function($join){
+                        $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                             ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
              ->Where('VENTAS.FECALTAS','=',$dia)
-              ->Where('VENTAS_ANULADO.anulado','=',0)
-              ->where('VENTAS.TIPO','<>','CR')
+             ->Where('VENTAS_ANULADO.anulado','=',0)
+             ->where('VENTAS.TIPO','<>','CR')
              ->where('CAJA','=',$request->input('caja_numero'))   
-                ->offset($start)
-                ->limit($limit)
-                ->orderBy($order,$dir)
-                ->get();
-
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
+            
             /*  ************************************************************ */
 
         } else {
@@ -5946,77 +5980,85 @@ class Venta extends Model
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
             
-                $posts = DB::connection('retail')->table('VENTAS')
-            ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+            $posts = DB::connection('retail')->table('VENTAS')
+              ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
               ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
-            ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+              ->select(DB::raw(
+                'VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
                 CLIENTES.NOMBRE AS NOMBRE,
+                EMPLEADOS.NOMBRE AS VENDEDOR,
                 VENTAS.TIPO AS TIPO,
                 IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                 VENTAS.DESCUENTO AS DESCUENTO,
                 VENTAS.TOTAL AS TOTAL,
                 MONEDAS.DESCRIPCION AS MONEDA'))
-                       ->leftJoin('CLIENTES', function($join){
-                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+              ->leftJoin('CLIENTES', function($join){
+                    $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                        ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                     })
-            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
-          
-            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
-            ->Where('VENTAS.FECALTAS','=',$dia)
+              ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+              ->leftjoin('EMPLEADOS', function($join){
+                    $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                        ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
+             ->Where('VENTAS.FECALTAS','=',$dia)
              ->Where('VENTAS_ANULADO.anulado','=',0)  
              ->where('VENTAS.TIPO','<>','CR')
-            ->where('CAJA','=',$request->input('caja_numero')) 
-            ->where(function ($query) use ($search) {
-                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
-                            })
-
-                ->offset($start)
-                ->limit($limit)
-                ->orderBy($order,$dir)
-                ->get();
+             ->where('CAJA','=',$request->input('caja_numero')) 
+             ->where(function ($query) use ($search) {
+                    $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
+                        ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
+                    })
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order,$dir)
+            ->get();
 
             /*  ************************************************************ */
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered =DB::connection('retail')->table('VENTAS')
-            ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
-             ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
-            ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+              ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
+              ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+              ->select(DB::raw('
+                VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
                 CLIENTES.NOMBRE AS NOMBRE,
+                EMPLEADOS.NOMBRE AS VENDEDOR,
                 VENTAS.TIPO AS TIPO,
-               IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                 VENTAS.DESCUENTO AS DESCUENTO,
                 VENTAS.TOTAL AS TOTAL,
                 MONEDAS.DESCRIPCION AS MONEDA'))
-                       ->leftJoin('CLIENTES', function($join){
-                        $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
-                             ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+              ->leftJoin('CLIENTES', function($join){
+                    $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
+                        ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                     })
-            ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
-            ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
-            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
-            ->Where('VENTAS.FECALTAS','=',$dia)
-            ->where('VENTAS.TIPO','<>','CR')
+              ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
+              ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
+              ->leftjoin('EMPLEADOS', function($join){
+                    $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
+                        ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                    })
+             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
+             ->Where('VENTAS.FECALTAS','=',$dia)
+             ->where('VENTAS.TIPO','<>','CR')
              ->Where('VENTAS_ANULADO.anulado','=',0)
-            ->where('CAJA','=',$request->input('caja_numero'))
-            ->where(function ($query) use ($search) {
-                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
-                                      ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
-                            }) 
-                             ->count();
+             ->where('CAJA','=',$request->input('caja_numero'))
+             ->where(function ($query) use ($search) {
+                    $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                        ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
+                        ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
+                    }) 
+            ->count();
 
             /*  ************************************************************ */  
 
@@ -6042,6 +6084,7 @@ class Venta extends Model
                 $nestedData['CODIGO_CA'] = $post->CODIGO_CA;
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['VENDEDOR'] = $post->VENDEDOR;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TARJETA'] = $post->TARJETA;
                 $nestedData['DESCUENTO'] = $post->DESCUENTO;
