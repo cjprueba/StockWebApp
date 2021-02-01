@@ -5515,11 +5515,15 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts = Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA,EMPLEADOS.NOMBRE AS VENDEDOR, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
+                         ->leftJoin('EMPLEADOS', function($join){
+                            $join->on('VENTAS.VENDEDOR', '=', 'EMPLEADOS.CODIGO')
+                                 ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
@@ -5577,11 +5581,15 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
+            $posts =  Venta::select(DB::raw('VENTAS.ID, VENTAS.CODIGO, VENTAS.CAJA,EMPLEADOS.NOMBRE AS VENDEDOR, substring(VENTAS.FECHA, 1, 11) AS FECHA, VENTAS.HORA, VENTAS.TIPO, VENTAS.TOTAL, VENTAS.MONEDA, CLIENTES.NOMBRE AS CLIENTE, VENTAS_ANULADO.ANULADO, MONEDAS.CANDEC, CLIENTES.CODIGO AS CLIENTE_CODIGO'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
                          ->leftJoin('CLIENTES', function($join){
                             $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                  ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
+                         ->leftJoin('EMPLEADOS', function($join){
+                            $join->on('VENTAS.VENDEDOR', '=', 'EMPLEADOS.CODIGO')
+                                 ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                          })
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
                          ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
@@ -5635,6 +5643,10 @@ class Venta extends Model
                                 $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
                                      ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
                              })
+                            ->leftJoin('EMPLEADOS', function($join){
+                            $join->on('VENTAS.VENDEDOR', '=', 'EMPLEADOS.CODIGO')
+                                 ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
+                         })
                             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
                                        ->orWhere('VENTAS.CODIGO_CA', 'LIKE',"%{$search}%")
@@ -5689,6 +5701,7 @@ class Venta extends Model
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CAJA'] = $post->CAJA;
                 $nestedData['CLIENTE'] = $post->CLIENTE;
+                $nestedData['VENDEDOR'] = $post->VENDEDOR;
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TIPO'] = $post->TIPO;
