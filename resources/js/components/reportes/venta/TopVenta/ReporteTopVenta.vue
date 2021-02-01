@@ -13,7 +13,7 @@
 					<!-- -------------------------------------------SELECCIONAR SUCURSAL---------------------------------------- -->
 					
 				  	<label for="validationTooltip01">Sucursal</label>
-					<select class="custom-select custom-select-sm" v-on:change="habilitar_insert" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
+					<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
 						<option value="null" selected>Seleccionar</option>
 						<option v-for="sucursal in sucursales" :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
 					</select>
@@ -54,11 +54,11 @@
 
 					<label for="validationTooltip01" class="mt-3">Agrupar por:</label> 
 					<div class="form-check form-check">
-	  		            <input v-model="radioAgrupar" v-on:change="" class="form-check-input" type="radio" name="radioOptions" id="radio0" value=true v-bind:class="{ 'is-invalid': validarRadio }" v-on:change="habilitar_insert">
+	  		            <input v-model="radioAgrupar" v-on:change="" class="form-check-input" type="radio" name="radioOptions" id="radio0" value=true v-bind:class="{ 'is-invalid': validarRadio }">
 	  		            <label class="form-check-label" for="radio0">Cantidad</label>
 	  		        </div>
 	  		        <div class="form-check form-check">
-	  		            <input  v-model="radioAgrupar"  v-on:change="" class="form-check-input" type="radio" name="radioOptions" id="radio1" value=false v-bind:class="{ 'is-invalid': validarRadio }" v-on:change="habilitar_insert">
+	  		            <input  v-model="radioAgrupar"  v-on:change="" class="form-check-input" type="radio" name="radioOptions" id="radio1" value=false v-bind:class="{ 'is-invalid': validarRadio }">
 	  		            <label class="form-check-label" for="radio1">Monto</label>
 	  		        </div>
 
@@ -72,7 +72,7 @@
 
                 <div class="col-md-3" v-if="selectedFiltro === 'SECCION'">
 					<label for="validationTooltip01">Seleccione Sección</label>
-					<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
+					<select class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
 						<option value="null" selected>Seleccionar</option>
 						<option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
 					</select>
@@ -83,102 +83,81 @@
 
 				<!-- ------------------------------------------- PROVEEDOR ----------------------------------------------- -->
 				
-				<div class="col-md-5" v-if="selectedFiltro === 'PROVEEDOR'">
-					<label  for="validationTooltip01">Seleccione Proveedor</label> 
-					<div class="container_checkbox mr-2"  v-bind:class="{ 'is-invalid': validarProveedor }">
-	                    <div class="mt-2 mb-2 pl-2" v-for="proveedor in proveedores">
+				<div class="col-md-3" v-if="selectedFiltro === 'PROVEEDOR'">
+					<label>Seleccione Proveedor</label> 
+					<div class="container_checkbox mr-2">
+	                    <div class="mt-2 mb-2 pl-2" v-for="proveedor in proveedores" >
 	                      <div class="custom-control custom-checkbox">
-	                        <input type="checkbox" class="custom-control-input" :value="proveedor.CODIGO" :id="proveedor.CODIGO" v-model="selectedProveedor">
+	                        <input type="checkbox" class="custom-control-input" :value="proveedor.CODIGO" :id="proveedor.CODIGO" v-model="selectedProveedor" v-bind:class="{ 'is-invalid': validarProveedor }">
 	                        <label class="custom-control-label" :for="proveedor.CODIGO">{{proveedor.NOMBRE}} </label>
 	                      </div>
 	                    </div>
 	                </div>
+						<div class="invalid-feedback">
+					        {{messageInvalidProveedor}}
+					    </div>
 					<div class="custom-control custom-switch mt-3">
-						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor" v-on:change="habilitar_insert">
+						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor">
 						<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
 					</div>
                 </div> 
-			  </div>
 				<!-- -------------------------------------------MOSTRAR BOTONES----------------------------------------------- -->
 
-				<div class="col-12 mt-3">
-					<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
+				<div class="col-md-3 mt-4">
 					<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 				</div>
+
+	    		<!-- ------------------------------------------- TABLA ------------------------------------------- -->
+				<div class="col-md-12 mt-3">
+					<table id="tablaVentaTop" class="table-borderless mb-3" style="width:100%">
+			            <thead>
+			                <tr>
+			                    <th>#</th>
+				      			<th>Código</th>
+				      			<th>Descripción</th>
+				      			<th>Categoría</th>
+				      			<th class="vendidoColumna">Vendido</th>
+				      			<th class="cantidadColumna">Cantidad</th>
+				      			<th class="precioColumna">Precio</th>
+			                    <th class="totalColumna">Total</th>
+				      			<th class="utilidadColumna">Utilidad</th>
+				      			<th class="descuentoColumna">Descuento</th>
+			                </tr>
+			            </thead>
+			            <tfoot>
+			            	<tr>
+			            		<th></th>
+			            		<th></th>
+			            		<th></th>
+				            	<th class="text-center"><strong>TOTALES</strong></th>
+				            	<th class="text-center"></th>
+				            	<th class="text-center"></th>
+				            	<th class="text-center"></th>
+				            	<th class="text-center"></th>  
+				            	<th class="text-center"></th> 
+				            	<th class="text-center"></th> 
+				            </tr>
+			            </tfoot>
+			        </table> 
+	    			<!-- -------------------------------------------FIN TABLA------------------------------------------- -->
+				</div>
+			  </div>
 			  
 			<!-- FINAL DEL CUERPO -->
 			</div>
 
 		<!-- FINAL DE TARJETA -->
 		</div>
-		<!-- ------------------------------------------------------------------------ -->
-		
-		<!-- <div v-else>
-			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
 
-		<!-- ------------------------------------------------------------------------ -->
-
-		<!-- -------------------------------------------MOSTRAR DOWNLOADING------------------------------------------ -->
-
-		<div class="col-md-12 mt-3">
-			<div v-if="descarga" class="ml-5 d-flex justify-content-center">
-					Descargando...
-				<div class="spinner-grow text-primary" role="status" aria-hidden="true"></div>
-			</div>
-		</div>
-
-		<!-- -------------------------------------------MOSTRAR CARGANDO--------------------------------------------- -->
-
-		<div class="col-md-12">
-			<div v-if="cargado" class="ml-5 d-flex justify-content-center">
-				Cargando...
-		        <div class="spinner-grow" role="status" aria-hidden="true"></div>
-		    </div>
-	    </div>
-
-	    <!-- -------------------------------------------TABLAS------------------------------------------- -->
-
-	    <div class="col-xl-6 col-lg-6 mt-3">
-	     	<table class="table" v-if="responseVentaTop.length > 0">
-				<thead>
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Código</th>
-				      <th scope="col">Descripción</th>
-				      <th scope="col">Cantidad</th>
-				      <th scope="col">Precio</th>
-				      <th scope="col">Total</th>
-				      <th scope="col">Utilidad</th>
-				    </tr>
-				</thead>
-				<tbody>
-				    <tr v-for="(venta, index) in responseVentaTop" data-toggle="modal" data-target="#exampleModalCenter" class="cuerpoTabla">
-				      <th scope="row">{{index+1}}</th>
-				      <td>{{venta.CODIGO}}</td>
-				      <td>{{venta.DESCRIPCION}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.CANTIDAD)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.PRECIO)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.TOTAL)}}</td>
-				      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.UTILIDAD)}}</td>
-				    </tr>
-				</tbody>
-				<tfoot>
-					<tr>
-					  <th></th>
-					  <th></th>
-					  <th>TOTALES</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.CANTIDAD, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.PRECIO, 0))}}</th>
-					   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
-					  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseVentaTop.reduce((acc, item) => acc + item.UTILIDAD, 0))}}</th>
-					</tr>
-				</tfoot>
-			</table>
-	    </div>
-
-	    <!-- -------------------------------------------FIN TABLA------------------------------------------- -->
 	</div>
+
+	<!-- ------------------------------------------------------------------------ -->
+
+	<div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
+	</div>
+
+	<!-- ------------------------------------------------------------------------ -->
 
 	<!-- REPORTE TOP VENTAS  -->
 </template>
@@ -195,10 +174,10 @@
               	selectedSeccion: "null",
               	selectedSucursal: 'null',
               	selectedTop: 10,
-              	datos: {},
               	messageInvalidSucursal: '',
               	messageInvalidFecha: '',
               	messageInvalidSeccion: '',
+              	messageInvalidProveedor: '',
               	selectedInicialFecha: '',
               	selectedFinalFecha: '',
               	validarSucursal: false,
@@ -208,43 +187,14 @@
               	validarSeccion: false,
               	validarProveedor: false,
               	cargado: false,
-              	descarga: false,
               	onProveedor: false,
               	radioAgrupar: '',
               	controlar: true,
-              	responseVentaTop: {
-	          		CODIGO: '',
-              		DESCRIPCION: '',
-	          		PRECIO: '',
-	          		CANTIDAD: '',
-	          		TOTAL: '',
-	          		UTILIDAD: ''
-	          	},
-              	insert: true,
               	switch_stock: true,
               	selectedFiltro: 'SECCION'
             }
         }, 
         methods: {
-
-        	habilitar_insert() {
-	       	  let me = this;
-	       	  me.insert = true;
-		    },
-
-			filterItems: function(items, codigo) {
-
-			    return items.filter(function(item) {
-					return item.SECCION === codigo;
-			    })
-			},
-
-			filterProductos: function(items, codigo) {
-
-			    return items.filter(function(item) {
-					return item.SECCION_CODIGO === codigo;
-			    })
-			},
 
         	llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {
@@ -254,44 +204,283 @@
 	          });
 	        },
 
-	        descargar(){
-	        	let me = this;	
-
-	        	if(me.generarConsulta() === true) {
-
-	        		me.descarga = true;
-
-		        	axios({
-					  url: '/export-top-venta',
-					  method: 'POST',
-					  data: me.datos,
-					  responseType: 'blob', // important
-					}).then((response) => {
-						me.descarga = false;
-					   const url = window.URL.createObjectURL(new Blob([response.data]));
-					   const link = document.createElement('a');
-					   link.href = url;
-					   link.setAttribute('download', 'Top'+me.selectedTop+'Venta'+me.selectedInicialFecha+'al'+me.selectedFinalFecha+'.xlsx'); //or any other extension
-					   document.body.appendChild(link);
-					   link.click();
-					});  	
-				}
-				me.insert = false;
-				me.controlar = true;
-	        },
-
 	        llamarDatos(){
 	        	let me = this;	
 	        	
 	        	if(me.generarConsulta() === true) {
 	        		
 	        		me.cargado = true;
-	        		Common.generarReporteTopVentaCommon(me.datos).then(data => {
-             			me.cargado = false;
-						me.responseVentaTop = data.VentaTop;
-              		});
+
+	        		// PREPARAR DATATABLE 
+
+			 		var tableVentaTop = $('#tablaVentaTop').DataTable({
+		                "processing": true,
+		                "serverSide": true,
+		                "destroy": true,
+		                "bAutoWidth": true,
+                		"searching": false,
+	                 	"paging": false,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaTop', messageTop: 'TOP DE VENTAS REGISTRADAS', footer: true }
+				        ],
+		                "ajax":{
+	                 			"data": {
+						        	Sucursal: me.selectedSucursal,
+						        	Inicio: String(me.selectedInicialFecha),
+						        	Final: String(me.selectedFinalFecha),
+						        	Proveedores: me.selectedProveedor,
+						        	Seccion: me.selectedSeccion,
+						        	AllProveedores: me.onProveedor,
+						        	Agrupar: me.radioAgrupar,
+						        	Stock: me.switch_stock,
+				        			filtro: me.selectedFiltro,
+				        			Top: me.selectedTop,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
+	                 			},
+		                  "url": "/ventaTopDatatable",
+		                  "dataType": "json",
+		                  "type": "POST"
+
+		                },
+		                "columns": [
+		                    { "data": "ITEM" },
+		                    { "data": "COD_PROD" },
+		                    { "data": "DESCRIPCION" },
+		                    { "data": "CATEGORIA" },
+		                    { "data": "VENDIDO" },
+		                    { "data": "PRECIO" },
+		                    { "data": "CANTIDAD" },
+		                    { "data": "TOTAL" },
+		                    { "data": "UTILIDAD" },
+		                    { "data": "DESCUENTO" }
+		                ],
+
+		                "footerCallback": function(row, data, start, end, display) {
+
+							var api = this.api();
+
+							// TOTAL 
+
+							api.columns('.totalColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.totalColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+					        //CANTIDAD
+
+						  	api.columns('.cantidadColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.cantidadColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        );
+
+						  	});
+
+					        //UTILIDAD
+
+					        api.columns('.utilidadColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.utilidadColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//DESCUENTO
+
+					        api.columns('.descuentoColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.descuentoColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//PRECIO 
+
+					        api.columns('.precioColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.precioColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//VENDIDO 
+
+					        api.columns('.vendidoColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.vendidoColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						}
+					});
 				}
-	        	me.insert=false;
+	        	me.controlar = true;
 	        },
 
 	        generarConsulta(){
@@ -326,17 +515,18 @@
 	        	}
 
 	        	if(me.onProveedor === false && me.selectedProveedor.length === 0 && me.selectedFiltro === 'PROVEEDOR') {
-
+	        		me.messageInvalidProveedor = 'Por favor seleccione uno o varios Proveedores';
 	        		me.validarProveedor = true;
 	        		me.controlar=false;
 	        	} else {
+	        		me.messageInvalidProveedor = '';
 	        		me.validarProveedor = false;
 	        	}
 
 	        	if ((me.selectedSeccion === "null" || me.selectedSeccion === '') && me.selectedFiltro === 'SECCION'){
 	        		me.validarSeccion = true;
 	        		me.messageInvalidSeccion = 'Por favor seleccione la sección';
-	        		me.controlar=true;
+	        		me.controlar=false;
 	        	} else {
 	        		me.validarSeccion = false;
 	        		me.messageInvalidSeccion = '';
@@ -349,8 +539,8 @@
 	        	} else {
 	        		me.validarRadio = false;
 	        	}
+
 	        	if(me.controlar === false){
-	        		me.controlar = true;
 	        		return false;
 	        	}
 
@@ -359,20 +549,6 @@
 		        		me.selectedProveedor[key] = me.proveedores[key].CODIGO;
 		        	}
 		        }
-
-		       	me.datos = {
-			        	Sucursal: me.selectedSucursal,
-			        	Inicio: String(me.selectedInicialFecha),
-			        	Final: String(me.selectedFinalFecha),
-			        	Proveedores: me.selectedProveedor,
-			        	Seccion: me.selectedSeccion,
-			        	AllProveedores: me.onProveedor,
-			        	Agrupar: me.radioAgrupar,
-			        	Stock: me.switch_stock,
-	        			Insert:me.insert,
-	        			filtro: me.selectedFiltro,
-	        			Top: me.selectedTop
-		        	};
 
 	        	return true;
 	        }
@@ -387,13 +563,11 @@
     				});
     				$("#selectedInicialFecha").datepicker().on(
 			     		"changeDate", () => {
-			     			me.insert=true;
 			     			me.selectedInicialFecha = $('#selectedInicialFecha').val()
 			     		}
 					);
 					$("#selectedFinalFecha").datepicker().on(
 			     		"changeDate", () => {
-			     			me.insert=true;
 			     			me.selectedFinalFecha = $('#selectedFinalFecha').val()
 			     		}
 					);
@@ -402,13 +576,7 @@
 			});
 
 			this.llamarBusquedas();
+			var tableVentaTop = $('#tablaVentaTop').DataTable();
         }
     }    
 </script>
-
-<style>
-	
-.cuerpoTabla {
-	font-size: 12px;
-}
-</style>>
