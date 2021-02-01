@@ -5966,7 +5966,7 @@ class Venta extends Model
             ->limit($limit)
             ->orderBy($order,$dir)
             ->get();
-            var_dump($posts);
+            
             /*  ************************************************************ */
 
         } else {
