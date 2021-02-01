@@ -53,6 +53,7 @@
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
+		                    <th>Vendedor</th>
 		                    <th>Fecha</th>
 		                    <th>Hora</th>
 		                    <th>Tipo</th>
@@ -538,6 +539,7 @@
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },
+	                    { "data": "VENDEDOR" },
 	                    { "data": "FECHA" },
 	                    { "data": "HORA" },
 	                    { "data": "TIPO" },

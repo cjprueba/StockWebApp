@@ -1,8 +1,8 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('venta.mostrar')">
+		<div class="row">
 			<!--   -->
-			<!-- ------------------------------------------------------------------------------------- -->
+			<!-- ---------------------------------- v-if="$can('venta.mostrar')"--------------------------------------------------- -->
 
 			<!-- TITULO  -->
 			
@@ -55,6 +55,7 @@
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
+		                    <th>Vendedor</th>
 		                    <th>Fecha</th>
 		                    <th>Hora</th>
 		                    <th>Tipo</th>
@@ -86,9 +87,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
+		<!-- <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		</div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 		
@@ -134,13 +135,13 @@
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="4">
                                 <label class="form-check-label" for="gridRadios3">
                                   Reales
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="3">
                                 <label class="form-check-label" for="gridRadios4">
                                   Pesos
                                 </label>
@@ -264,15 +265,15 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfTicketVentaCommon(numero, caja).then(response => {
+				Common.generarPdfTicketVentaTestCommon(numero, caja).then(response => {
 
-						var reader = new FileReader();
-						 reader.readAsDataURL(new Blob([response])); 
-						reader.onloadend = function() {
-						     var base64data = reader.result;
-						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						    return me.imprimir(base64data);
-						 }
+						// var reader = new FileReader();
+						//  reader.readAsDataURL(new Blob([response])); 
+						// reader.onloadend = function() {
+						//      var base64data = reader.result;
+						//      base64data = base64data.replace("data:application/octet-stream;base64,", "");
+						//     return me.imprimir(base64data);
+						//  }
 
 				});
 
@@ -521,6 +522,7 @@
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },
+	                    { "data": "VENDEDOR" },
 	                    { "data": "FECHA" },
 	                    { "data": "HORA" },
 	                    { "data": "TIPO" },
