@@ -2746,7 +2746,7 @@
 
         	Mousetrap.bind('f1', function() { me.nuevo(); });
 
-			Mousetrap.bind('esc', function() { 
+/*			Mousetrap.bind('esc', function() { 
 
 				if ($("#modalImpresion").data('bs.modal')) {
 	              if (($("#modalImpresion").data('bs.modal'))._isShown){
@@ -2768,7 +2768,7 @@
 	            }; 
 
 
-			});
+			});*/
 
 			Mousetrap.bind('shift+m', function() { me.movimiento_caja(); });
 			Mousetrap.bind('shift+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
