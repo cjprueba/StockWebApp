@@ -5886,8 +5886,6 @@ class Venta extends Model
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
-
-
         /*  --------------------------------------------------------------------------------- */
 
         // CREAR COLUMNA DE ARRAY 

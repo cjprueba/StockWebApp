@@ -265,15 +265,15 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfTicketVentaTestCommon(numero, caja).then(response => {
+				Common.generarPdfTicketVentaCommon(numero, caja).then(response => {
 
-						// var reader = new FileReader();
-						//  reader.readAsDataURL(new Blob([response])); 
-						// reader.onloadend = function() {
-						//      var base64data = reader.result;
-						//      base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						//     return me.imprimir(base64data);
-						//  }
+						var reader = new FileReader();
+						 reader.readAsDataURL(new Blob([response])); 
+						reader.onloadend = function() {
+						     var base64data = reader.result;
+						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
+						    return me.imprimir(base64data);
+						 }
 
 				});
 
