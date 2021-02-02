@@ -2,7 +2,7 @@
 	<div class="container-fluid mt-4">
 		<div class="row" v-if="$can('venta.mostrar')">
 			<!--   -->
-			<!-- ------------------------------------------------------------------------------------- -->
+			<!-- ---------------------------------- --------------------------------------------------- -->
 
 			<!-- TITULO  -->
 			
@@ -55,6 +55,7 @@
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
+		                    <th>Vendedor</th>
 		                    <th>Fecha</th>
 		                    <th>Hora</th>
 		                    <th>Tipo</th>
@@ -134,13 +135,13 @@
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="3">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios3" value="4">
                                 <label class="form-check-label" for="gridRadios3">
                                   Reales
                                 </label>
                               </div>
                               <div class="form-check form-check-inline">
-                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="4">
+                                <input  v-model="radio.moneda" class="form-check-input" type="radio" name="radioVuelto" id="gridRadios4" value="3">
                                 <label class="form-check-label" for="gridRadios4">
                                   Pesos
                                 </label>
@@ -521,6 +522,7 @@
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },
+	                    { "data": "VENDEDOR" },
 	                    { "data": "FECHA" },
 	                    { "data": "HORA" },
 	                    { "data": "TIPO" },

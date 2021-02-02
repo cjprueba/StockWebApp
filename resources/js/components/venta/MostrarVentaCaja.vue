@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid mt-4">
 		<div class="row" v-if="$can('venta.mostrar')">
-			<!--   -->
+			
 			<!-- ------------------------------------------------------------------------------------- -->
 
 			<!-- TITULO  -->
@@ -53,6 +53,7 @@
 		                    <th>Codigo</th>
 		                    <th>Caja</th>
 		                    <th>Cliente</th>
+		                    <th>Vendedor</th>
 		                    <th>Fecha</th>
 		                    <th>Hora</th>
 		                    <th>Tipo</th>
@@ -446,7 +447,6 @@
 					 });
 				  }
 				}).then((result) => {
-
 				  	
 
 				})
@@ -538,6 +538,7 @@
 	                    { "data": "CODIGO" },
 	                    { "data": "CAJA" },
 	                    { "data": "CLIENTE" },
+	                    { "data": "VENDEDOR" },
 	                    { "data": "FECHA" },
 	                    { "data": "HORA" },
 	                    { "data": "TIPO" },
