@@ -30,6 +30,8 @@ use App\VentasTieneAutorizacion;
 use App\VentasCreditoTieneNotaCredito;
 use App\Movimiento_Caja;
 use DateTime;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class Venta extends Model
 {
@@ -8855,4 +8857,10 @@ class Venta extends Model
        /* return ["response"=>true, "efectivo"=>$cajas,"medios"=>$cajas,"contado"=>$contado,"credito"=>$credito,"pe"=>$pe, "descuento_producto"=>$descuento_producto,"retencion"=>$retencion,"nota_credito"=>$nota_credito,"descuento_general"=>$descuento_general,"salida_p"=>$salida_p,"cupon"=>$cupon,"abonos"=>$abono]*/
         /*  --------------------------------------------------------------------------------- */
   }
+    public static function rpt_top_articulos($datos)
+    {
+       
+    }
+
+
 }
