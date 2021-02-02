@@ -42,7 +42,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
 
         $ventas = Stock::query()->select(
-            DB::raw('LOTES.COD_PROD, 0 AS IMAGEN, IFNULL(SUM(LOTES.CANTIDAD),0) AS STOCK, PRODUCTOS.DESCRIPCION, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PREMAYORISTA')
+            DB::raw('LOTES.COD_PROD, 0 AS IMAGEN, IFNULL(SUM(LOTES.CANTIDAD),"0") AS STOCK,(IFNULL((SELECT l.CANTIDAD_INICIAL FROM lotes as l WHERE (l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL) order by id desc limit 1),0)) as CANTIDAD_INICIAL,MAX(LOTES.FECALTAS) AS ULTIMA_ENTRADA, PRODUCTOS.DESCRIPCION, DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PREMAYORISTA')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
                             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
@@ -61,7 +61,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
         } else {
 
-        	$ventas = $ventas->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) > 0');
+        	$ventas = $ventas->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');
 
         }
         
@@ -78,7 +78,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
     public function headings(): array
     {
-        return ["CODIGO", "IMAGEN", "STOCK", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
+        return ["CODIGO", "IMAGEN", "STOCK","CANTIDAD_INICIAL","ULTIMA_ENTRADA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
     }
 
     public function title(): string
@@ -120,11 +120,13 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
 
-                $event->sheet->getStyle('A1:G1')->applyfromarray($styleArray);
+                $event->sheet->getStyle('A1:I1')->applyfromarray($styleArray);
                 $event ->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
                 $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
-                $event ->sheet->getDelegate()->getColumnDimension('D')->setWidth(100);
-                $event ->sheet->getDelegate()->getColumnDimension('E')->setWidth(100);
+                $event ->sheet->getDelegate()->getColumnDimension('D')->setWidth(15);
+                $event ->sheet->getDelegate()->getColumnDimension('E')->setWidth(30);
+                $event ->sheet->getDelegate()->getColumnDimension('F')->setWidth(100);
+                $event ->sheet->getDelegate()->getColumnDimension('G')->setWidth(100);
 
                 for( $intRowNumber = 2; $intRowNumber <= $this->total + 1; $intRowNumber++){
                     $event->sheet->getRowDimension($intRowNumber)->setRowHeight(80);
