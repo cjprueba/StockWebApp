@@ -8933,7 +8933,7 @@ class Venta extends Model
 
                 $nestedData['ITEM'] = $c;
                 $nestedData['COD_PROD'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION,0,25);
                 $nestedData['CATEGORIA'] = $post->CATEGORIA;
                 $nestedData['VENDIDO'] = $post->CANTIDAD;
                 $nestedData['CANTIDAD'] = $post->STOCK;
