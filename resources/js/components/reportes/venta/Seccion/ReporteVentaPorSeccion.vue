@@ -420,7 +420,7 @@
 	        	
 	        	let me = this;
 
-	        	if (me.selectedSucursal === null || me.selectedSucursal === ''){
+	        	if (me.selectedSucursal === "null" || me.selectedSucursal === ''){
 	        		me.validarSucursal = true;
 	        		me.messageInvalidSucursal = 'Por favor seleccione sucursal';
 	        		me.controlar=true;
@@ -438,7 +438,7 @@
 	        		me.messageInvalidSeccion = '';
 	        	}	
 
-				if(me.selectedInicialFecha === null || me.selectedInicialFecha === ""){
+				if(me.selectedInicialFecha === "null" || me.selectedInicialFecha === ""){
 	        		me.validarInicialFecha = true;
 	        		me.messageInvalidFecha = 'Por favor seleccione una fecha Inicial';
 	        		me.controlar=true;
@@ -447,7 +447,7 @@
 	        		me.messageInvalidFecha = '';
 	        	}
 
-	        	if(me.selectedFinalFecha === null || me.selectedFinalFecha === ""){
+	        	if(me.selectedFinalFecha === "null" || me.selectedFinalFecha === ""){
 	        		me.validarFinalFecha = true;
 	        		me.messageInvalidFecha = 'Por favor seleccione una fecha Final';
 	        		me.controlar=true;
