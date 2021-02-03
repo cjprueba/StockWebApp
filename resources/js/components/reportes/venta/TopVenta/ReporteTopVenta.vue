@@ -14,14 +14,14 @@
 					
 				  	<label for="validationTooltip01">Sucursal</label>
 					<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
-						<option value="null" selected>Seleccionar</option>
+						<option value="null">Seleccionar</option>
 						<option v-for="sucursal in sucursales" :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
 					</select>
 					<div class="invalid-feedback">
 						{{messageInvalidSucursal}}
 					</div>
 
-					<!-- ----------------------------------------SELECCIONAR FECHA---------------------------------------- -->
+					<!-- ----------------------------------------SELECCIONAR TOP---------------------------------------- -->
 					
 					<label class="mt-3">Seleccione Top</label>
 			    	<select v-model="selectedTop" class="custom-select custom-select-sm">
@@ -46,11 +46,16 @@
 				</div>
 
 				<div class="col-md-3">
+
+					<!-- -------------------------------- FILTRO POR SECCION O PROVEEDOR ----------------------------------- -->
+
 					<label>Filtrar Por</label>
 			    	<select v-model="selectedFiltro" class="custom-select custom-select-sm">
 			  	  		<option value="SECCION">Sección</option>
 			    		<option value="PROVEEDOR">Proveedor</option>
 			  		</select>
+
+					<!-- ---------------------------------------- RADIO AGRUPAR ---------------------------------------- -->
 
 					<label for="validationTooltip01" class="mt-3">Agrupar por:</label> 
 					<div class="form-check form-check">
@@ -73,7 +78,7 @@
                 <div class="col-md-3" v-if="selectedFiltro === 'SECCION'">
 					<label for="validationTooltip01">Seleccione Sección</label>
 					<select class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
-						<option value="null" selected>Seleccionar</option>
+						<option value="null">Seleccionar</option>
 						<option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
 					</select>
 					<div class="invalid-feedback">
@@ -107,9 +112,9 @@
 					<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 				</div>
 
-	    		<!-- ------------------------------------------- TABLA ------------------------------------------- -->
+	    		<!-- ------------------------------------------- DATATABLE ------------------------------------------- -->
 				<div class="col-md-12 mt-3">
-					<table id="tablaVentaTop" class="table-borderless mb-3" style="width:100%">
+					<table id="tablaVentaTop" class="table-borderless mb-3 tabla" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>#</th>
@@ -117,11 +122,11 @@
 				      			<th>Descripción</th>
 				      			<th>Categoría</th>
 				      			<th class="vendidoColumna">Vendido</th>
-				      			<th class="cantidadColumna">Cantidad</th>
 				      			<th class="precioColumna">Precio</th>
 			                    <th class="totalColumna">Total</th>
 				      			<th class="utilidadColumna">Utilidad</th>
 				      			<th class="descuentoColumna">Descuento</th>
+				      			<th class="cantidadColumna">Stock</th>
 			                </tr>
 			            </thead>
 			            <tfoot>
@@ -172,7 +177,7 @@
               	secciones: [],
               	selectedProveedor: [],
               	selectedSeccion: "null",
-              	selectedSucursal: 'null',
+              	selectedSucursal: "null",
               	selectedTop: 10,
               	messageInvalidSucursal: '',
               	messageInvalidFecha: '',
@@ -221,6 +226,7 @@
                 		"searching": false,
 	                 	"paging": false,
                         "select": true,
+    					"ordering":  false,
                         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
 						"<'row'<'col-sm-12'tr>>" +
 						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
@@ -256,12 +262,11 @@
 		                    { "data": "CATEGORIA" },
 		                    { "data": "VENDIDO" },
 		                    { "data": "PRECIO" },
-		                    { "data": "CANTIDAD" },
 		                    { "data": "TOTAL" },
 		                    { "data": "UTILIDAD" },
-		                    { "data": "DESCUENTO" }
+		                    { "data": "DESCUENTO" },
+		                    { "data": "CANTIDAD" }
 		                ],
-
 		                "footerCallback": function(row, data, start, end, display) {
 
 							var api = this.api();
@@ -496,7 +501,7 @@
 	        		me.messageInvalidSucursal = '';
 	        	}	
 
-	        	if(me.selectedInicialFecha === null || me.selectedInicialFecha === "") {
+	        	if(me.selectedInicialFecha === "null" || me.selectedInicialFecha === "") {
 	        		me.validarInicialFecha = true;
 	        		me.messageInvalidFecha = 'Por favor seleccione una fecha';
 	        		me.controlar = false;
@@ -505,7 +510,7 @@
 	        		me.messageInvalidFecha = '';
 	        	}
 
-	        	if(me.selectedFinalFecha === null || me.selectedFinalFecha === "") {
+	        	if(me.selectedFinalFecha === "null" || me.selectedFinalFecha === "") {
 	        		me.validarFinalFecha = true;
 	        		me.messageInvalidFecha = 'Por favor seleccione una fecha';
 	        		me.controlar = false;
@@ -580,3 +585,9 @@
         }
     }    
 </script>
+
+<style>
+.tabla {
+	font-size: 11px;
+}
+</style>
