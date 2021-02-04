@@ -9032,17 +9032,24 @@ class Venta extends Model
          ->Where('VENTAS.TIPO','<>','CR')
          ->whereBetween('VENTASDET.FECALTAS', [$inicio, $final])
          ->Where('VENTASDET.ID_SUCURSAL','=',$datos->input("Sucursal"));
-        if($datos->input("Seccion")<>"null"){
+         if($datos->input("filtro")=="SECCION"){
              $reporte->where('SECCIONES.ID','=', $datos->input("Seccion"));
-        }
-        if(!$datos->input("AllProveedores") &&  $datos->input("Seccion")=="null"){
-             $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+             if($datos->input("AllProveedores")=='false'){
+                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+                
+             }
+              
+         }
+        if($datos->input("filtro")=="PROVEEDOR"){
+            if($datos->input("AllProveedores")=='false'){
+                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+             }
         }
         if($datos->stock){
              $reporte->where('LOTES.CANTIDAD','>',0);
         }
         $reporte=$reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
-         log::error(["gg"=>$reporte]);
+        
       
      
         $precio=100;
@@ -9179,11 +9186,16 @@ class Venta extends Model
          ->Where('VENTAS.TIPO','<>','CR')
          ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$inicio , $final])
          ->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos->input("Sucursal"));
-        if($datos->input("Seccion")<>"null"){
+        if($datos->input("filtro")=="SECCION"){
              $reporte->where('SECCIONES.ID','=', $datos->input("Seccion"));
-        }
-        if(!$datos->input("AllProveedores") &&  $datos->input("Seccion")=="null"){
-             $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+             if($datos->input("AllProveedores")=='false'){
+                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+             }
+         }
+        if($datos->input("filtro")=="PROVEEDOR"){
+            if($datos->input("AllProveedores")=='false'){
+                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
+             }
         }
         if($datos->stock){
              $reporte->where('LOTES.CANTIDAD','>',0);

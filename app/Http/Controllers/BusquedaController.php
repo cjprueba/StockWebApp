@@ -76,7 +76,7 @@ class BusquedaController extends Controller
 
         $vendedor = Empleado::select(DB::raw('CODIGO, NOMBRE'))
         ->where('ID_SUCURSAL','=',$user->id_sucursal)
-        ->orderBy('CODIGO')
+        ->orderBy('NOMBRE')
         ->get();
 
         /*  *********** CLIENTES *********** */
@@ -89,7 +89,7 @@ class BusquedaController extends Controller
          /*  *********** PROVEEDORES *********** */
 
         $proveedores = Proveedor::select(DB::raw('CODIGO, NOMBRE'))
-        ->orderBy('CODIGO')
+        ->orderBy('NOMBRE')
         ->get();
 
          /*  *********** OBTENER LA SECCION DEL USER *********** */
