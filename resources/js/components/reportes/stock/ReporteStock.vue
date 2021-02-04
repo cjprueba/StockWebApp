@@ -300,15 +300,15 @@
 		        }
 
 	        	if(me.onCategoriaSeccion === true){
-	        		for (var key in me.categoriaSeccion){
-	        			me.selectedSeccionCategoria[key] = me.categoriaSeccion[key].CODIGO;
+	        		for (var key in me.seccionCategorias){
+	        			me.selectedSeccionCategoria[key] = me.seccionCategorias[key].CODIGO;
 	        		}
 	        	} 
 
 	        	me.datos = {
 		        	Sucursal: me.selectedSucursal,
 		        	Categorias: me.selectedCategoria,
-		        	CategoriaSeccion: me.categoriaSeccion,
+		        	CategoriaSeccion: me.selectedSeccionCategoria,
 		        	AllCategory: me.onCategoria,
 		        	AllCategorySeccion: me.onCategoriaSeccion,
 		        	Stock: me.switch_stock,
