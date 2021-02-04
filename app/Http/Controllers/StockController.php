@@ -100,14 +100,15 @@ class StockController extends Controller
 
         // DESCARGAR ARCHIVO EXCEL 
 
-        $categorias = ($request->all())['Categorias'];
-        $subcategorias = ($request->all())['SubCategorias'];
+        /*$categorias = ($request->all())['Categorias'];*/
+        /*$subcategorias = ($request->all())['SubCategorias'];*/
 
-        $stock = ($request->all())['Stock'];
 
-        $sucursal = ($request->all())['Sucursal'];
+      /*$stock = ($request->all())['Stock'];
 
-        return Excel::download(new StockImageExport($categorias, $sucursal, $subcategorias, $stock), 'STOCK_IMAGE.xlsx');
+        $sucursal = ($request->all())['Sucursal'];*/
+
+        return Excel::download(new StockImageExport($request->all()), 'STOCK_IMAGE.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 
