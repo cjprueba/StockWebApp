@@ -122,7 +122,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
     public function title(): string
     {
-        return 'TOP VENTAS';
+        return 'STOCK';
     }
 
     public function registerEvents(): array
