@@ -1,6 +1,6 @@
 <template>
 	
-	<!-- REPORTE DE STOCK POR CATEGORIA Y SUB CATEGORIA -->
+	<!-- REPORTE DE STOCK POR CATEGORIA Y PROVEEDOR -->
 	<div class="container mt-3">
 	  <!-- <div v-if="$can('reporte.stock')"> -->
 		<div class="card shadow border-bottom-primary" >
@@ -65,7 +65,7 @@
 					        {{messageInvalidProveedor}}
 					    </div>
 						<div class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-on:click="todosProveedores">
+						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onProveedor">
 						  <label class="custom-control-label" for="customSwitch1">Seleccionar todos</label>
 						</div>
 	                </div>
@@ -79,13 +79,13 @@
 					        {{messageInvalidCategoria}}
 					    </div>
 						<div class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch2" v-on:click="todasCategorias">
+						  <input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onCategoria">
 						  <label class="custom-control-label" for="customSwitch2">Seleccionar todas las Categorías</label>
 						</div>
 					</div> 
 
 					<div class="col-md-4 ml-3" v-if="selectedFiltro === 'SECCION'">
-						<label for="validationTooltip02">Seleccione Categoría</label> 
+						<label for="validationTooltip03">Seleccione Categoría</label> 
 						<select multiple class="form-control" size="8" v-model="selectedSeccionCategoria" :disabled="onCategoriaSeccion" v-bind:class="{ 'is-invalid': validarCategoriaSeccion }">
 						  <option v-for="categoriaSeccion in seccionCategorias" :value="categoriaSeccion.CODIGO">{{ categoriaSeccion.DESCRIPCION }}</option>
 						</select>
@@ -93,8 +93,8 @@
 					        {{messageInvalidCategoriaSeccion}}
 					    </div>
 						<div class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch2" v-on:click="todasCategorias">
-						  <label class="custom-control-label" for="customSwitch2">Seleccionar todas las Categorías</label>
+						  <input type="checkbox" class="custom-control-input" id="customSwitch3" v-model="onCategoriaSeccion">
+						  <label class="custom-control-label" for="customSwitch3">Seleccionar todas las Categorías</label>
 						</div>
 					</div>
 				</div>
@@ -123,7 +123,7 @@
 	  </div> -->
 	</div>
 
-	<!-- FIN REPORTE DE STOCK POR CATEGORIA Y SUB CATEGORIA-->
+	<!-- FIN REPORTE DE STOCK POR CATEGORIA Y PROVEEDOR-->
 </template>
 
 <script >
@@ -216,21 +216,6 @@
 			      return item.CATEGORIA === codigo;
 			    })
 			},
-
-	        todasCategorias(e){
-
-	        	if(this.selectedFiltro === 'SECCION'){
-
-	        		this.onCategoriaSeccion = !this.onCategoriaSeccion;
-	        	}else{
-
-	        		this.onCategoria = !this.onCategoria;
-	        	}
-	        },
-
-	        todosProveedores(e){
-	        	this.onProveedor = !this.onProveedor;
-	        },
 
 	        generarConsulta(){
 	        	
