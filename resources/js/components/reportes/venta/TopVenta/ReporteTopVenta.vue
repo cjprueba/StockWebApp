@@ -54,6 +54,18 @@
 			  	  		<option value="SECCION">Sección</option>
 			    		<option value="PROVEEDOR">Proveedor</option>
 			  		</select>
+			  		<!-- -----------------------------------SELECT SECCION------------------------------------- -->
+
+	                <div class="mt-3" v-if="selectedFiltro === 'SECCION'">
+						<label for="validationTooltip01">Seleccione Sección</label>
+						<select class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
+							<option value="null">Seleccionar</option>
+							<option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
+						</select>
+						<div class="invalid-feedback">
+							{{messageInvalidSeccion}}
+						</div>
+					</div>
 
 					<!-- ---------------------------------------- RADIO AGRUPAR ---------------------------------------- -->
 
@@ -73,27 +85,16 @@
 					</div>
 				</div>
 
-                <!-- -----------------------------------SELECT SECCION------------------------------------- -->
-
-                <div class="col-md-3" v-if="selectedFiltro === 'SECCION'">
-					<label for="validationTooltip01">Seleccione Sección</label>
-					<select class="custom-select custom-select-sm" v-model="selectedSeccion" v-bind:class="{ 'is-invalid': validarSeccion }">
-						<option value="null">Seleccionar</option>
-						<option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
-					</select>
-					<div class="invalid-feedback">
-						{{messageInvalidSeccion}}
-					</div>
-				</div>
+                
 
 				<!-- ------------------------------------------- PROVEEDOR ----------------------------------------------- -->
 				
-				<div class="col-md-3" v-if="selectedFiltro === 'PROVEEDOR'">
+				<div class="col-md-3">
 					<label>Seleccione Proveedor</label> 
 					<div class="container_checkbox mr-2">
 	                    <div class="mt-2 mb-2 pl-2" v-for="proveedor in proveedores" >
 	                      <div class="custom-control custom-checkbox">
-	                        <input type="checkbox" class="custom-control-input" :value="proveedor.CODIGO" :id="proveedor.CODIGO" v-model="selectedProveedor" v-bind:class="{ 'is-invalid': validarProveedor }">
+	                        <input type="checkbox" class="custom-control-input" :value="proveedor.CODIGO" :id="proveedor.CODIGO" v-model="selectedProveedor" v-bind:class="{ 'is-invalid': validarProveedor }" :disabled="onProveedor">
 	                        <label class="custom-control-label" :for="proveedor.CODIGO">{{proveedor.NOMBRE}} </label>
 	                      </div>
 	                    </div>
@@ -114,13 +115,13 @@
 
 	    		<!-- ------------------------------------------- DATATABLE ------------------------------------------- -->
 				<div class="col-md-12 mt-3">
-					<table id="tablaVentaTop" class="table-borderless mb-3 tabla" style="width:100%">
+					<table id="tablaVentaTop" class="table mb-3" style="width:100%">
 			            <thead>
 			                <tr>
 			                    <th>#</th>
 				      			<th>Código</th>
-				      			<th>Descripción</th>
-				      			<th>Categoría</th>
+				      			<th width="25%">Descripción</th>
+				      			<th width="25%">Categoría</th>
 				      			<th class="vendidoColumna">Vendido</th>
 				      			<th class="precioColumna">Precio</th>
 			                    <th class="totalColumna">Total</th>
@@ -134,13 +135,13 @@
 			            		<th></th>
 			            		<th></th>
 			            		<th></th>
-				            	<th class="text-center"><strong>TOTALES</strong></th>
-				            	<th class="text-center"></th>
-				            	<th class="text-center"></th>
-				            	<th class="text-center"></th>
-				            	<th class="text-center"></th>  
-				            	<th class="text-center"></th> 
-				            	<th class="text-center"></th> 
+				            	<th><strong>TOTALES</strong></th>
+				            	<th></th>
+				            	<th></th>
+				            	<th></th>
+				            	<th></th>  
+				            	<th></th> 
+				            	<th></th> 
 				            </tr>
 			            </tfoot>
 			        </table> 
@@ -195,7 +196,7 @@
               	onProveedor: false,
               	radioAgrupar: '',
               	controlar: true,
-              	switch_stock: true,
+              	switch_stock: false,
               	selectedFiltro: 'SECCION'
             }
         }, 
@@ -337,7 +338,7 @@
 							    // CARGAR EN EL FOOTER  
 
 							    $( api.columns('.cantidadColumna').footer() ).html(
-						            Common.darFormatoCommon(sum, this.candec)
+						            Common.darFormatoCommon(sum, 0)
 						        );
 
 						  	});
@@ -478,11 +479,12 @@
 							    // CARGAR EN EL FOOTER  
 
 							    $( api.columns('.vendidoColumna').footer() ).html(
-						            Common.darFormatoCommon(sum, this.candec)
+						            Common.darFormatoCommon(sum, 0)
 						        ); 
 						  	});
 
 						}
+
 					});
 				}
 	        	me.controlar = true;
@@ -519,7 +521,7 @@
 	        		me.messageInvalidFecha = '';
 	        	}
 
-	        	if(me.onProveedor === false && me.selectedProveedor.length === 0 && me.selectedFiltro === 'PROVEEDOR') {
+	        	if(me.onProveedor === false && me.selectedProveedor.length === 0) {
 	        		me.messageInvalidProveedor = 'Por favor seleccione uno o varios Proveedores';
 	        		me.validarProveedor = true;
 	        		me.controlar=false;
@@ -585,9 +587,3 @@
         }
     }    
 </script>
-
-<style>
-.tabla {
-	font-size: 11px;
-}
-</style>
