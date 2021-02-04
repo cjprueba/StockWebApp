@@ -32,6 +32,7 @@ use App\Movimiento_Caja;
 use DateTime;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
 
 class Venta extends Model
 {
@@ -8862,10 +8863,6 @@ class Venta extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
             $posts = DB::connection('retail')->table('temp_ventas')
-            ->leftjoin('LOTES',function($join){
-            $join->on('LOTES.COD_PROD','=','temp_ventas.COD_PROD')
-                 ->on('LOTES.ID_SUCURSAL','=','temp_ventas.ID_SUCURSAL');
-            })
             ->leftjoin('productos','productos.CODIGO','=','temp_ventas.COD_PROD')
             ->select(
              DB::raw(
@@ -9045,6 +9042,7 @@ class Venta extends Model
              $reporte->where('LOTES.CANTIDAD','>',0);
         }
         $reporte=$reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
+         log::error(["gg"=>$reporte]);
       
      
         $precio=100;
