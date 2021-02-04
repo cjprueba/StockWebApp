@@ -4,7 +4,7 @@
 	<div class="container mt-3">
 	  <!-- <div v-if="$can('reporte.stock')"> -->
 		<div class="card shadow border-bottom-primary" >
-		  	<div class="card-header">Stock Por Categoría y Sub-Categoría</div>
+		  	<div class="card-header">Stock Por Proveedor y Categoría</div>
 			<div class="card-body">
 			  	<div class="form-row">
 
@@ -21,6 +21,26 @@
 					        {{messageInvalidSucursal}}
 					    </div>
 
+					    <!-- -------------------------------- FILTRO POR SECCION O PROVEEDOR ----------------------------------- -->
+
+						<label class="mt-3">Filtrar Por</label>
+				    	<select v-model="selectedFiltro" class="custom-select custom-select-sm">
+				  	  		<option value="SECCION">Sección</option>
+				    		<option value="PROVEEDOR">Proveedor y Categoría</option>
+				  		</select>
+
+						<!-- -----------------------------------SELECT SECCION------------------------------------- -->
+
+						<div v-if="selectedFiltro === 'SECCION'">
+						    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
+							<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
 
 					   	<div class="my-1 mb-3 mt-4">
 							<div class="custom-control custom-switch mr-sm-2" >
@@ -34,8 +54,24 @@
 					    </div>
 					</div>
 
-					<div class="col-md-4">
-						<label for="validationTooltip01">Seleccione Categoria</label> 
+					<!-- ------------------------------------------- PROVEEDOR ----------------------------------------------- -->
+				
+					<div class="col-md-3 ml-3">
+						<label for="validationTooltip01">Seleccione Proveedor</label> 
+						<select multiple class="form-control" size="8" v-model="selectedProveedor" :disabled="onProveedor" v-bind:class="{ 'is-invalid': validarProveedor }">
+						  <option v-for="proveedor in proveedores" :value="proveedor.CODIGO">{{proveedor.NOMBRE}}</option>
+						</select>
+						<div class="invalid-feedback">
+					        {{messageInvalidProveedor}}
+					    </div>
+						<div class="custom-control custom-switch mt-3">
+						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-on:click="todosProveedores">
+						  <label class="custom-control-label" for="customSwitch1">Seleccionar todos</label>
+						</div>
+	                </div>
+
+					<div class="col-md-4 ml-3" v-if="selectedFiltro === 'PROVEEDOR'">
+						<label for="validationTooltip02">Seleccione Categorias</label> 
 						<select multiple class="form-control" size="8" v-model="selectedCategoria" :disabled="onCategoria" v-bind:class="{ 'is-invalid': validarCategoria }">
 						  <option v-for="categoria in categorias" :value="categoria.CODIGO">{{ categoria.DESCRIPCION }}</option>
 						</select>
@@ -46,22 +82,21 @@
 						  <input type="checkbox" class="custom-control-input" id="customSwitch2" v-on:click="todasCategorias">
 						  <label class="custom-control-label" for="customSwitch2">Seleccionar todas las Categorias</label>
 						</div>
-					</div>
+					</div> 
 
-					<div class="col-md-4">
-						<label for="validationTooltip01">Seleccione Sub Categoría</label> 
-						<select multiple class="form-control" size="8" v-model="selectedSubCategoria" :disabled="onSubCategoria" v-bind:class="{ 'is-invalid': validarSubCategoria }">
-						   <option v-for="subCategoria in subCategorias" :value="subCategoria.CODIGO">{{ subCategoria.DESCRIPCION }}</option>
+					<div class="col-md-4 ml-3" v-if="selectedFiltro === 'SECCION'">
+						<label for="validationTooltip02">Seleccione Categoria</label> 
+						<select multiple class="form-control" size="8" v-model="selectedSeccionCategoria" :disabled="onCategoriaSeccion" v-bind:class="{ 'is-invalid': validarCategoriaSeccion }">
+						  <option v-for="categoriaSeccion in seccionCategorias" :value="categoriaSeccion.CODIGO">{{ categoriaSeccion.DESCRIPCION }}</option>
 						</select>
 						<div class="invalid-feedback">
-					        {{messageInvalidSubCategoria}}
+					        {{messageInvalidCategoria}}
 					    </div>
 						<div class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-on:click="todoSubCategorias">
-						  <label class="custom-control-label" for="customSwitch1" >Seleccionar todas las Sub Categoría</label>
+						  <input type="checkbox" class="custom-control-input" id="customSwitch2" v-on:click="todasCategorias">
+						  <label class="custom-control-label" for="customSwitch2">Seleccionar todas las Categorias</label>
 						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>
@@ -83,7 +118,7 @@
 	  </div>
 		<!-- ------------------------------------------------------------------------ -->
 
-	  <!-- <div v-else>
+	 <!--  <div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	  </div> -->
 	</div>
@@ -97,35 +132,52 @@
             return {
               	sucursales: [],
               	categorias: [],
-              	subCategorias: [],
+              	seccionCategorias: [],
               	selectedSucursal: 'null',
+              	secciones: [],
+              	selectedProveedor: [],
               	selectedCategoria: [],
-              	selectedSubCategoria: [],
+              	selectedSeccionCategoria: [],
               	selectedInicialFecha: '',
               	selectedFinalFecha: '',
               	switch_stock: true,
-              	onSubCategoria: false,
               	onCategoria: false,
+              	onCategoriaSeccion: false,
               	messageInvalidSucursal: '',
               	messageInvalidCategoria: '',
-              	messageInvalidSubCategoria: '',
+              	messageInvalidCategoria: '',
               	messageInvalidFecha: '',
               	validarSucursal: false,
               	validarCategoria: false,
-              	validarSubCategoria: false,
+              	validarCategoriaSeccion: false,
               	validarInicialFecha: false,
               	validarFinalFecha: false,
               	datos: {},
               	descarga: false,
-              	controlar: false
+              	controlar: false,
+              	proveedores: [],
+              	selectedSeccion: "null",
+              	messageInvalidSeccion: '',
+              	messageInvalidProveedor: '',
+              	validarSeccion: false,
+              	validarProveedor: false,
+              	onProveedor: false,
+              	selectedFiltro: 'PROVEEDOR'
             }
         }, 
         methods: {
             llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {
 	           	this.sucursales = response.data.sucursales;
-	           	this.subCategorias = response.data.subCategorias;
 	           	this.categorias = response.data.categorias;
+	           	this.secciones = response.data.seccion;
+	           	if((this.secciones).length > 1){
+
+	           		this.seccionCategorias = response.data.categorias;
+	           	}else{
+	           		this.seccionCategorias = response.data.seccionCategorias;
+	           	}
+	           	this.proveedores = response.data.proveedores;
 	          }); 
 	        },
 
@@ -164,12 +216,19 @@
 			    })
 			},
 
-	        todoSubCategorias(e){
-	        	this.onSubCategoria = !this.onSubCategoria;
+	        todasCategorias(e){
+
+	        	if(this.selectedFiltro === 'SECCION'){
+
+	        		this.onCategoriaSeccion = !this.onCategoriaSeccion;
+	        	}else{
+
+	        		this.onCategoria = !this.onCategoria;
+	        	}
 	        },
 
-	        todasCategorias(e){
-	        	this.onCategoria = !this.onCategoria;
+	        todosProveedores(e){
+	        	this.onProveedor = !this.onProveedor;
 	        },
 
 	        generarConsulta(){
@@ -185,6 +244,16 @@
 	        		me.messageInvalidSucursal = '';
 	        	}
 
+	        	if((me.onCategoriaSeccion === false && me.selectedSeccionCategoria.length===0) &&  me.selectedFiltro === 'SECCION'){
+
+	        		me.validarCategoriaSeccion = true;
+	        		me.messageInvalidCategoria = 'Por favor seleccione una o varias Categorías';
+	        		me.controlar=true;
+	        	} else {
+	        		me.validarCategoria = false;
+	        		me.messageInvalidCategoria = '';
+	        	}
+
 	        	if(me.onCategoria === false && me.selectedCategoria.length===0){
 
 	        		me.validarCategoria = true;
@@ -195,14 +264,22 @@
 	        		me.messageInvalidCategoria = '';
 	        	}
 
-	        	if(me.onSubCategoria === false && me.selectedSubCategoria.length === 0){
-	        		me.validarSubCategoria = true;
-	        		me.messageInvalidSubCategoria = 'Por favor seleccione una o varias Sub Categorías';
+	        	if ((me.selectedSeccion === "null" || me.selectedSeccion === '') &&  me.selectedFiltro === 'SECCION'){
+	        		me.validarSeccion = true;
+	        		me.messageInvalidSeccion = 'Por favor seleccione la sección';
 	        		me.controlar=true;
 	        	} else {
-	   
-	        		me.validarSubCategoria = false;
-	        		me.messageInvalidSubCategoria = '';
+	        		me.validarSeccion = false;
+	        		me.messageInvalidSeccion = '';
+	        	}
+
+	        	if(me.onProveedor === false && me.selectedProveedor.length === 0) {
+	        		me.messageInvalidProveedor = 'Por favor seleccione uno o varios Proveedores';
+	        		me.validarProveedor = true;
+	        		me.controlar=true;
+	        	} else {
+	        		me.messageInvalidProveedor = '';
+	        		me.validarProveedor = false;
 	        	}
 
 	        	if(me.controlar===true){
@@ -215,21 +292,30 @@
 	        		}
 	        	} 
 
-	        	if(me.onSubCategoria === true){
-	        		for (var key in me.subCategorias){
-	        			me.selectedSubCategoria[key] = me.subCategorias[key].CODIGO;
+ 				if(me.onProveedor === true) {
+		        	for (var key in me.proveedores){
+		        		me.selectedProveedor[key] = me.proveedores[key].CODIGO;
+		        	}
+		        }
+
+	        	if(me.onCategoriaSeccion === true){
+	        		for (var key in me.categoriaSeccion){
+	        			me.selectedSeccionCategoria[key] = me.categoriaSeccion[key].CODIGO;
 	        		}
-	        	}
+	        	} 
 
 	        	me.datos = {
 		        	Sucursal: me.selectedSucursal,
 		        	SubCategorias: me.selectedSubCategoria,
 		        	Categorias: me.selectedCategoria,
-		        	AllSubCategory: me.onSubCategoria,
 		        	AllCategory: me.onCategoria,
-		        	Stock: me.switch_stock
+		        	Stock: me.switch_stock,
+		        	Seccion: me.selectedSeccion,
+					Proveedores: me.selectedProveedor,
+					AllProveedores: me.onProveedor,
+					Filtro: me.selectedFiltro
 	        	};
-	      
+	      	console.log(me.datos);
 	        	return true;
 	        }
         },
