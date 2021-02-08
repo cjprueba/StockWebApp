@@ -15,8 +15,9 @@ use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use App\Stock;
+use DateTime;
 
-class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithDrawings,WithColumnFormatting 
+class PeriodoProductoExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithDrawings,WithColumnFormatting 
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -36,6 +37,8 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
     protected $proveedores;
     protected $AllProveedores;
     protected $filtro;
+    protected $inicio;
+    protected $fin;
 
     public function __construct($datos)
     {
@@ -49,9 +52,10 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
         $this->filtro=$datos["Filtro"];
         $this->categoriaSeccion=$datos["CategoriaSeccion"];
         $this->AllCategorySeccion=$datos["AllCategorySeccion"];
+        $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
+        $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
 
     }
-
     public function  array(): array
     {
 
@@ -59,27 +63,29 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
         $ventas = Stock::query()->select(
             DB::raw('LOTES.COD_PROD, 
-                    0 AS IMAGEN, 
-                    IFNULL((SELECT SUM(l4.CANTIDAD) FROM lotes as l4 WHERE ((l4.COD_PROD = LOTES.COD_PROD) AND (l4.ID_SUCURSAL = LOTES.ID_SUCURSAL))),"0") AS STOCK,
-                    (IFNULL((SELECT sum(l.CANTIDAD_INICIAL) FROM lotes as l WHERE (l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL) AND l.FECALTAS BETWEEN date_add((select max(l1.FECALTAS) FROM LOTES AS l1 WHERE l1.COD_PROD =l.COD_PROD AND (l1.ID_SUCURSAL = l.ID_SUCURSAL)) , INTERVAL -3 WEEK) AND (select max(l2.FECALTAS) FROM LOTES AS l2 WHERE l2.COD_PROD =l.COD_PROD AND (l2.ID_SUCURSAL = l.ID_SUCURSAL))),0)) as CANTIDAD_INICIAL,
-                    MAX(LOTES.FECALTAS) AS ULTIMA_ENTRADA,
-                    0 AS CANTIDAD_PEDIDO,
-                    PROVEEDORES.NOMBRE AS PROVEEDOR,
-                    LINEAS.DESCRIPCION AS CATEGORIA, 
-                    PRODUCTOS.DESCRIPCION, 
-                    DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, 
-                    PRODUCTOS_AUX.PREC_VENTA, 
-                    PRODUCTOS_AUX.PREMAYORISTA')
-        )
-        ->leftJoin('PRODUCTOS_AUX', function($join){
-                            $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
-                                 ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
-                         })
-        ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
-        ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
-        ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
-        ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
-        ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal);
+                     0 AS IMAGEN, 
+                     PRODUCTOS.DESCRIPCION, 
+                     PRODUCTOS_AUX.PREC_VENTA, 
+                     PRODUCTOS_AUX.PREMAYORISTA,
+                     PROVEEDORES.NOMBRE AS PROVEEDOR,
+                     LINEAS.DESCRIPCION AS CATEGORIA,
+                     IFNULL((SELECT SUM(l4.CANTIDAD) FROM lotes as l4 WHERE ((l4.COD_PROD = LOTES.COD_PROD) AND (l4.ID_SUCURSAL = LOTES.ID_SUCURSAL))),"0") AS STOCK,
+                     (IFNULL((SELECT sum(l.CANTIDAD_INICIAL) FROM lotes as l WHERE (l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL) AND l.FECALTAS BETWEEN date_add((select max(l1.FECALTAS) FROM LOTES AS l1 WHERE l1.COD_PROD =l.COD_PROD AND (l1.ID_SUCURSAL = l.ID_SUCURSAL)) , INTERVAL -3 WEEK) AND (select max(l2.FECALTAS) FROM LOTES AS l2 WHERE l2.COD_PROD =l.COD_PROD AND (l2.ID_SUCURSAL = l.ID_SUCURSAL))),0)) as CANTIDAD_INICIAL,
+                     (SELECT MAX(L7.FECALTAS) FROM LOTES AS L7 WHERE L7.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L7.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
+                     (SELECT MAX(L5.FECMODIF) AS ULT_FECHA FROM LOTES AS L5 WHERE L5.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L5.COD_PROD=LOTES.COD_PROD) AS ULTIMO_MOVIMIENTO, 
+                     (SELECT MAX(VENTASDET.FECALTAS) AS ULTIMA_VENTA FROM VENTASDET WHERE VENTASDET.COD_PROD=LOTES.COD_PROD AND VENTASDET.ID_SUCURSAL=LOTES.ID_SUCURSAL) AS ULTIMA_VENTA    
+                     '))
+         ->leftJoin('PRODUCTOS_AUX', function($join)
+         {
+             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
+             ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+         })
+         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+         ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
+         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
+         ->where(DB::raw('(SELECT MAX(L6.FECMODIF) AS ULT_FECHA FROM LOTES AS L6 WHERE L6.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L6.COD_PROD=LOTES.COD_PROD)'), '<', $this->final)
+         ->whereNotBetween(DB::raw('(SELECT MAX(L3.FECMODIF) AS ULT_FECHA FROM LOTES AS L3 WHERE L3.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L3.COD_PROD=LOTES.COD_PROD)'), [$this->inicio, $this->final]);
         
 
         if ($this->stock === false) {
@@ -127,10 +133,9 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
         return $ventas;
 
     }
-
-    public function headings(): array
+     public function headings(): array
     {
-        return ["CODIGO", "IMAGEN", "STOCK","CANTIDAD_INICIAL","ULTIMA_ENTRADA","CANTIDAD_PEDIDO","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
+        return ["CODIGO", "IMAGEN", "DESCRIPCION", "PRE. V.", "PRE. M.","PROVEEDOR","CATEGORIA","STOCK","CANTIDAD_INICIAL","ULTIMA_ENTRADA","ULTIMO_MOVIMIENTO","ULTIMA_VENTA",];
     }
 
     public function title(): string
@@ -173,15 +178,16 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
 
                 $event->sheet->getStyle('A1:L1')->applyfromarray($styleArray);
-                $event ->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
                 $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
-                $event ->sheet->getDelegate()->getColumnDimension('D')->setWidth(15);
-                $event ->sheet->getDelegate()->getColumnDimension('E')->setWidth(25);
-                $event ->sheet->getDelegate()->getColumnDimension('F')->setWidth(15);
+                $event ->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
+                $event ->sheet->getDelegate()->getColumnDimension('C')->setWidth(50);
+                $event ->sheet->getDelegate()->getColumnDimension('F')->setWidth(35);
                 $event ->sheet->getDelegate()->getColumnDimension('G')->setWidth(35);
-                $event ->sheet->getDelegate()->getColumnDimension('H')->setWidth(35);
-                $event ->sheet->getDelegate()->getColumnDimension('I')->setWidth(100);
-                $event ->sheet->getDelegate()->getColumnDimension('J')->setWidth(100);
+                $event ->sheet->getDelegate()->getColumnDimension('J')->setWidth(25);
+                $event ->sheet->getDelegate()->getColumnDimension('K')->setWidth(25);
+                $event ->sheet->getDelegate()->getColumnDimension('L')->setWidth(25);
+                
+               
 
                 for( $intRowNumber = 2; $intRowNumber <= $this->total + 1; $intRowNumber++){
                     $event->sheet->getRowDimension($intRowNumber)->setRowHeight(80);
@@ -192,10 +198,12 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 			        $drawing->setName('Logo');
 			        $drawing->setDescription('Logo');
 
-			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+			        /*$imagen = 'C:/laragon/www/StockWebApp-ultimo/public/images/'.$value['COD_PROD'].'.jpg';*/
+                    $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
 
 			        if(!file_exists($imagen)) {
-			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
+			        	/*$drawing->setPath('C:/laragon/www/StockWebApp-ultimo/public/images/SinImagen.png');*/
+                        $drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
 			        } else {
 			        	$drawing->setPath($imagen);
 			        }
