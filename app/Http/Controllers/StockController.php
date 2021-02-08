@@ -7,6 +7,7 @@ use App\Stock;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StockExport;
 use App\Exports\StockImageExport;
+use App\Exports\PeriodoProductoExport;
 
 class StockController extends Controller
 {
@@ -109,6 +110,26 @@ class StockController extends Controller
         $sucursal = ($request->all())['Sucursal'];*/
 
         return Excel::download(new StockImageExport($request->all()), 'STOCK_IMAGE.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function descargarPeriodoStock(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        /*$categorias = ($request->all())['Categorias'];*/
+        /*$subcategorias = ($request->all())['SubCategorias'];*/
+
+
+      /*$stock = ($request->all())['Stock'];
+
+        $sucursal = ($request->all())['Sucursal'];*/
+
+        return Excel::download(new PeriodoProductoExport($request->all()), 'PERIODO_PRODUCTO.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 

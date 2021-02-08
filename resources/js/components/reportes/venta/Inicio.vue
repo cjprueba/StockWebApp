@@ -13,6 +13,7 @@
           <option value="4">Reporte Diario</option>
           <option value="5">Ventas por Vendedor</option>
           <option value="6">Top Ventas</option>
+          <option value="7">Por Periodo</option>
 				</select>			
 			</div>
 
@@ -46,6 +47,14 @@
       </transition>
 
       <!-- FIN REPORTE TOP VENTAS -->
+
+      <!-- REPORTE PERIODO DE VENTA -->
+
+      <transition name="slide-fade">  
+        <periodo-venta v-if="reporte === '7'" id="reporte7"></periodo-venta>
+      </transition>
+
+      <!-- FIN REPORTE PERIODO DE VENTA -->
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->
