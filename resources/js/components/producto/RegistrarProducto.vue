@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		
-		<div class="mt-3 mb-3">
+		<div class="mt-3 mb-3" v-if="$can('producto.crear')">
 			
 			<!-- ------------------------------------------------------------------ -->
 
@@ -655,7 +655,7 @@
 					    			<!-- DESCUENTO MAXIMO -->
 
 					    			<div class="col-md-4">
-					    				<label>Descuento Máximo</label>
+					    				<label>Descuento</label>
 					    				<div class="input-group input-group-sm"  v-bind:class="{ 'shadow-sm': shadow }">
 					    					<input :tabindex=20 type="text" ref="prueba" class="form-control form-control-sm" v-model="descuento_maximo" v-on:blur="formatoDescuento">
 					    					<div class="input-group-append">
@@ -955,9 +955,9 @@
 
 		</div>
 
-		<!-- <div v-else>
+		<div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
+		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
 
