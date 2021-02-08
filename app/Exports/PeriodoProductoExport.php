@@ -208,7 +208,7 @@ class PeriodoProductoExport implements FromArray, WithHeadings, WithTitle, WithE
 			        	$drawing->setPath($imagen);
 			        }
 
-			        $drawing->setHeight(80);
+			        $drawing->setHeight(100);
 			        $drawing->setCoordinates('B'.$this->row_number);
 			        $drawing->setWorksheet($event->sheet->getDelegate());
 			        $drawing_array[] = $drawing;
