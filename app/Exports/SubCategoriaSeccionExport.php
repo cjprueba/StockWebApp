@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\AfterSheet;
+use DateTime;
 
 class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize, WithTitle, WithEvents
 {
@@ -28,15 +29,20 @@ class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSi
     protected $sucursal;
     protected $sublineas;
     protected $seccion;
+    protected $AllSubCategory;
+    protected $AllCategory;
+    protected $datos2;
 
-    public function __construct(string $inicio, string $final, array $categorias, int $sucursal, array $sublineas, int $seccion)
+    public function __construct($datos)
     {
-        $this->inicio = $inicio;
-        $this->final = $final;
-        $this->categorias = $categorias;
-        $this->sucursal = $sucursal;
-        $this->sublineas = $sublineas;
-        $this->seccion = $seccion;
+        $this->categorias = $datos["Categorias"];
+        $this->sucursal = $datos["Sucursal"];
+        $this->AllCategory=$datos["AllCategory"];
+        $this->seccion=$datos["Seccion"];
+        $this->proveedores=$datos["SubCategorias"];
+        $this->AllSubCategory=$datos["AllSubCategory"];
+        $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
+        $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
     }
 
     public function  array(): array
@@ -47,13 +53,22 @@ class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSi
         )
         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
         ->leftJoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
-        ->leftJoin('PRODUCTOS_TIENE_SECCION', 'PRODUCTOS_TIENE_SECCION.COD_PROD', '=', 'VENTASDET.COD_PROD')
+        ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
+             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','PRODUCTOS.CODIGO')
+                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+        })
+        /*->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')*/
+        ->leftjoin('productos_tiene_seccion','productos_tiene_seccion.COD_PROD','=','VENTASDET.COD_PROD')
+        ->leftJoin('gondolas', 'gondolas.ID', '=', 'gondola_tiene_productos.ID_GONDOLA')
         ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
-        ->whereIn('PRODUCTOS.LINEA', $this->categorias)
-        ->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas)
+        ->Where('VENTASDET.ANULADO', '=',0)
         ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
-        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final])
-        ->groupBy('PRODUCTOS.SUBLINEA')
+        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final]);
+        if($this->AllSubCategory==false){
+            $subcategoria->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas);
+        }
+        
+        $subcategoria=$subcategoria->groupBy('PRODUCTOS.SUBLINEA')
         ->get()
         ->toArray();
 

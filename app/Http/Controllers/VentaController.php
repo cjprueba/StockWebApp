@@ -336,7 +336,7 @@ class VentaController extends Controller
 
         // DESCARGAR ARCHIVO EXCEL 
 
-        $inicio = new DateTime(($request->all())['Inicio']);
+        /*$inicio = new DateTime(($request->all())['Inicio']);
         $inicio = $inicio->format('Y-m-d');
 
         $final = new DateTime(($request->all())['Final']);
@@ -347,9 +347,9 @@ class VentaController extends Controller
 
         $sucursal = ($request->all())['Sucursal'];
 
-        $seccion = ($request->all())['Seccion'];
+        $seccion = ($request->all())['Seccion'];*/
 
-        return Excel::download(new SeccionExport($inicio, $final, $categorias, $sucursal, $subcategorias, $seccion), 'VENTA_SECCION.xlsx');
+        return Excel::download(new SeccionExport($request->all()), 'VENTA_SECCION.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 
