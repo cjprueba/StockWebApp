@@ -7,6 +7,8 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Exports\VentaSeccionExport;
 use App\Exports\CategoriaSeccionExport;
+use DateTime;
+
 
 class SeccionExport implements WithMultipleSheets
 {
@@ -19,27 +21,27 @@ class SeccionExport implements WithMultipleSheets
     protected $sucursal;
     protected $sublineas;
     protected $seccion;
+    protected $AllSubCategory;
+    protected $AllCategory;
+    protected $datos2;
 
-    public function __construct(string $inicio, string $final, array $categorias, int $sucursal, array $sublineas, int $seccion)
+    public function __construct($datos)
     {
-        $this->inicio = $inicio;
-        $this->final = $final;
-        $this->categorias = $categorias;
-        $this->sucursal = $sucursal;
-        $this->sublineas = $sublineas;
-        $this->seccion = $seccion;
+        $this->datos2=$datos;
+
+        
     }
 
     /**
      * @return array
-     */
+    */
     public function sheets(): array
     {
         $sheets = [];
 
-        $sheets[] = new VentaSeccionExport($this->inicio, $this->final, $this->categorias, $this->sucursal, $this->sublineas, $this->seccion);
-        $sheets[] = new CategoriaSeccionExport($this->inicio, $this->final, $this->categorias, $this->sucursal, $this->sublineas, $this->seccion);
-        $sheets[] = new SubCategoriaSeccionExport($this->inicio, $this->final, $this->categorias, $this->sucursal, $this->sublineas, $this->seccion);
+        $sheets[] = new VentaSeccionExport($this->datos2);
+        $sheets[] = new CategoriaSeccionExport($this->datos2);
+        $sheets[] = new SubCategoriaSeccionExport($this->datos2);
         
         return $sheets;
     }

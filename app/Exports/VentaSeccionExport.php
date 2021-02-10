@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
+use DateTime;
 
 class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
@@ -31,15 +32,20 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
     protected $sucursal;
     protected $sublineas;
     protected $seccion;
+    protected $AllSubCategory;
+    protected $AllCategory;
 
-    public function __construct(string $inicio, string $final, array $categorias, int $sucursal, array $sublineas, int $seccion)
+
+    public function __construct($datos)
     {
-        $this->inicio = $inicio;
-        $this->final = $final;
-        $this->categorias = $categorias;
-        $this->sucursal = $sucursal;
-        $this->sublineas = $sublineas;
-        $this->seccion = $seccion;
+        $this->categorias = $datos["Categorias"];
+        $this->sucursal = $datos["Sucursal"];
+        $this->AllCategory=$datos["AllCategory"];
+        $this->seccion=$datos["Seccion"];
+        $this->proveedores=$datos["SubCategorias"];
+        $this->AllSubCategory=$datos["AllSubCategory"];
+        $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
+        $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
     }
 
     public function  array(): array
@@ -47,22 +53,34 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
 
         $ventas = Ventas_det::query()->select(
             DB::raw('VENTASDET.COD_PROD, SUM(CANTIDAD) AS CANTIDAD, SUM(VENTASDET.PRECIO) AS TOTAL, VENTASDET.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, 0 as 10OFF, 0 as T, 0 as C, 0 as R, GONDOLAS.DESCRIPCION AS GONDOLA'),
-            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = VENTASDET.COD_PROD) AND (l.ID_SUCURSAL = VENTASDET.ID_SUCURSAL))),0) AS STOCK')
+            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = VENTASDET.COD_PROD) AND (l.ID_SUCURSAL = VENTASDET.ID_SUCURSAL))),"0") AS STOCK')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
                             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'VENTASDET.COD_PROD')
                                  ->on('VENTASDET.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
                          })
-        ->leftJoin('gondola_tiene_productos', 'VENTASDET.COD_PROD', '=', 'GONDOLA_COD_PROD')
-        ->leftJoin('gondolas', 'gondolas.ID', '=', 'gondola_tiene_productos.ID_GONDOLA')
+        
         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-        ->leftJoin('PRODUCTOS_TIENE_SECCION', 'PRODUCTOS_TIENE_SECCION.COD_PROD', '=', 'VENTASDET.COD_PROD')
+        ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
+             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','PRODUCTOS.CODIGO')
+                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+        })
+        /*->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')*/
+        ->leftjoin('productos_tiene_seccion','productos_tiene_seccion.COD_PROD','=','VENTASDET.COD_PROD')
+        ->leftJoin('gondolas', 'gondolas.ID', '=', 'gondola_tiene_productos.ID_GONDOLA')
         ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
-        ->whereIn('PRODUCTOS.LINEA', $this->categorias)
-        ->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas)
         ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
-        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final])
-        ->groupBy('VENTASDET.COD_PROD')
+        ->where('VENTASDET.ANULADO', '=', 0)
+        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final]);
+        if($this->AllSubCategory==false){
+            $ventas->whereIn('PRODUCTOS.LINEA', $this->categorias);
+        }
+        if($this->AllSubCategory==false){
+            $ventas->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas);
+        }
+        
+        
+        $ventas=$ventas->groupBy('VENTASDET.COD_PROD')
         ->get()
         ->toArray();
 
@@ -81,7 +99,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
 
             foreach ($producto as $key_descuento => $value) {
 
-                if ($value['PORCENTAJE'] === 10) {
+                if ( $value['PORCENTAJE']===10  ) {
                     $ventas[$key]['10OFF'] = $value['CANTIDAD'];
                 } else {
                     $ventas[$key]['10OFF'] = '0';
