@@ -97,9 +97,13 @@ class Gondola_tiene_Productos extends Model
         try {
           
           if (count($gondolas[0]) > 0) {
-              // ELIMINAR GONDOLAS NO ASIGNADAS 
+              // ELIMINAR GONDOLAS NO ASIGNADAS Y PRODUCTOS DE PRODUCTOS_TIENE_SECCION PARA LAS GONDOLAS
 
             Gondola_tiene_Productos::where('GONDOLA_COD_PROD', '=', $codigo)
+              ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+              ->delete();
+
+            DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')->where('COD_PROD', '=', $codigo)
               ->where('ID_SUCURSAL', '=', $user->id_sucursal)
               ->delete();
 
@@ -117,8 +121,24 @@ class Gondola_tiene_Productos extends Model
               );
  
               /*  --------------------------------------------------------------------------------- */
+              //AÑADIR SECCION AL PRODUCTO EN PRODUCTOS_TIENE_SECCION
+              $gondola_tiene_seccion=DB::connection('retail')->table('GONDOLA_TIENE_SECCION')
+              ->SELECT(DB::raw('GONDOLA_TIENE_SECCION.ID_SECCION AS ID_SECCION'))
+              ->where('GONDOLA_TIENE_SECCION.ID_GONDOLA', '=', $value['ID'])
+              ->where('GONDOLA_TIENE_SECCION.ID_SUCURSAL', '=', $user->id_sucursal);
+              /*  --------------------------------------------------------------------------------- */
+               if (count($gondola_tiene_seccion) > 0) {
+                foreach ($gondola_tiene_seccion as $key => $value2) {
+                   $producto_seccion = DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')::updateOrInsert(
+                    ['COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
+                    ['ID_SECCION' => $value2['ID_SECCION'], 'ID_SUCURSAL' => $user->id_sucursal]);
+                    
+                }
 
+               }
+              /*  --------------------------------------------------------------------------------- */
               Log::info('Gondola Asignar: Éxito al modificar.', ['PRODUCTO' => $codigo, 'ID GONDOLA' => $value['ID']]);
+
 
               /*  --------------------------------------------------------------------------------- */
 
