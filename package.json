@@ -29,7 +29,7 @@
         "@fortawesome/free-solid-svg-icons": "^5.13.0",
         "@fortawesome/vue-fontawesome": "^0.1.9",
         "@handsontable/vue": "^4.1.1",
-        "apexcharts": "^3.19.2",
+        "apexcharts": "^3.24.0",
         "babel-preset-es2015": "^6.24.1",
         "bootstrap-datepicker": "^1.9.0",
         "bootstrap-vue": "^2.15.0",
