@@ -8,6 +8,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StockExport;
 use App\Exports\StockImageExport;
 use App\Exports\PeriodoProductoExport;
+use App\Exports\ProductosVencidosExport;
+
 
 class StockController extends Controller
 {
@@ -134,5 +136,26 @@ class StockController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+            public function descagrarVencimientoProducto(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        /*$categorias = ($request->all())['Categorias'];*/
+        /*$subcategorias = ($request->all())['SubCategorias'];*/
+
+
+      /*$stock = ($request->all())['Stock'];
+
+        $sucursal = ($request->all())['Sucursal'];*/
+
+        return Excel::download(new ProductosVencidosExport($request->all()), 'VENCIMIENTO_PRODUCTOS.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 
 }

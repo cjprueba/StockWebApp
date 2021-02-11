@@ -485,6 +485,7 @@ Route::post('exportCompra', 'CompraController@Descargar');
 Route::post('export/Stock', 'StockController@descargar');
 Route::post('export/Stock/Image', 'StockController@descargarImageStock');
 Route::post('export_venta_periodo', 'StockController@descargarPeriodoStock');
+Route::post('export_productos_vencimiento', 'StockController@descagrarVencimientoProducto');
 
 /* -------------------------------------------------------------------------- */
 
