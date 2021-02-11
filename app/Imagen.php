@@ -228,4 +228,44 @@ class Imagen extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+    public static function obtenerLogoDireccion()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETRO
+
+        $parametro = Parametro::select(DB::raw('NOMBRE_LOGO'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LOGO
+
+        $imagen = '../storage/app/public/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.'';
+           
+        if(!file_exists($imagen)) {
+            $imagen = 0;
+        } else {
+            return ['imagen' => $imagen];
+           /* $imagen = "<img src='".''.env("URL_FILE").'/storage/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.''."' width='100%' >";*/
+        } 
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+       
+        /*return ['imagen' => $imagen];*/
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

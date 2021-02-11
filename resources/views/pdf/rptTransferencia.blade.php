@@ -145,7 +145,9 @@
   <body>
     <header class="clearfix">
       <div id="logo">
-         <span v-html= "{{ $logo }}"></span>
+        
+        <img src="{{ $logo }}" height="80px"  >
+        
         
       </div>
       <h1>TRANSFERENCIA {{ $codigo }}</h1>
