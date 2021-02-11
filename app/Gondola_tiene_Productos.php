@@ -86,7 +86,14 @@ class Gondola_tiene_Productos extends Model
 
         $dia = date('Y-m-d H:i:s');
        
-        if ($gondolas === "null") {
+        if ($gondolas === "null" || $gondolas===[]) {
+          Gondola_tiene_Productos::where('GONDOLA_COD_PROD', '=', $codigo)
+              ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+              ->delete();
+
+            DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')->where('COD_PROD', '=', $codigo)
+              ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+              ->delete();
 
           return ['response' => false];
         }
@@ -96,8 +103,8 @@ class Gondola_tiene_Productos extends Model
         // MODIFICAR REFERENCIA 
         
         try {
-          
-          if (count($gondolas) > 0) {
+         
+          if (count($gondolas[0]) > 0) {
 
               // ELIMINAR GONDOLAS NO ASIGNADAS Y PRODUCTOS DE PRODUCTOS_TIENE_SECCION PARA LAS GONDOLAS
 
