@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\DB;
 class Gondola_tiene_Productos extends Model
 {
    	
@@ -96,7 +96,7 @@ class Gondola_tiene_Productos extends Model
         
         try {
           
-          if (count($gondolas[0]) > 0) {
+          if (count($gondolas) > 0) {
               // ELIMINAR GONDOLAS NO ASIGNADAS Y PRODUCTOS DE PRODUCTOS_TIENE_SECCION PARA LAS GONDOLAS
 
             Gondola_tiene_Productos::where('GONDOLA_COD_PROD', '=', $codigo)
@@ -125,13 +125,25 @@ class Gondola_tiene_Productos extends Model
               $gondola_tiene_seccion=DB::connection('retail')->table('GONDOLA_TIENE_SECCION')
               ->SELECT(DB::raw('GONDOLA_TIENE_SECCION.ID_SECCION AS ID_SECCION'))
               ->where('GONDOLA_TIENE_SECCION.ID_GONDOLA', '=', $value['ID'])
-              ->where('GONDOLA_TIENE_SECCION.ID_SUCURSAL', '=', $user->id_sucursal);
+              ->where('GONDOLA_TIENE_SECCION.ID_SUCURSAL', '=', $user->id_sucursal)->get()->toArray();
               /*  --------------------------------------------------------------------------------- */
                if (count($gondola_tiene_seccion) > 0) {
+                $c=0;
                 foreach ($gondola_tiene_seccion as $key => $value2) {
-                   $producto_seccion = DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')::updateOrInsert(
-                    ['COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
-                    ['ID_SECCION' => $value2['ID_SECCION'], 'ID_SUCURSAL' => $user->id_sucursal]);
+                  /* var_dump($value2->ID_SECCION);*/
+                  $c=$c+1;
+                  if($c>=2){
+                     $producto_seccion = DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')->where('COD_PROD', '=', $codigo)
+                     ->where('ID_SUCURSAL', '=', $user->id_sucursal)->update(['SECCION' => $value2->ID_SECCION]);
+                   }else{
+                    $producto_seccion = DB::connection('retail')->table('PRODUCTOS_TIENE_SECCION')->insertGetId(
+                    ['COD_PROD' => $codigo,
+                     'SECCION' => $value2->ID_SECCION, 
+                     'ID_SUCURSAL' => $user->id_sucursal]
+                   );
+                    
+                   }
+                  
                     
                 }
 
