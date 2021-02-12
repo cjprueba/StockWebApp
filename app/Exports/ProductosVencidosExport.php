@@ -34,7 +34,7 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
     {
        
         $this->sucursal = $datos["Sucursal"];
-        $this->stock = $datos["Stock"];
+        /*$this->stock = $datos["Stock"];*/
         $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
         $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
 
@@ -47,10 +47,11 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
         $vencidos = Stock::query()->select(
             DB::raw('LOTES.COD_PROD, 
                     0 AS IMAGEN,
-                    LOTES.LOTE AS LOTE 
-                    LOTES.CANTIDAD AS STOCK_LOTE,
+                    LOTES.LOTE AS LOTE, 
+                    IFNULL(LOTES.CANTIDAD,"0") AS STOCK_LOTE,
                     LOTES.CANTIDAD_INICIAL AS CANTIDAD_INICIAL_LOTE,
                     (SELECT MAX(L2.FECALTAS) FROM LOTES AS L2 WHERE L2.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L2.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
+                    LOTES.FECHA_VENC AS FECHA_VENCIMIENTO,
                     PROVEEDORES.NOMBRE AS PROVEEDOR,
                     LINEAS.DESCRIPCION AS CATEGORIA, 
                     PRODUCTOS.DESCRIPCION, 
@@ -66,18 +67,18 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
         ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
-        ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal);
+        ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
         ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);
 
-        if ($this->stock === false) {
+/*        if ($this->stock === false) {
 
         	$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0');
 
-        } else {
+        } else {*/
 
         	$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');
 
-        }
+/*        }*/
         
         $vencidos = $vencidos
         ->get()
@@ -152,11 +153,12 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
                 	$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 			        $drawing->setName('Logo');
 			        $drawing->setDescription('Logo');
-
-			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+			        $imagen = 'C:/laragon/www/StockWebApp-ultimo/public/images/'.$value['COD_PROD'].'.jpg';
+			       /* $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';*/
 
 			        if(!file_exists($imagen)) {
-			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
+			        	$drawing->setPath('C:/laragon/www/StockWebApp-ultimo/public/images/SinImagen.png');
+			        	/*$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');*/
 			        } else {
 			        	$drawing->setPath($imagen);
 			        }
