@@ -149,7 +149,7 @@
   <body>
     <header class="clearfix">
       <div id="logo">
-        <img src="../storage/app/public/imagenes/logo-2020.png" height="80px">
+        <img src="{{$logo}}" height="80px">
       </div>
       <h1>COMPRA {{ $codigo }}</h1>
       <div id="company" class="clearfix">
