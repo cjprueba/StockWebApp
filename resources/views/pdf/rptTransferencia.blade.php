@@ -145,7 +145,8 @@
   <body>
     <header class="clearfix">
       <div id="logo">
-        {{ $logo }}
+         <span v-html= "{{ $logo }}"></span>
+        
       </div>
       <h1>TRANSFERENCIA {{ $codigo }}</h1>
       <div id="company" class="clearfix">
