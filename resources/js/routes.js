@@ -392,9 +392,9 @@ export default new Router({
 			component: require('./components/movimientos/SalidaProductosMostrar.vue').default
 		},
 		{
-			path: '/rptp',
-			name: 'rptProducto',
-			component: require('./components/reportes/producto/Inicio.vue').default
+			path: '/rptvp',
+			name: 'rptVencimiento',
+			component: require('./components/reportes/producto/Vencido/VencimientoDeProductoRpt.vue').default
 		},
 		{
 			path: '/maq1',
