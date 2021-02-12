@@ -932,6 +932,7 @@ class Inventario extends Model
         $data['cantidad'] = $cantidad;
         $data['total'] = $total_conteo;
         $data['nombre_sucursal'] = $nombre_sucursal;
+        $data['logo']=(Imagen::obtenerLogoDireccion())['imagen'];
 
         /*  --------------------------------------------------------------------------------- */
         
