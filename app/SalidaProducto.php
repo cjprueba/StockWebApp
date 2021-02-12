@@ -667,6 +667,8 @@ class SalidaProducto extends Model
         $data['total_salida'] = $total_salida;
         $data['total'] = $total;
         $data['nombre_sucursal'] = '';
+        $data['logo']=(Imagen::obtenerLogoDireccion())['imagen'];
+        
 
         /*  --------------------------------------------------------------------------------- */
         

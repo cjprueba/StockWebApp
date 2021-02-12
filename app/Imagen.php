@@ -253,10 +253,11 @@ class Imagen extends Model
            
         if(!file_exists($imagen)) {
             $imagen = 0;
-        } else {
+            
+        } 
             return ['imagen' => $imagen];
            /* $imagen = "<img src='".''.env("URL_FILE").'/storage/imagenes/tiendas/'.$parametro[0]->NOMBRE_LOGO.''."' width='100%' >";*/
-        } 
+        
 
 
         /*  --------------------------------------------------------------------------------- */
