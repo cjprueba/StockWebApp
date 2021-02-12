@@ -3441,7 +3441,7 @@ class Transferencia extends Model
         $data['total'] = Common::precio_candec($total, $moneda);
         $data['sucursal'] = utf8_decode(utf8_encode($nombre_sucursal));
         $data['direccion'] = utf8_decode(utf8_encode($direccion));
-        $data['logo']=(Imagen::obtenerLogoURL())['imagen'];
+        $data['logo']=(Imagen::obtenerLogoDireccion())['imagen'];
 
         /*  --------------------------------------------------------------------------------- */
         
