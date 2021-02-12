@@ -145,7 +145,7 @@
   <body>
     <header class="clearfix">
       <div id="logo">
-        <img src="../storage/app/public/imagenes/logo-2020.png" height="80px">
+        {{ $logo }}
       </div>
       <h1>TRANSFERENCIA {{ $codigo }}</h1>
       <div id="company" class="clearfix">
