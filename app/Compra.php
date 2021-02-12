@@ -1013,6 +1013,7 @@ class Compra extends Model
         $data['total'] = Common::precio_candec($total, $compra->MONEDA);
         $data['sucursal'] = $nombre_sucursal;
         $data['direccion'] = $direccion;
+        $data['logo']=(Imagen::obtenerLogoDireccion())['imagen'];
 
         /*  --------------------------------------------------------------------------------- */
         
