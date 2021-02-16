@@ -699,7 +699,8 @@
             switch_un_producto: false,
             switch_consignacion: false,
             procesar: false,
-            cantidad_row: 0
+            cantidad_row: 0,
+            cotizacion: ''
         }
       }, 
       methods: {
@@ -1231,7 +1232,8 @@
 
 			// CARGAR MONEDA A ENVIAR 
 
-			this.moneda_enviar = valor;
+			this.moneda_enviar = valor.selected;
+			this.cotizacion = valor.cotizacion;
 
 			// ------------------------------------------------------------------------ 
 
@@ -1287,7 +1289,8 @@
 				monedaSistema: me.monedaCodigo,
 				monedaEnviar: me.moneda_enviar,
 				nro_caja: me.nro_caja,
-				tab_unica: me.tab_unica
+				tab_unica: me.tab_unica,
+				cotizacion: me.cotizacion
 			}
 
 			// ------------------------------------------------------------------------ 
@@ -1618,13 +1621,14 @@
             	// SUMAR LA CANTIDAD E IVA
 
             	cantidadNueva = parseFloat(productoExistente.cantidad) + parseFloat(cantidad);
+            	
+            	if(productoExistente.stock<stock){
+            		productoExistente.stock=stock;
+            	}
 
             	// ------------------------------------------------------------------------
 
             	// REVISAR SI CANTIDAD SUPERA STOCK
-            	if(productoExistente.stock<stock){
-            		productoExistente.stock=stock;
-            	}
 
             	if (Common.cantidadSuperadaCommon(cantidadNueva, productoExistente.stock)) {
             		me.validarCantidad = true;
