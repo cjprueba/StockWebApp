@@ -532,8 +532,13 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER COTIZACION 
+         if(isset( $datos["cabecera"]["monedaEnviar"])){
+            $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
+        }else{
+             $cotizacion=1;
+        }
 
-        $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
+       
 
         /*  --------------------------------------------------------------------------------- */
 
