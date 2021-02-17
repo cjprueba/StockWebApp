@@ -532,9 +532,12 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER COTIZACION 
+        $moneda_enviar=0;
          if(isset( $datos["cabecera"]["monedaEnviar"])){
+            $moneda_enviar=$datos["cabecera"]["monedaEnviar"]);
             $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
         }else{
+             $moneda_enviar=$datos["cabecera"]["monedaSistema"]);
              $cotizacion=1;
         }
 
@@ -566,7 +569,7 @@ class Transferencia extends Model
                 'ENVIADO' => 'SI',
                 'DEVUELTO' => 'NO',
                 'MONEDA' => $datos["cabecera"]["monedaSistema"],
-                'MONEDA_ENVIAR' => $datos["cabecera"]["monedaEnviar"],
+                'MONEDA_ENVIAR' => $moneda_enviar,
                 'USERALTAS' =>  $user->name,
                 'FECALTAS' =>  $dia,
                 'HORALTAS' =>  $hora,
@@ -835,7 +838,7 @@ class Transferencia extends Model
                 'ENVIADO' => 'SI',
                 'DEVUELTO' => 'NO',
                 'MONEDA' => $datos["cabecera"]["monedaSistema"],
-                'MONEDA_ENVIAR' => $datos["cabecera"]["monedaEnviar"],
+                'MONEDA_ENVIAR' => $moneda_enviar,
                 'USERMODIF' =>  $user->name,
                 'FECMODIF' =>  $dia,
                 'HORMODIF' =>  $hora,
