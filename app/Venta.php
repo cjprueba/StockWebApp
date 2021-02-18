@@ -8943,8 +8943,8 @@ class Venta extends Model
 
                 $nestedData['ITEM'] = $c;
                 $nestedData['COD_PROD'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION,0,25);
-                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(substr($post->DESCRIPCION,0,25)));
+                $nestedData['CATEGORIA'] = ucwords(utf8_encode($post->CATEGORIA));
                 $nestedData['VENDIDO'] = $post->CANTIDAD;
                 $nestedData['CANTIDAD'] = $post->STOCK;
                 $nestedData['PRECIO'] = round($post->PRECIO,2);
