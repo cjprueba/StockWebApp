@@ -288,7 +288,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input tabindex="14" class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio" v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
+					    		<input tabindex="13" class="form-control form-control-sm" type="text" v-model="producto.PREC_VENTA"  v-on:blur="formatoPrecio" v-bind:class="{ 'is-invalid': validar.PRECIO_UNITARIO }">
 							</div>
 						</div>
 
@@ -298,7 +298,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
-					    		<input tabindex="15" class="form-control form-control-sm" type="text" v-on:blur="agregarProducto(), formatoPreMayorista" v-model="producto.PREMAYORISTA" v-on:keyup.prevent.13="agregarProducto(), formatoPreMayorista">
+					    		<input tabindex="14" class="form-control form-control-sm" type="text" v-on:blur="agregarProducto(), formatoPreMayorista" v-model="producto.PREMAYORISTA" v-on:keyup.prevent.13="agregarProducto(), formatoPreMayorista">
 							</div>
 						</div>
 					</div>
