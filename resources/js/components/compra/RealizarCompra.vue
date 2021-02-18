@@ -3,7 +3,7 @@
 
 		
 		
-		<div class="row" v-if="$can('compra.crear')">
+		<div class="row">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -267,7 +267,7 @@
 							</div>
 						</div>
 
-						<div class="col-md-1">
+						<div class="col-md-1" v-if="ocultar">
 							<label for="validationTooltip01">%</label>
 							<input tabindex="13" class="form-control form-control-sm" type="text" v-on:blur="formatoPorcentaje"  v-on:keyup.prevent.13="" v-model="producto.PORCENTAJE">
 						</div>
@@ -405,9 +405,7 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-else>
-			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div>
+		
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -419,6 +417,7 @@
       data(){
         return {
           	codigoCompra: '',
+          	ocultar:false,
           	procesar: false,
           	switch_un_producto: false,
           	proveedor: '',
