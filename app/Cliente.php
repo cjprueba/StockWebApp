@@ -168,7 +168,7 @@ class Cliente extends Model
 
     }
 
- public static function clientesDatatable($request){
+    public static function clientesDatatable($request){
 
         // INICIARA VARIABLES
 
@@ -408,7 +408,8 @@ class Cliente extends Model
                 'FECALTAS'=> $dia,
                 'HORALTAS'=> $hora,
                 'ID_SUCURSAL' => $user->id_sucursal,
-                'RETENTOR' => $datos['data']['retentor']]);
+                'RETENTOR' => $datos['data']['retentor'],
+                'CREDITO_DISPONIBLE' => $datos['data']['limite']]);
 
                 $codigo = $codigo["0"]["CODIGO"]+1;
                 
