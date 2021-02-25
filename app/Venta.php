@@ -2056,6 +2056,15 @@ class Venta extends Model
             }
 
             /*  --------------------------------------------------------------------------------- */
+            // MAYORISTA 
+
+            if(isset($data["data"]["mayorista"])){
+                $may = $data["data"]["mayorista"];
+            }else{
+                $may = 0;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
 
             $cliente = $data["data"]["cliente"]["CODIGO"];
             $vendedor = $data["data"]["vendedor"]["CODIGO"];
@@ -2536,7 +2545,8 @@ class Venta extends Model
                     "FECALTAS" => $dia, 
                     "HORALTAS" => $hora, 
                     "ID_SUCURSAL" => $user->id_sucursal, 
-                    "CODIGO_CA" => $codigo_caja, 
+                    "CODIGO_CA" => $codigo_caja,
+                    "MAYORISTA"=> $may, 
                     //"TIPO_PRECIO" =>
                 ]
             );
