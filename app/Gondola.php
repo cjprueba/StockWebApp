@@ -49,7 +49,7 @@ class Gondola extends Model
         
         $user = auth()->user();
         // OBTENER TODOS LOS DATOS DEL TALLE
-        $gondolas = Gondola::select(DB::raw('CODIGO, DESCRIPCION'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('CODIGO','=',$datos['id'])->get()->toArray();
+        $gondolas = Gondola::select(DB::raw('ID AS CODIGO, DESCRIPCION'))->where('ID_SUCURSAL','=',$user->id_sucursal)->Where('ID','=',$datos['id'])->get()->toArray();
         if(count($gondolas)<=0){
            return ["response"=>false];
         }
@@ -113,7 +113,7 @@ class Gondola extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Gondola::select(DB::raw('CODIGO,DESCRIPCION'))
+            $posts = Gondola::select(DB::raw('ID AS CODIGO,DESCRIPCION'))
                          ->where('id_sucursal','=',$user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -134,10 +134,10 @@ class Gondola extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =Gondola::select(DB::raw('CODIGO,DESCRIPCION'))
+            $posts =Gondola::select(DB::raw('ID AS CODIGO,DESCRIPCION'))
                             ->where('id_sucursal','=',$user->id_sucursal)
                             ->where(function ($query) use ($search) {
-                                $query->where('CODIGO','LIKE',"%{$search}%")
+                                $query->where('ID','LIKE',"%{$search}%")
                                       ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
@@ -151,7 +151,7 @@ class Gondola extends Model
 
             $totalFiltered = Gondola::where('id_sucursal','=',$user->id_sucursal)
                           ->where(function ($query) use ($search) {
-                                $query->where('CODIGO','LIKE',"%{$search}%")
+                                $query->where('ID','LIKE',"%{$search}%")
                                       ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
                             })
                              ->count();
@@ -212,7 +212,7 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
 
         // OBTENER TODAS LAS GONDOLAS
 
-        $gondolas = Gondola::select('CODIGO')->where('id_sucursal','=',$user->id_sucursal)->orderby('CODIGO','DESC')->limit(1)
+        $gondolas = Gondola::select('ID AS CODIGO')->where('id_sucursal','=',$user->id_sucursal)->orderby('CODIGO','DESC')->limit(1)
         ->get()->toArray();
       
         /*  --------------------------------------------------------------------------------- */
@@ -236,17 +236,12 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         $dia = date("Y-m-d H:i:s");
         $hora = date("H:i:s");
         $codigo_gondola=$datos['data']['Codigo'];
-        $limite_menor=$user->id_sucursal*1000;
-        $limite_mayor=$limite_menor+99999;
-        if($codigo_gondola<$limite_menor || $codigo_gondola>$limite_mayor){
-             return ["response"=>false,'statusText'=>'Esta Codigo de gondola no puede ser registrada (PRESIONE F2 o el boton NUEVO para crear un codigo)!!'];
             //var_dump($datos['data']['Marcados']);
-        }
         try { 
         /*  --------------------------------------------------------------------------------- */
          if($datos['data']['Existe']=== false){
          $gondolas =Gondola::insertGetId(
-         ['CODIGO'=>$codigo_gondola,'DESCRIPCION'=> $datos['data']['Descripcion'], 'FK_USER_CR'=>$user->id,'FECALTAS'=>$dia,'ID_SUCURSAL'=>$user->id_sucursal]);
+         ['DESCRIPCION'=> $datos['data']['Descripcion'], 'FK_USER_CR'=>$user->id,'FECALTAS'=>$dia,'ID_SUCURSAL'=>$user->id_sucursal]);
      
 
   
@@ -254,7 +249,7 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
 
         }else{
              //GONDOLAS UPDATE
-            $gondolas=Gondola::where('CODIGO', $codigo_gondola)
+            $gondolas=Gondola::where('ID', $codigo_gondola)
             ->update(['DESCRIPCION'=> $datos['data']['Descripcion'], 'FK_USER_MD'=>$user->id,'FECMODIF'=>$dia]);
 
 
@@ -290,13 +285,15 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
 
         if($datos['data']['Existe']=== true){
         
-         $producto=Producto::select('CODIGO')->Where('FK_GONDOLA','=',$codigo_gondola)->limit(1)->get()->toArray();
+         $producto=Producto::select('CODIGO')
+         ->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','productos.CODIGO')
+         ->Where('GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA','=',$codigo_gondola)->limit(1)->get()->toArray();
          if(count($producto)>0){
             return ["response"=>false];
          }else{
 
 
-        $gondola=Gondola::where('CODIGO', $codigo_gondola)->delete();
+        $gondola=Gondola::where('ID', $codigo_gondola)->delete();
                     }
 
         }else{
