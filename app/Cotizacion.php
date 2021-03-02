@@ -136,17 +136,29 @@ class Cotizacion extends Model
 
       
 
-            $cotizaciones = NewCotizacion::
+            $cotizacion_final = NewCotizacion::
+             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
+            ->where('COTIZACIONES.FK_DE', '=', $monedaEnviar)
+            ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('FECHA','=',$hoy)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)->get();
+
+
+           
+            if(count($cotizacion_final)<=0){
+
+            $cotizacion_final = NewCotizacion::
              select(DB::raw('COTIZACIONES.VALOR AS CAMBIO'))
             ->where('COTIZACIONES.FK_DE', '=', $monedaEnviar)
             ->where('COTIZACIONES.FK_A', '=', $monedaSistema)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $cotizacion_final=$cotizaciones->where('FECHA','=',$hoy)->get();
-            if(count($cotizacion_final)<=0){
-                $cotizacion_final=$cotizaciones->get();
+            ->limit(1)->get();
+
             }
+
 
        
 

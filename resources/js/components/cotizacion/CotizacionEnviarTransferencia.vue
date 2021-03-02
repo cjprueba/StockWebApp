@@ -44,7 +44,8 @@
 	          { text: 'Dolares ', value: 2 },
 	          { text: 'Pesos', value: 3 },
 	          { text: 'Reales', value: 4 }
-          ]
+          ],
+          cotizacion: ''
         }
       }, 
       methods: {
@@ -55,7 +56,7 @@
             	}
             },
             seleccionarMoneda(){
-            	this.$emit('moneda_enviar', this.selected);
+            	this.$emit('moneda_enviar', {selected: this.selected, cotizacion: this.cotizacion});
             	this.mostrarModal();
             }, 
             obtenerCotizacion(){
@@ -76,6 +77,9 @@
 				          { text: 'Pesos', value: 3, disabled: data.activar_pesos },
 				          { text: 'Reales', value: 4, disabled: data.activar_reales }
 			        ];
+
+			        me.cotizacion = data;
+
             	});
 
             	// ------------------------------------------------------------------------
