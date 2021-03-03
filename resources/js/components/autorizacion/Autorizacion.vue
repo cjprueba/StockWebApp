@@ -70,12 +70,14 @@
             		if (data.response === false) {
 
             			me.validar.autorizacion = true;
+                  me.autorizacion.CODIGO = '';
             			me.validar.informacion = data.statusText;
 
             			me.enviarOpcionesPadre({response: false});
 
             		} else if (data.response === true) {
-
+                  
+                  me.autorizacion.CODIGO = '';
             			me.enviarOpcionesPadre({id_user_supervisor: data.autorizacion[0].ID, usuario: data.autorizacion[0].FK_USER, response: true});
             			$('#modalAutorizacion').modal('hide');
             		}
