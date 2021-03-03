@@ -416,11 +416,17 @@ export default new Router({
 		},
 		{
 			path: '/mov5',
+			name: 'prestarProducto',
 			component: require('./components/movimientos/Prestamo/PrestarProductos.vue').default
 		},
 		{
 			path: '/mov6',
+			name: 'prestamoMostrar',
 			component: require('./components/movimientos/Prestamo/MostrarPrestamos.vue').default
+		},
+		{
+			path: '/pro6',
+			component: require('./components/producto/modal/CambiarPrecio.vue').default
 		}
 	],
 	mode: 'history'
