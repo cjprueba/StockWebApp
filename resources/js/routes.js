@@ -413,8 +413,15 @@ export default new Router({
 			path: '/rptstw',
 			name: 'rptStockWeb',
 			component: require('./components/reportes/stock/ReporteStock.vue').default
+		},
+		{
+			path: '/mov5',
+			component: require('./components/movimientos/Prestamo/PrestarProductos.vue').default
+		},
+		{
+			path: '/mov6',
+			component: require('./components/movimientos/Prestamo/MostrarPrestamos.vue').default
 		}
-
 	],
 	mode: 'history'
 });

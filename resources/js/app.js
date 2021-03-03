@@ -517,6 +517,12 @@ Vue.component('modal-detalle-salida-productos', require('./components/movimiento
 
 /* ********************************************* */
 
+// PRESTAMO DE PRODUCTOS.
+
+Vue.component('modal-detalle-prestamo-productos', require('./components/movimientos/Prestamo/modal/ModalDetallePrestamo.vue').default);
+
+/* ********************************************* */
+
 // AGENCIA
 
 Vue.component('agencia-datatable-textbox', require('./components/agencia/AgenciaDatatable.vue').default);
