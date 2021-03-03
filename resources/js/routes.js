@@ -422,7 +422,6 @@ export default new Router({
 			path: '/mov6',
 			component: require('./components/movimientos/Prestamo/MostrarPrestamos.vue').default
 		}
-
 	],
 	mode: 'history'
 });

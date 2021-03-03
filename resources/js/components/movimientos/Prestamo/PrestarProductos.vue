@@ -13,10 +13,10 @@
             </div>
             
             <!-- ------------------------------------------------------------------------------------- -->
-				<div class="col-md-12">
-					<div class="card border-bottom-primary mb-3">
-					  <div class="card-body">
-					    
+
+			<div class="col-md-12">
+				<div class="card border-bottom-primary mb-3">
+					<div class="card-body">
 					    <div class="row">
 
                             <!-- -------------------------- NOMBRE ------------------------------------- -->
@@ -109,9 +109,9 @@
 					    	<!-- ------------------------------------------------------------------------ -->
 
 					    </div>	
-					  </div>
 					</div>
-				</div>
+                </div>
+			</div>
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -120,7 +120,6 @@
             <cuatrocientos-cuatro></cuatrocientos-cuatro>
         </div> -->
         
-
         <!-- ------------------------------------------------------ MODALES------------------------------------------------------ -->
 
         <!--------------------------------------------------- MODAL EDITAR PRODUCTO ------------------------------------------------>
@@ -247,7 +246,6 @@
       }, 
       methods: {
 
-
             //CARGA LOS DATOS DEL PRODUCTO
 
             cargarProducto(codigo) {
@@ -273,33 +271,32 @@
 
                 axios.post('/productoBuscar', {'codigo': codigo}).then(function (response) {
                        
-                        if(response.data.producto === 0) {
+                    if(response.data.producto === 0) {
 
-                            // *******************************************************************
+                        // *******************************************************************
 
-                            // MARCAR EN ROJO TEXTBOX SI NO EXISTE PRODUCTO
+                        // MARCAR EN ROJO TEXTBOX SI NO EXISTE PRODUCTO
                         
-                            me.validar.CODIGO = true;
-                            me.producto.CODIGO = '';
-                            me.producto.DESCRIPCION = '';
-                            me.producto.STOCK = '';
+                        me.validar.CODIGO = true;
+                        me.producto.CODIGO = '';
+                        me.producto.DESCRIPCION = '';
+                        me.producto.STOCK = '';
 
-                        } else {
+                    }else{
 
-                            // LLENAR DESCRIPCION DE PRODUCTO
+                        // LLENAR DESCRIPCION DE PRODUCTO
                          
-                            me.producto.CODIGO = response.data.producto.CODIGO;
-                            me.producto.DESCRIPCION = response.data.producto.DESCRIPCION;
-                            me.producto.STOCK = response.data.producto.STOCK;
+                        me.producto.CODIGO = response.data.producto.CODIGO;
+                        me.producto.DESCRIPCION = response.data.producto.DESCRIPCION;
+                        me.producto.STOCK = response.data.producto.STOCK;
 
-                            me.validar.CODIGO = false;
+                        me.validar.CODIGO = false;
 
-                            // *******************************************************************
-                        }
+                        // *******************************************************************
+                    }
                 });
 
                 // ------------------------------------------------------------------------
-
             },
 
             inivarAgregarProducto(){
@@ -428,7 +425,6 @@
 
                     cantidadNueva = parseFloat(productoExistente.cantidad) + parseFloat(cantidad);
 
-
                     // ------------------------------------------------------------------------
 
                     // EDITAR CANTIDAD PRODUCTO 
@@ -526,132 +522,135 @@
                 // ------------------------------------------------------------------------
 
             },
-        controlador() {
 
-        	// ------------------------------------------------------------------------
+            controlador(){
 
-        	let me = this;
-        	var falta = false;
-        	var tableProductoPrestar = $('#tablaProductoPrestar').DataTable();
+            	// ------------------------------------------------------------------------
 
-        	// ------------------------------------------------------------------------
+            	let me = this;
+            	var falta = false;
+            	var tableProductoPrestar = $('#tablaProductoPrestar').DataTable();
 
-        	// CONTROLADOR
+            	// ------------------------------------------------------------------------
 
-            if (me.garantia.TIPO === null) {
-                me.validar.GARANTIA = true;
-                falta = true;
-            } else {
-                me.validar.GARANTIA = false;
+            	// CONTROLADOR
+
+                if (me.garantia.TIPO === null) {
+                    me.validar.GARANTIA = true;
+                    falta = true;
+                } else {
+                    me.validar.GARANTIA = false;
+                }
+
+                if (me.OBSERVACION.length === 0) {
+                    me.validar.OBSERVACION = true;
+                    falta = true;
+                } else {
+                    me.validar.OBSERVACION = false;
+                }
+
+                if (tableProductoPrestar.rows().data().length === 0) {
+                	me.validar.TABLA = true;
+                	falta = true;
+                } else {
+                	me.validar.TABLA = false;
+                }
+
+            	// ------------------------------------------------------------------------
+
+            	// RETORNAR FALTA - SI ES TRUE SE DETIENE EL GUARDADO 
+                // SI ES FALSE CONTINUA LA OPERACION 
+
+                return falta;
+
+            	// ------------------------------------------------------------------------
+
+            },
+
+            guardar(){
+
+            	// ------------------------------------------------------------------------
+
+            	// INICIAR VARIABLES 
+
+            	let me = this;
+            	var tableProductoPrestar = $('#tablaProductoPrestar').DataTable();
+
+            	// ------------------------------------------------------------------------
+
+            	// CONTROLAR TEXTBOX / SI ES TRUE SE DETIENE LA OPERACION DE GUARDADO
+
+            	if (me.controlador() === true){
+                    me.$bvToast.show('toast-completar-cabecera');
+            		return;
+            	}
+
+            	// ------------------------------------------------------------------------
+
+            	// PREPARAR ARRAY 
+
+            	var data = {
+            		tipo: me.garantia.TIPO,
+            		observacion: me.OBSERVACION,
+                    codigoCliente: me.cliente.CODIGO,
+            		productos: tableProductoPrestar.rows().data().toArray()
+            	};
+
+            	// ------------------------------------------------------------------------
+
+          		// SWEET ALERT
+
+          		Swal.fire({
+    				title: '¿Estas seguro?',
+    				text: "¡Prestar estos productos!",
+    				type: 'warning',
+    				showLoaderOnConfirm: true,
+    				showCancelButton: true,
+    				confirmButtonColor: '#d33',
+    				cancelButtonColor: '#3085d6',
+    				confirmButtonText: '¡Sí, guardalo!',
+    				cancelButtonText: 'Cancelar',
+    				preConfirm: () => {
+    				    return Common.guardarPrestamoProductoCommon(data).then(data => {
+    				    	if (!data.response === true) {
+    				          throw new Error(data.statusText);
+    				        }
+    				  		return data;
+    				  	}).catch(error => {
+    				        Swal.showValidationMessage(
+    				          `Request failed: ${error}`
+    				        )
+    				    });
+    				}
+    			}).then((result) => {
+
+    				if (result.value.response) {
+
+    					Swal.fire(
+    						'Guardado!',
+    						result.value.statusText,
+    						'success'
+    					)
+
+    					// ------------------------------------------------------------------------
+
+                        // RECARGAR
+                        window.location.href = '/mov6';
+
+    				}else{
+
+                            Swal.fire(
+                                '¡Error!',
+                                data.statusText,
+                                'warning'
+                            )
+                        }
+    			})
+
+    			// ------------------------------------------------------------------------
             }
+        }, 
 
-            if (me.OBSERVACION.length === 0) {
-                me.validar.OBSERVACION = true;
-                falta = true;
-            } else {
-                me.validar.OBSERVACION = false;
-            }
-
-            if (tableProductoPrestar.rows().data().length === 0) {
-            	me.validar.TABLA = true;
-            	falta = true;
-            } else {
-            	me.validar.TABLA = false;
-            }
-
-        	// ------------------------------------------------------------------------
-
-        	// RETORNAR FALTA - SI ES TRUE SE DETIENE EL GUARDADO 
-            // SI ES FALSE CONTINUA LA OPERACION 
-
-            return falta;
-
-        	// ------------------------------------------------------------------------
-
-        },
-        guardar() {
-
-        	// ------------------------------------------------------------------------
-
-        	// INICIAR VARIABLES 
-
-        	let me = this;
-        	var tableProductoPrestar = $('#tablaProductoPrestar').DataTable();
-
-        	// ------------------------------------------------------------------------
-
-        	// CONTROLAR TEXTBOX / SI ES TRUE SE DETIENE LA OPERACION DE GUARDADO
-
-        	if (me.controlador() === true){
-                me.$bvToast.show('toast-completar-cabecera');
-        		return;
-        	}
-
-        	// ------------------------------------------------------------------------
-
-        	// PREPARAR ARRAY 
-
-        	var data = {
-        		tipo: me.garantia.TIPO,
-        		observacion: me.OBSERVACION,
-                codigoCliente: me.cliente.CODIGO,
-        		productos: tableProductoPrestar.rows().data().toArray()
-        	};
-
-        	// ------------------------------------------------------------------------
-
-      		// SWEET ALERT
-
-      		Swal.fire({
-				title: '¿Estas seguro?',
-				text: "¡Prestar estos productos!",
-				type: 'warning',
-				showLoaderOnConfirm: true,
-				showCancelButton: true,
-				confirmButtonColor: '#d33',
-				cancelButtonColor: '#3085d6',
-				confirmButtonText: '¡Sí, guardalo!',
-				cancelButtonText: 'Cancelar',
-				preConfirm: () => {
-				    return Common.guardarPrestamoProductoCommon(data).then(data => {
-				    	if (!data.response === true) {
-				          throw new Error(data.statusText);
-				        }
-				  		return data;
-				  	}).catch(error => {
-				        Swal.showValidationMessage(
-				          `Request failed: ${error}`
-				        )
-				    });
-				}
-			}).then((result) => {
-
-				if (result.value.response) {
-
-					Swal.fire(
-						'Guardado!',
-						result.value.statusText,
-						'success'
-					)
-
-					// ------------------------------------------------------------------------
-
-                    // RECARGAR
-                    window.location.href = '/mov6';
-
-				}else{
-
-                        Swal.fire(
-                            '¡Error!',
-                            data.statusText,
-                            'warning'
-                        )
-                    }
-			})
-
-			// ------------------------------------------------------------------------
-        }
-      },  
         mounted() {
 
           // ------------------------------------------------------------------------

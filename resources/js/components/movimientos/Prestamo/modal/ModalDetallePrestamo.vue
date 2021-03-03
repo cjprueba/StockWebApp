@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid">
-			<div class="modal fade" id="modalDetallePrestamoProductos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal fade" id="modalDetallePrestamoProductos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		  <div class="modal-dialog modal-xl" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
@@ -11,18 +11,15 @@
 		      </div>
 		      <div class="modal-body">
 		        <table id="detallePrestamoProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
-					            <thead>
-					            	
-					                <tr>
-					                    <th>Item</th>
-					                    <th>Código Producto</th>
-					                    <th>Descripción</th>
-					                    <th>Cantidad</th>
-					                </tr>
-					            </thead>
-					            <tbody>
-					            </tbody>
-					        </table>
+					<thead>
+						<tr>
+					        <th>Item</th>
+					        <th>Código Producto</th>
+					        <th>Descripción</th>
+					        <th>Cantidad</th>
+					    </tr>
+					</thead>
+				</table>
 		      </div>
 		      <div class="modal-footer">
 		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -30,21 +27,20 @@
 		    </div>
 		  </div>
 		</div>
-
-
 	</div>
 </template>
 
 <script>
-	 export default {
-	  props: [''],
-      data(){
-        return {
-          open: false,
-          codigo: ''
-        }
-      }, 
-      methods: {
+	export default {
+		props: [''],
+	    data(){
+	        return {
+	          open: false,
+	          codigo: ''
+	        }
+	    }, 
+      	methods: {
+
       		mostrarModal(codigo){
 
       			// ------------------------------------------------------------------------
@@ -62,6 +58,7 @@
       			// ------------------------------------------------------------------------
             	
             }, 
+
             obtenerDatosDetallePrestamo(codigo){
 
             	// ------------------------------------------------------------------------
@@ -95,15 +92,15 @@
 	                        ]    
 	                });
                     
-	 				// ------------------------------------------------------------------------
+	 			// ------------------------------------------------------------------------
 
-	 				// CARGAR CODIGO TRANSFERENCIA
+	 			// CARGAR CODIGO
 
-      				this.codigo = codigo;
+      			this.codigo = codigo;
 
-      				// ------------------------------------------------------------------------
+      			// ------------------------------------------------------------------------
             }
-      },
+      	},
         mounted() {
 
         }

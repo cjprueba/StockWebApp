@@ -2393,7 +2393,7 @@ function agregarInventarioCommon(codigo, id, cantidad) {
 }
 
 
-function guardarInventarioCommon(data) {
+function guardarInventarioCommon(sucursal, observacion) {
 
 			// ------------------------------------------------------------------------
 
@@ -2405,7 +2405,7 @@ function guardarInventarioCommon(data) {
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/inventarioGuardar', {'data': data}).then(function (response) {
+			return axios.post('/inventarioGuardar', {'sucursal': sucursal, 'observacion': observacion}).then(function (response) {
 					return response.data;
 			});
 

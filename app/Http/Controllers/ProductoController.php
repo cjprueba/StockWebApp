@@ -381,7 +381,7 @@ class ProductoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
 
-       // OBTENER TODOS LOS DATOS
+       // OBTENER LOS DATOS
 
         $codigos = Producto::productoBuscar($request->all());
         return response()->json($codigos);

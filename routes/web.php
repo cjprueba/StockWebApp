@@ -413,7 +413,6 @@ Route::post('usuarioGuardar', 'UserController@guardarUsuario');
 
 /* -------------------------------------------------------------------------- */
 
-
 // ROLES
 
 Route::get('rolTraer', 'UserController@obtenerRoles');

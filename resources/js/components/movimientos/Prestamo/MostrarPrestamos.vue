@@ -27,12 +27,7 @@
 		                    <th>Acción</th>
 		                </tr>
 		            </thead>
-		            <tbody>
-		                <td></td>
-		            </tbody>
 		        </table> 
-
-
 			</div>	
 		<!-- </div> -->
 
@@ -51,26 +46,27 @@
 	</div>
 </template>
 <script>
-
-
-	 export default {
-      data(){
-        return {
-        	procesar: false
-        }
-      }, 
-      methods: {
+	export default {
+	    data(){
+	        return {
+	        	procesar: false
+	        }
+	    }, 
+	    
+	    methods: {
+      		
       		mostrarModalDetalle(codigo) {
 
       			// ------------------------------------------------------------------------
 
-      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+      			// LLAMAR EL METODO DEL COMPONENTE
       			
       			this.$refs.componente_modal_detalle_prestamo.mostrarModal(codigo);
 
       			// ------------------------------------------------------------------------
 
       		},  
+
       		devolverProducto(id){
 
       			// ------------------------------------------------------------------------
@@ -117,11 +113,10 @@
 
 					}
 				})
-
       			// ------------------------------------------------------------------------
-
       		}
-      },
+      	},
+        
         mounted() {
         	
         	let me = this;
@@ -152,9 +147,7 @@
                             { "data": "ESTADO" },
                             { "data": "CREACION" },
                             { "data": "ACCION" }
-                        ], "drawCallback": function( settings ) {
-					        //tableProveedor.columns.adjust().draw();
-					    },
+                        ], 
 		                "createdRow": function( row, data, dataIndex){
 		                    $(row).addClass(data['ESTATUS']);
 		                },      
