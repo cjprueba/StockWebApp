@@ -514,6 +514,7 @@ Vue.component('catalogo', require('./components/producto/Catalogo.vue').default)
 
 Vue.component('nota-credito-cliente-datatable', require('./components/movimientos/CreditoNotaDatatableTextbox.vue').default);
 Vue.component('modal-detalle-salida-productos', require('./components/movimientos/modal/ModalDetalleSalidaProductos.vue').default);
+Vue.component('modal-detalle-prestamo-productos', require('./components/movimientos/Prestamo/modal/ModalDetallePrestamo.vue').default);
 
 /* ********************************************* */
 

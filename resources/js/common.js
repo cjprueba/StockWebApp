@@ -2393,7 +2393,7 @@ function agregarInventarioCommon(codigo, id, cantidad) {
 }
 
 
-function guardarInventarioCommon(sucursal, observacion) {
+function guardarInventarioCommon(data) {
 
 			// ------------------------------------------------------------------------
 
@@ -2405,7 +2405,7 @@ function guardarInventarioCommon(sucursal, observacion) {
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/inventarioGuardar', {'sucursal': sucursal, 'observacion': observacion}).then(function (response) {
+			return axios.post('/inventarioGuardar', {'data': data}).then(function (response) {
 					return response.data;
 			});
 
@@ -5966,6 +5966,112 @@ function generarReporteVentaSeccionCommon(data){
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+// 				TABLA DE PRODUCTOS FORMULARIO CAMBIAR PRECIO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function productoExisteDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA PRODUCTOS REMISION
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				    if (data['CODIGO'] === codigo) {
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		
+				    		valor =  {
+				    			'respuesta': true,
+				    			'precio_venta': data['PRECIO'],
+				    			'precio_mayorista': data['PREMAYORISTA'],
+				    			'precio_venta_nuevo': data['NUEVOPRECIO'],
+				    			'precio_mayorista_nuevo': data['NUEVOPREMAYORISTA'],
+				    			'row': tabla.row( this )
+				    		};
+				    	} 
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						GUARDAR PRESTAMO DE PRODUCTO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function guardarPrestamoProductoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/prestamoProductoGuardar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						DEVOLVER PRODUCTOS DE PRESTAMO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function devolverPrestamoCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/salida/devolver', {codigo: codigo}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							EXPORTAR FUNCIONES
 // ------------------------------------------------------------------------
@@ -6219,5 +6325,8 @@ export {
 		guardarNuevaCotizacionCommon,
 		obtenerBarcodeCommon,
 		generarReporteVentaSeccionCommon,
-		devolverSalidaCommon
+		devolverSalidaCommon,
+		productoExisteDataTableCommon,
+		guardarPrestamoProductoCommon,
+		devolverPrestamoCommon
 		};
