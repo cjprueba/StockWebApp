@@ -32,7 +32,7 @@
 
 									<div class="my-1">
 										<div class="custom-control custom-switch mr-sm-3 ">
-											<input type="checkbox" class="custom-control-input" id="switchMayorista" v-model="checked.MAYORISTA">
+											<input type="checkbox" class="custom-control-input" v-model="checked.MAYORISTA" id="switchMayorista" v-on:change="validarMayorista" :disabled="mayorista">
 											<label style="font-size: 12px" class="custom-control-label float-left" for="switchMayorista">Mayorista</label>
 										</div>
 									</div>
@@ -353,7 +353,7 @@
 
 								<div class="col-md-1">
 									<label for="validationTooltip01">Desc.</label>
-									<input class="form-control form-control-sm" type="text" v-model="producto.DESCUENTO">
+									<input class="form-control form-control-sm" type="text" v-on:change='autorizarDescuento' v-model="producto.DESCUENTO">
 								</div>
 
 								<div class="col-md-2">
@@ -1121,11 +1121,14 @@
          		MONEDA_SISTEMA: '0'
          	}, mostrar: {
          		SINCOTIZACION: ''
-         	}
+         	},
+         	mayorista: true,
+         	permiso: false
 
         }
       }, 
       methods: {
+
       		formaPago(datos) {
 
       			// ------------------------------------------------------------------------
@@ -1152,10 +1155,19 @@
 	        	// ------------------------------------------------------------------------
 
 	        	// REVISAR AUTORIZACION 
-	        	
-	        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0 || parseFloat(Common.quitarComaCommon(datos.VALE)) > 0) && (this.autorizacion.HABILITAR === 1 && this.autorizacion.PERMITIDO === 0)) {
-	        		this.revisarAutorizacion();
-	        		return;
+
+
+	        	if(this.autorizacion.HABILITAR === 1){
+
+		        	if ((datos.DESCUENTO_GENERAL_PORCENTAJE > 0 || this.venta.TOTAL === 0 || this.venta.TOTAL === '0' || this.venta.TOTAL === '0.00' || this.venta.TOTAL === 0.00 || datos.PAGO_AL_ENTREGAR === true || parseFloat(Common.quitarComaCommon(datos.CREDITO)) > 0 || parseFloat(Common.quitarComaCommon(datos.CUPON_TOTAL)) > 0 || parseFloat(Common.quitarComaCommon(datos.VALE)) > 0) && (this.autorizacion.PERMITIDO === 0)) {
+		        		this.permiso = true;
+		        		this.revisarAutorizacion();
+		        		return;
+		        	}
+
+		        	if(this.autorizacion.ID_USUARIO !== 0 && this.permiso === false){
+		         		this.autorizacion.PERMITIDO = 1;
+		        	}
 	        	}
 
 	        	// ------------------------------------------------------------------------
@@ -1171,7 +1183,8 @@
 	        		caja: this.caja,
 	        		moneda: this.moneda.CODIGO,
 	        		pago: datos,
-	        		productos: tableVenta.rows().data().toArray()
+	        		productos: tableVenta.rows().data().toArray(),
+	        		mayorista: this.checked.MAYORISTA,
 	        	}
 
 	        	Swal.fire({
@@ -1184,7 +1197,7 @@
 				  	// MOSTRAR CARGAR 
 
 				    Swal.showLoading()
-				    
+
 				    // ------------------------------------------------------------------------
 
 				    Common.guardarVentaCommon(me.respuesta).then(data => {
@@ -1573,21 +1586,41 @@
       		},
       		tipoCliente(cliente){
 
+      			let me = this; 
+
       			// ------------------------------------------------------------------------
 
       			// TIPO CLIENTE 
 
-      			this.cliente.TIPO = cliente;
+      			me.cliente.TIPO = cliente;
 
       			// ------------------------------------------------------------------------
 
       			// MAYORISTA
 
-      			if (cliente === 'MAYORISTA') {
-      				this.checked.MAYORISTA = true;
-      			} else {
-      				this.checked.MAYORISTA = false;
-      			}
+      			if(me.cliente.NOMBRE === 'CLIENTE OCASIONAL' || me.cliente.NOMBRE === '' || me.cliente.NOMBRE === 'ONLINE'){
+				    
+				    me.mayorista = true;
+				    me.checked.MAYORISTA = false;
+				    return;
+
+				}else{
+
+				    me.mayorista = false;
+
+	      			if (cliente === 'MAYORISTA' || cliente === 'FUNCIONARIO') {
+
+	      				me.checked.MAYORISTA = true;
+
+	      				if(me.autorizacion.HABILITAR === 1){
+
+							me.revisarAutorizacion();
+	      				}
+	      			}else{
+
+      					me.checked.MAYORISTA = false;
+	      			}
+				}
 
       			// ------------------------------------------------------------------------
 
@@ -1659,6 +1692,7 @@
 		        	return;
 
 		        } else if (codigo.substring(0, 1) === "*") {
+		        	
 
 		        	me.producto.DESCUENTO = codigo.substring(1, 20);
 
@@ -1672,10 +1706,23 @@
 		        		return;
 		        	}
 
-		        	// ------------------------------------------------------------------------
+
+		        	if(me.autorizacion.HABILITAR === 1){
+
+			        	// ------------------------------------------------------------------------
+			        	
+			        	// REVISAR AUTORIZACION
+
+			        	me.revisarAutorizacion();
+
+			        	// ------------------------------------------------------------------------
+
+		        	}else{
+
+		        		me.producto.COD_PROD = '';
+		        	}
 
 		        	me.producto.TIPO_DESCUENTO = 3;
-		        	me.producto.COD_PROD = '';
 		        	return;
 		        }
 
@@ -2561,13 +2608,19 @@
 
 				// ------------------------------------------------------------------------
 
-				// LLAMAR MODAL 
+				// LLAMAR MODAL
 				
 				if (data.response === true) {
-					this.autorizacion.PERMITIDO = 1;
+
+		        	this.producto.COD_PROD = '';
 					this.autorizacion.ID_USUARIO = data.usuario;
 					this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
-					this.formaPago(this.datos);
+
+					if(this.permiso === true){
+
+						this.autorizacion.PERMITIDO = 1;
+						this.formaPago(this.datos);
+					}
 				}
 
 				// ------------------------------------------------------------------------
@@ -2721,6 +2774,50 @@
 
 	        	// ------------------------------------------------------------------------
 
+		    }, validarMayorista(){
+
+		    	let me = this;
+
+				if(me.checked.MAYORISTA === true && me.autorizacion.HABILITAR === 1){
+
+					// REVISAR AUTORIZACION
+
+	        		// ------------------------------------------------------------------------
+
+					me.revisarAutorizacion();
+
+	        		// ------------------------------------------------------------------------
+				}
+
+		    }, 
+		    autorizarDescuento(){
+
+		    	let me = this;
+
+		    	// ------------------------------------------------------------------------
+
+		        // SI EL DESCUENTO SUPERA EL 100 O ESTA POR DEBAJO
+
+		        if (me.producto.DESCUENTO > 100 || me.producto.DESCUENTO < 0) {
+		        	me.$bvToast.show('toast-descuento-error');
+		        	me.producto.DESCUENTO = 0;
+		        	return;
+		        }
+
+		    	if(me.autorizacion.HABILITAR === 1){
+
+					// REVISAR AUTORIZACION
+
+	        		// ------------------------------------------------------------------------
+
+					me.revisarAutorizacion();
+
+	        		// ------------------------------------------------------------------------
+		    	}
+
+		        me.producto.TIPO_DESCUENTO = 3;
+		        me.producto.COD_PROD = '';
+		        return;
 		    }
 
       },
