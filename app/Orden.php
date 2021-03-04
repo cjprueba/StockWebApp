@@ -574,7 +574,6 @@ class Orden extends Model
                     ->leftjoin('PESO', 'PESO.CODIGO', '=', 'WP_ORDEN_DET.SKU')
         ->where('WP_ORDEN_DET.ORDEN_ID','=', $codigo)
         ->get();
-
         /*  --------------------------------------------------------------------------------- */
 
         foreach ($orden_det as $key => $value) {
@@ -596,7 +595,7 @@ class Orden extends Model
             $nestedData['SKU'] = $value->SKU;
             $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
             $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
-            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
+            $nestedData['PRECIO'] = $value->PRECIO;
             $nestedData['TOTAL'] = Common::precio_candec_sin_letra($value->TOTAL, $value->MONEDA);
             $nestedData['MONEDA'] = $value->MONEDA;
             $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
@@ -621,6 +620,7 @@ class Orden extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 
+
 
         return $data;
 
@@ -724,6 +724,7 @@ class Orden extends Model
             $totalP = Common::quitar_coma($value["TOTAL"], $candec);
 
             //COTIZACION
+
 
            $cotizacion = $totalP/($value["CANTIDAD"]*$value["PRECIO"]);
 
