@@ -672,6 +672,15 @@ Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 Route::post('export_venta_seccion', 'VentaController@seccion_excel');
 
 /* -------------------------------------------------------------------------- */
+// 	PRESTAMOS DE PRODUCTOS
+
+Route::post('prestamoProductoGuardar', 'PrestamoProductoController@prestar');
+Route::get('prestamo/mostrar', 'PrestamoProductoController@prestamoMostrar');
+Route::get('prestamo/producto/detalle', 'PrestamoProductoController@prestamoProductoDetalle');
+Route::post('prestamo/devolver', 'PrestamoProductoController@devolver');
+
+
+/* -------------------------------------------------------------------------- */
 
 
 Route::get('{any}', function () {

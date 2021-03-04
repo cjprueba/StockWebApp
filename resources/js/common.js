@@ -6063,7 +6063,7 @@ function devolverPrestamoCommon(codigo){
 
 			// GUARDAR PERMISO
 
-			return axios.post('/salida/devolver', {codigo: codigo}).then(function (response) {
+			return axios.post('/prestamo/devolver', {codigo: codigo}).then(function (response) {
 					return response.data;
 				});
 
