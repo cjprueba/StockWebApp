@@ -177,6 +177,8 @@
             <router-link class="collapse-item" :to="{name: 'notaCredito'}">Nota de Credito</router-link>
             <router-link class="collapse-item" :to="{name: 'salidaProducto'}">Salida de Productos</router-link>
             <router-link class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
+            <router-link class="collapse-item" :to="{name: 'prestarProducto'}">Préstamo de Productos</router-link>
+            <router-link class="collapse-item" :to="{name: 'prestamoMostrar'}">Mostrar Préstamos</router-link>
           </div>
         </div>
       </li>

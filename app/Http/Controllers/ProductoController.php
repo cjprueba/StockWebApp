@@ -376,4 +376,17 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function buscarProducto(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+       // OBTENER LOS DATOS
+
+        $codigos = Producto::productoBuscar($request->all());
+        return response()->json($codigos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

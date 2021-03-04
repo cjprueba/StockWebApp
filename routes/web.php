@@ -352,6 +352,7 @@ Route::post('producto/catalogo', 'ProductoController@catalogo_cliente');
 Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
 Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
+Route::post('productoBuscar', 'ProductoController@buscarProducto');
 
 /* -------------------------------------------------------------------------- */
 
@@ -411,7 +412,6 @@ Route::post('usuarioGuardar', 'UserController@guardarUsuario');
 
 
 /* -------------------------------------------------------------------------- */
-
 
 // ROLES
 
@@ -670,6 +670,15 @@ Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 // SECCION 
 
 Route::post('export_venta_seccion', 'VentaController@seccion_excel');
+
+/* -------------------------------------------------------------------------- */
+// 	PRESTAMOS DE PRODUCTOS
+
+Route::post('prestamoProductoGuardar', 'PrestamoProductoController@prestar');
+Route::get('prestamo/mostrar', 'PrestamoProductoController@prestamoMostrar');
+Route::get('prestamo/producto/detalle', 'PrestamoProductoController@prestamoProductoDetalle');
+Route::post('prestamo/devolver', 'PrestamoProductoController@devolver');
+
 
 /* -------------------------------------------------------------------------- */
 

@@ -4500,4 +4500,43 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function productoBuscar($data){
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $user = auth()->user();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS GONDOLAS
+
+        $producto = ProductosAux::select(
+            DB::raw('PRODUCTOS_AUX.CODIGO, 
+                PRODUCTOS.DESCRIPCION, 
+                PRODUCTOS_AUX.PREC_VENTA, 
+                PRODUCTOS_AUX.PREMAYORISTA'),
+            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            ->where('PRODUCTOS_AUX.CODIGO', '=', $data['codigo'])
+            ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->limit(1)
+            ->get()
+        ->toArray();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if(count($producto) > 0){
+
+            return ['producto' => $producto[0]];
+        }else{
+
+            return ['producto' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
