@@ -20,6 +20,7 @@
 		        <tr>
 		            <th>ID</th>
 		            <th>Observación</th>
+                <th>Motivo</th>
 		            <th>Sucursal</th>
 		            <th>Fecha Creación</th>
 		            <th>Fecha Modificación</th>
@@ -135,6 +136,7 @@
                         "columns": [
                             { "data": "ID" },
                             { "data": "OBSERVACION" },
+                            { "data": "MOTIVO" },
                             { "data": "SUCURSAL" },
                             { "data": "FECALTAS" },
                             { "data": "FECMODIF" },
