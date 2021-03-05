@@ -176,16 +176,30 @@ class Inventario extends Model
     	// INICIAR VARIABLES 
 
     	$diaHora = date("Y-m-d H:i:s");
-    	$observacion = $dato["observacion"];
-    	$id_sucursal = $dato["sucursal"]; 
+    	$observacion = $dato['data']["observacion"];
+    	$id_sucursal = $dato['data']["sucursal"]; 
+        $motivo = $dato['data']["motivo"];
+        $gondola = $dato['data']["gondola"];
+        
+        if(count($gondola[0])>0){
+            $gondola = $gondola[0]['ID'];
+        }else{
+            $gondola = null;
+        }
 
     	/*  --------------------------------------------------------------------------------- */
 
     	// INSERTAR CONTEO
 
     	$id = DB::connection('retail')
-    	->table('conteo')->insertGetId(
-		    ['OBSERVACION' => $observacion, 'FECALTAS' => $diaHora, 'ID_SUCURSAL' => $id_sucursal, 'FK_USER' => $user->id, 'FECMODIF' => $diaHora]
+    	->table('conteo')->insertGetId([
+            'OBSERVACION' => $observacion, 
+            'FECALTAS' => $diaHora, 
+            'ID_SUCURSAL' => $id_sucursal, 
+            'GONDOLA' => $gondola, 
+            'MOTIVO' => $motivo,
+            'FK_USER' => $user->id, 
+            'FECMODIF' => $diaHora]
 		);
 
     	/*  --------------------------------------------------------------------------------- */
@@ -372,9 +386,10 @@ class Inventario extends Model
         $columns = array( 
                             0 => 'ID', 
                             1 => 'OBSERVACION',
-                            2 => 'SUCURSAL',
-                            3 => 'FECALTAS',
-                            4 => 'FECMODIF'
+                            2 => 'MOTIVO',
+                            3 => 'SUCURSAL',
+                            4 => 'FECALTAS',
+                            5 => 'FECMODIF'
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -409,7 +424,7 @@ class Inventario extends Model
 
   			$posts = DB::connection('retail')
   			->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
             ->offset($start)
             ->limit($limit)
@@ -432,7 +447,7 @@ class Inventario extends Model
 
             $posts =  DB::connection('retail')
             ->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                                 $query->where('conteo.ID','LIKE',"%{$search}%")
@@ -476,6 +491,7 @@ class Inventario extends Model
 
                 $nestedData['ID'] = $post->ID;
                 $nestedData['OBSERVACION'] = $post->OBSERVACION;
+                $nestedData['MOTIVO'] = $post->MOTIVO;
                 $nestedData['SUCURSAL'] = $post->SUCURSAL;
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;

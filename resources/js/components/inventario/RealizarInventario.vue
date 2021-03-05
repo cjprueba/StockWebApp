@@ -35,8 +35,20 @@
 
 					  	<div class="col-md-12">
 					  		<selected-sucursal @sucursal_seleccionada="seleccionarSucursal"></selected-sucursal>
-					  		<label for="exampleFormControlTextarea1">Observación</label>
+					  		<label class="mt-3">Observación</label>
 					  		<textarea class="playSound form-control" id="exampleFormControlTextarea1" v-model="observacion" rows="3"></textarea>
+					  	</div>
+					  	<div class="col-md-6 mt-3">
+					  		<label>Motivo</label>
+						  	<select v-model="motivo" class="custom-select custom-select-sm">
+						  		<option value="AJUSTE">Ajuste</option>
+						  		<option value="CONTEO DE STOCK">Conteo de Stock</option>
+						  		<option value="ROBO DE PRODUCTO">Robo de Producto</option>
+						  	</select>
+					  	</div>
+
+					  	<div class="col-md-6 mt-3">
+					  		<select-gondola v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"></select-gondola>
 					  	</div>
 
 					  	<div class="col-md-12">
@@ -195,7 +207,10 @@
             mostrarDatatable: true,
             codigoProducto: '',
             codigoProductoCantidad: '',
-            cantidad: ''
+            cantidad: '',
+            motivo: 'AJUSTE',
+          	seleccion_gondola: [{}],
+          	seleccion_gondola_modificar: [{}]
         }
       }, 
       methods: {
@@ -226,9 +241,16 @@
 
            		let me = this;
 
+           		var datos = {
+           			sucursal: me.sucursal,
+           			observacion: me.observacion,
+           			motivo: me.motivo,
+           			gondola: me.seleccion_gondola
+           		}
+
            		// ------------------------------------------------------------------------
 
-           		Common.guardarInventarioCommon(me.sucursal, me.observacion).then(data => {
+           		Common.guardarInventarioCommon(datos).then(data => {
            			if (data.response === true) {
 
            				Swal.fire(
