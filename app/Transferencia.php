@@ -955,9 +955,9 @@ class Transferencia extends Model
                     ))
         ->leftjoin('SUCURSALES AS ORIGEN', 'ORIGEN.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN')
         ->leftjoin('SUCURSALES AS DESTINO', 'DESTINO.CODIGO', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO')
-        ->leftjoin('EMPLEADOS AS ENVIA', 'ENVIA.CODIGO', '=', 'TRANSFERENCIAS.ENVIA')
-        ->leftjoin('EMPLEADOS AS TRANSPORTA', 'TRANSPORTA.CODIGO', '=', 'TRANSFERENCIAS.TRANSPORTA')
-        ->leftjoin('EMPLEADOS AS RECIBE', 'RECIBE.CODIGO', '=', 'TRANSFERENCIAS.RECIBE')
+        ->leftjoin('EMPLEADOS AS ENVIA', 'ENVIA.ID', '=', 'TRANSFERENCIAS.ENVIA')
+        ->leftjoin('EMPLEADOS AS TRANSPORTA', 'TRANSPORTA.ID', '=', 'TRANSFERENCIAS.TRANSPORTA')
+        ->leftjoin('EMPLEADOS AS RECIBE', 'RECIBE.ID', '=', 'TRANSFERENCIAS.RECIBE')
         ->where('TRANSFERENCIAS.ID_SUCURSAL','=', $sucursal)
         ->where('TRANSFERENCIAS.CODIGO','=', $codigo)
         ->get();
