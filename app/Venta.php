@@ -3811,6 +3811,7 @@ class Venta extends Model
         ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
         ->get();
 
+
         /*  --------------------------------------------------------------------------------- */
 
         // GIRO ABONO
@@ -4075,7 +4076,7 @@ class Venta extends Model
 
         $pdf->Cell(25, 4, 'Transferencia:', 0);
         $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($transferencia[0]->TOTAL - $nota_credito_transferencia, 1),0,0,'R');
+        $pdf->Cell(15, 4, Common::precio_candec( ($transferencia[0]->TOTAL+$transferenciaAbono[0]->TOTAL) - $nota_credito_transferencia, 1),0,0,'R');
         $pdf->Ln(6);
 
         /*  --------------------------------------------------------------------------------- */
