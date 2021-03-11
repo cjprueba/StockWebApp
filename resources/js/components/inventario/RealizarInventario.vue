@@ -41,6 +41,7 @@
 					  	<div class="col-md-6 mt-3">
 					  		<label>Motivo</label>
 						  	<select v-model="motivo" class="custom-select custom-select-sm">
+						  		<option value="AUDITORIA">Auditoría</option>
 						  		<option value="AJUSTE">Ajuste</option>
 						  		<option value="CONTEO DE STOCK">Conteo de Stock</option>
 						  		<option value="ROBO DE PRODUCTO">Robo de Producto</option>
@@ -208,7 +209,7 @@
             codigoProducto: '',
             codigoProductoCantidad: '',
             cantidad: '',
-            motivo: 'AJUSTE',
+            motivo: 'AUDITORIA',
           	seleccion_gondola: [{}],
           	seleccion_gondola_modificar: [{}]
         }
