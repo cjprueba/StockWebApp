@@ -477,6 +477,11 @@ Vue.component('busqueda-cliente-modal', require('./components/cliente/BusquedaCl
 Vue.component('cliente-filtrar', require('./components/textboxs/ClienteTextbox.vue').default);
 Vue.component('crear-cliente', require('./components/cliente/CrearCliente.vue').default);
 
+/* ********************************************* */
+
+// COMBOS DE PRODUCTOS
+
+Vue.component('combo-filtrar', require('./components/textboxs/Combos/ComboProductoTextbox.vue').default);
 
 /* ********************************************* */
 

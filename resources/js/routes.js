@@ -423,6 +423,14 @@ export default new Router({
 			path: '/mov6',
 			name: 'prestamoMostrar',
 			component: require('./components/movimientos/Prestamo/MostrarPrestamos.vue').default
+		},
+		{
+			path: '/pro6',
+			component: require('./components/producto/modal/CambiarPrecio.vue').default
+		},
+		{
+			path: '/comb1',
+			component: require('./components/producto/RegistrarCombo.vue').default
 		}
 	],
 	mode: 'history'
