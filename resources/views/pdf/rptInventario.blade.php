@@ -133,6 +133,9 @@
         color: #5D6975;
         font-size: 1.2em;
       }
+      .texto {
+        font-size: 14px;
+      }
 
       footer {
         color: #5D6975;
@@ -159,6 +162,8 @@
         <div><span>OBSERVACION</span> {{ $observacion }}</div>
         <div><span>FECHA CREACION</span> {{ $fecaltas }}</div>
         <div><span>TIPO</span> {{ $tipo }}</div>
+         <div><span>MOTIVO</span> {{ $motivo }}</div>
+         <div><span>GONDOLA</span> {{ $gondola }}</div>
       </div>
     </header>
     <main>
@@ -172,7 +177,6 @@
             <th>CONTEO</th>
             <th>VENDIDO</th>
             <th>CREADO</th>
-            <th>MODIFI.</th>
             <th>COMENTARIO</th>
             <th>ESTATUS</th>
             <th>AJUSTE</th>
@@ -181,24 +185,23 @@
         <tbody>
           @for ($i = 0; $i < $c; $i++)
             <tr>
-                <td class="service"><span class="text">{{ $i + 1 }}</span></td>
-                <td class="service"><span class="text">{{ $articulos[$i]['cod_prod'] }}</span></td>
-                <td class="desc"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
-                <td class="qty"><span class="text">{{ $articulos[$i]['stock'] }}</span></td>
-                <td class="total"><span class="text">{{ $articulos[$i]['conteo'] }}</span></td>
-                <td class="total"><span class="text">{{ $articulos[$i]['vendidos'] }}</span></td>
-                <td class="qty"><span class="text">{{ $articulos[$i]['created_at'] }}</span></td>
-                <td class="total"><span class="text">{{ $articulos[$i]['updated_at'] }}</span></td>
-                <td class="total"><span class="text">{{ $articulos[$i]['comentario'] }}</span></td>
-                <td class="total"><span class="text">{{ $articulos[$i]['estatus'] }}</span></td>
-                <td class="service"><span class="text" style="color: red;">{{ $articulos[$i]['ajuste'] }}</span></td>
+                <td class="service"><span class="texto">{{ $i + 1 }}</span></td>
+                <td class="service"><barcode code="<?php echo  $articulos[$i]['cod_prod'] ; ?>" type="C128B" size="1.7" height="0.6" /><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-center">{{ $articulos[$i]['cod_prod'] }}</span></td>
+
+                <td class="desc"><span class="texto">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td class="qty"><span class="texto">{{ $articulos[$i]['stock'] }}</span></td>
+                <td class="total"><span class="texto">{{ $articulos[$i]['conteo'] }}</span></td>
+                <td class="total"><span class="texto">{{ $articulos[$i]['vendidos'] }}</span></td>
+                <td class="qty"><span class="texto">{{ $articulos[$i]['created_at'] }}</span></td>
+                <td class="total"><span class="texto">{{ $articulos[$i]['comentario'] }}</span></td>
+                <td class="total"><span class="texto">{{ $articulos[$i]['estatus'] }}</span></td>
+                <td class="service"><span class="texto" style="color: red;">{{ $articulos[$i]['ajuste'] }}</span></td>
             </tr>
           @endfor
           <tr>
-            <td colspan="3" class="grand total">TOTALES</td>
-            <td class="grand total">{{ $cantidad }}</td>
-            <td class="grand total">{{ $total }}</td>
-            <td class="grand total"></td>
+            <td colspan="3" class="texto">TOTALES</td>
+            <td class="texto">{{ $cantidad }}</td>
+            <td class="texto">{{ $total }}</td>
             <td class="grand total"></td>
             <td class="grand total"></td>
             <td class="grand total"></td>

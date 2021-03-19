@@ -40,6 +40,29 @@ class Proveedor extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+         public static function obtener_codigo()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS PROVEEDORES
+
+        $proveedores = Proveedor::select(DB::raw('MAX(CODIGO) + 1 AS CODIGO'))
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if ($proveedores) {
+            return ['proveedores' => $proveedores];
+        } else {
+            return ['proveedores' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     public static function generarConsulta($datos) 
     {
 
