@@ -183,7 +183,8 @@
         nuevoProveedor(){
           let me=this;
         Common.nuevoProveedorCommon().then(data => {
-              me.nombreProveedor =data.proveedor[0].CODIGO+1;
+
+              me.nombreProveedor =data.proveedores[0].CODIGO;
               me.guardar = true;    
               });
          me.limpiar();
@@ -372,7 +373,9 @@
        },
         mounted() {
 
+
           let me=this;
+          me.nuevoProveedor();
 $(document).on('keypress', 'input', function(e) {
 
   if(e.keyCode == 13 ) {

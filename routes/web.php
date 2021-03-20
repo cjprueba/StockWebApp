@@ -241,6 +241,8 @@ Route::post('proveedorFiltrar', 'ProveedorController@filtrarProveedor');
 Route::post('proveedorGuardar', 'ProveedorController@proveedorGuardar');
 Route::post('proveedorEliminar', 'ProveedorController@proveedorEliminar');
 Route::post('proveedorDatatable', 'ProveedorController@proveedorDatatable');
+Route::get('nuevoProveedor', 'ProveedorController@nuevoProveedor');
+
 
 /* -------------------------------------------------------------------------- */
 

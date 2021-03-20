@@ -8,6 +8,10 @@ use Mpdf\Mpdf;
 use App\Lote_tiene_ConteoDet;
 use App\Ventas_det;
 use Illuminate\Support\Facades\Log;
+use App\SalidaProductoDet;
+use App\DevolucionProvDet;
+use App\Stock;
+use App\NotaCreditoDet;
 
 class Inventario extends Model
 {
@@ -184,7 +188,7 @@ class Inventario extends Model
         if(count($gondola[0])>0){
             $gondola = $gondola[0]['ID'];
         }else{
-            $gondola = null;
+            $gondola = 0;
         }
 
     	/*  --------------------------------------------------------------------------------- */
@@ -611,12 +615,15 @@ class Inventario extends Model
         /*  --------------------------------------------------------------------------------- */
         
         $Inventario = DB::connection('retail')->table('conteo')->select(DB::raw(
-                        'ID,
-                        OBSERVACION,
+                        'CONTEO.ID,
+                        CONTEO.OBSERVACION,
                         conteo.FECALTAS,
-                        SUCURSALES.DESCRIPCION AS SUCURSAL'
+                        SUCURSALES.DESCRIPCION AS SUCURSAL,
+                        IFNULL(GONDOLAS.DESCRIPCION, "NO POSEE") AS GONDOLA,
+                        IFNULL(CONTEO.MOTIVO, "NO POSEE") AS MOTIVO '
                     ))
         ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=', 'CONTEO.ID_SUCURSAL')
+        ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'CONTEO.GONDOLA')
         ->where('CONTEO.ID','=', $codigo)
         ->where('CONTEO.ID_SUCURSAL','=', $user->id_sucursal)
         ->get();
@@ -687,28 +694,97 @@ class Inventario extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            // OBTENER LA CANTIDAD QUE SE VENDIO DESPUES DE INICIAR A CONTAR 
+           
                 $hora=substr($value->CREATED_AT, 11);
                 $fecha = substr($value->CREATED_AT, 0,-8);
+            // OBTENER LA CANTIDAD QUE SE VENDIO DESPUES DE INICIAR A CONTAR 
 
             $vendido = Ventas_det::select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
-            ->WhereDate('FECALTAS', '=', $fecha)
             ->where('ANULADO', '=', 0)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            /*->where('HORALTAS', '>=', date("H:i:s",strtotime($hora)))*/
-          //->whereRaw('HOUR(HORALTAS)>="'.date("H:i:s",strtotime($hora)).'"')
-            ->WHERE('COD_PROD', '=', $value->COD_PROD)
-          /*->WhereDate(DB::raw("CONCAT(FECALTAS, ' ', HORALTAS)"), '>=', $value->CREATED_AT) */
-            ->groupBy('COD_PROD')
+            ->Where('COD_PROD', '=', $value->COD_PROD)
+            ->Where(DB::raw("CONCAT(SUBSTR(FECALTAS, 1, 11), HORALTAS)"), '>=', $value->CREATED_AT) 
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+             // OBTENER LA CANTIDAD DE SALIDA DE PRODUCTOS DESPUES DE INICIAR A CONTAR 
+            $salida=SalidaProductoDet::Select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
+            ->leftjoin('salida_productos','salida_productos.ID','=','FK_SALIDA_PRODUCTOS')
+            ->Where(DB::raw("FECALTAS"), '>=', $value->CREATED_AT) 
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->Where('COD_PROD', '=', $value->COD_PROD)
+            ->where('ESTADO', '=', 0)
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER LA CANTIDAD DE DEVOLUCION A PROVEEDOR DESPUES DE INICIAR A CONTAR 
+            $dev_prov=DevolucionProvDet::Select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
+            ->leftjoin('devolucion_prov','devolucion_prov.ID','=','FK_DEVOLUCION_PROV')
+            ->Where(DB::raw("FECALTAS"), '>=', $value->CREATED_AT) 
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->Where('COD_PROD', '=', $value->COD_PROD)
+            ->get();
+
+
+            /*  --------------------------------------------------------------------------------- */
+                // OBTENER LA CANTIDAD QUE SE CREO DESPUES DE INICIAR A CONTAR 
+
+            $creado = Stock::select(DB::raw('IFNULL(SUM(CANTIDAD_INICIAL),0) AS CANTIDAD'))
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->Where('COD_PROD', '=', $value->COD_PROD)
+            ->Where(DB::raw("CONCAT(SUBSTR(FECALTAS, 1, 11), HORALTAS)"), '>=', $value->CREATED_AT) 
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER LA CANTIDAD QUE SE DEVOLVIO POR NOTA DE CREDITO DESPUES DE INICIAR A CONTAR 
+
+            $nota_credito = NotaCreditoDet::select(DB::raw('IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD),0) AS CANTIDAD'))
+            ->leftjoin('NOTA_CREDITO','NOTA_CREDITO.ID','=','FK_NOTA_CREDITO')
+            ->where('NOTA_CREDITO_DET.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->where('NOTA_CREDITO.TIPO', '=', 1)
+            ->Where('NOTA_CREDITO_DET.CODIGO_PROD', '=', $value->COD_PROD)
+            ->Where(DB::raw("CONCAT(SUBSTR(NOTA_CREDITO_DET.FECALTAS, 1, 11), NOTA_CREDITO_DET.HORALTAS)"), '>=', $value->CREATED_AT) 
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER LA CANTIDAD QUE SE TRANSFIRIO DESPUES DE INICIAR A CONTAR 
+
+            $transferencias = DB::connection('retail')->table('TRANSFERENCIAS_DET')->select(DB::raw('IFNULL(SUM(CANTIDAD),0) AS CANTIDAD'))
+            ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+            ->Where('CODIGO_PROD', '=', $value->COD_PROD)
+            ->Where(DB::raw("CONCAT(SUBSTR(FECALTAS, 1, 11), HORALTAS)"), '>=', $value->CREATED_AT) 
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
  
             if(count($vendido) > 0) {
-                $conteo_det[$key]->VENDIDO = $vendido[0]['CANTIDAD'];
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO-$vendido[0]['CANTIDAD'] ;
             } else {
-                $conteo_det[$key]->VENDIDO = '0';
+                $conteo_det[$key]->VENDIDO = 0;
             }
+
+            if(count($salida) > 0) {
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO-$salida[0]['CANTIDAD'] ;
+            }
+
+            if(count($dev_prov) > 0) {
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO-$dev_prov[0]['CANTIDAD'] ;
+            }
+
+           if(count($creado) > 0) {
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO+$creado[0]['CANTIDAD'] ;
+            }
+
+            if(count($nota_credito) > 0) {
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO+$nota_credito[0]['CANTIDAD'] ;
+            }
+
+            if(count($transferencias) > 0) {
+                $conteo_det[$key]->VENDIDO = $conteo_det[$key]->VENDIDO-$transferencias[0]->CANTIDAD ;
+            }
+
+    
+
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -786,6 +862,8 @@ class Inventario extends Model
         $codigo = $conteo->ID;
         $observacion = $conteo->OBSERVACION;
         $fecaltas = $conteo->FECALTAS;
+        $motivo = $conteo->MOTIVO;
+        $gondola = $conteo->GONDOLA;
         $tipo = '';
 
         /*  --------------------------------------------------------------------------------- */
@@ -940,6 +1018,8 @@ class Inventario extends Model
         
         $data['codigo'] = $codigo;
         $data['nombre'] = $nombre;
+        $data['motivo'] = $motivo;
+        $data['gondola'] = $gondola;
         $data['observacion'] = $observacion;
         $data['fecaltas'] = $fecaltas;
         $data['tipo'] = $tipo;
@@ -1065,20 +1145,20 @@ class Inventario extends Model
                 $stock = Stock::obtener_stock($value->COD_PROD);
                 
                 
-                if ((float)$stock['stock'] === (float)$value->STOCK) {
+               /* if ((float)$stock['stock'] === (float)$value->STOCK) {*/
                     //var_dump("PRODUCTO ".(float)$value->COD_PROD." stock ".(float)$stock['stock']. " CONTEO".$value->CONTEO);
                     //return;
 
-                    if ((float)$stock['stock'] > (float)$value->CONTEO) {
-                        $lote = Stock::restar_stock_producto($value->COD_PROD, ((float)$stock['stock'] - (float)$value->CONTEO));
+                    if ((float)$value->STOCK > (float)$value->CONTEO) {
+                        $lote = Stock::restar_stock_producto($value->COD_PROD, ((float)$value->STOCK - (float)$value->CONTEO));
                         foreach ($lote["datos"] as $key => $valor) {
                             Lote_tiene_ConteoDet::guardar_referencia($value->ID, $valor["id"] , 2, $user->id, $valor["cantidad"]);
                         }
                     } else if ((float)$stock['stock'] < (float)$value->CONTEO) {
-                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$stock['stock']), 0, 5, 'INV-'.$id, 'N/A');
-                        Lote_tiene_ConteoDet::guardar_referencia($value->ID, $lote["id"] , 1, $user->id, ((float)$value->CONTEO - (float)$stock['stock']));
+                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$value->STOCK), 0, 5, 'INV-'.$id, 'N/A');
+                        Lote_tiene_ConteoDet::guardar_referencia($value->ID, $lote["id"] , 1, $user->id, ((float)$value->CONTEO - (float)$value->STOCK));
                     }
-                }
+            /*    }*/
            }
 
            /*  --------------------------------------------------------------------------------- */
