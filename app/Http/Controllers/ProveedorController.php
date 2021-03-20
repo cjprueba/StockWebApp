@@ -18,6 +18,17 @@ class ProveedorController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+    public function NuevoProveedor(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PROVEEDORES
+
+        $proveedor = Proveedor::obtener_codigo();
+        return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
     public function mostrar(Request $request)
     {
