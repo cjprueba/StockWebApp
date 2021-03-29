@@ -2043,7 +2043,7 @@ $lotes= DB::connection('retail')
             ['COMPRASDET.COD_PROD', '=', $codigo],
             ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
         ])
-        ->groupBy('COMPRAS.PROVEEDOR')
+        ->groupBy('COMPRAS.CODIGO')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2062,7 +2062,7 @@ $lotes= DB::connection('retail')
             ['COMPRASDET.COD_PROD', '=', $codigo],
             ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
         ])
-        ->groupBy('COMPRAS.PROVEEDOR')
+        ->groupBy('COMPRAS.CODIGO')
         ->groupBy('COMPRAS.MONEDA')
         ->get();
         
@@ -2170,12 +2170,12 @@ $lotes= DB::connection('retail')
 
         $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
         ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-        ->select(DB::raw('COUNT(*) AS CANTIDAD_TRANSFERENCIA, TRANSFERENCIAS.SUCURSAL_DESTINO, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
+        ->select(DB::raw('TRANSFERENCIAS.SUCURSAL_DESTINO, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL, TRANSFERENCIAS.CODIGO AS CODIGO'))
         ->where([
             ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo],
             ['TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', $user->id_sucursal]
         ])
-        ->groupBy('TRANSFERENCIAS.SUCURSAL_DESTINO')
+        ->groupBy('TRANSFERENCIAS.CODIGO')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2198,7 +2198,7 @@ $lotes= DB::connection('retail')
 
             /*  --------------------------------------------------------------------------------- */
             
-            $data[$key]['CANTIDAD_TRANSFERENCIA'] = $value->CANTIDAD_TRANSFERENCIA;
+            $data[$key]['CODIGO'] = $value->CODIGO;
             $data[$key]['CANTIDAD'] = $value->CANTIDAD;
             $data[$key]['DESCRIPCION'] = $value->DESCRIPCION;
             $data[$key]['GUARANIES'] = 0;
@@ -2256,12 +2256,12 @@ $lotes= DB::connection('retail')
 
         $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
         ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-        ->select(DB::raw('0 AS C, COUNT(*) AS CANTIDAD_TRANSFERENCIA, TRANSFERENCIAS.SUCURSAL_ORIGEN, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
+        ->select(DB::raw('0 AS C, TRANSFERENCIAS.SUCURSAL_ORIGEN, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL, TRANSFERENCIAS.CODIGO AS CODIGO'))
         ->where([
             ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo],
             ['TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal]
         ])
-        ->groupBy('TRANSFERENCIAS.SUCURSAL_ORIGEN')
+        ->groupBy('TRANSFERENCIAS.CODIGO')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2288,7 +2288,7 @@ $lotes= DB::connection('retail')
             ->groupBy('TRANSFERENCIAS.MONEDA')
             ->get();
 
-            $data[$key]['CANTIDAD_TRANSFERENCIA'] = $value->CANTIDAD_TRANSFERENCIA;
+            $data[$key]['CODIGO'] = $value->CODIGO;
             $data[$key]['CANTIDAD'] = $value->CANTIDAD;
             $data[$key]['DESCRIPCION'] = $value->DESCRIPCION;
             $data[$key]['GUARANIES'] = 0;
