@@ -308,25 +308,27 @@
 																	  <thead>
 																	    <tr>
 																	      <th scope="col">#</th>
+																	      <th scope="col">Código</th>
 																	      <th scope="col">Sucursal</th>
-																	      <th scope="col">Transferencias</th>
 																	      <th scope="col">Cantidad</th>
 																	      <th scope="col">Guaranies</th>
 																	      <th scope="col">Dolares</th>
 																	      <th scope="col">Reales</th>
 																	      <th scope="col">Pesos</th>
+																	      <th scope="col">Fecha</th>
 																	    </tr>
 																	  </thead>
 																	  <tbody>
 																	    <tr v-for="importado in importados" class="cuerpoTabla">
 																	      <th scope="row">{{importado.C}}</th>	
+																	      <th>{{importado.CODIGO}}</th>
 																	      <th>{{importado.DESCRIPCION}}</th>
-																	      <td>{{importado.CANTIDAD_TRANSFERENCIA}}</td>
 																	      <td>{{importado.CANTIDAD}}</td>
 																	      <td>{{importado.GUARANIES}}</td>
 																	      <td>{{importado.DOLARES}}</td>
 																	      <td>{{importado.REALES}}</td>
 																	      <td>{{importado.PESOS}}</td>
+																	      <td>{{importado.FECHA}}</td>
 																	    </tr>
 																	  </tbody>
 																</table>
@@ -350,25 +352,27 @@
 																	  <thead>
 																	    <tr>
 																	      <th scope="col">#</th>
+																	      <th scope="col">Código</th>
 																	      <th scope="col">Sucursal</th>
-																	      <th scope="col">Transferencias</th>
 																	      <th scope="col">Cantidad</th>
 																	      <th scope="col">Guaranies</th>
 																	      <th scope="col">Dolares</th>
 																	      <th scope="col">Reales</th>
 																	      <th scope="col">Pesos</th>
+																	      <th scope="col">Fecha</th>
 																	    </tr>
 																	  </thead>
 																	  <tbody>
 																	    <tr v-for="(enviada, index) in enviadas" class="cuerpoTabla">
 																	      <th scope="row">{{index + 1}}</th>	
+																	      <th>{{enviada.CODIGO}}</th>
 																	      <th>{{enviada.DESCRIPCION}}</th>
-																	      <td>{{enviada.CANTIDAD_TRANSFERENCIA}}</td>
 																	      <td>{{enviada.CANTIDAD}}</td>
 																	      <td>{{enviada.GUARANIES}}</td>
 																	      <td>{{enviada.DOLARES}}</td>
 																	      <td>{{enviada.REALES}}</td>
 																	      <td>{{enviada.PESOS}}</td>
+																	      <td>{{enviada.FECHA}}</td>
 																	    </tr>
 																	  </tbody>
 																</table>
