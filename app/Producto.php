@@ -2008,11 +2008,9 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
     }
-    public static function producto_proveedor($datos)
-    {
+    public static function producto_proveedor($datos){
 
-        try {
-            
+        try {  
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -2027,51 +2025,40 @@ $lotes= DB::connection('retail')
         $codigo = $datos["codigo"];
         $datos = array();
         $c = 0;
+        $data = array();
 
         /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE CODIGO PRODUCTO O CODIGO INTERNO
 
-        $producto = Compra::
-        leftJoin('COMPRASDET', function($join){
-            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
-            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
-        })
-        ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
-        ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, COMPRAS.PROVEEDOR, PROVEEDORES.NOMBRE, SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, COMPRAS.FECALTAS, COMPRAS.CODIGO'))
-        ->where([
-            ['COMPRASDET.COD_PROD', '=', $codigo],
-            ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
-        ])
-        ->groupBy('COMPRAS.CODIGO')
-        ->get();
+        $producto = Compra::leftJoin('COMPRASDET', function($join){
+                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+                ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+            })
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+            ->select(DB::raw('COUNT(*) AS CANTIDAD_COMPRA, 
+                COMPRAS.PROVEEDOR, 
+                PROVEEDORES.NOMBRE,
+                COMPRAS.MONEDA, 
+                SUM(COMPRASDET.CANTIDAD) AS CANTIDAD, 
+                COMPRAS.FECALTAS, 
+                COMPRAS.CODIGO AS CODIGO,
+                SUBSTR(COMPRAS.FECALTAS, 1,10) AS CREACION, 
+                SUM(COMPRAS.TOTAL) AS TOTAL'))
+            ->where([
+                ['COMPRASDET.COD_PROD', '=', $codigo],
+                ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
+            ])
+            ->groupBy('COMPRAS.CODIGO')
+            ->get();
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // SE OBTIENE LA SUMA DE LOS TOTALES POR MONEDA 
-        // ES AGRUPADO POR PROVEEDOR 
-        // ES AGRUPADO POR MONEDA 
-
-        $monedas = Compra::
-        leftJoin('COMPRASDET', function($join){
-            $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
-            ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
-        })
-        ->select(DB::raw('COMPRAS.PROVEEDOR, COMPRAS.MONEDA, SUM(COMPRAS.TOTAL) AS TOTAL'))
-        ->where([
-            ['COMPRASDET.COD_PROD', '=', $codigo],
-            ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
-        ])
-        ->groupBy('COMPRAS.CODIGO')
-        ->groupBy('COMPRAS.MONEDA')
-        ->get();
-        
         /*  --------------------------------------------------------------------------------- */
 
         foreach ($producto as $key => $value) {
 
             $c = $c + 1;
             $data[$value->PROVEEDOR]['C'] = $c;
+            $data[$value->PROVEEDOR]['CODIGO'] = $value->CODIGO;
             $data[$value->PROVEEDOR]['PROVEEDOR'] = $value->PROVEEDOR;
             $data[$value->PROVEEDOR]['CANTIDAD_COMPRA'] = $value->CANTIDAD_COMPRA;
             $data[$value->PROVEEDOR]['NOMBRE'] = $value->NOMBRE;
@@ -2080,49 +2067,22 @@ $lotes= DB::connection('retail')
             $data[$value->PROVEEDOR]['DOLARES'] = 0;
             $data[$value->PROVEEDOR]['PESOS'] = 0;
             $data[$value->PROVEEDOR]['REALES'] = 0;
-            $data[$value->PROVEEDOR]['CODIGO'] = $value->CODIGO;
-            
+            $data[$value->PROVEEDOR]['FECALTAS'] = $value->CREACION;
 
-            /*  --------------------------------------------------------------------------------- */
-
-            // OBTENER LA ULTIMA FECHA COMPRA 
-
-            $creacion = Compra::
-            leftJoin('COMPRASDET', function($join){
-                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
-                ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
-            })
-            ->select(DB::raw('SUBSTR(COMPRAS.FECALTAS, 1,10) AS CREACION'))
-            ->where([
-                ['COMPRASDET.COD_PROD', '=', $codigo],
-                ['COMPRAS.ID_SUCURSAL', '=', $user->id_sucursal],
-                ['COMPRAS.PROVEEDOR', '=', $value->PROVEEDOR],
-            ])
-            ->orderBy('COMPRAS.ID', 'desc')
-            ->limit(1)
-            ->get();
-
-            $data[$value->PROVEEDOR]['FECALTAS'] = $creacion[0]->CREACION;
-
-            /*  --------------------------------------------------------------------------------- */
-
-        }
-
-        
-        foreach ($monedas as $key => $value) {
-            if (array_key_exists($value->PROVEEDOR, $data)) {
-                if ($value->MONEDA === 1) {
-                    $data[$value->PROVEEDOR]['GUARANIES'] = Common::precio_candec($value->TOTAL, 1);
-                } else if ($value->MONEDA === 2) {
-                    $data[$value->PROVEEDOR]['DOLARES'] = Common::precio_candec($value->TOTAL, 2);
-                } else if ($value->MONEDA === 3) {
-                    $data[$value->PROVEEDOR]['PESOS'] = Common::precio_candec($value->TOTAL, 3);
-                } else if ($value->MONEDA === 4) {
-                    $data[$value->PROVEEDOR]['REALES'] = Common::precio_candec($value->TOTAL, 4);
-                }
-
-                $datos[] = $data[$value->PROVEEDOR];
+            if ($value->MONEDA === 1) {
+                $data[$value->PROVEEDOR]['GUARANIES'] = Common::precio_candec($value->TOTAL, 1);
+            } else if ($value->MONEDA === 2) {
+                $data[$value->PROVEEDOR]['DOLARES'] = Common::precio_candec($value->TOTAL, 2);
+            } else if ($value->MONEDA === 3) {
+                $data[$value->PROVEEDOR]['PESOS'] = Common::precio_candec($value->TOTAL, 3);
+            } else if ($value->MONEDA === 4) {
+                $data[$value->PROVEEDOR]['REALES'] = Common::precio_candec($value->TOTAL, 4);
             }
+
+            $datos[] = $data[$value->PROVEEDOR];
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -2168,9 +2128,19 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-        $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
-        ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-        ->select(DB::raw('TRANSFERENCIAS.FECALTAS AS FECHA, TRANSFERENCIAS.SUCURSAL_DESTINO, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL, TRANSFERENCIAS.CODIGO AS CODIGO'))
+        $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', function($join){
+                                $join->on('TRANSFERENCIAS_DET.CODIGO', '=', 'TRANSFERENCIAS.CODIGO')
+                                     ->on('TRANSFERENCIAS_DET.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN');
+                            })
+        ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_DESTINO')
+        ->select(DB::raw('SUBSTR(TRANSFERENCIAS.FECALTAS, 1,10) AS FECHA, 
+            TRANSFERENCIAS.SUCURSAL_DESTINO, 
+            SUCURSALES.DESCRIPCION, 
+            TRANSFERENCIAS_DET.CODIGO_PROD, 
+            SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, 
+            TRANSFERENCIAS.CODIGO AS CODIGO, 
+            TRANSFERENCIAS.MONEDA, 
+            SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
         ->where([
             ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo],
             ['TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', $user->id_sucursal]
@@ -2181,20 +2151,6 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
         foreach ($transferencia as $key => $value) {
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // 
-            $monedas = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
-            ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-            ->select(DB::raw('TRANSFERENCIAS.MONEDA, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
-            ->where([
-                ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo], 
-                ['TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $value->SUCURSAL_DESTINO],
-                ['TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', $user->id_sucursal]
-            ])
-            ->groupBy('TRANSFERENCIAS.MONEDA')
-            ->get();
 
             /*  --------------------------------------------------------------------------------- */
             
@@ -2209,20 +2165,16 @@ $lotes= DB::connection('retail')
 
             /*  --------------------------------------------------------------------------------- */
 
-            foreach ($monedas as $key_moneda => $valor) {
-
-               if ($valor->MONEDA === 1) {
-                    $data[$key]['GUARANIES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 2){
-                    $data[$key]['DOLARES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 3){
-                    $data[$key]['PESOS'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 4){
-                    $data[$key]['REALES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } 
-               
-            }
-            
+            if ($value->MONEDA === 1) {
+                $data[$key]['GUARANIES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 2){
+                $data[$key]['DOLARES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 3){
+                $data[$key]['PESOS'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 4){
+                $data[$key]['REALES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } 
+         
             /*  --------------------------------------------------------------------------------- */
             
         }   
@@ -2255,9 +2207,20 @@ $lotes= DB::connection('retail')
 
         /*  --------------------------------------------------------------------------------- */
 
-        $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
+        $transferencia = Transferencia::leftjoin('TRANSFERENCIAS_DET', function($join){
+                                $join->on('TRANSFERENCIAS_DET.CODIGO', '=', 'TRANSFERENCIAS.CODIGO')
+                                     ->on('TRANSFERENCIAS_DET.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN');
+                            })
         ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-        ->select(DB::raw('0 AS C, TRANSFERENCIAS.FECALTAS AS FECHA, TRANSFERENCIAS.SUCURSAL_ORIGEN, SUCURSALES.DESCRIPCION, TRANSFERENCIAS_DET.CODIGO_PROD, SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL, TRANSFERENCIAS.CODIGO AS CODIGO'))
+        ->select(DB::raw('0 AS C, 
+            SUBSTR(TRANSFERENCIAS.FECALTAS, 1,10) AS FECHA, 
+            TRANSFERENCIAS.SUCURSAL_ORIGEN, 
+            SUCURSALES.DESCRIPCION, 
+            TRANSFERENCIAS_DET.CODIGO_PROD, 
+            SUM(TRANSFERENCIAS_DET.CANTIDAD) AS CANTIDAD, 
+            SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL, 
+            TRANSFERENCIAS.CODIGO AS CODIGO,
+            TRANSFERENCIAS.MONEDA'))
         ->where([
             ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo],
             ['TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal]
@@ -2278,16 +2241,19 @@ $lotes= DB::connection('retail')
 
             /*  --------------------------------------------------------------------------------- */
             
-            $monedas = Transferencia::leftjoin('TRANSFERENCIAS_DET', 'TRANSFERENCIAS_DET.CODIGO', '=','TRANSFERENCIAS.CODIGO')
-            ->leftjoin('SUCURSALES', 'SUCURSALES.CODIGO', '=','TRANSFERENCIAS.SUCURSAL_ORIGEN')
-            ->select(DB::raw('TRANSFERENCIAS.FECALTAS AS FECHA, TRANSFERENCIAS.MONEDA, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
-            ->where([
-                ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo], 
-                ['TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', $value->SUCURSAL_ORIGEN],
-                ['TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal]
-            ])
-            ->groupBy('TRANSFERENCIAS.MONEDA')
-            ->get();
+            // $monedas = Transferencia::leftjoin('TRANSFERENCIAS_DET', function($join){
+            //                     $join->on('TRANSFERENCIAS_DET.CODIGO', '=', 'TRANSFERENCIAS.CODIGO')
+            //                          ->on('TRANSFERENCIAS_DET.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_ORIGEN');
+            //                 })
+            // ->select(DB::raw('TRANSFERENCIAS.FECALTAS AS FECHA, TRANSFERENCIAS.MONEDA, SUM(TRANSFERENCIAS_DET.TOTAL) AS TOTAL'))
+            // ->where([
+            //     ['TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo], 
+            //     ['TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', $value->SUCURSAL_ORIGEN],
+            //     ['TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal]
+            // ])
+            // ->groupBy('TRANSFERENCIAS.CODIGO')
+            // ->groupBy('TRANSFERENCIAS.MONEDA')
+            // ->get();
 
             $data[$key]['CODIGO'] = $value->CODIGO;
             $data[$key]['CANTIDAD'] = $value->CANTIDAD;
@@ -2298,19 +2264,19 @@ $lotes= DB::connection('retail')
             $data[$key]['PESOS'] = 0;
             $data[$key]['REALES'] = 0;
 
-            foreach ($monedas as $key_moneda => $valor) {
+            // foreach ($monedas as $key_moneda => $valor) {
 
-               if ($valor->MONEDA === 1) {
-                    $data[$key]['GUARANIES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 2){
-                    $data[$key]['DOLARES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 3){
-                    $data[$key]['PESOS'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } else if ($valor->MONEDA === 4){
-                    $data[$key]['REALES'] = Common::precio_candec($valor->TOTAL, $valor->MONEDA);
-               } 
+            if ($value->MONEDA === 1) {
+                $data[$key]['GUARANIES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 2){
+                $data[$key]['DOLARES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 3){
+                $data[$key]['PESOS'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } else if ($value->MONEDA === 4){
+                $data[$key]['REALES'] = Common::precio_candec($value->TOTAL, $value->MONEDA);
+            } 
                
-            }
+            // }
             
         }   
 
