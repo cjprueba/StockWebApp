@@ -538,6 +538,9 @@ Vue.component('agencia-datatable-textbox', require('./components/agencia/Agencia
 
 Vue.component('autorizacion', require('./components/autorizacion/Autorizacion.vue').default);
 
+//EMPLEADO
+Vue.component('empleado-textbox', require('./components/textboxs/EmpleadoTextbox.vue').default);
+
 /* ********************************************* */
 
 /**
