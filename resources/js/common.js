@@ -6140,6 +6140,78 @@ function obtenerCuerpoComboCommon(codigo){
 
 }
 
+function nuevoEmpleadoCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoEmpleado').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function filtrarEmpleadoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/empleadoFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function guardarEmpleadosCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarEmpleado', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function eliminarEmpleadosCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarEmpleado', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6401,5 +6473,9 @@ export {
 		devolverPrestamoCommon,
 		guardarComboCommon,
 		filtrarComboCommon,
-		obtenerCuerpoComboCommon
+		obtenerCuerpoComboCommon,
+		nuevoEmpleadoCommon,
+		filtrarEmpleadoCommon,
+		guardarEmpleadosCommon,
+		eliminarEmpleadosCommon
 		};
