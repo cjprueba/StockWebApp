@@ -431,6 +431,11 @@ export default new Router({
 		{
 			path: '/comb1',
 			component: require('./components/producto/RegistrarCombo.vue').default
+		},
+		{
+			path: '/cre',
+			name: 'crearEmpleado',
+			component: require('./components/empleado/CrearEmpleados.vue').default
 		}
 	],
 	mode: 'history'

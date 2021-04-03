@@ -326,6 +326,11 @@ Route::get('nuevaSucursal', 'SucursalController@sucursalNueva');
 
 Route::get('empleado', 'EmpleadoController@mostrar');
 Route::post('empleado', 'EmpleadoController@encontrar');
+Route::post('empleadoDatatable', 'EmpleadoController@datatable');
+Route::get('nuevoEmpleado', 'EmpleadoController@empleadoNuevo');
+Route::post('empleadoFiltrar', 'EmpleadoController@filtrarEmpleado');
+Route::post('guardarEmpleado', 'EmpleadoController@empleadoGuardar');
+Route::post('eliminarEmpleado', 'EmpleadoController@empleadoEliminar');
 
 /* -------------------------------------------------------------------------- */
 

@@ -92,4 +92,47 @@ class EmpleadoController extends Controller
         $empleados = Empleado::encontrarEmpleado($request->all());
         return response()->json($empleados);
     }
+    public function datatable(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Colores
+
+        $empleados = Empleado::empleados_datatable($request);
+        return response()->json($empleados);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    public function empleadoNuevo(){
+         /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER
+
+        $empleado = Empleado::nuevoEmpleado();
+        return response()->json($empleado);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    public function filtrarEmpleado(Request $request){
+         /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER
+
+        $empleado = Empleado::filtrarEmpleado($request->all());
+        return response()->json($empleado);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    public function empleadoGuardar(Request $request){
+        // OBTENER
+
+        $empleado = Empleado::guardarEmpleado($request->all());
+        return response()->json($empleado);
+    }
+    public function empleadoEliminar(Request $request){
+        $empleado = Empleado::eliminarEmpleado($request->all());
+        return response()->json($empleado);
+    }
 }

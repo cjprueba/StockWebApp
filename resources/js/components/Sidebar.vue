@@ -414,6 +414,28 @@
         </div>
       </li>
 
+      <!-- ------------------------------------------------------------------------------------- -->
+
+      <!-- EMPLEADOS -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEmpleados" aria-expanded="true" aria-controls="collapseEmpleados">
+          <font-awesome-icon icon="user-circle" />
+          <span>Empleados</span>
+        </a>
+        <div id="collapseEmpleados" class="collapse" aria-labelledby="headingEmpleados" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
+            
+          </div>
+        </div>
+      </li>
+
+
+      <!-- ------------------------------------------------------------------------------------- -->
+
+
       <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaquinas" aria-expanded="true" aria-controls="collapseMaquinas">
           <font-awesome-icon icon="user-circle" />
