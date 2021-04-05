@@ -37,7 +37,7 @@
 		  			</div>
 		  			<div class="col-6">
 		  				<div class="mb-3">
-		  				<label class="form-label">Código</label>
+		  				<label class="form-label">Códigoo</label>
 		  				<empleado-textbox ref= "componente_textbox_empleado" :codigo="codigo" v-model="codigo" v-bind:class="{ 'is-invalid': validar.codigo }" @nombre="cargarNombre" @cedula="cargarCedula" @codigo="cargarCodigo" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimineto" @telefono="cargarTelefono" @cargo="cargarCargo" @gondolas="cargarGondolas"></empleado-textbox>
 		  			</div>
 						<div class="mb-3">
