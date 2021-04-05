@@ -24,7 +24,7 @@
 						  <input type="number" class="form-control form-control-sm" v-model="telefono"  v-bind:class="{ 'is-invalid': validar.telefono }">
 						</div>
 						<div class="mb-3">
-							  <label class="form-label">Cargo</label>
+							  <label class="form-label">Cargoo</label>
 							  <select class="custom-select custom-select-sm" v-model="cargo" v-bind:class="{ 'is-invalid': validar.cargo}">
 							  <option selected>SELECCIONAR</option>
 							  <option>CAJERO</option>
