@@ -18,7 +18,6 @@
 	        <!-- BOTON NUEVO -->
 
 	        <div class="col-md-6 text-right">
-	        	<button class="btn btn-warning btn-sm" v-on:click="pruebaNota">Prueba</button>
 				<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTipo">Nuevo</button>
 			</div>
 
@@ -28,16 +27,23 @@
 
 			<div class="project col-md-12" v-if="respuesta.productos.length > 0">
 			    <div class="row bg-white has-shadow">
-			      <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
-			        <div class="project-title d-flex align-items-center">
-			          <div class="image has-shadow">
-			          	<span v-html="respuesta.imagen_cliente"></span>
-			          </div>
-			          <div class="text">
-			            <h3 class="h4">{{respuesta.nombre}}</h3><small>{{respuesta.razon_social}}</small>
-			          </div>
+			      <div class="left-col col-lg-12 d-flex justify-content-between">
+			        <div class="col-4">
+			        		
+			        	<div class="project-title d-flex align-items-center">
+				          <div class="image has-shadow">
+				          	<span v-html="respuesta.imagen_cliente"></span>
+				          </div>
+				          <div class="text">
+				            <h3 class="h4">{{respuesta.nombre}}</h3><small>{{respuesta.razon_social}}</small>
+				          </div>
+			        	</div>
 			        </div>
-			        <div class="project-date"><span class="hidden-sm-down">{{respuesta.ruc}}</span></div>
+				        <div class="col-4 align-items-center">
+				          	<label>Nro. Factura</label>
+				          	<input type="text" v-model="numero_factura" class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validar.numero_factura }">
+				        </div>
+			        <div class="col-4 project-date"><span class="hidden-sm-down">{{respuesta.ruc}}</span></div>
 			      </div>
 			    </div>
 			</div>
@@ -461,6 +467,10 @@
         		caja: '',
         		datos: ''
           	},
+          	validar: {
+          		numero_factura: false
+          	},
+          	numero_factura: '',
           	respuesta: {
           		cliente_codigo: '',
           		nombre: '',
@@ -1004,6 +1014,13 @@
 
         	let me = this;
 
+        	if(me.numero_factura === '' || me.numero_factura.length === 0){
+        		me.validar.numero_factura = true;
+        		return;
+        	}
+
+        	me.validar.numero_factura = false;
+
         	// ------------------------------------------------------------------------
 
         	if (this.nota.tipo === '1') {
@@ -1027,7 +1044,8 @@
 	          		tipo_proceso: this.devolver.tipo,
 	          		tipo_medio: this.radio.medio,
 	          		totales: this.totales,
-	          		caja_proceso: this.caja.caja_proceso
+	          		caja_proceso: this.caja.caja_proceso,
+	          		numero_factura: this.numero_factura
 	          	}
 
 	          	// ------------------------------------------------------------------------
@@ -1054,7 +1072,8 @@
 	          		tipo_medio: this.radio.medio,
 	          		totales: this.totales,
 	          		descuento: this.nota.descuento,
-	          		caja_proceso: this.caja.caja_proceso
+	          		caja_proceso: this.caja.caja_proceso,
+	          		numero_factura: this.numero_factura
 	          	}
 
 	          	// ------------------------------------------------------------------------
@@ -1435,7 +1454,7 @@
 
           	// ------------------------------------------------------------------------
 
-          	Common.generarPdfNotaCreditoCommon(6);
+          	Common.generarPdfNotaCreditoCommon(49);
 
           	// ------------------------------------------------------------------------
 
