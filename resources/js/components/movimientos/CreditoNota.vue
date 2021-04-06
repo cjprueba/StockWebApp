@@ -1463,7 +1463,7 @@
           	// ------------------------------------------------------------------------
 
           	Common.generarPdfNotaCreditoCommon(id).then(data => {
-						window.location.href = '/mov2';	
+						// window.location.href = '/mov2';	
 			});
 
           	// ------------------------------------------------------------------------
@@ -1495,7 +1495,7 @@
 									confirmButtonText: 'Aceptar',
 								}).then((result) => {
 									
-									window.location.href = '/mov2';
+									// window.location.href = '/mov2';
 
 								})	
 
@@ -1512,7 +1512,7 @@
 							confirmButtonText: 'Aceptar',
 						}).then((result) => {
 									
-							window.location.href = '/vt0';
+							// window.location.href = '/mov2';
 
 						})
 
