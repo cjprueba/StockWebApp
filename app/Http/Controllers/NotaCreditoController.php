@@ -50,5 +50,11 @@ class NotaCreditoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+
+    public function mostrarNotaCredito(Request $request){
+
+        $nota_credito = NotaCredito::notaCreditoMostrar($request);
+        return response()->json($nota_credito);
+    }
     
 }
