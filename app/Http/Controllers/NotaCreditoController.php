@@ -56,5 +56,21 @@ class NotaCreditoController extends Controller
         $nota_credito = NotaCredito::notaCreditoMostrar($request);
         return response()->json($nota_credito);
     }
-    
+    public function cancelarNota(Request $request){
+
+        $nota_credito = NotaCredito::notaCreditoCancelar($request->all());
+        return response()->json($nota_credito);
+    }
+            public function CreditoNotaDetalle(Request $request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR PROVEEDORES 
+
+        $nota_credito = NotaCredito::creditoNotaDetalle($request);
+        return response()->json($nota_credito);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
