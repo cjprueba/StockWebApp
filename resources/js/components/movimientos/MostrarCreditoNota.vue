@@ -1,5 +1,5 @@
 <template>
-	<div class="container">
+	<div class="container-fluid mt-4">
 		<div class="row mt-4">
 			<!-- TITULO  -->
 			
@@ -19,6 +19,7 @@
 		                	<th>Venta_ID</th>
 		                    <th>Cliente</th>
 		                    <th>RUC</th>
+		                    <th>Nro_Factura</th>
 		                    <th>Sub_Total</th>
 		                    <th>IVA</th>
 		                    <th>Total</th>
@@ -35,6 +36,11 @@
 			</div>
 
 		</div>
+		<!-- MODAL MOSTRAR DETALLE VENTA -->
+
+			<modal-detalle-nota-credito 
+			ref="ModalDetalleNotaCredito"
+			></modal-detalle-nota-credito>
 	</div>
 </template>
 
@@ -45,7 +51,18 @@
 
 			}
 		},
-		methods: {
+		methods: {	
+			  mostrarModalNotaCredito(codigo) {
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR EL METODO DEL COMPONENTE HIJO
+
+      			this.$refs.ModalDetalleNotaCredito.mostrarModal(codigo);
+
+      			// ------------------------------------------------------------------------
+
+      		}
 
 		},
 		mounted(){
@@ -75,6 +92,7 @@
                             { "data": "ID_VENTA"},
                             { "data": "CLIENTE" },
                             { "data": "RUC" },
+                            { "data": "NRO_FACTURA" },
                             { "data": "SUB_TOTAL" },
                             { "data": "IVA" },
                             { "data": "TOTAL" },
@@ -88,6 +106,78 @@
 		                },      
 
                     });
+                $('#tablaNotaMostrar').on('click', 'tbody tr #imprimirReporte', function() {
+
+	            // *******************************************************************
+
+			            // IMPRIMIR Reporte 
+			            var row  = $(this).parents('tr')[0];
+	                   	
+			          	Common.generarPdfNotaCreditoCommon(tableNotaMostrar.row( row ).data().ID).then(data => {
+									// window.location.href = '/mov2';	
+						});
+
+	            // *******************************************************************
+
+	       		 });
+                $('#tablaNotaMostrar').on('click', 'tbody tr #mostrarCredito', function() {
+
+			        // *******************************************************************
+
+			        // REDIRIGIR Y ENVIAR CODIGO VENTA
+
+			        var row  = $(this).parents('tr')[0];
+			        me.mostrarModalNotaCredito(tableNotaMostrar.row( row ).data().ID);
+
+			        // *******************************************************************
+
+		        });
+                 $('#tablaNotaMostrar').on('click', 'tbody tr #devolverCreditoNota', function() {
+
+	            // *******************************************************************
+
+			            // IMPRIMIR Reporte 
+			            var row  = $(this).parents('tr')[0];
+			            Swal.fire({
+					          title: 'Estas seguro ?',
+					          text: "cancelar la nota de credito " + tableNotaMostrar.row( row ).data().ID + " !",
+					          type: 'warning',
+					          showLoaderOnConfirm: true,
+					          showCancelButton: true,
+					          cancelButtonColor: '#3085d6',
+					          confirmButtonText: 'Si!',
+					          cancelButtonText: 'Cancelar',
+					          preConfirm: () => {
+					            return  Common.cancelarNotaCreditoCommon(tableNotaMostrar.row( row ).data().ID).then(data => {
+					              if (!data.response === true) {
+					                  throw new Error(data.statusText);
+					                }
+					              return data;
+					            }).catch(error => {
+					                Swal.showValidationMessage(
+					                  `Request failed: ${error}`
+					                )
+					            });
+					          }
+					        }).then((result) => {
+					          if (result.value) {
+
+
+					            Swal.fire(
+					                  'Cancelado !',
+					                  'Se ha Cancelado la nota de credito!',
+					                  'success'
+					          )
+					           /* me.$refs.componente_textbox_Ventas.recargar();*/
+					           tableNotaMostrar.ajax.reload( null, false );
+			
+					                }
+					        })
+	                   	
+
+	            // *******************************************************************
+
+	       		 });
 
 	 				// ------------------------------------------------------------------------
 

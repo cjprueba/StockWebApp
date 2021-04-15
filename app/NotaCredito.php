@@ -13,7 +13,8 @@ use Mpdf\Mpdf;
 use Fpdf\Fpdf;
 use Luecano\NumeroALetras\NumeroALetras;
 use App\Events\OrdenCompletado;
-
+use App\Stock;
+use Illuminate\Support\Facades\Log;
 class NotaCredito extends Model
 {
     protected $connection = 'retail';
@@ -660,6 +661,8 @@ class NotaCredito extends Model
         $tipo = $nota_credito->TIPO;
         $fecha = $nota_credito->FECALTAS;
         $telefono = $nota_credito->TELEFONO;
+        $numero_factura=$nota_credito->NUMERO_FACTURA;
+        $fk_venta=$nota_credito->FK_VENTA;
         $nombre = 'Nota_Credito'.$codigo.'_'.time().'';
         $articulos = [];
         $cantidad = 0;
@@ -677,11 +680,12 @@ class NotaCredito extends Model
         // CARGAR VARIABLES 
         
         $data['codigo'] = $codigo;
-        $data['cliente'] = $cliente;
-        $data['direccion'] = $direccion;
+        $data['cliente'] = strtoupper($cliente);
+        $data['direccion'] = strtoupper($direccion);
         $data['ruc'] = $ruc;
-        $data['fecha'] = $fecha;
+        $data['fecha'] = substr($fecha, 0,11);
         $data['telefono'] = $telefono;
+        $data['numero_factura'] = $numero_factura;
         $data['nombre'] = $nombre;
         $data['c'] = $c;
         $data['tipo'] = 'fisico';
@@ -707,10 +711,10 @@ class NotaCredito extends Model
                 ],
             ],
             'default_font' => 'arial',
-            "format" => [210,297],
-            'margin_left' => 11,
-			'margin_right' => 7,
-			'margin_bottom' => 5,
+            "format" => [210,302],
+            'margin_left' => 7.5,
+			'margin_right' => 7.5,
+			'margin_bottom' => 2,
 			'margin_header' => 0,
 			'margin_footer' => 0,
         ]);
@@ -733,7 +737,7 @@ class NotaCredito extends Model
 
                 // PRECIO 
                 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"],"FK_VENTA"=>$fk_venta]);
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR 
 
@@ -748,7 +752,7 @@ class NotaCredito extends Model
 
                 // TOTAL 
 
-                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"]]);
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"],"FK_VENTA"=>$fk_venta]);
                 $articulos[$c_rows]["total"] = $cotizacion["valor"];
 
                 // SI NO ENCUENTRA COTIZACION RETORNAR
@@ -1020,7 +1024,9 @@ class NotaCredito extends Model
                         CLIENTES.CELULAR,
                         CLIENTES.RUC,
                         CLIENTES.CI,
-                        CLIENTES.NOMBRE AS CLIENTE'
+                        CLIENTES.NOMBRE AS CLIENTE,
+                        IFNULL(NUMERO_FACTURA,"") AS NUMERO_FACTURA,
+                        FK_VENTA'
                     ))
         ->leftJoin('CLIENTES', function($join){
                             $join->on('NOTA_CREDITO.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -1246,12 +1252,13 @@ class NotaCredito extends Model
                             1 => 'ID_VENTA',
                             2 => 'CLIENTE',
                             3 => 'RUC',
-                            4 => 'SUB_TOTAL',
-                            5 => 'IVA',
-                            6 => 'TOTAL',
-                            7 => 'FECHA',
-                            8 => 'TIPO',
-                            9 => 'CAJA'
+                            4 => 'NRO_FACTURA',
+                            5 => 'SUB_TOTAL',
+                            6 => 'IVA',
+                            7 => 'TOTAL',
+                            8 => 'FECHA',
+                            9 => 'TIPO',
+                            10 => 'CAJA'
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1283,6 +1290,7 @@ class NotaCredito extends Model
 	            	NOTA_CREDITO.SUB_TOTAL,
 	            	CLIENTES.NOMBRE,
 	            	CLIENTES.RUC, 
+	            	IFNULL(NOTA_CREDITO.NUMERO_FACTURA,"NO POSEE") AS NRO_FACTURA, 
 	            	NOTA_CREDITO.IVA, 
 	            	NOTA_CREDITO.TOTAL, 
 	            	NOTA_CREDITO.FECALTAS, 
@@ -1321,6 +1329,7 @@ class NotaCredito extends Model
 	            	NOTA_CREDITO.SUB_TOTAL,
 	            	CLIENTES.NOMBRE,
 	            	CLIENTES.RUC, 
+	            	IFNULL(NOTA_CREDITO.NUMERO_FACTURA,"NO POSEE") AS NRO_FACTURA, 
 	            	NOTA_CREDITO.IVA, 
 	            	NOTA_CREDITO.TOTAL, 
 	            	NOTA_CREDITO.FECALTAS, 
@@ -1338,6 +1347,7 @@ class NotaCredito extends Model
 	            ->where(function ($query) use ($search) {
 		            $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
 		                  ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%")
+		                  ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
 		                  ->orWhere('NOTA_CREDITO.ID', 'LIKE',"%{$search}%");
 		            })
 	            ->offset($start)
@@ -1350,9 +1360,14 @@ class NotaCredito extends Model
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
             $totalFiltered = NotaCredito::where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+            ->leftjoin('CLIENTES', function($join){
+		                $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+		                ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+		            })
 	            ->where(function ($query) use ($search) {
 		            $query->where('NOTA_CREDITO.FK_VENTA','LIKE',"%{$search}%")
 		                  ->orWhere('NOTA_CREDITO.TOTAL', 'LIKE',"%{$search}%")
+		                  ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
 		                  ->orWhere('NOTA_CREDITO.ID', 'LIKE',"%{$search}%");
 		            })
             	->count();
@@ -1376,6 +1391,7 @@ class NotaCredito extends Model
 
                 $nestedData['CLIENTE'] = $post->NOMBRE;
                 $nestedData['RUC'] = $post->RUC;
+                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
                 $nestedData['ID'] = $post->ID;
                 $nestedData['ID_VENTA'] = $post->FK_VENTA;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
@@ -1389,9 +1405,15 @@ class NotaCredito extends Model
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarCredito' title='Mostrar Nota'><i class='fa fa-list  text-secondary'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = 'table-success';
                 } else {
-
-                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarCredito' title='Mostrar Nota'><i class='fa fa-list  text-secondary'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolverProducto' title='Devolver'><i class='fa fa-arrow-alt-circle-left text-danger' aria-hidden='true'></i></a>";
+                	if($post->PROCESADO == 2){
+	                	$nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarCredito' title='Mostrar Nota'><i class='fa fa-list  text-secondary'  aria-hidden='true'></i></a>";
+	                    $nestedData['ESTATUS'] = 'table-danger';
+                	}else{
+                		 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarCredito' title='Mostrar Nota'><i class='fa fa-list  text-secondary'  aria-hidden='true'></i></a>&emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolverCreditoNota' title='Devolver'><i class='fa fa-arrow-alt-circle-left text-danger' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = '';
+                	}
+
+                   
                 }
                 
                 $data[] = $nestedData;
@@ -1415,5 +1437,273 @@ class NotaCredito extends Model
        return $json_data; 
 
     }
+     public static function notaCreditoCancelar($data){
+     	try {
+     		/*  --------------------------------------------------------------------------------- */
+     		//INICAR LA TRANSACCION
+
+     		DB::connection('retail')->beginTransaction();
+     		/*  --------------------------------------------------------------------------------- */
+
+     		//OBTENER TODOS LOS DATOS DEL USUARIO
+     		$user = auth()->user();
+     		/*  --------------------------------------------------------------------------------- */
+
+     		//DEFINIR LA VARIABLE PARA EL STATUSTEXT
+ 			$statusText='';
+ 			/*  --------------------------------------------------------------------------------- */
+
+ 			//DEFINIR LA VARIABLE PARA MOSTRAR O NO EL MENSAJE
+ 			$control_seleccionador=false;
+ 			/*  --------------------------------------------------------------------------------- */
+
+
+ 			//OBTENER LOS VALORES DE LA NOTA DE CREDITO SELECCIONADA AGRUPADA POR CANTIDAD Y POR LOTE
+
+		    $valores =  NotaCreditoDet::select(DB::raw('NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, 
+			            	NOTA_CREDITO_TIENE_LOTE.CANTIDAD AS CANTIDAD, 
+			            	NOTA_CREDITO_DET.FK_VENTASDET, 
+			            	NOTA_CREDITO_TIENE_LOTE.ID_LOTE'))
+						->leftjoin('NOTA_CREDITO_TIENE_LOTE','NOTA_CREDITO_TIENE_LOTE.FK_NOTA_CREDITO_DET','=','NOTA_CREDITO_DET.ID')
+						->leftjoin('NOTA_CREDITO','NOTA_CREDITO.ID','=','NOTA_CREDITO_DET.FK_NOTA_CREDITO')
+		            	->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+		            	->where('NOTA_CREDITO.ID','=',$data['id'])
+		            	->groupBy('NOTA_CREDITO_TIENE_LOTE.ID_LOTE')
+		            	->orderBy('NOTA_CREDITO_DET.CODIGO_PROD')
+			            ->get();
+		    /*  --------------------------------------------------------------------------------- */
+						
+			//RECORRER LOS VALORES PARA LA VERIFICACION DEL STOCK DEL LOTE			
+			foreach ($valores as $key => $value) {
+				/*  --------------------------------------------------------------------------------- */
+				//VERIFICAR LA RESTA ANTES DE REALIZARLA
+			    $control_stock=Stock::verificar_resta($value->ID_LOTE,$value->CANTIDAD);
+
+			    /*  --------------------------------------------------------------------------------- */
+			    //SI LA RESTA ES NEGATIVA ENTONCES ENTRA
+			    if($control_stock<0){
+			    	/*  --------------------------------------------------------------------------------- */
+			    	//CAMBIO DE LA VARIABLE PARA MOSTRAR EL MENSAJE EN ESPECIFICO
+			        $control_seleccionador=true;
+			        /*  --------------------------------------------------------------------------------- */
+			        //ALMACENAR EN LA VARIABLE STATUSTEXT LOS CODIGOS QUE YA NO CUMPLEN LA CONDICION PARA ANULAR LA NOTA DE CREDITO
+			        $statusText=$statusText.'El Codigo : '.$value->COD_PROD. ' Id lote : '.$value->ID_LOTE.'<br>';
+			           		
+			    }
+			}
+			/*  --------------------------------------------------------------------------------- */
+			//SI CONTROL SELECCIONADOR ES VERDADERO ENTONCES MUESTRA EL MENSAJE Y TERMINA LA EJECUCION DEL PROGRAMA
+
+			if($control_seleccionador){
+				/*  --------------------------------------------------------------------------------- */
+				//CONCATENA UNA ULTIMA VEZ LA VARIABLE STATUS TEXT CON EL MENSAJE FINAL A MOSTRAR
+				$statusText=$statusText.' Ya tienen movimientos en los lotes seleccionados, Por ende es imposible realizar la cancelacion de la nota de credito';
+				/*  --------------------------------------------------------------------------------- */
+				//RETORNA EL VALOR FALSO CON EL STATUSTEXT
+				 return ['response' => false, 'statusText' => '<br>'.$statusText];
+			}
+
+			/*  --------------------------------------------------------------------------------- */
+			//ACTUALIZAR EL PROCESO DE NOTA A CREDITO PROCESADO EN 2 PARA REFERENCIAR A CANCELADO
+			NotaCredito::where('ID','=', $data['id'])
+		     ->where('ID_SUCURSAL','=', $user->id_sucursal)
+		     ->update(['PROCESADO' => 2]);
+
+			foreach ($valores as $key => $value) {
+				Stock::restar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
+				# code...
+			}
+			/*  --------------------------------------------------------------------------------- */
+			// GUARDA UN LOG DE INFORMACION
+		    Log::info('Nota de credito: Éxito al cancelar.', ['Nota de credito id:' => $data['id']]);
+		    /*  --------------------------------------------------------------------------------- */
+			// ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+            //DEVUELVE TRUE Y TERMINA EL PROGRAMA
+		   /*  --------------------------------------------------------------------------------- */
+     	   return ['response' => true];
+     		
+     	} catch (Exception $e) {
+     		/*  --------------------------------------------------------------------------------- */
+     		// NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+     	}
+
+     	
+     	
+     	/*return ['response' => true];*/
+    }
+        public static function creditoNotaDetalle($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $codigo = $request->input('codigo');
+        $c = 0;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'COD_PROD', 
+                            1 => 'DESCRIPCION',
+                            2 => 'CANTIDAD',
+                            3 => 'PRECIO',
+                            4 => 'IVA',
+                            5 => 'TOTAL'
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+        $totalData = NotaCreditoDet::
+                    where([
+                        'NOTA_CREDITO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                        'NOTA_CREDITO_DET.FK_NOTA_CREDITO' => $codigo
+                    ])
+                    ->count(); 
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = NotaCreditoDet::select(DB::raw('0 AS ITEM, NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, NOTA_CREDITO_DET.DESCRIPCION, NOTA_CREDITO_DET.CANTIDAD, NOTA_CREDITO_DET.PRECIO, NOTA_CREDITO_DET.IVA, NOTA_CREDITO_DET.TOTAL'))
+                    ->where([
+                        'NOTA_CREDITO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                        'NOTA_CREDITO_DET.FK_NOTA_CREDITO' => $codigo
+                    ])
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts = NotaCreditoDet::select(DB::raw('0 AS ITEM, NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, NOTA_CREDITO_DET.DESCRIPCION, NOTA_CREDITO_DET.CANTIDAD, NOTA_CREDITO_DET.PRECIO, NOTA_CREDITO_DET.IVA, NOTA_CREDITO_DET.TOTAL'))
+                    ->where([
+                        'NOTA_CREDITO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                        'NOTA_CREDITO_DET.FK_NOTA_CREDITO' => $codigo
+                    ])
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO_DET.CODIGO_PROD','LIKE',"{$search}%")
+                                      ->orWhere('NOTA_CREDITO_DET.DESCRIPCION', 'LIKE',"{$search}%");
+                            })
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order,$dir)
+                    ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered =  NotaCreditoDet::select(DB::raw('0 AS ITEM, NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, NOTA_CREDITO_DET.DESCRIPCION, NOTA_CREDITO_DET.CANTIDAD, NOTA_CREDITO_DET.PRECIO, NOTA_CREDITO_DET.IVA, NOTA_CREDITO_DET.TOTAL'))
+                    ->where([
+                        'NOTA_CREDITO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                        'NOTA_CREDITO_DET.FK_NOTA_CREDITO' => $codigo
+                    ])
+                            ->where(function ($query) use ($search) {
+                                $query->where('NOTA_CREDITO_DET.CODIGO_PROD','LIKE',"{$search}%")
+                                      ->orWhere('NOTA_CREDITO_DET.DESCRIPCION', 'LIKE',"{$search}%");
+                            })
+                            ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $c = $c + 1;
+                $nestedData['ITEM'] = $c;
+                $nestedData['COD_PROD'] = $post->COD_PROD;
+                $nestedData['CANTIDAD'] = $post->CANTIDAD;
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, 2);
+                $nestedData['IVA'] = Common::formato_precio($post->IVA, 2);
+                $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, 2);
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
 }
