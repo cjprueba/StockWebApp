@@ -628,6 +628,9 @@ Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerp
 Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
 Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
 Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtenerCreditoCliente');
+Route::get('nota/credito/mostrar', 'NotaCreditoController@mostrarNotaCredito');
+Route::post('nota/credito/cancelar', 'NotaCreditoController@cancelarNota');
+Route::get('credito/nota/producto/detalle', 'NotaCreditoController@CreditoNotaDetalle');
 
 /* -------------------------------------------------------------------------- */
 

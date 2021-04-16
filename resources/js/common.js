@@ -6212,6 +6212,19 @@ function eliminarEmpleadosCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function cancelarNotaCreditoCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR EL CUERPO DE LA NOTA DE CREDITO 
+			
+			return axios.post('/nota/credito/cancelar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6477,5 +6490,6 @@ export {
 		nuevoEmpleadoCommon,
 		filtrarEmpleadoCommon,
 		guardarEmpleadosCommon,
-		eliminarEmpleadosCommon
+		eliminarEmpleadosCommon,
+		cancelarNotaCreditoCommon
 		};
