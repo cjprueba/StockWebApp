@@ -1,75 +1,62 @@
 
 <template>
-	
-<div class="container">
-
-  <div v-if="$can('gondola.crear')">
-
-    <!-- ------------------------------------------------------------------ -->
-
-    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
-        
-    <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
-
-    <!-- ------------------------------------------------------------------------------------- -->
-        
-       <div class="offset-md-2 col-6">
-          <div class="card mt-3 shadow-sm">
-            <h5 class="card-header">Gondolas</h5>
-            <div class="card-body">
-             
-              <div class="row">
-
-                <div class="col-12">
-                  <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' @id='enviar_id' @descripcion='traer_descripcion'></gondola-nombre>
-                </div>   
+	<div class="container mt-3">
+    <div v-if="$can('gondola.crear')">
+    <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->     
+      <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
+          <div class="col-6">
+            <div class="card shadow border-bottom-primary mb-3">
+              <h5 class="text-center card-header">Gondolas</h5>
+              <div class="card-body">            
+                <div class="row">
                   <div class="col-12">
+                    <div class="mb-3">
+                      <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' @seccion="enviar_seccion" @id='enviar_id' @descripcion='traer_descripcion'></gondola-nombre>
+                    </div>
 
-                       <hr>
+                    <div class="invalid-feedback">{{messageInvalidSeccion}}</div>
+                    <div class="mb-3">
+                      <label for="exampleFormControlTextarea1" class="form-label">Descripción</label>
+                      <input v-model="descripcionTela" type="text" class="form-control form-control-sm" id="exampleFormControlTextarea1" v-bind:class="{ 'is-invalid': validarDescripcion}">
+                    </div>
 
-                         <div class="form-group">
-                              <label for="exampleFormControlTextarea1">Descripcion</label>
-                          <textarea v-model="descripcionTela" class="form-control" id="exampleFormControlTextarea1" rows="3" v-bind:class="{ 'is-invalid': validarDescripcion }" ></textarea>
-                          </div>
-                  </div>
-                      <hr>
-                        <div  class="col-3 mt-3 text-right">
-                           <button v-on:click="nuevaGondola" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+
+                    <div class="mb-3">
+                      <label for="validationTooltip01">Seleccionar Sección</label>
+                      <select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+                        <option value="null" selected>Seleccionar</option>
+                        <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
+                      </select>
+                    </div>
+
+
+                      <div class="row">
+                        <div class="col" align="left">
+                          <button v-on:click="nuevaGondola" type="submit" class="btn btn-primary">Nuevo (F2)</button>
                         </div>
-
-                       <div class="col-4">
-                         
-                          
-                        <div v-if='guardar' class="col-3 mt-3 text-right">
-                           <button v-on:click="guardarGondola" type="submit" class="btn btn-primary">Guardar(F3)</button>
+                        <div class="col" align="center">
+                          <div v-if='guardar'>
+                          <button v-on:click="guardarGondola" type="submit" class="btn btn-success" >Guardar (F3)</button>
                         </div>
-                         <div v-else class="col-3 mt-3 text-right">
-                           <button v-on:click="guardarGondola" type="submit" class="btn btn-warning">Actualizar(F3)</button>
+                        <div v-else>
+                          <button v-on:click="guardarGondola" type="submit" class="btn btn-warning">Actualizar (F3)</button>
                         </div>
-                    
-
-                   </div>
-                          <div  class="col-3 mt-3 text-right">
-                           <button v-on:click="eliminarGondola" type="submit" class="btn btn-danger">Eliminar(F6)</button>
                         </div>
-
+                        <div class="col" align="right">
+                          <button v-on:click="eliminarGondola" type="submit" class="btn btn-danger">Eliminar (F6)</button>
+                        </div>
+                             
+                      </div>
+                  </div>   
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-       </div>
-
+    </div>
+    <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
   </div>
-
-  <!-- ------------------------------------------------------------------------ -->
-
-  <div v-else>
-    <cuatrocientos-cuatro></cuatrocientos-cuatro>
-  </div>
-
-  <!-- ------------------------------------------------------------------------ -->
-
-</div>
-
 </template>
 <script>
 	 export default {
@@ -99,6 +86,10 @@
           validarCheck:false,
           descripcionTela:"",
           deshabilitar:false,
+          validarSeccion: false,
+          secciones: [],
+          messageInvalidSeccion: '',
+          selectedSeccion:"null"
         }
       }, 
       methods: {
@@ -123,9 +114,9 @@
           let me=this;
         Common.nuevaGondolaCommon().then(data => {
               me.nombreGondola =data.Gondola[0].CODIGO+1;
+
               me.guardar = true;    
               });
-         me.limpiar();
         },
          traer_descuento(data){
          this.descuento=data;
@@ -144,15 +135,23 @@
            
         },
         enviar_id(id){
-
+          
           this.idPermiso=id;
+        },
+        enviar_seccion(data){
+
+          this.selectedSeccion=data;
         },
         limpiar(){
          
           let me =this;
-          me.nombreGondola="";
           me.descripcionTela="";
+          me.selectedSeccion="null";
+          me.$refs.componente_textbox_Gondola.recargar();
+          me.guardar= true;
+          me.nuevaGondola();
         },
+
         timepicker(){
           let me=this;
            $(function(){
@@ -182,7 +181,6 @@
              
              } 
              if(me.descripcionTela===""){
-              
               me.validarDescripcion=true;
               return;
              } else {
@@ -192,7 +190,9 @@
              var data = {
               Codigo:me.nombreGondola,
               Descripcion:me.descripcionTela,
-              Existe:me.existeTela,
+              SeccionGuardar:me.selectedSeccion,
+              Existe:me.existeTela
+
              }
 
               Common.guardarGondolaCommon(data).then(data => {
@@ -217,6 +217,7 @@
                 this.mensaje = err;
               });
               me.limpiar();
+              me.$refs.componente_textbox_Gondola.recargar();
       	},
                 eliminarGondola(){
 
@@ -245,11 +246,11 @@
                }else{
                     Swal.fire(
                      'Error!',
-                     'Este codigo de Gondola no existe o ya contiene productos registrados!!!',
+                     data.statusText,
                      'warning'
                   )
                }
-             me.$refs.componente_textbox_Gondola.recargar();
+             
                 
               }).catch((err) => {
                 console.log(err);
@@ -258,6 +259,7 @@
               });
               
               me.limpiar();
+              me.$refs.componente_textbox_Gondola.recargar();
         },
        Accesos(){
         let me =this;
@@ -283,12 +285,20 @@
 
          }
           
-        }
+        },
+      BusquedaSeccion(){
+        axios.get('busquedas/').then((response) => {
+          this.secciones = response.data.seccion;
+
+        });
+      }
          
        },
         mounted() {
 
           let me=this;
+          this.BusquedaSeccion();
+          this.nuevaGondola();
     hotkeys('f2', function(event, handler){
 
   event.preventDefault() 
