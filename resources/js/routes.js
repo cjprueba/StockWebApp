@@ -262,7 +262,6 @@ export default new Router({
 		},
 		{
 			path: '/ct2',
-			name: 'cotizacionCrear',
 			component: require('./components/cotizacion/CotizacionMostrar.vue').default
 		},
 		{

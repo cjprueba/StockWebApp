@@ -74,14 +74,18 @@
 			                                <!-- <li class="nav-item">
 			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>aria-controls="movivmientos" aria-selected="true" v-on:click="obtenerMovimientosProductos" :selected="seleccion.movimientos"
 			                                </li> -->
-			                                <li class="nav-item">
+			                                <!-- <li class="nav-item">
 			                                    <a class="nav-link" id="ubicacion-tab" data-toggle="tab" href="#ubicacion" role="tab" aria-controls="ubicacion" aria-selected="true" v-on:click="obtenerUbicacion">Ubicación</a>
-			                                </li>
+			                                </li> -->
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
 			                                </li>
 			                                <li class="nav-item">
 			                                    <a class="nav-link" id="movimientos-tab" data-toggle="tab" href="#movimientos" role="tab"  aria-controls="movimientos" aria-selected="true" v-on:click="obtenerMovimientosProductos">Movimientos</a>
+			                                </li>
+
+			                                <li class="nav-item">
+			                                    <a class="nav-link" id="inventarios-tab" data-toggle="tab" href="#inventarios" role="tab" aria-controls="inventarios" aria-selected="true" v-on:click="obtenerInventario">Inventarios</a>
 			                                </li>
 			                            </ul>
 			                            <div class="row">
@@ -389,7 +393,7 @@
 						                            </div>
 
 						                            
-						                            <div class="tab-pane fade show " id="ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
+						                            <!-- <div class="tab-pane fade show " id="ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
 
 						                            	<div v-if="loading.ubicacion" class="d-flex justify-content-center">
 														    <div class="spinner-grow" role="status" aria-hidden="true"></div>
@@ -456,7 +460,8 @@
 																	  <font-awesome-icon icon="info-circle" /> No hay ubicaciones designadas
 																	</div>
 																</div>
-						                            </div>
+						                            </div> -->
+
 
 							                        <div class="tab-pane fade" id="movimientos" role="tabpanel" aria-labelledby="movimientos-tab">
 
@@ -652,6 +657,48 @@
 														 </div>
 														</div>
 							                        </div>
+
+						                            <div class="tab-pane fade" id="inventarios" role="tabpanel" aria-labelledby="inventarios-tab">
+
+							                        	<div v-if="loading.inventarios" class="d-flex justify-content-center">
+														    <div class="spinner-grow" role="status" aria-hidden="true"></div>
+														</div>
+
+														<div v-if="loading.inventarios === false">
+						                                  <table class="table" v-if="inventarios.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">ID</th>
+																    <th scope="col">OBSERVACIÓN</th>
+																    <th scope="col">MOTIVO</th>
+																    <th scope="col">GONDOLA</th>
+																    <th scope="col">CONTEO</th>
+																    <th scope="col">STOCK</th>
+																    <th scope="col">FECHA</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(inventario, index) in inventarios" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <td>{{inventario.ID}}</td>
+																    <td>{{inventario.OBSERVACION}}</td>
+																    <td>{{inventario.MOTIVO}}</td>
+																    <td>{{inventario.GONDOLA}}</td>
+																    <td>{{inventario.CONTEO}}</td>
+																    <td>{{inventario.STOCK}}</td>
+																    <td>{{inventario.FECHA}}</td>
+																</tr>
+															</tbody>
+														  </table>
+
+														  <div v-if="inventarios.length === 0">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay inventarios
+															</div>
+														  </div>
+														</div>
+						                            </div>
 						                        </div>
 						                    </div>
 			                            </div>	
@@ -751,7 +798,8 @@
           		lotes: false,
           		gondolas: false,
           		ubicacion: false,
-          		movimientos: false
+          		movimientos: false,
+          		inventario: false
           	}, ubicacion: {
           		SHELF: '', 
           		LINE: '',
@@ -759,6 +807,14 @@
           		OCCUPATION: '',
           		WAY: '',
           		MAIN_CATEGORY: ''
+          	}, inventarios: {
+          		CONTEO: '',
+          		FECHA: '',
+          		GONDOLA: '',
+          		ID: '', 
+          		MOTIVO: '',
+          		OBSERVACION: '',
+          		STOCK: ''
           	},
           	ventas: {
           		CODIGO: '',
@@ -961,8 +1017,26 @@
 
       		// ------------------------------------------------------------------------
 
-      	},
-      	obtenerMovimientosProductos(){
+      	}, obtenerInventario(){
+
+      		let me = this;
+      		me.loading.inventarios = true;
+
+      		// ------------------------------------------------------------------------
+
+      		// LLAMAR DATOS 
+
+      		Common.obtenerInventarioCommon(me.codigo).then(data => {
+
+      			me.loading.inventarios = false;
+           		me.inventarios = data.inventario;
+
+           	}).catch((err) => {
+           		
+           	});
+
+
+      	}, obtenerMovimientosProductos(){
 
       		// ------------------------------------------------------------------------
 
