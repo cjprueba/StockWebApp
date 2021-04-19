@@ -360,6 +360,7 @@ Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
 Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 Route::post('productoBuscar', 'ProductoController@buscarProducto');
+Route::post('producto/inventario', 'ProductoController@inventario');
 
 /* -------------------------------------------------------------------------- */
 
