@@ -664,8 +664,7 @@
 														    <div class="spinner-grow" role="status" aria-hidden="true"></div>
 														</div>
 
-														<div v-if="loading.inventarios === false">
-						                                  <table class="table" v-if="inventarios.length > 0">
+						                                <table class="table" v-if="loading.inventarios === false && inventarios.length > 0">
 															<thead>
 																<tr>
 																    <th scope="col">#</th>
@@ -690,15 +689,14 @@
 																    <td>{{inventario.FECHA}}</td>
 																</tr>
 															</tbody>
-														  </table>
+														</table>
 
-														  <div v-if="inventarios.length === 0">
+														<div v-if="loading.inventarios === false && inventarios.length === 0">
 															<div class="alert alert-primary" role="alert">
 																<font-awesome-icon icon="info-circle" /> No hay inventarios
 															</div>
-														  </div>
 														</div>
-						                            </div>
+													</div>
 						                        </div>
 						                    </div>
 			                            </div>	
@@ -799,7 +797,7 @@
           		gondolas: false,
           		ubicacion: false,
           		movimientos: false,
-          		inventario: false
+          		inventarios: false
           	}, ubicacion: {
           		SHELF: '', 
           		LINE: '',
@@ -1027,14 +1025,12 @@
       		// LLAMAR DATOS 
 
       		Common.obtenerInventarioCommon(me.codigo).then(data => {
-
       			me.loading.inventarios = false;
            		me.inventarios = data.inventario;
 
            	}).catch((err) => {
            		
            	});
-
 
       	}, obtenerMovimientosProductos(){
 
