@@ -1154,8 +1154,14 @@ class Inventario extends Model
                         foreach ($lote["datos"] as $key => $valor) {
                             Lote_tiene_ConteoDet::guardar_referencia($value->ID, $valor["id"] , 2, $user->id, $valor["cantidad"]);
                         }
-                    } else if ((float)$stock['stock'] < (float)$value->CONTEO) {
-                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$value->STOCK), 0, 5, 'INV-'.$id, 'N/A');
+                    } else if ((float)$value->STOCK < (float)$value->CONTEO) {
+                        $costo=Stock::Select(DB::raw('IFNULL((sum(lotes.costo)/count(lotes.id)),0) AS COSTO'))
+                        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                        ->where('lotes.costo','<>',0)
+                        ->where('LOTES.COD_PROD','=',$value->COD_PROD)
+                        ->get();
+
+                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$value->STOCK), $costo[0]->COSTO, 5, 'INV-'.$id, 'N/A');
                         Lote_tiene_ConteoDet::guardar_referencia($value->ID, $lote["id"] , 1, $user->id, ((float)$value->CONTEO - (float)$value->STOCK));
                     }
             /*    }*/
