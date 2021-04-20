@@ -254,6 +254,20 @@ class ProductoController extends Controller
 
     }
 	
+    public function inventario(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+        $productos = Producto::inventario($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 	public function existe(Request $request)
     {
 
