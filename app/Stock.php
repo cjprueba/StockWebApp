@@ -494,7 +494,20 @@ class Stock extends Model
                     NCL.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
                         AND NCL.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
                         AND NOTA_CREDITO.PROCESADO <> 2 group by ncl.ID_LOTE ),
-            0) AS CANTIDAD_DEVUELTA '))
+            0) AS CANTIDAD_DEVUELTA, 
+               IFNULL((SELECT 
+                    sum(NCLTD.CANTIDAD)
+                FROM
+                    NOTA_CREDITO_LOTE_TIENE_DESCUENTO AS NCLTD
+                        LEFT JOIN
+                    NOTA_CREDITO_DET ON NOTA_CREDITO_DET.ID = NCLTD.FK_NOTA_CREDITO_DET
+                        LEFT JOIN
+                    NOTA_CREDITO ON NOTA_CREDITO.ID = NOTA_CREDITO_DET.FK_NOTA_CREDITO
+                WHERE
+                    NCLTD.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
+                        AND NCLTD.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
+                        AND NOTA_CREDITO.PROCESADO <> 2 group by NCLTD.ID_LOTE ),
+            0) AS CANTIDAD_DEVUELTA_DESCUENTO '))
         	->leftJoin('nota_credito_tiene_lote', function($join){
                                 $join->on('nota_credito_tiene_lote.FK_VENTA_DET', '=', 'ventasdet_tiene_lotes.ID_VENTAS_DET')
                                      ->on('nota_credito_tiene_lote.ID_LOTE', '=', 'ventasdet_tiene_lotes.ID_LOTE');
@@ -512,7 +525,7 @@ class Stock extends Model
 
         		// RESTAR LA CANTIDAD QUE YA SE DEVOLVIO 
 
-        		$value->CANTIDAD = $value->CANTIDAD - $value->CANTIDAD_DEVUELTA;
+        		$value->CANTIDAD = $value->CANTIDAD - ($value->CANTIDAD_DEVUELTA+$value->CANTIDAD_DEVUELTA_DESCUENTO);
 
         		/*  --------------------------------------------------------------------------------- */
         		

@@ -51,7 +51,7 @@ class NotaCredito extends Model
         $razon_social = '';
         $ruc = '';
 
-        if ($tipo === '1'){
+        if ($tipo === '1' || $tipo === '3'){
 
 
 	        /*  --------------------------------------------------------------------------------- */
@@ -62,7 +62,7 @@ class NotaCredito extends Model
 
 	    		// OBTENER PRECIOS DE LA VENTA DETALLE
 
-	    		$dato = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.BASE5, VENTASDET.BASE10, VENTASDET.EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, VENTAS.MONEDA, PRODUCTOS.IMPUESTO, MONEDAS.CANDEC, VENTAS.CLIENTE, CLIENTES.NOMBRE, CLIENTES.RAZON_SOCIAL, CLIENTES.RUC, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
+	    		$dato = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.BASE5, VENTASDET.BASE10, IFNULL(VENTASDET.EXENTA,0) as EXENTA, VENTASDET.GRAVADA, VENTASDET.IVA, VENTASDET.PRECIO_UNIT, VENTASDET.PRECIO, VENTASDET.DESCRIPCION, VENTAS.MONEDA, PRODUCTOS.IMPUESTO, MONEDAS.CANDEC, VENTAS.CLIENTE, CLIENTES.NOMBRE, CLIENTES.RAZON_SOCIAL, CLIENTES.RUC, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
 	    		->leftJoin('VENTAS', function($join){
 	                        $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
 	                             ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
@@ -320,6 +320,7 @@ class NotaCredito extends Model
 
 	    	$user = auth()->user();
 
+
 	    	/*  --------------------------------------------------------------------------------- */
 	    	
 	    	$data = $data['datos'];
@@ -384,6 +385,8 @@ class NotaCredito extends Model
 	    		'TOTAL' => $data['total'],
 	    		'BASE5' => $data['base5'],
 	    		'BASE10' => $data['base10'],
+	    		'DESCUENTO'=> $data['descuento'],
+	    		'DESCUENTO_MONTO'=>$data['descuento_monto'],
 	    		// 'ENVIADO' =>,
 	    		// 'DEVUELTO' =>,
 	    		'NUMERO_FACTURA' => $data['numero_factura'],
@@ -477,6 +480,46 @@ class NotaCredito extends Model
 			        // DEVOLVER STOCK 
 
 			        Stock::sumar_stock_producto_nota_credito($value['CODIGO'], $value['CANTIDAD'], $value['ID'], $id_nota_credito_det);
+
+			        /*  --------------------------------------------------------------------------------- */
+
+		    	}
+
+		    }
+		    if ($data['tipo'] === '3') {
+
+		    	foreach ($productos as $key => $value) {
+
+		    		/*  --------------------------------------------------------------------------------- */
+
+		    		// INSERTAR TRANSFERENCIA DET 
+
+		    		$id_nota_credito_det = NotaCreditoDet::insertGetId([
+			         	'FK_VENTASDET' => $value['ID'],
+			         	'FK_NOTA_CREDITO' => $id_nota_credito,   
+			         	'CODIGO_PROD' => $value['CODIGO'], 
+			         	'DESCRIPCION' => $value['DESCRIPCION'], 
+			            'CANTIDAD' => $value['CANTIDAD'], 
+			            'GRABADAS' => $value['GRAVADAS'],
+			            'IVA' => $value['IMPUESTO'],
+			            'EXENTAS' => $value['EXENTAS'],
+			            'TOTAL' => $value['TOTAL'], 
+			            'PRECIO' => $value['PRECIO_UNIT'], 
+			            'BASE5' => $value['BASE5'],
+			            'BASE10' =>  $value['BASE10'],
+			            //'TIVA' => '', 
+			            'USERALTAS' => $user->name, 
+			            'FECALTAS' => $dia, 
+			            'HORALTAS' => $hora, 
+			            'ID_SUCURSAL' => $user->id_sucursal, 
+			            ]
+			        );
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        // GUARDAR REFERENCIA PARA NO PODER DEVOLVER
+
+			        NotaCredito::guardar_referencia_producto_descuento_lote($value['CODIGO'], $value['CANTIDAD'], $value['ID'], $id_nota_credito_det);
 
 			        /*  --------------------------------------------------------------------------------- */
 
@@ -617,6 +660,7 @@ class NotaCredito extends Model
         // OBTENER DATOS DE CABECERA 
 
         $nota_credito = NotaCredito::mostrar_cabecera($dato)["data"];
+
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -652,8 +696,19 @@ class NotaCredito extends Model
         $c_rows = 0;
         $contado_x = '';
         $credito_x = '';
-        $c_rows_array = count($nota_credito_det);
-        $c_filas_total = count($nota_credito_det);
+
+        if($nota_credito->DESCUENTO>0){
+         $descuento_row=round(count($nota_credito_det)/8);
+
+         $c_rows_array = count($nota_credito_det);
+         $c_filas_total = count($nota_credito_det);
+
+        }else{
+         $c_rows_array = count($nota_credito_det);
+         $c_filas_total = count($nota_credito_det);
+        }
+      
+        
         $codigo = $nota_credito->ID;
         $cliente = $nota_credito->CLIENTE;
         $direccion = $nota_credito->DIRECCION;
@@ -664,6 +719,7 @@ class NotaCredito extends Model
         $numero_factura=$nota_credito->NUMERO_FACTURA;
         $fk_venta=$nota_credito->FK_VENTA;
         $nombre = 'Nota_Credito'.$codigo.'_'.time().'';
+        $precio_unit=0;
         $articulos = [];
         $cantidad = 0;
         $exentas = 0;
@@ -730,12 +786,36 @@ class NotaCredito extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
+
             
             if ($value["MONEDA"] <> 1) {
 
                 /*  --------------------------------------------------------------------------------- */
+                if($nota_credito->DESCUENTO>0){
+                 
 
-                // PRECIO 
+                /*$precio_unit=$precio_unit+ $articulos[$c_rows]["precio"];*/
+                /*  --------------------------------------------------------------------------------- */
+
+                // TOTAL 
+
+                $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"],"FK_VENTA"=>$fk_venta]);
+                
+
+                
+                // SI NO ENCUENTRA COTIZACION RETORNAR
+
+                if ($cotizacion["response"] === false) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    exit;
+                }
+                $articulos[$c_rows]["precio"] = $cotizacion["valor"];
+                $articulos[$c_rows]['total']= (Common::formato_precio((Common::calculo_porcentaje_descuentos(['PORCENTAJE_DESCUENTO'=>$nota_credito->DESCUENTO, 'PRECIO_PRODUCTO'=>Common::quitar_coma($articulos[$c_rows]["precio"], $candec), 'CANTIDAD'=>$cantidad])['DESCUENTO']),$candec));
+
+               
+                $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            }else{
+            	// PRECIO 
                 
                 $cotizacion = Cotizacion::CALMONED(['monedaProducto' => $monedaNotaCredito, 'monedaSistema' => 1, 'precio' => Common::quitar_coma($value["PRECIO_UNIT"], 2), 'decSistema' => 0, 'tab_unica' => $tab_unica, "id_sucursal" => $user["id_sucursal"],"FK_VENTA"=>$fk_venta]);
 
@@ -747,7 +827,9 @@ class NotaCredito extends Model
                 }
 
                 $articulos[$c_rows]["precio"] = $cotizacion["valor"];
+                 
 
+                /*$precio_unit=$precio_unit+ $articulos[$c_rows]["precio"];*/
                 /*  --------------------------------------------------------------------------------- */
 
                 // TOTAL 
@@ -762,18 +844,31 @@ class NotaCredito extends Model
                     exit;
                 }
 
-                $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+               
                 $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            }
+                
 
                 /*  --------------------------------------------------------------------------------- */
 
             } else {
+            	if($nota_credito->DESCUENTO>0){
+            	 $articulos[$c_rows]["precio"] = $value["PRECIO"];
+                 $articulos[$c_rows]["total"] = (Common::formato_precio((Common::calculo_porcentaje_descuentos(['PORCENTAJE_DESCUENTO'=>$nota_credito->DESCUENTO, 'PRECIO_PRODUCTO'=>Common::quitar_coma($articulos[$c_rows]["precio"], $candec), 'CANTIDAD'=>$cantidad])['DESCUENTO']),$candec));
+               
+                 $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+                 $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
+            	}else{
+            	 $articulos[$c_rows]["precio"] = $value["PRECIO_UNIT"];
+                 $articulos[$c_rows]["total"] = $value["PRECIO"];
+               
+                 $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
+                 $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+            	}
                 
-                $articulos[$c_rows]["precio"] = $value["PRECIO_UNIT"];
-                $articulos[$c_rows]["total"] = $value["PRECIO"];
-                $exentas = $exentas + Common::quitar_coma($value["EXENTAS"], $candec);
-                $total = $total + Common::quitar_coma($value["PRECIO"], $candec);
+                
             }
+
 
             
             /*  --------------------------------------------------------------------------------- */
@@ -782,17 +877,26 @@ class NotaCredito extends Model
 
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
-            $articulos[$c_rows]["descripcion"] = substr('DEVOLUCION '.$value["DESCRIPCION"], 0,30);
+            if($nota_credito->DESCUENTO>0){
+            	 $articulos[$c_rows]["descripcion"] = substr('DESCUENTO '.$nota_credito->DESCUENTO.'% '.$value["DESCRIPCION"], 0,35);
+
+            }else{
+            	 $articulos[$c_rows]["descripcion"] = substr('DEVOLUCION '.$value["DESCRIPCION"], 0,35);
+            }
+          
             $cantidad = $cantidad + $value["CANTIDAD"];
 
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI EXISTE EXENTAS 
-
+             
             if ($value["EXENTAS"] > 0) {
+
                 $articulos[$c_rows]["exentas"] = $articulos[$c_rows]["total"];
+                 $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
             } else {
                 $articulos[$c_rows]["exentas"] = '';
+
             }
             
             /*  --------------------------------------------------------------------------------- */
@@ -815,6 +919,7 @@ class NotaCredito extends Model
             /*  --------------------------------------------------------------------------------- */
             
             // CONTAR CANTIDAD DE FILAS DE HOJAS 
+          /*  var_dump($articulos[$c_rows]);*/
 
             $c_rows = $c_rows + 1;    
             
@@ -825,7 +930,10 @@ class NotaCredito extends Model
             $c = $c + 1;
 
             /*  --------------------------------------------------------------------------------- */
-
+            //SI TIENE DESCUENTO ENTONCES UNA FILA ES PARA MOSTRAR EL DESCUENTO
+           
+         
+				/*  --------------------------------------------------------------------------------- */
             // SI CANTIDAD DE FILAS ES IGUAL A 10 ENTONCES CREAR PAGINA 
 
             if ($c_rows === 8){
@@ -882,6 +990,7 @@ class NotaCredito extends Model
                 $base5 = 0;
                 $base10 = 0;
                 $total = 0;
+                $precio_unit=0;
                 $data['articulos'] = [];
                 $articulos = [];
 
@@ -892,10 +1001,11 @@ class NotaCredito extends Model
                 /*  --------------------------------------------------------------------------------- */
 
             } else if ($c_rows_array < 8 && $c_filas_total === $c) {
-               
+              
                 /*  --------------------------------------------------------------------------------- */
-                
+               
                 // AGREGAR ARTICULOS 
+                
                 
                 $data['articulos'] = $articulos;
 
@@ -970,7 +1080,8 @@ class NotaCredito extends Model
                         NOTA_CREDITO_DET.TOTAL AS PRECIO,
                         NOTA_CREDITO.MONEDA,
                         NOTA_CREDITO_DET.BASE5,
-                        NOTA_CREDITO_DET.BASE10'
+                        NOTA_CREDITO_DET.BASE10,
+                        NOTA_CREDITO_DET.EXENTAS'
                     ))
         ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
         ->where('NOTA_CREDITO.ID','=', $id)
@@ -1018,6 +1129,7 @@ class NotaCredito extends Model
                         NOTA_CREDITO.FECALTAS, 
                         NOTA_CREDITO.MONEDA,
                         NOTA_CREDITO.TIPO,
+                        IFNULL(NOTA_CREDITO.DESCUENTO,0) AS DESCUENTO,
                         CLIENTES.RAZON_SOCIAL,
                         CLIENTES.DIRECCION,
                         CLIENTES.TELEFONO,
@@ -1387,6 +1499,8 @@ class NotaCredito extends Model
                  	$nestedData['TIPO'] = 'POR DEVOLUCIÓN';
                 }else if($post->TIPO==2){
                  	$nestedData['TIPO'] = 'POR DESCUENTO';
+                }else if($post->TIPO==3){
+                	$nestedData['TIPO']= 'POR DESCUENTO DE MERCADERIA';
                 }
 
                 $nestedData['CLIENTE'] = $post->NOMBRE;
@@ -1456,52 +1570,59 @@ class NotaCredito extends Model
  			//DEFINIR LA VARIABLE PARA MOSTRAR O NO EL MENSAJE
  			$control_seleccionador=false;
  			/*  --------------------------------------------------------------------------------- */
+ 			$nota_credito=NotaCredito::Select(DB::raw('TIPO'))->where('ID','=',$data['id'])->get();
+ 			if($nota_credito[0]['TIPO']===1){
+ 				 //OBTENER LOS VALORES DE LA NOTA DE CREDITO SELECCIONADA AGRUPADA POR CANTIDAD Y POR LOTE
 
+			     $valores =  NotaCreditoDet::select(DB::raw('NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, 
+				            	NOTA_CREDITO_TIENE_LOTE.CANTIDAD AS CANTIDAD, 
+				            	NOTA_CREDITO_DET.FK_VENTASDET, 
+				            	NOTA_CREDITO_TIENE_LOTE.ID_LOTE'))
+							->leftjoin('NOTA_CREDITO_TIENE_LOTE','NOTA_CREDITO_TIENE_LOTE.FK_NOTA_CREDITO_DET','=','NOTA_CREDITO_DET.ID')
+							->leftjoin('NOTA_CREDITO','NOTA_CREDITO.ID','=','NOTA_CREDITO_DET.FK_NOTA_CREDITO')
+			            	->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+			            	->where('NOTA_CREDITO.ID','=',$data['id'])
+			            	->groupBy('NOTA_CREDITO_TIENE_LOTE.ID_LOTE')
+			            	->orderBy('NOTA_CREDITO_DET.CODIGO_PROD')
+				            ->get();
+			     /*  --------------------------------------------------------------------------------- */
+							
+				 //RECORRER LOS VALORES PARA LA VERIFICACION DEL STOCK DEL LOTE			
+				 foreach ($valores as $key => $value) {
+					/*  --------------------------------------------------------------------------------- */
+					//VERIFICAR LA RESTA ANTES DE REALIZARLA
+				    $control_stock=Stock::verificar_resta($value->ID_LOTE,$value->CANTIDAD);
 
- 			//OBTENER LOS VALORES DE LA NOTA DE CREDITO SELECCIONADA AGRUPADA POR CANTIDAD Y POR LOTE
+				    /*  --------------------------------------------------------------------------------- */
+				    //SI LA RESTA ES NEGATIVA ENTONCES ENTRA
+				    if($control_stock<0){
+				    	/*  --------------------------------------------------------------------------------- */
+				    	//CAMBIO DE LA VARIABLE PARA MOSTRAR EL MENSAJE EN ESPECIFICO
+				        $control_seleccionador=true;
+				        /*  --------------------------------------------------------------------------------- */
+				        //ALMACENAR EN LA VARIABLE STATUSTEXT LOS CODIGOS QUE YA NO CUMPLEN LA CONDICION PARA ANULAR LA NOTA DE CREDITO
+				        $statusText=$statusText.'El Codigo : '.$value->COD_PROD. ' Id lote : '.$value->ID_LOTE.'<br>';
+				           		
+				    }
+				 }
+				  /*  --------------------------------------------------------------------------------- */
+				  //SI CONTROL SELECCIONADOR ES VERDADERO ENTONCES MUESTRA EL MENSAJE Y TERMINA LA EJECUCION DEL PROGRAMA
 
-		    $valores =  NotaCreditoDet::select(DB::raw('NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD, 
-			            	NOTA_CREDITO_TIENE_LOTE.CANTIDAD AS CANTIDAD, 
-			            	NOTA_CREDITO_DET.FK_VENTASDET, 
-			            	NOTA_CREDITO_TIENE_LOTE.ID_LOTE'))
-						->leftjoin('NOTA_CREDITO_TIENE_LOTE','NOTA_CREDITO_TIENE_LOTE.FK_NOTA_CREDITO_DET','=','NOTA_CREDITO_DET.ID')
-						->leftjoin('NOTA_CREDITO','NOTA_CREDITO.ID','=','NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-		            	->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
-		            	->where('NOTA_CREDITO.ID','=',$data['id'])
-		            	->groupBy('NOTA_CREDITO_TIENE_LOTE.ID_LOTE')
-		            	->orderBy('NOTA_CREDITO_DET.CODIGO_PROD')
-			            ->get();
-		    /*  --------------------------------------------------------------------------------- */
-						
-			//RECORRER LOS VALORES PARA LA VERIFICACION DEL STOCK DEL LOTE			
-			foreach ($valores as $key => $value) {
-				/*  --------------------------------------------------------------------------------- */
-				//VERIFICAR LA RESTA ANTES DE REALIZARLA
-			    $control_stock=Stock::verificar_resta($value->ID_LOTE,$value->CANTIDAD);
+				 if($control_seleccionador){
+					/*  --------------------------------------------------------------------------------- */
+					//CONCATENA UNA ULTIMA VEZ LA VARIABLE STATUS TEXT CON EL MENSAJE FINAL A MOSTRAR
+					$statusText=$statusText.' Ya tienen movimientos en los lotes seleccionados, Por ende es imposible realizar la cancelacion de la nota de credito';
+					/*  --------------------------------------------------------------------------------- */
+					//RETORNA EL VALOR FALSO CON EL STATUSTEXT
+					 return ['response' => false, 'statusText' => '<br>'.$statusText];
+				 }
+				    foreach ($valores as $key => $value) {
+						Stock::restar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
+				          # code...
+					}
+ 			}
 
-			    /*  --------------------------------------------------------------------------------- */
-			    //SI LA RESTA ES NEGATIVA ENTONCES ENTRA
-			    if($control_stock<0){
-			    	/*  --------------------------------------------------------------------------------- */
-			    	//CAMBIO DE LA VARIABLE PARA MOSTRAR EL MENSAJE EN ESPECIFICO
-			        $control_seleccionador=true;
-			        /*  --------------------------------------------------------------------------------- */
-			        //ALMACENAR EN LA VARIABLE STATUSTEXT LOS CODIGOS QUE YA NO CUMPLEN LA CONDICION PARA ANULAR LA NOTA DE CREDITO
-			        $statusText=$statusText.'El Codigo : '.$value->COD_PROD. ' Id lote : '.$value->ID_LOTE.'<br>';
-			           		
-			    }
-			}
-			/*  --------------------------------------------------------------------------------- */
-			//SI CONTROL SELECCIONADOR ES VERDADERO ENTONCES MUESTRA EL MENSAJE Y TERMINA LA EJECUCION DEL PROGRAMA
-
-			if($control_seleccionador){
-				/*  --------------------------------------------------------------------------------- */
-				//CONCATENA UNA ULTIMA VEZ LA VARIABLE STATUS TEXT CON EL MENSAJE FINAL A MOSTRAR
-				$statusText=$statusText.' Ya tienen movimientos en los lotes seleccionados, Por ende es imposible realizar la cancelacion de la nota de credito';
-				/*  --------------------------------------------------------------------------------- */
-				//RETORNA EL VALOR FALSO CON EL STATUSTEXT
-				 return ['response' => false, 'statusText' => '<br>'.$statusText];
-			}
+ 			
 
 			/*  --------------------------------------------------------------------------------- */
 			//ACTUALIZAR EL PROCESO DE NOTA A CREDITO PROCESADO EN 2 PARA REFERENCIAR A CANCELADO
@@ -1509,10 +1630,7 @@ class NotaCredito extends Model
 		     ->where('ID_SUCURSAL','=', $user->id_sucursal)
 		     ->update(['PROCESADO' => 2]);
 
-			foreach ($valores as $key => $value) {
-				Stock::restar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
-				# code...
-			}
+
 			/*  --------------------------------------------------------------------------------- */
 			// GUARDA UN LOG DE INFORMACION
 		    Log::info('Nota de credito: Éxito al cancelar.', ['Nota de credito id:' => $data['id']]);
@@ -1700,6 +1818,157 @@ class NotaCredito extends Model
         // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
 
        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public static function guardar_referencia_producto_descuento_lote($codigo, $cantidad, $id_ventas_det, $id_nota_credito)
+    {
+    	//ESTA FUNCION SE CREA PARA NO PUEDAN DEVOLVER PRODUCTOS QUE TIENEN DESCUENTO YA REALIZADO POR NOTA DE CREDITO , SERIA UNA DEVOLUCION SIN QUE EL STOCK ENTRE EN LA TIENDA NUEVAMENTE.
+    	/*  --------------------------------------------------------------------------------- */
+
+    	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+    	$user = auth()->user();
+
+    	/*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+    	$diaHora = date('Y-m-d H:i:s');
+    	$dia = date('Y-m-d');
+    	$hora = date('H:i:s');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LOTE NO ES NULO 
+
+        if ($id_ventas_det === NULL) {
+            $id_ventas_det = 0;
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        if ($id_ventas_det > 0) {
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	$lotes_a_no_devolver = VentasDetTieneLotes::select(DB::raw('ventasdet_tiene_lotes.ID_LOTE, ventasdet_tiene_lotes.CANTIDAD, IFNULL((SELECT 
+                    sum(NCL.CANTIDAD)
+                FROM
+                    NOTA_CREDITO_TIENE_LOTE AS NCL
+                        LEFT JOIN
+                    NOTA_CREDITO_DET ON NOTA_CREDITO_DET.ID = NCL.FK_NOTA_CREDITO_DET
+                        LEFT JOIN
+                    NOTA_CREDITO ON NOTA_CREDITO.ID = NOTA_CREDITO_DET.FK_NOTA_CREDITO
+                WHERE
+                    NCL.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
+                        AND NCL.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
+                        AND NOTA_CREDITO.PROCESADO <> 2 group by ncl.ID_LOTE ),
+            0) AS CANTIDAD_DEVUELTA, 
+               IFNULL((SELECT 
+                    sum(NCLTD.CANTIDAD)
+                FROM
+                    NOTA_CREDITO_LOTE_TIENE_DESCUENTO AS NCLTD
+                        LEFT JOIN
+                    NOTA_CREDITO_DET ON NOTA_CREDITO_DET.ID = NCLTD.FK_NOTA_CREDITO_DET
+                        LEFT JOIN
+                    NOTA_CREDITO ON NOTA_CREDITO.ID = NOTA_CREDITO_DET.FK_NOTA_CREDITO
+                WHERE
+                    NCLTD.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
+                        AND NCLTD.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
+                        AND NOTA_CREDITO.PROCESADO <> 2 group by NCLTD.ID_LOTE ),
+            0) AS CANTIDAD_DEVUELTA_DESCUENTO '))
+	        ->where('ID_VENTAS_DET','=',$id_ventas_det)
+	        ->get();
+
+        	/*  --------------------------------------------------------------------------------- */
+
+        	// SUMAR ID LOTES 
+
+        	foreach ($lotes_a_no_devolver as $key => $value) {
+        		
+        		/*  --------------------------------------------------------------------------------- */
+
+        		// RESTAR LA CANTIDAD QUE YA SE DEVOLVIO 
+
+        		$value->CANTIDAD = $value->CANTIDAD - ($value->CANTIDAD_DEVUELTA+$value->CANTIDAD_DEVUELTA_DESCUENTO);
+
+        		/*  --------------------------------------------------------------------------------- */
+        		
+        		if ($value->CANTIDAD >= $cantidad) {
+
+        			/*  --------------------------------------------------------------------------------- */
+
+        			/*Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $cantidad);*/
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			       /* LoteUser::guardar_referencia($user->id, 3, $value->ID_LOTE, $diaHora);*/
+
+    				/*  --------------------------------------------------------------------------------- */
+
+    				NotaCreditoLoteTieneDescuento::guardar_referencia(
+			            [
+			                'FK_VENTA_DET' => $id_ventas_det,
+			                'FK_NOTA_CREDITO_DET' => $id_nota_credito,
+			                'ID_LOTE' => $value->ID_LOTE,
+			                'CANTIDAD' => $cantidad
+			            ]
+			        );
+
+    				/*  --------------------------------------------------------------------------------- */
+
+    				$cantidad = 0;
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		} else if($value->CANTIDAD > 0) {
+
+        			/*  --------------------------------------------------------------------------------- */
+
+        			/*Stock::where('ID','=', $value->ID_LOTE)
+			        ->increment('CANTIDAD', $value->CANTIDAD);*/
+
+			        /*  --------------------------------------------------------------------------------- */
+
+			        NotaCreditoLoteTieneDescuento::guardar_referencia(
+			            [
+			                'FK_VENTA_DET' => $id_ventas_det,
+			                'FK_NOTA_CREDITO_DET' => $id_nota_credito,
+			                'ID_LOTE' => $value->ID_LOTE,
+			                'CANTIDAD' => $value->CANTIDAD
+			            ]
+			        );
+
+    				/*  --------------------------------------------------------------------------------- */
+
+			        $cantidad = $cantidad - $value->CANTIDAD;
+
+
+			      
+
+    				/*  --------------------------------------------------------------------------------- */
+
+        		}
+
+        		if ($cantidad === 0) {
+        			break;
+        		}
+
+        	}
+
+        	/*  --------------------------------------------------------------------------------- */
+        	
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+
+        return ["response" => true];
 
         /*  --------------------------------------------------------------------------------- */
 
