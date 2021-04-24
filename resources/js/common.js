@@ -338,9 +338,19 @@ function sumarCommon(valor_a, valor_b, candec){
 			// ------------------------------------------------------------------------
 
 			// QUITAR COMAS 
+			if(valor_a===undefined){
+				valor_a = 0;
+			}else{
+				valor_a = quitarComaCommon(valor_a);
+			}
 
-			valor_a = quitarComaCommon(valor_a);
-			valor_b = quitarComaCommon(valor_b);
+			if(valor_b===undefined){
+				valor_b = 0;
+			}else{
+				valor_b = quitarComaCommon(valor_b);
+			}
+			/*valor_a = quitarComaCommon(valor_a);
+			valor_b = quitarComaCommon(valor_b);*/
 
 			// ------------------------------------------------------------------------
 
@@ -6247,6 +6257,53 @@ function obtenerInventarioCommon(codigo){
 			// ------------------------------------------------------------------------
 
 }
+
+function  seleccionarValorCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			var seleccion = 0;
+			console.log(valor_a);console.log(valor_b);
+
+			// ------------------------------------------------------------------------
+
+			// QUITAR COMAS 
+			if(valor_a===undefined){
+				valor_a = 0;
+			}else{
+				valor_a = quitarComaCommon(valor_a);
+			}
+
+			if(valor_b===undefined){
+				valor_b = 0;
+			}else{
+				valor_b = quitarComaCommon(valor_b);
+			}
+			
+			if(parseFloat(valor_a)>0){
+				seleccion=parseFloat(valor_a);
+			}else{
+				seleccion=parseFloat(valor_b);
+			}
+			console.log(seleccion);
+			
+			// ------------------------------------------------------------------------
+
+			// REALIZAR SUMA 
+
+			/*suma = parseFloat(valor_a) + parseFloat(valor_b);*/
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR VALOR
+
+			return darFormatoCommon(seleccion, candec);
+
+			// ------------------------------------------------------------------------
+
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6514,5 +6571,6 @@ export {
 		guardarEmpleadosCommon,
 		eliminarEmpleadosCommon,
 		cancelarNotaCreditoCommon,
-		obtenerInventarioCommon
+		obtenerInventarioCommon,
+		seleccionarValorCommon
 		};
