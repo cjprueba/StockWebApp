@@ -434,21 +434,6 @@
 
       <!-- ------------------------------------------------------------------------------------- -->
 
-      <!-- SECCIONES -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSecciones" aria-expanded="true" aria-controls="collapseSecciones">
-          <font-awesome-icon icon="user-circle" />
-          <span>Secciones</span>
-        </a>
-        <div id="collapseSecciones" class="collapse" aria-labelledby="headingSecciones" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'crearSeccion'}">Crear Seccion</router-link>
-            
-          </div>
-        </div>
-      </li>
 
       <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaquinas" aria-expanded="true" aria-controls="collapseMaquinas">
