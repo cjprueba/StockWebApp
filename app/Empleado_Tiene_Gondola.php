@@ -27,7 +27,7 @@ class Empleado_Tiene_Gondola extends Model
 	    }
 	    catch(Exception $ex){
 	        DB::connection('retail')->rollBack();
-	        Log::info('Gondola Asignar: Error al guardar empleado tiene gondola.', ['EMPLEADO' => $fk_empleado, 'GONDOLAS' => $datos]);
+	        Log::info('Gondola Asignar: Error al modificar empleado tiene gondola.', ['EMPLEADO' => $fk_empleado, 'GONDOLAS' => $datos]);
 	    }
 	}
     public static function modificar_gondola($datos, $fk_empleado){

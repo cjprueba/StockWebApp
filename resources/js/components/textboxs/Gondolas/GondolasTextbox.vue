@@ -32,7 +32,6 @@
                                       <tr>
                                           <th>Codigo</th>
                                           <th>Descripcion</th>
-                                          <th>Seccion</th>
                                       </tr>
                                   </thead>
                                   <tbody>
@@ -52,119 +51,144 @@
 </template>
 <script>
   export default {
-    props: ['nombre','validarGondola'],
-    data(){
-      return {
-          productos: [],
-          roles:[]
-      }
-    }, 
-     
-    methods: {
-      
-      enviarCodigoPadre(nombre,id,descripcion,id_seccion){
+      props: ['nombre','validarGondola'],
+      data(){
+        return {
+            productos: [],
+            roles:[]
+        }
+      }, 
+       
+      methods: {
+        recargar(){
+          var tableGondola = $('#tablaModalGondola').DataTable();   
+       tableGondola.ajax.reload( null, false );
+        },
+       enterGondola(Codigo){
+
+        // ------------------------------------------------------------------------
+           let me =this;
+        // LLAMAR FUNCION PARA FILTRAR PRODUCTOS
+        
+           Common.filtrarGondolasCommon(Codigo).then(data => {
+
+                        if(data.response===true){
+
+                         me.enviarCodigoPadre(Codigo,data.Gondolas[0].CODIGO,data.Gondolas[0].DESCRIPCION);
+        
+
+                         }else{
+                          
+                           me.$emit('nombre_gondola',Codigo);
+                           me.$emit('existe_gondola',false);
+                         }
+                       
+                    })
+
+        // ------------------------------------------------------------------------
+
+      },
+       enviarCodigoPadre(nombre,id,descripcion){
+
         // ------------------------------------------------------------------------
 
         // ENVIAR CODIGO
         this.$emit('nombre_gondola',nombre);
         this.$emit('id', id);
         this.$emit('descripcion', descripcion);
-        this.$emit('seccion', id_seccion);
         this.$emit('existe_gondola',true);
-        // ------------------------------------------------------------------------
-      },
-      enterGondola(Codigo){
-      // ------------------------------------------------------------------------
-         let me =this;
-      // LLAMAR FUNCION PARA FILTRAR PRODUCTOS
-
-      
-         Common.filtrarGondolasCommon(Codigo).then(data => {
-
-                      if(data.response===true){
-
-                       me.enviarCodigoPadre(Codigo,data.Gondolas[0].CODIGO,data.Gondolas[0].DESCRIPCION, data.Gondolas[0].ID_SECCION);
-      
-
-                       }else{
-                        
-                        me.$emit('nombre_gondola',Codigo); 
-                        me.$emit('id', id);
-                        me.$emit('descripcion', descripcion);
-                        me.$emit('seccion', id_seccion);
-                        me.$emit('existe_gondola',false);
-                       }
-                     
-                  })
 
         // ------------------------------------------------------------------------
-      },
 
-      recargar(){
-        var table = $('#tablaModalGondola').DataTable();   
-        table.ajax.reload( null, false );
-      },
+      }, vaciarDevolver(){
 
-    },
-
-
-
-
-    mounted() {          
-      // ------------------------------------------------------------------------
-
-      // INICIAR VARIABLES 
-      let me = this;
-
-      // ------------------------------------------------------------------------
-        
-      
-
-      // INICIAR EL DATATABLE PRODUCTOS MODAL
-       var table= $('#tablaModalGondola').DataTable({
-          "processing": true,
-          "serverSide": true,
-          "destroy":true,
-          "bAutoWidth": true,
-          "select": true,
-          "ajax":{
-                   "data": {
-                      "_token": $('meta[name="csrf-token"]').attr('content')
-                   },
-                   "url": "/gondolasDatatable",
-                   "dataType": "json",
-                   "type": "POST"
-                 },
-          "columns": [
-              { "data": "CODIGO" },
-              { "data": "DESCRIPCION" },
-              { "data": "SECCION" }
-          ]      
-        });
         // ------------------------------------------------------------------------
-                
-        // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
-        $('#tablaModalGondola').on('click', 'tbody tr', function() {
-          // *******************************************************************
-          // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
-          // me.codigo = tableGondola.row(this).data().CODIGO;
-          // me.description = tableGondola.row(this).data().DESCRIPCION; 
-          // console.log(tableGondola.row(this).data());
 
-          me.CODIGO = table.row(this).data().CODIGO;
-          Common.filtrarGondolasCommon(me.CODIGO).then(data => { 
-            me.enviarCodigoPadre(me.CODIGO,
-              data.Gondolas[0].CODIGO,
-              data.Gondolas[0].DESCRIPCION,
-              data.Gondolas[0].ID_SECCION);      
-          })
+        // VACIAR Y DEVOLVER FOCUS AL TEXTBOX
 
-            // CERRAR EL MODAL
-          $('.gondola-modal').modal('hide');
-        });
-        //FIN TABLA MODAL PRODUCTOS
+            $("#codigo_Producto").focus();
+  
+        // ------------------------------------------------------------------------
 
+      }
+      },
+        mounted() {
           
+          // ------------------------------------------------------------------------
+
+          // INICIAR VARIABLES 
+
+          let me = this;
+
+          // ------------------------------------------------------------------------
+          
+          $(document).ready( function () {
+
+            // ------------------------------------------------------------------------
+                // >>
+                // INICIAR EL DATATABLE PRODUCTOS MODAL
+                // ------------------------------------------------------------------------
+                
+                var tableGondola = $('#tablaModalGondola').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy":true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "ajax":{
+                                 "data": {
+                                    "_token": $('meta[name="csrf-token"]').attr('content')
+                                 },
+                                 "url": "/gondolasDatatable",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "DESCRIPCION" }
+                        ]      
+                    });
+                
+
+                // ------------------------------------------------------------------------
+                
+                // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
+
+
+                $('#tablaModalGondola').on('click', 'tbody tr', function() {
+
+                
+
+                    // *******************************************************************
+
+                    // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
+
+
+                    me.codigo = tableGondola.row(this).data().CODIGO;
+                    me.description = tableGondola.row(this).data().DESCRIPCION;  
+                    Common.filtrarGondolasCommon(me.codigo).then(data => {
+                        
+                      
+
+
+                           me.enviarCodigoPadre(me.codigo,data.Gondolas.CODIGO,me.description);
+                           
+                    })
+                  
+                    // *******************************************************************
+
+                    // CERRAR EL MODAL
+                     
+                     $('.gondola-modal').modal('hide');
+
+                    // *******************************************************************
+
+                });
+
+                //FIN TABLA MODAL PRODUCTOS
+                // <<   
+                // ------------------------------------------------------------------------
+            });    
+        }
     }
-  }
 </script>

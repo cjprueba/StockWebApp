@@ -439,12 +439,7 @@ export default new Router({
 			path: '/cre',
 			name: 'crearEmpleado',
 			component: require('./components/empleado/CrearEmpleados.vue').default
-		},
-		{
-			path: '/crs',
-			name: 'crearSeccion',
-			component: require('./components/seccion/CrearSecciones.vue').default
-		},
+		}
 	],
 	mode: 'history'
 });
