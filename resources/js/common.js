@@ -338,9 +338,19 @@ function sumarCommon(valor_a, valor_b, candec){
 			// ------------------------------------------------------------------------
 
 			// QUITAR COMAS 
+			if(valor_a===undefined){
+				valor_a = 0;
+			}else{
+				valor_a = quitarComaCommon(valor_a);
+			}
 
-			valor_a = quitarComaCommon(valor_a);
-			valor_b = quitarComaCommon(valor_b);
+			if(valor_b===undefined){
+				valor_b = 0;
+			}else{
+				valor_b = quitarComaCommon(valor_b);
+			}
+			/*valor_a = quitarComaCommon(valor_a);
+			valor_b = quitarComaCommon(valor_b);*/
 
 			// ------------------------------------------------------------------------
 
@@ -6213,6 +6223,7 @@ function eliminarEmpleadosCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+
 function filtrarSeccionCommon(data){
 	
 	// ------------------------------------------------------------------------
@@ -6286,6 +6297,88 @@ function eliminarSeccionCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+function cancelarNotaCreditoCommon(id){
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR EL CUERPO DE LA NOTA DE CREDITO 
+			
+			return axios.post('/nota/credito/cancelar', {'id': id}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							      INVENTARIO
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function obtenerInventarioCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DATOS DE INVENTARIO
+			
+			return axios.post('/producto/inventario', {'codigo': codigo}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
+function  seleccionarValorCommon(valor_a, valor_b, candec){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES 
+
+			var seleccion = 0;
+			console.log(valor_a);console.log(valor_b);
+
+			// ------------------------------------------------------------------------
+
+			// QUITAR COMAS 
+			if(valor_a===undefined){
+				valor_a = 0;
+			}else{
+				valor_a = quitarComaCommon(valor_a);
+			}
+
+			if(valor_b===undefined){
+				valor_b = 0;
+			}else{
+				valor_b = quitarComaCommon(valor_b);
+			}
+			
+			if(parseFloat(valor_a)>0){
+				seleccion=parseFloat(valor_a);
+			}else{
+				seleccion=parseFloat(valor_b);
+			}
+			console.log(seleccion);
+			
+			// ------------------------------------------------------------------------
+
+			// REALIZAR SUMA 
+
+			/*suma = parseFloat(valor_a) + parseFloat(valor_b);*/
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR VALOR
+
+			return darFormatoCommon(seleccion, candec);
+
+			// ------------------------------------------------------------------------
+
+}
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6552,8 +6645,12 @@ export {
 		filtrarEmpleadoCommon,
 		guardarEmpleadosCommon,
 		eliminarEmpleadosCommon,
+
 		nuevaSeccionCommon,
 		guardarSeccionCommon,
 		eliminarSeccionCommon,
-		filtrarSeccionCommon
+		filtrarSeccionCommon,
+		cancelarNotaCreditoCommon,
+		obtenerInventarioCommon,
+		seleccionarValorCommon
 		};

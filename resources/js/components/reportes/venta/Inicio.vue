@@ -14,6 +14,7 @@
           <option value="5">Ventas por Vendedor</option>
           <option value="6">Top Ventas</option>
           <option value="7">Por Periodo</option>
+          <option value="8">Ventas por Proveedor</option>
 				</select>			
 			</div>
 
@@ -55,6 +56,14 @@
       </transition>
 
       <!-- FIN REPORTE PERIODO DE VENTA -->
+
+      <!-- REPORTE VENTA POR PROVEEDOR -->
+
+      <transition name="slide-fade">  
+        <venta-proveedor-rpt v-if="reporte === '8'" id="reporte8"></venta-proveedor-rpt>
+      </transition>
+
+      <!-- FIN REPORTE VENTA POR PROVEEDOR -->
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->

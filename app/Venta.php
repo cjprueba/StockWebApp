@@ -5950,7 +5950,7 @@ class Venta extends Model
             ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
              ->Where('VENTAS.FECALTAS','=',$dia)
-              ->Where('VENTAS_ANULADO.anulado','=',0)
+              ->Where('VENTAS_ANULADO.anulado','<>',1)
               ->where('VENTAS.TIPO','<>','CR')
              ->where('CAJA','=',$request->input('caja_numero'))   
                 ->offset($start)
@@ -5995,7 +5995,7 @@ class Venta extends Model
           
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
             ->Where('VENTAS.FECALTAS','=',$dia)
-             ->Where('VENTAS_ANULADO.anulado','=',0)  
+             ->Where('VENTAS_ANULADO.anulado','<>',1)  
              ->where('VENTAS.TIPO','<>','CR')
             ->where('CAJA','=',$request->input('caja_numero')) 
             ->where(function ($query) use ($search) {
@@ -6036,7 +6036,7 @@ class Venta extends Model
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
             ->Where('VENTAS.FECALTAS','=',$dia)
             ->where('VENTAS.TIPO','<>','CR')
-             ->Where('VENTAS_ANULADO.anulado','=',0)
+             ->Where('VENTAS_ANULADO.anulado','<>',1)
             ->where('CAJA','=',$request->input('caja_numero'))
             ->where(function ($query) use ($search) {
                                 $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
@@ -6246,7 +6246,21 @@ class Venta extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
+            $posts = Ventas_det::select(DB::raw('VENTASDET.ID, 
+                VENTASDET.ITEM, 
+                VENTASDET.COD_PROD, 
+                VENTASDET.DESCRIPCION, 
+                VENTASDET.CANTIDAD, 
+                VENTASDET.IVA AS IMPUESTO, 
+                PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, 
+                VENTASDET.PRECIO_UNIT AS PRECIO, 
+                VENTASDET.PRECIO AS TOTAL, 
+                VENTAS.MONEDA, 
+                IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, 
+                IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, 
+                IFNULL((SELECT SUM(NC_DET.CANTIDAD) FROM NOTA_CREDITO_DET as NC_DET LEFT JOIN NOTA_CREDITO AS NC ON NC.ID=NC_DET.FK_NOTA_CREDITO WHERE ((NC_DET.FK_VENTASDET = VENTASDET.ID) AND (NC.PROCESADO <> 2))),0) AS CANTIDAD_DEVUELTA,
+                IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, 
+                IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
@@ -6281,7 +6295,18 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, VENTASDET.ITEM, VENTASDET.COD_PROD, VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, VENTASDET.IVA AS IMPUESTO, PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, VENTASDET.PRECIO_UNIT AS PRECIO, VENTASDET.PRECIO AS TOTAL, VENTAS.MONEDA, IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, IFNULL(SUM(NOTA_CREDITO_DET.CANTIDAD), 0) AS CANTIDAD_DEVUELTA, IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE'))
+            $posts =  Ventas_det::select(DB::raw('VENTASDET.ID, 
+                VENTASDET.ITEM, VENTASDET.COD_PROD, 
+                VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, 
+                VENTASDET.IVA AS IMPUESTO, 
+                PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, 
+                VENTASDET.PRECIO_UNIT AS PRECIO, 
+                VENTASDET.PRECIO AS TOTAL, 
+                VENTAS.MONEDA, 
+                IFNULL(ventasdet_descuento.TOTAL, 0) AS DESCUENTO_TOTAL, 
+                IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, 
+                IFNULL((SELECT SUM(NC_DET.CANTIDAD) FROM NOTA_CREDITO_DET as NC_DET LEFT JOIN NOTA_CREDITO AS NC ON NC.ID=NC_DET.FK_NOTA_CREDITO WHERE ((NC_DET.FK_VENTASDET = VENTASDET.ID) AND (NC.PROCESADO <> 2))),0) AS CANTIDAD_DEVUELTA,
+                IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE'))
                          ->leftJoin('VENTAS', function($join){
                             $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
                                  ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')

@@ -18,7 +18,6 @@
 	        <!-- BOTON NUEVO -->
 
 	        <div class="col-md-6 text-right">
-	        	<button class="btn btn-warning btn-sm" v-on:click="pruebaNota">Prueba</button>
 				<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalTipo">Nuevo</button>
 			</div>
 
@@ -28,16 +27,23 @@
 
 			<div class="project col-md-12" v-if="respuesta.productos.length > 0">
 			    <div class="row bg-white has-shadow">
-			      <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
-			        <div class="project-title d-flex align-items-center">
-			          <div class="image has-shadow">
-			          	<span v-html="respuesta.imagen_cliente"></span>
-			          </div>
-			          <div class="text">
-			            <h3 class="h4">{{respuesta.nombre}}</h3><small>{{respuesta.razon_social}}</small>
-			          </div>
+			      <div class="left-col col-lg-12 d-flex justify-content-between">
+			        <div class="col-4">
+			        		
+			        	<div class="project-title d-flex align-items-center">
+				          <div class="image has-shadow">
+				          	<span v-html="respuesta.imagen_cliente"></span>
+				          </div>
+				          <div class="text">
+				            <h3 class="h4">{{respuesta.nombre}}</h3><small>{{respuesta.razon_social}}</small>
+				          </div>
+			        	</div>
 			        </div>
-			        <div class="project-date"><span class="hidden-sm-down">{{respuesta.ruc}}</span></div>
+				        <div class="col-4 align-items-center">
+				          	<label>Nro. Factura</label>
+				          	<input type="text" v-model="numero_factura" class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validar.numero_factura }">
+				        </div>
+			        <div class="col-4 project-date"><span class="hidden-sm-down">{{respuesta.ruc}}</span></div>
 			      </div>
 			    </div>
 			</div>
@@ -87,6 +93,31 @@
 								<small>IMPUESTO</small>
 								<span class="text-inverse">{{respuesta.impuesto}}</span>
 							</div>
+
+							<div class="sub-price" v-if="nota.tipo==='3'">
+                                <small >DESCUENTO</small>
+                               
+                                    <span class="text-inverse">
+                                      <div class="input-group input-group-sm " >
+		                                    <div class="input-group-prepend ">
+		                                      <span class="input-group-text" id="inputGroup-sizing-sm">%</span>
+		                                    </div>
+	                                    	<input class="form-control form-control-sm " type="number" max="100" min="0" v-model="descuento.porcentaje" v-on:blur="formatoDescuento" >
+                                      </div>
+                                    </span>
+                                    
+                              
+                            </div> 
+                            <div class="sub-price" v-if="nota.tipo==='3'" >
+                                <small >DESCUENTO MONTO</small>
+                               
+                                   <span class="text-inverse">
+                                     <input class="form-control form-control-sm" v-model="descuento.monto" type="text" disabled>
+                                   </span>
+                                    
+                              
+                            </div> 
+
 						</div>
 					</div>
 
@@ -131,6 +162,12 @@
 	                                <input v-model="nota.tipo" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion2" value="2">
 	                                <label class="form-check-label" for="radioImpresion2">
 	                                  Nota de Crédito por descuento.
+	                                </label>
+	                              </div>
+	                              <div class="form-check form-check-inline">
+	                                <input v-model="nota.tipo" class="form-check-input" type="radio" name="gridRadios" id="radioImpresion3" value="3">
+	                                <label class="form-check-label" for="radioImpresion3">
+	                                  Nota de Crédito por descuento de productos.
 	                                </label>
 	                              </div>
 	                            </div>
@@ -275,7 +312,7 @@
 
 					      			<!-- FOOTER -->
 
-			                        <div class="modal-footer" v-if="nota.tipo === '1'">
+			                        <div class="modal-footer" v-if="nota.tipo === '1' || nota.tipo=== '3'">
 			                            <button type="button" class="btn btn-dark" data-dismiss="modal" v-on:click="generar()">ACEPTAR</button>
 			                        </div>
 
@@ -461,6 +498,10 @@
         		caja: '',
         		datos: ''
           	},
+          	validar: {
+          		numero_factura: false
+          	},
+          	numero_factura: '',
           	respuesta: {
           		cliente_codigo: '',
           		nombre: '',
@@ -471,7 +512,10 @@
           		total_crudo: 0,
           		base5: 0,
           		base10: 0,
+          		base5_crudo: 0,
+          		base10_crudo: 0,
           		exentas: 0,
+          		exentas_curdo: 0,
           		gravadas: 0,
           		impuesto: 0,
           		moneda: 0,
@@ -498,6 +542,8 @@
           		gravadas: 0,
           		impuesto: 0,
           		tipo: '',
+          		descuento: 0,
+          		descuento_monto: 0,
           		venta_codigo: '',
           		caja_codigo: '',
           		moneda: ''
@@ -549,6 +595,13 @@
           	},
           	mostrar: {
           		total: 0
+          	},
+          	descuento:{
+          		porcentaje:0,
+          		monto:0.00,
+          		monto_base5: 0.00,
+          		monto_base10: 0.00,
+          		monto_exenta: 0.00
           	}
         }
       }, 
@@ -620,7 +673,7 @@
 
       		// ------------------------------------------------------------------------
 
-      		if (this.nota.tipo === '1') {
+      		if (this.nota.tipo === '1' || this.nota.tipo==='3') {
 
       			this.tabla.contructor = $('#tableConstructorNota').DataTable({
 	                 	"processing": true,
@@ -686,6 +739,8 @@
 				this.ocultar.tipo1 = false;
 			} else if (this.nota.tipo === '2') {
 				this.ocultar.tipo1 = true;
+			}else if(this.nota.tipo === '3'){
+				this.ocultar.tipo1 = false;
 			}
 
       		this.venta_datatable();
@@ -908,7 +963,7 @@
 
         	// ------------------------------------------------------------------------
 
-        	if (this.nota.tipo === '1') {
+        	if (this.nota.tipo === '1' || this.nota.tipo==='3') {
 
 	        	// ------------------------------------------------------------------------
 
@@ -936,10 +991,17 @@
 		        		me.respuesta.total_crudo = data.total_crudo;
 		        		me.respuesta.base5 = data.base5;
 		        		me.respuesta.base10 = data.base10;
+		        	    me.respuesta.base5_crudo = data.base5;
+		        		me.respuesta.base10_crudo = data.base10;
 		        		me.respuesta.exentas = data.exentas;
+		        		me.respuesta.exentas_crudo = data.exentas;
+		        		
 		        		me.respuesta.gravadas = data.gravadas;
 		        		me.respuesta.impuesto = data.impuesto;
 		        		me.respuesta.moneda = data.moneda;
+		        		me.descuento.porcentaje=0;
+		        		me.descuento.monto=0;
+
 
 		        		me.respuesta.cliente_codigo = data.cliente_codigo;
 		          		me.respuesta.nombre = data.cliente_nombre;
@@ -1004,6 +1066,13 @@
 
         	let me = this;
 
+/*        	if(me.numero_factura === '' || me.numero_factura.length === 0){
+        		me.validar.numero_factura = true;
+        		return;
+        	}*/
+
+        	me.validar.numero_factura = false;
+
         	// ------------------------------------------------------------------------
 
         	if (this.nota.tipo === '1') {
@@ -1018,6 +1087,8 @@
 	          		base10: this.respuesta.base10,
 	          		exentas: this.respuesta.exentas,
 	          		gravadas: this.respuesta.gravadas,
+	          		descuento: this.descuento.porcentaje,
+	          		descuento_monto:this.descuento.monto,
 	          		impuesto: this.respuesta.impuesto,
 	          		venta_codigo: this.venta.codigo,
 	          		caja_codigo: this.caja.codigo,
@@ -1027,7 +1098,8 @@
 	          		tipo_proceso: this.devolver.tipo,
 	          		tipo_medio: this.radio.medio,
 	          		totales: this.totales,
-	          		caja_proceso: this.caja.caja_proceso
+	          		caja_proceso: this.caja.caja_proceso,
+	          		numero_factura: this.numero_factura
 	          	}
 
 	          	// ------------------------------------------------------------------------
@@ -1054,11 +1126,35 @@
 	          		tipo_medio: this.radio.medio,
 	          		totales: this.totales,
 	          		descuento: this.nota.descuento,
-	          		caja_proceso: this.caja.caja_proceso
+	          		caja_proceso: this.caja.caja_proceso,
+	          		numero_factura: this.numero_factura
 	          	}
 
 	          	// ------------------------------------------------------------------------
 
+	          } else if(this.nota.tipo=== '3'){
+	          		this.envio = {
+	          		cliente_codigo: this.respuesta.cliente_codigo,
+	          		productos: this.respuesta.productos,
+	          		total: this.respuesta.total,
+	          		base5: this.respuesta.base5,
+	          		base10: this.respuesta.base10,
+	          		exentas: this.respuesta.exentas,
+	          		gravadas: this.respuesta.gravadas,
+	          		descuento: this.descuento.porcentaje,
+	          		descuento_monto:this.descuento.monto,
+	          		impuesto: this.respuesta.impuesto,
+	          		venta_codigo: this.venta.codigo,
+	          		caja_codigo: this.caja.codigo,
+	          		tipo: this.nota.tipo,
+	          		moneda: this.respuesta.moneda,
+	          		tipo_iva: this.radio.iva,
+	          		tipo_proceso: this.devolver.tipo,
+	          		tipo_medio: this.radio.medio,
+	          		totales: this.totales,
+	          		caja_proceso: this.caja.caja_proceso,
+	          		numero_factura: this.numero_factura
+	          	}
 	          }
         	
         	// ------------------------------------------------------------------------
@@ -1096,7 +1192,7 @@
 					)
 
 					
-					//window.location.href = '/mov2';
+					
 					
 
 					// ------------------------------------------------------------------------
@@ -1105,10 +1201,10 @@
 
 					// ------------------------------------------------------------------------
 
-					// REDIRIGIR A MOSTRAR NOTA DE CREDITO
+					// RECARGAR LA PAGINA
+					window.location.href = '/mov1';
 					
-					
-					//me.$router.push('/mov2');
+					/*me.$router.push('/mov1');*/
 
 					// ------------------------------------------------------------------------
 
@@ -1429,13 +1525,84 @@
 
 	            // ------------------------------------------------------------------------
 
+            }else if (this.nota.tipo='3') {
+ 				 // ------------------------------------------------------------------------
+		         // CALCULAR DESCUENTO
+		         if(this.respuesta.total_crudo>0){
+		         	this.descuento.monto = Common.descuentoCommon(this.descuento.porcentaje, this.respuesta.total_crudo, this.nota.candec);
+		            this.descuento.monto_base5=Common.descuentoCommon(this.descuento.porcentaje, this.respuesta.base5_crudo, this.nota.candec);
+		            this.descuento.monto_base10=Common.descuentoCommon(this.descuento.porcentaje, this.respuesta.base10_crudo, this.nota.candec);
+		            this.descuento.monto_exenta=Common.descuentoCommon(this.descuento.porcentaje, this.respuesta.exentas_crudo, this.nota.candec);
+
+		            // ------------------------------------------------------------------------
+
+		            
+		            this.respuesta.total = Common.seleccionarValorCommon(this.descuento.monto, this.respuesta.total_crudo, this.nota.candec);
+				    this.respuesta.base5=Common.seleccionarValorCommon(this.descuento.monto_base5, this.respuesta.base5_crudo, this.nota.candec);
+				    this.respuesta.base10=Common.seleccionarValorCommon(this.descuento.monto_base10, this.respuesta.base10_crudo, this.nota.candec);
+				    this.respuesta.exentas=Common.seleccionarValorCommon(this.descuento.monto_exenta, this.respuesta.exentas_crudo, this.nota.candec);
+				    this.respuesta.impuesto=Common.sumarCommon(this.respuesta.monto_exenta, (this.respuesta.base10+this.respuesta.base5), this.nota.candec);
+				    this.respuesta.gravadas=Common.restarCommon(this.respuesta.total,this.respuesta.impuesto,this.nota.candec);
+		            
+		           
+		         }
+					
+	            
+	            // DESCUENTO GENERAL
+	/*				console.log(this.descuento.monto);
+	            	console.log(this.descuento.monto_base5);
+	            	console.log(this.descuento.monto_base10);
+	            	console.log(this.descuento.monto_exenta);
+	            	//----------------------------------------------------------
+	            	console.log(this.respuesta.total_crudo);
+	            	console.log(this.respuesta.base5_crudo);
+	            	console.log(this.respuesta.base10_crudo);
+	            	console.log(this.respuesta.exentas_crudo);*/
+	            this.mostrar.total = this.respuesta.total;
+
+
+
+	             // GUARANIES 
+
+	            this.totales.guaranies = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+	            // DOLARES 
+
+	            this.totales.dolares = Common.formulaCommon(this.cotizacion.formula_$, this.respuesta.total, this.cotizacion.dolares, this.cotizacion.candec_$, this.nota.moneda, this.cotizacion.moneda_$);
+
+	            // ------------------------------------------------------------------------
+
+	            // PESOS
+
+	            this.totales.pesos = Common.formulaCommon(this.cotizacion.formula_ps, this.respuesta.total, this.cotizacion.pesos, this.cotizacion.candec_ps, this.nota.moneda, this.cotizacion.moneda_ps);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.reales = Common.formulaCommon(this.cotizacion.formula_rs, this.respuesta.total, this.cotizacion.reales, this.cotizacion.candec_rs, this.nota.moneda, this.cotizacion.moneda_rs);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.cheque = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
+	            // ------------------------------------------------------------------------
+
+	            // REALES
+
+	            this.totales.transferencia = Common.formulaCommon(this.cotizacion.formula_gs, this.respuesta.total, this.cotizacion.guaranies, this.cotizacion.candec_gs, this.nota.moneda, this.cotizacion.moneda_gs);
+
             }
 
           }, pruebaNota() {
 
           	// ------------------------------------------------------------------------
 
-          	Common.generarPdfNotaCreditoCommon(6);
+          	Common.generarPdfNotaCreditoCommon(49);
 
           	// ------------------------------------------------------------------------
 
@@ -1444,7 +1611,7 @@
           	// ------------------------------------------------------------------------
 
           	Common.generarPdfNotaCreditoCommon(id).then(data => {
-						window.location.href = '/mov2';	
+						// window.location.href = '/mov2';	
 			});
 
           	// ------------------------------------------------------------------------
@@ -1476,7 +1643,7 @@
 									confirmButtonText: 'Aceptar',
 								}).then((result) => {
 									
-									window.location.href = '/mov2';
+									// window.location.href = '/mov2';
 
 								})	
 
@@ -1493,7 +1660,7 @@
 							confirmButtonText: 'Aceptar',
 						}).then((result) => {
 									
-							window.location.href = '/vt0';
+							// window.location.href = '/mov2';
 
 						})
 
@@ -1503,7 +1670,33 @@
 
                 // ------------------------------------------------------------------------
 
-      		} 
+      		},
+      		formatoDescuento(){
+
+            // ------------------------------------------------------------------------
+
+            // INICIAR VARIABLES 
+
+            let me = this;
+
+            // ------------------------------------------------------------------------
+
+            // DAR FORMATO A PORCENTAJE
+            if(me.descuento.porcentaje>100){
+            	me.descuento.porcentaje=0;
+
+            }
+            me.descuento.porcentaje = Common.darFormatoCommon(me.descuento.porcentaje, 0);
+
+            // ------------------------------------------------------------------------
+
+            // CALCULAR VALORES 
+
+            this.calcularTotalesMoneda();
+
+            // ------------------------------------------------------------------------
+
+          } 
       },
         mounted() {
         	
