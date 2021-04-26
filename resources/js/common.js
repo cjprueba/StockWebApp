@@ -6222,6 +6222,81 @@ function eliminarEmpleadosCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+
+
+function filtrarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/seccionFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function nuevaSeccionCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaSeccion').then(function (response) {
+					return response.data;
+			});
+}
+
+function guardarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarSeccion', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function eliminarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarSeccion', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
 function cancelarNotaCreditoCommon(id){
 
 			// ------------------------------------------------------------------------
@@ -6570,6 +6645,11 @@ export {
 		filtrarEmpleadoCommon,
 		guardarEmpleadosCommon,
 		eliminarEmpleadosCommon,
+
+		nuevaSeccionCommon,
+		guardarSeccionCommon,
+		eliminarSeccionCommon,
+		filtrarSeccionCommon,
 		cancelarNotaCreditoCommon,
 		obtenerInventarioCommon,
 		seleccionarValorCommon

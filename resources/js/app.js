@@ -544,6 +544,9 @@ Vue.component('autorizacion', require('./components/autorizacion/Autorizacion.vu
 //EMPLEADO
 Vue.component('empleado-textbox', require('./components/textboxs/EmpleadoTextbox.vue').default);
 
+//SECCION
+Vue.component('seccion-textbox', require('./components/textboxs/SeccionTextbox.vue').default);
+
 /* ********************************************* */
 
 /**
