@@ -4507,4 +4507,53 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public static function inventario($codigo){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $data = [];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONSEGUIR LOTE 
+
+        $inventario = DB::connection('retail')->table('CONTEO_DET')
+            ->leftJoin('CONTEO','CONTEO.ID','=','CONTEO_DET.FK_CONTEO')
+            ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=','CONTEO.GONDOLA')
+            ->select(DB::raw('CONTEO.ID,
+                CONTEO.OBSERVACION, 
+                CONTEO.MOTIVO, 
+                GONDOLAS.DESCRIPCION AS GONDOLA, 
+                CONTEO_DET.CONTEO,
+                CONTEO_DET.STOCK,
+                SUBSTR(CONTEO.FECMODIF, 1, 10) AS FECHA'))
+            ->where('CONTEO_DET.COD_PROD','=', $codigo["codigo"])
+            ->where('CONTEO_DET.ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('CONTEO.ESTATUS', '=',2)
+            ->groupBy('CONTEO.ID')
+            ->orderBy('CONTEO.FECMODIF', 'DESC')
+            ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR  
+
+        if (count($inventario) > 0) {
+            return ["inventario" => $inventario];
+        } else {
+            return ["inventario" => false];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+        
+    } 
 }

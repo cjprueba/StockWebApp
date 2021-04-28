@@ -482,7 +482,32 @@ class Stock extends Model
 
         	/*  --------------------------------------------------------------------------------- */
 
-        	$lotes_a_sumar = VentasDetTieneLotes::select(DB::raw('ventasdet_tiene_lotes.ID_LOTE, ventasdet_tiene_lotes.CANTIDAD, IFNULL(nota_credito_tiene_lote.CANTIDAD,0) AS CANTIDAD_DEVUELTA'))
+        	$lotes_a_sumar = VentasDetTieneLotes::select(DB::raw('ventasdet_tiene_lotes.ID_LOTE, ventasdet_tiene_lotes.CANTIDAD, IFNULL((SELECT 
+                    sum(NCL.CANTIDAD)
+                FROM
+                    NOTA_CREDITO_TIENE_LOTE AS NCL
+                        LEFT JOIN
+                    NOTA_CREDITO_DET ON NOTA_CREDITO_DET.ID = NCL.FK_NOTA_CREDITO_DET
+                        LEFT JOIN
+                    NOTA_CREDITO ON NOTA_CREDITO.ID = NOTA_CREDITO_DET.FK_NOTA_CREDITO
+                WHERE
+                    NCL.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
+                        AND NCL.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
+                        AND NOTA_CREDITO.PROCESADO <> 2 group by ncl.ID_LOTE ),
+            0) AS CANTIDAD_DEVUELTA, 
+               IFNULL((SELECT 
+                    sum(NCLTD.CANTIDAD)
+                FROM
+                    NOTA_CREDITO_LOTE_TIENE_DESCUENTO AS NCLTD
+                        LEFT JOIN
+                    NOTA_CREDITO_DET ON NOTA_CREDITO_DET.ID = NCLTD.FK_NOTA_CREDITO_DET
+                        LEFT JOIN
+                    NOTA_CREDITO ON NOTA_CREDITO.ID = NOTA_CREDITO_DET.FK_NOTA_CREDITO
+                WHERE
+                    NCLTD.ID_LOTE = ventasdet_tiene_lotes.ID_LOTE
+                        AND NCLTD.FK_VENTA_DET = ventasdet_tiene_lotes.ID_VENTAS_DET
+                        AND NOTA_CREDITO.PROCESADO <> 2 group by NCLTD.ID_LOTE ),
+            0) AS CANTIDAD_DEVUELTA_DESCUENTO '))
         	->leftJoin('nota_credito_tiene_lote', function($join){
                                 $join->on('nota_credito_tiene_lote.FK_VENTA_DET', '=', 'ventasdet_tiene_lotes.ID_VENTAS_DET')
                                      ->on('nota_credito_tiene_lote.ID_LOTE', '=', 'ventasdet_tiene_lotes.ID_LOTE');
@@ -500,7 +525,7 @@ class Stock extends Model
 
         		// RESTAR LA CANTIDAD QUE YA SE DEVOLVIO 
 
-        		$value->CANTIDAD = $value->CANTIDAD - $value->CANTIDAD_DEVUELTA;
+        		$value->CANTIDAD = $value->CANTIDAD - ($value->CANTIDAD_DEVUELTA+$value->CANTIDAD_DEVUELTA_DESCUENTO);
 
         		/*  --------------------------------------------------------------------------------- */
         		
@@ -2484,6 +2509,26 @@ class Stock extends Model
        return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+
+    }
+    public static function verificar_resta($id_lote,$cantidad){
+    // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        $resta=0;
+
+        //obtener el stock
+
+         $stock = Stock::select(DB::raw('CANTIDAD'))
+        ->where('ID','=', $id_lote)
+        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+        ->groupBy('COD_PROD')
+        ->get();
+
+        if(count($stock)>0){
+            $resta=$stock[0]["CANTIDAD"]-$cantidad;
+        }
+        return $resta;
 
     }
 }

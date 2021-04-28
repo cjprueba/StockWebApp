@@ -49,21 +49,44 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // TRAER LA COTIZACION DEL DIA
+        if(isset($data['FK_VENTA'])){
+            $cotizacion_final = NewCotizacion::
+             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO, FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+             ->leftjoin('VENTAS_TIENE_COTIZACION','VENTAS_TIENE_COTIZACION.FK_COTIZACION','=','COTIZACIONES.ID')
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $data['monedaProducto'])
+            ->where('COTIZACIONES.FK_A', '=', $data['monedaSistema'])
+            ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
+            ->where('VENTAS_TIENE_COTIZACION.fk_venta','=',$data['FK_VENTA'])
+            ->limit(1)->get();
 
 
+        }else{
+            $cotizacion_final = NewCotizacion::
+             select(DB::raw('COTIZACIONES.VALOR AS CAMBIO, FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $data['monedaProducto'])
+            ->where('COTIZACIONES.FK_A', '=', $data['monedaSistema'])
+            ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
+            ->where('FECHA','=',$hoy)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)->get();
+            if(count($cotizacion_final)<=0){
 
-            $cotizaciones = NewCotizacion::
+            $cotizacion_final = NewCotizacion::
              select(DB::raw('COTIZACIONES.VALOR AS CAMBIO, FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $data['monedaProducto'])
             ->where('COTIZACIONES.FK_A', '=', $data['monedaSistema'])
             ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
             ->orderBy('COTIZACIONES.ID','DESC')
-            ->limit(1);
-            $cotizacion_final=$cotizaciones->where('FECHA','=',$hoy)->get();
-            if(count($cotizacion_final)<=0){
-                $cotizacion_final=$cotizaciones->get();
+            ->limit(1)->get();
             }
+        }
+            
+
+           /* $cotizacion_final=$cotizaciones->where('FECHA','=',$hoy)->get();*/
+           
             
 
         

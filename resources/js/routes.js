@@ -262,7 +262,6 @@ export default new Router({
 		},
 		{
 			path: '/ct2',
-			name: 'cotizacionCrear',
 			component: require('./components/cotizacion/CotizacionMostrar.vue').default
 		},
 		{
@@ -286,8 +285,7 @@ export default new Router({
 			component: require('./components/sucursales/CrearSucursal.vue').default
 		},
 		{
-			path: '/mov1',
-			name: 'notaRemision',
+			path: '/remision',
 			component: require('./components/movimientos/RemisionNota.vue').default
 		},
 		{
@@ -372,10 +370,15 @@ export default new Router({
 			component: require('./components/reportes/VentaTarjeta.vue').default
 	    },
 		{
-			path: '/mov2',
+			path: '/mov1',
 			name: 'notaCredito',
 			component: require('./components/movimientos/CreditoNota.vue').default
       	},
+		{
+			path: '/mov2',
+			name: 'notaCreditoMostrar',
+			component: require('./components/movimientos/MostrarCreditoNota.vue').default
+		},
 		{
 			path: '/rpn2',
 			name: 'rptTransferenciaWeb',

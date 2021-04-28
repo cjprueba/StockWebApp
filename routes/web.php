@@ -360,6 +360,7 @@ Route::post('producto/movimiento', 'ProductoController@productoMovimiento');
 Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProductoVenta');
 Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 Route::post('productoBuscar', 'ProductoController@buscarProducto');
+Route::post('producto/inventario', 'ProductoController@inventario');
 
 /* -------------------------------------------------------------------------- */
 
@@ -494,6 +495,8 @@ Route::post('export/Stock', 'StockController@descargar');
 Route::post('export/Stock/Image', 'StockController@descargarImageStock');
 Route::post('export_venta_periodo', 'StockController@descargarPeriodoStock');
 Route::post('export_producto_vencimiento', 'StockController@descagrarVencimientoProducto');
+Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -629,6 +632,9 @@ Route::post('/nota/credito/generar_cuerpo', 'NotaCreditoController@generar_cuerp
 Route::post('/nota/credito/guardar', 'NotaCreditoController@guardar');
 Route::post('/nota/credito/generar/pdf', 'NotaCreditoController@pdf');
 Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtenerCreditoCliente');
+Route::get('nota/credito/mostrar', 'NotaCreditoController@mostrarNotaCredito');
+Route::post('nota/credito/cancelar', 'NotaCreditoController@cancelarNota');
+Route::get('credito/nota/producto/detalle', 'NotaCreditoController@CreditoNotaDetalle');
 
 /* -------------------------------------------------------------------------- */
 
