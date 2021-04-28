@@ -7,6 +7,15 @@ use App\Sucursal;
 
 class SucursalController extends Controller
 {   
+    public function obtenerGondolas(){
+
+        // OBTENER SUCURSAL
+
+        $sucursal = Sucursal::obtenerSucursales();
+        return response()->json($sucursal);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
     /*  ---------------------------------GUARDAR---------------------------------------- */
 

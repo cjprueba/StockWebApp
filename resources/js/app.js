@@ -397,6 +397,10 @@ Vue.component('select-gondola', require('./components/textboxs/GondolaTextbox.vu
 
 /* ********************************************* */
 
+Vue.component('select-sucursal', require('./components/textboxs/UsuarioSucursalTextbox.vue').default);
+
+/* ********************************************* */
+
 // DESCUENTO 
 
 Vue.component('descuento-marca-categoria', require('./components/descuento/busqueda/DescuentoMarcaCategoria.vue').default);
@@ -540,6 +544,9 @@ Vue.component('autorizacion', require('./components/autorizacion/Autorizacion.vu
 
 //EMPLEADO
 Vue.component('empleado-textbox', require('./components/textboxs/EmpleadoTextbox.vue').default);
+
+//SECCION
+Vue.component('seccion-textbox', require('./components/textboxs/SeccionTextbox.vue').default);
 
 /* ********************************************* */
 

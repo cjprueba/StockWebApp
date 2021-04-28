@@ -1846,6 +1846,20 @@ function sucursalNuevaCommon(){
 			// ------------------------------------------------------------------------
 }
 
+function cambiarSucursalCommon(data){
+	// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/cambiarSucursal', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+}
 
 function obtenerSucursalesCommon(){
 
@@ -3447,6 +3461,25 @@ function guardarUsuarioCommon(nombre,email,contraseña){
 				});
 
 			// ------------------------------------------------------------------------
+}
+function obtenerSucursalCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.get('/obtenerUsuarioSucursales').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
 }
 function nuevaMarcaCommon(){
 	// ------------------------------------------------------------------------
@@ -6212,6 +6245,80 @@ function eliminarEmpleadosCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+
+function filtrarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/seccionFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function nuevaSeccionCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevaSeccion').then(function (response) {
+					return response.data;
+			});
+}
+
+function guardarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarSeccion', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function eliminarSeccionCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarSeccion', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6477,5 +6584,11 @@ export {
 		nuevoEmpleadoCommon,
 		filtrarEmpleadoCommon,
 		guardarEmpleadosCommon,
-		eliminarEmpleadosCommon
+		eliminarEmpleadosCommon,
+		nuevaSeccionCommon,
+		guardarSeccionCommon,
+		eliminarSeccionCommon,
+		filtrarSeccionCommon,
+		obtenerSucursalCommon,
+		cambiarSucursalCommon
 		};
