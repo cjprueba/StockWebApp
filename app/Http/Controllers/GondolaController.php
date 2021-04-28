@@ -62,13 +62,13 @@ class GondolaController extends Controller
 
         // Mostrar Usuarios
 
-        $gondola = Gondola::gondola_guardar($request->all());
-        return response()->json($gondola);
+        $gondolas = Gondola::gondola_guardar($request->all());
+        return response()->json($gondolas);
         
         /*  --------------------------------------------------------------------------------- */
 
     }
-                public function gondolaEliminar(Request $request)
+        public function gondolaEliminar(Request $request)
     {
 
         /*  --------------------------------------------------------------------------------- */

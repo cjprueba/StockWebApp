@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 class UserController extends Controller
-{
+{   
+    public function obtenerSucursalUsuario()
+    {
+        $usuario = User::obtener_sucursal_usuario();
+        return response()->json($usuario);
+    }
     //
     public function obtenerRoles()
     {
