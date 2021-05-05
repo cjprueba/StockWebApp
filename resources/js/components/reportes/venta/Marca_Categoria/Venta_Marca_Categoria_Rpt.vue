@@ -5,7 +5,7 @@
 		  	<div class="card-header">Venta por marcas y categorías</div>
 			<div class="card-body">
 			  	<div class="form-row">
-			  		<div class="col-md-4 mb-3">
+			  		<div class="col-md-3 mb-3">
 			  			
 			  			<label for="validationTooltip01">Seleccione Sucursal</label>
 						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
@@ -28,13 +28,37 @@
 							<div class="invalid-feedback">
 					        	{{messageInvalidFecha}}
 					    	</div>
-						</div>					  
+						</div>		
 
+						<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
+
+						<label class="mt-3">Seleccione Tipo de Venta</label>
+						<div class="form-check">
+							<input v-model="selectedTipo" class="form-check-input ml-2" type="checkbox" value="CO" id="contado" checked>
+							<label class="form-check-label ml-4" for="contado">
+								CONTADO
+							</label>
+						</div>
+						<div class="form-check">
+							<input v-model="selectedTipo" class="form-check-input ml-2" type="checkbox" value="CR" id="credito">
+							<label class="form-check-label ml-4" for="credito">
+								CRÉDITO
+							</label>
+						</div>
+						<div class="form-check">
+							<input v-model="selectedTipo" class="form-check-input ml-2" type="checkbox" value="PE" id="pagoAlEntregar">
+							<label class="form-check-label ml-4" for="pagoAlEntregar">
+								PAGO AL ENTREGAR
+							</label>
+						</div>
+			    		<div class="col-md-12">
+							<div class="form-text text-danger">{{messageInvalidTipo}}</div>
+						</div>
 					</div>
 
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<label for="validationTooltip01">Seleccione Marcas</label> 
-						<select  v-on:change="habilitar_insert" multiple class="form-control" size="4" v-model="selectedMarca" :disabled="onMarca" v-bind:class="{ 'is-invalid': validarMarca }">
+						<select  v-on:change="habilitar_insert" multiple class="form-control" size="9" v-model="selectedMarca" :disabled="onMarca" v-bind:class="{ 'is-invalid': validarMarca }">
 						   <option v-for="marca in marcas" :value="marca.CODIGO">{{ marca.DESCRIPCION }}</option>
 						</select>
 						<div class="invalid-feedback">
@@ -46,9 +70,9 @@
 						</div>
 					</div>
 
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<label  for="validationTooltip01">Seleccione Categoria</label> 
-						<select  v-on:change="habilitar_insert" multiple class="form-control" size="4" v-model="selectedCategoria" :disabled="onCategoria" v-bind:class="{ 'is-invalid': validarCategoria }">
+						<select  v-on:change="habilitar_insert" multiple class="form-control" size="9" v-model="selectedCategoria" :disabled="onCategoria" v-bind:class="{ 'is-invalid': validarCategoria }">
 						  <option v-for="categoria in categorias" :value="categoria.CODIGO">{{ categoria.DESCRIPCION }}</option>
 						</select>
 						<div class="invalid-feedback">
@@ -59,7 +83,21 @@
 						  <label class="custom-control-label" for="customSwitch2">Seleccionar todas las Categorias</label>
 						</div>
 					</div>
-
+					<!-- ------------------------------------------- PROVEEDOR ----------------------------------------------- -->
+				
+					<div class="col-md-3">
+						<label for="validationTooltip01">Seleccione Proveedor</label> 
+						<select multiple class="form-control" size="9" v-model="selectedProveedor" :disabled="onProveedor" v-bind:class="{ 'is-invalid': validarProveedor }">
+							<option v-for="proveedor in proveedores" :value="proveedor.CODIGO">{{proveedor.NOMBRE}}</option>
+						</select>
+						<div class="invalid-feedback">
+						    {{messageInvalidProveedor}}
+						</div>
+						<div class="custom-control custom-switch mt-3">
+							<input type="checkbox" class="custom-control-input" id="customSwitch3" v-model="onProveedor">
+							<label class="custom-control-label" for="customSwitch3">Seleccionar todos</label>
+						</div>
+		            </div>
 				</div>
 				<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download" /> Descargar</button>
 			    <button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button>
@@ -329,7 +367,14 @@
               	varTotalMarca: [],
 				varNombreMarca: [],
               	cargado: false,
-              	descarga: false
+              	descarga: false,
+              	selectedTipo: [],
+              	proveedores: [],
+              	selectedProveedor: [],
+              	messageInvalidProveedor: '',
+              	messageInvalidTipo: '',
+              	validarProveedor: false,
+              	onProveedor: false
             }
         }, 
         methods: {
@@ -338,6 +383,7 @@
 	           	this.sucursales = response.data.sucursales;
 	           	this.marcas = response.data.marcas;
 	           	this.categorias = response.data.categorias;
+	           	this.proveedores = response.data.proveedores;
 	          }); 
 	        },
 	        descargar(){
@@ -468,7 +514,23 @@
 	        	} else {
 	        		me.validarFinalFecha = false;
 	        		me.messageInvalidFecha = '';
-	        	}		
+	        	}	
+
+	        	if(me.selectedTipo === [] || me.selectedTipo.length === 0) {
+	        		me.messageInvalidTipo = 'Por favor seleccione tipo de venta.';
+	        		me.controlar = true;
+	        	} else {
+	        		me.messageInvalidTipo = '';
+	        	}
+
+	        	if(me.onProveedor === false && me.selectedProveedor.length === 0) {
+	        		me.messageInvalidProveedor = 'Por favor seleccione uno o varios Proveedores.';
+	        		me.validarProveedor = true;
+	        		me.controlar = true;
+	        	} else {
+	        		me.messageInvalidProveedor = '';
+	        		me.validarProveedor = false;
+	        	}	
 	        	if(me.controlar===true){
 	        		return;
 	        	}
@@ -485,15 +547,24 @@
 	        		}
 	        	}
 
+ 				if(me.onProveedor === true) {
+		        	for (var key in me.proveedores){
+		        		me.selectedProveedor[key] = me.proveedores[key].CODIGO;
+		        	}
+		        }
+
 	        	me.datos = {
-	        	Sucursal: me.selectedSucursal,
-	        	Inicio: String(me.selectedInicialFecha),
-	        	Final: String(me.selectedFinalFecha),
-	        	Marcas: me.selectedMarca,
-	        	Categorias: me.selectedCategoria,
-	        	AllBrand: me.onMarca,
-	        	AllCategory: me.onCategoria, 
-	        	Insert:me.insert
+		        	Sucursal: me.selectedSucursal,
+		        	Inicio: String(me.selectedInicialFecha),
+		        	Final: String(me.selectedFinalFecha),
+		        	Marcas: me.selectedMarca,
+		        	Categorias: me.selectedCategoria,
+		        	AllBrand: me.onMarca,
+		        	AllCategory: me.onCategoria, 
+		        	Insert:me.insert,
+					Proveedores: me.selectedProveedor,
+					AllProveedores: me.onProveedor,
+					Tipo: me.selectedTipo
 	        	};
 	        	
 	        	return true;
