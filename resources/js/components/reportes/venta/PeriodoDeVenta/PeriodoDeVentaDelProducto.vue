@@ -114,8 +114,9 @@
 				<!-- -------------------------------------------MOSTRAR BOTONES--------------------------------------------- -->
 
 			  </div>
-				<div class="r-md-3 mt-4">
+				<div class="r-md-3">
 					<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()">Descargar</button> 
+					<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 				</div>
 					<!-- SPINNER DESCARGA -->
 				<div class="row">
@@ -128,6 +129,24 @@
 			  	</div>
 			<!-- FINAL DEL CUERPO -->
 			<!-- CARD PARA CATEGORIA Y SUB -->
+				<div class="col-md-12 mt-3">
+					<table id="tablaVentaPeriodo" class="table mb-3" style="width:100%">
+				    	<thead>
+					      <tr> 
+					        <th>Codigo</th>
+					        <th>Imagen</th>
+					        <th>Descripcion</th>
+			            	<th>Categoria</th>
+					        <th>Precio Venta</th>
+					        <th>Precio Mayorista</th>
+					        <th>Stock</th>
+					        <th>Ult. Entrada</th>
+					        <th>Ult. Movimiento</th>
+					        <th>Ult. Venta</th>
+					      </tr>
+					    </thead>
+					</table>			
+				</div>
 			</div>
 		<!-- FINAL DE TARJETA -->
 		</div>
@@ -139,8 +158,6 @@
 		<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	</div>
 
-	<!-- ------------------------------------------------------------------------ -->
-
 	<!-- REPORTE TOP VENTAS  -->
 </template>
 
@@ -149,6 +166,7 @@
       props: ['candec', 'descripcion'],
         data(){
             return {
+          		codigo: '',
               	sucursales: [],
               	proveedores: [],
               	secciones: [],
@@ -334,7 +352,82 @@
 	        	};
 
 	        	return true;
-	        }
+	        },
+
+	        llamarDatos(){
+
+	        	let me = this;
+
+		        if(me.generarConsulta() === true) {
+
+		        	// PREPARAR DATATABLE 
+
+		        	var tableVentaPeriodo = $('#tablaVentaPeriodo').DataTable({
+		                "processing": true,
+		                "serverSide": true,
+		                "destroy": true,
+		                "bAutoWidth": true,
+                		"searching": false,
+	                 	"paging": false,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaVendedor', messageTop: 'Ventas registradas por Vendedor', footer: true }
+				        ],
+		                "ajax":{
+	                 			"data": {
+	                 				datos: me.datos,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
+	                 			},
+		                  "url": "/ventaPeriodoDatatable",
+		                  "dataType": "json",
+		                  "type": "POST"
+
+		                },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "IMAGEN" },
+                            { "data": "DESCRIPCION" },
+                            { "data": "CATEGORIA" },
+                            { "data": "PREC_VENTA" },
+                            { "data": "PREMAYORISTA" },
+                            { "data": "STOCK" },                            
+                            { "data": "ULTIMA_ENTRADA" },
+                            { "data": "ULTIMO_MOVIMIENTO" },
+                            { "data": "ULTIMA_VENTA" },
+                        ]     
+                    });
+
+					// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
+		
+					$("table#tablaVentaPeriodo").css("font-size", 12);
+	            	tableVentaPeriodo.columns.adjust().draw();
+
+                    // MOSTRAR MODAL PRODUCTO
+
+	                $('#tablaVentaPeriodo').on('click', 'tbody tr #mostrarDetalle', function() {
+
+	                	// *******************************************************************
+
+	                	// OBTENER DATOS DEL PRODUCTO DATATABLE JS
+
+	                	me.codigo = tableVentaPeriodo.row($(this).parents('tr')).data().CODIGO;
+	                	me.$refs.detalle_producto.mostrar();
+	                	// OBTENER IMAGEN - UTIL
+	                	// me.imagen = $(tableVentaPeriodo.row($(this).parents('tr')).data().IMAGEN).attr('src');
+
+	                    // *******************************************************************
+
+	                });
+
+		        }
+		    }
+
         },
         mounted() {
         	let me = this;
@@ -359,6 +452,9 @@
 			});
 
 			this.llamarBusquedas();
+
+
+			var tableVentaPeriodo = $('#tablaVentaPeriodo').DataTable();
         }
     }    
 </script>
