@@ -133,16 +133,17 @@
 					<table id="tablaVentaPeriodo" class="table mb-3" style="width:100%">
 				    	<thead>
 					      <tr> 
-					        <th>Codigo</th>
+					        <th>Código</th>
 					        <th>Imagen</th>
-					        <th>Descripcion</th>
-			            	<th>Categoria</th>
+					        <th>Descripción</th>
+			            	<th>Categoría</th>
+			            	<th>Proveedor</th>
 					        <th>Precio Venta</th>
 					        <th>Precio Mayorista</th>
 					        <th>Stock</th>
-					        <th>Ult. Entrada</th>
-					        <th>Ult. Movimiento</th>
-					        <th>Ult. Venta</th>
+					        <th>Últ. Entrada</th>
+					        <th>Últ. Movimiento</th>
+					        <th>Últ. Venta</th>
 					      </tr>
 					    </thead>
 					</table>			
@@ -315,6 +316,7 @@
 	        	}
 
 	        	if(me.controlar===false){
+	        		me.controlar=true;
 	        		return false;
 	        	}
 
@@ -394,36 +396,17 @@
                             { "data": "IMAGEN" },
                             { "data": "DESCRIPCION" },
                             { "data": "CATEGORIA" },
+                            { "data": "PROVEEDOR" },
                             { "data": "PREC_VENTA" },
                             { "data": "PREMAYORISTA" },
                             { "data": "STOCK" },                            
                             { "data": "ULTIMA_ENTRADA" },
                             { "data": "ULTIMO_MOVIMIENTO" },
                             { "data": "ULTIMA_VENTA" },
-                        ]     
+                        ],
+                        "footerCallback": function(row, data, start, end, display) {
+						}     
                     });
-
-					// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
-		
-					$("table#tablaVentaPeriodo").css("font-size", 12);
-	            	tableVentaPeriodo.columns.adjust().draw();
-
-                    // MOSTRAR MODAL PRODUCTO
-
-	                $('#tablaVentaPeriodo').on('click', 'tbody tr #mostrarDetalle', function() {
-
-	                	// *******************************************************************
-
-	                	// OBTENER DATOS DEL PRODUCTO DATATABLE JS
-
-	                	me.codigo = tableVentaPeriodo.row($(this).parents('tr')).data().CODIGO;
-	                	me.$refs.detalle_producto.mostrar();
-	                	// OBTENER IMAGEN - UTIL
-	                	// me.imagen = $(tableVentaPeriodo.row($(this).parents('tr')).data().IMAGEN).attr('src');
-
-	                    // *******************************************************************
-
-	                });
 
 		        }
 		    }
