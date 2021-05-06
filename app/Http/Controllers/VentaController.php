@@ -354,5 +354,16 @@ class VentaController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+            public function reportePeriodoVenta(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $periodo = Venta::rpt_periodo_venta($request);
+        return response()->json($periodo);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
 
 }

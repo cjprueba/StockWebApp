@@ -44,14 +44,15 @@ class TransferenciaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoS
      public $marcas_array_aux=[];
     private $descuentogeneral;
     private $descuentos;
-    public function __construct(int $CODIGO, string $DESCRIPCION,int $CODIGOL,string $DESCRIPCIONL,int $hojas, array $ventageneral=[] )
+    public function __construct($datos)
     {
-        $this->CODIGO = $CODIGO;   
-        $this->DESCRIPCION  = $DESCRIPCION;
-        $this->CODIGOL = $CODIGOL;   
-        $this->DESCRIPCIONL  = $DESCRIPCIONL;
-        $this->hojas=$hojas;
-        $this->ventageneral =$ventageneral ;
+
+        $this->CODIGO = $datos['CODIGO'];   
+        $this->DESCRIPCION  = $datos['DESCRIPCION'];
+        $this->CODIGOL = $datos['CODIGOL'];   
+        $this->DESCRIPCIONL  = $datos['DESCRIPCIONL'];
+        $this->hojas=$datos['HOJAS'];
+        $this->ventageneral =$datos['TRANSFERENCIAS'] ;
       
     }
 
@@ -123,7 +124,7 @@ class TransferenciaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoS
                 'STOCK'=> $this->stock,
                 'CANTIDAD'=> $this->venta->CANTIDAD_S,
                 'COSTO'=> $this->venta->PRECOSTO,
-             'TOTAL_COSTO'=> $this->venta->PRECOSTO_TOTAL,
+                'TOTAL_COSTO'=> $this->venta->PRECOSTO_TOTAL,
                'PRECIO'=> $this->venta->PRECIO_UNIT_VENTA,
                 'TOTAL_PRECIO'=> $this->venta->PRECIO_VENTA,
               

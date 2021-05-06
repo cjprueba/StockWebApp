@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use DateTime;
 use App\Temp_venta;
 
-class RptTransferenciaVentaExport implements FromCollection
+class RptTransferenciaVentaExport implements WithMultipleSheets
 {
   private $marca;
   private $descuentogeneral;
@@ -63,12 +64,12 @@ class RptTransferenciaVentaExport implements FromCollection
     			'inicio'=>$this->inicio,
     			'final'=>$this->final,
     			'sucursal'=>$this->sucursal,
-    			'checkedProveedor'=>$this->Proveedor,
+    			'checkedProveedor'=>$this->checkedProveedor,
     			'checkedSucursal'=>$this->checkedSucursal,
     			'proveedores'=>$this->Proveedores,
     			'sucursales'=>$this->sucursales
     		);
-           Temp_venta::insertar_reporte($datos);
+           Temp_venta::insertar_transferencia_reporte($datos);
     	}
     	        
 if($this->hojas==1){
@@ -139,10 +140,10 @@ if($this->hojas==1){
 	          $datos=array(
 		                 
 		                'HOJAS'=> $this->hojas,
-		                'MARCA_CODIGO'=> '',
-		                'DESCRI_M'=> '',
-		                'LINEA_CODIGO'=> '',
-		                'DESCRI_L'=> '',
+		                'PROVEEDOR_CODIGO'=> '',
+		                'DESCRI_P'=> '',
+		                'SUCURSAL_CODIGO'=> '',
+		                'DESCRI_S'=> '',
 		                'INICIO'=> $this->inicio,
 		                'FINAL'=> $this->final,
 		                'SUCURSAL'=>$this->sucursal,
@@ -173,7 +174,7 @@ if($this->hojas==1){
                     $datos=array(
 		                 
 		                'HOJAS'=> $this->hojas,
-		                'PROVEEDOR_CODIGO'=> $value->MARCA,
+		                'PROVEEDOR_CODIGO'=> $value->PROVEEDOR,
 		                'DESCRI_P'=> $value->DESCRI_P,
 		                'SUCURSAL_CODIGO'=> $value->SUCURSAL_ORIGEN,
 		                'DESCRI_S'=> $value->DESCRI_S,
