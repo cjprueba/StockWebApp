@@ -601,6 +601,8 @@ Route::post('reporte_ventas', 'VentaController@reporteVenta');
 Route::post('ventaTopDatatable', 'VentaController@reporteTopArticulos');
 Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+Route::post('ventaPeriodoDatatable', 'VentaController@reportePeriodoVenta');
+
 /* -------------------------------------------------------------------------- */
 
 // REPORTES TRANSFERENCIAS
