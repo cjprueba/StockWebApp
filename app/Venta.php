@@ -9388,7 +9388,7 @@ class Venta extends Model
 
         } else {
 
-            $posts = $posts->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lote1s as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) > 0');
+            $posts = $posts->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) > 0');
 
         }
         if($datos["datos"]["Filtro"]=="SECCION"){
@@ -9458,9 +9458,9 @@ class Venta extends Model
                 }
                 $nestedData['CODIGO'] = $post->COD_PROD;
                 $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
-                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(substr($post->DESCRIPCION,0,25)));
-                $nestedData['CATEGORIA'] = ucwords(utf8_encode($post->CATEGORIA));
-                $nestedData['PROVEEDOR'] = ucwords(utf8_encode($post->PROVEEDOR));
+                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(utf8_decode(substr($post->DESCRIPCION,0,25))));
+                $nestedData['CATEGORIA'] = ucwords(utf8_encode(utf8_decode($post->CATEGORIA)));
+                $nestedData['PROVEEDOR'] = ucwords(utf8_encode(utf8_decode($post->PROVEEDOR)));
                 $nestedData['PREC_VENTA'] = round($post->PREC_VENTA,2);
                 $nestedData['PREMAYORISTA'] = round($post->PREMAYORISTA,2);
                 $nestedData['STOCK'] = $post->STOCK;
