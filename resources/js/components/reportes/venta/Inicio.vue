@@ -9,12 +9,13 @@
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="3">Ventas por Marca y Categoria</option>
+					<option value="3">Ventas por Marca y Categoría</option>
           <option value="4">Reporte Diario</option>
           <option value="5">Ventas por Vendedor</option>
           <option value="6">Top Ventas</option>
-          <option value="7">Por Periodo</option>
+          <option value="7">Por Período</option>
           <option value="8">Ventas por Proveedor</option>
+          <option value="9">Ventas por Góndola</option>
 				</select>			
 			</div>
 
@@ -64,6 +65,14 @@
       </transition>
 
       <!-- FIN REPORTE VENTA POR PROVEEDOR -->
+
+      <!-- REPORTE VENTA POR GONDOLA -->
+
+      <transition name="slide-fade">  
+        <venta-gondola-rpt v-if="reporte === '9'" id="reporte9"></venta-gondola-rpt>
+      </transition>
+
+      <!-- FIN REPORTE VENTA POR GONDOLA -->
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->

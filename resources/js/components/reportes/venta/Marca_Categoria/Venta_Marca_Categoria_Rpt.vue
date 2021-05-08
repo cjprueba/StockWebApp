@@ -52,7 +52,7 @@
 							</label>
 						</div>
 			    	   <div class="col-md-12">
-							<div class="form-text text-primary">Obs: Si no marca alguna casillas lo ejecutara de manera general</div>
+							<div class="form-text text-primary">Obs: Si no marca ninguna casilla se ejecutará de forma general</div>
 						</div>
 					</div>
 
