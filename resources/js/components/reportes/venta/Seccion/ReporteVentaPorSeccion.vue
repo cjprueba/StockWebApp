@@ -1,6 +1,6 @@
 <template>
-		<!-- VENTA POR MARCA Y CATEGORIA -->
- <div class="container">
+		<!-- VENTA POR SECCION -->
+ <div>
 	<div v-if="$can('producto.mostrar')">
 		<div class="card shadow border-bottom-primary mt-3">
 		  	<div class="card-header">Venta por Sección</div>

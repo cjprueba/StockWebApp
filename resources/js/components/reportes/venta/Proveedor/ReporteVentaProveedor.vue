@@ -38,6 +38,7 @@
 
 					<div class="r-md-3 mt-4">
 						<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()">Descargar</button> 
+						<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 					</div>
 				</div>
 
@@ -114,6 +115,42 @@
 			             </div>
 		            </div>
 			  	</div>
+
+			  	<!-- ------------------------------------------- DATATABLE ------------------------------------------- -->
+
+				<div class="col-md-12 mt-3">
+					<table id="tablaVentaProveedor" class="table mb-3" style="width:100%">
+			            <thead>
+			                <tr>
+			                    <th>#</th>
+				      			<th>Código</th>
+				      			<th width="30%">Descripción</th>
+				      			<th>Categoría</th>
+				      			<th>Proveedor</th>
+				      			<th>Tipo</th>
+				      			<th class="vendidoColumna">Vendido</th>
+				      			<th class="precioColumna">Precio</th>
+			                    <th class="totalColumna">Total</th>
+				      			<th class="descuentoColumna">Descuento</th>
+			                </tr>
+			            </thead>
+			            <tfoot>
+			            	<tr>
+			            		<th></th>
+			            		<th></th>
+			            		<th></th>
+			            		<th></th>
+			            		<th></th>
+				            	<th><strong>TOTALES</strong></th>
+				            	<th></th>
+				            	<th></th>
+				            	<th></th>
+				            	<th></th>
+				            </tr>
+			            </tfoot>
+			        </table> 
+	    			<!-- -------------------------------------------FIN TABLA------------------------------------------- -->
+				</div>
 			<!-- FINAL DEL CUERPO -->
 			<!-- CARD -->
 			</div>
@@ -172,7 +209,204 @@
 	           	this.proveedores = response.data.proveedores;
 	          });
 	        },
+			
+			llamarDatos(){
+	        	let me = this;	
+	        	
+	        	if(me.generarConsulta() === true) {
+	        		
 
+	        		// PREPARAR DATATABLE 
+
+			 		var tableVentaTop = $('#tablaVentaProveedor').DataTable({
+		                "processing": true,
+		                "serverSide": true,
+		                "destroy": true,
+		                "bAutoWidth": true,
+                		"searching": false,
+	                 	"paging": false,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaTop', messageTop: 'REPORTE VENTAS POR PROVEEDOR', footer: true }
+				        ],
+		                "ajax":{
+	                 			"data": {
+						        	datos: me.datos,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
+	                 			},
+		                  "url": "/ventaProveedorDatatable",
+		                  "dataType": "json",
+		                  "type": "POST"
+
+		                },
+		                "columns": [
+		                    { "data": "ITEM" },
+		                    { "data": "COD_PROD" },
+		                    { "data": "DESCRIPCION" },
+		                    { "data": "CATEGORIA" },
+		                    { "data": "PROVEEDOR" },
+		                    { "data": "TIPO" },
+		                    { "data": "VENDIDO" },
+		                    { "data": "PRECIO" },
+		                    { "data": "TOTAL" },
+		                    { "data": "DESCUENTO" }
+		                ],
+		                "footerCallback": function(row, data, start, end, display) {
+
+							var api = this.api();
+
+							// TOTAL 
+
+							api.columns('.totalColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.totalColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//DESCUENTO
+
+					        api.columns('.descuentoColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.descuentoColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//PRECIO 
+
+					        api.columns('.precioColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.precioColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, this.candec)
+						        ); 
+						  	});
+
+						  	//VENDIDO 
+
+					        api.columns('.vendidoColumna', {}).every(function() {
+
+						    	var sum = this.data().reduce(function(a, b) {
+
+						      	// *******************************************************************
+
+						      	// QUITAR LAS COMAS DE LOS VALORES
+
+						      	a = Common.quitarComaCommon(a);
+						      	b = Common.quitarComaCommon(b);
+						      	
+						      	// *******************************************************************
+
+						        var x = parseFloat(a) || 0;
+						        var y = parseFloat(b) || 0;
+
+						        // *******************************************************************
+
+						        // SUMAR VALORES
+
+						        return x + y;
+
+						        // *******************************************************************
+
+						    	}, 0);
+
+							    // CARGAR EN EL FOOTER  
+
+							    $( api.columns('.vendidoColumna').footer() ).html(
+						            Common.darFormatoCommon(sum, 0)
+						        ); 
+						  	});
+
+						}
+
+					});
+				}
+	        	me.controlar = true;
+	        },
 	        descargar(){
 	        	
 	        	let me = this;	
@@ -285,6 +519,7 @@
 	        }
         },
         mounted() {
+
         	let me = this;
 
         	$(function(){
@@ -307,6 +542,8 @@
 			});
 
 			this.llamarBusquedas();
+
+			var tableVentaTop = $('#tablaVentaProveedor').DataTable();
         }
     }    
 </script>
