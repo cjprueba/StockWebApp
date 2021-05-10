@@ -3,7 +3,7 @@
 	<div v-if="$can('producto.mostrar')">
 		<!-- INICIO DE TARJETA -->
 		<div class="card mt-3 shadow border-bottom-primary" >
-		  <div class="card-header">TOP DE VENTAS</div>
+		  <div class="card-header">Top En Ventas</div>
 			<!-- CUERPO DE LA TARJETA -->
 			<div class="card-body">
 			  <div class="row">
@@ -26,7 +26,9 @@
 					<label class="mt-3">Seleccione Top</label>
 			    	<select v-model="selectedTop" class="custom-select custom-select-sm">
 			  	  		<option value=10>TOP 10</option>
+			  	  		<option value=30>TOP 30</option>
 			    		<option value=50>TOP 50</option>
+			  	  		<option value=70>TOP 70</option>
 			    		<option value=100>TOP 100</option>
 			  		</select>
 
@@ -91,7 +93,7 @@
 				
 				<div class="col-md-3">
 					<label>Seleccione Proveedor</label> 
-					<div class="container_checkbox mr-2">
+					<div class="container_checkbox1 rounded mr-2">
 	                    <div class="mt-2 mb-2 pl-2" v-for="proveedor in proveedores" >
 	                      <div class="custom-control custom-checkbox">
 	                        <input type="checkbox" class="custom-control-input" :value="proveedor.CODIGO" :id="proveedor.CODIGO" v-model="selectedProveedor" v-bind:class="{ 'is-invalid': validarProveedor }" :disabled="onProveedor">

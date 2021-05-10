@@ -414,7 +414,8 @@ Route::post('compra/cuerpo', 'CompraController@obtenerCuerpo');
 /* -------------------------------------------------------------------------- */
 
 // USUARIOS
-
+Route::post('cambiarSucursal', 'UsuarioTieneSucursalesController@cambiar_Sucursal');
+Route::get('obtenerUsuarioSucursales', 'UsuarioTieneSucursalesController@obtenerSucursal');
 Route::post('usuariosDatatable', 'UserController@mostrar');
 Route::post('usuarioGuardar', 'UserController@guardarUsuario');
 
@@ -494,6 +495,8 @@ Route::post('export/Stock', 'StockController@descargar');
 Route::post('export/Stock/Image', 'StockController@descargarImageStock');
 Route::post('export_venta_periodo', 'StockController@descargarPeriodoStock');
 Route::post('export_producto_vencimiento', 'StockController@descagrarVencimientoProducto');
+Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -598,6 +601,8 @@ Route::post('reporte_ventas', 'VentaController@reporteVenta');
 Route::post('ventaTopDatatable', 'VentaController@reporteTopArticulos');
 Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
+Route::post('ventaPeriodoDatatable', 'VentaController@reportePeriodoVenta');
+
 /* -------------------------------------------------------------------------- */
 
 // REPORTES TRANSFERENCIAS
@@ -681,6 +686,13 @@ Route::post('cotizacion/guardar', 'NewCotizacionController@guardarCotizacion');
 // SECCION 
 
 Route::post('export_venta_seccion', 'VentaController@seccion_excel');
+Route::get('seccion', 'SeccionController@mostrar');
+Route::post('seccion', 'SeccionController@encontrar');
+Route::post('seccionDatatable', 'SeccionController@datatable');
+Route::get('nuevaSeccion', 'SeccionController@seccionNuevo');
+Route::post('seccionFiltrar', 'SeccionController@filtrarSeccion');
+Route::post('guardarSeccion', 'SeccionController@SeccionGuardar');
+Route::post('eliminarSeccion', 'SeccionController@SeccionEliminar');
 
 /* -------------------------------------------------------------------------- */
 // 	PRESTAMOS DE PRODUCTOS

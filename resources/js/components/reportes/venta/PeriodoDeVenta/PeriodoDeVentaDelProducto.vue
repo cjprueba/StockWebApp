@@ -114,8 +114,9 @@
 				<!-- -------------------------------------------MOSTRAR BOTONES--------------------------------------------- -->
 
 			  </div>
-				<div class="r-md-3 mt-4">
+				<div class="r-md-3">
 					<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()">Descargar</button> 
+					<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 				</div>
 					<!-- SPINNER DESCARGA -->
 				<div class="row">
@@ -128,6 +129,25 @@
 			  	</div>
 			<!-- FINAL DEL CUERPO -->
 			<!-- CARD PARA CATEGORIA Y SUB -->
+				<div class="col-md-12 mt-3">
+					<table id="tablaVentaPeriodo" class="table mb-3" style="width:100%">
+				    	<thead>
+					      <tr> 
+					        <th>Código</th>
+					        <th>Imagen</th>
+					        <th>Descripción</th>
+			            	<th>Categoría</th>
+			            	<th>Proveedor</th>
+					        <th>Precio Venta</th>
+					        <th>Precio Mayorista</th>
+					        <th>Stock</th>
+					        <th>Últ. Entrada</th>
+					        <th>Últ. Movimiento</th>
+					        <th>Últ. Venta</th>
+					      </tr>
+					    </thead>
+					</table>			
+				</div>
 			</div>
 		<!-- FINAL DE TARJETA -->
 		</div>
@@ -139,8 +159,6 @@
 		<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	</div>
 
-	<!-- ------------------------------------------------------------------------ -->
-
 	<!-- REPORTE TOP VENTAS  -->
 </template>
 
@@ -149,6 +167,7 @@
       props: ['candec', 'descripcion'],
         data(){
             return {
+          		codigo: '',
               	sucursales: [],
               	proveedores: [],
               	secciones: [],
@@ -297,6 +316,7 @@
 	        	}
 
 	        	if(me.controlar===false){
+	        		me.controlar=true;
 	        		return false;
 	        	}
 
@@ -334,7 +354,63 @@
 	        	};
 
 	        	return true;
-	        }
+	        },
+
+	        llamarDatos(){
+
+	        	let me = this;
+
+		        if(me.generarConsulta() === true) {
+
+		        	// PREPARAR DATATABLE 
+
+		        	var tableVentaPeriodo = $('#tablaVentaPeriodo').DataTable({
+		                "processing": true,
+		                "serverSide": true,
+		                "destroy": true,
+		                "bAutoWidth": true,
+                		"searching": false,
+	                 	"paging": false,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptVentaVendedor', messageTop: 'Ventas registradas por Vendedor', footer: true }
+				        ],
+		                "ajax":{
+	                 			"data": {
+	                 				datos: me.datos,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
+	                 			},
+		                  "url": "/ventaPeriodoDatatable",
+		                  "dataType": "json",
+		                  "type": "POST"
+
+		                },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "IMAGEN" },
+                            { "data": "DESCRIPCION" },
+                            { "data": "CATEGORIA" },
+                            { "data": "PROVEEDOR" },
+                            { "data": "PREC_VENTA" },
+                            { "data": "PREMAYORISTA" },
+                            { "data": "STOCK" },                            
+                            { "data": "ULTIMA_ENTRADA" },
+                            { "data": "ULTIMO_MOVIMIENTO" },
+                            { "data": "ULTIMA_VENTA" },
+                        ],
+                        "footerCallback": function(row, data, start, end, display) {
+						}     
+                    });
+
+		        }
+		    }
+
         },
         mounted() {
         	let me = this;
@@ -359,6 +435,9 @@
 			});
 
 			this.llamarBusquedas();
+
+
+			var tableVentaPeriodo = $('#tablaVentaPeriodo').DataTable();
         }
     }    
 </script>

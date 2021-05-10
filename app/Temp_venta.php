@@ -14,6 +14,7 @@ class Temp_venta extends Model
     public $timestamps = false;
 
      public static function insertar_reporte($datos){
+
      	
      	$user = auth()->user();
       Temp_venta::where('USER_ID', $user->id)->WHERE('ID_SUCURSAL','=',$datos["sucursal"])->delete();
@@ -35,7 +36,7 @@ class Temp_venta extends Model
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
            
-           /* ->leftjoin('VENTASDET_DEVOLUCIONES','VENTASDET_DEVOLUCIONES.FK_VENTASDET','=','VENTASDET.ID')*/
+
           
            ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
@@ -58,6 +59,7 @@ class Temp_venta extends Model
              PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
              PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
              VENTAS.ID AS ID,
+             ventas.tipo,
              (VENTASDET.PRECIO_UNIT*VENTASDET_TIENE_LOTES.CANTIDAD) AS PRECIO,
              VENTASDET.PRECIO_UNIT AS PRECIO_UNIT'),
             DB::raw('IFNULL(VENTASDET_DESCUENTO.TOTAL,0) AS DESCUENTO'),
@@ -66,13 +68,9 @@ class Temp_venta extends Model
             DB::raw('IFNULL(MARCA.CODIGO,0) AS MARCA_CODIGO'),
             DB::raw('IFNULL(LINEAS.CODIGO,0) AS LINEA_CODIGO'),
             DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'),
-            /*DB::raw('IFNULL(VENTASDET_DEVOLUCIONES.CANTIDAD,0) AS CANTIDAD_DEVUELTA'),
-            DB::raw('IFNULL(VENTASDET_DEVOLUCIONES.PRECIO,0) AS PRECIO_DEVUELTO'),
-            DB::raw('IFNULL(VENTASDET_DEVOLUCIONES.PRECIO_UNIT,0) AS PRECIO_UNIT_DEVUELTO'),*/
             DB::raw('IFNULL(VENTASDET_DESCUENTO.PORCENTAJE,0) AS DESCUENTO_PORCENTAJE'))
-
 	        ->Where('VENTASDET.ANULADO','<>',1)
-	       //->Where('VENTASdet.FECALTAS','like',$dia.'%')
+	      
 	        ->whereBetween('VENTASDET.FECALTAS', [$datos["inicio"], $datos["final"] ])
 	        ->Where('VENTASDET.ID_SUCURSAL','=',$datos["sucursal"]) 
 	        ->orderby('VENTASDET.COD_PROD');
@@ -82,8 +80,19 @@ class Temp_venta extends Model
 	        if(!$datos["checkedCategoria"]){
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
 	        }
+	        if(isset($datos["checkedProveedor"])){
+	        	if(!$datos["checkedProveedor"]){
+	        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+	            }
+	        }
+	        if(isset($datos["tipos"])){
+	        
+	        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
+	            
+	        }
 
 	        $reporte=$reporte->get()->toArray();
+	        	
 	        /*var_dump($reporte);*/
 
 		         $precio=100;
@@ -240,8 +249,8 @@ class Temp_venta extends Model
                             }
                       $venta_in = array();
                       $venta_nc = array();
-
-	   $reporte=DB::connection('retail')->table('VENTASDET_DEVOLUCIONES')
+                      if($datos["inicio"]<='2020-10-26'){
+                      				$reporte=DB::connection('retail')->table('VENTASDET_DEVOLUCIONES')
            
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET_DEVOLUCIONES.COD_PROD')
             ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
@@ -296,6 +305,17 @@ class Temp_venta extends Model
 	        if(!$datos["checkedCategoria"]){ 
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
 	        }
+	        if(isset($datos["checkedProveedor"])){
+	        	if(!$datos["checkedProveedor"]){
+	        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+	            }
+	        }
+	        if(isset($datos["tipos"])){
+	        	
+	        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
+	            
+	        }
+
 	        
 	        $reporte=$reporte->get()->toArray();
 	/*     Log::error(['VENTA DEVOLUCION REVISAR' => $reporte]);  */ 
@@ -338,6 +358,9 @@ class Temp_venta extends Model
 
 
                             } 
+                      }
+
+	   
                             $reporte=DB::connection('retail')->table('NOTA_CREDITO_DET')
            
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'NOTA_CREDITO_DET.CODIGO_PROD')
@@ -394,7 +417,17 @@ class Temp_venta extends Model
 	        if(!$datos["checkedCategoria"]){ 
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
 	        }
-	        
+	        if(isset($datos["checkedProveedor"])){
+	        	if(!$datos["checkedProveedor"]){
+	        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+	            }
+	        }
+	        if(isset($datos["tipos"])){
+	        	
+	        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
+	            
+	        }
+
 	        $reporte=$reporte->get()->toArray();
 /*	     Log::error(['VENTA NOTA CREDITO REVISAR' => $reporte]);  */ 
          foreach ($reporte as $key => $value) {
@@ -620,6 +653,7 @@ class Temp_venta extends Model
 
                             }
                       $venta_in = array();
+                       $venta_nc = array();
 
 
 	   $reporte=DB::connection('retail')->table('VENTASDET')

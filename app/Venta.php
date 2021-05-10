@@ -320,41 +320,60 @@ class Venta extends Model
          /*  --------------------------------------------------------------------------------- */
 
          // INCICIAR VARIABLES 
-      $insert=$datos["data"]["Insert"];
-        $marcas[] = array();
-        $categorias[] = array();
-        $totales[] = array();
-        $marcas_array=array();
-         $marcas_categoria_array=array();
-          $marcas_productos_array=array();
-                $user = auth()->user();
-         $user=$user->id;
-        $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
-        $final = date('Y-m-d', strtotime($datos["data"]['Final']));
-        $sucursal = $datos["data"]['Sucursal'];
-                    $total_general=0;
-                   $total_descuento=0;
-                   $total_preciounit=0;
-                   $cantidadvendida=0;
-                   $costo=0;
-                   $totalcosto=0;
+            $insert=$datos["data"]["Insert"];
+            $marcas[] = array();
+            $categorias[] = array();
+            $totales[] = array();
+            $marcas_array=array();
+            $marcas_categoria_array=array();
+            $marcas_productos_array=array();
+            $user = auth()->user();
+            $user=$user->id;
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+            $total_general=0;
+            $total_descuento=0;
+            $total_preciounit=0;
+            $cantidadvendida=0;
+            $costo=0;
+            $totalcosto=0;
 
                 if($insert==true){
-                    $datos=array(
-                'inicio'=> date('Y-m-d', strtotime($datos["data"]['Inicio'])),
-                'final'=>date('Y-m-d', strtotime($datos["data"]['Final'])),
-                'sucursal'=>$datos["data"]['Sucursal'],
-                'checkedCategoria'=>$datos["data"]['AllCategory'],
-                'checkedMarca'=>$datos["data"]['AllBrand'],
-                'marcas'=>$datos["data"]['Marcas'],
-                'linea'=>$datos["data"]['Categorias']
-            );
+                    if(isset($datos["data"]["Tipo"])){
+                            $datos=array(
+                            'inicio'=> date('Y-m-d', strtotime($datos["data"]['Inicio'])),
+                            'final'=>date('Y-m-d', strtotime($datos["data"]['Final'])),
+                            'sucursal'=>$datos["data"]['Sucursal'],
+                            'checkedCategoria'=>$datos["data"]['AllCategory'],
+                            'checkedMarca'=>$datos["data"]['AllBrand'],
+                            'checkedProveedor'=>$datos["data"]["AllProveedores"],
+                            'proveedores'=>$datos["data"]["Proveedores"],
+                            'marcas'=>$datos["data"]['Marcas'],
+                            'linea'=>$datos["data"]['Categorias'],
+                            'tipos'=>$datos["data"]["Tipo"]
+                             );
+                    }else{
+                            $datos=array(
+                            'inicio'=> date('Y-m-d', strtotime($datos["data"]['Inicio'])),
+                            'final'=>date('Y-m-d', strtotime($datos["data"]['Final'])),
+                            'sucursal'=>$datos["data"]['Sucursal'],
+                            'checkedCategoria'=>$datos["data"]['AllCategory'],
+                            'checkedMarca'=>$datos["data"]['AllBrand'],
+                            'checkedProveedor'=>$datos["data"]["AllProveedores"],
+                            'proveedores'=>$datos["data"]["Proveedores"],
+                            'marcas'=>$datos["data"]['Marcas'],
+                            'linea'=>$datos["data"]['Categorias']
+                            );
+                    }
+
+                    
            Temp_venta::insertar_reporte($datos);
                 }
-        // CARGAR MARCAS 0 EN VENTAS
+            // CARGAR MARCAS 0 EN VENTAS
 
-        //array_unshift($datos["data"]['Marcas'], 0);
-        //var_dump($datos["data"]['Marcas']);
+            //array_unshift($datos["data"]['Marcas'], 0);
+            //var_dump($datos["data"]['Marcas']);
 
                        $temp=DB::connection('retail')->table('temp_ventas')
                 
@@ -562,21 +581,21 @@ class Venta extends Model
 
                  
  
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
 
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
 
 
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
-        // RETORNAR TODOS LOS ARRAYS
+            // RETORNAR TODOS LOS ARRAYS
 
 
-        return ['ventas' => $marcas_productos_array, 'marcas' => $marcas_array, 'categorias' => $marcas_categoria_array];
+            return ['ventas' => $marcas_productos_array, 'marcas' => $marcas_array, 'categorias' => $marcas_categoria_array];
 
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
     }
 
     public static function generarConsulta($datos) 
@@ -8930,10 +8949,23 @@ class Venta extends Model
              temp_ventas.NOMBRE,
              temp_ventas.SECCION,
              temp_ventas.PROVEEDOR_NOMBRE'))
+
             ->WHERE('temp_ventas.USER_ID','=',$user->id)
             ->WHERE('temp_ventas.ID_SUCURSAL','=',$datos->input("Sucursal"))    
             ->GROUPBY('temp_ventas.COD_PROD'); 
-            
+                        if($datos->input("filtro")=="SECCION"){
+             $posts->where('temp_ventas.SECCION_CODIGO','=', $datos->input("Seccion"));
+             if($datos->input("AllProveedores")=='false'){
+                 $posts->whereIn('temp_ventas.PROVEEDOR',$datos->input("Proveedores"));
+                
+             }
+              
+                }
+            if($datos->input("filtro")=="PROVEEDOR"){
+                if($datos->input("AllProveedores")=='false'){
+                     $posts->whereIn('temp_ventas.PROVEEDOR',$datos->input("Proveedores"));
+                 }
+            }
             /*  --------------------------------------------------------------------------------- */
 
             // ORDENAR 
@@ -8979,8 +9011,8 @@ class Venta extends Model
 
                 $nestedData['ITEM'] = $c;
                 $nestedData['COD_PROD'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(substr($post->DESCRIPCION,0,25)));
-                $nestedData['CATEGORIA'] = ucwords(utf8_encode($post->CATEGORIA));
+                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(utf8_decode(substr($post->DESCRIPCION,0,25)) ));
+                $nestedData['CATEGORIA'] = ucwords(utf8_encode(utf8_decode($post->CATEGORIA)));
                 $nestedData['VENDIDO'] = $post->CANTIDAD;
                 $nestedData['CANTIDAD'] = $post->STOCK;
                 $nestedData['PRECIO'] = round($post->PRECIO,2);
@@ -9040,13 +9072,11 @@ class Venta extends Model
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
-            ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
-             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')
-               ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-             })
-            ->leftjoin('GONDOLAS','GONDOLAS.ID','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
-            ->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
-            ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
+           ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+             $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','VENTASDET.COD_PROD')
+                ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+              })
+            ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
             ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
                 ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
@@ -9081,22 +9111,9 @@ class Venta extends Model
          ->Where('VENTAS.TIPO','<>','CR')
          ->whereBetween('VENTASDET.FECALTAS', [$inicio, $final])
          ->Where('VENTASDET.ID_SUCURSAL','=',$datos->input("Sucursal"));
-         if($datos->input("filtro")=="SECCION"){
-             $reporte->where('SECCIONES.ID','=', $datos->input("Seccion"));
-             if($datos->input("AllProveedores")=='false'){
-                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
-                
-             }
-              
-         }
-        if($datos->input("filtro")=="PROVEEDOR"){
-            if($datos->input("AllProveedores")=='false'){
-                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
-             }
-        }
-        if($datos->stock){
-             $reporte->where('LOTES.CANTIDAD','>',0);
-        }
+            if($datos->stock){
+                 $reporte->where('LOTES.CANTIDAD','>',0);
+            }
         $reporte=$reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
         
       
@@ -9197,55 +9214,43 @@ class Venta extends Model
          ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
          ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
          ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-         ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
-         $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')
-             ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-         })
          ->leftjoin('VENTAS',function($join){
          $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
          ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
            ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
          })
-         ->leftjoin('GONDOLAS','GONDOLAS.ID','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
-         ->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
-         ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
+            ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+             $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','NOTA_CREDITO_DET.CODIGO_PROD')
+                ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','NOTA_CREDITO_DET.ID_SUCURSAL');
+              })
+             ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
 
-         ->select(
-            DB::raw(
-             'NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD,
-             VENTASDET.CODIGO,
-             nota_credito_tiene_lote.CANTIDAD AS VENDIDO,
-             LOTES.LOTE AS LOTE,
-             LOTES.COSTO AS COSTO_UNIT,
-             (nota_credito_tiene_lote.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
-             LINEAS.DESCRIPCION AS CATEGORIA,
-             SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
-             SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
-             PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
-             SECCIONES.DESCRIPCION AS SECCION,
-             VENTAS.VENDEDOR,
-             (nota_credito_tiene_lote.CANTIDAD*NOTA_CREDITO_DET.PRECIO) AS PRECIO,
-             NOTA_CREDITO_DET.PRECIO AS PRECIO_UNIT'),
-            DB::raw('IFNULL(LINEAS.CODIGO,0) AS LINEA_CODIGO'),
-            DB::raw('IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO'),
-            DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'))
-         ->Where('VENTASDET.ANULADO','<>',1)
-         ->Where('NOTA_CREDITO.PROCESADO','=',1)
-         ->Where('VENTAS.TIPO','<>','CR')
-         ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$inicio , $final])
-         ->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos->input("Sucursal"));
-        if($datos->input("filtro")=="SECCION"){
-             $reporte->where('SECCIONES.ID','=', $datos->input("Seccion"));
-             if($datos->input("AllProveedores")=='false'){
-                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
-             }
-         }
-        if($datos->input("filtro")=="PROVEEDOR"){
-            if($datos->input("AllProveedores")=='false'){
-                 $reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos->input("Proveedores"));
-             }
-        }
+             ->select(
+                DB::raw(
+                 'NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD,
+                 VENTASDET.CODIGO,
+                 nota_credito_tiene_lote.CANTIDAD AS VENDIDO,
+                 LOTES.LOTE AS LOTE,
+                 LOTES.COSTO AS COSTO_UNIT,
+                 (nota_credito_tiene_lote.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
+                 LINEAS.DESCRIPCION AS CATEGORIA,
+                 SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
+                 SUBLINEA_DET.DESCRIPCION AS NOMBRE,
+                 PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+                 PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
+                 SECCIONES.DESCRIPCION AS SECCION,
+                 VENTAS.VENDEDOR,
+                 (nota_credito_tiene_lote.CANTIDAD*NOTA_CREDITO_DET.PRECIO) AS PRECIO,
+                 NOTA_CREDITO_DET.PRECIO AS PRECIO_UNIT'),
+                DB::raw('IFNULL(LINEAS.CODIGO,0) AS LINEA_CODIGO'),
+                DB::raw('IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO'),
+                DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'))
+             ->Where('VENTASDET.ANULADO','<>',1)
+             ->Where('NOTA_CREDITO.PROCESADO','=',1)
+             ->Where('VENTAS.TIPO','<>','CR')
+             ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$inicio , $final])
+             ->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos->input("Sucursal"));
+
         if($datos->stock){
              $reporte->where('LOTES.CANTIDAD','>',0);
         }
@@ -9298,6 +9303,201 @@ class Venta extends Model
         return;
         
     }
+    public static function rpt_periodo_venta($datos)
+    {
+         $user = auth()->user();
+  
+
+        $inicio = date('Y-m-d', strtotime($datos["datos"]["Inicio"]));
+        $final  =  date('Y-m-d', strtotime($datos["datos"]["Final"]));
+     
+
+    
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'CODIGO', 
+                            1 => 'IMAGEN', 
+                            2 => 'DESCRIPCION',
+                            3 => 'CATEGORIA',
+                            4 => 'PROVEEDOR',
+                            5 => 'PREC_VENTA',
+                            6 => 'PREMAYORISTA',
+                            7 => 'STOCK',
+                            8 => 'CANTIDAD_INICIAL',
+                            9=> 'ULTIMA_ENTRADA',
+                            10=> 'ULTIMO_MOVIMIENTO',
+                            11=> 'ULTIMA_VENTA',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $dia = date("Y-m-d");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+
+       
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+   
+
+            /*  --------------------------------------------------------------------------------- */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Stock::query()->select(
+            DB::raw('LOTES.COD_PROD, 
+                     0 AS IMAGEN, 
+                     PRODUCTOS.DESCRIPCION, 
+                     PRODUCTOS_AUX.PREC_VENTA, 
+                     PRODUCTOS_AUX.PREMAYORISTA,
+                     PROVEEDORES.NOMBRE AS PROVEEDOR,
+                     LINEAS.DESCRIPCION AS CATEGORIA,
+                     IFNULL((SELECT SUM(l4.CANTIDAD) FROM lotes as l4 WHERE ((l4.COD_PROD = LOTES.COD_PROD) AND (l4.ID_SUCURSAL = LOTES.ID_SUCURSAL))),"0") AS STOCK,
+                     (IFNULL((SELECT sum(l.CANTIDAD_INICIAL) FROM lotes as l WHERE (l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL) AND l.FECALTAS BETWEEN date_add((select max(l1.FECALTAS) FROM LOTES AS l1 WHERE l1.COD_PROD =l.COD_PROD AND (l1.ID_SUCURSAL = l.ID_SUCURSAL)) , INTERVAL -3 WEEK) AND (select max(l2.FECALTAS) FROM LOTES AS l2 WHERE l2.COD_PROD =l.COD_PROD AND (l2.ID_SUCURSAL = l.ID_SUCURSAL))),0)) as CANTIDAD_INICIAL,
+                     (SELECT MAX(L7.FECALTAS) FROM LOTES AS L7 WHERE L7.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L7.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
+                     (SELECT MAX(L5.FECMODIF) AS ULT_FECHA FROM LOTES AS L5 WHERE L5.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L5.COD_PROD=LOTES.COD_PROD) AS ULTIMO_MOVIMIENTO, 
+                     (SELECT MAX(VENTASDET.FECALTAS) AS ULTIMA_VENTA FROM VENTASDET WHERE VENTASDET.COD_PROD=LOTES.COD_PROD AND VENTASDET.ID_SUCURSAL=LOTES.ID_SUCURSAL) AS ULTIMA_VENTA    
+                     '))
+         ->leftJoin('PRODUCTOS_AUX', function($join)
+         {
+             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
+             ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
+         })
+         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+         ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
+         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+         ->Where('LOTES.ID_SUCURSAL', '=', $datos["datos"]["Sucursal"])
+         ->where(DB::raw('(SELECT MAX(L6.FECMODIF) AS ULT_FECHA FROM LOTES AS L6 WHERE L6.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L6.COD_PROD=LOTES.COD_PROD)'), '<', $inicio)
+         ->whereNotBetween(DB::raw('(SELECT MAX(L3.FECMODIF) AS ULT_FECHA FROM LOTES AS L3 WHERE L3.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L3.COD_PROD=LOTES.COD_PROD)'), [$inicio, $final]);
+        
+
+        if ($datos->input("Stock") === false) {
+
+            $posts = $posts->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) <= 0');
+
+        } else {
+
+            $posts = $posts->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) > 0');
+
+        }
+        if($datos["datos"]["Filtro"]=="SECCION"){
+             $posts->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
+             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','LOTES.COD_PROD')
+                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','LOTES.ID_SUCURSAL');
+            })
+            ->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
+            ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
+            ->where('SECCIONES.ID','=', $datos["datos"]["Seccion"]);
+             if($datos["datos"]["AllProveedores"]==false){
+                 $posts->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["datos"]["Proveedores"]);
+             }
+             if($datos["datos"]["AllCategorySeccion"]==false){
+                $posts->whereIn('PRODUCTOS.LINEA',$datos["datos"]["CategoriaSeccion"]);
+             }
+
+         }
+
+        if($datos["datos"]["Filtro"]=="PROVEEDOR"){
+            if($datos["datos"]["AllProveedores"]==false){
+                 $posts->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["datos"]["Proveedores"]);
+             }
+             if($datos["datos"]["AllCategory"]==false){
+                $posts->whereIn('PRODUCTOS.LINEA',$datos["datos"]["Categorias"]);
+             }
+        }
+        
+        $posts = $posts->groupBy('LOTES.COD_PROD')
+        ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+          
+
+            /*  --------------------------------------------------------------------------------- */
+
+        
+
+         
+
+            /*  --------------------------------------------------------------------------------- */
+
+        
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+            $c=1;
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+          
+               $filename = '../storage/app/public/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                
+                if(file_exists($filename)) {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                } else {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                }
+                $nestedData['CODIGO'] = $post->COD_PROD;
+                $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
+                $nestedData['DESCRIPCION'] = ucwords(utf8_encode(utf8_decode(substr($post->DESCRIPCION,0,25))));
+                $nestedData['CATEGORIA'] = ucwords(utf8_encode(utf8_decode($post->CATEGORIA)));
+                $nestedData['PROVEEDOR'] = ucwords(utf8_encode(utf8_decode($post->PROVEEDOR)));
+                $nestedData['PREC_VENTA'] = round($post->PREC_VENTA,2);
+                $nestedData['PREMAYORISTA'] = round($post->PREMAYORISTA,2);
+                $nestedData['STOCK'] = $post->STOCK;
+                $nestedData['CANTIDAD_INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['ULTIMA_ENTRADA'] = substr($post->ULTIMA_ENTRADA,0,10);
+                $nestedData['ULTIMO_MOVIMIENTO'] = $post->ULTIMO_MOVIMIENTO;
+                $nestedData['ULTIMA_VENTA'] = substr($post->ULTIMA_VENTA, 0,10);
+
+                
+
+                $data[] = $nestedData;
+                $c=$c+1;
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($datos->input('draw')),  
+                    "recordsTotal"    => intval($c),  
+                    "recordsFiltered" => intval($c), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+        
+        
+    }
+
 
 
 }

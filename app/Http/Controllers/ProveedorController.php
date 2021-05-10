@@ -5,6 +5,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Proveedor;
 use App\Exports\VentasProveedor;
+use App\Exports\VentaProveedorExport;
 class ProveedorController extends Controller
 {
     public function obtenerProveedores(){
@@ -178,6 +179,18 @@ class ProveedorController extends Controller
 
         $proveedor = Proveedor::proveedor_datatable($request);
         return response()->json($proveedor);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function descargar_excel(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR REPORTE PROVEEDORES 
+        
+        return Excel::download(new VentaProveedorExport($request->all()), 'VentasProveedores.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 

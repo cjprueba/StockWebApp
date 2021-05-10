@@ -6,6 +6,12 @@
 			<div class="card-body">
 			  	<div class="form-row">
 			  		<div class="col-md-4 mb-3">
+			
+							<div class="custom-control custom-switch mr-sm-2" >
+								<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_consignacion" v-on:change="cambiar_titulo">
+								<label class="custom-control-label" for="customControlAutosizing" data-toggle="tooltip" data-placement="top" title="Permite Descargar solo los productos con transferencias a consignacion">Solo Consignacion</label>
+							</div>
+						
 			  			
 			  			<label for="validationTooltip01">Sucursal Origen</label>
 						<select class="custom-select custom-select-sm" v-model="selectedSucursalOrigen">
@@ -266,7 +272,9 @@
               	responseCategoria: [],
               	varTotalMarca: [],
 				varNombreMarca: [],
-              	cargado: false
+              	cargado: false,
+              	switch_consignacion:false,
+              	titulo_descarga:'Transferencia-'
             }
         }, 
         methods: {
@@ -291,7 +299,7 @@
 					   const url = window.URL.createObjectURL(new Blob([response.data]));
 					   const link = document.createElement('a');
 					   link.href = url;
-					   link.setAttribute('download', 'Transferencia-'+me.selectedInicialFecha+'-'+me.selectedFinalFecha+'.xlsx'); //or any other extension
+					   link.setAttribute('download', me.titulo_descarga+me.selectedInicialFecha+'-'+me.selectedFinalFecha+'.xlsx'); //or any other extension
 					   document.body.appendChild(link);
 					   link.click();
 					});
@@ -304,6 +312,14 @@
 			 },
 	        todasMarcas(e){
 	        	this.onMarca = !this.onMarca;
+	        },
+	        cambiar_titulo(){
+	        	if(this.switch_consignacion===true){
+	        		this.titulo_descarga='Transferencias_Consignacion_General-';
+	        	}else{
+	        		this.titulo_descarga='Transferencia-';
+	        	}
+	        	
 	        },
 	        todasCategorias(e){
 	        	this.onCategoria = !this.onCategoria;
@@ -399,7 +415,8 @@
 	        	Categorias: this.selectedCategoria,
 	        	AllBrand: this.onMarca,
 	        	AllCategory: this.onCategoria,
-	        	Estatus: this.selectedEstatus 
+	        	Estatus: this.selectedEstatus ,
+	        	Consignacion: this.switch_consignacion
 	        	};
 	        	
 	        	return true;

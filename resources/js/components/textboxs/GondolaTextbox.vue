@@ -23,6 +23,7 @@
         selecciones: function(newVal, oldVal) { // watch it
           // console.log('Prop changed: ', newVal, ' | was: ', oldVal)
             this.seleccionGondola = newVal;
+            console.log(this.selecciones);
         }
       },
       methods: {
@@ -33,7 +34,8 @@
       				// LLAMAR FUNCION PARA FILTRAR GONDOLAS
 
       				Common.obtenerGondolaCommon().then(data => {
-      				  this.gondolas = data
+      				  console.log(data);
+                this.gondolas = data;
       				});
 
       				// ------------------------------------------------------------------------

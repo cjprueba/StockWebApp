@@ -56,8 +56,8 @@ class RptTransferenciaVentaTotales implements FromArray, WithTitle,WithEvents,Sh
     public $marcas_array=[];
      public $marcas_array_aux=[];
     private $descuentogeneral;
-    /private $descuentos;
-    **
+    private $descuentos;
+    /**
     * @return \Illuminate\Support\Collection
     */
                 public function __construct($datos)
