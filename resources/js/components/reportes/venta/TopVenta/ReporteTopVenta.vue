@@ -82,7 +82,7 @@
 	  		        </div>
 
 					<div class="custom-control custom-switch mr-sm-2 mt-3" >
-						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_stock" v-on:change="marcarTodo">
+						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_stock">
 						<label class="custom-control-label" for="customControlAutosizing" data-toggle="tooltip" data-placement="top">Stock</label>
 					</div>
 				</div>
@@ -105,7 +105,7 @@
 					        {{messageInvalidProveedor}}
 					    </div>
 					<div class="custom-control custom-switch mt-3">
-						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor">
+						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor" v-on:change="marcarTodo">
 						<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
 					</div>
                 </div> 
@@ -209,10 +209,10 @@
 
 	      		if(me.onProveedor === true) {
 			        for (var key in me.proveedores){
-			        	me.selectedProveedor[key] = me.proveedores[key].ID;
+			        	me.selectedProveedor[key] = me.proveedores[key].CODIGO;
 			        }
 			    }else{
-
+			    	me.selectedProveedor = [];
 			    }
         	},
 

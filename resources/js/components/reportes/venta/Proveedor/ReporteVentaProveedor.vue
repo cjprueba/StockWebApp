@@ -79,7 +79,7 @@
 					<div class="row ml-3">	
 						
 						<div class="col-sm-3">
-						<label aling=left>Agrupar por:</label>
+							<label aling=left>Agrupar por:</label>
 						</div>
 						<div class="col-sm">
 							<div class="form-check mt-3">
@@ -94,9 +94,9 @@
 							    Categoría
 							  </label>
 							</div>
-			  		        <div class="invalid-feedback">
-							    {{messageInvalidRadio}}
-							</div>
+						</div>
+	    				<div class="col-sm-12">
+							<div class="form-text text-danger">{{messageInvalidAgrupar}}</div>
 						</div>
 					</div>
 				</div>
@@ -213,7 +213,7 @@
               	messageInvalidProveedor: '',
               	messageInvalidCategoria: '',
               	messageInvalidTipo: '',
-              	messageInvalidRadio: '',
+              	messageInvalidAgrupar: '',
               	validarSucursal: false,
               	validarInicialFecha: false,
               	validarFinalFecha: false,
@@ -497,6 +497,13 @@
 	        		me.controlar = false;
 	        	} else {
 	        		me.messageInvalidTipo = '';
+	        	}
+
+	        	if(me.agruparCategoria === false && me.agruparProveedor === false) {
+	        		me.messageInvalidAgrupar = 'Por favor seleccione tipo de agrupación.';
+	        		me.controlar = false;
+	        	} else {
+	        		me.messageInvalidAgrupar = '';
 	        	}
 
 	        	if(me.onCategoria === false && me.selectedCategoria.length===0){
