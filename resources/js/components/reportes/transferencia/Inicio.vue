@@ -9,7 +9,8 @@
 				<label for="validationTooltip01">Seleccione Reporte Transferencia</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="1">Transferencias por Consignación</option>
+					<option value="1">Transferencias por Ventas a Consignación</option>
+          <option value="2">Transferencias por Marca y Categoria</option>
 				</select>			
 			</div>
 
@@ -18,6 +19,9 @@
 			<transition name="slide-fade">	
 				<transferencia-consignacion-rpt v-if="reporte === '1'" id="reporte1"></transferencia-consignacion-rpt>
 			</transition>
+      <transition name="slide-fade">  
+        <transferencia-marca-categoria v-if="reporte === '2'" id="reporte2"></transferencia-marca-categoria>
+      </transition>
 
 			<!-- FIN DE TRANSFERENCIA POR CONSIGNACION -->
 		</div>
