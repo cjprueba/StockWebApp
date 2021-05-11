@@ -451,6 +451,24 @@
         </div>
       </li>
 
+
+
+      <!-- ------------------------------------------------------------------------------------- -->
+      <!-- CAJA -->
+      
+      <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCaja" aria-expanded="true" aria-controls="collapseCaja">
+        <font-awesome-icon icon="user-circle" />
+        <span>Caja</span>
+      </a>
+      <div id="collapseCaja" class="collapse" aria-labelledby="headingCaja" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <h6 class="collapse-header">Opciones:</h6>
+          <router-link class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
+        </div>
+      </div>
+    </li>
+
       <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaquinas" aria-expanded="true" aria-controls="collapseMaquinas">
           <font-awesome-icon icon="user-circle" />
@@ -521,6 +539,10 @@
       
     </ul>
     <!-- End of Sidebar -->
+
+    
+
+
 </template>
 <script>
   export default {

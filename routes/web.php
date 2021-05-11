@@ -46,6 +46,10 @@ Route::apiResource('busqueda-sector-sucursal', 'BusquedaRmController');
 // CAJAS
  
 Route::post('cajaObtener', 'CajaController@obtenerCaja');
+Route::post('asignarCaja', 'CajaController@cajaAsignar');
+Route::post('existeCaja', 'CajaController@cajaExiste');
+Route::post('quitarCaja', 'CajaController@cajaQuitar');
+
 
 /* -------------------------------------------------------------------------- */
 
