@@ -65,8 +65,9 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Lista de Reportes:</h6>
              <router-link class="collapse-item" :to="{name: 'rptSeccion'}">Encargada de Sección</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptVencimiento'}">Vencimiento de Producto</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptStockWeb'}">Stock</router-link>
+      <!--        <router-link class="collapse-item" :to="{name: 'rptVencimiento'}">Vencimiento de Producto</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptStockWeb'}">Stock</router-link> -->
+             <router-link class="collapse-item" :to="{name: 'rptProductoWeb'}">Productos</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
              <router-link class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
           </div>
@@ -82,15 +83,16 @@
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Lista de Reportes:</h6>
-             <router-link class="collapse-item" :to="{name: 'rptVenta'}">Ventas</router-link>
+          <!--    <router-link class="collapse-item" :to="{name: 'rptTransferencia'}">Transferencias</router-link> -->
+             <!-- <router-link class="collapse-item" :to="{name: 'rptVenta'}">Ventas</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTransferencia'}">Transferencias</router-link>
              <router-link class="collapse-item" :to="{name: 'rptDescuento'}">Descuentos</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptVendedor'}">Vendedor</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptVendedor'}">Vendedor</router-link> -->
              <!-- <router-link class="collapse-item" :to="{name: 'rptCliente'}">Clientes</router-link> -->
-             <router-link class="collapse-item" :to="{name: 'rptArticulo'}">Articulos</router-link>
+            <!--  <router-link class="collapse-item" :to="{name: 'rptArticulo'}">Articulos</router-link>
              <router-link class="collapse-item" :to="{name: 'rptProveedor'}">Proveedores</router-link>
              <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventarios</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link>
+             <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link> -->
              <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
              <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link>
              <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>

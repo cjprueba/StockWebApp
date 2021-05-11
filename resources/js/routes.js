@@ -450,6 +450,12 @@ export default new Router({
 			name: 'cambiarSucursal',
 			component: require('./components/usuario/CambiarSucursal.vue').default
 		},
+		{
+			path: '/rptProducto',
+			name: 'rptProductoWeb',
+			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+
 	],
 	mode: 'history'
 });
