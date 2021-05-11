@@ -11,7 +11,7 @@
 
 					<!-- -------------------------------------------SELECCIONAR SUCURSAL---------------------------------------- -->
 					
-				  	<label for="validationTooltip01">Sucursal</label>
+				  	<label for="validationTooltip01">Seleccione Sucursal</label>
 					<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
 						<option value="null">Seleccionar</option>
 						<option v-for="sucursal in sucursales" :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
@@ -46,31 +46,57 @@
 
 				<div class="col-3 mb-3 ">
 					<div class="row ml-3">
-						<div class="col-sm-2">
-							<label>Tipo</label>
+						<div class="col-sm-3">
+							<label>Tipo de Venta:</label>
 						</div>
 						<div class="col-sm">
 							<div class="form-check mt-3">
-							  <input v-model="selectedTipo" class="form-check-input" type="checkbox" value="CO" id="contado" checked>
+							  <input v-model="selectedTipo" class="form-check-input" type="checkbox" value="CO" id="contado">
 							  <label class="form-check-label" for="contado">
-							    CONTADO
+							    Contado
 							  </label>
 							</div>
 							<div class="form-check">
 							  <input v-model="selectedTipo" class="form-check-input" type="checkbox" value="CR" id="credito">
 							  <label class="form-check-label" for="credito">
-							    CRÉDITO
+							    Crédito
 							  </label>
 							</div>
 							<div class="form-check">
 							  <input v-model="selectedTipo" class="form-check-input" type="checkbox" value="PE" id="pagoAlEntregar">
 							  <label class="form-check-label" for="pagoAlEntregar">
-							    PAGO AL ENTREGAR
+							    Pago Al Entregar
 							  </label>
 							</div>
 	    				</div>
 	    				<div class="col-sm-12">
 							<div class="form-text text-danger">{{messageInvalidTipo}}</div>
+						</div>
+					</div>
+
+					<!-- ------------------------------------------- RADIO AGRUPAR ----------------------------------------------- -->
+
+					<div class="row ml-3">	
+						
+						<div class="col-sm-3">
+						<label aling=left>Agrupar por:</label>
+						</div>
+						<div class="col-sm">
+							<div class="form-check mt-3">
+							  <input v-model="agruparProveedor" class="form-check-input" type="checkbox" id="prov">
+							  <label class="form-check-label" for="prov">
+							    Proveedor
+							  </label>
+							</div>
+							<div class="form-check">
+							  <input v-model="agruparCategoria" class="form-check-input" type="checkbox" id="cat">
+							  <label class="form-check-label" for="cat">
+							    Categoría
+							  </label>
+							</div>
+			  		        <div class="invalid-feedback">
+							    {{messageInvalidRadio}}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -187,17 +213,21 @@
               	messageInvalidProveedor: '',
               	messageInvalidCategoria: '',
               	messageInvalidTipo: '',
+              	messageInvalidRadio: '',
               	validarSucursal: false,
               	validarInicialFecha: false,
               	validarFinalFecha: false,
               	validarProveedor: false,
               	validarCategoria: false,
+              	validarRadio: false,
               	datos: {},
               	descarga: false,
               	onProveedor: false,
               	onCategoria: false,
               	controlar: true,
-              	selectedTipo: []
+              	selectedTipo: [],
+              	agruparCategoria: false,
+              	agruparProveedor: false
             }
         }, 
         methods: {
@@ -512,7 +542,9 @@
 		        	AllCategory: me.onCategoria,
 					Proveedores: me.selectedProveedor,
 					AllProveedores: me.onProveedor,
-					Tipo: me.selectedTipo
+					Tipo: me.selectedTipo,
+					AgruparProveedor: me.agruparProveedor,
+					agruparCategoria: me.agruparCategoria
 	        	};
 
 	        	return true;

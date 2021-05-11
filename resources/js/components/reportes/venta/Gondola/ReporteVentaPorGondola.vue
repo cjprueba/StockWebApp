@@ -71,7 +71,7 @@
 					        <div class="form-text text-danger">{{messageInvalidSeccion}}</div>
 					    </div>
 						<div  class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onSeccion" v-on:change="toggleAll">
+						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onSeccion" v-on:change="seleccionarTodo">
 						  <label class="custom-control-label" for="customSwitch1" >Seleccionar todas las secciones</label>
 						</div>
 					</div>
@@ -96,7 +96,7 @@
 						    <div class="form-text text-danger">{{messageInvalidGondola}}</div>
 						</div>
 						<div class="custom-control custom-switch mt-3">
-							<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onGondola" v-on:change="toggleAll">
+							<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onGondola" v-on:change="seleccionarTodo">
 							<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
 						</div>
 		            </div>
@@ -169,7 +169,7 @@
             }
         },
         methods: {
-	      	toggleAll(checked){
+	      	seleccionarTodo(){
 
 	      		let me = this;
 
@@ -190,9 +190,6 @@
 			    }
 	      	},
 
-	      	toggleAll1(checked){
-	      		let me = this;
-	      	},
             llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {
 	           	this.sucursales = response.data.sucursales;

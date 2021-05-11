@@ -82,7 +82,7 @@
 	  		        </div>
 
 					<div class="custom-control custom-switch mr-sm-2 mt-3" >
-						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_stock">
+						<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_stock" v-on:change="marcarTodo">
 						<label class="custom-control-label" for="customControlAutosizing" data-toggle="tooltip" data-placement="top">Stock</label>
 					</div>
 				</div>
@@ -203,6 +203,18 @@
             }
         }, 
         methods: {
+        	marcarTodo(){
+
+				let me = this;
+
+	      		if(me.onProveedor === true) {
+			        for (var key in me.proveedores){
+			        	me.selectedProveedor[key] = me.proveedores[key].ID;
+			        }
+			    }else{
+
+			    }
+        	},
 
         	llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {
