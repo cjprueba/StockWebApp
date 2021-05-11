@@ -9,27 +9,15 @@
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-          <div v-if="$can('reporte.venta.marcaycategoria')">
-  					<option value="3">Ventas por Marca y Categoría</option>
-          </div>
-          <div v-if="$can('reporte.venta.resumendiario')">
-            <option value="4">Reporte Diario</option>
-          </div>
-          <div v-if="$can('reporte.venta.vendedor')">
-            <option value="5">Ventas por Vendedor</option>
-          </div>
-          <div v-if="$can('reporte.venta.topventas')">
-            <option value="6">Top Ventas</option>
-          </div>
-          <div v-if="$can('reporte.venta.periodosinmov')">
-            <option value="7">Por Período</option>
-          </div>
-          <div v-if="$can('reporte.venta.proveedor')">
-            <option value="8">Ventas por Proveedor</option>
-          </div>
-          <div v-if="$can('reporte.venta.gondola')">
-            <option value="9">Ventas por Góndola</option>
-          </div>
+ 
+  				  <option v-if="$can('reporte.venta.marcaycategoria')" value="3">Ventas por Marca y Categoría</option>
+            <option v-if="$can('reporte.venta.resumendiario')" value="4">Reporte Diario</option>
+            <option v-if="$can('reporte.venta.vendedor')" value="5">Ventas por Vendedor</option>
+            <option v-if="$can('reporte.venta.topventas')" value="6">Top Ventas</option>
+            <option v-if="$can('reporte.venta.periodosinmov')" value="7">Por Período</option>
+            <option v-if="$can('reporte.venta.proveedor')" value="8">Ventas por Proveedor</option>
+            <option v-if="$can('reporte.venta.gondola')" value="9">Ventas por Góndola</option>
+
 				</select>			
 			</div>
 
