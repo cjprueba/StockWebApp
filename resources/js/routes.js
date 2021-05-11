@@ -450,6 +450,11 @@ export default new Router({
 			name: 'cambiarSucursal',
 			component: require('./components/usuario/CambiarSucursal.vue').default
 		},
+		{
+			path: '/AsignacionDeCaja',
+			name: 'asignarCaja',
+			component: require('./components/cajas/AsignarCaja.vue').default
+		},
 	],
 	mode: 'history'
 });
