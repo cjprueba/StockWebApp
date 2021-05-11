@@ -451,9 +451,17 @@ export default new Router({
 			component: require('./components/usuario/CambiarSucursal.vue').default
 		},
 		{
+
 			path: '/rptProducto',
 			name: 'rptProductoWeb',
 			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+    {
+
+
+			path: '/AsignacionDeCaja',
+			name: 'asignarCaja',
+			component: require('./components/cajas/AsignarCaja.vue').default
 		},
 
 	],

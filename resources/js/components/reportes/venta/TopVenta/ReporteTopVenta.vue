@@ -56,7 +56,7 @@
 			  	  		<option value="SECCION">Sección</option>
 			    		<option value="PROVEEDOR">Proveedor</option>
 			  		</select>
-			  		<!-- -----------------------------------SELECT SECCION------------------------------------- -->
+			  		<!-- ----------------------------------- SELECT SECCION ------------------------------------- -->
 
 	                <div class="mt-3" v-if="selectedFiltro === 'SECCION'">
 						<label for="validationTooltip01">Seleccione Sección</label>
@@ -589,3 +589,10 @@
         }
     }    
 </script>
+<style>
+	.container_checkbox1 { 
+		border:2px solid #ccc; 
+		height: 224px; 
+		overflow-y: scroll; 
+	}
+</style>
