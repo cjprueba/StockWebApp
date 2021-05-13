@@ -9,8 +9,9 @@
 				<label for="validationTooltip01">Seleccione Reporte de Productos</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="1">Vencimiento de productos</option>
-          <option value="2">Stock de productos</option>
+          <option  v-if="$can('reporte.productos.stockprod')" value="2">Stock de productos</option>
+					<option  v-if="$can('reporte.productos.vencimientoprod')" value="1">Vencimiento de productos</option>
+          
 				</select>			
 			</div>
 

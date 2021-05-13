@@ -56,36 +56,45 @@
         </div>
       </li>
 
-       <li class="nav-item" >
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReporteWeb" aria-expanded="true" aria-controls="collapseReporteWeb">
-          <font-awesome-icon icon="chart-area" />
-          <span >Reporte web</span>
-        </a>
-        <div id="collapseReporteWeb" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Lista de Reportes:</h6>
+        <li v-if="$can('reporte.web')" class="nav-item" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReporteWeb" aria-expanded="true" aria-controls="collapseReporteWeb">
+            <font-awesome-icon icon="chart-area" />
+            <span >Reporte web</span>
+          </a>
+          <div id="collapseReporteWeb" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Lista de Reportes:</h6>
 
-            <router-link class="collapse-item" :to="{name: 'rptSeccion'}">Encargada de Sección</router-link>
-      <!--        <router-link class="collapse-item" :to="{name: 'rptVencimiento'}">Vencimiento de Producto</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptStockWeb'}">Stock</router-link> -->
-            <router-link class="collapse-item" :to="{name: 'rptProductoWeb'}">Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
-            <div v-if="$can('reporte.venta')">
-              <router-link class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
+              <router-link v-if="$can('reporte.encargadadeseccion')" class="collapse-item" :to="{name: 'rptSeccion'}">Encargada de Sección</router-link>
+        <!--        <router-link class="collapse-item" :to="{name: 'rptVencimiento'}">Vencimiento de Producto</router-link>
+               <router-link class="collapse-item" :to="{name: 'rptStockWeb'}">Stock</router-link> -->
+              <router-link v-if="$can('reporte.productos')" class="collapse-item" :to="{name: 'rptProductoWeb'}">Productos</router-link>
+              <router-link v-if="$can('reporte.transferencia')" class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
+              <router-link v-if="$can('reporte.venta')" class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
             </div>
           </div>
-        </div>
-      </li>
+        </li>
 
+
+<!-- ------------REPORTE DE STOCK - NO FUNCIONA------------->
+   <!-- <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link> -->
+     <!-- <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link> -->
       <!-- Nav Item - Utilities Collapse Menu -->
-      <li class="nav-item" >
+      
+
+
+
+
+
+<!----------------------------------------------------REPORTE------------------------------------------------------------------------------>
+      <!-- <li class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
           <font-awesome-icon icon="sticky-note" />
           <span >Reporte</span>
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Lista de Reportes:</h6>
+            <h6 class="collapse-header">Lista de Reportes:</h6> -->
           <!--    <router-link class="collapse-item" :to="{name: 'rptTransferencia'}">Transferencias</router-link> -->
              <!-- <router-link class="collapse-item" :to="{name: 'rptVenta'}">Ventas</router-link>
              <router-link class="collapse-item" :to="{name: 'rptTransferencia'}">Transferencias</router-link>
@@ -96,15 +105,23 @@
              <router-link class="collapse-item" :to="{name: 'rptProveedor'}">Proveedores</router-link>
              <router-link class="collapse-item" :to="{name: 'rptInventario'}">Inventarios</router-link>
              <router-link class="collapse-item" :to="{name: 'rptCompra'}">Compras</router-link> -->
-             <router-link class="collapse-item" :to="{name: 'rptStock'}">Stock</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptStockCero'}">Stock Cerado</router-link>
-             <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>
+          
+           
+             <!-- <router-link class="collapse-item" :to="{name: 'rptVales'}">Vales</router-link>
+
              <router-link class="collapse-item" :to="{name: 'rptTransferencia2'}">Venta Transferencia</router-link>
+
              <router-link class="collapse-item" :to="{name: 'rptDelivery'}">Delivery</router-link>
+
              <router-link class="collapse-item" :to="{name: 'rptTarjeta'}">Venta Tarjeta</router-link>
           </div>
         </div>
-      </li>
+      </li> -->
+
+
+
+
+
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransferencia" aria-expanded="true" aria-controls="collapseTransferencia">
