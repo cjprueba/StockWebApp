@@ -392,6 +392,11 @@ Vue.component('venta-proveedor-rpt', require('./components/reportes/venta/Provee
 Vue.component('productos-vencidos-rpt', require('./components/reportes/producto/Vencido/VencimientoDeProductoRpt.vue').default);
 Vue.component('productos-stock-rpt', require('./components/reportes/stock/ReporteStock.vue').default);
 Vue.component('venta-gondola-rpt', require('./components/reportes/venta/Gondola/ReporteVentaPorGondola.vue').default);
+Vue.component('venta-vales-rpt' , require('./components/reportes/vales/Vales.vue').default);
+Vue.component('venta-transferencia-rpt' , require('./components/reportes/VentaTransferencia.vue').default);
+Vue.component('venta-delivery-rpt' , require('./components/reportes/ServicioDelivery.vue').default);
+Vue.component('venta-tarjeta-rpt' , require('./components/reportes/VentaTarjeta.vue').default);
+
 
 /* ********************************************* */
 
