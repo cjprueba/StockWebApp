@@ -103,6 +103,17 @@ class BusquedaController extends Controller
         ->get()
         ->toArray();
 
+         /*  *********** OBTENER LA SECCION GENERAL POR SUCURSAL *********** */
+
+        $secciones = DB::connection('retail')
+                ->table('SECCIONES')
+                ->select(DB::raw('IFNULL(ID, 0) AS ID_SECCION'),
+                        DB::raw('IFNULL(DESCRIPCION, 0) AS DESCRIPCION'))
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+            ->orderBy('DESCRIPCION', 'ASC')
+            ->get()
+            ->toArray();
+
         if(count($seccion)>0){
 
             /*  *********** CATEGORIAS POR SECCION *********** */
@@ -141,19 +152,13 @@ class BusquedaController extends Controller
                     'sucursalesgeneral'=>$sucursalesgeneral, 
                     'seccionCategorias' => $seccionCategorias, 
                     'seccionSubCategorias' => $seccionSubCategorias,
-                    'seccion' => $seccion];
+                    'seccion' => $seccion,
+                    'secciones' => $secciones];
 
         }else{
 
-
-            $seccion = DB::connection('retail')
-                ->table('SECCIONES')
-                ->select(DB::raw('IFNULL(ID, 0) AS ID_SECCION'),
-                        DB::raw('IFNULL(DESCRIPCION, 0) AS DESCRIPCION'))
-            ->where('ID_SUCURSAL','=',$user->id_sucursal)
-            ->get()
-            ->toArray();
-
+            $seccion = $secciones;
+            
             /*  *********** RETORNAR VALORES *********** */
 
             return ['sucursales' => $sucursales, 
@@ -164,7 +169,8 @@ class BusquedaController extends Controller
                     'cliente'=>$cliente,
                     'proveedores'=>$proveedores,
                     'sucursalesgeneral'=>$sucursalesgeneral,
-                    'seccion' => $seccion];
+                    'seccion' => $seccion,
+                    'secciones' => $secciones];
         }
     }
 }
