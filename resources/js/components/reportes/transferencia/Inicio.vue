@@ -9,8 +9,8 @@
 				<label for="validationTooltip01">Seleccione Reporte Transferencia</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-          <option v-if="$can('reporte.transferencia.marcaycat')" value="2">Transferencias por Marca y Categoria</option>
-					<option v-if="$can('reporte.transferencia.ventasconsig')" value="1">Transferencias por Ventas a Consignación</option>  
+          <option v-if="$can('reporte.transferencia.marcaycat') && $can('reporte.web')" value="2">Transferencias por Marca y Categoria</option>
+					<option v-if="$can('reporte.transferencia.ventasconsig') && $can('reporte.web')" value="1">Transferencias por Ventas a Consignación</option>  
 				</select>			
 			</div>
 

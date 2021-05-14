@@ -1,70 +1,77 @@
 <template>
 	<div class="container-fluid mt-4">
-		<!-- <div class="row" v-if="$can('transferencia.mostrar')"> -->
+		<div v-if="$can('transferencia.mostrar') && $can('transferencia')">
+			<!-- <div class="row" v-if="$can('transferencia.mostrar')"> -->
 
-			<!-- ------------------------------------------------------------------------------------- -->
+				<!-- ------------------------------------------------------------------------------------- -->
 
-			<!-- TITULO  -->
-			
-			<div class="col-md-12">
-				<vs-divider>
-					Mostrar Transferencias
-				</vs-divider>
-			</div>
-			
-	        <!-- ------------------------------------------------------------------------------------- -->
+				<!-- TITULO  -->
+				
+				<div class="col-md-12">
+					<vs-divider>
+						Mostrar Transferencias
+					</vs-divider>
+				</div>
+				
+		        <!-- ------------------------------------------------------------------------------------- -->
 
-	        <!-- MOSTRAR LOADING -->
+		        <!-- MOSTRAR LOADING -->
 
-	        <div class="col-md-12">
-				<div v-if="procesar" class="d-flex justify-content-center mt-3">
-					<strong>Procesando...   </strong>
-	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
-	             </div>
-            </div>
+		        <div class="col-md-12">
+					<div v-if="procesar" class="d-flex justify-content-center mt-3">
+						<strong>Procesando...   </strong>
+		                <div class="spinner-grow" role="status" aria-hidden="true"></div>
+		             </div>
+	            </div>
+
+				<!-- ------------------------------------------------------------------------ -->
+
+				<div class="col-md-12">
+					<table id="tablaTransferencias" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
+			            <thead>
+			                <tr>
+			                    <th>Codigo</th>
+			                    <th>Origen</th>
+			                    <th>Destino</th>
+			                    <th>N. Caja</th>
+			                    <th>IVA</th>
+			                    <th>Total</th>
+			                    <th>Estatus</th>
+			                    <th>Acción</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+			                <td></td>
+			            </tbody>
+			        </table> 
+
+
+				</div>	
+		<!-- 	</div> -->
 
 			<!-- ------------------------------------------------------------------------ -->
 
-			<div class="col-md-12">
-				<table id="tablaTransferencias" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
-		            <thead>
-		                <tr>
-		                    <th>Codigo</th>
-		                    <th>Origen</th>
-		                    <th>Destino</th>
-		                    <th>N. Caja</th>
-		                    <th>IVA</th>
-		                    <th>Total</th>
-		                    <th>Estatus</th>
-		                    <th>Acción</th>
-		                </tr>
-		            </thead>
-		            <tbody>
-		                <td></td>
-		            </tbody>
-		        </table> 
+			<!-- <div v-else>
+				<cuatrocientos-cuatro></cuatrocientos-cuatro>
+			</div>
+	 -->
+			<!-- ------------------------------------------------------------------------ -->
+			
+			<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
+			<modal-detalle-transferencia 
+			ref="ModalImportarTransferencia"
+			></modal-detalle-transferencia>
 
-			</div>	
-	<!-- 	</div> -->
+			<!-- ------------------------------------------------------------------------ -->
 
-		<!-- ------------------------------------------------------------------------ -->
-
-		<!-- <div v-else>
-			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
- -->
-		<!-- ------------------------------------------------------------------------ -->
-		
-		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
-
-		<modal-detalle-transferencia 
-		ref="ModalImportarTransferencia"
-		></modal-detalle-transferencia>
-
-		<!-- ------------------------------------------------------------------------ -->
-
+		<div v-else>
+	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
 	</div>
+  
+	 
 </template>
 <script>
 	import App from './MostrarTransferencias.vue'

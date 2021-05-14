@@ -1,5 +1,6 @@
 <template>
 	<div class="container-fluid  bg-light">
+		<div v-if="$can('transferencia.crear') && $can('transferencia')">
 
 	<!-- 	<div v-if="$can('transferencia.crear')" class="mt-4"> -->
 
@@ -639,6 +640,10 @@
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div> -->
 
+		</div>
+		<div v-else>
+	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
 	</div>
 
 </template>

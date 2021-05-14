@@ -1,76 +1,82 @@
 <template>
 	<div class="container-fluid mt-4">
+		<div v-if="$can('transferencia.importar') && $can('transferencia')">
+
 	<!-- 	<div class="row" v-if="$can('transferencia.importar')"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
 			<!-- TITULO  -->
 			
-			<div class="col-md-12">
-				<vs-divider>
-					Importar Transferencias
-				</vs-divider>
-			</div>
+				<div class="col-md-12">
+					<vs-divider>
+						Importar Transferencias
+					</vs-divider>
+				</div>
 
-			<!-- ------------------------------------------------------------------------------------- -->
+				<!-- ------------------------------------------------------------------------------------- -->
 
-	        <!-- MOSTRAR LOADING -->
+		        <!-- MOSTRAR LOADING -->
 
-	        <div class="col-md-12">
-				<div v-if="procesar" class="d-flex justify-content-center mt-3">
-					<strong>Procesando...   </strong>
-	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
-	             </div>
-            </div>
+		        <div class="col-md-12">
+					<div v-if="procesar" class="d-flex justify-content-center mt-3">
+						<strong>Procesando...   </strong>
+		                <div class="spinner-grow" role="status" aria-hidden="true"></div>
+		             </div>
+	            </div>
 
-			<!-- ------------------------------------------------------------------------------------- -->
+				<!-- ------------------------------------------------------------------------------------- -->
 
-			<div class="col-md-12">
-				<table id="tablaImportarTrans" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
-		            <thead>
-		                <tr>
-		                    <th>Codigo</th>
-		                    <th>Codigo Origen</th>
-		                    <th>Origen</th>
-		                    <th>Responsable Envio</th>
-		                    <th>Fecha</th>
-		                    <th>Hora</th>
-		                    <th>Total</th>
-		                    <th>Estatus</th>
-		                    <th>Acción</th>
-		                </tr>
-		            </thead>
-		            <tbody>
-		                <td></td>
-		            </tbody>
-		        </table> 
-			</div>	
-		<!-- </div> -->
+				<div class="col-md-12">
+					<table id="tablaImportarTrans" class="table table-hover table-striped table-bordered table-sm mb-3" style="width:100%">
+			            <thead>
+			                <tr>
+			                    <th>Codigo</th>
+			                    <th>Codigo Origen</th>
+			                    <th>Origen</th>
+			                    <th>Responsable Envio</th>
+			                    <th>Fecha</th>
+			                    <th>Hora</th>
+			                    <th>Total</th>
+			                    <th>Estatus</th>
+			                    <th>Acción</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+			                <td></td>
+			            </tbody>
+			        </table> 
+				</div>	
+			<!-- </div> -->
 
-		<!-- <div v-else>
-			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
-		
-		<!-- ------------------------------------------------------------------------ -->
+			<!-- <div v-else>
+				<cuatrocientos-cuatro></cuatrocientos-cuatro>
+			</div> -->
+			
+			<!-- ------------------------------------------------------------------------ -->
 
-		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
+			<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
-		<modal-detalle-transferencia 
-		ref="ModalImportarTransferencia"
-		></modal-detalle-transferencia>
+			<modal-detalle-transferencia 
+			ref="ModalImportarTransferencia"
+			></modal-detalle-transferencia>
 
-		<!-- ------------------------------------------------------------------------ -->
+			<!-- ------------------------------------------------------------------------ -->
 
-				<!-- ------------------------------------------------------------------------ -->
+					<!-- ------------------------------------------------------------------------ -->
 
-		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
+			<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
 
-		<modal-devolucion-transferencia 
-		ref="ModalDevolucionTransferencia"
-		></modal-devolucion-transferencia>
+			<modal-devolucion-transferencia 
+			ref="ModalDevolucionTransferencia"
+			></modal-devolucion-transferencia>
 
-		<!-- ------------------------------------------------------------------------ -->
+			<!-- ------------------------------------------------------------------------ -->
 
+		</div>
+		<div v-else>
+	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
 	</div>
 
 	

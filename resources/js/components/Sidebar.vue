@@ -123,7 +123,7 @@
 
 
 
-      <li class="nav-item">
+      <li v-if="$can('transferencia')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransferencia" aria-expanded="true" aria-controls="collapseTransferencia">
           <font-awesome-icon icon="truck"/>
           <span>Transferencia</span>
@@ -131,13 +131,13 @@
         <div id="collapseTransferencia" class="collapse" aria-labelledby="headingTransferencia" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'transferenciaMostrar'}">Mostrar Transferencias</router-link>
-            <router-link class="collapse-item" :to="{name: 'transferencia'}">Realizar Transferencias</router-link>
+            <router-link v-if="$can('transferencia.mostrar') " class="collapse-item" :to="{name: 'transferenciaMostrar'}">Listado de Transferencias</router-link>
+            <router-link v-if="$can('transferencia.crear')" class="collapse-item" :to="{name: 'transferencia'}">Realizar Transferencias</router-link>
             <!-- <a class="collapse-item" href="#" v-on:click="llamar(21)">Realizar Transferencias</a> -->
-            <router-link class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencia</router-link>
-            <router-link class="collapse-item" :to="{name: 'transferenciaMostrarDevolucion'}">Mostrar Devolucion</router-link>
-            <router-link class="collapse-item" :to="{name: 'transferenciaImportarDevolucion'}">Importar Devolucion</router-link>
-            <router-link class="collapse-item" :to="{name: 'transferenciaCobrar'}">Cobrar Devolucion</router-link>
+            <router-link v-if="$can('transferencia.importar')" class="collapse-item" :to="{name: 'transferenciaImportar'}">Importar Transferencias</router-link>
+            <router-link v-if="$can('transferencia.mostrardevo')" class="collapse-item" :to="{name: 'transferenciaMostrarDevolucion'}">Mostrar Devolucion</router-link>
+            <router-link v-if="$can('transferencia.importardevo')" class="collapse-item" :to="{name: 'transferenciaImportarDevolucion'}">Importar Devolucion</router-link>
+            <!-- <router-link class="collapse-item" :to="{name: 'transferenciaCobrar'}">Cobrar Devolucion</router-link> -->
           </div>
         </div>
       </li>
