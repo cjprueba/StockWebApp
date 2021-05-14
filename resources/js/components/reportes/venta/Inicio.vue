@@ -9,21 +9,17 @@
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-            <option v-if="$can('reporte.venta.periodosinmov')" value="7">Por Período</option> 
-            <option v-if="$can('reporte.venta.resumendiario')" value="4">Reporte Diario</option>
-            <option v-if="$can('reporte.venta.topventas')" value="6">Top Ventas</option>
-            <option v-if="$can('reporte.venta.delivery')"value="12">Ventas por Delivery</option> 
-            <option v-if="$can('reporte.venta.gondola')" value="9">Ventas por Góndola</option>
-            <option v-if="$can('reporte.venta.marcaycategoria')" value="3">Ventas por Marca y Categoría</option>
-            <option v-if="$can('reporte.venta.proveedor')" value="8">Ventas por Proveedor</option>
-            <option v-if="$can('reporte.venta.tarjeta')" value="13">Ventas por Tarjeta</option>
-            <option v-if="$can('reporte.venta.transferencia')" value="11">Ventas por Transferencia</option>
-            <option v-if="$can('reporte.venta.vale')" value="10">Ventas por Vales</option>
-            <option v-if="$can('reporte.venta.vendedor')" value="5">Ventas por Vendedor</option>
-            
-            
-            
-
+            <option v-if="$can('reporte.venta.periodosinmov') && $can('reporte.web')" value="7">Por Período</option> 
+            <option v-if="$can('reporte.venta.resumendiario') && $can('reporte.web')" value="4">Reporte Diario</option>
+            <option v-if="$can('reporte.venta.topventas') && $can('reporte.web')" value="6">Top Ventas</option>
+            <option v-if="$can('reporte.venta.delivery') && $can('reporte.web')"value="12">Ventas por Delivery</option> 
+            <option v-if="$can('reporte.venta.gondola') && $can('reporte.web')" value="9">Ventas por Góndola</option>
+            <option v-if="$can('reporte.venta.marcaycategoria') && $can('reporte.web')" value="3">Ventas por Marca y Categoría</option>
+            <option v-if="$can('reporte.venta.proveedor') && $can('reporte.web')" value="8">Ventas por Proveedor</option>
+            <option v-if="$can('reporte.venta.tarjeta') && $can('reporte.web')" value="13">Ventas por Tarjeta</option>
+            <option v-if="$can('reporte.venta.transferencia') && $can('reporte.web')" value="11">Ventas por Transferencia</option>
+            <option v-if="$can('reporte.venta.vale') && $can('reporte.web')" value="10">Ventas por Vales</option>
+            <option v-if="$can('reporte.venta.vendedor') && $can('reporte.web')" value="5">Ventas por Vendedor</option>
 				</select>			
 			</div>
 
