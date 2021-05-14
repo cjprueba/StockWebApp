@@ -364,6 +364,15 @@ class VentaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+           public function reporteVentaProveedor(Request $request)
+    {
+ 
+
+            $ventas = Venta::generarReporteVentaProveedor($request->all());
+            return response()->json($ventas);
+       
+        //return response()->json([$request->all()]);
+    }
 
 
 }
