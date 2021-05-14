@@ -74,12 +74,17 @@ class Temp_venta extends Model
 	        ->whereBetween('VENTASDET.FECALTAS', [$datos["inicio"], $datos["final"] ])
 	        ->Where('VENTASDET.ID_SUCURSAL','=',$datos["sucursal"]) 
 	        ->orderby('VENTASDET.COD_PROD');
-	        if(!$datos ["checkedMarca"]){
+	        if(isset($datos ["checkedMarca"])){
+	        	if(!$datos ["checkedMarca"]){
 	        	$reporte->whereIn('PRODUCTOS.MARCA', $datos["marcas"]);
+	       		}
 	        }
-	        if(!$datos["checkedCategoria"]){
+	        if(isset($datos["checkedCategoria"])){
+	        	if(!$datos["checkedCategoria"]){
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
+	        	}
 	        }
+	        
 	        if(isset($datos["checkedProveedor"])){
 	        	if(!$datos["checkedProveedor"]){
 	        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
@@ -299,11 +304,15 @@ class Temp_venta extends Model
         ->Where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=',$datos["sucursal"]) 
     
         ->orderby('VENTASDET.COD_PROD');
-	        if(!$datos["checkedMarca"]){
+	         if(isset($datos ["checkedMarca"])){
+	        	if(!$datos ["checkedMarca"]){
 	        	$reporte->whereIn('PRODUCTOS.MARCA', $datos["marcas"]);
+	       		}
 	        }
-	        if(!$datos["checkedCategoria"]){ 
+	        if(isset($datos["checkedCategoria"])){
+	        	if(!$datos["checkedCategoria"]){
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
+	        	}
 	        }
 	        if(isset($datos["checkedProveedor"])){
 	        	if(!$datos["checkedProveedor"]){
@@ -411,11 +420,15 @@ class Temp_venta extends Model
         ->whereBetween('NOTA_CREDITO_DET.FECALTAS', [$datos["inicio"], $datos["final"] ])
         ->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos["sucursal"]) 
         ->orderby('VENTASDET.COD_PROD');
-	        if(!$datos["checkedMarca"]){
+	          if(isset($datos ["checkedMarca"])){
+	        	if(!$datos ["checkedMarca"]){
 	        	$reporte->whereIn('PRODUCTOS.MARCA', $datos["marcas"]);
+	       		}
 	        }
-	        if(!$datos["checkedCategoria"]){ 
+	        if(isset($datos["checkedCategoria"])){
+	        	if(!$datos["checkedCategoria"]){
 	        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
+	        	}
 	        }
 	        if(isset($datos["checkedProveedor"])){
 	        	if(!$datos["checkedProveedor"]){

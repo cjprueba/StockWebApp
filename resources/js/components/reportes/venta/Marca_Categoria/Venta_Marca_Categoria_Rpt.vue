@@ -19,11 +19,11 @@
 					  	<label class="mt-3" for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container">
 							<div class="input-daterange input-group">
-								   <input   type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
+								   <input v-on:change="habilitar_insert"  type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
 								   <div class="input-group-append form-control-sm">
 								   		<span class="input-group-text">a</span>
 								   </div>
-								   <input   type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
+								   <input v-on:change="habilitar_insert"  type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
 							</div>
 							<div class="invalid-feedback">
 					        	{{messageInvalidFecha}}
@@ -325,7 +325,7 @@
 
 		<!-- CARD PARA MARCA Y SU CATEGORIA -->
 
-	</div>
+	
 		<!-- FIN DE VENTA POR MARCA Y CATEGORIA -->
 
 
@@ -409,6 +409,7 @@
 					   link.setAttribute('download', 'Venta_Marca_Categoria_'+me.selectedInicialFecha+' al '+me.selectedFinalFecha+'.xlsx'); //or any other extension
 					   document.body.appendChild(link);
 					   link.click();
+
 					});
 				}
 				me.insert=false;
@@ -460,10 +461,11 @@
 					    const categoriaArray = Object.keys(data.categorias).map(i => data.categorias[i])
 					    me.responseCategoria = categoriaArray
 					    me.loadMarcas();
+					    me.insert=false;
               });
 
 	        	} 
-	        	me.insert=false;
+	        	
 	        },
 	        generarConsulta(){
 	        	

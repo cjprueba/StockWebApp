@@ -59,6 +59,8 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
     public $proveedor_array_aux=[];
     private $descuentogeneral;
     private $descuentos;
+    private $agrupar_proveedor;
+    private $agrupar_categoria;
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -74,13 +76,15 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
          $this->user=$datos["USER_ID"];
          $this->inicio=$datos["INICIO"];
          $this->fin=$datos["FINAL"];
+         $this->agrupar_categoria=$datos["AGRUPAR_CATEGORIA"];
+         $this->agrupar_proveedor=$datos["AGRUPAR_PROVEEDOR"];
     }
     public function  array(): array
     {
     	    	
-    	 $dia2 = date("Y-m-d");
-         $dia1 = new DateTime();
-         $dia1=  $dia1->modify('first day of this month');
+	    	$dia2 = date("Y-m-d");
+	        $dia1 = new DateTime();
+	        $dia1=  $dia1->modify('first day of this month');
 	    	$dia = '2020-07-02';
 	        $precio=100;
 	        $descuento_precio=0;
@@ -90,96 +94,7 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 	        $precio_descontado_general=0;
 	      	$precio_descontado_total=0;
 	      	$descuento_real=0;
-	      	//SI LA HOJA ES 3 ES POR QUE EXISTEN PRODUCTOS DE TOKUTOKUYA Y POR LA CANTIDAD DE CATEGORIAS Y SUBCATEGORIAS EL EXCEL NO SOPORTA POR ENDE SE LOS ADJUNTA A TODOS EN UNA HOJA LLAMADA "TOKUTOKUYA"
-	 if($this->hojas==3){
-	 	    	  $proveedor_array[]=array('COD_PROD','LOTE','STOCK','MARCA','CATEGORIA','SUBCATEGORIA','VENDIDO','PRECIO_UNIT','TOTAL','DESCUENTO','COSTO_UNIT','COSTO_TOTAL','DESCUENTO_PORCENTAJE');
-			      $temp=DB::connection('retail')->table('temp_ventas')
-	
-				 ->select(
-				  DB::raw('temp_ventas.COD_PROD AS COD_PROD'),
-				  DB::raw('temp_ventas.LOTE AS LOTE'),
-				  DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
-				  DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK'),
-				  DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
-				  DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
-				  DB::raw('COSTO_UNIT AS COSTO_UNIT'),
-				  DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
-				  DB::raw('temp_ventas.PRECIO_UNIT AS PRECIO_UNIT'),
-				  DB::raw('temp_ventas.CATEGORIA AS CATEGORIA'),
-				  DB::raw('temp_ventas.SUBCATEGORIA AS SUBCATEGORIA'),
-				  DB::raw('temp_ventas.MARCA AS MARCA'),
-				  DB::raw('temp_ventas.DESCUENTO_PORCENTAJE AS DESCUENTO_PORCENTAJE'),
-				  DB::raw('temp_ventas.DESCUENTO_PRODUCTO AS DESCUENTO_PRODUCTO'))
-				  ->where('temp_ventas.ID_SUCURSAL','=',$this->id_sucursal)
-		          ->where('temp_ventas.USER_ID','=',$this->user)
-				 
-				   ->where('temp_ventas.proveedor','=',19)
-				  ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','temp_ventas.DESCUENTO_PRODUCTO') 
-				  ->orderby('COD_PROD')
-				  ->get()
-				  ->toArray();
-				           
-				          	foreach ($temp as $key => $value) 
-				          	{
-				          	            if($value->TOTAL==0){
-									     $value->TOTAL='0';
-									    }
-									    if($value->PRECIO_UNIT==0){
-									      $value->PRECIO_UNIT='0';
-									    }
-									    if($value->STOCK==0){
-									     	$value->STOCK='0';
-									    }
-									    if($value->DESCUENTO==0){
-									     	$value->DESCUENTO='0';
-									    }
-					          	       $this->posicion=$this->posicion+1;
 
-								       $this->total_general=$this->total_general+$value->TOTAL;
-								       $this->total_descuento=$this->total_descuento+$value->DESCUENTO;
-								       $this->total_preciounit=$this->total_preciounit+$value->PRECIO_UNIT;
-								      $this->cantidadvendida=$this->cantidadvendida+$value->VENDIDO;
-								       $this->costo=$this->costo+$value->COSTO_UNIT;
-								       $this->totalcosto=$this->totalcosto+$value->COSTO_TOTAL;
-				         
-					                    $proveedor_array[]=array(
-					                 
-					                'COD_PROD'=> $value->COD_PROD,
-					                'LOTE'=> $value->LOTE,
-					                'STOCK'=> $value->STOCK,
-					                'MARCA'=> $value->MARCA,
-					                'CATEGORIA'=> $value->CATEGORIA,
-					                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
-					                'VENIDO'=> $value->VENDIDO,
-					                'PRECIO_UNIT'=>$value->PRECIO_UNIT,
-					                'TOTAL'=>$value->TOTAL,
-					                'DESCUENTO'=>$value->DESCUENTO,
-					                'COSTO_UNIT'=>$value->COSTO_UNIT,
-					                'COSTO_TOTAL'=>$value->COSTO_TOTAL,
-					                'DESCUENTO_PORCENTAJE'=> $value->DESCUENTO_PRODUCTO
-					              );
- 
-				           }
-
-				             $proveedor_array[]=array(
-				                'COD_PROD'=> '',
-					            'LOTE'=> '',
-					            'STOCK'=> '',
-					            'MARCA'=> '',
-					            'CATEGORIA'=> 'TOTALES',
-					            'SUBCATEGORIA'=>'',
-					            'VENIDO'=> $this->cantidadvendida,
-					            'PRECIO_UNIT'=>$this->total_preciounit,
-					            'TOTAL'=> $this->total_general,
-					            'DESCUENTO'=> $this->total_descuento,
-					            'COSTO_UNIT'=>$this->costo,
-					            'COSTO_TOTAL'=>$this->totalcosto,
-					            'DESCUENTO_PORCENTAJE'=> ''
-
-	                );
-				        return $proveedor_array;
-
-	 }
 	       
 	 
 
@@ -320,8 +235,9 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 		            'DESCUENTO_PORCENTAJE'=> ''
 
 	                );
-		    }else{
-
+		 }else{
+		 						/*log::error(["AGRUPAR_CATEGORIA"=>$this->agrupar_categoria]);
+		 						log::error(["AGRUPAR_PROVEEDOR"=>$this->agrupar_proveedor]);*/
 				     		 $proveedor_array[]=array('COD_PROD','LOTE','STOCK','MARCA','CATEGORIA','SUBCATEGORIA','VENDIDO','PRECIO_UNIT','TOTAL','DESCUENTO','COSTO_UNIT','COSTO_TOTAL','DESCUENTO_PORCENTAJE');
 			                 $temp=DB::connection('retail')->table('temp_ventas')
 				   			
@@ -341,10 +257,17 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 					            DB::raw('temp_ventas.DESCUENTO_PORCENTAJE AS DESCUENTO_PORCENTAJE'),
 					            DB::raw('temp_ventas.DESCUENTO_PRODUCTO AS DESCUENTO_PRODUCTO'))
 					            ->where('temp_ventas.ID_SUCURSAL','=',$this->id_sucursal)
-			                    ->where('temp_ventas.USER_ID','=',$this->user)
-					            ->where('temp_ventas.PROVEEDOR','=',$this->proveedor)
-					             ->where('temp_ventas.LINEA_CODIGO','=',$this->Linea)
-					            ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','temp_ventas.DESCUENTO_PRODUCTO') 
+			                    ->where('temp_ventas.USER_ID','=',$this->user);
+			                    if($this->agrupar_categoria==true && $this->agrupar_proveedor==true){
+			                    	$temp=$temp->where('temp_ventas.PROVEEDOR','=',$this->proveedor)
+					            			   ->where('temp_ventas.LINEA_CODIGO','=',$this->Linea);
+			                    }elseif ($this->agrupar_proveedor==true) {
+			                    		$temp=$temp->where('temp_ventas.PROVEEDOR','=',$this->proveedor);
+			                    }elseif ($this->agrupar_categoria==true) {
+			                    		$temp=$temp->where('temp_ventas.LINEA_CODIGO','=',$this->Linea);
+			                    }
+					          
+					            $temp=$temp->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','temp_ventas.DESCUENTO_PRODUCTO') 
 					            ->orderby('COD_PROD')
 					            ->get()
 					            ->toArray();
@@ -364,30 +287,29 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 												          	$value->DESCUENTO='0';
 												          }
 						          	       $this->posicion=$this->posicion+1;
-
 									       $this->total_general=$this->total_general+$value->TOTAL;
 									       $this->total_descuento=$this->total_descuento+$value->DESCUENTO;
 									       $this->total_preciounit=$this->total_preciounit+$value->PRECIO_UNIT;
-									      $this->cantidadvendida=$this->cantidadvendida+$value->VENDIDO;
+									       $this->cantidadvendida=$this->cantidadvendida+$value->VENDIDO;
 									       $this->costo=$this->costo+$value->COSTO_UNIT;
 									       $this->totalcosto=$this->totalcosto+$value->COSTO_TOTAL;
 					         
 						                    $proveedor_array[]=array(
 						                 
-						                'COD_PROD'=> $value->COD_PROD,
-						                'LOTE'=> $value->LOTE,
-						                'STOCK'=> $value->STOCK,
-						                'MARCA'=> $value->MARCA,
-						                'CATEGORIA'=> $value->CATEGORIA,
-						                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
-						                'VENIDO'=> $value->VENDIDO,
-						                'PRECIO_UNIT'=>$value->PRECIO_UNIT,
-						                'TOTAL'=>$value->TOTAL,
-						                'DESCUENTO'=>$value->DESCUENTO,
-						                'COSTO_UNIT'=>$value->COSTO_UNIT,
-						                'COSTO_TOTAL'=>$value->COSTO_TOTAL,
-						                'DESCUENTO_PORCENTAJE'=> $value->DESCUENTO_PRODUCTO
-						              );
+							                'COD_PROD'=> $value->COD_PROD,
+							                'LOTE'=> $value->LOTE,
+							                'STOCK'=> $value->STOCK,
+							                'MARCA'=> $value->MARCA,
+							                'CATEGORIA'=> $value->CATEGORIA,
+							                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
+							                'VENIDO'=> $value->VENDIDO,
+							                'PRECIO_UNIT'=>$value->PRECIO_UNIT,
+							                'TOTAL'=>$value->TOTAL,
+							                'DESCUENTO'=>$value->DESCUENTO,
+							                'COSTO_UNIT'=>$value->COSTO_UNIT,
+							                'COSTO_TOTAL'=>$value->COSTO_TOTAL,
+							                'DESCUENTO_PORCENTAJE'=> $value->DESCUENTO_PRODUCTO
+							                 );
 	 
 					           }
 
@@ -406,8 +328,9 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 						            'COSTO_TOTAL'=>$this->totalcosto,
 						            'DESCUENTO_PORCENTAJE'=> ''
 
-		                 );
-		     	 }
+		                 			);
+					             
+		 }
 		     	
 
 		     	  
@@ -422,7 +345,7 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
 	          return $proveedor_array;
 
 
- 			}
+ 	}
  public function registerEvents(): array
     {
         
@@ -504,13 +427,21 @@ class VentaProveedor implements FromArray, WithTitle,WithEvents,ShouldAutoSize,W
     {
          if($this->hojas==1){
              return 'GENERAL';
-         }else{
-         	if($this->hojas==3){
-         		   return 'TOKUTOKUYA';
-         	}
-         	$titulo=$this->descri_P." ".$this->descri_L;
-          return substr($titulo,0,31);
          }
+         if($this->agrupar_categoria==true && $this->agrupar_proveedor==true){
+			   	$titulo=$this->descri_P." ".$this->descri_L;
+			   	  
+         		 return substr($titulo,0,29);
+	    }elseif ($this->agrupar_proveedor==true) {
+			   	$titulo=$this->descri_P;
+          		return substr($titulo,0,31);
+	    }elseif ($this->agrupar_categoria==true) {
+			   	$titulo=$this->descri_L;
+          		return substr($titulo,0,31);
+	    }
+
+         
+         
          
        
     }
