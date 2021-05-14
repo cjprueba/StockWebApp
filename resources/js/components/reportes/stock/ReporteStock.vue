@@ -1,7 +1,7 @@
 <template>
 	
 	<!-- REPORTE DE STOCK POR CATEGORIA Y PROVEEDOR -->
-	<div class="container mt-3">
+	<div>
 	  <!-- <div v-if="$can('reporte.stock')"> -->
 		<div class="card shadow border-bottom-primary" >
 		  	<div class="card-header">Stock Por Proveedor y Categoría</div>

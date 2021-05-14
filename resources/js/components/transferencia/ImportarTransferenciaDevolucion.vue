@@ -1,5 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
+		<div v-if="$can('transferencia.importardevo') && $can('transferencia')">
 	<!-- 	<div class="row" v-if="$can('transferencia.importar')"> -->
 
 			<!-- ------------------------------------------------------------------------------------- -->
@@ -64,6 +65,10 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+		</div>
+		<div v-else>
+	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
 	</div>
 
 	

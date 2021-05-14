@@ -9,8 +9,8 @@
 				<label for="validationTooltip01">Seleccione Reporte Por Sección</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="1">Venta General</option>
-          <option value="2">Top Venta</option>
+					<option v-if="$can('reporte.encargadadeseccion.ventageneral')  && $can('reporte.web')" value="1">Venta General</option>
+          <option v-if="$can('reporte.venta.topventas')  && $can('reporte.web')" value="2">Top Venta</option>
 				</select>			
 			</div>
 

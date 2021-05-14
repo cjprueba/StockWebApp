@@ -3,7 +3,7 @@
   
 <div class="container">
 
-  <div v-if="$can('user.rol')">
+  <div v-if="$can('user.permission.user')">
 
     <!-- ------------------------------------------------------------------ -->
 

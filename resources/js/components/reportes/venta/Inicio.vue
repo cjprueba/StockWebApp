@@ -9,13 +9,17 @@
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-					<option value="3">Ventas por Marca y Categoría</option>
-          <option value="4">Reporte Diario</option>
-          <option value="5">Ventas por Vendedor</option>
-          <option value="6">Top Ventas</option>
-          <option value="7">Por Período</option>
-          <option value="8">Ventas por Proveedor</option>
-          <option value="9">Ventas por Góndola</option>
+            <option v-if="$can('reporte.venta.periodosinmov') && $can('reporte.web')" value="7">Por Período</option> 
+            <option v-if="$can('reporte.venta.resumendiario') && $can('reporte.web')" value="4">Reporte Diario</option>
+            <option v-if="$can('reporte.venta.topventas') && $can('reporte.web')" value="6">Top Ventas</option>
+            <option v-if="$can('reporte.venta.delivery') && $can('reporte.web')"value="12">Ventas por Delivery</option> 
+            <option v-if="$can('reporte.venta.gondola') && $can('reporte.web')" value="9">Ventas por Góndola</option>
+            <option v-if="$can('reporte.venta.marcaycategoria') && $can('reporte.web')" value="3">Ventas por Marca y Categoría</option>
+            <option v-if="$can('reporte.venta.proveedor') && $can('reporte.web')" value="8">Ventas por Proveedor</option>
+            <option v-if="$can('reporte.venta.tarjeta') && $can('reporte.web')" value="13">Ventas por Tarjeta</option>
+            <option v-if="$can('reporte.venta.transferencia') && $can('reporte.web')" value="11">Ventas por Transferencia</option>
+            <option v-if="$can('reporte.venta.vale') && $can('reporte.web')" value="10">Ventas por Vales</option>
+            <option v-if="$can('reporte.venta.vendedor') && $can('reporte.web')" value="5">Ventas por Vendedor</option>
 				</select>			
 			</div>
 
@@ -72,7 +76,30 @@
         <venta-gondola-rpt v-if="reporte === '9'" id="reporte9"></venta-gondola-rpt>
       </transition>
 
-      <!-- FIN REPORTE VENTA POR GONDOLA -->
+      <!-- REPORTE VENTA POR VALES -->
+
+      <transition name="slide-fade">  
+        <venta-vales-rpt v-if="reporte === '10'" id="reporte10"></venta-vales-rpt>
+      </transition>
+
+      <!-- REPORTE VENTA POR TRANSFERENCIA -->
+
+      <transition name="slide-fade">  
+        <venta-transferencia-rpt v-if="reporte === '11'" id="reporte11"></venta-transferencia-rpt>
+      </transition>
+
+      <!-- REPORTE VENTA POR DELIVERY -->
+
+      <transition name="slide-fade">  
+        <venta-delivery-rpt v-if="reporte === '12'" id="reporte12"></venta-delivery-rpt>
+      </transition>
+
+      <!-- REPORTE VENTA POR TARJETA -->
+
+      <transition name="slide-fade">  
+        <venta-tarjeta-rpt v-if="reporte === '13'" id="reporte13"></venta-tarjeta-rpt>
+      </transition>
+
 		</div>
 
     <!-- ------------------------------------------------------------------------ -->

@@ -46,6 +46,10 @@ Route::apiResource('busqueda-sector-sucursal', 'BusquedaRmController');
 // CAJAS
  
 Route::post('cajaObtener', 'CajaController@obtenerCaja');
+Route::post('asignarCaja', 'CajaController@cajaAsignar');
+Route::post('existeCaja', 'CajaController@cajaExiste');
+Route::post('quitarCaja', 'CajaController@cajaQuitar');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -602,6 +606,7 @@ Route::post('ventaTopDatatable', 'VentaController@reporteTopArticulos');
 Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
 Route::post('ventaPeriodoDatatable', 'VentaController@reportePeriodoVenta');
+Route::post('reporte_ventas_Proveedor', 'VentaController@reporteVentaProveedor');
 
 /* -------------------------------------------------------------------------- */
 

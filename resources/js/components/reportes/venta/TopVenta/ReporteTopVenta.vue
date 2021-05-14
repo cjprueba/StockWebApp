@@ -105,7 +105,7 @@
 					        {{messageInvalidProveedor}}
 					    </div>
 					<div class="custom-control custom-switch mt-3">
-						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor">
+						<input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor" v-on:change="marcarTodo">
 						<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
 					</div>
                 </div> 
@@ -203,6 +203,18 @@
             }
         }, 
         methods: {
+        	marcarTodo(){
+
+				let me = this;
+
+	      		if(me.onProveedor === true) {
+			        for (var key in me.proveedores){
+			        	me.selectedProveedor[key] = me.proveedores[key].CODIGO;
+			        }
+			    }else{
+			    	me.selectedProveedor = [];
+			    }
+        	},
 
         	llamarBusquedas(){	
 	          axios.get('busquedas/').then((response) => {

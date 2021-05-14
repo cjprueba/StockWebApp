@@ -39,6 +39,8 @@ class VentaProveedorExport implements WithMultipleSheets
   private $insert;
   private $checkedCategoria;
   private $sucursal;
+  private $agruparCategoria;
+  private $agruparProveedor;
 
          use Exportable;
     /**
@@ -56,7 +58,10 @@ public function __construct($datos)
         $this->checkedCategoria=$datos['AllCategory'];
         $this->proveedores=$datos['Proveedores'];
         $this->linea=$datos['Categorias'];
-        $this->tipos=$datos['Tipo'];
+     /*   $this->tipos=$datos['Tipo'];*/
+        $this->agruparCategoria=$datos['agruparCategoria'];
+        $this->agruparProveedor=$datos['AgruparProveedor'];
+       
 
        
     }
@@ -64,19 +69,7 @@ public function __construct($datos)
     {
 		    	$user = auth()->user();
 		    	
-		    		$datos=array(
-		    			'inicio'=>$this->inicio,
-		    			'final'=>$this->final,
-		    			'sucursal'=>$this->sucursal,
-		    			'checkedCategoria'=>$this->checkedCategoria,
-		    			'checkedProveedor'=>$this->checkedProveedor,
-		    			'marcas'=>$this->marcas,
-		    			'proveedores'=>$this->proveedores,
-		    		    'checkedMarca'=>$this->checkedMarca,
-		    			'linea'=>$this->linea,
-		    			'tipos'=>$this->tipos
-		    		);
-		           Temp_venta::insertar_reporte($datos);
+		    		
 		    	
 		    	        
 		if($this->hojas==1){
@@ -93,13 +86,15 @@ public function __construct($datos)
 				                'INICIO'=> $this->inicio,
 				                'FINAL'=> $this->final,
 				                'SUCURSAL'=>$this->sucursal,
-				                'USER_ID'=>$user->id
+				                'USER_ID'=>$user->id,
+ 								'AGRUPAR_CATEGORIA'=>$this->agruparCategoria,
+				                'AGRUPAR_PROVEEDOR'=> $this->agruparProveedor
 
 				            );
 
 
-		          $this->sheets[]= new VentaProveedor($datos);
-		          $this->hojas=$this->hojas+1;
+				          $this->sheets[]= new VentaProveedor($datos);
+				          $this->hojas=$this->hojas+1;
 		     }
 		                        $datos=array(
 				                 
@@ -112,65 +107,59 @@ public function __construct($datos)
 				                'FINAL'=> $this->final,
 				                'SUCURSAL'=>$this->sucursal,
 				                'USER_ID'=>$user->id,
-				                'TIPOS'=>$this->tipos
+				                'TIPOS'=>$this->tipos,
+				                'AGRUPAR_CATEGORIA'=>$this->agruparCategoria,
+				                'AGRUPAR_PROVEEDOR'=> $this->agruparProveedor
 
 				            );
-		         $this->sheets[]= new VentaProveedorTotales($datos);
+		       
 
-		     	 $temp=DB::connection('retail')->table('temp_ventas')
+
+		         	  if($this->agruparCategoria==true && $this->agruparProveedor==true){
+			                    	$temp=DB::connection('retail')->table('temp_ventas')
 			   	
-			           ->select(
-			            DB::raw('temp_ventas.COD_PROD'))
-			             ->WHERE('temp_ventas.PROVEEDOR','=',19)
-			           ->where('USER_ID','=',$user->id)
-			                  ->where('ID_SUCURSAL','=',$this->sucursal)
-			         ->LIMIT(1)
-			          ->get()
-			          ->toArray();
-			          if(count($temp)>0){
-			          	 $datos=array(
-				                 
-				                'HOJAS'=> $this->hojas,
-				                'PROVEEDOR_CODIGO'=> '',
-				                'DESCRI_P'=> '',
-				                'LINEA_CODIGO'=> '',
-				                'DESCRI_L'=> '',
-				                'INICIO'=> $this->inicio,
-				                'FINAL'=> $this->final,
-				                'SUCURSAL'=>$this->sucursal,
-				                'USER_ID'=>$user->id
-
-				            );
-			          	  $this->sheets[]= new VentaProveedor($datos);
-			          }
-			          $datos=array(
-				                 
-				                'HOJAS'=> $this->hojas,
-				                'PROVEEDOR_CODIGO'=> '',
-				                'DESCRI_P'=> '',
-				                'LINEA_CODIGO'=> '',
-				                'DESCRI_L'=> '',
-				                'INICIO'=> $this->inicio,
-				                'FINAL'=> $this->final,
-				                'SUCURSAL'=>$this->sucursal,
-				                'USER_ID'=>$user->id
-
-				            );
-
-		         	 $temp=DB::connection('retail')->table('temp_ventas')
+							           ->select(
+							            DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR'),
+							            DB::raw('temp_ventas.PROVEEDOR_NOMBRE AS DESCRI_P'),
+							            DB::raw('temp_ventas.LINEA_CODIGO AS LINEA'),
+							            DB::raw('temp_ventas.CATEGORIA as DESCRI_L'))
+							             ->where('USER_ID','=',$user->id)
+							             ->where('ID_SUCURSAL','=',$this->sucursal)
+							           ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.LINEA_CODIGO') 
+							           ->orderby('temp_ventas.PROVEEDOR_NOMBRE','ASC')
+							           ->get()
+							           ->toArray();
+			                    }elseif ($this->agruparProveedor==true) {
+			                    		$temp=DB::connection('retail')->table('temp_ventas')
 			   	
-			           ->select(
-			            DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR'),
-			            DB::raw('temp_ventas.PROVEEDOR_NOMBRE AS DESCRI_P'),
-			            DB::raw('temp_ventas.LINEA_CODIGO AS LINEA'),
-			            DB::raw('temp_ventas.CATEGORIA as DESCRI_L'))
-			             ->WHERE('temp_ventas.PROVEEDOR','<>',19)
-			              ->where('USER_ID','=',$user->id)
-			                  ->where('ID_SUCURSAL','=',$this->sucursal)
-			          ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.LINEA_CODIGO') 
-			          ->orderby('temp_ventas.MARCA')
-			          ->get()
-			          ->toArray();
+								           ->select(
+								            DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR'),
+								            DB::raw('temp_ventas.PROVEEDOR_NOMBRE AS DESCRI_P'),
+								            DB::raw('0 AS LINEA'),
+								            DB::raw('"" as DESCRI_L'))
+								             ->where('USER_ID','=',$user->id)
+								             ->where('ID_SUCURSAL','=',$this->sucursal)
+								           ->GROUPBY('temp_ventas.PROVEEDOR') 
+								           ->orderby('temp_ventas.PROVEEDOR_NOMBRE')
+								           ->get()
+								           ->toArray();
+			                    }elseif ($this->agruparCategoria==true) {
+			                    		$temp=DB::connection('retail')->table('temp_ventas')
+			   	
+								           ->select(
+								            DB::raw('0 AS PROVEEDOR'),
+								            DB::raw('"" AS DESCRI_P'),
+								            DB::raw('temp_ventas.LINEA_CODIGO AS LINEA'),
+								            DB::raw('temp_ventas.CATEGORIA as DESCRI_L'))
+								             ->where('USER_ID','=',$user->id)
+								             ->where('ID_SUCURSAL','=',$this->sucursal)
+								           ->GROUPBY('temp_ventas.LINEA_CODIGO') 
+								           ->orderby('temp_ventas.CATEGORIA')
+								           ->get()
+								           ->toArray();
+			                    }
+			                    $this->sheets[]= new VentaProveedorTotales($datos,$temp);
+		         	
 			          foreach ($temp as $key => $value) {
 		                    $datos=array(
 				                 
@@ -182,12 +171,14 @@ public function __construct($datos)
 				                'INICIO'=> $this->inicio,
 				                'FINAL'=> $this->final,
 				                'SUCURSAL'=>$this->sucursal,
-				                'USER_ID'=>$user->id
+				                'USER_ID'=>$user->id,
+				                'AGRUPAR_CATEGORIA'=>$this->agruparCategoria,
+				                'AGRUPAR_PROVEEDOR'=> $this->agruparProveedor
 
 				            );
 
 			          	  $this->sheets[]= new VentaProveedor($datos);
-			          	# code...
+			          
 			          }
 
 

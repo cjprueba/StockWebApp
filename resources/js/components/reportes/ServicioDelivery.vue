@@ -1,12 +1,12 @@
 <template>
 		<!-- SERVICIO DE DELIVERY  -->
-	<div class="container">
+	<div>
 
 		<div class="card mt-3  shadow border-bottom-primary" >
 		  	<div class="card-header">Servicio de Delivery</div>
 			<div class="card-body">
 				<div class="row">
-					<div class="col-4">
+					<div class="col-md-4">
 						<div class="row ml-3">
 				  		<label for="validationTooltip01">Sucursal</label>
 						<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">

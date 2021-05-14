@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Proveedor;
 use App\Exports\VentasProveedor;
 use App\Exports\VentaProveedorExport;
+use DateTime;
+use App\Temp_venta;
 class ProveedorController extends Controller
 {
     public function obtenerProveedores(){
@@ -189,7 +191,33 @@ class ProveedorController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
         // DESCARGAR REPORTE PROVEEDORES 
-        
+            if($request->Insert==true){
+                 if(isset($request->Tipo)){
+                  $datos=array(
+                        'inicio'=>date('Y-m-d', strtotime($request->Inicio)),
+                        'final'=>date('Y-m-d', strtotime($request->Final)),
+                        'sucursal'=>$request->Sucursal,
+                        'checkedCategoria'=>$request->AllCategory,
+                        'checkedProveedor'=>$request->AllProveedores,
+                        'proveedores'=>$request->Proveedores,
+                        'linea'=>$request->Categorias,
+                        'tipos'=>$request->Tipo
+                    );
+                  }else{
+                     $datos=array(
+                            'inicio'=>date('Y-m-d', strtotime($request->Inicio)),
+                            'final'=>date('Y-m-d', strtotime($request->Final)),
+                            'sucursal'=>$request->Sucursal,
+                            'checkedCategoria'=>$request->AllCategory,
+                            'checkedProveedor'=>$request->AllProveedores,
+                            'proveedores'=>$request->Proveedores,
+                            'linea'=>$request->Categorias
+                        );
+                  }
+          
+                   Temp_venta::insertar_reporte($datos);
+            }
+           
         return Excel::download(new VentaProveedorExport($request->all()), 'VentasProveedores.xlsx');
 
         /*  --------------------------------------------------------------------------------- */

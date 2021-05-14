@@ -1,6 +1,6 @@
 <template>
 		<!-- REPORTE DE VENCIMIENTO DE PRODUCTOS -->
-	<div class="container">
+	<div>
 		<div class="card mt-3 shadow border-bottom-primary" >
 		  <div class="card-header">Reporte Vencimiento de Productos</div>
 		    <div class="card-body">

@@ -318,21 +318,7 @@ export default new Router({
 			name: 'ordenesProcesando',
 			component: require('./components/orden/MostrarOrdenProcesando.vue').default
 		},
-		{
-			path: '/rpt12',
-			name: 'rptVales',
-			component: require('./components/reportes/vales/Vales.vue').default
-		},
-		{
-			path: '/rpt13',
-			name: 'rptTransferencia2',
-			component: require('./components/reportes/VentaTransferencia.vue').default
-		},
-		{
-			path: '/rpt14',
-			name: 'rptDelivery',
-			component: require('./components/reportes/ServicioDelivery.vue').default
-	    },
+		
 	    {
 			path: '/pd1',
 			name: 'pdMostrar',
@@ -364,11 +350,7 @@ export default new Router({
 			name: 'transferenciaCobrar',
 			component: require('./components/transferencia/CobrarTransferencia.vue').default
 		},
-    	{
-			path: '/rpt15',
-			name: 'rptTarjeta',
-			component: require('./components/reportes/VentaTarjeta.vue').default
-	    },
+    	
 		{
 			path: '/mov1',
 			name: 'notaCredito',
@@ -450,6 +432,20 @@ export default new Router({
 			name: 'cambiarSucursal',
 			component: require('./components/usuario/CambiarSucursal.vue').default
 		},
+		{
+
+			path: '/rptProducto',
+			name: 'rptProductoWeb',
+			component: require('./components/reportes/producto/Inicio.vue').default
+		},
+    {
+
+
+			path: '/AsignacionDeCaja',
+			name: 'asignarCaja',
+			component: require('./components/cajas/AsignarCaja.vue').default
+		},
+
 	],
 	mode: 'history'
 });
