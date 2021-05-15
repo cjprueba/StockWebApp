@@ -165,7 +165,7 @@
 
       <!-- VENTA -->
 
-      <li class="nav-item">
+      <li v-if="$can('venta')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseVenta" aria-expanded="true" aria-controls="collapseVenta">
           <font-awesome-icon icon="shopping-bag"/>
           <span>Venta</span>
@@ -173,12 +173,12 @@
         <div id="collapseVenta" class="collapse" aria-labelledby="headingVenta" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'ventaCaja'}">Mis Ventas</router-link>
-            <router-link class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
-            <router-link class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
-            <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link>
+            <router-link v-if="$can('venta.misventas')" class="collapse-item" :to="{name: 'ventaCaja'}">Mis Ventas</router-link>
+            <router-link v-if="$can('venta.mostrar')" class="collapse-item" :to="{name: 'ventaMostrar'}">Mostrar Ventas</router-link>
+            <router-link v-if="$can('venta.realizarventas')" class="collapse-item" :to="{name: 'ventaRealizar'}">Realizar Venta</router-link>
+            <!-- <router-link class="collapse-item" :to="{name: 'ventaMayorista'}">Realizar Mayorista</router-link> -->
             <!-- <router-link class="collapse-item" :to="{name: 'ventaCuenta'}">Cobro de Cuentas</router-link> -->
-            <router-link class="collapse-item" :to="{name: 'ventaAnular'}">Anular Venta</router-link>
+            <router-link v-if="$can('venta.anular')" class="collapse-item" :to="{name: 'ventaAnular'}">Anular Venta</router-link>
           </div>
         </div>
       </li>

@@ -10,7 +10,7 @@
 
   <!-- ------------------------------------------------------------------------------------- -->
       
-     <div class="offset-md-2 col-8">
+     <div v-if="$can('venta.anular') && $can('venta')" class="offset-md-2 col-8">
     <div class="card mt-3 shadow-sm">
       <h5 class="card-header">Anulacion De Ventas</h5>
       <div class="card-body">
@@ -84,6 +84,9 @@
 
     </div>
   </div>
+</div>
+<div v-else>
+  <cuatrocientos-cuatro></cuatrocientos-cuatro>
 </div>
      </div>
 
