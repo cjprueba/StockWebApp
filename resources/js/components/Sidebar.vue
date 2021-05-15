@@ -187,7 +187,7 @@
 
       <!-- MOVIMIENTOS -->
 
-      <li class="nav-item">
+      <li v-if="$can('movimientos')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMovimientos" aria-expanded="true" aria-controls="collapseMovimientos">
           <font-awesome-icon icon="money-bill-alt" />
           <span>Movimientos</span>
@@ -195,12 +195,12 @@
         <div id="collapseMovimientos" class="collapse" aria-labelledby="headingMovimientos" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'notaCredito'}">Nota de Credito</router-link>
-            <router-link class="collapse-item" :to="{name: 'notaCreditoMostrar'}">Mostrar Nota de Credito</router-link>
-            <router-link class="collapse-item" :to="{name: 'salidaProducto'}">Salida de Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
-            <router-link class="collapse-item" :to="{name: 'prestarProducto'}">Préstamo de Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'prestamoMostrar'}">Mostrar Préstamos</router-link>
+            <router-link v-if="$can('movimientos.notadecredito')" class="collapse-item" :to="{name: 'notaCredito'}">Realizar Nota de Credito</router-link>
+            <router-link v-if="$can('movimientos.mostrarnotadecredito')" class="collapse-item" :to="{name: 'notaCreditoMostrar'}">Mostrar Nota de Credito</router-link>
+            <router-link v-if="$can('movimientos.salidadeproducto')" class="collapse-item" :to="{name: 'salidaProducto'}">Salida de Productos</router-link>
+            <router-link v-if="$can('movimientos.mostrarsalidadeproducto')" class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
+            <router-link v-if="$can('movimientos.prestamodeproductos')" class="collapse-item" :to="{name: 'prestarProducto'}">Préstamo de Productos</router-link>
+            <router-link v-if="$can('movimientos.mostrarprestamodeproductos')" class="collapse-item" :to="{name: 'prestamoMostrar'}">Mostrar Préstamos</router-link>
           </div>
         </div>
       </li>

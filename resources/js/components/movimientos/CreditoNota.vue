@@ -1,5 +1,5 @@
 <template>	
-	<div class="container-fluid bg-light">
+	<div v-if="$can('movimientos.notadecredito') && $can('movimientos')" class="container-fluid bg-light">
 		<div class="row mt-4">
 			<!--   -->
 			<!-- ------------------------------------------------------------------------------------- -->
@@ -457,6 +457,9 @@
                   <!-- ------------------------------------------------------------------------ -->
 
 		</div>
+	</div>
+	<div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	</div>	
 </template>
 <script>

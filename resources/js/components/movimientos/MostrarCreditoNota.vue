@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div v-if="$can('movimientos.mostrarnotadecredito') && $can('movimientos')" class="container-fluid mt-4">
 		<div class="row mt-4">
 			<!-- TITULO  -->
 			
@@ -42,6 +42,9 @@
 			ref="ModalDetalleNotaCredito"
 			></modal-detalle-nota-credito>
 	</div>
+	<div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
+	</div>	
 </template>
 
 <script>

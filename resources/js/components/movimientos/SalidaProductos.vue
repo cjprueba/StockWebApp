@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-3">
+	<div v-if="$can('movimientos.salidadeproducto') && $can('movimientos')" class="container-fluid mt-3">
 		<div class="row">
 
             <!-- ------------------------------------------------------------------------------------- -->
@@ -163,7 +163,10 @@
 
 	    <!-- ------------------------------------------------------------------------ -->
 
-	</div>	
+	</div>
+    <div v-else>
+        <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>  	
 </template>
 <script>
     export default {

@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-3">
+	<div v-if="$can('movimientos.prestamodeproductos') && $can('movimientos')" class="container-fluid mt-3">
 		<div class="row">
 
             <!-- ------------------------------------------------------------------------------------- -->
@@ -204,7 +204,10 @@
               ¡Para realizar el préstamo se necesita añadir más datos!
         </b-toast>
 
-	</div>	
+	</div>
+    <div v-else>
+        <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>  	
 </template>
 <script>
     export default {
