@@ -2,7 +2,7 @@
 	
 	<div class="container">
 
-		<div class="offset-md-3 col-6">
+		<div v-if="$can('sucursal.crearsucursal') && $can('sucursal')" class="offset-md-3 col-6">
 
 			<div class="card mt-3 shadow-sm">
 
@@ -131,6 +131,9 @@
 				</div>
 
 			</div>
+		</div>
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
 	</div>
 

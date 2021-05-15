@@ -210,7 +210,7 @@
 
       <!-- SUCURSALES -->
 
-      <li class="nav-item">
+      <li v-if="$can('sucursal')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSucursales" aria-expanded="true" aria-controls="collapseSucursales">
           <font-awesome-icon icon="building" />
           <span>Sucursales</span>
@@ -218,7 +218,7 @@
         <div id="collapseSucursales" class="collapse" aria-labelledby="headingSucursales" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'crearSucursal'}">Crear Sucursal</router-link>
+            <router-link v-if="$can('sucursal.crearsucursal')" class="collapse-item" :to="{name: 'crearSucursal'}">Crear Sucursal</router-link>
             
           </div>
         </div>
