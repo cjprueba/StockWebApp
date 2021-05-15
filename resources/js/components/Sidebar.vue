@@ -146,17 +146,17 @@
 
       <!-- COMPRA -->
 
-      <li class="nav-item">
+      <li v-if="$can('compra')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCompra" aria-expanded="true" aria-controls="collapseCompra">
           <font-awesome-icon icon="cart-plus"/>
-          <span>Compra</span>
+          <span>Compras</span>
         </a>
         <div id="collapseCompra" class="collapse" aria-labelledby="headingCompra" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'compraMostrar'}">Mostrar Compras</router-link>
-            <router-link class="collapse-item" :to="{name: 'compra'}">Realizar Compras</router-link>
-            <router-link class="collapse-item" :to="{name: 'compraContainer'}">Crear Container</router-link>
+            <router-link v-if="$can('compra.mostrar')" class="collapse-item" :to="{name: 'compraMostrar'}">Mostrar Compras</router-link>
+            <router-link v-if="$can('compra.crear')" class="collapse-item" :to="{name: 'compra'}">Realizar Compras</router-link>
+            <router-link v-if="$can('compra.crearcontainer')" class="collapse-item" :to="{name: 'compraContainer'}">Crear Container</router-link>
           </div>
         </div>
       </li>

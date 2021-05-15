@@ -1,9 +1,9 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div  class="container-fluid mt-4">
 
 		
 		
-		<div class="row">
+		<div v-if="$can('compra.crear') && $can('compra')" class="row">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
@@ -401,6 +401,10 @@
 
 		    <!-- ------------------------------------------------------------------------ -->
 
+		
+		</div>
+		<div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
