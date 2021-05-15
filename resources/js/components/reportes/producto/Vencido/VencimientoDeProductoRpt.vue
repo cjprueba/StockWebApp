@@ -1,7 +1,7 @@
 <template>
 		<!-- REPORTE DE VENCIMIENTO DE PRODUCTOS -->
 	<div>
-		<div class="card mt-3 shadow border-bottom-primary" >
+		<div class="card mt-3 shadow border-bottom-primary mb-3">
 		  <div class="card-header">Reporte Vencimiento de Productos</div>
 		    <div class="card-body">
 			  	<div class="row">
@@ -32,26 +32,42 @@
 					<div class="col-auto mt-4 ml-3">
 						<div class="col-auto">
 							<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download"/> Descargar</button>
+						<button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button> 
 						</div>
 					</div>
 
 					<!-- -------------------------------------------MOSTRAR DOWNLOADING----------------------------------------------- -->
 
-				    <div class="row">
+				    <div class="col-md-12">
 						<div v-if="descarga" class="ml-5 d-flex justify-content-center mt-3">
 							Descargando...
 				            <div class="spinner-grow text-primary" role="status" aria-hidden="true"></div>
 				        </div>
 			        </div>
+			        <div class="col-md-12 mt-3">
+					<table id="tablaVencimientoProducto" class="table mb-3" style="width:100%">
+				    	<thead>
+					      <tr> 
+					        <th>Código</th>
+					        <th>Imagen</th>
+					        <th>Descripción</th>
+			            	<th>Categoría</th>
+			            	<th>Proveedor</th>
+					        <th>Últ. Entrada</th>
+					        <th>Fecha Vencimiento</th>
+					        <th>Lote</th>
+					        <th>Cantidad Inicial</th>
+					        <th>Cantidad Actual</th>
+					        <th>Prec. Venta</th>
+					        <th>Prec. Mayorista</th>
+					      </tr>
+					    </thead>
+					</table>			
+				</div>
 				</div>
 			</div>
 		  </div>
 		</div>
-		<!-- ------------------------------------------------------------------------ -->
-		
-		<!-- <div v-else>
-			<cuatrocientos-cuatro></cuatrocientos-cuatro>
-		</div> -->
 
 		<!-- ------------------------------------------------------------------------ -->
 	</div>
@@ -150,7 +166,63 @@
 	        	};
 
 	        	return true;
-	        }
+	        },
+
+	        llamarDatos(){
+
+	        	let me = this;
+
+		        if(me.generarConsulta() === true) {
+
+		        	// PREPARAR DATATABLE 
+
+		        	var tableVencimientoProducto = $('#tablaVencimientoProducto').DataTable({
+		                "processing": true,
+		                "serverSide": true,
+		                "destroy": true,
+		                "bAutoWidth": true,
+                		"searching": false,
+	                 	"paging": false,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary', footer: true },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success', footer: true },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger', footer: true }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'rptvencimiento', messageTop: 'Ventas registradas por Vendedor', footer: true }
+				        ],
+		                "ajax":{
+	                 			"data": {
+	                 				datos: me.datos,
+						        	"_token": $('meta[name="csrf-token"]').attr('content')
+	                 			},
+		                  "url": "/vencimientoProductoDatatable",
+		                  "dataType": "json",
+		                  "type": "POST"
+
+		                },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "IMAGEN" },
+                            { "data": "DESCRIPCION" },
+                            { "data": "CATEGORIA" },
+                            { "data": "PROVEEDOR" },                      
+                            { "data": "ULTIMA_ENTRADA" },
+                            { "data": "FECHA_VENCIMIENTO" }, 
+                            { "data": "LOTE" }, 
+                            { "data": "CANTIDAD_INICIAL" },
+                            { "data": "STOCK" },  
+                            { "data": "PREC_VENTA" },
+                            { "data": "PREMAYORISTA" },    
+                        ],
+                        "footerCallback": function(row, data, start, end, display) {
+						}     
+                    });
+
+		        }
+		    }
         },
         mounted() {
         	let me = this;
@@ -169,6 +241,7 @@
 					$('table').dataTable();
 			});
 			this.llamarBusquedas();
+			var tableVencimientoProducto = $('#tablaVencimientoProducto').DataTable();
         }
     }    
 </script>

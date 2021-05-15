@@ -156,6 +156,12 @@ class StockController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
-    
+
+    public function vencimientoDatatable(Request $request){
+
+        $stock = Stock::generarVencimientoProducto($request);
+        return response()->json($stock);
+
+    }
 
 }

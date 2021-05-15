@@ -2531,4 +2531,163 @@ class Stock extends Model
         return $resta;
 
     }
+
+    public static function generarVencimientoProducto($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                0 => 'LOTES.COD_PROD',
+                1 => 'LOTES.FECHA_VENC',
+                2 => 'PRODUCTOS.DESCRIPCION',
+                3 => 'LINEAS.DESCRIPCION',
+                4 => 'PROVEEDORES.DESCRIPCION', 
+                5 => 'LOTES.COD_PROD', 
+                6 => 'LOTES.FECHA_VENC', 
+                7 => 'LOTES.LOTE', 
+                8 => 'LOTES.CANTIDAD_INICIAL',
+                9 => 'LOTES.CANTIDAD',  
+                10 => 'PRODUCTOS_AUX.PREC_VENTA',
+                11 => 'PRODUCTOS_AUX.PREMAYORISTA', 
+        );
+        
+
+        // INICIAR VARIABLES 
+ 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $datos = $request->input("datos");
+        $inicio = date('Y-m-d', strtotime($datos["Inicio"]));
+        $final = date('Y-m-d', strtotime($datos["Final"]));
+        $sucursal = $datos["Sucursal"];
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Stock::select(DB::raw('
+                LOTES.COD_PROD,
+                0 AS IMAGEN,
+                PRODUCTOS.DESCRIPCION,
+                LINEAS.DESCRIPCION AS CATEGORIA, 
+                PROVEEDORES.NOMBRE AS PROVEEDOR, 
+                (SELECT MAX(L2.FECALTAS) FROM LOTES AS L2 WHERE L2.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L2.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
+                LOTES.FECHA_VENC AS FECHA_VENCIMIENTO,
+                LOTES.LOTE AS LOTE, 
+                LOTES.CANTIDAD_INICIAL AS CANTIDAD_INICIAL,
+                IFNULL(LOTES.CANTIDAD,0) AS STOCK,
+                PRODUCTOS_AUX.PREC_VENTA, 
+                PRODUCTOS_AUX.PREMAYORISTA'))
+                ->leftJoin('PRODUCTOS_AUX', function($join){
+                            $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
+                                 ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'lOTES.ID_SUCURSAL');
+                        })
+                ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+                ->leftjoin('PROVEEDORES','PROVEEDORES.CODIGO','=','PRODUCTOS_AUX.PROVEEDOR')
+                ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+                ->Where('LOTES.ID_SUCURSAL', '=', $sucursal)
+                ->Where('LOTES.CANTIDAD', '>', 0)
+                ->whereBetween('LOTES.FECHA_VENC', [$inicio, $final])
+                ->orderBy($order, $dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+        } 
+
+        $data = array();
+
+        $parametro = Parametro::consultaPersonalizada('MONEDA');
+        $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts)){
+            foreach ($posts as $post){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $filename = '../storage/app/public/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                
+                if(file_exists($filename)) {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                } else {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                }
+
+                $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['PROVEEDOR'] = $post->PROVEEDOR;
+                $nestedData['ULTIMA_ENTRADA'] = substr($post->ULTIMA_ENTRADA,0,-9);
+                $nestedData['FECHA_VENCIMIENTO'] = substr($post->FECHA_VENCIMIENTO,0,-9);
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['CANTIDAD_INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->STOCK;
+                $nestedData['PREC_VENTA'] = Common::formato_precio($post->PREC_VENTA, $candec);
+                $nestedData['PREMAYORISTA'] = Common::formato_precio($post->PREMAYORISTA, $candec);
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+        
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD ENCONTRADAS
+
+        $totalData = count($posts); 
+
+        /*  --------------------------------------------------------------------------------- */
+
+
+        // CONTAR LA CANTIDAD FILTRADA
+
+        $totalFiltered = $totalData;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
