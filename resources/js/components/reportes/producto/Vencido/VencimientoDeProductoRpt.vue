@@ -156,6 +156,7 @@
 	        	}		
 
 	        	if(me.controlar === false){
+	        		me.controlar = true;
 	        		return false;
 	        	}
 
