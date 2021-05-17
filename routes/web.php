@@ -500,6 +500,7 @@ Route::post('export/Stock/Image', 'StockController@descargarImageStock');
 Route::post('export_venta_periodo', 'StockController@descargarPeriodoStock');
 Route::post('export_producto_vencimiento', 'StockController@descagrarVencimientoProducto');
 Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
+Route::post('vencimientoProductoDatatable', 'StockController@vencimientoDatatable');
 
 
 /* -------------------------------------------------------------------------- */

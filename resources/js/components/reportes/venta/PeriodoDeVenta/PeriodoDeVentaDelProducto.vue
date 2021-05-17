@@ -3,7 +3,7 @@
 	<div v-if="$can('producto.mostrar')">
 		<!-- INICIO DE TARJETA -->
 		<div class="card mt-3 shadow border-bottom-primary" >
-		  <div class="card-header">Periodo de Venta</div>
+		  <div class="card-header">Productos sin movimientos</div>
 			<!-- CUERPO DE LA TARJETA -->
 			<div class="card-body">
 			  <div class="row">

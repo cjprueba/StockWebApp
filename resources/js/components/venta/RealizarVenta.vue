@@ -1,11 +1,11 @@
 <template>
-	<div class="container-fluid bg-light">
+	<div v-if="$can('venta.realizarventas') && $can('venta')" class="container-fluid bg-light">
 
 		<!-- ------------------------------------------------------------------ -->
 
 		<!-- SIDEBAR -->
 
-		<b-sidebar id="sidebar-right" title="Opciones"  right shadow>
+		<b-sidebar   id="sidebar-right" title="Opciones"  right shadow>
 	      <div class="px-3 py-2">
 
 	      				<!-- ------------------------------------------------------------------ -->
@@ -122,8 +122,9 @@
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="movimiento_caja"><small>Movimiento de Caja</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
-	      </div>
+	    </div>
 	    </b-sidebar>
+	    
 
 	    <!-- ------------------------------------------------------------------ -->
 
@@ -983,6 +984,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+	</div>
+	<div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	</div>
 </template>
 <script>

@@ -9,7 +9,7 @@
 				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-            <option v-if="$can('reporte.venta.periodosinmov') && $can('reporte.web')" value="7">Por Período</option> 
+            <option v-if="$can('reporte.venta.periodosinmov') && $can('reporte.web')" value="7">Sin movimientos</option> 
             <option v-if="$can('reporte.venta.resumendiario') && $can('reporte.web')" value="4">Reporte Diario</option>
             <option v-if="$can('reporte.venta.topventas') && $can('reporte.web')" value="6">Top Ventas</option>
             <option v-if="$can('reporte.venta.delivery') && $can('reporte.web')"value="12">Ventas por Delivery</option> 
