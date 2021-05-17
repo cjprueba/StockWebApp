@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\ProductosAux;
 class Gondola_tiene_Productos extends Model
 {
    	
@@ -18,6 +19,8 @@ class Gondola_tiene_Productos extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
+        //OBTENER ID DE PRODUCTOS_AUX
+        $ID_PRODUCTO=ProductosAux::Select('ID')->where('CODIGO','=',$codigo)->where('ID_SUCURSAL','=',$user->id)->limit(1)->get()->toArray();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -37,7 +40,9 @@ class Gondola_tiene_Productos extends Model
 
               // INSERTAR GONDOLAS 
 
+
             	$gondola = Gondola_tiene_Productos::insertGetId([
+                'FK_PRODUCTOS_AUX'=> $ID_PRODUCTO[0]["ID"],
             		'GONDOLA_COD_PROD' => $codigo,
             		'ID_GONDOLA' => $value['ID'],
                 'ID_SUCURSAL' => $user->id_sucursal
@@ -79,7 +84,8 @@ class Gondola_tiene_Productos extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
+        $ID_PRODUCTO=ProductosAux::Select('ID')->where('CODIGO','=',$codigo)->where('ID_SUCURSAL','=',$user->id_sucursal)->limit(1)->get()->toArray();
+        
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
@@ -125,7 +131,7 @@ class Gondola_tiene_Productos extends Model
               // INSERTAR GONDOLAS 
 
               $gondola = Gondola_tiene_Productos::updateOrInsert(
-                  ['GONDOLA_COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
+                  ['FK_PRODUCTOS_AUX'=>$ID_PRODUCTO[0]["ID"] ,'GONDOLA_COD_PROD' => $codigo, 'ID_GONDOLA' => $value['ID']],
                   ['FECMODIF' => $dia, 'ID_SUCURSAL' => $user->id_sucursal]
               );
  
