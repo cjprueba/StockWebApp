@@ -1,7 +1,7 @@
 
 <template>
 	
-<div class="container">
+<div  class="container">
   <!-- ------------------------------------------------------------------ -->
 
   <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->
@@ -10,7 +10,7 @@
 
   <!-- ------------------------------------------------------------------------------------- -->
       
-     <div class="offset-md-2 col-6">
+     <div v-if="$can('compra.crearcontainer') && $can('compra')" class="offset-md-2 col-6">
     <div class="card mt-3 shadow-sm">
       <h5 class="card-header">Container</h5>
       <div class="card-body">
@@ -68,6 +68,9 @@
   </div>
 </div>
      </div>
+     <div v-else>
+        <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
 
 
 </div>
