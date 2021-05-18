@@ -2407,7 +2407,9 @@ class Venta extends Model
                     NotaCredito::where('ID', '=', $data["data"]["productos"][$c]["ID"]) 
                     ->update(
                         [ 
-                            'PROCESADO' => 1
+                            'PROCESADO' => 1,
+                            'FECMODIF'=>$dia,
+                            'HORMODIF'=>$hora
                         ]
                     );
 
@@ -7984,7 +7986,9 @@ class Venta extends Model
             NotaCredito::where('ID', '=', $data['id_nota_credito']) 
             ->update(
                 [ 
-                    'PROCESADO' => 1
+                    'PROCESADO' => 1,
+                    'FECMODIF'=> $fecha,
+                    'HORMODIF'=> $hora
                 ]
             );
 

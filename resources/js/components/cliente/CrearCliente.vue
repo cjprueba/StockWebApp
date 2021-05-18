@@ -40,10 +40,11 @@
 			    		<label class="col-sm-3 col-form-label">Tipo</label>
 			    		<div class="col-sm-9">
 					    	<select v-model="tipo" class="custom-select custom-select-sm">
-			    				<option>OCASIONAL</option>
 			  	  				<option>EXTRANJERO</option>
-			    				<option>MAYORISTA</option>
 			    				<option>FUNCIONARIO</option>
+			    				<option>MAYORISTA</option>
+			    				<option>OCASIONAL</option>
+			    				<option>VIP</option>
 		  					</select>
 					    </div>
 			    	</div>			
