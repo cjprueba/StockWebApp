@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div v-if="$can('clientes.credito') && $can('clientes')" class="container-fluid mt-4">
 		<div class="row" >
 
 			<!-- ------------------------------------------------------------------------------------- -->
@@ -198,6 +198,9 @@
 
 
 	</div>
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
 </template>
 <script>
 
