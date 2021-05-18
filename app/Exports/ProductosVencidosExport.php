@@ -22,9 +22,9 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
     * @return \Illuminate\Support\Collection
     */
 
-   	protected $total;
-   	protected $vencidos;
-   	protected $row_number;
+    protected $total;
+    protected $vencidos;
+    protected $row_number;
     protected $sucursal;
     protected $stock;
     protected $inicio;
@@ -50,12 +50,14 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
                     LOTES.LOTE AS LOTE, 
                     IFNULL(LOTES.CANTIDAD,"0") AS STOCK_LOTE,
                     LOTES.CANTIDAD_INICIAL AS CANTIDAD_INICIAL_LOTE,
+                    (SELECT MAX(L2.FECALTAS) FROM LOTES AS L2 WHERE L2.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L2.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
+                    LOTES.FECHA_VENC AS FECHA_VENCIMIENTO,
                     PROVEEDORES.NOMBRE AS PROVEEDOR,
                     LINEAS.DESCRIPCION AS CATEGORIA, 
                     PRODUCTOS.DESCRIPCION, 
                     DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, 
                     PRODUCTOS_AUX.PREC_VENTA, 
-                    LOTES.COSTO AS COSTO')
+                    PRODUCTOS_AUX.PREMAYORISTA')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
                             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
@@ -66,16 +68,15 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
-        ->WHERE('PRODUCTOS_AUX.PROVEEDOR','=',19)->orderBy('LINEAS.DESCRIPCION','ASC')->orderBy('LOTES.COD_PROD');
-       /* ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);*/
+        ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);
 
 /*        if ($this->stock === false) {
 
-        	$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0');
+            $vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) = 0');
 
         } else {*/
 
-        	/*$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');*/
+            $vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');
 
 /*        }*/
         
@@ -91,18 +92,18 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
     }
      public function headings(): array
     {
-        return ["CODIGO", "IMAGEN","LOTE","STOCK_LOTE","CANTIDAD_INICIAL_LOTE","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "COSTO"];
+        return ["CODIGO", "IMAGEN","LOTE","STOCK_LOTE","CANTIDAD_INICIAL_LOTE","ULTIMA_ENTRADA","FECHA_VENCIMIENTO","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
     }
 
     public function title(): string
     {
-        return 'LOTES_COSTOS';
+        return 'VENCIMIENTOS';
     }
 
     public function registerEvents(): array
     {
 
-    	$this->row_number = 2;
+        $this->row_number = 2;
 
         $styleArray = [
             'font' => [
@@ -149,25 +150,25 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
                 }
                 
                 foreach ($this->vencidos as $key => $value) {
-                	$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-			        $drawing->setName('Logo');
-			        $drawing->setDescription('Logo');
-			       /* $imagen = 'C:/laragon/www/StockWebApp-ultimo/public/images/'.$value['COD_PROD'].'.jpg';*/
-			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+                    $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+                    $drawing->setName('Logo');
+                    $drawing->setDescription('Logo');
+                   /* $imagen = 'C:/laragon/www/StockWebApp-ultimo/public/images/'.$value['COD_PROD'].'.jpg';*/
+                    $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
 
-			        if(!file_exists($imagen)) {
-			        	/*$drawing->setPath('C:/laragon/www/StockWebApp-ultimo/public/images/SinImagen.png');*/
-			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
-			        } else {
-			        	$drawing->setPath($imagen);
-			        }
+                    if(!file_exists($imagen)) {
+                        /*$drawing->setPath('C:/laragon/www/StockWebApp-ultimo/public/images/SinImagen.png');*/
+                        $drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
+                    } else {
+                        $drawing->setPath($imagen);
+                    }
 
-			        $drawing->setHeight(100);
-			        $drawing->setCoordinates('B'.$this->row_number);
-			        $drawing->setWorksheet($event->sheet->getDelegate());
-			        $drawing_array[] = $drawing;
+                    $drawing->setHeight(100);
+                    $drawing->setCoordinates('B'.$this->row_number);
+                    $drawing->setWorksheet($event->sheet->getDelegate());
+                    $drawing_array[] = $drawing;
 
-			        $this->row_number +=1;
+                    $this->row_number +=1;
 
                 }
             }
@@ -178,19 +179,19 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
     public function drawings(): array
     {
 
-    	$drawing_array = [];
-    	
+        $drawing_array = [];
+        
         
 
      //    for( $intRowNumber = 1; $intRowNumber <= 30; $intRowNumber++){
-     //    	$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-	    //     $drawing->setName('Logo');
-	    //     $drawing->setDescription('Logo');
-	    //     $drawing->setPath('C:\laragon\www\StockWebApp\public\images\SinImagen.png');
-	    //     $drawing->setHeight(30);
-	    //     $drawing->setCoordinates('B'.$intRowNumber);
-	    //     $drawing_array[] = $drawing;
-	    // }   
+     //     $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        //     $drawing->setName('Logo');
+        //     $drawing->setDescription('Logo');
+        //     $drawing->setPath('C:\laragon\www\StockWebApp\public\images\SinImagen.png');
+        //     $drawing->setHeight(30);
+        //     $drawing->setCoordinates('B'.$intRowNumber);
+        //     $drawing_array[] = $drawing;
+        // }   
      //   /*  $drawing->ShouldAutoSize(true);*/
 
         return $drawing_array;
