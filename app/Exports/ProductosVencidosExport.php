@@ -50,14 +50,12 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
                     LOTES.LOTE AS LOTE, 
                     IFNULL(LOTES.CANTIDAD,"0") AS STOCK_LOTE,
                     LOTES.CANTIDAD_INICIAL AS CANTIDAD_INICIAL_LOTE,
-                    (SELECT MAX(L2.FECALTAS) FROM LOTES AS L2 WHERE L2.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L2.COD_PROD=LOTES.COD_PROD) AS ULTIMA_ENTRADA,
-                    LOTES.FECHA_VENC AS FECHA_VENCIMIENTO,
                     PROVEEDORES.NOMBRE AS PROVEEDOR,
                     LINEAS.DESCRIPCION AS CATEGORIA, 
                     PRODUCTOS.DESCRIPCION, 
                     DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, 
                     PRODUCTOS_AUX.PREC_VENTA, 
-                    PRODUCTOS_AUX.PREMAYORISTA')
+                    LOTES.COSTO AS COSTO')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
                             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
@@ -68,7 +66,8 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
-        ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);
+        ->WHERE('PRODUCTOS_AUX.PROVEEDOR','=',19);
+       /* ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);*/
 
 /*        if ($this->stock === false) {
 
@@ -76,7 +75,7 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
 
         } else {*/
 
-        	$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');
+        	/*$vencidos = $vencidos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = LOTES.COD_PROD) AND (l.ID_SUCURSAL = LOTES.ID_SUCURSAL))),0)) >= 0');*/
 
 /*        }*/
         
@@ -92,12 +91,12 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
     }
      public function headings(): array
     {
-        return ["CODIGO", "IMAGEN","LOTE","STOCK_LOTE","CANTIDAD_INICIAL_LOTE","ULTIMA_ENTRADA","FECHA_VENCIMIENTO","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
+        return ["CODIGO", "IMAGEN","LOTE","STOCK_LOTE","CANTIDAD_INICIAL_LOTE","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "COSTO"];
     }
 
     public function title(): string
     {
-        return 'VENCIMIENTOS';
+        return 'LOTES_COSTOS';
     }
 
     public function registerEvents(): array
