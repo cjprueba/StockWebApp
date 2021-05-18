@@ -66,7 +66,7 @@ class ProductosVencidosExport implements FromArray, WithHeadings, WithTitle, Wit
         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
-        ->WHERE('PRODUCTOS_AUX.PROVEEDOR','=',19);
+        ->WHERE('PRODUCTOS_AUX.PROVEEDOR','=',19)->orderBy('LINEAS.DESCRIPCION','ASC')->orderBy('LOTES.COD_PROD');
        /* ->whereBetween('LOTES.FECHA_VENC', [$this->inicio, $this->final]);*/
 
 /*        if ($this->stock === false) {
