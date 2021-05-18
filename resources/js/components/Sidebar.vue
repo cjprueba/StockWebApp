@@ -229,7 +229,7 @@
 
       <!-- PROVEEDOR -->
 
-      <li class="nav-item">
+      <li  v-if="$can('proveedor')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProveedor" aria-expanded="true" aria-controls="collapseProveedor">
           <font-awesome-icon icon="ambulance"/>
           <span>Proveedor</span>
@@ -237,11 +237,11 @@
         <div id="collapseProveedor" class="collapse" aria-labelledby="headingProveedor" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'proveedorMostrar'}">Mostrar Proveedores</router-link>
-            <router-link class="collapse-item" :to="{name: 'proveedorPago'}">Pago de Cuentas</router-link>
-            <router-link class="collapse-item" :to="{name: 'proveedorDevolucion'}">Devolución</router-link>
-            <router-link class="collapse-item" :to="{name: 'proveedorDevolucionMostrar'}">Mostrar Devoluciones</router-link>
-            <router-link class="collapse-item" :to="{name: 'proveedorCrear'}">Crear Proveedor</router-link>
+            <router-link v-if="$can('proveedor.crear')" class="collapse-item" :to="{name: 'proveedorCrear'}">Crear Proveedor</router-link>
+            <router-link v-if="$can('proveedor.mostrar')" class="collapse-item" :to="{name: 'proveedorMostrar'}">Mostrar Proveedores</router-link>
+            <router-link v-if="$can('proveedor.pago')" class="collapse-item" :to="{name: 'proveedorPago'}">Pago de Cuentas</router-link>
+            <router-link v-if="$can('proveedor.devolucion')" class="collapse-item" :to="{name: 'proveedorDevolucion'}">Realizar Devolución</router-link>
+            <router-link v-if="$can('proveedor.mostrar.devolucion')" class="collapse-item" :to="{name: 'proveedorDevolucionMostrar'}">Mostrar Devoluciones</router-link>
           </div>
         </div>
       </li>

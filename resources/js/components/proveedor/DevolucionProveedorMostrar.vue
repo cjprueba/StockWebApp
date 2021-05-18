@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-4">
-		<div class="row" v-if="$can('proveedor.mostrar.devolucion')">
+		<div class="row" v-if="$can('proveedor.mostrar.devolucion') && $can('proveedor')">
 
 			<!-- ------------------------------------------------------------------------------------- -->
 
