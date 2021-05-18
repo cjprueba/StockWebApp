@@ -1,6 +1,6 @@
 <template>
 	<div class="container-fluid mt-3">
-		<div class="row" v-if="$can('proveedor.devolucion')">
+		<div class="row" v-if="$can('proveedor.devolucion') && $can('proveedor')">
 				<div class="col-md-12">
 					<div class="card border-bottom-info mb-3">
 					  <div class="card-header">
