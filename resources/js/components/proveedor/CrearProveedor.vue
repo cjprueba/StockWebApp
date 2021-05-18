@@ -10,7 +10,7 @@
 
   <!-- ------------------------------------------------------------------------------------- -->
       
-     <div class="offset-md-2 col-6">
+     <div v-if="$can('proveedor.crear') && $can('proveedor')" class="offset-md-2 col-6">
     <div class="card mt-3 shadow-sm">
       <h5 class="card-header">Proveedores</h5>
       <div class="card-body">
@@ -81,10 +81,13 @@
                      <button v-on:click="eliminarProveedor" type="submit" class="btn btn-danger">Eliminar(F6)</button>
                   </div>
 
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-     </div>
+    </div>
+    <div v-else>
+      <cuatrocientos-cuatro></cuatrocientos-cuatro>
+    </div>
 
 
 </div>
