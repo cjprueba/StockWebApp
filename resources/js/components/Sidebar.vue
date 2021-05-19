@@ -339,7 +339,7 @@
 
 
         <!-- ATRIBUTOS MENI-->
-      <li class="nav-item">
+      <li v-if="$can('atributos')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
           <font-awesome-icon icon="user-circle" />
           <span>Atributos</span>
@@ -347,13 +347,13 @@
         <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
-            <router-link class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
-            <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
-            <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
-            <router-link class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
+            <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+            <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+            <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+            <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+            <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+            <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+            <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
           </div>
         </div>
       </li>

@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div>
+  <div v-if="$can('atributo.crearnombre') && $can('atributos')">
   
       <!-- ------------------------------------------------------------------ -->
 
