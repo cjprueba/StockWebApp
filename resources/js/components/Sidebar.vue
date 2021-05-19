@@ -304,7 +304,7 @@
 
       <!-- COTIZACION MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('cotizacion')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCotizacion" aria-expanded="true" aria-controls="collapseCotizacion">
           <font-awesome-icon icon="coins" />
           <span>Cotización</span>
@@ -312,8 +312,8 @@
         <div id="collapseCotizacion" class="collapse" aria-labelledby="headingCotizacion" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'cotizacionCrearNuevo'}">Crear Cotización</router-link>
-            <router-link class="collapse-item" :to="{name: 'cotizacionMostrarNuevo'}">Mostrar Cotización</router-link>
+            <router-link v-if="$can('cotizacion.crear')" class="collapse-item" :to="{name: 'cotizacionCrearNuevo'}">Crear Cotización</router-link>
+            <router-link v-if="$can('cotizacion.mostrar')" class="collapse-item" :to="{name: 'cotizacionMostrarNuevo'}">Mostrar Cotización</router-link>
           </div>
         </div>
       </li>
