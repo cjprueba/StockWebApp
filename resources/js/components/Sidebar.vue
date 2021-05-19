@@ -322,7 +322,7 @@
 
       <!-- TRANSPORTE MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('transporte')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransporte" aria-expanded="true" aria-controls="collapseTransporte">
           <font-awesome-icon icon="truck-moving" />
           <span>Transporte</span>
@@ -330,12 +330,35 @@
         <div id="collapseTransporte" class="collapse" aria-labelledby="headingTransporte" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'transporteCrear'}">Crear Transporte</router-link>
+            <router-link v-if="$can('transporte.crear')" class="collapse-item" :to="{name: 'transporteCrear'}">Crear Transporte</router-link>
+          </div>
+        </div>
+      </li>
+        <!-- ------------------------------------------------------------------------------------- -->
+
+
+
+        <!-- ATRIBUTOS MENI-->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
+          <font-awesome-icon icon="user-circle" />
+          <span>Atributos</span>
+        </a>
+        <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+            <router-link class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+            <router-link class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+            <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+            <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+            <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+            <router-link class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
           </div>
         </div>
       </li>
 
-        <!-- ------------------------------------------------------------------------------------- -->
+
 
       <!-- USER MENU -->
 
@@ -356,25 +379,7 @@
           </div>
         </div>
       </li>
-      <!-- ATRIBUTOS MENI-->
-            <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
-          <font-awesome-icon icon="user-circle" />
-          <span>Atributos</span>
-        </a>
-        <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
-            <router-link class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
-            <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
-            <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
-            <router-link class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
-          </div>
-        </div>
-      </li>
+      
 
       <!-- GONDOLAS MENU -->
             <li class="nav-item">
