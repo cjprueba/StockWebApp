@@ -397,7 +397,7 @@
       </li>
       <!-- CUPONES MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('cupones')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCupon" aria-expanded="true" aria-controls="collapseCupon">
           <font-awesome-icon icon="credit-card" />
           <span>Cupones</span>
@@ -405,8 +405,8 @@
         <div id="collapseCupon" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'cuponMostrar'}">Mostrar Cupones</router-link>
-            <router-link class="collapse-item" :to="{name: 'cuponCrear'}">Crear Cupones</router-link>
+            <router-link v-if="$can('cupones.mostrar')" class="collapse-item" :to="{name: 'cuponMostrar'}">Mostrar Cupones</router-link>
+            <router-link v-if="$can('cupones.crear')" class="collapse-item" :to="{name: 'cuponCrear'}">Crear Cupones</router-link>
           </div>
         </div>
       </li>

@@ -1,6 +1,6 @@
 <template>
 
-	<div class="container">
+	<div v-if="$can('cupones.crear') && $can('cupones')" class="container">
 
 
 		  <div >
