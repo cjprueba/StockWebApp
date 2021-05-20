@@ -362,7 +362,7 @@
 
       <!-- USER MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('user')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
           <font-awesome-icon icon="user-circle" />
           <span>Usuarios</span>
@@ -370,12 +370,12 @@
         <div id="collapseRol" class="collapse" aria-labelledby="headingRol" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
-            <router-link class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
-            <router-link class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
-            <router-link class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
-            <router-link class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
-            <router-link class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
+            <router-link v-if="$can('user.crear')" class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
+            <router-link v-if="$can('user.rol')" class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
+            <router-link v-if="$can('user.permission')" class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
+            <router-link v-if="$can('user.rol.user')" class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
+            <router-link v-if="$can('user.permission.user')" class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
+            <router-link v-if="$can('user.cambiarsucursal')" class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
           </div>
         </div>
       </li>
