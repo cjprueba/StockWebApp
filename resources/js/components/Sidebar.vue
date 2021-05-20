@@ -382,7 +382,7 @@
       
 
       <!-- GONDOLAS MENU -->
-            <li class="nav-item">
+      <li v-if="$can('gondola')" class="nav-item">
 
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGondolas" aria-expanded="true" aria-controls="collapseGondolas">
           <font-awesome-icon icon="user-circle" />
@@ -391,7 +391,7 @@
         <div id="collapseGondolas" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+            <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
           </div>
         </div>
       </li>
