@@ -1,66 +1,68 @@
 <template>
 	<div class="container mt-3">
-		<div class="row">
-		<div class="col-12">
-			<div class="card shadow border-bottom-primary mb-3">
-		  <div class="text-center card-header">Crear Empleados</div>
-		  <div class="card-body">
-		  		<div class="row">
-		  			<div class="col-6">
-		  					<div class="mb-3">
-						  <label class="form-label">Nombre</label>
-						  <input type="text" class="form-control form-control-sm" v-model="nombre"  v-bind:class="{ 'is-invalid': validar.nombre }">
-						</div>
-						<div class="mb-3">
-						  <label class="form-label">Dirección</label>
-						  <input type="text" class="form-control form-control-sm" v-model="direccion"  v-bind:class="{ 'is-invalid': validar.direccion }">
-						</div>
-						<div class="mb-3">
-						  <label class="form-label">Ciudad</label>
-						  <input type="text" class="form-control form-control-sm" v-model="ciudad" >
-						</div>
-						<div class="mb-3">
-						  <label class="form-label">Teléfono</label>
-						  <input type="number" class="form-control form-control-sm" v-model="telefono"  v-bind:class="{ 'is-invalid': validar.telefono }">
-						</div>
-						<div class="mb-3">
-							  <label class="form-label">Cargo</label>
-							  <select class="custom-select custom-select-sm" v-model="cargo" v-bind:class="{ 'is-invalid': validar.cargo}">
-							  <option selected>SELECCIONAR</option>
-							  <option>CAJERO</option>
-							  <option>DEPOSITO</option>
-							  <option>GERENTE</option>
-							  <option>OPERADOR</option>
-							  <option>VENDEDOR</option>
-							  </select>
-						</div>
-		  			</div>
-		  			<div class="col-6">
-		  				<div class="mb-3">
-		  				<label class="form-label">Código</label>
-		  				<empleado-textbox ref= "componente_textbox_empleado" :codigo="codigo" v-model="codigo" v-bind:class="{ 'is-invalid': validar.codigo }" @nombre="cargarNombre" @cedula="cargarCedula" @codigo="cargarCodigo" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimineto" @telefono="cargarTelefono" @cargo="cargarCargo" @gondolas="cargarGondolas"></empleado-textbox>
-		  			</div>
-						<div class="mb-3">
-						  <label class="form-label">C.I.</label>
-						  <input type="number" class="form-control form-control-sm" v-model="ci"  v-bind:class="{ 'is-invalid': validar.ci}">
-						</div>
-						<div class="mb-3">
-						  <label class="form-label">Fecha - Nacimiento</label>
-						  <input class="form-control form-control-sm" id='selectedInicialFecha' v-model="fecha_nac">
-						</div>
-						<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"> </select-gondola>
-		  			</div>
-		  		</div>
-		  		<button type="button" class="btn btn-primary" v-on:click="nuevo()">Nuevo</button>
-		  		<button type="button" v-if="btn_guardar"  class="btn btn-success" v-on:click="guardar">Guardar</button>
-		  		<button type="button" v-else class="btn btn-warning" v-on:click="guardar()">Modificar</button>
-		  		<button type="button" class="btn btn-danger" v-on:click="eliminar()">Eliminar</button>
-		  </div>
+		<div v-if="$can('empleados.crear') && $can('empleados')" class="row">
+			<div class="col-12">
+				<div class="card shadow border-bottom-primary mb-3">
+			  		<div class="text-center card-header">Crear Empleados</div>
+				  	<div class="card-body">
+				  		<div class="row">
+				  			<div class="col-6">
+				  				<div class="mb-3">
+								  <label class="form-label">Nombre</label>
+								  <input type="text" class="form-control form-control-sm" v-model="nombre"  v-bind:class="{ 'is-invalid': validar.nombre }">
+								</div>
+								<div class="mb-3">
+								  <label class="form-label">Dirección</label>
+								  <input type="text" class="form-control form-control-sm" v-model="direccion"  v-bind:class="{ 'is-invalid': validar.direccion }">
+								</div>
+								<div class="mb-3">
+								  <label class="form-label">Ciudad</label>
+								  <input type="text" class="form-control form-control-sm" v-model="ciudad" >
+								</div>
+								<div class="mb-3">
+								  <label class="form-label">Teléfono</label>
+								  <input type="number" class="form-control form-control-sm" v-model="telefono"  v-bind:class="{ 'is-invalid': validar.telefono }">
+								</div>
+								<div class="mb-3">
+									  <label class="form-label">Cargo</label>
+									  <select class="custom-select custom-select-sm" v-model="cargo" v-bind:class="{ 'is-invalid': validar.cargo}">
+									  <option selected>SELECCIONAR</option>
+									  <option>CAJERO</option>
+									  <option>DEPOSITO</option>
+									  <option>GERENTE</option>
+									  <option>OPERADOR</option>
+									  <option>VENDEDOR</option>
+									  </select>
+								</div>
+				  			</div>
+				  			<div class="col-6">
+				  				<div class="mb-3">
+				  				<label class="form-label">Código</label>
+				  				<empleado-textbox ref= "componente_textbox_empleado" :codigo="codigo" v-model="codigo" v-bind:class="{ 'is-invalid': validar.codigo }" @nombre="cargarNombre" @cedula="cargarCedula" @codigo="cargarCodigo" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimineto" @telefono="cargarTelefono" @cargo="cargarCargo" @gondolas="cargarGondolas"></empleado-textbox>
+				  			</div>
+								<div class="mb-3">
+								  <label class="form-label">C.I.</label>
+								  <input type="number" class="form-control form-control-sm" v-model="ci"  v-bind:class="{ 'is-invalid': validar.ci}">
+								</div>
+								<div class="mb-3">
+								  <label class="form-label">Fecha - Nacimiento</label>
+								  <input class="form-control form-control-sm" id='selectedInicialFecha' v-model="fecha_nac">
+								</div>
+								<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"> </select-gondola>
+				  			</div>
+				  		</div>
+				  		<button type="button" class="btn btn-primary" v-on:click="nuevo()">Nuevo</button>
+				  		<button type="button" v-if="btn_guardar"  class="btn btn-success" v-on:click="guardar">Guardar</button>
+				  		<button type="button" v-else class="btn btn-warning" v-on:click="guardar()">Modificar</button>
+				  		<button type="button" class="btn btn-danger" v-on:click="eliminar()">Eliminar</button>
+					</div>
+				</div>
+			</div>
 		</div>
+		<div v-else>
+    		<cuatrocientos-cuatro></cuatrocientos-cuatro>
+    	</div>
 	</div>
-</div>
-	</div>
-
 </template>
 <script>
 	export default {
@@ -178,6 +180,7 @@
 					seleccion_gondola:this.seleccion_gondola,
 					btn_guardar:this.btn_guardar
 				}
+				console.log(datos.seleccion_gondola);
 
 				Common.guardarEmpleadosCommon(datos).then(data=>{
 

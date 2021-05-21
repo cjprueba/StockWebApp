@@ -445,7 +445,7 @@
 
       <!-- EMPLEADOS -->
 
-      <li class="nav-item">
+      <li v-if="$can('empleados')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEmpleados" aria-expanded="true" aria-controls="collapseEmpleados">
           <font-awesome-icon icon="user-circle" />
           <span>Empleados</span>
@@ -453,7 +453,7 @@
         <div id="collapseEmpleados" class="collapse" aria-labelledby="headingEmpleados" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
+            <router-link v-if="$can('empleados.crear')" class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
             
           </div>
         </div>
