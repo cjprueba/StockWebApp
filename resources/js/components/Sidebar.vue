@@ -482,7 +482,7 @@
       <!-- ------------------------------------------------------------------------------------- -->
       <!-- CAJA -->
       
-      <li class="nav-item">
+      <li v-if="$can('caja')" class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCaja" aria-expanded="true" aria-controls="collapseCaja">
         <font-awesome-icon icon="user-circle" />
         <span>Caja</span>
@@ -490,7 +490,7 @@
       <div id="collapseCaja" class="collapse" aria-labelledby="headingCaja" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <h6 class="collapse-header">Opciones:</h6>
-          <router-link class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
+          <router-link v-if="$can('caja.asignar')" class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
         </div>
       </div>
     </li>
