@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div v-if="$can('talle.crear')">
+  <div v-if="$can('talle.crear') && $can('atributos')">
 
       <!-- ------------------------------------------------------------------ -->
 

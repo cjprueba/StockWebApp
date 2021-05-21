@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div v-if="$can('subcategoria.crear')">
+  <div v-if="$can('subcategoria.crear') && $can('atributos')">
 
     <!-- ------------------------------------------------------------------ -->
 

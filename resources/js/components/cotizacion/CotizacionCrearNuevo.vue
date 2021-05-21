@@ -1,7 +1,7 @@
 
 <template>
 	
-<div class="container-fluid">
+<div v-if="$can('cotizacion.crear') && $can('cotizacion')" class="container-fluid">
   
   <!-- ------------------------------------------------------------------------ -->
 
@@ -55,6 +55,9 @@
 
   </div> 
 
+</div>
+<div v-else>
+  <cuatrocientos-cuatro></cuatrocientos-cuatro>
 </div>
 
 </template>

@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div v-if="$can('cotizacion.mostrar') && $can('cotizacion')" class="container-fluid mt-4">
 		<div class="row">
 
 			<!---------------------------v-if="$can('orden.mostrar.completado')"-------------------------------------------- -->
@@ -38,6 +38,9 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
+	</div>
+	<div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
 	</div>
 </template>
 <script>

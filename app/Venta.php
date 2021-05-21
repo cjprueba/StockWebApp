@@ -7544,7 +7544,8 @@ class Venta extends Model
                     VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                     ->update([
                         'PAGO' => \DB::raw('PAGO + '.$datos['EFECTIVO'].''),
-                        'SALDO' => ($value->SALDO - $datos['EFECTIVO'])
+                        'SALDO' => ($value->SALDO - $datos['EFECTIVO']),
+                        'FECHA_CANCELACION'=> $fecha
                     ]);
 
                     /*  --------------------------------------------------------------------------------- */
@@ -7574,7 +7575,9 @@ class Venta extends Model
                     VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                     ->update([
                         'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
-                        'SALDO' => 0
+                        'SALDO' => 0,
+                        'FECHA_CANCELACION'=> $fecha
+                        
                     ]);
 
                     /*  --------------------------------------------------------------------------------- */

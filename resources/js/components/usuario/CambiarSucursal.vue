@@ -1,20 +1,23 @@
 <template>
 	<div id="app">
-      <b-modal centered id="meu-modal">
+    	<b-modal v-if="$can('user.cambiarsucursal') && $can('user')" centered id="meu-modal">
 
-      	<template v-slot:modal-header="{ close }">
-      		<h5>Cambio de Sucursal</h5>
-      		
-      	</template>
-      	
-      	<select-sucursal ref="UsuarioSucursalTextbox" v-model="seleccion_sucursal" v-bind:seleccion="Seleccion_sucursal_modificar"> </select-sucursal>
-      	
-      	<template v-slot:modal-footer="{hide, ok}">
-      		<button type="button" class="btn btn-danger btn-md" v-on:click="hide()">Cancelar</button>
-      				<button type="button" class="btn btn-primary btn-md" v-on:click="okbtn()">Aceptar</button>
-      		
-      	</template>
-      </b-modal>
+	      	<template v-slot:modal-header="{ close }">
+	      		<h5>Cambio de Sucursal</h5>
+	      		
+	      	</template>
+	      	
+	      	<select-sucursal ref="UsuarioSucursalTextbox" v-model="seleccion_sucursal" v-bind:seleccion="Seleccion_sucursal_modificar"> </select-sucursal>
+	      	
+	      	<template v-slot:modal-footer="{hide, ok}">
+	      		<button type="button" class="btn btn-danger btn-md" v-on:click="hide()">Cancelar</button>
+	      				<button type="button" class="btn btn-primary btn-md" v-on:click="okbtn()">Aceptar</button>
+	      		
+	      	</template>
+	    </b-modal>
+	    <b-modal v-else>
+	      	<cuatrocientos-cuatro></cuatrocientos-cuatro>
+	  	</b-modal>
 
 
 

@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div v-if="$can('tela.crear')">
+  <div v-if="$can('tela.crear') && $can('atributos')">
   
     <!-- ------------------------------------------------------------------ -->
 
