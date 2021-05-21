@@ -1,7 +1,7 @@
 
 <template>
 	
-<div class="container">
+<div v-if="$can('transporte.crear') && $can('transporte')" class="container">
   <!-- ------------------------------------------------------------------ -->
 
   <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->

@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div v-if="$can('marca.crear')">
+  <div v-if="$can('marca.crear') && $can('atributos')">
 
       <!-- ------------------------------------------------------------------ -->
 

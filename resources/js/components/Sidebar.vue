@@ -322,7 +322,7 @@
 
       <!-- TRANSPORTE MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('transporte')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransporte" aria-expanded="true" aria-controls="collapseTransporte">
           <font-awesome-icon icon="truck-moving" />
           <span>Transporte</span>
@@ -330,34 +330,16 @@
         <div id="collapseTransporte" class="collapse" aria-labelledby="headingTransporte" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'transporteCrear'}">Crear Transporte</router-link>
+            <router-link v-if="$can('transporte.crear')" class="collapse-item" :to="{name: 'transporteCrear'}">Crear Transporte</router-link>
           </div>
         </div>
       </li>
-
         <!-- ------------------------------------------------------------------------------------- -->
 
-      <!-- USER MENU -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
-          <font-awesome-icon icon="user-circle" />
-          <span>Usuarios</span>
-        </a>
-        <div id="collapseRol" class="collapse" aria-labelledby="headingRol" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
-            <router-link class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
-            <router-link class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
-            <router-link class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
-            <router-link class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
-            <router-link class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
-          </div>
-        </div>
-      </li>
-      <!-- ATRIBUTOS MENI-->
-            <li class="nav-item">
+
+        <!-- ATRIBUTOS MENI-->
+      <li v-if="$can('atributos')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
           <font-awesome-icon icon="user-circle" />
           <span>Atributos</span>
@@ -365,19 +347,42 @@
         <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
-            <router-link class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
-            <router-link class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
-            <router-link class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
-            <router-link class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
-            <router-link class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
+            <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+            <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+            <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+            <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+            <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+            <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+            <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
           </div>
         </div>
       </li>
 
+
+
+      <!-- USER MENU -->
+
+      <li v-if="$can('user')" class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
+          <font-awesome-icon icon="user-circle" />
+          <span>Usuarios</span>
+        </a>
+        <div id="collapseRol" class="collapse" aria-labelledby="headingRol" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link v-if="$can('user.crear')" class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
+            <router-link v-if="$can('user.rol')" class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
+            <router-link v-if="$can('user.permission')" class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
+            <router-link v-if="$can('user.rol.user')" class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
+            <router-link v-if="$can('user.permission.user')" class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
+            <router-link v-if="$can('user.cambiarsucursal')" class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
+          </div>
+        </div>
+      </li>
+      
+
       <!-- GONDOLAS MENU -->
-            <li class="nav-item">
+      <li v-if="$can('gondola')" class="nav-item">
 
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGondolas" aria-expanded="true" aria-controls="collapseGondolas">
           <font-awesome-icon icon="user-circle" />
@@ -386,13 +391,13 @@
         <div id="collapseGondolas" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+            <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
           </div>
         </div>
       </li>
       <!-- CUPONES MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('cupones')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCupon" aria-expanded="true" aria-controls="collapseCupon">
           <font-awesome-icon icon="credit-card" />
           <span>Cupones</span>
@@ -400,8 +405,8 @@
         <div id="collapseCupon" class="collapse" aria-labelledby="headingGondpñas" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'cuponMostrar'}">Mostrar Cupones</router-link>
-            <router-link class="collapse-item" :to="{name: 'cuponCrear'}">Crear Cupones</router-link>
+            <router-link v-if="$can('cupones.mostrar')" class="collapse-item" :to="{name: 'cuponMostrar'}">Mostrar Cupones</router-link>
+            <router-link v-if="$can('cupones.crear')" class="collapse-item" :to="{name: 'cuponCrear'}">Crear Cupones</router-link>
           </div>
         </div>
       </li>

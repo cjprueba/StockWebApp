@@ -3,7 +3,7 @@
   
 <div class="container">
 
-  <div v-if="$can('user.crear')">
+  <div v-if="$can('user.crear') && $can('user')">
 
     <!-- ------------------------------------------------------------------ -->
 
