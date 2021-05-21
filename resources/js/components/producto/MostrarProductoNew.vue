@@ -1,5 +1,5 @@
 <template>
-  <div class="container pt-3 bg-light">
+  <div v-if="$can('pedido.mostrarproductos') && $can('pedidos')" class="container pt-3 bg-light">
 
               <div class="row">
 

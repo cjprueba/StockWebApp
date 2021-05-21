@@ -1,5 +1,6 @@
 <template>
 	<div class="container-fluid bg-dark" >
+  <div v-if="$can('pedido.checkout') && $can('pedidos')">
 	<div class="px-4 px-lg-0 mt-3" v-if="productos.length > 0">	
 
 	<div class="text-white text-center mb-3">
@@ -121,8 +122,14 @@
   		No se registrado nada en el checkout !
     </div>
 </div>
+</div>
+<!-- ------------------------------------------------------------------------ -->
 
-				<!-- ------------------------------------------------------------------------ -->
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
+
+<!-- ------------------------------------------------------------------------ -->
 
 				<!-- MODAL CANTIDAD -->
 
