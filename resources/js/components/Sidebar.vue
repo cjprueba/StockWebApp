@@ -411,7 +411,7 @@
         </div>
       </li>
 
-      <li class="nav-item">
+      <li v-if="$can('ordenes')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrdenes" aria-expanded="true" aria-controls="collapseOrdenes">
           <font-awesome-icon icon="user-circle" />
           <span>Ordenes</span>
@@ -419,9 +419,9 @@
         <div id="collapseOrdenes" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'ordenesMostrar'}">Completados</router-link>
-            <router-link class="collapse-item" :to="{name: 'ordenesPendientes'}">Pendientes</router-link>
-            <router-link class="collapse-item" :to="{name: 'ordenesProcesando'}">Procesando</router-link>
+            <router-link v-if="$can('ordenes.completados')" class="collapse-item" :to="{name: 'ordenesMostrar'}">Completados</router-link>
+            <router-link v-if="$can('ordenes.pendientes')" class="collapse-item" :to="{name: 'ordenesPendientes'}">Pendientes</router-link>
+            <router-link v-if="$can('ordenes.procesando')" class="collapse-item" :to="{name: 'ordenesProcesando'}">Procesando</router-link>
           </div>
         </div>
       </li>
