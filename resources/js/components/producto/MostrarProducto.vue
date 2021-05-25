@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid">
+	<div v-if="$can('producto.mostrar') && $can('producto')" class="container-fluid">
 		
     <div class="row">
       <!-- -->
@@ -10,7 +10,7 @@
 			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-lg mb-3" style="width:100%">
 		    <thead>
 		      <tr> 
-		        <th>Codigo</th>
+		        <th>aaa</th>
 		        <th>Descripcion</th>
             <th>Categoria</th>
 		        <th>Precio Venta</th>
@@ -151,6 +151,9 @@
     
 
 	</div>
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
 </template>
 <script>
 	export default {
