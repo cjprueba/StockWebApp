@@ -4522,7 +4522,7 @@ class Venta extends Model
         $pdf->Cell(25, 10, 'TIPO VENTA:', 0);
         $pdf->SetFont('Helvetica', '', 7);    
         $pdf->Cell(20, 10, '', 0);
-        $pdf->Cell(15, 10, $tipo,0,0,'R');
+        $pdf->Cell(15, 10, utf8_decode($tipo),0,0,'R');
         $pdf->Ln(3);
 
         $pdf->SetFont('Helvetica', 'B', 7);     
