@@ -266,7 +266,7 @@
       
       <!-- ------------------------------------------------------------------------------------- -->
 
-      <li class="nav-item" >
+      <li v-if="$can('producto')" class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
           <font-awesome-icon icon="tags"/>
           <span>Productos</span>
@@ -274,10 +274,12 @@
         <div id="collapseProdutos" class="collapse" aria-labelledby="headingProdutos" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link>
+            <router-link v-if="$can('producto.mostrar')" class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
+            <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+            <router-link v-if="$can('producto.etiquetas')" class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
+
+            <!-- <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link> -->
+            
           </div>
         </div>
       </li>
