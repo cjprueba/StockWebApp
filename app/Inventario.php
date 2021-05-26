@@ -344,6 +344,7 @@ class Inventario extends Model
                 $nestedData['CONTEO'] = $post->CONTEO;
                 $nestedData['COMENTARIO'] = $post->COMENTARIO;
                 $nestedData['STOCK'] = $post->STOCK;
+
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarDetalle' title='Detalle'><i class='fa fa-list' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='comentario' title='Comentario'><i class='fa fa-comments text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>";
 
@@ -430,7 +431,7 @@ class Inventario extends Model
   			->table('conteo')
   			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
-            ->offset($start)
+                        ->offset($start)
             ->limit($limit)
             ->orderBy($order,$dir)
             ->get();
@@ -499,9 +500,19 @@ class Inventario extends Model
                 $nestedData['SUCURSAL'] = $post->SUCURSAL;
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+
+                if($user->can("inventario.mostrar.procesar")){
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
                     ";
+
+                }else{
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;
+                    ";
+
+                }
+                
                     // &emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
                 $data[] = $nestedData;
 

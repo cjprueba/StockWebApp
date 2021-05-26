@@ -11,6 +11,7 @@ use App\Ventas_det;
 use App\NotaCreditoTieneLotes;
 use App\Parametro;
 use App\Common;
+use App\ProductosAux;
 
 class Stock extends Model
 {
@@ -2688,6 +2689,18 @@ class Stock extends Model
        return $json_data; 
 
         /*  --------------------------------------------------------------------------------- */
+
+    }
+    public static function actualizar_Stock_Minimo($codigo){
+                  $user = auth()->user();
+                  $porcentaje= Parametro::obtener_Porcentaje_Stock_Minimo($user->id_sucursal);
+                  if($porcentaje!=0){
+                    $stock=Stock::SELECT(DB::raw('IFNULL(SUM(CANTIDAD),0) as STOCK'))->where('COD_PROD','=',$codigo)->where('ID_SUCURSAL','=',$user->id_sucursal)->get()->toArray();
+                    $stock_minimo=round(($stock[0]['STOCK']*$porcentaje)/100);
+                    $minimo=ProductosAux::where('CODIGO','=',$codigo)
+                    ->where('id_sucursal','=',$user->id_sucursal)
+                    ->UPDATE(['STOCK_MIN'=>$stock_minimo]);
+                  }
 
     }
 }
