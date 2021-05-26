@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		
-		<div class="mt-3 mb-3" v-if="$can('producto.mostrar')">
+		<div class="mt-3 mb-3" v-if="$can('producto.mostrar') && $can('producto')">
 			
 			<!-- ------------------------------------------------------------------ -->
 
@@ -49,7 +49,7 @@
 
 				    	<!-- ------------------------------------------------------------------ -->
 
-				    	<div class="col-md-10" v-if="$can('producto.crear')">
+				    	<div class="col-md-10" v-if="$can('producto.crear') && $can('producto')">
 							
 							<form class="form-inline">
 
@@ -103,7 +103,7 @@
 
 				    	<!-- MOSTRAR DETALLE -->
 
-				    	<div class="col-md-2" v-if="$can('producto.crear')">
+				    	<div class="col-md-2" v-if="$can('producto.crear') && $can('producto')">
 				    		<div class="my-4 float-right" v-if="mostrar.detalle">
 								<button type="button" class="btn btn-sm btn-outline-primary" v-on:click="detalle()">Ver Más</button>
 							</div>
@@ -120,7 +120,7 @@
 
 				    			<!-- SALTO DE LINEA -->
 
-				    			<hr v-if="$can('producto.crear')">
+				    			<hr v-if="$can('producto.crear') && $can('producto')">
 
 							    <!-- ------------------------------------------------------------------ -->
 
@@ -154,7 +154,7 @@
 
 							    <!-- GRUPO DE FORMA CODIGO REAL -->
 
-							    <div  v-if="$can('producto.crear')">
+							    <div  v-if="$can('producto.crear') && $can('producto')">
 					    		<div class="form-row mt-3" v-if="checked_codigo_real">
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -200,13 +200,13 @@
 
 				    			<!-- SALTO DE LINEA -->
 				    			
-				    			<hr  v-if="$can('producto.crear')">
+				    			<hr  v-if="$can('producto.crear') && $can('producto')">
 
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- GRUPO DE FORMA CATEGORIA Y SUB -->
 
-					    		<div class="form-row" v-if="$can('producto.crear')">
+					    		<div class="form-row" v-if="$can('producto.crear') && $can('producto')">
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -245,7 +245,7 @@
 
 					    		<!-- ------------------------------------------------------------------ -->
 
-					    		<div class="form-row mt-3"  v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3"  v-if="$can('producto.crear') && $can('producto')">
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -263,12 +263,12 @@
 
 					    		<!-- SALTO DE LINEA -->
 
-				    			<hr  v-if="$can('producto.crear')">
+				    			<hr  v-if="$can('producto.crear') && $can('producto')">
 
 				    			<!-- ------------------------------------------------------------------ -->
 
 					    		<!-- FORM ROW COLOR -->
-					    		<div v-if="$can('producto.crear')">
+					    		<div v-if="$can('producto.crear') && $can('producto')">
 					    		<div class="form-row mt-3" v-if="mostrar_color">
 
 						    		<!-- ------------------------------------------------------------------ -->
@@ -342,7 +342,7 @@
 
 				    			<!-- FORM ROW MARCA -->
 
-					    		<div class="form-row mt-3" v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 						    		<!-- ------------------------------------------------------------------ -->
 
@@ -366,12 +366,12 @@
 
 				    			<!-- SALTO DE LINEA -->
 				    			
-				    			<hr  v-if="$can('producto.crear')">
+				    			<hr  v-if="$can('producto.crear') && $can('producto')">
 
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- FORM ROW TEMPORADA -->
-				    			<div v-if="$can('producto.crear')">
+				    			<div v-if="$can('producto.crear') && $can('producto')">
 					    		<div class="form-row mt-3" v-if="mostrar.temporada">
 
 						    		<!-- ------------------------------------------------------------------ -->
@@ -397,7 +397,7 @@
 
 				    			<!-- FORM ROW PROVEEDOR -->
 
-					    		<div class="form-row mt-3" v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 						    		<!-- ------------------------------------------------------------------ -->
 
@@ -452,13 +452,13 @@
 
 				    			<!-- SALTO DE LINEA -->
 
-				    			<hr  v-if="$can('producto.crear')">
+				    			<hr  v-if="$can('producto.crear') && $can('producto')">
 
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- FORM CHECKED DETALLES WEB -->
 
-				    			<div class="form-row mt-3" v-if="$can('producto.crear')">
+				    			<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 						    		<div class="my-4">
 										  <div class="custom-control custom-switch mr-sm-2">
@@ -474,7 +474,7 @@
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- FORM ROW NOMBRE WEB -->
-				    			<div v-if="$can('producto.crear')">
+				    			<div v-if="$can('producto.crear') && $can('producto')">
 				    			<div class="form-row mt-3" v-if="checked_detalleWeb">
 
 					    			<!-- ------------------------------------------------------------------ -->
@@ -627,7 +627,7 @@
 
 				    			<!-- SALTO DE LINEA -->
 
-				    			<hr  v-if="$can('producto.crear')">
+				    			<hr  v-if="$can('producto.crear') && $can('producto')">
 
 							    <!-- ------------------------------------------------------------------ -->
 
@@ -678,7 +678,7 @@
 				    			<!-- ------------------------------------------------------------------ -->
 
 				    			<!-- SALTO DE LINEA -->
-				    			<div v-if="$can('producto.crear')">
+				    			<div v-if="$can('producto.crear') && $can('producto')">
 				    			<hr v-if="mostrar_precios">
 				    			<!-- ------------------------------------------------------------------ -->
 
@@ -767,7 +767,7 @@
 
 					    		<!--  STOCK MINIMO -->
 					    		
-					    		<div class="form-row mt-3" v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -788,7 +788,7 @@
 
 					    		<!--  PERIODO -->
 					    		
-					    		<div class="form-row mt-3" v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 					    			<!-- ------------------------------------------------------------------ -->
 
@@ -835,7 +835,7 @@
 
 					    		<!-- FORMA OBSERVACION -->
 					    		
-					    		<div class="form-row mt-3" v-if="$can('producto.crear')">
+					    		<div class="form-row mt-3" v-if="$can('producto.crear') && $can('producto')">
 
 					    			<!-- ------------------------------------------------------------------ -->
 

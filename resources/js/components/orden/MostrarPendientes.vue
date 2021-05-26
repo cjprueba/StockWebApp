@@ -1,8 +1,8 @@
 <template>
-	<div class="container-fluid mt-4">
-		<div class="row">
+	<div v-if="$can('ordenes.pendientes') && $can('ordenes')" class="container-fluid mt-4">
+		<div class="row" >
 			<!--   -->
-			<!-- ------------------------------------------------------------------------------------- -->
+			<!-- ----------------------------------------v-if="$can('orden.mostrar.pendiente')"--------------------------------------------- -->
 
 			<!-- TITULO  -->
 			
@@ -46,6 +46,13 @@
 
 		</div>
 
+
+		<!-- ------------------------------------------------------------------------ -->
+		
+		<!-- <div v-else>
+			<cuatrocientos-cuatro></cuatrocientos-cuatro>
+		</div>
+ -->
 		<!-- ------------------------------------------------------------------------ -->
 		
 		<!-- MODAL MOSTRAR DETALLE ORDEN -->

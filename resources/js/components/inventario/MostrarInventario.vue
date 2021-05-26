@@ -1,5 +1,5 @@
 <template>
-	<div class="container-fluid mt-4">
+	<div v-if="$can('inventario.mostrar') && $can('inventario')" class="container-fluid mt-4">
 
 		<!-- ------------------------------------------------------------------------------------- -->
 
@@ -65,6 +65,9 @@
       </div> 
 
 	</div>
+  <div v-else>
+    <cuatrocientos-cuatro></cuatrocientos-cuatro>
+  </div>
 </template>
 
 <script>
@@ -73,6 +76,7 @@
       data(){
         return {
           menu : 0,
+          Accion_procesar: 0,
           inventario: {
             ID: '',
             tipo: "1"

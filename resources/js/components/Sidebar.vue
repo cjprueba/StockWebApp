@@ -266,7 +266,7 @@
       
       <!-- ------------------------------------------------------------------------------------- -->
 
-      <li class="nav-item" >
+      <li v-if="$can('producto')" class="nav-item" >
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
           <font-awesome-icon icon="tags"/>
           <span>Productos</span>
@@ -274,10 +274,12 @@
         <div id="collapseProdutos" class="collapse" aria-labelledby="headingProdutos" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link>
+            <router-link v-if="$can('producto.mostrar')" class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
+            <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+            <router-link v-if="$can('producto.etiquetas')" class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
+
+            <!-- <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link> -->
+            
           </div>
         </div>
       </li>
@@ -286,7 +288,7 @@
 
       <!-- INVENTARIO MENU -->
 
-      <li class="nav-item">
+      <li v-if="$can('inventario')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInventario" aria-expanded="true" aria-controls="collapseInventario">
           <font-awesome-icon icon="list-alt" />
           <span>Inventario</span>
@@ -294,8 +296,8 @@
         <div id="collapseInventario" class="collapse" aria-labelledby="headingInventario" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'inventarioMostrar'}">Mostrar Inventario</router-link>
-            <router-link class="collapse-item" :to="{name: 'inventarioRealizar'}">Realizar Inventario</router-link>
+            <router-link v-if="$can('inventario.mostrar')" class="collapse-item" :to="{name: 'inventarioMostrar'}">Mostrar Inventario</router-link>
+            <router-link v-if="$can('inventario.crear')" class="collapse-item" :to="{name: 'inventarioRealizar'}">Realizar Inventario</router-link>
           </div>
         </div>
       </li>
@@ -411,7 +413,7 @@
         </div>
       </li>
 
-      <li class="nav-item">
+      <li v-if="$can('ordenes')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrdenes" aria-expanded="true" aria-controls="collapseOrdenes">
           <font-awesome-icon icon="user-circle" />
           <span>Ordenes</span>
@@ -419,14 +421,14 @@
         <div id="collapseOrdenes" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'ordenesMostrar'}">Completados</router-link>
-            <router-link class="collapse-item" :to="{name: 'ordenesPendientes'}">Pendientes</router-link>
-            <router-link class="collapse-item" :to="{name: 'ordenesProcesando'}">Procesando</router-link>
+            <router-link v-if="$can('ordenes.completados')" class="collapse-item" :to="{name: 'ordenesMostrar'}">Completados</router-link>
+            <router-link v-if="$can('ordenes.pendientes')" class="collapse-item" :to="{name: 'ordenesPendientes'}">Pendientes</router-link>
+            <router-link v-if="$can('ordenes.procesando')" class="collapse-item" :to="{name: 'ordenesProcesando'}">Procesando</router-link>
           </div>
         </div>
       </li>
 
-      <li class="nav-item">
+      <li v-if="$can('pedidos')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePedidos" aria-expanded="true" aria-controls="collapsePedidos">
           <font-awesome-icon icon="user-circle" />
           <span>Pedidos</span>
@@ -434,9 +436,9 @@
         <div id="collapsePedidos" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'pdMostrar'}">Mostrar</router-link>
-            <router-link class="collapse-item" :to="{name: 'productoMostrarNew'}">Productos</router-link>
-            <router-link class="collapse-item" :to="{name: 'pdCheckout'}">Checkout</router-link>
+            <router-link v-if="$can('pedido.mostrar')" class="collapse-item" :to="{name: 'pdMostrar'}">Mostrar</router-link>
+            <router-link v-if="$can('pedido.mostrarproductos')" class="collapse-item" :to="{name: 'productoMostrarNew'}">Productos</router-link>
+            <router-link v-if="$can('pedido.checkout')" class="collapse-item" :to="{name: 'pdCheckout'}">Checkout</router-link>
           </div>
         </div>
       </li>
@@ -445,7 +447,7 @@
 
       <!-- EMPLEADOS -->
 
-      <li class="nav-item">
+      <li v-if="$can('empleados')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEmpleados" aria-expanded="true" aria-controls="collapseEmpleados">
           <font-awesome-icon icon="user-circle" />
           <span>Empleados</span>
@@ -453,7 +455,7 @@
         <div id="collapseEmpleados" class="collapse" aria-labelledby="headingEmpleados" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
+            <router-link v-if="$can('empleados.crear')" class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
             
           </div>
         </div>
@@ -464,7 +466,7 @@
 
       <!-- SECCIONES -->
 
-      <li class="nav-item">
+      <li v-if="$can('secccion')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSecciones" aria-expanded="true" aria-controls="collapseSecciones">
           <font-awesome-icon icon="user-circle" />
           <span>Secciones</span>
@@ -472,8 +474,7 @@
         <div id="collapseSecciones" class="collapse" aria-labelledby="headingSecciones" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link class="collapse-item" :to="{name: 'crearSeccion'}">Crear Seccion</router-link>
-            
+            <router-link v-if="$can('secccion.crear')" class="collapse-item" :to="{name: 'crearSeccion'}">Crear Seccion</router-link>
           </div>
         </div>
       </li>
@@ -483,7 +484,7 @@
       <!-- ------------------------------------------------------------------------------------- -->
       <!-- CAJA -->
       
-      <li class="nav-item">
+      <li v-if="$can('caja')" class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCaja" aria-expanded="true" aria-controls="collapseCaja">
         <font-awesome-icon icon="user-circle" />
         <span>Caja</span>
@@ -491,7 +492,7 @@
       <div id="collapseCaja" class="collapse" aria-labelledby="headingCaja" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <h6 class="collapse-header">Opciones:</h6>
-          <router-link class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
+          <router-link v-if="$can('caja.asignar')" class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
         </div>
       </div>
     </li>

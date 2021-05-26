@@ -1,6 +1,6 @@
 <template>
 	
-	<div class="container-fluid mt-4">
+	<div v-if="$can('producto.etiquetas') && $can('producto')" class="container-fluid mt-4">
 
 		<!-- -------------------------------------------------------- TITULO ----------------------------------------------------------- -->
 		
