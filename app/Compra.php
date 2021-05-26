@@ -118,6 +118,7 @@ class Compra extends Model
 
     			$lote = Stock::insetar_lote($value['CODIGO'], $value['CANTIDAD'], Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO']);
     			$compra_det->LOTE = $lote["lote"];
+                 Stock::actualizar_Stock_Minimo($value['CODIGO']);
 
     			/*  --------------------------------------------------------------------------------- */
 

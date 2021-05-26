@@ -166,5 +166,12 @@ class Parametro extends Model
         }
 
         /*  --------------------------------------------------------------------------------- */
-    }    
+    } 
+    public static function obtener_Porcentaje_Stock_Minimo($id_sucursal){
+            $Parametro=Parametro::Select(DB::raw('IFNULL(STOCK_MINIMO_PORCENTAJE,0) as PORCENTAJE'))
+            ->where('ID_SUCURSAL','=',$id_sucursal)
+            ->get()
+            ->toArray();
+            return $Parametro[0]['PORCENTAJE'];
+    }   
 }

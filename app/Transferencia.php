@@ -2488,12 +2488,16 @@ class Transferencia extends Model
 
                     $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO, 2, $usere, $td->VENCIMIENTO))["id"];
 
+
                     // MODOS
                     // MODO 1 - COMPRA
                     // MODO 2 - TRANSFERENCIA 
 
                     Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
                     //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+                    //ACTUALIZAR STOCK MINIMO POR PRODUCTO
+                    //----------------------------------------------------------------------------------------
+                     Stock::actualizar_Stock_Minimo($td->CODIGO_PROD);
 
                     /*  --------------------------------------------------------------------------------- */
 
