@@ -65,7 +65,7 @@
                                  },
                                  "url": "/lote/vencidos",
                                  "dataType": "json",
-                                 "type": "POST"
+                                 "type": "GET"
                                },
                         "columns": [
                             { "data": "C" },
@@ -77,7 +77,9 @@
                             { "data": "IMAGEN" },
                             { "data": "ESTATUS" },
                             { "data": "ACCION" }
-                        ]
+                        ],
+                        "footerCallback": function(row, data, start, end, display) {
+                          } 
 
                         // PARA COLOREAR UNA FILA 
                         // ,
