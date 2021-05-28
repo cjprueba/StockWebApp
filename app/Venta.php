@@ -7577,7 +7577,7 @@ class Venta extends Model
                         'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
                         'SALDO' => 0,
                         'FECHA_CANCELACION'=> $fecha
-                        
+
                     ]);
 
                     /*  --------------------------------------------------------------------------------- */
@@ -9846,6 +9846,366 @@ public static function generarReporteVentaProveedor($datos)
 
 
             return ['ventas' => $proveedores_productos_array, 'proveedores' => $proveedores_array, 'categorias' => $proveedores_categoria_array];
+
+            /*  --------------------------------------------------------------------------------- */
+    }
+    public static function generarReporteVentaGondola($datos) 
+    {
+
+        
+         /*  --------------------------------------------------------------------------------- */
+
+         // INCICIAR VARIABLES 
+        
+            $insert=$datos["data"]["Insert"];
+            $marcas[] = array();
+            $categorias[] = array();
+            $totales[] = array();
+            $secciones_array=array();
+            $secciones_gondola_array=array();
+            $secciones_productos_array=array();
+            $user = auth()->user();
+            $user=$user->id;
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+            $total_general=0;
+            $total_descuento=0;
+            $total_preciounit=0;
+            $cantidadvendida=0;
+            $costo=0;
+            $totalcosto=0;
+     
+
+                 if($insert==true){
+                     $data=array(
+                        'inicio'=>date('Y-m-d', strtotime($datos["data"]["Inicio"])),
+                        'final'=>date('Y-m-d', strtotime($datos["data"]["Final"])),
+                        'sucursal'=>$datos["data"]["Sucursal"],
+                        'checkedGondola'=>$datos["data"]["AllSecciones"],
+                        'checkedSeccion'=>$datos["data"]["AllGondolas"],
+                        'gondolas'=>$datos["data"]["Gondolas"],
+                        'secciones'=>$datos["data"]["secciones"],
+                        'mayoristaContado'=>$datos["data"]["MayoristaContado"],
+                        'mayoristaCredito'=>$datos["data"]["MayoristaCredito"],
+                        'servicioDelivery'=>$datos["data"]["ServicioDelivery"]
+                    );
+                
+
+                    
+                     Temp_venta::insertar_reporte($data);
+                    }
+
+                                    $temp=DB::connection('retail')->table('temp_ventas')
+                
+                                       ->select(
+                                        DB::raw('temp_ventas.SECCION_CODIGO AS SECCION_CODIGO'),
+                                        DB::raw('IFNULL(Temp_ventas.SECCION,"INDEFINIDO") AS DESCRIPCION'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.DESCUENTO),0) AS DESCUENTO'),
+                                        DB::raw('IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL'),
+                                        DB::raw('IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO),0) AS TOTAL'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO_UNIT),0) AS PRECIO_UNIT'))
+                                         ->where('USER_ID','=',$user)
+                                         ->where('ID_SUCURSAL','=',$sucursal)
+                                         ->where('Temp_ventas.CREDITO_COBRADO','=',0)
+                                         ->where('temp_ventas.vendedor','=',1)
+                                       ->GROUPBY('temp_ventas.SECCION_CODIGO') 
+                                       ->orderby('temp_ventas.SECCION','ASC')
+                                       ->get()
+                                       ->toArray();
+
+                                $TOTALG=DB::connection('retail')->table('temp_ventas')
+                                   ->select(
+                                    DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
+                                    DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
+                                    DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
+                                    DB::raw('SUM(COSTO_UNIT) AS COSTO_UNIT'),
+                                    DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
+                                    DB::raw('SUM(temp_ventas.PRECIO_UNIT) AS PRECIO_UNIT'))
+                                   ->where('USER_ID','=',$user)
+                                   ->where('ID_SUCURSAL','=',$sucursal)
+                                  ->get()
+                                  ->toArray();
+
+                           $ser=DB::connection('retail')->table('ventasdet_servicios')
+                                         ->leftjoin('VENTAS',function($join){
+                                         $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
+                                         ->on('VENTAS.CAJA','=','ventasdet_servicios.CAJA')
+                                         ->on('VENTAS.ID_SUCURSAL','=','ventasdet_servicios.ID_SUCURSAL');
+                                         })
+                                         ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
+                                         ->select(DB::raw('SUM(ventasdet_servicios.PRECIO) AS PRECIO_SERVICIO,
+                                                sum(ventasdet_servicios.CANTIDAD) AS VENDIDO,
+                                                sum(ventasdet_servicios.PRECIO_UNIT) AS PRECIO_UNIT')) 
+                                         ->Where('VENTAS_ANULADO.ANULADO','=',0)
+                                         ->Where('VENTAS.ID_SUCURSAL','=',$sucursal)
+                                         ->whereBetween('VENTAS.FECALTAS', [$inicio, $final])
+                                         ->get()
+                                         ->toArray();
+
+                     if(count($ser)>0){
+                        $total_porcentaje=$TOTALG[0]->TOTAL+$ser[0]->PRECIO_SERVICIO;
+                     }else{
+                        $total_porcentaje=$TOTALG[0]->TOTAL;
+                     }
+
+                      
+                         
+
+                        foreach ($temp as $key => $value) {
+
+
+
+                              
+                               $total_general=$total_general+$value->TOTAL;
+                               $total_descuento=$total_descuento+$value->DESCUENTO;
+                               $total_preciounit=$total_preciounit+$value->PRECIO_UNIT;
+                               $cantidadvendida=$cantidadvendida+$value->VENDIDO;
+                               $costo=$costo+$value->COSTO_UNIT;
+                               $totalcosto=$totalcosto+$value->COSTO_TOTAL;
+
+                                  $secciones_array[]=array(
+                                'TOTALES'=> $value->DESCRIPCION,
+                                'VENDIDO'=> $value->VENDIDO,
+                                'DESCUENTO'=>$value->DESCUENTO,
+                                'COSTO'=> $value->COSTO_UNIT,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                'PRECIO'=> $value->PRECIO_UNIT,
+                                'TOTAL'=> $value->TOTAL,
+                                'SECCIONES'=>$value->SECCION_CODIGO,
+                                'PORCENTAJE'=>($value->TOTAL*100)/$total_porcentaje
+                                
+                                );
+                            # code...
+                        }
+
+                             
+                              if(count($ser)>0){
+                                if($datos["data"]["ServicioDelivery"]){
+                                            $total_general=$total_general+$ser[0]->PRECIO_SERVICIO;
+                                           $total_preciounit=$total_preciounit+$ser[0]->PRECIO_UNIT;
+                                           $cantidadvendida=$cantidadvendida+$ser[0]->VENDIDO;
+                                          
+                                               $secciones_array[]=array(
+                                            'TOTALES'=> 'SERVICIO DE DELIVERY',
+                                            'VENDIDO'=> $ser[0]->VENDIDO,
+                                            'DESCUENTO'=>0,
+                                            'COSTO'=> 0,
+                                            'COSTO_TOTAL'=> 0,
+                                            'PRECIO'=> $ser[0]->PRECIO_UNIT,
+                                            'TOTAL'=> $ser[0]->PRECIO_SERVICIO,
+                                            'PORCENTAJE'=> ($ser[0]->PRECIO_UNIT*100)/$total_porcentaje
+                                            
+                                            );
+                                }
+
+                              }
+                              if($datos["data"]["MayoristaContado"]){
+                                     $TOTAL=DB::connection('retail')->table('temp_ventas')
+                                       ->select(
+                                        DB::raw('IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.DESCUENTO),0) AS DESCUENTO'),
+                                        DB::raw('IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL'),
+                                        DB::raw('IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO),0) AS TOTAL'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO_UNIT),0) AS PRECIO_UNIT'))
+                                      ->WHERE('TEMP_VENTAS.VENDEDOR','<>',1)
+                                      ->where('TEMP_VENTAS.CREDITO_COBRADO','=',0)
+                                      ->where('TEMP_VENTAS.USER_ID','=',$user)
+                                      ->where('TEMP_VENTAS.ID_SUCURSAL','=',$sucursal)
+                                      ->get()
+                                      ->toArray();
+
+                                       $secciones_array[]=array(
+                                            'TOTALES'=> "MAYORISTA AL CONTADO",
+                                            'VENDIDO'=> $TOTAL[0]->VENDIDO,
+                                            'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
+                                            'COSTO'=> $TOTAL[0]->COSTO_UNIT,
+                                            'COSTO_TOTAL'=> $TOTAL[0]->COSTO_TOTAL,
+                                            'PRECIO'=> $TOTAL[0]->PRECIO_UNIT,
+                                            'TOTAL'=> $TOTAL[0]->TOTAL,  
+                                            'PORCENTAJE'=>(100*$TOTAL[0]->TOTAL)/$total_porcentaje,
+                                         );
+                              }
+                            if($datos["data"]["MayoristaCredito"]){
+                                     $TOTAL=DB::connection('retail')->table('temp_ventas')
+                                       ->select(
+                                        DB::raw('IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.DESCUENTO),0) AS DESCUENTO'),
+                                        DB::raw('IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL'),
+                                        DB::raw('IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO),0) AS TOTAL'),
+                                        DB::raw('IFNULL(SUM(temp_ventas.PRECIO_UNIT),0) AS PRECIO_UNIT'))
+                                      ->where('TEMP_VENTAS.CREDITO_COBRADO','=',1)
+                                      ->where('TEMP_VENTAS.USER_ID','=',$user)
+                                      ->where('TEMP_VENTAS.ID_SUCURSAL','=',$sucursal)
+                                      ->get()
+                                      ->toArray();
+
+                                       $secciones_array[]=array(
+                                            'TOTALES'=> "MAYORISTA CREDITO COBRADO",
+                                            'VENDIDO'=> $TOTAL[0]->VENDIDO,
+                                            'DESCUENTO'=>$TOTAL[0]->DESCUENTO,
+                                            'COSTO'=> $TOTAL[0]->COSTO_UNIT,
+                                            'COSTO_TOTAL'=> $TOTAL[0]->COSTO_TOTAL,
+                                            'PRECIO'=> $TOTAL[0]->PRECIO_UNIT,
+                                            'TOTAL'=> $TOTAL[0]->TOTAL,  
+                                            'PORCENTAJE'=>(100*$TOTAL[0]->TOTAL)/$total_porcentaje,
+                                         );
+                              }
+                          
+
+   
+                                 //TOTALES POR CATEGORIA AGRUPADOS POR MARCA
+                                 /*  --------------------------------------------------------------------------------- */
+                              
+                   
+                             $temp=DB::connection('retail')->table('temp_ventas')
+                        
+                               ->select(
+                                DB::raw('temp_ventas.SECCION_CODIGO AS SECCION'),
+                                DB::raw('IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS DESCRI_S'),
+                                DB::raw('temp_ventas.GONDOLA AS GONDOLA'),
+                                DB::raw('IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO'),
+                                DB::raw('IFNULL(SUM(temp_ventas.DESCUENTO),0) AS DESCUENTO'),
+                                DB::raw('IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL'),
+                                DB::raw('IFNULL(SUM(temp_ventas.PRECIO),0) AS TOTAL'),
+                                DB::raw('IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO") as DESCRI_G'))
+                              ->where('USER_ID','=',$user)
+                              ->where('ID_SUCURSAL','=',$sucursal)
+
+                               ->where('Temp_ventas.CREDITO_COBRADO','=',0)
+                               ->where('temp_ventas.vendedor','=',1)
+                              ->GROUPBY('temp_ventas.SECCION','temp_ventas.GONDOLA') 
+                              ->orderby('temp_ventas.SECCION')
+                              ->get()
+                              ->toArray();
+                             
+                             foreach ($temp as $key => $value) {
+                                      $secciones_gondola_array[]=array(
+                                    'SECCION'=> $value->SECCION,
+                                    'DESCRI_S'=>$value->DESCRI_S,
+                                    'GONDOLA'=> $value->GONDOLA,
+                                    'DESCRI_G'=>$value->DESCRI_G,
+                                    'VENDIDO'=> $value->VENDIDO,
+                                    'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                    'TOTAL'=> $value->TOTAL,
+                                    'DESCUENTO'=>$value->DESCUENTO,
+                                    'PORCENTAJE'=>($value->TOTAL*100)/$total_porcentaje
+                                    
+                                    );
+                                 # code...
+                             }
+
+                   /*  --------------------------------------------------------------------------------- */  
+                   //TRAER TODOS LOS PRODUCTOS CON EL CODIGO DE MARCA
+                   /*  --------------------------------------------------------------------------------- */
+                   
+                  $temp=DB::connection('retail')->table('temp_ventas')
+                 
+                   ->select(
+                    DB::raw('temp_ventas.COD_PROD AS COD_PROD'),
+                    DB::raw('temp_ventas.LOTE AS LOTE'),
+                    DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
+                    DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK'),
+                    DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
+                    DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
+                    DB::raw('COSTO_UNIT AS COSTO_UNIT'),
+                    DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
+                    DB::raw('temp_ventas.PRECIO_UNIT AS PRECIO_UNIT'),
+                    DB::raw('temp_ventas.CATEGORIA AS CATEGORIA'),
+                    DB::raw('IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO'),
+                    DB::raw('temp_ventas.SUBCATEGORIA AS SUBCATEGORIA'),
+                    DB::raw('temp_ventas.MARCA AS MARCA'),
+                     DB::raw('temp_ventas.MARCAS_CODIGO AS MARCAS_CODIGO'),
+                     DB::raw('temp_ventas.SECCION AS SECCION'),
+                     DB::raw('temp_ventas.SECCION_CODIGO AS SECCION_CODIGO'),
+                    DB::raw('temp_ventas.DESCUENTO_PORCENTAJE AS DESCUENTO_PORCENTAJE'),
+                    DB::raw('temp_ventas.DESCUENTO_PRODUCTO AS DESCUENTO_PRODUCTO'))
+                  ->where('temp_ventas.ID_SUCURSAL','=',$sucursal)
+                  ->where('temp_ventas.USER_ID','=',$user)
+                  ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','temp_ventas.DESCUENTO_PRODUCTO') 
+                  ->orderby('COD_PROD')
+                  ->get()
+                  ->toArray();
+                   $total_general=0;
+                   $total_descuento=0;
+                   $total_preciounit=0;
+                   $cantidadvendida=0;
+                   $costo=0;
+                   $totalcosto=0;
+           
+                  foreach ($temp as $key => $value) {
+                    if($value->TOTAL==0){
+                    $value->TOTAL='0';
+                    }
+                    if($value->PRECIO_UNIT==0){
+                        $value->PRECIO_UNIT='0';
+                    }
+                    if($value->STOCK==0){
+                        $value->STOCK='0';
+                    }
+                    if($value->DESCUENTO==0){
+                        $value->DESCUENTO='0';
+                    }
+                   
+                   $total_general=$total_general+$value->TOTAL;
+                   $total_descuento=$total_descuento+$value->DESCUENTO;
+                   $total_preciounit=$total_preciounit+$value->PRECIO_UNIT;
+                   $cantidadvendida=$cantidadvendida+$value->VENDIDO;
+                  $costo=$costo+$value->COSTO_UNIT;
+                  $totalcosto=$totalcosto+$value->COSTO_TOTAL;
+                  
+                            $secciones_productos_array[]=array(
+                         
+                        'COD_PROD'=> $value->COD_PROD,
+                        'LOTE'=> $value->LOTE,
+                        'STOCK'=> $value->STOCK,
+                        'CATEGORIA'=> $value->CATEGORIA,
+                        'SUBCATEGORIA'=> $value->SUBCATEGORIA,
+                        'MARCA'=> $value->MARCA,
+                        'VENDIDO'=> $value->VENDIDO,
+                        'PRECIO_UNIT'=>$value->PRECIO_UNIT,
+                        'TOTAL'=>$value->TOTAL,
+                        'DESCUENTO'=>$value->DESCUENTO,
+                        'COSTO_UNIT'=>$value->COSTO_UNIT,
+                        'COSTO_TOTAL'=>$value->COSTO_TOTAL,
+                        'DESCUENTO_PORCENTAJE'=> $value->DESCUENTO_PRODUCTO,
+                        'MARCAS_CODIGO'=> $value->MARCAS_CODIGO,
+                        'LINEAS_CODIGO'=> $value->LINEA_CODIGO,
+                        'SECCION'=> $value->SECCION,
+                        'SECCION_CODIGO'=>$value->SECCION_CODIGO
+                        
+                        
+
+                      
+                      
+
+                    );
+                  }
+
+
+                  
+
+
+
+                 
+ 
+            /*  --------------------------------------------------------------------------------- */
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR TODOS LOS ARRAYS
+
+
+            return ['ventas' => $secciones_productos_array, 'secciones' => $secciones_array, 'gondolas' => $secciones_gondola_array];
 
             /*  --------------------------------------------------------------------------------- */
     }
