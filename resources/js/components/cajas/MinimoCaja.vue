@@ -37,6 +37,7 @@
       methods: {
       },  
         mounted() {
+          console.log("entre");
 
           // ------------------------------------------------------------------------
           	
@@ -59,7 +60,7 @@
                                  },
                                  "url": "/producto/minimo",
                                  "dataType": "json",
-                                 "type": "POST"
+                                 "type": "GET"
                                },
                         "columns": [
                             { "data": "CODIGO" },
@@ -68,7 +69,9 @@
                             { "data": "MINIMO" },
                             { "data": "IMAGEN" },
                             { "data": "ACCION" }
-                        ]     
+                        ],
+                        "footerCallback": function(row, data, start, end, display) {
+            }      
           });
                     
           // ------------------------------------------------------------------------
