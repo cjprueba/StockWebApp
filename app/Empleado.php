@@ -254,6 +254,7 @@ class Empleado extends Model
         $blob = '';
 
         $gondola = $datos['data']['seleccion_gondola'];
+       
 
         try{
 
@@ -277,20 +278,22 @@ class Empleado extends Model
                     'HORALTAS'=>$hora,
                     'ID_SUCURSAL'=>$user->id_sucursal]);
 
+                
+
+                DB::connection('retail')->commit();
+
+                if(isset($gondola[0]['ID'])){
+
+                    $id_empleado = $empleado;
+
+                    Empleado_Tiene_Gondola::asignar_gondola($gondola, $id_empleado);
+                }
+
                 if ($img !== "") { 
                     Imagen::guardar_imagen_empleado([
                         'CODIGO' => $empleado,
                         'PICTURE' => $img
                     ]);
-                }
-
-                DB::connection('retail')->commit();
-
-                if($gondola!='null' || $gondola!=[]){
-
-                    $id_empleado = $empleado;
-
-                    Empleado_Tiene_Gondola::asignar_gondola($gondola, $id_empleado);
                 }
 
                 return['response'=>true];
