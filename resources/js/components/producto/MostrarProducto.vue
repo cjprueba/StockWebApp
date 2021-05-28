@@ -10,7 +10,7 @@
 			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-lg mb-3" style="width:100%">
 		    <thead>
 		      <tr> 
-		        <th>aaa</th>
+		        <th>Codigo</th>
 		        <th>Descripcion</th>
             <th>Categoria</th>
 		        <th>Precio Venta</th>
