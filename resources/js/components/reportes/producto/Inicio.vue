@@ -9,24 +9,28 @@
 				<label for="validationTooltip01">Seleccione Reporte de Productos</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
+          <option  v-if="$can('movimientos.salidadeproducto') && $can('reporte.web')" value="1">Salida de productos</option>
           <option  v-if="$can('reporte.productos.stockprod') && $can('reporte.web')" value="2">Stock de productos</option>
-					<option  v-if="$can('reporte.productos.vencimientoprod') && $can('reporte.web')" value="1">Vencimiento de productos</option>
+					<option  v-if="$can('reporte.productos.vencimientoprod') && $can('reporte.web')" value="3">Vencimiento de productos</option>
           
 				</select>			
 			</div>
 
-			<!-- TRANSFERENCIA POR CONSIGNACION -->
+			<!-- REPORTES POR PRODUCTO -->
 
-			<transition name="slide-fade">	
-				<productos-vencidos-rpt v-if="reporte === '1'" id="reporte1"></productos-vencidos-rpt>
-			</transition>
+      <transition name="slide-fade">  
+        <productos-salida-rpt v-if="reporte === '1'" id="reporte1"></productos-salida-rpt>
+      </transition>
+
       <transition name="slide-fade">  
         <productos-stock-rpt v-if="reporte === '2'" id="reporte2"></productos-stock-rpt>
       </transition>
-      
 
+			<transition name="slide-fade">	
+				<productos-vencidos-rpt v-if="reporte === '3'" id="reporte3"></productos-vencidos-rpt>
+			</transition>
 
-			<!-- FIN DE TRANSFERENCIA POR CONSIGNACION -->
+			<!-- FIN DE REPORTES POR PRODUCTO -->
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
