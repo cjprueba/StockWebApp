@@ -2369,7 +2369,7 @@ $lotes= DB::connection('retail')
         $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
-
+        //ACA_ALE
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
@@ -2387,12 +2387,13 @@ $lotes= DB::connection('retail')
 
         // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
         
-        $totalData = ProductosAux::
-        whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+        $totalData = ProductosAux::SELECT(DB::raw('1 AS C'))
+         -> whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+        ->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))>0')
         ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
         ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
-        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
-        ->count();
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)->get();
+        $totalData=count($totalData);
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2420,9 +2421,10 @@ $lotes= DB::connection('retail')
             ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.MONEDA, PRODUCTOS_AUX.STOCK_MIN'),
                 DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK')
             )
-            ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
+            ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', 0)
             ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
             ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))>0')
             ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
             ->offset($start)
             ->limit($limit)
@@ -2450,6 +2452,7 @@ $lotes= DB::connection('retail')
             ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
             ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
             ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))>0')
             ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                 $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"{$search}%")
@@ -2464,18 +2467,19 @@ $lotes= DB::connection('retail')
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = ProductosAux::
-            leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+            $totalFiltered = ProductosAux::SELECT(DB::raw('1 AS C'))
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
             ->where('PRODUCTOS_AUX.STOCK_MIN', '<>', '0')
             ->where('PRODUCTOS_AUX.BAJA', '=', 'NO')
             ->whereRaw('PRODUCTOS_AUX.STOCK_MIN >= (IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))')
+            ->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0))>0')
             ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)   
                              ->where(function ($query) use ($search) {
                                 $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"{$search}%")
                                       ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
                              })
-                             ->count();
-
+                            ->get();
+                            $totalFiltered=count($totalFiltered);
             /*  ************************************************************ */  
 
         }
@@ -2502,46 +2506,56 @@ $lotes= DB::connection('retail')
                 /*  --------------------------------------------------------------------------------- */
 
                 // BUSCAR IMAGEN
-
-                $imagen = Imagen::select(DB::raw('PICTURE'))
-                ->where('COD_PROD','=', $post->CODIGO)
-                ->get();
+                           $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
                 
-                /*  --------------------------------------------------------------------------------- */
+                        if(file_exists($filename)) {
+                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+                        } else {
+                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                        }
 
-                // CARGAR EN LA VARIABLE 
 
-                $nestedData['CODIGO'] = $post->CODIGO;
-                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
-                //$nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
-                $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
-                $nestedData['MINIMO'] = Common::formato_precio($post->STOCK_MIN, 0);
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='Detalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='Baja' title='Dar de Baja'><i class='fa fa-arrow-down text-danger'  aria-hidden='true'></i></a>";
+                      /*  $imagen = Imagen::select(DB::raw('PICTURE'))
+                        ->where('COD_PROD','=', $post->CODIGO)
+                        ->get();*/
+                        
+                        /*  --------------------------------------------------------------------------------- */
 
-                /*  --------------------------------------------------------------------------------- */
+                        // CARGAR EN LA VARIABLE 
 
-                // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+                        $nestedData['CODIGO'] = $post->CODIGO;
+                        $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                        //$nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                        $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
+                        $nestedData['MINIMO'] = Common::formato_precio($post->STOCK_MIN, 0);
+                        $nestedData['ACCION'] = "&emsp;<a href='#' id='Detalle' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='Baja' title='Dar de Baja'><i class='fa fa-arrow-down text-danger'  aria-hidden='true'></i></a>";
 
-                if (count($imagen) > 0) {
+                        /*  --------------------------------------------------------------------------------- */
 
-                    foreach ($imagen as $key => $image) {
-                        $imagen_producto = $image->PICTURE;
-                    }
+                        // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
+        /*
+                        if (count($imagen) > 0) {
 
-                } else {
+                            foreach ($imagen as $key => $image) {
+                                $imagen_producto = $image->PICTURE;
+                            }
 
-                    $imagen_producto = $dataDefaultImage;
+                        } else {
 
-                }
+                            $imagen_producto = $dataDefaultImage;
 
-                /*  --------------------------------------------------------------------------------- */
+                        }*/
 
-                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:30px;height:30px;'>";
+                        /*  --------------------------------------------------------------------------------- */
 
-                /*  --------------------------------------------------------------------------------- */
+                        $nestedData['IMAGEN'] = "<img src=".$imagen_producto." class='img-thumbnail' style='width:30px;height:30px;'>";
 
+                        /*  --------------------------------------------------------------------------------- */
+
+                        
+                        $data[] = $nestedData;
                 
-                $data[] = $nestedData;
+              
 
             }
         }
@@ -3339,7 +3353,7 @@ $lotes= DB::connection('retail')
 
         // TOTAL FILTRADO 
         
-        $totalFiltered = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        $totalFiltered = ProductosAux::SELECT('PRODUCTOS_AUX.ID')->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal);
