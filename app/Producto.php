@@ -2524,7 +2524,7 @@ $lotes= DB::connection('retail')
                         // CARGAR EN LA VARIABLE 
 
                         $nestedData['CODIGO'] = $post->CODIGO;
-                        $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                        $nestedData['DESCRIPCION'] = utf8_encode(utf8_decode(substr($post->DESCRIPCION, 0, 20).'...')) ;
                         //$nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
                         $nestedData['STOCK'] = Common::formato_precio($post->STOCK, 0);
                         $nestedData['MINIMO'] = Common::formato_precio($post->STOCK_MIN, 0);
