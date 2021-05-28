@@ -10,12 +10,12 @@
 			<table id="tablaModalProductos" class="table table-striped table-hover table-bordered table-lg mb-3" style="width:100%">
 		    <thead>
 		      <tr> 
-		        <th>Codigo</th>
+		        <th>Código</th>
 		        <th>Descripcion</th>
             <th>Categoria</th>
 		        <th>Precio Venta</th>
 		        <th>Precio Costo</th>
-		        <th>Precio Mayorista</th>
+		        <th>Precio Mayorista</th> 
 		        <th>Stock</th>
 		        <th>Imagen</th>
 		        <th>Accion</th>
