@@ -1094,13 +1094,14 @@ class Stock extends Model
 
         // CONTAR LA CANTIDAD DE PRODUCTOS VENCIDOS QUE PASAN EL TIEMPO DE VENCIMIENTO
 
-        $totalData = Stock::
-        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+        $totalData = Stock::SELECT(DB::raw('1 as C'))
+        			->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
         			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
         			->where('LOTES.CANTIDAD','>', 0)
         			->where('PRODUCTOS.VENCIMIENTO','=', 1)
         			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
-                    ->count();  
+                    ->where('LOTES.FECHA_VENC','<>', '0000-00-00')->get();  
+                    $totalData=count($totalData);
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -1130,9 +1131,11 @@ class Stock extends Model
         			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
         			->where('PRODUCTOS.VENCIMIENTO','=', 1)
         			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
+                    ->where('LOTES.FECHA_VENC','<>', '0000-00-00')
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
+                         ->orderBy('LOTES.FECHA_VENC','DESC')
                          ->get();
 
             /*  ************************************************************ */
@@ -1155,6 +1158,7 @@ class Stock extends Model
         			->where('PRODUCTOS.VENCIMIENTO','=', 1)
         			->where('LOTES.CANTIDAD','>', 0)
         			->where('LOTES.FECHA_VENC','<=', $dias_filtro)
+                     ->where('LOTES.FECHA_VENC','<>', '0000-00-00')
                             ->where(function ($query) use ($search) {
                                 $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
                                       ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
@@ -1168,17 +1172,19 @@ class Stock extends Model
 
             // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
 
-            $totalFiltered = Stock::
-		        			leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+            $totalFiltered = Stock::SELECT(DB::raw('1 as C'))
+		        			->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
 		        			->where('LOTES.ID_SUCURSAL','=', $user->id_sucursal)
 		        			->where('PRODUCTOS.VENCIMIENTO','=', 1)
 		        			->where('LOTES.CANTIDAD','>', 0)
 		        			->where('LOTES.FECHA_VENC','<=', $dias_filtro)  
+                             ->where('LOTES.FECHA_VENC','<>', '0000-00-00')
                              ->where(function ($query) use ($search) {
                                 $query->where('LOTES.COD_PROD','LIKE',"%{$search}%")
                                       ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
-                             })
-                             ->count();
+                             })->get();
+                              $totalFiltered =count( $totalFiltered );
+                       
 
             /*  ************************************************************ */  
 
@@ -1207,9 +1213,17 @@ class Stock extends Model
 
                 // BUSCAR IMAGEN
 
-                $imagen = Imagen::select(DB::raw('PICTURE'))
+
+                /* $imagen = Imagen::select(DB::raw('PICTURE'))
                 ->where('COD_PROD','=', $post->COD_PROD)
-                ->get();
+                ->get();*/
+                 $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
+                
+                        if(file_exists($filename)) {
+                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+                        } else {
+                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                        }
                 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -1219,7 +1233,7 @@ class Stock extends Model
 
                 $nestedData['C'] = $c;
                 $nestedData['CODIGO'] = $post->COD_PROD;
-                $nestedData['DESCRIPCION'] = substr($post->DESCRIPCION, 0, 20).'...';
+                $nestedData['DESCRIPCION'] = utf8_encode(utf8_decode(substr($post->DESCRIPCION, 0, 20).'...')) ;
                 $nestedData['LOTE'] = $post->LOTE;
                 $nestedData['CANTIDAD'] = $post->CANTIDAD;
                 $nestedData['VENCIMIENTO'] = substr($post->FECHA_VENC, 0, 11);
@@ -1243,17 +1257,17 @@ class Stock extends Model
 
                 // SI NO HAY IMAGEN CARGAR IMAGEN DEFAULT 
                 
-                if (count($imagen) > 0) {
+/*                if (count($imagen) > 0) {
                    foreach ($imagen as $key => $image) {
                         $imagen_producto = $image->PICTURE;
                     }
                 } else {
                     $imagen_producto = $dataDefaultImage;
-                }
+                }*/
 
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($imagen_producto)."' class='img-thumbnail' style='width:30px;height:30px;'>";
+                $nestedData['IMAGEN'] = "<img src=".$imagen_producto." class='img-thumbnail' style='width:30px;height:30px;'>";
 
                 /*  --------------------------------------------------------------------------------- */
 
