@@ -1218,10 +1218,10 @@ class Stock extends Model
                 ->where('COD_PROD','=', $post->COD_PROD)
                 ->get();*/
 
-                    $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+                    $filename = '../storage/app/public/imagenes/productos/'.$post->COD_PROD.'.jpg';
                             
                     if(file_exists($filename)) {
-                        $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
+                        $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$post->COD_PROD.'.jpg';
                        /* $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';*/
                     } else {
                         $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
