@@ -352,7 +352,7 @@ Route::post('productoConProveedor', 'ProductoController@productoProveedor');
 Route::post('producto/transferencia', 'ProductoController@productoTransferencia');
 Route::post('producto/eliminar', 'ProductoController@eliminar');
 Route::post('productoCompra', 'ProductoController@obtenerProductoCompra');
-Route::post('producto/minimo', 'ProductoController@minimo');
+Route::get('producto/minimo', 'ProductoController@minimo');
 Route::post('producto/baja', 'ProductoController@baja');
 Route::post('producto/POS', 'ProductoController@obtenerProductoPOS');
 Route::post('productoImportar', 'ProductoController@importar');
@@ -501,6 +501,7 @@ Route::post('export_venta_periodo', 'StockController@descargarPeriodoStock');
 Route::post('export_producto_vencimiento', 'StockController@descagrarVencimientoProducto');
 Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
 Route::post('vencimientoProductoDatatable', 'StockController@vencimientoDatatable');
+Route::post('export_venta_gondola', 'VentaController@descargarVentaGondola');
 
 
 /* -------------------------------------------------------------------------- */
@@ -608,6 +609,7 @@ Route::post('pdf-generar-rptDiario', 'VentaController@reporteDiario');
 Route::post('export_marca_categoria', 'ExportController@descargarMarcaCategoria');
 Route::post('ventaPeriodoDatatable', 'VentaController@reportePeriodoVenta');
 Route::post('reporte_ventas_Proveedor', 'VentaController@reporteVentaProveedor');
+Route::post('reporte_ventas_Gondola', 'VentaController@reporteVentaGondola');
 
 /* -------------------------------------------------------------------------- */
 
