@@ -299,7 +299,7 @@ class Empleado extends Model
                 return['response'=>true];
 
             }else{
-                $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
+                $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["data"]["imagen"]);
                 $datos = $datos["datos"];
 
                 if ($datos["imagen"] = "/images/SinImagen.png?343637be705e4033f95789ab8ec70808") {
