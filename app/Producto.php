@@ -2506,14 +2506,15 @@ $lotes= DB::connection('retail')
                 /*  --------------------------------------------------------------------------------- */
 
                 // BUSCAR IMAGEN
-                           $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
-                
-                        if(file_exists($filename)) {
-                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
-                        } else {
-                            $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
-                        }
-
+                    $filename = '../storage/app/public/imagenes/productos/'.$post->CODIGO.'.jpg';
+                            
+                    if(file_exists($filename)) {
+                        $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/'.$post->CODIGO.'.jpg';
+                       /* $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';*/
+                    } else {
+                        $imagen_producto = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
+                      /*  $imagen_producto_external = ''.env("URL_FILE_EXTERNAL").'/storage/imagenes/productos/'.$codigo.'.jpg';*/
+                    }
 
                       /*  $imagen = Imagen::select(DB::raw('PICTURE'))
                         ->where('COD_PROD','=', $post->CODIGO)
