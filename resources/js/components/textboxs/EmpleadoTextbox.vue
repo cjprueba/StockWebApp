@@ -71,7 +71,7 @@
 
 		methods: {
 			
-			enviarCodigoPadre(id, codigo, cedula, nombre, direccion, ciudad, nacimiento, telefono, cargo, id_sucursal, gondolas){
+			enviarCodigoPadre(id, codigo, cedula, nombre, direccion, ciudad, nacimiento, telefono, cargo, id_sucursal, gondolas, imagen){
 
 				// ENVIAR CODIGO
 
@@ -86,11 +86,15 @@
 		        this.$emit('cargo', cargo);
 		        this.$emit('id_sucursal', id_sucursal);
 		        this.$emit('gondolas', gondolas);
+		        this.$emit('imagen',imagen);
 
 				// ------------------------------------------------------------------------
 
 			},
-			
+			recargar(){
+		        var table = $('#tablaModalEmpleado').DataTable();
+		      	table.ajax.reload( null, false );
+		    },
 			recargar(){
 		        var table = $('#tablaModalEmpleado').DataTable();
 		      	table.ajax.reload( null, false );
@@ -156,7 +160,7 @@
                     data.empleado[0].TELEFONO,
                     data.empleado[0].CARGO,
                     data.empleado[0].ID_SUCURSAL,
-                    data.gondola);
+                    data.gondola, data.imagen);
                 })
 
                 // CERRAR EL MODAL

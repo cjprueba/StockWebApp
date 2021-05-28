@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use App\Transferencia;
 use App\Venta;
+use App\Imagen;
+use App\ImagenesWeb;
 use App\Empleado_Tiene_Gondola;
 
 class Empleado extends Model
@@ -233,7 +235,7 @@ class Empleado extends Model
         )
         ->where('ID','=', $datos['data'])
         ->get();
-        
+        $imagen=Imagen::obtenerImagenURL_Empleado($datos['data']);
         $gondola=DB::connection('retail')
             ->table('empleado_tiene_gondola')
             ->select(DB::raw('empleado_tiene_gondola.FK_GONDOLA AS ID, GONDOLAS.DESCRIPCION AS DESCRIPCION'))
@@ -241,13 +243,15 @@ class Empleado extends Model
             ->where('FK_EMPLEADO', '=', $datos['data'])
             ->get();
             
-            return['empleado'=> $empleados, 'gondola' => $gondola];
+            return['empleado'=> $empleados, 'gondola' => $gondola, 'imagen'=> $imagen['imagen']];
     }
     public static function guardarEmpleado($datos){
 
         $user = auth()->user();
         $dia = date("Y-m-d");
         $hora = date("H:i:s");
+        $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["data"]["imagen"]);
+        $blob = '';
 
         $gondola = $datos['data']['seleccion_gondola'];
 
@@ -273,6 +277,13 @@ class Empleado extends Model
                     'HORALTAS'=>$hora,
                     'ID_SUCURSAL'=>$user->id_sucursal]);
 
+                if ($img !== "") { 
+                    Imagen::guardar_imagen_empleado([
+                        'CODIGO' => $empleado,
+                        'PICTURE' => $img
+                    ]);
+                }
+
                 DB::connection('retail')->commit();
 
                 if($gondola!='null' || $gondola!=[]){
@@ -285,6 +296,13 @@ class Empleado extends Model
                 return['response'=>true];
 
             }else{
+                $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
+                $datos = $datos["datos"];
+
+                if ($datos["imagen"] = "/images/SinImagen.png?343637be705e4033f95789ab8ec70808") {
+                    $datos["imagen"] = "";
+                }
+
                 $empleado = Empleado::Where('CODIGO','=',$datos['data']['codigo'])->where('ID_SUCURSAL', '=', $user->id_sucursal)
                     ->update(['CI' => $datos['data']['cedula'],
                     'NOMBRE'=> $datos['data']['nombre'],
@@ -303,6 +321,13 @@ class Empleado extends Model
                     ->get()
                     ->toArray();
 
+                if ($img !== "") { 
+                    Imagen::guardar_imagen_empleado([
+                        'CODIGO' => $id_empleado[0]['ID'],
+                        'PICTURE' => $img
+                    ]);
+                }
+
                 Empleado_Tiene_Gondola::modificar_gondola($gondola, $id_empleado[0]['ID']);
 
                 DB::connection('retail')->commit();
@@ -318,11 +343,13 @@ class Empleado extends Model
             }
         }
     }
+
+
+
     public static function eliminarEmpleado($datos){
         $user = auth()->user();
 
         if($datos['data']['btn_guardar']==false){
-
             
             $transferencia = Empleado::verificarTransferencia($datos['data']['codigo']);
 

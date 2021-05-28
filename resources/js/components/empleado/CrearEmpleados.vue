@@ -37,9 +37,9 @@
 				  			</div>
 				  			<div class="col-6">
 				  				<div class="mb-3">
-				  				<label class="form-label">Código</label>
-				  				<empleado-textbox ref= "componente_textbox_empleado" :codigo="codigo" v-model="codigo" v-bind:class="{ 'is-invalid': validar.codigo }" @nombre="cargarNombre" @cedula="cargarCedula" @codigo="cargarCodigo" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimineto" @telefono="cargarTelefono" @cargo="cargarCargo" @gondolas="cargarGondolas"></empleado-textbox>
-				  			</div>
+					  				<label class="form-label">Código</label>
+					  				<empleado-textbox ref= "componente_textbox_empleado" :codigo="codigo" v-model="codigo" v-bind:class="{ 'is-invalid': validar.codigo }" @nombre="cargarNombre" @cedula="cargarCedula" @codigo="cargarCodigo" @direccion="cargarDireccion" @ciudad="cargarCiudad" @nacimiento="cargarNacimineto" @telefono="cargarTelefono" @cargo="cargarCargo" @gondolas="cargarGondolas" @imagen="cargarImagen"></empleado-textbox>
+				  				</div>
 								<div class="mb-3">
 								  <label class="form-label">C.I.</label>
 								  <input type="number" class="form-control form-control-sm" v-model="ci"  v-bind:class="{ 'is-invalid': validar.ci}">
@@ -49,6 +49,35 @@
 								  <input class="form-control form-control-sm" id='selectedInicialFecha' v-model="fecha_nac">
 								</div>
 								<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"> </select-gondola>
+								<!-- IMAGEN -->
+					    		
+					    		<div class="form-row mt-3">
+					    			<!-- ------------------------------------------------------------------ -->
+					    			<!-- IMAGEN -->
+					    			<div class="col-md-12">
+					    				<form id="myAwesomeForm">
+					    				<div class="card mb-3">
+										  <div class="row no-gutters">
+										    <div class="col-md-4">
+										      <span v-html="rutaImagen"></span>	
+										      <!-- <img  :src="rutaImagen" class="card-img" alt="..." id="myAwesomeForm"> -->
+										    </div>
+										    <div class="col-md-8">
+										      <div class="card-body">
+										        <h5 class="card-title">{{fileName}}</h5>
+										    	<p class="card-text">Selecione por favor la imagen.</p>
+										    	<div class="custom-file">
+												  <input :tabindex=24 type="file" class="custom-file-input" id="customFile" v-on:change="cambiarImagen($event.target.files[0])" lang="es" >
+												  <label class="custom-file-label" for="customFile">Elegir Archivo</label>
+												</div>
+										      </div>
+										    </div>
+										  </div>
+										</div>
+									</form>
+					    			</div>
+					    			<!-- ------------------------------------------------------------------ -->
+					    		</div>
 				  			</div>
 				  		</div>
 				  		<button type="button" class="btn btn-primary" v-on:click="nuevo()">Nuevo</button>
@@ -68,6 +97,11 @@
 	export default {
 		data(){
 			return{
+				fileName: 'Imagen',
+				rutaImagen: "<img src='http://172.16.249.20:8080/storage/imagenes/productos/product.png'  class='card-img-top'>",
+				imagen: {
+		          	blob: ''
+		        },
 				codigo:'',
 				nombre:'',
 				direccion: '',
@@ -147,6 +181,8 @@
 				this.cargo='SELECCIONAR';
 				this.fecha_nac='';
 				this.btn_guardar= true;
+				this.fileName = 'Imagen';
+				this.rutaImagen = require('./../../../imagenes/SinImagen.png');
 				this.$refs.gondola.limpiar();
 				// console.log(this.$refs.gondola);
          		this.seleccion_gondola= null;
@@ -161,6 +197,36 @@
 				this.codigoEmpleado();
 
 			},
+			cambiarImagen(f){
+
+            	let me = this;
+
+            	if (f) {
+					if ( /(jpe?g|png|gif)$/i.test(f.type) ) {
+						var r = new FileReader();
+						r.onload = function(e) { 
+							var base64Img = e.target.result;
+							// var binaryImg = me.convertDataURIToBinary(base64Img);
+							 //var blob = new Blob([binaryImg], {type: f.type});
+							// blobURL = window.URL.createObjectURL(blob);
+							me.fileName = f.name;
+							me.rutaImagen = "<img src='"+base64Img+"' id='myImg'  class='card-img-top'>";
+							me.imagen.blob = base64Img;
+
+							// -------------------------------------------------------------------------------------
+
+							
+						}
+						r.readAsDataURL(f);
+
+						
+					} else { 
+						alert("Failed file type");
+					}
+			    } else { 
+					alert("Failed to load file");
+			    }
+            },
 
 			guardar(){
 				if(this.controlador()===false){
@@ -168,12 +234,17 @@
 					return;
 				}
 
+				if (this.rutaImagen.includes('SinImagen') === true) {
+            		me.rutaImagen = '';
+            	}
+
 				var datos={
 					nombre:this.nombre,
 					codigo:this.codigo,
 					direccion:this.direccion,
 					ciudad:this.ciudad,
 					cargo:this.cargo,
+					imagen: this.imagen.blob,
 					telefono:this.telefono,
 					fecha_nac:this.fecha_nac,
 					cedula:this.ci,
@@ -300,6 +371,11 @@
 			cargarGondolas(valor){
 
 				this.seleccion_gondola_modificar=valor;
+			},
+
+			cargarImagen(valor){
+
+				this.rutaImagen=valor;
 			},
 		 },
 
