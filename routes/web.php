@@ -385,7 +385,7 @@ Route::get('parametro', 'ParametroController@mostrar');
 //	LOTES
 
 Route::post('lotesConCantidad', 'StockController@obtenerLotesConCantidad');
-Route::post('lote/vencidos', 'StockController@vencidos');
+Route::get('lote/vencidos', 'StockController@vencidos');
 Route::post('lote/terminados', 'StockController@terminados');
 Route::post('lote/terminados/reporte', 'StockController@terminados_reporte');
 
