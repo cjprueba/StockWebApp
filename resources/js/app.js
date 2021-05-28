@@ -396,6 +396,7 @@ Vue.component('venta-vales-rpt' , require('./components/reportes/vales/Vales.vue
 Vue.component('venta-transferencia-rpt' , require('./components/reportes/VentaTransferencia.vue').default);
 Vue.component('venta-delivery-rpt' , require('./components/reportes/ServicioDelivery.vue').default);
 Vue.component('venta-tarjeta-rpt' , require('./components/reportes/VentaTarjeta.vue').default);
+Vue.component('productos-salida-rpt', require('./components/reportes/producto/Salida/SalidaDeProductoRpt.vue').default);
 
 
 /* ********************************************* */
