@@ -134,14 +134,14 @@ class Imagen extends Model
 
         // CONVERT IMAGE DEFAULT TO BLOB 
 
-        $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+        $filename = '../storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
                 
         if(file_exists($filename)) {
-            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
-            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/empleados/'.$codigo.'.jpg';
+            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
         } else {
-            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
-            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/empleados/empleado.png';
+            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -226,7 +226,7 @@ class Imagen extends Model
         try {
             
             /*  --------------------------------------------------------------------------------- */
-            $file = '../storage/app/public/imagenes/productos/'.$data['CODIGO'].'.jpg';
+            $file = '../storage/app/public/imagenes/empleados/'.$data['CODIGO'].'.jpg';
             $handle=fopen($file, 'a+');
             fwrite($handle, base64_decode($data["PICTURE"]));
 
