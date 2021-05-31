@@ -182,7 +182,7 @@
 				this.fecha_nac='';
 				this.btn_guardar= true;
 				this.fileName = 'Imagen';
-				this.rutaImagen = require('./../../../imagenes/SinImagen.png');
+				this.rutaImagen= "<img src='http://172.16.249.20:8080/storage/imagenes/empleados/empleado.png'  class='card-img-top'>";
 				this.$refs.gondola.limpiar();
 				// console.log(this.$refs.gondola);
          		this.seleccion_gondola= null;
