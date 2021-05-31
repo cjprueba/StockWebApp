@@ -134,7 +134,7 @@ class Imagen extends Model
 
         // CONVERT IMAGE DEFAULT TO BLOB 
 
-        $filename = '../storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
+        $filename = '../storage/app/public/imagenes/productos/'.$codigo.'.jpg';
                 
         if(file_exists($filename)) {
             $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
@@ -226,7 +226,7 @@ class Imagen extends Model
         try {
             
             /*  --------------------------------------------------------------------------------- */
-            $file = '../storage/app/public/imagenes/empleados/'.$data['CODIGO'].'.jpg';
+            $file = '../storage/app/public/imagenes/productos/'.$data['CODIGO'].'.jpg';
             $handle=fopen($file, 'a+');
             fwrite($handle, base64_decode($data["PICTURE"]));
 
