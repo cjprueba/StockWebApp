@@ -8,6 +8,7 @@ use Mpdf\Mpdf;
 use App\SalidaProductoDet;
 Use App\Common;
 use Illuminate\Support\Facades\Log;
+use DateTime;
 
 
 class SalidaProducto extends Model
@@ -783,6 +784,107 @@ class SalidaProducto extends Model
            /*  --------------------------------------------------------------------------------- */
 
         }
+    }
+        public static function generarReporteSalidaProductos($datos) 
+    {
+
+        
+         /*  --------------------------------------------------------------------------------- */
+
+         // INCICIAR VARIABLES 
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+
+
+
+
+
+   
+                                 //TOTALES POR CATEGORIA AGRUPADOS POR MARCA
+                                 /*  --------------------------------------------------------------------------------- */
+                              
+                   
+                            $totales=SalidaProducto::Select(DB::raw("IF(SALIDA_PRODUCTOS.TIPO = 1,
+                                    'AVERIO',
+                                    IF(SALIDA_PRODUCTOS.TIPO = 2,
+                                        'VENCIDOS',
+                                        IF(SALIDA_PRODUCTOS.TIPO = 3,
+                                            'ROBADO',
+                                            IF(SALIDA_PRODUCTOS.TIPO = 4,
+                                                'MUESTRA',
+                                                IF(SALIDA_PRODUCTOS.TIPO = 5,
+                                                    'EXTRAVIADO',
+                                                    IF(SALIDA_PRODUCTOS.TIPO = 6,
+                                                        'REGALO',
+                                                        IF(SALIDA_PRODUCTOS.TIPO = 7,
+                                                            'USO INTERNO',
+                                                            'INDEFINIDO'))))))) AS TOTALES,
+                                       SALIDA_PRODUCTOS.TIPO AS TIPO,
+                                      SUM(SALIDA_PRODUCTOS_DET.CANTIDAD) AS SALIDA_PIEZAS,
+                                      SUM(SALIDA_PRODUCTOS_DET.COSTO_TOTAL) AS COSTO_TOTAL"))
+                                    ->LEFTJOIN('SALIDA_PRODUCTOS_DET','SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS','=','SALIDA_PRODUCTOS.ID')
+                                    ->WHERE('SALIDA_PRODUCTOS.ID_SUCURSAL','=',$sucursal)
+                                    ->WHERE('SALIDA_PRODUCTOS.ESTADO','=',0)
+                                    ->whereBetween('SALIDA_PRODUCTOS.FECALTAS',[$inicio,$final]);
+                                    if(!$datos["data"]["AllTipos"]){
+                                        $totales->whereIn('SALIDA_PRODUCTOS.TIPO',$datos["data"]["Tipos"]);
+                                    }
+                                    $totales=$totales->GROUPBY('SALIDA_PRODUCTOS.TIPO')->get()->toArray();
+
+                   /*  --------------------------------------------------------------------------------- */  
+                   //TRAER TODOS LOS PRODUCTOS CON EL CODIGO DE TIPO
+                   /*  --------------------------------------------------------------------------------- */
+                   
+                  $productos=SalidaProducto::Select(DB::raw("SALIDA_PRODUCTOS_DET.COD_PROD AS COD_PROD,
+                                LOTES.LOTE AS LOTE,
+                                PRODUCTOS.DESCRIPCION AS DESCRIPCION,
+                                IFNULL(LINEAS.DESCRIPCION,'INDEFINIDO') AS CATEGORIA,
+                                IFNULL(SUBLINEAS.DESCRIPCION,'INDEFINIDO') AS SUBCATEGORIA,
+                                IFNULL(SUBLINEA_DET.DESCRIPCION,'INDEFINIDO') AS NOMBRE,
+                                IFNULL(UPPER(SALIDA_PRODUCTOS.OBSERVACION),'NO POSEE' ) AS COMENTARIO,
+                                SUM(SALIDA_PRODUCTOS_DET.CANTIDAD) AS CANTIDAD,
+                                LOTES.COSTO AS COSTO_UNITARIO,
+                                SUM(SALIDA_PRODUCTOS_DET.COSTO_TOTAL) AS COSTO_TOTAL,
+                                SALIDA_PRODUCTOS.TIPO AS TIPO"))
+                            ->LEFTJOIN('SALIDA_PRODUCTOS_DET','SALIDA_PRODUCTOS_DET.FK_SALIDA_PRODUCTOS','=','SALIDA_PRODUCTOS.ID')
+                            ->LEFTJOIN('LOTES','LOTES.ID','=','SALIDA_PRODUCTOS_DET.FK_ID_LOTE')
+                            ->LEFTJOIN('PRODUCTOS','PRODUCTOS.CODIGO','=','LOTES.COD_PROD')
+                            ->LEFTJOIN('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+                            ->LEFTJOIN('SUBLINEAS','SUBLINEAS.CODIGO','=','PRODUCTOS.LINEA')
+                            ->LEFTJOIN('SUBLINEA_DET','SUBLINEA_DET.CODIGO','=','PRODUCTOS.SUBLINEADET')
+                            ->WHERE('SALIDA_PRODUCTOS.ID_SUCURSAL','=',$sucursal)
+                            ->WHERE('SALIDA_PRODUCTOS.ESTADO','=',0)->whereBetween('SALIDA_PRODUCTOS.FECALTAS',[$inicio,$final]);
+                             if(!$datos["data"]["AllTipos"]){
+                                        $productos->whereIn('SALIDA_PRODUCTOS.TIPO',$datos["data"]["Tipos"]);
+                                    }
+                           $productos=$productos->GROUPBY('SALIDA_PRODUCTOS_DET.COD_PROD',"SALIDA_PRODUCTOS_DET.FK_ID_LOTE")
+                            ->ORDERBY('SALIDA_PRODUCTOS.OBSERVACION')
+                            ->get()
+                            ->toArray();
+
+
+                  
+
+
+
+                 
+ 
+            /*  --------------------------------------------------------------------------------- */
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR TODOS LOS ARRAYS
+
+
+            return ['salidaProductos' => $productos, 'salidas' => $totales];
+
+            /*  --------------------------------------------------------------------------------- */
     }
 
 }

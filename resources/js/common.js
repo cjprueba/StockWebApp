@@ -6551,6 +6551,25 @@ function generarReporteVentaGondolaCommon(data){
 			// ------------------------------------------------------------------------
 
 }
+function generarReporteSalidaProductosCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/reporte_salida_productos', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6832,5 +6851,6 @@ export {
 		quitarCajaCommon,
 		obtenerRendimientoVendedoresCommon,
 		generarReporteVentaProveedorCommon,
-		generarReporteVentaGondolaCommon
+		generarReporteVentaGondolaCommon,
+		generarReporteSalidaProductosCommon
 		};
