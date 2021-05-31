@@ -98,7 +98,7 @@
 		data(){
 			return{
 				fileName: 'Imagen',
-				rutaImagen: "<img src='http://172.16.249.20:8080/storage/imagenes/productos/product.png'  class='card-img-top'>",
+				rutaImagen: "<img src='http://172.16.249.20:8080/storage/imagenes/empleados/empleado.png'  class='card-img-top'>",
 				imagen: {
 		          	blob: ''
 		        },
