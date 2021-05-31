@@ -502,6 +502,7 @@ Route::post('export_producto_vencimiento', 'StockController@descagrarVencimiento
 Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
 Route::post('vencimientoProductoDatatable', 'StockController@vencimientoDatatable');
 Route::post('export_venta_gondola', 'VentaController@descargarVentaGondola');
+Route::post('export_producto_salida', 'SalidaProductoController@descargarSalida');
 
 
 /* -------------------------------------------------------------------------- */
@@ -617,6 +618,11 @@ Route::post('reporte_ventas_Gondola', 'VentaController@reporteVentaGondola');
 Route::post('reporte_transferencias_ventas', 'VentaController@reporteVenta');
 
 Route::post('export-transferencia-consignacion', 'ExportController@descargarTransferenciaVentas');
+
+/* -------------------------------------------------------------------------- */
+//REPORTES SALIDA DE PRODUCTOS
+
+Route::post('reporte_salida_productos', 'SalidaProductoController@reporteSalidaProductos');
 
 /* -------------------------------------------------------------------------- */
 
