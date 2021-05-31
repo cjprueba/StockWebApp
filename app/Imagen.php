@@ -124,6 +124,37 @@ class Imagen extends Model
 
     }
 
+
+    public static function obtenerImagenURL_Empleado($codigo)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+
+        $filename = '../storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
+                
+        if(file_exists($filename)) {
+            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/productos/'.$codigo.'.jpg';
+            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+        } else {
+            $imagen_empleado = ''.env("URL_FILE").'/storage/imagenes/productos/product.png';
+            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/productos/'.$codigo.'.jpg';
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+       
+        return ['imagen' => "<img src='".$imagen_empleado."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_empleado."' class='block' id='u255_img' width='100%'>", 'imagen_3' => "<img src='".$imagen_empleado."' id='myImg'  style='width:80px;height:80px;'>", 'imagen_external' => "<img src='".$imagen_empleado_external."' class='block' id='u255_img' width='100%'>"];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
     public static function guardar_imagen($data){
 
         try {
@@ -302,32 +333,5 @@ class Imagen extends Model
 
     }
 
-        public static function obtenerImagenURL_Empleado($codigo)
-    {
-
-        /*  --------------------------------------------------------------------------------- */
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // CONVERT IMAGE DEFAULT TO BLOB 
-
-        $filename = '../storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
-                
-        if(file_exists($filename)) {
-            $imagen_empleado = ''.env("URL_FILE").'/storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
-            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
-        } else {
-            $imagen_empleado = ''.env("URL_FILE").'/storage/app/public/imagenes/empleados/empleado.png';
-            $imagen_empleado_external = ''.env("URL_FILE_EXTERNAL").'/storage/app/public/imagenes/empleados/'.$codigo.'.jpg';
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR EL VALOR
-       
-        return ['imagen' => "<img src='".$imagen_empleado."' id='myImg'  class='card-img-top'>", 'imagen_2' => "<img src='".$imagen_empleado."' class='block' id='u255_img' width='100%'>", 'imagen_3' => "<img src='".$imagen_empleado."' id='myImg'  style='width:80px;height:80px;'>", 'imagen_external' => "<img src='".$imagen_empleado_external."' class='block' id='u255_img' width='100%'>"];
-
-        /*  --------------------------------------------------------------------------------- */
-
-    }
+        
 }
