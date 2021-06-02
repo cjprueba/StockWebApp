@@ -1,6 +1,6 @@
 <template>
 	<div class="container mt-3">
-		<div v-if="$can('secccion.crear') && $can('secccion')" class="row">
+		<div v-if="$can('secccion.crear') && $can('secccion')  && $can('config')" class="row">
 			<div class="col-6">
 				<div class="card shadow border-bottom-primary mb-3">
 					<div class="text-center card-header">Crear Seccion</div>
