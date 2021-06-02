@@ -1,7 +1,7 @@
 
 <template>
 	<div class="container mt-3">
-    <div v-if="$can('gondola.crear') && $can('gondola')">
+    <div v-if="$can('gondola.crear') && $can('gondola') && $can('config')">
     <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->     
       <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
           <div class="col-6">

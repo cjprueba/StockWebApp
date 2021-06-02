@@ -1,6 +1,6 @@
 <template>
 	<div id="app">
-    	<b-modal v-if="$can('user.cambiarsucursal') && $can('user')" centered id="meu-modal">
+    	<b-modal v-if="$can('user.cambiarsucursal') && $can('user') && $can('config')" centered id="meu-modal">
 
 	      	<template v-slot:modal-header="{ close }">
 	      		<h5>Cambio de Sucursal</h5>

@@ -42,7 +42,7 @@
       </div>
 
       <!-- Nav Item - Pages Collapse Menu -->
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" hidden>
           <font-awesome-icon icon="cog" />
           <span>Components</span>
@@ -54,7 +54,7 @@
             <a class="collapse-item" href="cards.html">Cards</a>
           </div>
         </div>
-      </li>
+      </li> -->
 
         <li v-if="$can('reporte.web')" class="nav-item" >
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReporteWeb" aria-expanded="true" aria-controls="collapseReporteWeb">
@@ -343,7 +343,7 @@
         <!-- ATRIBUTOS MENI-->
       <li v-if="$can('atributos')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
-          <font-awesome-icon icon="user-circle" />
+          <font-awesome-icon icon="sort-amount-down" />
           <span>Atributos</span>
         </a>
         <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
@@ -364,7 +364,7 @@
 
       <!-- USER MENU -->
 
-      <li v-if="$can('user')" class="nav-item">
+      <!-- <li v-if="$can('user')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRol" aria-expanded="true" aria-controls="collapseRol">
           <font-awesome-icon icon="user-circle" />
           <span>Usuarios</span>
@@ -380,11 +380,11 @@
             <router-link v-if="$can('user.cambiarsucursal')" class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
           </div>
         </div>
-      </li>
+      </li> -->
       
 
       <!-- GONDOLAS MENU -->
-      <li v-if="$can('gondola')" class="nav-item">
+      <!-- <li v-if="$can('gondola')" class="nav-item">
 
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGondolas" aria-expanded="true" aria-controls="collapseGondolas">
           <font-awesome-icon icon="user-circle" />
@@ -396,7 +396,7 @@
             <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
           </div>
         </div>
-      </li>
+      </li> -->
       <!-- CUPONES MENU -->
 
       <li v-if="$can('cupones')" class="nav-item">
@@ -415,7 +415,7 @@
 
       <li v-if="$can('ordenes')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrdenes" aria-expanded="true" aria-controls="collapseOrdenes">
-          <font-awesome-icon icon="user-circle" />
+          <font-awesome-icon icon="globe" />
           <span>Ordenes</span>
         </a>
         <div id="collapseOrdenes" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
@@ -430,7 +430,7 @@
 
       <li v-if="$can('pedidos')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePedidos" aria-expanded="true" aria-controls="collapsePedidos">
-          <font-awesome-icon icon="user-circle" />
+          <font-awesome-icon icon="walking" />
           <span>Pedidos</span>
         </a>
         <div id="collapsePedidos" class="collapse" aria-labelledby="headingOrdenes" data-parent="#accordionSidebar">
@@ -447,7 +447,7 @@
 
       <!-- EMPLEADOS -->
 
-      <li v-if="$can('empleados')" class="nav-item">
+      <!-- <li v-if="$can('empleados')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEmpleados" aria-expanded="true" aria-controls="collapseEmpleados">
           <font-awesome-icon icon="user-circle" />
           <span>Empleados</span>
@@ -459,14 +459,14 @@
             
           </div>
         </div>
-      </li>
+      </li> -->
 
 
       <!-- ------------------------------------------------------------------------------------- -->
 
       <!-- SECCIONES -->
 
-      <li v-if="$can('secccion')" class="nav-item">
+      <!-- <li v-if="$can('secccion')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSecciones" aria-expanded="true" aria-controls="collapseSecciones">
           <font-awesome-icon icon="user-circle" />
           <span>Secciones</span>
@@ -477,14 +477,14 @@
             <router-link v-if="$can('secccion.crear')" class="collapse-item" :to="{name: 'crearSeccion'}">Crear Seccion</router-link>
           </div>
         </div>
-      </li>
+      </li> -->
 
 
 
       <!-- ------------------------------------------------------------------------------------- -->
       <!-- CAJA -->
       
-      <li v-if="$can('caja')" class="nav-item">
+      <!-- <li v-if="$can('caja')" class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCaja" aria-expanded="true" aria-controls="collapseCaja">
         <font-awesome-icon icon="user-circle" />
         <span>Caja</span>
@@ -495,7 +495,82 @@
           <router-link v-if="$can('caja.asignar')" class="collapse-item" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
         </div>
       </div>
-    </li>
+    </li> -->
+
+
+
+
+    <!----------------------------------------------------------------------------------------->
+      <!-- CONFIGURACIÓN -->
+      <li v-if="$can('config')" class="nav-item accordion">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConfiguración" aria-expanded="true" aria-controls="collapseConfiguración">
+          <font-awesome-icon icon="cog" />
+          <span>Configuración</span>
+        </a>
+        <div id="collapseConfiguración" class="collapse" aria-labelledby="headingConfiguración" data-parent="#accordionSidebar" >
+          <div class="bg-white collapse-inner rounded " id="accordionConf">
+
+
+
+            <!-- USER MENU -->
+            <a v-if="$can('user')" class="nav-item collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseOpcion1" aria-expanded="true" aria-controls="collapseOpcion1"><font-awesome-icon icon="user-cog" /> Usuario</a>
+            <div id="collapseOpcion1" class="collapse bg-#ced4da" aria-labelledby="headingOpcion1" data-parent="#accordionConf">
+              <hr>
+              <router-link v-if="$can('user.crear')" class="collapse-item" :to="{name: 'userCrear'}">Usuarios</router-link>
+              <router-link v-if="$can('user.rol')" class="collapse-item" :to="{name: 'rolCrear'}">Roles</router-link>
+              <router-link v-if="$can('user.permission')" class="collapse-item" :to="{name: 'permisosCrear'}">Permisos</router-link>
+              <router-link v-if="$can('user.rol.user')" class="collapse-item" :to="{name: 'rolAsignar'}">Roles a Usuarios</router-link>
+              <router-link v-if="$can('user.permission.user')" class="collapse-item" :to="{name: 'permisoAsignar'}">Permisos a Usuarios</router-link>
+              <router-link v-if="$can('user.cambiarsucursal')" class="collapse-item" v-b-modal.meu-modal :to="{name: 'cambiarSucursal'}">Cambiar de Sucursal</router-link>
+              <hr>  
+            </div>
+
+
+
+            <!-- EMPLEADO -->
+            <a v-if="$can('empleados')" class="collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseOpcion3" aria-expanded="true" aria-controls="collapseOpcion3"><font-awesome-icon icon="user-tie" /> Empleado</a>
+            <div id="collapseOpcion3" class="collapse bg-white" aria-labelledby="headingOpcion3" data-parent="#accordionConf">
+              <hr>
+              <router-link v-if="$can('empleados.crear')" class="collapse-item" :to="{name: 'crearEmpleado'}">Crear Empleado</router-link>
+              <hr>  
+            </div>
+
+
+
+            <!-- SECCION --> 
+            <a v-if="$can('secccion')" class="collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseOpcion4" aria-expanded="true" aria-controls="collapseOpcion4"><font-awesome-icon icon="sign" /> Seccion</a>
+            <div id="collapseOpcion4" class="collapse bg-#ced4da  rounded" aria-labelledby="headingOpcion4" data-parent="#accordionConf">
+              <hr>
+              <router-link v-if="$can('secccion.crear')" class="collapse-item" :to="{name: 'crearSeccion'}">Crear Seccion</router-link>
+              <hr>  
+            </div>
+            
+
+
+            <!-- GONDOLA -->
+            <a v-if="$can('gondola')" class="nav-item collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseOpcion2" aria-expanded="true" aria-controls="collapseOpcion2"><font-awesome-icon icon="th-large" /> Gondola</a>
+            <div id="collapseOpcion2" class="collapse bg-white  rounded" aria-labelledby="headingOpcion2" data-parent="#accordionConf">
+              <hr>
+              <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+              <hr>  
+            </div>
+
+
+
+            <!-- CAJA -->
+            <a v-if="$can('caja')" class="collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseUltimaOpcion" aria-expanded="false" aria-controls="collapseUltimaOpcion"><font-awesome-icon icon="cash-register" /> Caja</a>
+            <div id="collapseUltimaOpcion" class="collapse bg-#ced4da" aria-labelledby="headingUltimaOpcion" data-parent="#accordionConf" >
+              <hr>
+              <router-link v-if="$can('caja.asignar')" class="collapse-item text-center" :to="{name: 'asignarCaja'}">Asignar Caja</router-link>
+              <hr>  
+            </div>
+          
+          </div>
+        </div>
+      </li>
+
+      
+      
 
       <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaquinas" aria-expanded="true" aria-controls="collapseMaquinas">
