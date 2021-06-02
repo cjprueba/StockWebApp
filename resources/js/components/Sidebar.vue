@@ -126,7 +126,7 @@
       <li v-if="$can('transferencia')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTransferencia" aria-expanded="true" aria-controls="collapseTransferencia">
           <font-awesome-icon icon="truck"/>
-          <span>Transferencia</span>
+          <span>Transferencias</span>
         </a>
         <div id="collapseTransferencia" class="collapse" aria-labelledby="headingTransferencia" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -168,7 +168,7 @@
       <li v-if="$can('venta')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseVenta" aria-expanded="true" aria-controls="collapseVenta">
           <font-awesome-icon icon="shopping-bag"/>
-          <span>Venta</span>
+          <span>Ventas</span>
         </a>
         <div id="collapseVenta" class="collapse" aria-labelledby="headingVenta" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -232,7 +232,7 @@
       <li  v-if="$can('proveedor')" class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProveedor" aria-expanded="true" aria-controls="collapseProveedor">
           <font-awesome-icon icon="ambulance"/>
-          <span>Proveedor</span>
+          <span>Proveedores</span>
         </a>
         <div id="collapseProveedor" class="collapse" aria-labelledby="headingProveedor" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -283,6 +283,28 @@
           </div>
         </div>
       </li>
+
+
+       <!-- ATRIBUTOS MENI-->
+      <li v-if="$can('atributos')"  class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
+          <font-awesome-icon icon="sort-amount-down" />
+          <span>Atributos</span>
+        </a>
+        <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+            <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+            <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+            <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+            <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+            <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+            <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
+          </div>
+        </div>
+      </li>
+      
 
       <!-- ------------------------------------------------------------------------------------- -->
 
@@ -340,25 +362,7 @@
 
 
 
-        <!-- ATRIBUTOS MENI-->
-      <li v-if="$can('atributos')"  class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
-          <font-awesome-icon icon="sort-amount-down" />
-          <span>Atributos</span>
-        </a>
-        <div id="collapseAtributos" class="collapse" aria-labelledby="headingAtributos" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-            <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
-            <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
-            <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
-            <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
-            <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
-            <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
-            <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
-          </div>
-        </div>
-      </li>
+       
 
 
 
@@ -502,7 +506,7 @@
 
     <!----------------------------------------------------------------------------------------->
       <!-- CONFIGURACIÓN -->
-      <li v-if="$can('config')" class="nav-item accordion">
+      <li v-if="$can('configuracion')" class="nav-item accordion">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConfiguración" aria-expanded="true" aria-controls="collapseConfiguración">
           <font-awesome-icon icon="cog" />
           <span>Configuración</span>
