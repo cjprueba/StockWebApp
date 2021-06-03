@@ -444,10 +444,6 @@ export default new Router({
 			component: require('./components/cajas/AsignarCaja.vue').default
 		},
     	{
-			path: '/vendeV',
-			component: require('./components/reportes/venta/vendedor/AnaliticaMensual.vue').default
-		},
-    	{
 			path: '/descLote',
 			component: require('./components/descuento/busqueda/DescuentoLote.vue').default
 		},
