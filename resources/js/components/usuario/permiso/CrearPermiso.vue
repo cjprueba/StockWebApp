@@ -3,7 +3,7 @@
 	
 <div class="container">
 
-  <div v-if="$can('user.permission') && $can('user')">
+  <div v-if="$can('user.permission') && $can('user') && $can('configuracion')">
 
       <!-- ------------------------------------------------------------------ -->
 

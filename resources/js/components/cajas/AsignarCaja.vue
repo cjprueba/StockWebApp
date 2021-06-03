@@ -1,6 +1,6 @@
 <template>
 	<div class="container mt-3">
-		<div v-if="$can('caja.asignar') && $can('caja')" class="row">
+		<div v-if="$can('caja.asignar') && $can('caja') && $can('configuracion')" class="row">
 			<div class="col-3">
 				<div class="card shadow border-bottom-primary mb-3">
 					<div class="text-center card-header">Asignar Caja</div>

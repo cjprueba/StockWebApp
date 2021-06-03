@@ -3,7 +3,7 @@
   
 <div class="container">
 
-  <div v-if="$can('user.rol.user') && $can('user')"> 
+  <div v-if="$can('user.rol.user') && $can('user') && $can('configuracion')"> 
 
     <!-- ------------------------------------------------------------------ -->
 

@@ -1,6 +1,6 @@
 <template>
 	<div class="container mt-3">
-		<div v-if="$can('empleados.crear') && $can('empleados')" class="row">
+		<div v-if="$can('empleados.crear') && $can('empleados') && $can('configuracion')" class="row">
 			<div class="col-12">
 				<div class="card shadow border-bottom-primary mb-3">
 			  		<div class="text-center card-header">Crear Empleados</div>
