@@ -80,7 +80,7 @@ class RptVentaMarcaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
               ->where('ID_SUCURSAL','=',$this->sucursal)
               ->where('proveedor','<>',19)
               ->GROUPBY('temp_ventas.MARCAS_CODIGO','temp_ventas.LINEA_CODIGO') 
-              ->orderby('temp_ventas.LINEA_CODIGO')
+              ->orderby('temp_ventas.MARCAS_CODIGO')
               ->get()
               ->toArray();
 
