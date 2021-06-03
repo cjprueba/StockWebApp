@@ -279,14 +279,26 @@
             <router-link v-if="$can('producto.etiquetas')" class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
 
             <!-- <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link> -->
-            
+             <!-- ATRIBUTOS -->
+            <a v-if="$can('atributos')" class="nav-item collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos"><font-awesome-icon icon="sort-amount-down" /> Atributos</a>
+            <div id="collapseAtributos" class="collapse bg-#ced4da" aria-labelledby="headingAtributos" data-parent="#accordionConf">
+              <hr>
+              <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+              <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+              <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+              <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+              <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+              <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+              <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
+              <hr>  
+            </div>
           </div>
         </div>
       </li>
 
 
        <!-- ATRIBUTOS MENI-->
-      <li v-if="$can('atributos')"  class="nav-item">
+      <!-- <li v-if="$can('atributos')"  class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos">
           <font-awesome-icon icon="sort-amount-down" />
           <span>Atributos</span>
@@ -303,8 +315,8 @@
             <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
           </div>
         </div>
-      </li>
-      
+      </li> -->
+
 
       <!-- ------------------------------------------------------------------------------------- -->
 
