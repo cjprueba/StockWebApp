@@ -2391,6 +2391,7 @@ class Venta extends Model
 
                     $nestedData['ID'] = $data["data"]["productos"][$c]["ID"];
                     $nestedData['TOTAL'] = $total;
+                    $nestedData['ITEM']=$c+1;
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -2599,7 +2600,8 @@ class Venta extends Model
                 VentaTieneNotaCredito::guardar_referencia(
                     [
                         'FK_VENTA' => $venta,
-                        'FK_NOTA_CREDITO' => $value['ID']
+                        'FK_NOTA_CREDITO' => $value['ID'],
+                        'ITEM'=>$value['ITEM']
                     ]
                 );
 
@@ -3144,6 +3146,7 @@ class Venta extends Model
         $codigo = $data['codigo'];
         $caja = $data['caja'];
         $data = array();
+        $item_array=array();
         $cantidad_items  = 0;
 
         /*  --------------------------------------------------------------------------------- */
@@ -3210,6 +3213,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3267,6 +3271,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3324,6 +3329,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3335,7 +3341,7 @@ class Venta extends Model
 
         $ventas_nota_credito = VentaTieneNotaCredito::select(DB::raw(
                         'VENTAS_TIENE_NOTA_CREDITO.ID,
-                        0 AS ITEM, 
+                        VENTAS_TIENE_NOTA_CREDITO.ITEM AS ITEM, 
                         3 AS COD_PROD, 
                         0 AS DESCRIPCION, 
                         1 AS CANTIDAD, 
@@ -3382,6 +3388,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3452,6 +3459,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -3510,10 +3518,15 @@ class Venta extends Model
             // CARGAR SERVICIOS EN ARRAY 
 
             $data[] = $nestedData;
+            $item_array[]= $nestedData['ITEM'];
 
             /*  --------------------------------------------------------------------------------- */
 
         }
+        // ORDENAR EL ARRAY EN BASE A LA NUMERACION DE ITEMS.
+          /*  --------------------------------------------------------------------------------- */
+        array_multisort($item_array, SORT_ASC, $data);
+
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -5232,6 +5245,7 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // SI LA MONEDA DEL PRODUCTO ES DIFERENTE A GUARANIES COTIZAR 
+            /*log::error(["TOTAL"=>$value]);*/
             
             if ($value["MONEDA"] <> 1) {
 
@@ -5266,6 +5280,7 @@ class Venta extends Model
 
                 $exentas = $exentas + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
                 $total = $total + Common::quitar_coma($articulos[$c_rows]["total"], $candec);
+                
 
                 /*  --------------------------------------------------------------------------------- */
 
@@ -5967,7 +5982,7 @@ class Venta extends Model
              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
              ->Where('VENTAS.FECALTAS','=',$dia)
               ->Where('VENTAS_ANULADO.anulado','<>',1)
-              ->where('VENTAS.TIPO','<>','CR')
+             /* ->where('VENTAS.TIPO','<>','CR')*/
              ->where('CAJA','=',$request->input('caja_numero'))   
                 ->offset($start)
                 ->limit($limit)

@@ -19,7 +19,8 @@ class VentaTieneNotaCredito extends Model
 
 	    	$vt_nc = VentaTieneNotaCredito::insertGetId([
 	    		'FK_VENTA' => $data["FK_VENTA"],
-	    		'FK_NOTA_CREDITO' => $data["FK_NOTA_CREDITO"]
+	    		'FK_NOTA_CREDITO' => $data["FK_NOTA_CREDITO"],
+	    		'ITEM'=>$data["ITEM"]
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */
