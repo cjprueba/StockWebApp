@@ -438,12 +438,14 @@ export default new Router({
 			name: 'rptProductoWeb',
 			component: require('./components/reportes/producto/Inicio.vue').default
 		},
-    {
-
-
+    	{
 			path: '/AsignacionDeCaja',
 			name: 'asignarCaja',
 			component: require('./components/cajas/AsignarCaja.vue').default
+		},
+    	{
+			path: '/descLote',
+			component: require('./components/descuento/busqueda/DescuentoLote.vue').default
 		},
 
 	],

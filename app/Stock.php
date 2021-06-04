@@ -2254,6 +2254,7 @@ class Stock extends Model
                         'CONTEO_DET.COD_PROD' => $codigo,
                         'PRODUCTOS_AUX.MONEDA' => $moneda,
                         'CONTEO_DET.ID_SUCURSAL' => $user->id_sucursal,
+                        'LOTE_TIENE_CONTEODET.ACCION'=>1
                     ])
                     ->where('LOTES.CANTIDAD', '>', 0)
                          ->offset($start)
