@@ -22,8 +22,6 @@
 					                    <th>Lote</th>
 					                </tr>
 					            </thead>
-					            <tbody>
-					            </tbody>
 					        </table>
 		      </div>
 		      <div class="modal-footer">
@@ -80,6 +78,15 @@
 	                 	"destroy": true,
 	                 	"bAutoWidth": true,
 	                 	"select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				            { extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary', title: 'Devoluciones', messageTop: 'Productos devueltos a proveedores' }
+				        ],
 	                 	"ajax":{
 	                 			"data": {
 	                 				codigo: codigo
