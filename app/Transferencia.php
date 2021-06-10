@@ -16,6 +16,7 @@ use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
 use App\Central_tiene_Sucursales;
 use App\TransferenciasTieneCotizacion;
+use Illuminate\Support\Facades\Log;
 
 class Transferencia extends Model
 {
@@ -2379,9 +2380,15 @@ class Transferencia extends Model
 
                     if ($formula === 1) {
 
-                        $precio_venta = $td->PRECIO * $cambio;
+                        $precio_venta = $td->PRECIO * $cambio; 
                         $precio_mayorista = $producto[0]->PREMAYORISTA * $cambio;
                         $precio_vip = $producto[0]->PREVIP * $cambio;  
+                     /*  --------------------------------------------------------------------------------- */
+
+                        //REDONDEO DE MONTOS EN GUARANIES
+                        $precio_venta= round($precio_venta,-3);
+                        $precio_mayorista=round($precio_mayorista,-3);
+                        $precio_vip=round($precio_vip,-3);
 
                     } else if ($formula === 2) {
                         
@@ -2448,7 +2455,7 @@ class Transferencia extends Model
 
                     // OBTENER PRECIO DEL COSTO LOTE CENTRAL
 
-                    $precio_venta = $td->COSTO;
+                    $precio_venta = $td->COSTO*$cambio ;
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -2486,7 +2493,7 @@ class Transferencia extends Model
 
                     // CREAR LOTE DEL PRODUCTO 
 
-                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO, 2, $usere, $td->VENCIMIENTO))["id"];
+                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO*$cambio, 2, $usere, $td->VENCIMIENTO))["id"];
 
 
                     // MODOS
@@ -2495,6 +2502,7 @@ class Transferencia extends Model
 
                     Lotes_tiene_TransferenciaDet::guardar_referencia($td->ID, $lote);
                     //Transferencia::agregar_lote_tranferencia_det($td->CODIGO_PROD, $codigo_origen, $lote);
+
                     //ACTUALIZAR STOCK MINIMO POR PRODUCTO
                     //----------------------------------------------------------------------------------------
                      Stock::actualizar_Stock_Minimo($td->CODIGO_PROD);
