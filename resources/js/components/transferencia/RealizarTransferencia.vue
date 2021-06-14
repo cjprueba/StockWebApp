@@ -41,6 +41,18 @@
 						<label class="custom-control-label" for="consignacionControlAutosizing">Consignación</label>
 					</div>
 		        </div>
+
+
+				<!-- ------------------------------------------------------------------------------------- -->
+
+	        	<!-- DEFINIR COTIZACION -->
+
+	        	 <div class="ml-2 my-1">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="cotizacionAControlAutosizing" v-model="switch_cotizacion">
+						<label class="custom-control-label" for="cotizacionAControlAutosizing">Agregar Cotización</label>
+					</div>
+		        </div>
 				<!-- ------------------------------------------------------------------------------------- -->
 		     </form>
 
@@ -172,12 +184,23 @@
 						<label class="mt-1" for="validationTooltip01">Descripción</label>
 						<input class="form-control form-control-sm" type="text" v-model="descripcionRecibe"  disabled>
 					</div>	
-
-					<div class="col-md-6">
-						<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
-						<input tabindex="6" class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
+					<div v-if="switch_cotizacion === true" class="col-md-1">
+						<label class="mt-1" for="validationTooltip01">Cambio</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"><font-awesome-icon icon="coins"/></button>
+							</div>
+							<input class="form-control form-control-sm" v-model="cambio">
+						</div>
 					</div>
-
+					<div v-if="switch_cotizacion === true" class="col-md-5">
+						<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+						<input  class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
+					</div>
+					<div v-if="switch_cotizacion === false" class="col-md-6">
+						<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+						<input  class="form-control form-control-sm" type="text" v-model="nro_caja" v-on:blur="productosCompra">
+					</div>
 				</div>
 
 					</div>
@@ -703,9 +726,24 @@
             btnguardar: true,
             switch_un_producto: false,
             switch_consignacion: false,
+            switch_cotizacion: false,
             procesar: false,
             cantidad_row: 0,
-            cotizacion: ''
+            cotizacion: {
+            	Guaranies: '',
+            	Dolares: '',
+            	Pesos: '',
+            	Reales: '',
+            	activar_dolares: false,
+            	activar_guaranies: false,
+            	activar_pesos: false,
+            	activar_reales: false,
+            	formula_gs_id: '',
+            	formula_rs_id: '',
+            	formula_ps_id: '',
+            	formula_usd_id:''
+            },
+            cambio: 0
         }
       }, 
       methods: {
@@ -758,6 +796,7 @@
 						})
 
       	},
+
       	activarBuscar(opcion){
 
             // ------------------------------------------------------------------------
@@ -1280,6 +1319,22 @@
 				return;
 			}
 
+			if(me.switch_cotizacion === true && me.moneda_enviar !== me.monedaCodigo){
+
+				if(me.cambio !== '' || me.cambio !== 0){
+					if(me.moneda_enviar === 1){
+						me.cotizacion.Guaranies = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 2){
+						me.cotizacion.Dolar = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 3){
+						me.cotizacion.Pesos = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 4){
+						me.cotizacion.Reales = parseFloat(me.cambio);
+					}
+				}
+
+			}
+
 			// ------------------------------------------------------------------------ 
 
 			// PREPARAR ARRAY 
@@ -1295,7 +1350,8 @@
 				monedaEnviar: me.moneda_enviar,
 				nro_caja: me.nro_caja,
 				tab_unica: me.tab_unica,
-				cotizacion: me.cotizacion
+				cotizacion: me.cotizacion,
+				switchCotizacion: me.switch_cotizacion
 			}
 
 			// ------------------------------------------------------------------------ 
@@ -1740,6 +1796,22 @@
 				return;
 			}
 
+			if(me.switch_cotizacion === true && me.moneda_enviar !== me.monedaCodigo){
+
+				if(me.cambio !== '' || me.cambio !== 0){
+					if(me.moneda_enviar === 1){
+						me.cotizacion.Guaranies = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 2){
+						me.cotizacion.Dolar = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 3){
+						me.cotizacion.Pesos = parseFloat(me.cambio);
+					}else if(me.moneda_enviar === 4){
+						me.cotizacion.Reales = parseFloat(me.cambio);
+					}
+				}
+
+			}
+
 			// ------------------------------------------------------------------------ 
 
 			// PREPARAR ARRAY 
@@ -1753,7 +1825,9 @@
 				monedaSistema: me.monedaCodigo,
 				monedaEnviar: me.moneda_enviar,
 				nro_caja: me.nro_caja,
-				tab_unica: me.tab_unica
+				tab_unica: me.tab_unica,
+				cotizacion: me.cotizacion,
+				switchCotizacion: me.switch_cotizacion
 			}
 
 			// ------------------------------------------------------------------------ 

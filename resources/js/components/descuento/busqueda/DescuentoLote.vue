@@ -100,24 +100,25 @@
 						</div>	
 
             			<!-- ----------------------------------- TABLA DE PRODUCTOS  ------------------------------------ -->
-
-						<div class="col-md-12 mt-3">
-						   	<table id="tablaDescuentoLote" class="table table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
-						        <thead>
-						            <tr>
-						                <th>#</th>
-						                <th>Código</th>
-						                <th>Descripción</th>
-						                <th>Lote</th>
-						                <th>Vencimiento</th>
-						                <th>Descuento</th>
-						                <th>Motivo</th>
-						                <th>Inicio</th>
-						                <th>Final</th>
-						                <th>Acción</th>
-						            </tr>
-						       	</thead>
-						    </table>
+            <div class="row">
+							<div class="col-md-12 mt-3">
+							   	<table id="tablaDescuentoLote" class="table table-hover table-bordered table-sm mb-3 mt-3" style="width:100%">
+							        <thead>
+							            <tr>
+							                <th>#</th>
+							                <th>Código</th>
+							                <th>Descripción</th>
+							                <th>Lote</th>
+							                <th>Vencimiento</th>
+							                <th>Descuento</th>
+							                <th>Motivo</th>
+							                <th>Inicio</th>
+							                <th>Final</th>
+							                <th>Acción</th>
+							            </tr>
+							       	</thead>
+							    </table>
+							</div>
 						</div>
 
 						<!-- -------------------------------------- BOTON GUARDAR ---------------------------------- -->
@@ -246,6 +247,19 @@
 		    ¡Seleccione un producto y un lote!
 		</b-toast>
 
+		<!-- ---------------------------------- TOAST AGREGAR DATOS -------------------------------------- -->
+
+		<b-toast id="toast-cargar-datos" variant="warning" solid>
+		    <template v-slot:toast-title>
+		        <div class="d-flex flex-grow-1 align-items-baseline">
+		          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+		          <strong class="mr-auto">¡Error!</strong>
+		          <small class="text-muted mr-2">Agregue los datos</small>
+		        </div>
+		    </template>
+		    ¡Primero debe agregar los datos para guardar el descuento!
+		</b-toast>
+
 		<!-- ----------------------------------- MODAL DETALLE PRODUCTO ------------------------------------- -->
 
 		<producto-detalle ref="detalle_producto" :codigo="codigo_detalle"></producto-detalle>
@@ -277,7 +291,7 @@
 	            selectedFinalFecha: '',
 	            validarInicialFecha: false,
 	            validarFinalFecha: false,
-	            descuento: 0,
+	            descuento: 30,
 	            motivo: "null",
 	        	producto: {
 	        		CODIGO: '',
@@ -299,7 +313,7 @@
 	        		codigo: '',
 	        		selectedInicialFecha: '',
 	              	selectedFinalFecha: '',
-	              	descuento: 30,
+	              	descuento: 0,
 	              	motivo: "null",
 	              	row: ''
 	        	},
@@ -580,6 +594,8 @@
 
 	            if (tableDescuentoLote.rows().data().length === 0) {
 	            	me.validar.TABLA = true;
+
+	            	me.$bvToast.show('toast-cargar-datos');
 	            	falta = true;
 	            } else {
 	            	me.validar.TABLA = false;
@@ -635,10 +651,12 @@
 					confirmButtonText: '¡Sí, guardalo!',
 					cancelButtonText: 'Cancelar',
 					preConfirm: () => {
-					    return Common.guardarLoteDescuentoProductoCommon(data).then(data => {
+					    return Common.guardarLoteDescuentoCommon(data).then(data => {
 					    	if (!data.response === true) {
 					          throw new Error(data.statusText);
 					        }
+					        var tableDescuentoLote = $('#tablaDescuentoLote').DataTable();
+					        tableDescuentoLote.clear().draw();
 					  		return data;
 					  	}).catch(error => {
 					        Swal.showValidationMessage(

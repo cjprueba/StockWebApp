@@ -6879,5 +6879,5 @@ export {
 		generarReporteVentaProveedorCommon,
 		generarReporteVentaGondolaCommon,
 		generarReporteSalidaProductosCommon,
-		guardarLoteDescuentoCommon
+		guardarLoteDescuentoCommon,
 		};

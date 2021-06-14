@@ -537,6 +537,19 @@ class Transferencia extends Model
          if(isset( $datos["cabecera"]["monedaEnviar"])){
             $moneda_enviar=$datos["cabecera"]["monedaEnviar"];
             $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
+
+            if($datos["cabecera"]["switchCotizacion"] == true){
+                if($moneda_enviar == 1){
+                    $cotizacion = $datos["cabecera"]["cotizacion"]["Guaranies"];
+                }elseif($moneda_enviar == 2){
+                    $cotizacion = $datos["cabecera"]["cotizacion"]["Dolar"];
+                }elseif($moneda_enviar == 3){
+                    $cotizacion = $datos["cabecera"]["cotizacion"]["Pesos"];
+                }elseif($moneda_enviar == 4){
+                    $cotizacion = $datos["cabecera"]["cotizacion"]["Reales"];
+                }
+            }
+
         }else{
              $moneda_enviar=$datos["cabecera"]["monedaSistema"];
              $cotizacion=1;
