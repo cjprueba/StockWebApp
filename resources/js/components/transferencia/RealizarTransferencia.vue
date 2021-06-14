@@ -1318,9 +1318,6 @@
 				this.funcionMostrarCerrarCotizacion();
 				return;
 			}
-			console.log(me.cotizacion);
-			console.log(me.cambio);
-			console.log(me.switch_cotizacion);
 
 			if(me.switch_cotizacion === true && me.moneda_enviar !== me.monedaCodigo){
 
@@ -1362,7 +1359,6 @@
 			// ACTIVAR LOADING 
 
 			me.procesar = true;
-			console.log(data);
 
 			// ------------------------------------------------------------------------ 
 
@@ -1799,10 +1795,6 @@
 				this.funcionMostrarCerrarCotizacion();
 				return;
 			}
-
-console.log(me.cotizacion);
-			console.log(me.cambio);
-			console.log(me.switch_cotizacion);
 
 			if(me.switch_cotizacion === true && me.moneda_enviar !== me.monedaCodigo){
 
