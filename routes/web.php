@@ -475,6 +475,7 @@ Route::post('/cliente/credito/detalle/nc/datatable', 'ClienteController@notaCred
 // DESCUENTO
 
 Route::post('descuento', 'DescuentoController@mostrar');
+Route::post('descuentoLoteProducto', 'LoteTieneDescuentoController@guardarDescuentoLote');
 
 /* -------------------------------------------------------------------------- */
 
