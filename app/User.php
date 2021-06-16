@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
+use App\PermisoTienePermisos;
 
 class User extends Authenticatable
 {
@@ -128,7 +129,7 @@ class User extends Authenticatable
 
         $permissions = [];
         foreach ($permisos as $permission) {
-            $permissions[] = $permission->name;
+            $permissions[] = $permission->id;
         }
         
         /* -------------------------------------------------------------------------- */
@@ -148,23 +149,24 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
           
         // DEFINIR ARRAY PERMISOS 
-         $rol =DB::table('roles')->SELECT(['id'])->Where([['name','=',$datos['id']]])->get()->toArray();
-if(count($rol)<=0){
-    return ["response"=>false];
-         }
-        $roles=Role::find($rol[0]->id );
-         $permisos=$roles->permissions()->get();
+         $rol =DB::table('roles')
+            ->SELECT(['id'])
+            ->Where([['name','=',$datos['id']]])
+            ->get()
+            ->toArray();
         
-        $permissions = [];
-        foreach ($permisos as $permission) { 
-            $permissions[] = $permission->name;
+        if(count($rol)<=0){
+            return ["response"=>false];
         }
         
-        /* -------------------------------------------------------------------------- */
-
+        $roles=Role::find($rol[0]->id );
+        $permisos=$roles->permissions()->get();
+         
+        $permissions = [];
+        foreach ($permisos as $permission) { 
+            $permissions[] = $permission->id;
+        }
         
-        /* -------------------------------------------------------------------------- */
-
         // DEVOLVER PERMISOS 
         
              return ["response"=>true,"roles"=>$roles,"permisos"=>$permissions];
@@ -205,23 +207,50 @@ if(count($rol)<=0){
         /* -------------------------------------------------------------------------- */
           
         // DEFINIR ARRAY PERMISOS 
-       $permisos =Permission::All();
+       // $permisos =Permission::All();
 
-        $permissions = [];
-        foreach ($permisos as $key => $permission) {
-            $permissions[$key]['id'] = $permission->name;
-            $permissions[$key]['name'] = $permission->description;
-        }
-       
+
+
+
+
+        //-------------------------------------------------------------------
+       // ->orderByRaw('SUBSTRING_INDEX(permissions.description,"ar","-1")')
         
         /* -------------------------------------------------------------------------- */
+
+        $permisoPadre=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permissions.description AS DESCRIPCION, permisos_tiene_permisos.ID'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PP')
+            ->groupBy('permisos_tiene_permisos.ID_PP')
+            ->orderByRaw('SUBSTRING_INDEX(permissions.description,"ar","-1")')
+            ->get();
+
+           
+
+        $permisoPadre_Hijo=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permisos_tiene_permisos.ID_PH AS IDH, permissions.description AS DESCRIPCION'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PH')
+            ->groupBy('permisos_tiene_permisos.ID_PH') 
+            ->get()
+            ->toArray();
+
+        $permisoPadre_Hijo_Nieto=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permisos_tiene_permisos.ID_PH AS IDH , permisos_tiene_permisos.ID_PN AS IDN, permissions.description AS DESCRIPCION'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PN')
+            ->where('permisos_tiene_permisos.ID_PN', '<>', 0) 
+            ->get()
+            ->toArray();
+             
 
         
         /* -------------------------------------------------------------------------- */
 
         // DEVOLVER PERMISOS 
         
-             return ["permisos"=>$permissions];
+             return ["permisos"=>$permisoPadre, "permisosHijo"=>$permisoPadre_Hijo,  "permisosNieto"=>$permisoPadre_Hijo_Nieto];
 
         /* -------------------------------------------------------------------------- */
     }
