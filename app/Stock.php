@@ -2774,7 +2774,7 @@ class Stock extends Model
                         // RESTAR A CANTIDAD LO QUE SE RESTO DE LOTE DE SIMULACION
 
                              $cantidad_existente = $cantidad_existente - $value->CANTIDAD;
-
+                              $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>0,"EXISTE"=>true,"VALIDAR_DESCUENTO"=>false);
                        
                           /*  --------------------------------------------------------------------------------- */                       
 
@@ -2797,7 +2797,7 @@ class Stock extends Model
 
                         // CERAR CANTIDAD_EXISTENTE
                         $value->CANTIDAD=$value->CANTIDAD-$cantidad_existente;
-
+                        $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad_existente,"DESCUENTO"=>0,"EXISTE"=>true,"VALIDAR_DESCUENTO"=>false);
                         $cantidad_existente = 0;
 
                         /*  --------------------------------------------------------------------------------- */
@@ -2820,7 +2820,9 @@ class Stock extends Model
                         // CARGAR AL ATRRAY
                           $descuento=LoteTieneDescuento::Select(DB::raw('IFNULL(DESCUENTO,0) AS DESCUENTO'))->where('FK_LOTE','=',$value->ID)->where('FECHA_FIN','>=' ,$dia)->get();
                           if(count($descuento)>0){
-                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>$descuento[0]->DESCUENTO);
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>$descuento[0]->DESCUENTO,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>true);
+                          }else{
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>0,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>false);
                           }
                         
                       
@@ -2857,7 +2859,9 @@ class Stock extends Model
                         if($cantidad>0){
                              $descuento=LoteTieneDescuento::Select(DB::raw('IFNULL(DESCUENTO,0) AS DESCUENTO'))->where('FK_LOTE','=',$value->ID)->where('FECHA_FIN','>=',$dia)->get();
                           if(count($descuento)>0){
-                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad,"DESCUENTO"=>$descuento[0]->DESCUENTO);
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad,"DESCUENTO"=>$descuento[0]->DESCUENTO,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>true);
+                          }else{
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad,"DESCUENTO"=>0,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>false);
                           }
                         }
                          

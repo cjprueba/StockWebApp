@@ -6619,7 +6619,9 @@ function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta
 
 			tabla.rows().every(function(){
 				var data = this.data();
-				if(data['CODIGO'] === codigo && data['TIPO'] !== 3 && data['TIPO_DESCUENTO']!==7){
+				console.log(tipo_descuento);
+				if(data['CODIGO'] === codigo && data['TIPO'] !== 3 && tipo_descuento!==7 && data['TIPO_DESCUENTO']!==7){
+					
 						if (tipo_respuesta === 1) {
 				    		valor = { 'respuesta': true };
 				    	} else if (tipo_respuesta === 2) {
@@ -6651,7 +6653,8 @@ function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta
 				    			'row': tabla.row( this )
 				    		};
 				    	}
-				}else if (data['CODIGO'] === codigo && data['TIPO'] !== 3 && data['DESCUENTO']===descuento &&  data['TIPO_DESCUENTO']===7) {
+				}else if (data['CODIGO'] === codigo && data['TIPO'] !== 3 && data['DESCUENTO']===descuento &&  tipo_descuento===7 && data['TIPO_DESCUENTO']===7) {
+
 				    	if (tipo_respuesta === 1) {
 				    		valor = { 'respuesta': true };
 				    	} else if (tipo_respuesta === 2) {
