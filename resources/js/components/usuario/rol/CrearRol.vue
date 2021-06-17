@@ -59,7 +59,7 @@
                     <div class="col-12">
                       <hr>
 
-                      <h5>Lista de siuuuuu</h5> 
+                      <h5>Lista de permisos</h5> 
 
 
 
@@ -246,9 +246,27 @@
 
                 me.deshabilitar=true;
                 me.permisos.map(function(x) {
-                   me.permisosSelected.push(x.id);
+                   me.permisosSelected.push(x.IDP);
+
                 });
 
+                me.permisosHijo.map(function(x) {
+                  if (me.permisosSelected.includes(x.IDH) === false) { 
+
+                    //Guarda en el Array
+                     me.permisosSelected.push(x.IDH);
+                  }
+                  
+
+                });
+
+                me.permisosNieto.map(function(x) {
+                  if (me.permisosSelected.includes(x.IDN) === false) { 
+
+                    //Guarda en el Array
+                     me.permisosSelected.push(x.IDN);
+                  }
+                });
 
           }else{
 

@@ -255,6 +255,9 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
     }
 
+
+
+
         public static function guardar_rol($datos)
     {
 
@@ -283,6 +286,11 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
 
     }
+
+
+
+
+
             public static function asignar_rol($datos)
     {
 
@@ -313,15 +321,55 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
 
         //BUSCAR USUARIO 
+        try{
+            DB::connection('retail')->beginTransaction();
+            $user = User::find($datos['id']); 
+            $permisos_rol= DB::connection('retail')
+                                ->table('role_has_permissions')
+                                ->get()
+                                ->toArray();
+            $a_permisos=array();
+            $permisos_usuarios = DB::connection('retail')
+                    ->table('model_has_roles')
+                    ->select(DB::raw('model_has_roles.role_id AS id_rol, role_has_permissions.permission_id AS id_permiso '))
+                    ->leftjoin('role_has_permissions', 'role_has_permissions.role_id', '=', 'model_has_roles.role_id')
+                    ->where('model_id', '=', $user->id)
+                    ->get()
+                    ->toArray();
+            $encontrado=false;
+            if(count($permisos_usuarios)>0){
+                foreach ($datos['permisos'] as $key => $value1) {
+                    foreach ($permisos_usuarios as $key => $value2) {
+                        if($value1==$value2->id_permiso){
+                            $encontrado=true;
+                            break;
+                        }
 
-        $user = User::find($datos['id']); //Italo Morales
-        //$user->removeRole(Role::all());        
-        /* -------------------------------------------------------------------------- */
+                    }
+                    if(!$encontrado){
+                         $a_permisos[]=$value1;
+                  
+                    }      
+                    $encontrado=false;
+                }
+
+                $user->syncPermissions($a_permisos);
+            }else{
+                return["response"=>false,'statusText'=>"No se a detectado Roles para este usuario"];
+            }
+        }
+        catch(Exception $ex){
+            DB::connection('retail')->rollBack();
+            return ["response"=>false,'statusText'=>$ex->getMessage()];
+        }
+        
+
+        /* ------------------------------------------------------------------------- */
 
         // ASIGNAR ROL A USUARIO 
 
         // $user->assignRole($datos['roles']);
-        $user->syncPermissions($datos['permisos']);
+        
         /* -------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 

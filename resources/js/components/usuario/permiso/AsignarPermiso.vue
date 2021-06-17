@@ -23,9 +23,11 @@
               </div>      
                     <hr>
                     <div class="col-12">
+                    <br>
                        
 
                      <h5>Lista de permisos</h5>
+                       <hr>
 
                        
                
@@ -169,6 +171,13 @@
                      'Se ha guardado correctamente el rol !',
                      'success'
                   )
+               }else{
+                Swal.fire(
+                     '¡Error!',
+                      data.statusText,
+                      'warning'
+                  )
+
                }
            
                 
