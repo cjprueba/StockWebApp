@@ -2737,23 +2737,15 @@ $lotes= DB::connection('retail')
 
         if(count($producto) > 0) {
             $descuento_categoria = LineasDescuento::obtener_descuento($data["LINEA"], $user->id_sucursal);
-        }
 
-        /*  --------------------------------------------------------------------------------- */
+         /*  --------------------------------------------------------------------------------- */
 
-        // DESCUENTO MANUAL POR PRODUCTO
-
-        if(count($producto) > 0) {
-            if ($data["DESCUENTO"] > 0) {
-                $descuento_categoria = $data["DESCUENTO"];
-            }
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-        
-        // REVISAR DESCUENTO POR MARCA 
-
-        if(count($producto) > 0) {
+            // DESCUENTO MANUAL POR PRODUCTO
+                if ($data["DESCUENTO"] > 0) {
+                    $descuento_categoria = $data["DESCUENTO"];
+                }
+            /*  --------------------------------------------------------------------------------- */
+            // REVISAR DESCUENTO POR MARCA 
             $descuento_marca = MarcaAux::
             select(DB::raw('DESCUENTO, FECHAINI, FECHAFIN'))
             ->where('CODIGO_MARCA', '=', $data["MARCA"])
@@ -2781,10 +2773,18 @@ $lotes= DB::connection('retail')
                         $descuento_marca = false;
                     }
              }
-           
-
             /*  --------------------------------------------------------------------------------- */
+             // REVISAR DESCUENTO POR LOTE DE ALIMENTOS
+                if($producto[0]->LINEA==34){
+                     $descuento_lote= Stock::restar_stock_producto_verificacion($dato["codigo"],$dato["cantidad"],$dato["cantidad_existente"]);
+                 }else{
+                     $descuento_lote=false;
+                 }
+              
         }
+
+
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2798,7 +2798,7 @@ $lotes= DB::connection('retail')
         // RETORNAR VALOR 
 
         if (count($producto) > 0) {
-            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"]];
+            return ["response" => true, "producto" => $data, "descuento_marca" => $descuento_marca, "descuento_categoria" => $descuento_categoria, 'imagen' => $imagen["imagen"],"descuento_lote"=>$descuento_lote];
         } else {
             return ["response" => false];
         }

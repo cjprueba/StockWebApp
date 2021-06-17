@@ -26,11 +26,11 @@ class LoteTieneDescuento extends Model{
 
            	// OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
-           	$user = auth()->user();
+          $user = auth()->user();
          	$errorText = [];
     			$data = array();	
     			$datos = $dato["data"]["descuento"];
-    			
+    			$dia = date("Y-m-d");
            /*  --------------------------------------------------------------------------------- */
 
            // CARGAR DETALLE DE TRANSFERENCIA DET 
@@ -46,13 +46,14 @@ class LoteTieneDescuento extends Model{
 
                	$obtenerDescuento = LoteTieneDescuento::select('DESCUENTO')
 	               	->where('FK_LOTE', '=', $value["LOTE_ID"])
+                  ->where('FECHA_FIN','>=' ,$dia)
 	               	->get()
 	               	->toArray();
                		
                	if(count($obtenerDescuento)==0){
 	               			
 		        			$inicio = date('Y-m-d', strtotime($value["FECHA_INICIO"]));
-		       		 	$final = date('Y-m-d', strtotime($value["FECHA_FINAL"]));
+		       		 	  $final = date('Y-m-d', strtotime($value["FECHA_FINAL"]));
 		       		 	
 	                  $loteDescuento = LoteTieneDescuento::insert([
 	                  	'FK_LOTE' => $value["LOTE_ID"],

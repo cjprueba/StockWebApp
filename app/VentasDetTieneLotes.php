@@ -17,7 +17,7 @@ class VentasDetTieneLotes extends Model
     /*  --------------------------------------------------------------------------------- */
 
 
-    public static function guardar_referencia($id_vd, $id_lote, $cantidad)
+    public static function guardar_referencia($id_vd, $id_lote, $cantidad,$id_descuento_lote)
     {
 
     	/*  --------------------------------------------------------------------------------- */
@@ -28,7 +28,8 @@ class VentasDetTieneLotes extends Model
             [
                 'ID_VENTAS_DET' => $id_vd,
                 'ID_LOTE' => $id_lote,
-                'CANTIDAD' => $cantidad
+                'CANTIDAD' => $cantidad,
+                'ID_DESCUENTO_LOTE'=>$id_descuento_lote
             ]
         );
 
