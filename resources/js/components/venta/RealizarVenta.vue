@@ -1038,7 +1038,8 @@
          		IVA: 0,
          		IMPUESTO: 0,
          		CODIGO_REAL: '',
-         		DESCUENTO_CATEGORIA: 0
+         		DESCUENTO_CATEGORIA: 0,
+         		DESCUENTO_REEMPLAZADO:0
          	},
          	validar: {
          		COD_PROD: false,
@@ -1698,6 +1699,7 @@
   				 if (productoExistente.respuesta == true) {
   				 	
   				 		cantidadExistente = parseFloat(productoExistente.cantidad);
+  				 		/*console.log("ptm funciona pues");*/
   				 }
 	            // ------------------------------------------------------------------------
 
@@ -1866,29 +1868,38 @@
 						if(data.descuento_lote!==false){
 							//AUXILIAR DESCUENTO_LOTE_VALIDAR PARA UTILIZAR EN AGREGARPRODUCTO
 							me.descuento_lote_validar=true;
-							//PONEMOS EN FALSE EL MAYORISTA AUTOMATICO PARA QUE RESPETE EL DESCUENTO POR LOTE.
-							me.checked.MAYORISTA_AUT=false;
 							//RECORRIDO DE LOS LOTES CON SU DESCUENTO Y SU PORCENTAJE
 							me.descuento_lote=data.descuento_lote.datos;
-							me.cantidad_restante=me.producto.CANTIDAD;
+					         //SI ANTERIORMENTE SE TIENE DESCUENTO POR MARCA O POR CATEGORIA O EL CAJERO PUSO EL DESCUENTO MANUALMENTE SE GUARDA EN UN AUXILIAR
+					         //PARA RESPETAR EL DESCUENTO POR LOTE (SOLO SI POSEE) 	
+							me.producto.DESCUENTO_REEMPLAZADO=me.producto.DESCUENTO;
 								me.descuento_lote.map(function(x){
-								me.producto.DESCUENTO=x.DESCUENTO;
-								me.producto.CANTIDAD=x.CANTIDAD;
-								me.cantidad_restante=me.cantidad_restante-x.CANTIDAD;
-								me.producto.TIPO_DESCUENTO = 7;
-								me.agregarProducto();
+									
+									if(!x.EXISTE){
+										if(x.VALIDAR_DESCUENTO){
+											//PONEMOS EN FALSE EL MAYORISTA AUTOMATICO PARA QUE RESPETE EL DESCUENTO POR LOTE.
+											me.checked.MAYORISTA_AUT=false;
+											me.producto.DESCUENTO=x.DESCUENTO;
+											me.producto.CANTIDAD=x.CANTIDAD;
+											me.producto.TIPO_DESCUENTO = 7;
+											me.agregarProducto();
+										}else{
+											console.log("entre aca");
+											me.checked.MAYORISTA_AUT=true;
+											me.producto.DESCUENTO=me.producto.DESCUENTO_REEMPLAZADO;
+											me.producto.CANTIDAD=x.CANTIDAD;
+											me.producto.TIPO_DESCUENTO = 0;
+											me.agregarProducto();
+										}
+									}
+								
 							});
 								
 								
 								//SI SOLO ALGUNOS LOTES TIENEN CANTIDAD PERO SOBRO LOS QUE NO, SEPARAR EN EL DATATABLE.
 								me.descuento_lote_validar=false;
 							    me.checked.MAYORISTA_AUT=true;
-								if(me.cantidad_restante>0){
-									me.producto.DESCUENTO=0;
-									me.producto.CANTIDAD=me.cantidad_restante;
-									me.producto.TIPO_DESCUENTO = 0;
-									me.agregarProducto();
-								}
+
 
 								//UNA VEZ QUE TERMINE DE RECORRER TODOS LOS LOTES CON CANTIDADES RESTANTES Y LOS QUE NO TIENEN DESCUENTO (SI NO TIENEN DESCUENTO) SE COMIENZA LA LIMPIEZA DE LAS VARIABLES
 								me.inivarAgregarProducto();
@@ -2106,9 +2117,12 @@
 	            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
 	            // LA OPCION 3 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO COMPARANDO SU PORCENTAJE Y SOLO FUNCIONARA SI EL DESCUENTO_LOTE_VALIDAR ES TRUE
 	            if(me.descuento_lote_validar){
-	            	productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 3,descuento);
+	            	productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 3,descuento,me.producto.TIPO_DESCUENTO);
+	            	
 	            }else{
-	            	 productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 2,0);
+
+	            	 productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 2,0,me.producto.TIPO_DESCUENTO);
+	            	
 	            }
 
 	           
