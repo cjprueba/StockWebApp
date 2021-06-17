@@ -411,6 +411,8 @@
 				                        <th>Precio Mayorista</th>
 				                        <th>Descuento Unitario</th>
 				                        <th>Tipo</th>
+				                        <th>Id</th>
+				                        <th>Tipo Descuento</th>
 				                    </tr>
 				                </thead>
 				                <tbody>
@@ -433,6 +435,8 @@
 					                	<th></th>
 					                	<th></th>
 					                	<th></th>
+					                	<th></th>
+					                    <th></th>
 					                	<th></th>
 				                	</tr>
 				                </tfoot>	
@@ -1127,7 +1131,10 @@
          		SINCOTIZACION: ''
          	},
          	mayorista: true,
-         	permiso: false
+         	permiso: false,
+         	descuento_lote:[],
+         	descuento_lote_validar:false,
+         	cantidad_restante:0
 
         }
       }, 
@@ -1668,14 +1675,30 @@
       			// ------------------------------------------------------------------------
 
       		},
-            cargarProductos(codigo) {
+/*		  	async ExistenProductos (tableVenta,codigo,tipo){
+	      			var productoExistentes = [];
+	      			productoExistentes =  await Common.existenProductosDataTableCommon(tableVenta, codigo, tipo);
+	      			return productoExistentes;
+      		},*/
+           async cargarProductos(codigo) {
         	
 	            // ------------------------------------------------------------------------
 
 	            // INICIAR VARIABLES
 
 	            let me = this;
+	            var tableVenta = $('#tablaVenta').DataTable();
+	        	var productoExistente = [];
+	        	var cantidadExistente = 0;
 
+
+				productoExistente =  await Common.existenProductosDataTableCommon(tableVenta, codigo, 2);
+  				
+  				
+  				 if (productoExistente.respuesta == true) {
+  				 	
+  				 		cantidadExistente = parseFloat(productoExistente.cantidad);
+  				 }
 	            // ------------------------------------------------------------------------
 
 	            // CONTROLAR SI HAY DATOS EN EL TEXTBOX Y RETORNAR SI NO EXISTE DATO
@@ -1692,6 +1715,15 @@
 		        if (codigo.substring(0, 1) === "+" && me.caja.CANTIDAD_PERSONALIZADA === 1) {
 
 		        	me.producto.CANTIDAD = codigo.substring(1, 20);
+		        	// ------------------------------------------------------------------------
+		        	//SI LA CANTIDAD ES 0 ENTONCES PONER DE VUELTA 1 PARA EVITAR PROBLEMAS EN EJECUCION POSTERIORES.
+		        	if(me.producto.CANTIDAD==='0'){
+		        	
+		        		me.producto.CANTIDAD=1;
+		   
+		        	}
+		        	// ------------------------------------------------------------------------
+
 		        	me.producto.COD_PROD = '';
 		        	return;
 
@@ -1777,7 +1809,11 @@
 
 	            // CONSULTAR PRODUCTO CON LOTE 
 
-	            Common.obtenerProductoPOSCommon(codigo, me.moneda.CODIGO).then(data => {
+
+  			
+
+
+	            Common.obtenerProductoPOSCommon(codigo, me.moneda.CODIGO,parseFloat(me.producto.CANTIDAD),cantidadExistente).then(data => {
 
 	            	if (data.response  === true) {
 
@@ -1807,6 +1843,7 @@
 		            	me.producto.IVA = data.producto.IMPUESTO;
 		            	me.producto.CODIGO_REAL = data.producto.CODIGO_REAL;
 		            	me.producto.DESCUENTO_CATEGORIA = data.producto.DESCUENTO_CATEGORIA;
+		            	me.producto.TIPO_DESCUENTO = 0;
 
 						// ------------------------------------------------------------------------
 
@@ -1816,7 +1853,7 @@
 
 						// ------------------------------------------------------------------------
 
-						// DESCUENTO POR MARCA O CATEGORIA
+						// DESCUENTO POR MARCA O CATEGORIA O LOTE
 
 						if (data.descuento_marca !== false && me.checked.DESCUENTO === true) {
 							me.producto.DESCUENTO = data.descuento_marca.DESCUENTO;
@@ -1825,12 +1862,50 @@
 							me.producto.DESCUENTO = data.descuento_categoria;
 							me.producto.TIPO_DESCUENTO = 6;
 						}
+						//SI EL DESCUENTO POR LOTE NO ES FALSO COMIENZA A INSERTAR EN EL DATATABLE POR LOTE
+						if(data.descuento_lote!==false){
+							//AUXILIAR DESCUENTO_LOTE_VALIDAR PARA UTILIZAR EN AGREGARPRODUCTO
+							me.descuento_lote_validar=true;
+							//PONEMOS EN FALSE EL MAYORISTA AUTOMATICO PARA QUE RESPETE EL DESCUENTO POR LOTE.
+							me.checked.MAYORISTA_AUT=false;
+							//RECORRIDO DE LOS LOTES CON SU DESCUENTO Y SU PORCENTAJE
+							me.descuento_lote=data.descuento_lote.datos;
+							me.cantidad_restante=me.producto.CANTIDAD;
+								me.descuento_lote.map(function(x){
+								me.producto.DESCUENTO=x.DESCUENTO;
+								me.producto.CANTIDAD=x.CANTIDAD;
+								me.cantidad_restante=me.cantidad_restante-x.CANTIDAD;
+								me.producto.TIPO_DESCUENTO = 7;
+								me.agregarProducto();
+							});
+								
+								
+								//SI SOLO ALGUNOS LOTES TIENEN CANTIDAD PERO SOBRO LOS QUE NO, SEPARAR EN EL DATATABLE.
+								me.descuento_lote_validar=false;
+							    me.checked.MAYORISTA_AUT=true;
+								if(me.cantidad_restante>0){
+									me.producto.DESCUENTO=0;
+									me.producto.CANTIDAD=me.cantidad_restante;
+									me.producto.TIPO_DESCUENTO = 0;
+									me.agregarProducto();
+								}
+
+								//UNA VEZ QUE TERMINE DE RECORRER TODOS LOS LOTES CON CANTIDADES RESTANTES Y LOS QUE NO TIENEN DESCUENTO (SI NO TIENEN DESCUENTO) SE COMIENZA LA LIMPIEZA DE LAS VARIABLES
+								me.inivarAgregarProducto();
+								this.producto.COD_PROD = '';
+		        				this.$refs.compontente_codigo_producto.vaciarDevolver();
+
+						}else{
+							me.descuento_lote_validar=data.descuento_lote;
+							me.descuento_lote=[];
+							me.agregarProducto();
+						}
 
 						// ------------------------------------------------------------------------
 
 						// AGREGAR PRODUCTO 
 
-						me.agregarProducto();
+						
 
 						// ------------------------------------------------------------------------
 
@@ -1989,9 +2064,9 @@
 
 	            // ------------------------------------------------------------------------
 
-	            // VACIAR TEXTBOX AGREGAR PRODUCTO
-
-	            me.inivarAgregarProducto();
+	            // VACIAR TEXTBOX AGREGAR PRODUCTO SI NO EXISTE DESCUENTO_POR_LOTE
+	            if(!me.descuento_lote_validar){
+	            	  me.inivarAgregarProducto();
 
 	            // ------------------------------------------------------------------------
 
@@ -2009,6 +2084,9 @@
 		        this.$refs.compontente_codigo_producto.vaciarDevolver();
 
 		        // ------------------------------------------------------------------------
+	            }
+
+	          
 
 	        }, agregarFilaTabla(codigo, descripcion, lote, descuento, cantidad, impuesto, precio, precio_total, iva, descuento_total, codigo_real, premayorista, descuento_unitario, tipo, rowClass){
 
@@ -2026,8 +2104,14 @@
 	            // REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
 	            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
 	            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+	            // LA OPCION 3 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO COMPARANDO SU PORCENTAJE Y SOLO FUNCIONARA SI EL DESCUENTO_LOTE_VALIDAR ES TRUE
+	            if(me.descuento_lote_validar){
+	            	productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 3,descuento);
+	            }else{
+	            	 productoExistente = Common.existeProductoConDescuentoDataTableCommon(tableVenta, codigo, 2,0);
+	            }
 
-	            productoExistente = Common.existeProductoDataTableCommon(tableVenta, codigo, 2);
+	           
 	           	
 	            if (productoExistente.respuesta == true && tipo !== 2) {
 
@@ -2104,7 +2188,8 @@
 			                    "CODIGO_REAL": codigo_real,
 			                    "PREMAYORISTA": premayorista,
 			                    "DESCUENTO_UNITARIO": descuento_unitario,
-			                    "TIPO": tipo
+			                    "TIPO": tipo,
+			                    "TIPO_DESCUENTO":me.producto.TIPO_DESCUENTO
 			                } ] )
 			     .draw()
 			     .nodes()
@@ -2565,7 +2650,8 @@
 				                    "CODIGO_REAL": 0,
 				                    "PREMAYORISTA": 0,
 				                    "DESCUENTO_UNITARIO": 0,
-				                    "TIPO": 4
+				                    "TIPO": 4,
+				                    "TIPO_DESCUENTO":0
 				                } ] )
 					     .draw()
 					     .nodes()
@@ -2923,7 +3009,8 @@
                             { "data": "PREMAYORISTA" },
                             { "data": "DESCUENTO_UNITARIO" },
                             { "data": "TIPO" },
-                            { "data": "ID" }
+                            { "data": "ID" },
+                            { "data": "TIPO_DESCUENTO"}
                         ],
                         "columnDefs": [
 				            {
@@ -2955,7 +3042,13 @@
 				                "targets": [ 16 ],
 				                "visible": false,
 				                "searchable": false
-				            }
+				            },
+				            {
+				                "targets": [ 17 ],
+				                "visible": false,
+				                "searchable": false
+				            },
+
 				        ],
 				        "order": [[ 0, "desc" ]],
                         "footerCallback": function(row, data, start, end, display) {
@@ -3282,7 +3375,8 @@
 				                    "CODIGO_REAL": 0,
 				                    "PREMAYORISTA": 0,
 				                    "DESCUENTO_UNITARIO": 0,
-				                    "TIPO": 3
+				                    "TIPO": 3,
+				                    "TIPO_DESCUENTO":0
 				                } ] )
 					     .draw()
 					     .nodes()
