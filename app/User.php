@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
+use App\PermisoTienePermisos;
 
 class User extends Authenticatable
 {
@@ -128,7 +129,7 @@ class User extends Authenticatable
 
         $permissions = [];
         foreach ($permisos as $permission) {
-            $permissions[] = $permission->name;
+            $permissions[] = $permission->id;
         }
         
         /* -------------------------------------------------------------------------- */
@@ -148,23 +149,24 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
           
         // DEFINIR ARRAY PERMISOS 
-         $rol =DB::table('roles')->SELECT(['id'])->Where([['name','=',$datos['id']]])->get()->toArray();
-if(count($rol)<=0){
-    return ["response"=>false];
-         }
-        $roles=Role::find($rol[0]->id );
-         $permisos=$roles->permissions()->get();
+         $rol =DB::table('roles')
+            ->SELECT(['id'])
+            ->Where([['name','=',$datos['id']]])
+            ->get()
+            ->toArray();
         
-        $permissions = [];
-        foreach ($permisos as $permission) { 
-            $permissions[] = $permission->name;
+        if(count($rol)<=0){
+            return ["response"=>false];
         }
         
-        /* -------------------------------------------------------------------------- */
-
+        $roles=Role::find($rol[0]->id );
+        $permisos=$roles->permissions()->get();
+         
+        $permissions = [];
+        foreach ($permisos as $permission) { 
+            $permissions[] = $permission->id;
+        }
         
-        /* -------------------------------------------------------------------------- */
-
         // DEVOLVER PERMISOS 
         
              return ["response"=>true,"roles"=>$roles,"permisos"=>$permissions];
@@ -205,26 +207,56 @@ if(count($rol)<=0){
         /* -------------------------------------------------------------------------- */
           
         // DEFINIR ARRAY PERMISOS 
-       $permisos =Permission::All();
+       // $permisos =Permission::All();
 
-        $permissions = [];
-        foreach ($permisos as $key => $permission) {
-            $permissions[$key]['id'] = $permission->name;
-            $permissions[$key]['name'] = $permission->description;
-        }
-       
+
+
+
+
+        //-------------------------------------------------------------------
+       // ->orderByRaw('SUBSTRING_INDEX(permissions.description,"ar","-1")')
         
         /* -------------------------------------------------------------------------- */
+
+        $permisoPadre=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permissions.description AS DESCRIPCION, permisos_tiene_permisos.ID'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PP')
+            ->groupBy('permisos_tiene_permisos.ID_PP')
+            ->orderByRaw('SUBSTRING_INDEX(permissions.description,"ar","-1")')
+            ->get();
+
+           
+
+        $permisoPadre_Hijo=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permisos_tiene_permisos.ID_PH AS IDH, permissions.description AS DESCRIPCION'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PH')
+            ->groupBy('permisos_tiene_permisos.ID_PH') 
+            ->get()
+            ->toArray();
+
+        $permisoPadre_Hijo_Nieto=DB::connection('retail')
+            ->table('permisos_tiene_permisos')
+            ->select(DB::raw('permisos_tiene_permisos.ID_PP AS IDP, permisos_tiene_permisos.ID_PH AS IDH , permisos_tiene_permisos.ID_PN AS IDN, permissions.description AS DESCRIPCION'))
+            ->leftjoin('permissions', 'permissions.id', '=', 'permisos_tiene_permisos.ID_PN')
+            ->where('permisos_tiene_permisos.ID_PN', '<>', 0) 
+            ->get()
+            ->toArray();
+             
 
         
         /* -------------------------------------------------------------------------- */
 
         // DEVOLVER PERMISOS 
         
-             return ["permisos"=>$permissions];
+             return ["permisos"=>$permisoPadre, "permisosHijo"=>$permisoPadre_Hijo,  "permisosNieto"=>$permisoPadre_Hijo_Nieto];
 
         /* -------------------------------------------------------------------------- */
     }
+
+
+
 
         public static function guardar_rol($datos)
     {
@@ -254,6 +286,11 @@ if(count($rol)<=0){
         /* -------------------------------------------------------------------------- */
 
     }
+
+
+
+
+
             public static function asignar_rol($datos)
     {
 
@@ -284,15 +321,55 @@ if(count($rol)<=0){
         /* -------------------------------------------------------------------------- */
 
         //BUSCAR USUARIO 
+        try{
+            DB::connection('retail')->beginTransaction();
+            $user = User::find($datos['id']); 
+            $permisos_rol= DB::connection('retail')
+                                ->table('role_has_permissions')
+                                ->get()
+                                ->toArray();
+            $a_permisos=array();
+            $permisos_usuarios = DB::connection('retail')
+                    ->table('model_has_roles')
+                    ->select(DB::raw('model_has_roles.role_id AS id_rol, role_has_permissions.permission_id AS id_permiso '))
+                    ->leftjoin('role_has_permissions', 'role_has_permissions.role_id', '=', 'model_has_roles.role_id')
+                    ->where('model_id', '=', $user->id)
+                    ->get()
+                    ->toArray();
+            $encontrado=false;
+            if(count($permisos_usuarios)>0){
+                foreach ($datos['permisos'] as $key => $value1) {
+                    foreach ($permisos_usuarios as $key => $value2) {
+                        if($value1==$value2->id_permiso){
+                            $encontrado=true;
+                            break;
+                        }
 
-        $user = User::find($datos['id']); //Italo Morales
-        //$user->removeRole(Role::all());        
-        /* -------------------------------------------------------------------------- */
+                    }
+                    if(!$encontrado){
+                         $a_permisos[]=$value1;
+                  
+                    }      
+                    $encontrado=false;
+                }
+
+                $user->syncPermissions($a_permisos);
+            }else{
+                return["response"=>false,'statusText'=>"No se a detectado Roles para este usuario"];
+            }
+        }
+        catch(Exception $ex){
+            DB::connection('retail')->rollBack();
+            return ["response"=>false,'statusText'=>$ex->getMessage()];
+        }
+        
+
+        /* ------------------------------------------------------------------------- */
 
         // ASIGNAR ROL A USUARIO 
 
         // $user->assignRole($datos['roles']);
-        $user->syncPermissions($datos['permisos']);
+        
         /* -------------------------------------------------------------------------- */
 
         // RETORNAR VALOR 

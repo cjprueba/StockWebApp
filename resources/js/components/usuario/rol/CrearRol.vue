@@ -55,19 +55,48 @@
   		             </div>
 
                    </div>
-  	 		     
 
-  	             
                     <div class="col-12">
-                    	 <hr>
+                      <hr>
 
-  	                 <h5>Lista de permisos</h5>
-                        
-  		             <div v-if="mostrarPermisos" v-for="permiso in permisos" class="form-check " >
-  		               	   <input v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }" class="form-check-input" type="checkbox" :value="permiso.id" :id="permiso.id" >
-  		               	   <label class="form-check-label" :for="permiso.id">{{permiso.name}}</label>
-  		             </div>
+                      <h5>Lista de permisos</h5> 
+
+
+
+    		              <ul>
+                          <li v-if="mostrarPermisos" v-for="permiso in permisos" class="form-check mt-4"> 
+                            <input class="form-check-input " type="checkbox" :value="permiso.IDP" :id='permiso.IDP' v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }">
+                            <label class="form-check-label font-weight-bold" :for="permiso.IDP">{{permiso.DESCRIPCION}}</label>
+
+
+                          
+                           
+                              <ul>  
+                                <li  v-if="(permisoH.IDP==permiso.IDP)"  v-for="permisoH in permisosHijo" class="form-check ml-2 mt-2 ">
+                                  <input class="form-check-input" type="checkbox" :value="permisoH.IDH" :id='permisoH.IDH' v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }">
+                                  <label class="form-check-label" :for="permisoH.IDH">{{permisoH.DESCRIPCION}}</label>
+
+
+                                
+                                    <ul>  
+                                      <li v-if="(permisoN.IDH==permisoH.IDH && permisoH.IDP==permiso.IDP)"  v-for="permisoN in permisosNieto" class="form-check ml-2 ">
+                                        <input class="form-check-input" type="checkbox" :value="permisoN.IDN" :id='permisoN.IDN' v-model="permisosSelected" :disabled="deshabilitar" v-bind:class="{ 'is-invalid': validarCheck }">
+                                        <label class="form-check-label font-weight-light" :for="permisoN.IDN">{{permisoN.DESCRIPCION}}</label>
+                                      </li>
+                                    </ul>
+                                  
+                              
+                                </li>
+                              </ul>
+                           
+                          
+                          </li>
+                        </ul>
+
                     </div>
+
+
+
 
                     <div v-if='guardar' class="col-12 mt-3 text-right">
                     	 <button v-on:click="guardarRol" type="submit" class="btn btn-primary">Guardar</button>
@@ -75,6 +104,7 @@
                      <div v-else class="col-12 mt-3 text-right">
                        <button v-on:click="guardarRol" type="submit" class="btn btn-warning">Actualizar</button>
                     </div>
+
   	            
 
                </div>
@@ -90,12 +120,14 @@
 
 </template>
 <script>
-	 export default {
+	export default {
       props: ['moneda'],
       data(){
         return {
           menu : 0,
           permisos:[],
+          permisosHijo:[],
+          permisosNieto:[],
           validarRol:false,
           radioPermisos:3,
           validarDescripcion:false,
@@ -114,13 +146,14 @@
         }
       }, 
       methods: {
-         traer_permisos(data){
+        traer_permisos(data){
 
            this.permisosSelected=data;
+           console.log(this.permisosSelected);
           
 
         },
-          existe(data){
+        existe(data){
           this.existeRol=data;
            if(data===false){
              this.guardar=true;
@@ -133,7 +166,7 @@
           
 
         },
-           traer_descripcion(data){
+        traer_descripcion(data){
           
          this.descripcionRol=data.description;
 
@@ -149,12 +182,22 @@
         },
       	llamarRoles(){
       		let me =this;
+          return new Promise((resolve, reject)=>{
+            setTimeout(()=>{
               Common.llamarPermisoCommon().then(data => {
               me.permisos=data.permisos;
+              me.permisosHijo=data.permisosHijo;
+              me.permisosNieto=data.permisosNieto;
               me.mostrarPermisos= true;
-           
-           			
-           		});
+              
+              console.log(me.permisosNieto);
+              resolve();
+                
+              });
+            },4000)
+
+          });
+
       	},
       	guardarRol(){
              let me =this;
@@ -196,35 +239,190 @@
                 this.mensaje = err;
               });
       	},
-       Accesos(){
-        let me =this;
-          
-         if(me.radioPermisos==="1"){
+        Accesos(){
+          let me =this;
+            
+          if(me.radioPermisos==="1"){
 
-              me.deshabilitar=true;
-              me.permisos.map(function(x) {
-                 me.permisosSelected.push(x.id);
-              });
+                me.deshabilitar=true;
+                me.permisos.map(function(x) {
+                   me.permisosSelected.push(x.IDP);
 
+                });
 
-         }else{
+                me.permisosHijo.map(function(x) {
+                  if (me.permisosSelected.includes(x.IDH) === false) { 
 
-          if(me.radioPermisos==="2"){
-             me.permisosSelected=[];
-             me.deshabilitar=true;
-          }else{ 
-            me.permisosSelected=[];
-            me.deshabilitar=false;
+                    //Guarda en el Array
+                     me.permisosSelected.push(x.IDH);
+                  }
+                  
 
-          }
+                });
 
-         }
-          
+                me.permisosNieto.map(function(x) {
+                  if (me.permisosSelected.includes(x.IDN) === false) { 
+
+                    //Guarda en el Array
+                     me.permisosSelected.push(x.IDN);
+                  }
+                });
+
+          }else{
+
+            if(me.radioPermisos==="2"){
+               me.permisosSelected=[];
+               me.deshabilitar=true;
+            }else{ 
+              me.permisosSelected=[];
+              me.deshabilitar=false;
+
+            }
+
+          }  
         }
          
        },
-        mounted() {
-           this.llamarRoles();
-        }
+      async mounted() {
+        await this.llamarRoles();
+        let me=this;
+        //Recorre todos los checksbox del Vue
+        $('input[type="checkbox"]').change(function(e) {
+         
+
+          //Guarda en checked las casillas checkeadas
+          var checked = $(this).prop("checked"),
+              container = $(this).parent(),
+              siblings = container.siblings();
+
+          //checkea todos los hijos del checkbox o simplemente individualmente
+          container.find('input[type="checkbox"]').prop({
+            indeterminate: false,
+            checked: checked
+          });
+
+          //Recorre todos los checkbox para poder incluir o eliminiar de nuestro Array de seleccion
+          container.find('input[type="checkbox"]').each(function() {
+
+            //si está chekeado 
+          if  ($(this).prop("checked"))  {
+             // Si no existe en nuestro Array de seleccion
+            if (me.permisosSelected.includes(parseInt($(this).closest('input').attr('id'))) === false) { 
+
+              //Guarda en el Array
+              me.permisosSelected.push(parseInt($(this).closest('input').attr('id')));
+            }
+
+          }else{
+              //si no está chekeado
+              //RECORREMOS NUESTRO ARRAY DE SELECCION
+              for (var i=0; i<me.permisosSelected.length; i++) { 
+                //Si exixste en nuestro Array
+                if(me.permisosSelected[i]===parseInt($(this).closest('input').attr('id'))){
+
+                   //Eliminar de nuestro Array
+                   me.permisosSelected.splice(i, 1); 
+                           i--;
+                }
+              }
+            } 
+        });
+
+
+        function checkSiblings(el) {
+            var parent = el.parent().parent(),
+            all = true;
+            console.log(el.siblings());
+            el.siblings().each(function() {
+              let returnValue = all = ($(this).children('input[type="checkbox"]').prop("checked") === checked);
+              // console.log(returnValue);
+
+              return returnValue;
+            });
+            
+            //Proceso para seleccionar todo los checkbox sin incluir en nuestro Array
+            console.log(all);
+            if (all && checked) {
+              // console.log("1ra parte");
+              console.log("parte 1");
+              parent.children('input[type="checkbox"]').prop({
+                indeterminate: false,
+                checked: checked
+              });
+              checkSiblings(parent);
+            }else if (all && !checked) {
+              //Proceo de desmarcación de los checkboxs individuales o con padres o con hijos
+              console.log("parte 2");
+              parent.children('input[type="checkbox"]').prop("checked", checked);
+               
+              parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
+
+
+              //Recorrer todos los checkboxs  
+              parent.children('input[type="checkbox"]').each(function(){
+
+                //Si indeterminado es falso
+               // console.log($(this).prop("indeterminate"));
+                if  (!$(this).prop("indeterminate")) {
+
+                    
+                    //Recorremos el array de selección
+                  for (var i=0; i<me.permisosSelected.length; i++) { 
+                  
+                    //Si exixste en nuestro Array
+                    if(me.permisosSelected[i]===parseInt($(this).closest('input').attr('id'))){
+
+                       //Eliminar de nuestro Array
+                       me.permisosSelected.splice(i, 1); 
+                               i--;
+                    }
+                  }
+                }
+              });
+              checkSiblings(parent);
+            }else{
+              console.log("parte 3");
+              
+                //Proceso de marcación de checkboxs padres Indeterminados
+              el.parents("li").children('input[type="checkbox"]').prop({
+                  indeterminate: true,
+                  checked: false
+
+              });
+
+              //Recorridos de todoa los checkboxs
+              el.parents("li").children('input[type="checkbox"]').each(function(){
+
+                //Si indeterminado es verdadero
+                if  ($(this).prop("indeterminate"))  {
+                        
+                        //Si no exixste en nuestro Array
+                  if (me.permisosSelected.includes(parseInt($(this).closest('input').attr('id'))) === false) { 
+
+                    //Guarda en el Array
+                    me.permisosSelected.push(parseInt($(this).closest('input').attr('id')));
+                  }
+                }else{
+
+                //si no está chekeado
+                  //RECORREMOS NUESTRO ARRAY DE SELECCION
+                  for (var i=0; i<me.permisosSelected.length; i++) {
+
+                    ///Si exixste en nuestro Array
+                    if(me.permisosSelected[i]===parseInt($(this).closest('input').attr('id'))){
+
+                       //Eliminar de nuestro Array
+                       me.permisosSelected.splice(i, 1); 
+                               i--;
+                    }
+                  }
+                }
+              });
+            }
+          }
+          checkSiblings(container);
+
+        }); 
+      }
     }
 </script>
