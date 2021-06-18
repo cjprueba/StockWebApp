@@ -1135,7 +1135,8 @@
          	permiso: false,
          	descuento_lote:[],
          	descuento_lote_validar:false,
-         	cantidad_restante:0
+         	cantidad_restante:0,
+         	mayoristaAutReemplazo: false
 
         }
       }, 
@@ -1699,7 +1700,7 @@
   				 if (productoExistente.respuesta == true) {
   				 	
   				 		cantidadExistente = parseFloat(productoExistente.cantidad);
-  				 		/*console.log("ptm funciona pues");*/
+  				 		
   				 }
 	            // ------------------------------------------------------------------------
 
@@ -1873,6 +1874,7 @@
 					         //SI ANTERIORMENTE SE TIENE DESCUENTO POR MARCA O POR CATEGORIA O EL CAJERO PUSO EL DESCUENTO MANUALMENTE SE GUARDA EN UN AUXILIAR
 					         //PARA RESPETAR EL DESCUENTO POR LOTE (SOLO SI POSEE) 	
 							me.producto.DESCUENTO_REEMPLAZADO=me.producto.DESCUENTO;
+							me.mayoristaAutReemplazo = me.checked.MAYORISTA_AUT;
 								me.descuento_lote.map(function(x){
 									
 									if(!x.EXISTE){
@@ -1884,8 +1886,8 @@
 											me.producto.TIPO_DESCUENTO = 7;
 											me.agregarProducto();
 										}else{
-											console.log("entre aca");
-											me.checked.MAYORISTA_AUT=true;
+											
+											me.checked.MAYORISTA_AUT=me.mayoristaAutReemplazo;
 											me.producto.DESCUENTO=me.producto.DESCUENTO_REEMPLAZADO;
 											me.producto.CANTIDAD=x.CANTIDAD;
 											me.producto.TIPO_DESCUENTO = 0;
