@@ -652,6 +652,8 @@ Route::get('nota/credito/obtener/credito/cliente', 'NotaCreditoController@obtene
 Route::get('nota/credito/mostrar', 'NotaCreditoController@mostrarNotaCredito');
 Route::post('nota/credito/cancelar', 'NotaCreditoController@cancelarNota');
 Route::get('credito/nota/producto/detalle', 'NotaCreditoController@CreditoNotaDetalle');
+Route::post('notaCreditoRptDatatable', 'NotaCreditoController@generarRptNota');
+
 
 /* -------------------------------------------------------------------------- */
 
