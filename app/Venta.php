@@ -2249,7 +2249,7 @@ class Venta extends Model
                         // INSERTAR DESCUENTO 
 
                         if ($descuento_porcentaje > 0  ) {
-                            Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod);
+                            Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod, $data["data"]["productos"][$c]["TIPO_DESCUENTO"]);
                         }
 
                         /*  --------------------------------------------------------------------------------- */

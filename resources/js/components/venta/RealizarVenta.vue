@@ -1846,7 +1846,8 @@
 		            	me.producto.IVA = data.producto.IMPUESTO;
 		            	me.producto.CODIGO_REAL = data.producto.CODIGO_REAL;
 		            	me.producto.DESCUENTO_CATEGORIA = data.producto.DESCUENTO_CATEGORIA;
-		            	me.producto.TIPO_DESCUENTO = 0;
+		           		/*console.log(me.producto.TIPO_DESCUENTO);*/
+		            	/*me.producto.TIPO_DESCUENTO = 0;*/
 
 						// ------------------------------------------------------------------------
 
