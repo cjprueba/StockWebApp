@@ -12,6 +12,7 @@ use App\NotaCreditoTieneLotes;
 use App\Parametro;
 use App\Common;
 use App\ProductosAux;
+use App\LoteTieneDescuento;
 
 class Stock extends Model
 {
@@ -2719,6 +2720,193 @@ class Stock extends Model
                     ->where('id_sucursal','=',$user->id_sucursal)
                     ->UPDATE(['STOCK_MIN'=>$stock_minimo]);
                   }
+
+    }
+        public static function restar_stock_producto_verificacion($codigo, $cantidad,$cantidad_existente)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES
+
+        $datos = [];
+        $valor = false;
+        $dia = date("Y-m-d");
+        /*  --------------------------------------------------------------------------------- */
+
+        while ($cantidad > 0) {
+
+            $stock = Stock::select(DB::raw('ID, CANTIDAD, LOTE'))
+            ->where('COD_PROD','=', $codigo)
+            ->where('CANTIDAD','>', 0)
+            ->where('ID_SUCURSAL','=',$user->id_sucursal)
+           /* ->limit(1)*/
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI STOCK ENCONTRO LOTES TODAVIA CON CANTIDAD 
+            // SINO ENCONTRO MAS STOCK SE TIENE EL WHILE 
+
+            if (count($stock) <= 0) {
+                break;
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // REVISAR SI CANTIDAD SUPERA A CANTIDAD LOTE 
+
+            foreach ($stock as $key => $value) {
+
+                if($cantidad_existente>0){
+
+                    if ($cantidad_existente > $value->CANTIDAD) {
+
+
+                      
+                        /*  --------------------------------------------------------------------------------- */
+                        // RESTAR A CANTIDAD LO QUE SE RESTO DE LOTE DE SIMULACION
+
+                             $cantidad_existente = $cantidad_existente - $value->CANTIDAD;
+                              $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>0,"EXISTE"=>true,"VALIDAR_DESCUENTO"=>false);
+                       
+                          /*  --------------------------------------------------------------------------------- */                       
+
+
+                        
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                       // PONER EN CERO EL LOTE PORQUE SUPERO CANTIDAD SIN RESTAR AL STOCK 
+
+                      
+                        $value->CANTIDAD=0;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    } else {
+                         
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CERAR CANTIDAD_EXISTENTE
+                        $value->CANTIDAD=$value->CANTIDAD-$cantidad_existente;
+                        $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad_existente,"DESCUENTO"=>0,"EXISTE"=>true,"VALIDAR_DESCUENTO"=>false);
+                        $cantidad_existente = 0;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+                    
+                }
+                    if ($cantidad > $value->CANTIDAD) {
+
+
+                      
+                        /*  --------------------------------------------------------------------------------- */
+                        // RESTAR A CANTIDAD LO QUE SE RESTO DE LOTE 
+                        if($value->CANTIDAD>0){
+                             $cantidad = $cantidad - $value->CANTIDAD;
+
+                       
+                          /*  --------------------------------------------------------------------------------- */
+
+                        // CARGAR AL ATRRAY
+                          $descuento=LoteTieneDescuento::Select(DB::raw('IFNULL(DESCUENTO,0) AS DESCUENTO'))->where('FK_LOTE','=',$value->ID)->where('FECHA_FIN','>=' ,$dia)->get();
+                          if(count($descuento)>0){
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>$descuento[0]->DESCUENTO,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>true);
+                          }else{
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $value->CANTIDAD,"DESCUENTO"=>0,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>false);
+                          }
+                        
+                      
+
+
+                        
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                       // PONER EN CERO EL LOTE PORQUE SUPERO CANTIDAD SIN RESTAR AL STOCK 
+
+                      
+                        $value->CANTIDAD=0;
+
+                        /*  --------------------------------------------------------------------------------- */
+                        }
+
+                            
+
+                    } else {
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // RESTAR CANTIDAD DE LOTE 
+                        
+                      /*  $restar =Stock::where('COD_PROD','=', $codigo)
+                        ->where('LOTE','=', $stock[0]->LOTE)
+                        ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                        ->update(['CANTIDAD' => DB::raw('CANTIDAD - '.$cantidad), 'USERM' => $user->name, 'FECMODIF' => $diaHora, 'HORMODIF' => $hora]);*/
+
+
+                        /*  --------------------------------------------------------------------------------- */
+                        // CARGAR AL ATRRAY
+                        if($cantidad>0){
+                             $descuento=LoteTieneDescuento::Select(DB::raw('IFNULL(DESCUENTO,0) AS DESCUENTO'))->where('FK_LOTE','=',$value->ID)->where('FECHA_FIN','>=',$dia)->get();
+                          if(count($descuento)>0){
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad,"DESCUENTO"=>$descuento[0]->DESCUENTO,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>true);
+                          }else{
+                             $datos[] = array ("ID_LOTE" => $value->ID, "CANTIDAD" => $cantidad,"DESCUENTO"=>0,"EXISTE"=>false,"VALIDAR_DESCUENTO"=>false);
+                          }
+                        }
+                         
+                        
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // CERAR CANTIDAD
+
+                        $cantidad = 0;
+                        break;
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                    }
+                
+
+            }
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR REFERENCIA USER 
+
+         /*   LoteUser::guardar_referencia($user->id, 2, $stock[0]->ID, $diaHora);*/
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+        
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR 
+        // SI LA CANTIDAD ES CERO SIGNIFICA QUE PUDO GUARDAR TODOS LOS LOTES 
+        // SI LA CANTIDAD ES MAYOR A CERO SIGNIFICA QUE NO PUDO GUARDAR TODA LA CANTIDAD
+
+        if ($cantidad === 0) {
+            return ["response" => true, "datos" => $datos,"restante"=>0];
+        } else {
+            return ["response" => false, "datos" => $datos, "restante" => $cantidad];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
 
     }
 }

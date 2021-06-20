@@ -169,9 +169,9 @@
                 // CAMBIAR TAMAÑO FUENTE 
 
                 $("#tablaModalProductos").css("font-size", 12);
-                tableProductos.columns.adjust()
+               /* tableProductos.columns.adjust()
                 .responsive.recalc()
-                .draw();
+                .draw();*/
 
                 // ------------------------------------------------------------------------
 

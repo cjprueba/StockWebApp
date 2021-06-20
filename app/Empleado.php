@@ -243,7 +243,7 @@ class Empleado extends Model
             ->where('FK_EMPLEADO', '=', $datos['data'])
             ->get();
             
-            return['empleado'=> $empleados, 'gondola' => $gondola, 'imagen'=> $imagen['imagen']];
+        return['empleado'=> $empleados, 'gondola' => $gondola, 'imagen'=> $imagen['imagen']];
     }
     public static function guardarEmpleado($datos){
 
@@ -300,7 +300,6 @@ class Empleado extends Model
 
             }else{
                 $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["data"]["imagen"]);
-                $datos = $datos["datos"];
 
                 if ($datos["imagen"] = "/images/SinImagen.png?343637be705e4033f95789ab8ec70808") {
                     $datos["imagen"] = "";

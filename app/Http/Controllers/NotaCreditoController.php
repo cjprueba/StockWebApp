@@ -73,4 +73,12 @@ class NotaCreditoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+
+    public function generarRptNota(Request $request){
+
+        $nota_credito = NotaCredito::notaCreditoRpt($request);
+        return response()->json($nota_credito);
+
+    }
 }

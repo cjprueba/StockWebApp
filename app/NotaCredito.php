@@ -15,6 +15,7 @@ use Luecano\NumeroALetras\NumeroALetras;
 use App\Events\OrdenCompletado;
 use App\Stock;
 use Illuminate\Support\Facades\Log;
+
 class NotaCredito extends Model
 {
     protected $connection = 'retail';
@@ -1974,5 +1975,186 @@ class NotaCredito extends Model
 
     }
 
+    public static function generarConsulta($data, $order, $dir){
+
+        $inicio = date('Y-m-d', strtotime($data['Inicio']));
+        $final = date('Y-m-d', strtotime($data['Final']));
+        $procesado = $data['Procesado'];
+        $sucursal = $data['Sucursal'];
+        $tipo = $data['Tipo'];
+        $cod_cliente = $data['Cliente'];
+        $caja = $data['Caja'];
+
+        $notaCredito = NotaCredito::select(
+                    DB::raw('NOTA_CREDITO.ID AS ID'),
+        			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+                    DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
+                    DB::raw('NOTA_CREDITO.FECALTAS AS FECHA'),
+                    DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
+                    DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
+                    DB::raw('NOTA_CREDITO.IVA AS IVA'),
+                    DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
+                    DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
+                    DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
+                    DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
+                    DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
+                    DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
+                ->leftJoin('CLIENTES', function($join){
+                                $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+                            })
+                ->whereBetween('NOTA_CREDITO.FECALTAS', [$inicio , $final])
+                ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
+                ->whereIn('NOTA_CREDITO.TIPO', $tipo)
+                ->whereIn('NOTA_CREDITO.PROCESADO', $procesado)
+                ->groupBy('NOTA_CREDITO.ID')
+                ->orderBy($order, $dir);
+        
+        if(!empty($cod_cliente)){
+
+            $notaCredito->where('NOTA_CREDITO.CLIENTE', '=', $cod_cliente);
+        }
+
+        if(!empty($caja) && $caja!='NaN'){
+
+            $notaCredito->where('NOTA_CREDITO.CAJA', '=', $caja);
+        }
+
+        $notaCredito = $notaCredito->get();
+
+        return $notaCredito;
+    }
+
+    public static function notaCreditoRpt($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 => 'NOTA_CREDITO.FECALTAS', 
+                            1 => 'NOTA_CREDITO.ID',
+                            2 => 'CLIENTES.NOMBRE',
+                            3 => 'NOTA_CREDITO.CAJA',
+                            4 => 'NOTA_CREDITO.NUMERO_FACTURA',
+                            5 => 'NOTA_CREDITO.FK_VENTA',
+                            6 => 'NOTA_CREDITO.FECALTAS',
+                            7 => 'NOTA_CREDITO.TIPO',
+                            8 => 'NOTA_CREDITO.PROCESADO',
+                            9 => 'NOTA_CREDITO.DESCUENTO_MONTO',
+                            10 => 'NOTA_CREDITO.IVA',
+                            11 => 'NOTA_CREDITO.SUB_TOTAL',
+                            12 => 'NOTA_CREDITO.TOTAL'
+                        );
+        
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $item = 1;
+
+        $datos = array(
+                'Sucursal' => $request->input('Sucursal'),
+                'Inicio' => date('Y-m-d', strtotime($request->input('Inicio'))),
+                'Final' => date('Y-m-d', strtotime($request->input('Final'))),
+                'Procesado' => $request->input('Procesado'),
+                'Tipo' => $request->input('Tipo'),
+                'Cliente' => $request->input('Cliente'),
+                'Caja' => $request->input('Caja'),
+            );
+    
+        /*  --------------------------------------------------------------------------------- */
+
+        //  CARGAR TODOS LOS DATOS ENCONTRADOS 
+
+
+        $posts = NotaCredito::generarConsulta($datos, $order, $dir);     
+
+
+        /*  ************************************************************ */
+
+        $moneda = $posts[0]->MONEDA;
+        $candec = (Parametro::candec($moneda))["CANDEC"];
+        $data = array();
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts)){
+            foreach ($posts as $post){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $cliente = mb_strtolower($post->CLIENTE);
+                $cliente = substr($cliente,0,27);
+                $nestedData['ITEM'] = $item;
+                $nestedData['ID'] = $post->ID;
+                $nestedData['CLIENTE'] = utf8_decode(utf8_encode(ucwords($cliente)));
+                $fecha = substr($post->FECHA,0,-9);
+                $nestedData['FECHA'] = $fecha;     
+                $nestedData['CAJA'] = $post->CAJA;
+                $nestedData['FK_VENTA'] = $post->FK_VENTA; 
+
+                if($post->PROCESADO == 0){
+                	$nestedData['PROCESADO'] = 'Pendiente';
+                }elseif($post->PROCESADO == 1){
+                	$nestedData['PROCESADO'] = 'Procesado';
+                }elseif ($post->PROCESADO == 2) {
+                	$nestedData['PROCESADO'] = 'Cancelado';
+                }
+
+                if($post->TIPO == 1){
+                	$nestedData['TIPO'] = 'Por Devolución';
+                }elseif($post->TIPO == 2){
+                	$nestedData['TIPO'] = 'Por Descuento de Venta';
+                }elseif ($post->TIPO == 3) {
+                	$nestedData['TIPO'] = 'Por Descuento de Mercadería';
+                }
+
+                $nestedData['IVA'] = Common::formato_precio($post->IVA, $candec);
+                $nestedData['DESCUENTO_MONTO'] = Common::formato_precio($post->DESCUENTO_MONTO, $candec);
+                $nestedData['SUBTOTAL'] = Common::formato_precio($post->SUBTOTAL, $candec);
+                $nestedData['TOTAL'] = Common::formato_precio($post->TOTAL, $candec);
+                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
+                $data[] = $nestedData;
+                $item = $item +1;
+
+                /*  --------------------------------------------------------------------------------- */
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($item),  
+                    "recordsFiltered" => intval($item), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
 }

@@ -447,6 +447,10 @@ export default new Router({
 			path: '/descLote',
 			component: require('./components/descuento/busqueda/DescuentoLote.vue').default
 		},
+    	{
+			path: '/rptNotaCre',
+			component: require('./components/reportes/creditoNota/NotaCreditoReporte.vue').default
+		},
 
 	],
 	mode: 'history'

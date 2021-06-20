@@ -30,6 +30,7 @@ use App\VentasTieneAutorizacion;
 use App\VentasCreditoTieneNotaCredito;
 use App\Movimiento_Caja;
 use DateTime;
+use App\LoteTieneDescuento;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Log;
@@ -2124,7 +2125,10 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // RECORRER VENTAS
-
+        
+            $items  = array_column( $data["data"]["productos"], 'ITEM');
+              array_multisort($items, SORT_ASC, $data["data"]["productos"]);
+              Log::error(["PRODUCTOS"=>$data["data"]["productos"]]);
             while($c < $filas) {
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2244,8 +2248,8 @@ class Venta extends Model
 
                         // INSERTAR DESCUENTO 
 
-                        if ($descuento_porcentaje > 0) {
-                            Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod);
+                        if ($descuento_porcentaje > 0  ) {
+                            Ventas_det_Descuento::guardar_referencia($descuento_porcentaje, $descuento, $id_ventas_det, $moneda, $cod_prod, $data["data"]["productos"][$c]["TIPO_DESCUENTO"]);
                         }
 
                         /*  --------------------------------------------------------------------------------- */
@@ -2257,7 +2261,13 @@ class Venta extends Model
                     // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
 
                     foreach ($respuesta_resta["datos"] as $key => $value) {
-                        VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"]);
+                        if($data["data"]["productos"][$c]["TIPO_DESCUENTO"]==7){
+                             $descuento=LoteTieneDescuento::Select(DB::raw('IFNULL(ID,0) AS ID'))->where('FK_LOTE','=',$value["id"])->where('FECHA_FIN','>=',$dia)->get();
+                             VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"],$descuento[0]->ID);
+                        }else{
+                             VentasDetTieneLotes::guardar_referencia($id_ventas_det, $value["id"], $value["cantidad"],0);
+                        }
+                        
                     }
                             
                     /*  --------------------------------------------------------------------------------- */
@@ -3524,7 +3534,7 @@ class Venta extends Model
 
         }
         // ORDENAR EL ARRAY EN BASE A LA NUMERACION DE ITEMS.
-          /*  --------------------------------------------------------------------------------- */
+        /*  --------------------------------------------------------------------------------- */
         array_multisort($item_array, SORT_ASC, $data);
 
         
@@ -5938,7 +5948,7 @@ class Venta extends Model
 
         // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
 
-        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)->where('VENTAS.TIPO','=','CO')->where('CAJA','=',$request->input('caja_numero'))->count();  
+        $totalData = Venta::leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')->where('id_sucursal','=',$user->id_sucursal)->where('FECALTAS','=',$dia)->Where('VENTAS_ANULADO.anulado','=',0)/*->where('VENTAS.TIPO','=','CO')*/->where('CAJA','=',$request->input('caja_numero'))->count();  
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 

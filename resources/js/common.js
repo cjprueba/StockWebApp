@@ -586,6 +586,7 @@ function existeProductoDataTableCommon(tabla, codigo, tipo_respuesta){
 				    			'stock': data['STOCK'],
 				    			'row': tabla.row( this )
 				    		};
+
 				    	} else if (tipo_respuesta === 3) {
 				    		// ESTA SECCION PERTENECE A COMPRA
 				    		valor = {
@@ -1109,7 +1110,7 @@ function obtenerProductoCompraCommon(codigo, moneda){
 }
 
 
-function obtenerProductoPOSCommon(codigo, moneda){
+function obtenerProductoPOSCommon(codigo, moneda,cantidad,cantidad_existente){
 
 			// ------------------------------------------------------------------------
 
@@ -1121,7 +1122,7 @@ function obtenerProductoPOSCommon(codigo, moneda){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/producto/POS', {'codigo': codigo, 'moneda': moneda}).then(function (response) {
+			return axios.post('/producto/POS', {'codigo': codigo, 'moneda': moneda,'cantidad':cantidad,'cantidad_existente':cantidad_existente}).then(function (response) {
 					return response.data;
 			});
 
@@ -6596,6 +6597,173 @@ function guardarLoteDescuentoCommon(data) {
 	});
 
 }
+function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta,descuento,tipo_descuento){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+        	var valor = { 'respuesta': false };
+
+        	// ------------------------------------------------------------------------
+
+        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+			tabla.rows().every(function(){
+				var data = this.data();
+				console.log(tipo_descuento);
+				if(data['CODIGO'] === codigo && data['TIPO'] !== 3 && tipo_descuento!==7 && data['TIPO_DESCUENTO']!==7){
+					
+						if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	} else if (tipo_respuesta === 3) {
+				    		// DEVUELVE LOS DATOS CON EL ROW ESPECIFICO DEL PRODUCTO CON EL DESCUENTO 
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	}
+				}else if (data['CODIGO'] === codigo && data['TIPO'] !== 3 && data['DESCUENTO']===descuento &&  tipo_descuento===7 && data['TIPO_DESCUENTO']===7) {
+
+				    	if (tipo_respuesta === 1) {
+				    		valor = { 'respuesta': true };
+				    	} else if (tipo_respuesta === 2) {
+				    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	} else if (tipo_respuesta === 3) {
+				    		// ESTA SECCION PERTENECE A COMPRA
+				    		valor = {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'costo': data['COSTO'],
+				    			'row': tabla.row( this )
+				    		}
+				    	} else if (tipo_respuesta === 3) {
+				    		// DEVUELVE LOS DATOS CON EL ROW ESPECIFICO DEL PRODUCTO CON EL DESCUENTO 
+				    		valor =  {
+				    			'respuesta': true,
+				    			'cantidad': data['CANTIDAD'],
+				    			'precio': data['PRECIO'],
+				    			'iva': data['IVA'],
+				    			'stock': data['STOCK'],
+				    			'row': tabla.row( this )
+				    		};
+				    	}
+				    	
+				    } 
+			});
+
+			// ------------------------------------------------------------------------
+
+			// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+			return valor;
+
+			// ------------------------------------------------------------------------
+
+}
+function existenProductosDataTableCommon(tabla, codigo, tipo_respuesta){
+
+			// ------------------------------------------------------------------------
+
+			// TIPO_RESPUESTO
+
+			// REVISAR SI EXISTE VALORES REPETIDOS EN TABLA TRANSFERENCIAS 
+            // LA OPCION 1 ES PARA DEVOLVER SOLO TRUE O FALSE SI EXISTE O NO
+            // LA OPCION 2 ES PARA DEVOLVER MAS DATOS DEL PRODUCTO 
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+			return new Promise((resolve,reject)=>{
+				setTimeout(()=>{
+					var valor = { 'respuesta': false };
+        			var cantidad=0;
+
+		        	// ------------------------------------------------------------------------
+
+		        	//	REVISAR SI PRODUCTO EXISTE EN DATATABLE 
+
+					tabla.rows().every(function(){
+						var data = this.data();
+						    if (data['CODIGO'] === codigo && data['TIPO'] !== 3) {
+						    	if (tipo_respuesta === 1) {
+						    		valor = { 'respuesta': true };
+						    	} else if (tipo_respuesta === 2) {
+						    		// ESTA SECCION PERTENECE A TRANSFERENCIA
+						    		cantidad=cantidad+data['CANTIDAD'];
+						    		valor =  {
+						    			'respuesta': true,
+						    			'cantidad': cantidad,
+						    			'precio': data['PRECIO'],
+						    			'iva': data['IVA'],
+						    			'stock': data['STOCK'],
+						    			'row': tabla.row( this )
+						    		};
+						    		
+						    	} else if (tipo_respuesta === 3) {
+						    		// ESTA SECCION PERTENECE A COMPRA
+						    		valor = {
+						    			'respuesta': true,
+						    			'cantidad': data['CANTIDAD'],
+						    			'costo': data['COSTO'],
+						    			'row': tabla.row( this )
+						    		}
+						    	}
+						    	
+						    } 
+					});
+
+					// ------------------------------------------------------------------------
+
+					// RETORNAR TRUE SI SE SE ENCONTRO CODIGO IGUAL O FALSE SI NO SE ENCONTRO NADA
+
+					resolve(valor);
+
+			// ------------------------------------------------------------------------
+				},100)
+			});
+
+        	
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6879,5 +7047,7 @@ export {
 		generarReporteVentaProveedorCommon,
 		generarReporteVentaGondolaCommon,
 		generarReporteSalidaProductosCommon,
-		guardarLoteDescuentoCommon
+		guardarLoteDescuentoCommon,
+		existeProductoConDescuentoDataTableCommon,
+		existenProductosDataTableCommon
 		};

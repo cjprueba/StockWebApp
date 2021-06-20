@@ -16,7 +16,7 @@ class Ventas_det_Descuento extends Model
     /*  --------------------------------------------------------------------------------- */
 
 
-    public static function guardar_referencia($porcentaje, $total, $id_vd, $id_moneda, $cod_prod)
+    public static function guardar_referencia($porcentaje, $total, $id_vd, $id_moneda, $cod_prod,$tipo_descuento)
     {
 
     	/*  --------------------------------------------------------------------------------- */
@@ -29,7 +29,8 @@ class Ventas_det_Descuento extends Model
                 'TOTAL' => $total,
                 'FK_VENTASDET' => $id_vd,
                 'FK_MONEDA' => $id_moneda,
-                'FK_COD_PROD' => $cod_prod
+                'FK_COD_PROD' => $cod_prod,
+                'TIPO_DESCUENTO'=>$tipo_descuento
             ]
         );
 
