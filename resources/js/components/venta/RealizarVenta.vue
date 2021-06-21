@@ -1136,7 +1136,8 @@
          	descuento_lote:[],
          	descuento_lote_validar:false,
          	cantidad_restante:0,
-         	mayoristaAutReemplazo: false
+         	mayoristaAutReemplazo: false,
+         	tipo_descuento_auxiliar:0
 
         }
       }, 
@@ -1692,6 +1693,9 @@
 	            var tableVenta = $('#tablaVenta').DataTable();
 	        	var productoExistente = [];
 	        	var cantidadExistente = 0;
+	        	if(me.producto.TIPO_DESCUENTO===undefined || me.producto.TIPO_DESCUENTO===null){
+	        		me.producto.TIPO_DESCUENTO=0;
+	        	}
 
 
 				productoExistente =  await Common.existenProductosDataTableCommon(tableVenta, codigo, 2);
@@ -1876,7 +1880,8 @@
 					         //PARA RESPETAR EL DESCUENTO POR LOTE (SOLO SI POSEE) 	
 							me.producto.DESCUENTO_REEMPLAZADO=me.producto.DESCUENTO;
 							me.mayoristaAutReemplazo = me.checked.MAYORISTA_AUT;
-								me.descuento_lote.map(function(x){
+							me.tipo_descuento_auxiliar=me.producto.TIPO_DESCUENTO;
+							me.descuento_lote.map(function(x){
 									
 									if(!x.EXISTE){
 										if(x.VALIDAR_DESCUENTO){
@@ -1891,7 +1896,7 @@
 											me.checked.MAYORISTA_AUT=me.mayoristaAutReemplazo;
 											me.producto.DESCUENTO=me.producto.DESCUENTO_REEMPLAZADO;
 											me.producto.CANTIDAD=x.CANTIDAD;
-											me.producto.TIPO_DESCUENTO = 0;
+											me.producto.TIPO_DESCUENTO = me.tipo_descuento_auxiliar;
 											me.agregarProducto();
 										}
 									}
