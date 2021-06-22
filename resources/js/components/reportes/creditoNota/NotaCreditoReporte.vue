@@ -1,6 +1,6 @@
 <template>
 	<!-- REPORTE NOTAS DE CREDITO  -->
-	<div class="container" v-if="$can('reporte.venta')">
+	<div class="container" v-if="$can('reporte.notadecredito') && $can('reporte.web')">
 		<!-- INICIO DE TARJETA -->
 		<div class="col">
 		<div class="card mt-3 shadow border-bottom-primary" >

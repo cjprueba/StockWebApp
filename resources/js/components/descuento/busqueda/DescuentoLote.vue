@@ -1,5 +1,5 @@
 <template>
-	<div v-if="$can('producto.crear') && $can('producto')" class="container-fluid mt-3">
+	<div v-if="$can('producto.descuentolote') && $can('producto')" class="container-fluid mt-3">
 		<div class="row">
 
             <!-- --------------------------------------------- TITULO  ---------------------------------------- -->

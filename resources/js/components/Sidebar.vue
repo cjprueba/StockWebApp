@@ -71,6 +71,7 @@
               <router-link v-if="$can('reporte.productos')" class="collapse-item" :to="{name: 'rptProductoWeb'}">Productos</router-link>
               <router-link v-if="$can('reporte.transferencia')" class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
               <router-link v-if="$can('reporte.venta')" class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
+              <router-link v-if="$can('reporte.notadecredito')" class="collapse-item" :to="{name: 'notaDeCraeditoReporte'}">Nota de Credito</router-link>
             </div>
           </div>
         </li>
@@ -193,14 +194,79 @@
           <span>Movimientos</span>
         </a>
         <div id="collapseMovimientos" class="collapse" aria-labelledby="headingMovimientos" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
+          <div class="bg-white py-2 collapse-inner rounded" id="accordionMov">
             <h6 class="collapse-header">Opciones:</h6>
-            <router-link v-if="$can('movimientos.notadecredito')" class="collapse-item" :to="{name: 'notaCredito'}">Realizar Nota de Credito</router-link>
-            <router-link v-if="$can('movimientos.mostrarnotadecredito')" class="collapse-item" :to="{name: 'notaCreditoMostrar'}">Mostrar Nota de Credito</router-link>
-            <router-link v-if="$can('movimientos.salidadeproducto')" class="collapse-item" :to="{name: 'salidaProducto'}">Salida de Productos</router-link>
-            <router-link v-if="$can('movimientos.mostrarsalidadeproducto')" class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
-            <router-link v-if="$can('movimientos.prestamodeproductos')" class="collapse-item" :to="{name: 'prestarProducto'}">Préstamo de Productos</router-link>
-            <router-link v-if="$can('movimientos.mostrarprestamodeproductos')" class="collapse-item" :to="{name: 'prestamoMostrar'}">Mostrar Préstamos</router-link>
+
+            <a v-if="$can('movimientos.productosal')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductosMov" aria-expanded="true" aria-controls="collapseProductosMov" ><font-awesome-icon/>Salida de Productos</a>
+            <div id="collapseProductosMov" class="collapse bg-#ced4da"   aria-labelledby="headingProductosMov" data-parent="#accordionMov" >
+              <hr>
+              <router-link v-if="$can('movimientos.salidadeproducto')" class="collapse-item" :to="{name: 'salidaProducto'}">Realizar Salida</router-link>
+              <router-link v-if="$can('movimientos.mostrarsalidadeproducto')" class="collapse-item" :to="{name: 'salidaMostrar'}">Mostrar Salidas</router-link>
+              <hr>
+            </div>
+
+
+
+            <a v-if="$can('movimientos.productopres')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductoPres" aria-expanded="true" aria-controls="collapseProductoPres" ><font-awesome-icon />Préstamo de Productos</a>
+            <div id="collapseProductoPres" class="collapse bg-#ced4da"   aria-labelledby="headingProductoPres" data-parent="#accordionMov">
+              <hr>
+              <router-link v-if="$can('movimientos.prestamodeproductos')" class="collapse-item" :to="{name: 'prestarProducto'}">Realizar Préstamo</router-link>
+              <router-link v-if="$can('movimientos.mostrarprestamodeproductos')" class="collapse-item" :to="{name: 'prestamoMostrar'}">Mostrar Préstamos</router-link>
+              <hr>
+            </div>
+
+
+
+            <a v-if="$can('movimientos.nota')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseNotaDeCredito" aria-expanded="true" aria-controls="collapseNotaDeCredito" ><font-awesome-icon /> Nota de Credito</a>
+            <div id="collapseNotaDeCredito" class="collapse bg-#ced4da"   aria-labelledby="headingNotaDeCredito" data-parent="#accordionMov">
+              <hr>
+              <router-link v-if="$can('movimientos.notadecredito')" class="collapse-item" :to="{name: 'notaCredito'}">Realizar Nota</router-link>
+              <router-link v-if="$can('movimientos.mostrarnotadecredito')" class="collapse-item" :to="{name: 'notaCreditoMostrar'}">Mostrar Notas</router-link>
+              <hr>
+            </div>
+          </div>
+        </div>
+      </li>
+
+
+
+
+
+
+      <li v-if="$can('producto')" class="nav-item" >
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
+          <font-awesome-icon icon="tags"/>
+          <span>Productos</span>
+        </a>
+        <div id="collapseProdutos" class="collapse" aria-labelledby="headingProdutos" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded" >
+            <h6 class="collapse-header">Opciones:</h6>
+            <router-link v-if="$can('producto.mostrar')" class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
+            <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
+            <router-link v-if="$can('producto.descuentolote')" class="collapse-item" :to="{name: 'desccuentoLote'}">Descuento por lote</router-link>
+            <router-link v-if="$can('producto.etiquetas')" class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
+
+            <!-- <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link> -->
+             <!-- ATRIBUTOS -->
+            <a v-if="$can('atributos')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos" ><font-awesome-icon icon="sort-amount-down" /> Atributos</a>
+            
+
+            <div id="collapseAtributos" class="collapse bg-#ced4da" aria-labelledby="headingAtributos" >
+              
+
+
+                <hr>
+                <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
+                <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
+                <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
+                <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
+                <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
+                <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
+                <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
+                <hr>
+
+
+            </div>
           </div>
         </div>
       </li>
@@ -289,42 +355,7 @@
         </div>
       </li> -->
 
-      <li v-if="$can('producto')" class="nav-item" >
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProdutos" aria-expanded="true" aria-controls="collapseProdutos">
-          <font-awesome-icon icon="tags"/>
-          <span>Productos</span>
-        </a>
-        <div id="collapseProdutos" class="collapse" aria-labelledby="headingProdutos" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded" >
-            <h6 class="collapse-header">Opciones:</h6>
-            <router-link v-if="$can('producto.mostrar')" class="collapse-item" :to="{name: 'productoMostrar'}">Mostrar Productos</router-link>
-            <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoRegistrar'}">Registrar Productos</router-link>
-            <router-link v-if="$can('producto.etiquetas')" class="collapse-item" :to="{name: 'productoImprimir'}">Etiquetas</router-link>
-
-            <!-- <router-link v-if="$can('producto')" class="collapse-item" :to="{name: 'productoMostrarUno'}">Producto</router-link> -->
-             <!-- ATRIBUTOS -->
-            <a v-if="$can('atributos')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseAtributos" aria-expanded="true" aria-controls="collapseAtributos" ><font-awesome-icon icon="sort-amount-down" /> Atributos</a>
-            
-
-            <div id="collapseAtributos" class="collapse bg-#ced4da" aria-labelledby="headingAtributos" >
-              
-
-
-                <hr>
-                <router-link v-if="$can('marca.crear')" class="collapse-item" :to="{name: 'marcaCrear'}">Marca</router-link>
-                <router-link v-if="$can('categoria.crear')"  class="collapse-item" :to="{name: 'categoriaCrear'}">Categoria</router-link>
-                <router-link v-if="$can('subcategoria.crear')" class="collapse-item" :to="{name: 'subcategoriaCrear'}">SubCategoria</router-link>
-                <router-link v-if="$can('color.crear')" class="collapse-item" :to="{name: 'colorCrear'}">Color</router-link>
-                <router-link v-if="$can('talle.crear')" class="collapse-item" :to="{name: 'talleCrear'}">Talle</router-link>
-                <router-link v-if="$can('tela.crear')" class="collapse-item" :to="{name: 'telaCrear'}">Tela</router-link>
-                <router-link v-if="$can('atributo.crearnombre')" class="collapse-item" :to="{name: 'nombreCrear'}">Nombre</router-link>
-                <hr>
-
-
-            </div>
-          </div>
-        </div>
-      </li>
+      
 
 
       <!-- ------------------------------------------------------------------------------------- -->
