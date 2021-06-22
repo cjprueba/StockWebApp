@@ -445,10 +445,12 @@ export default new Router({
 		},
     	{
 			path: '/descLote',
+			name: 'desccuentoLote',
 			component: require('./components/descuento/busqueda/DescuentoLote.vue').default
 		},
     	{
 			path: '/rptNotaCre',
+			name: 'notaDeCraeditoReporte',
 			component: require('./components/reportes/creditoNota/NotaCreditoReporte.vue').default
 		},
 
