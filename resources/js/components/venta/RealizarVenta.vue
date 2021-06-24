@@ -1137,7 +1137,8 @@
          	descuento_lote_validar:false,
          	cantidad_restante:0,
          	mayoristaAutReemplazo: false,
-         	tipo_descuento_auxiliar:0
+         	tipo_descuento_auxiliar:0,
+         	descuento_precio_controlar:true
 
         }
       }, 
@@ -1898,8 +1899,11 @@
 											me.producto.CANTIDAD=x.CANTIDAD;
 											me.producto.TIPO_DESCUENTO = me.tipo_descuento_auxiliar;
 											me.agregarProducto();
+											me.descuento_precio_controlar=false;
+											console.log(me.producto.PREC_VENTA);
 										}
 									}
+
 								
 							});
 								
@@ -1907,7 +1911,7 @@
 								//SI SOLO ALGUNOS LOTES TIENEN CANTIDAD PERO SOBRO LOS QUE NO, SEPARAR EN EL DATATABLE.
 								me.descuento_lote_validar=false;
 							    me.checked.MAYORISTA_AUT=true;
-
+							    me.descuento_precio_controlar=true;
 
 								//UNA VEZ QUE TERMINE DE RECORRER TODOS LOS LOTES CON CANTIDADES RESTANTES Y LOS QUE NO TIENEN DESCUENTO (SI NO TIENEN DESCUENTO) SE COMIENZA LA LIMPIEZA DE LAS VARIABLES
 								me.inivarAgregarProducto();
@@ -2048,8 +2052,16 @@
 	            // ------------------------------------------------------------------------
 
 	            // DESCUENTO UNITARIO 
+	            if(me.descuento_precio_controlar){
+	            	 me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PREC_VENTA, me.moneda.DECIMAL);
+	            }else{
+	            	 me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(0, me.producto.PREC_VENTA, me.moneda.DECIMAL);
+	            }
+	           
+	           
+	            	
 
-	            me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PREC_VENTA, me.moneda.DECIMAL);
+	           
 
 	            // ------------------------------------------------------------------------
 
