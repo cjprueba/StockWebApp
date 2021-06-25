@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use App\Common;
 use App\Parametro;
-
+use Illuminate\Support\Facades\Log;
 class Cotizacion extends Model
 {
 
@@ -42,7 +42,7 @@ class Cotizacion extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        
+ 
 
         
 
@@ -50,6 +50,7 @@ class Cotizacion extends Model
 
         // TRAER LA COTIZACION DEL DIA
         if(isset($data['FK_VENTA'])){
+
             $cotizacion_final = NewCotizacion::
              select(DB::raw('COTIZACIONES.VALOR AS CAMBIO, FORMULAS_COTIZACION.FORMULA AS FORMULA'))
              ->leftjoin('VENTAS_TIENE_COTIZACION','VENTAS_TIENE_COTIZACION.FK_COTIZACION','=','COTIZACIONES.ID')
@@ -503,7 +504,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 1)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=',$hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
@@ -543,7 +543,6 @@ class Cotizacion extends Model
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 2)
             ->where('ID_SUCURSAL', '=', $user->id_sucursal)
-            ->where('FECHA','=', $hoy)
             ->orderBy('COTIZACIONES.ID','DESC')
             ->limit(1)
             ->get();
@@ -882,6 +881,7 @@ class Cotizacion extends Model
                $formula_reales = $reales[0]->FORMULA;
                $formula_reales_id = $reales[0]->ID;
                $formula_reales_reves = $formula_rs_reves[0]->FORMULA;
+               $formula_reales_reves_id= $formula_rs_reves[0]->ID;
             }
 
         /*  --------------------------------------------------------------------------------- */
