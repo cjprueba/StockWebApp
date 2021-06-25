@@ -4442,7 +4442,7 @@ function obtenerParametroCommon(){
 			// GUARDAR PERMISO
 
 			return axios.get('/parametro').then(function (response) {
-				console.log(response.data);
+				// console.log(response.data);
 					return response.data;
 				});
 

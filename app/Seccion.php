@@ -44,7 +44,7 @@ class Seccion extends Model
     	   
     	// OBTENER TODAS LAS SUCURSALES
 
-    	$seccion = Seccion::select(DB::raw('ID, DESCRIPCION, ID_SUCURSAL'))
+    	$seccion = Seccion::select(DB::raw('ID, DESCRIPCION, DESC_CORTA, ID_SUCURSAL'))
         ->where('ID', '=', $data['codigo'])
         ->get();
 
@@ -70,7 +70,8 @@ class Seccion extends Model
         $columns = array( 
                             0 => 'ID', 
                             1 => 'CODIGO',
-                            2 => 'DESCRIPCION'
+                            2 => 'DESCRIPCION',
+                            3 => 'DESC_CORTA'
                         );
         // CONTAR LA CANTIDAD DE SECCIONES ENCONTRADAS 
         $totalData = Seccion::
@@ -95,7 +96,7 @@ class Seccion extends Model
 
             //  CARGAR TODOS LAS SECCIONES ENCONTRADOS 
 
-            $posts = Seccion::select(DB::raw('ID, CODIGO, DESCRIPCION'))
+            $posts = Seccion::select(DB::raw('ID, CODIGO, DESCRIPCION, DESC_CORTA'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -117,11 +118,12 @@ class Seccion extends Model
 
             // CARGAR LAS SECCIONES FILTRADOS EN DATATABLE
 
-            $posts = Seccion::select(DB::raw('ID, CODIGO, DESCRIPCION'))
+            $posts = Seccion::select(DB::raw('ID, CODIGO, DESCRIPCION, DESC_CORTA'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
+                                      ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%")
+                                      ->orWhere('DESC_CORTA', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -134,7 +136,8 @@ class Seccion extends Model
 
             $totalFiltered = Seccion::where(function ($query) use ($search) {
                                 $query->where('CODIGO','LIKE',"%{$search}%")
-                                      ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
+                                      ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%")
+                                      ->orWhere('DESC_CORTA', 'LIKE',"%{$search}%");
                             })
                              ->where('ID_SUCURSAL','=', $user->id_sucursal)
                              ->count();
@@ -160,6 +163,7 @@ class Seccion extends Model
                 $nestedData['ID'] = $post->ID;
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['DESC_CORTA'] = $post->DESC_CORTA;
                 
                 $data[] = $nestedData;
 
@@ -210,12 +214,12 @@ class Seccion extends Model
 
 
         $seccion=seccion::select(DB::raw('CODIGO, 
-            DESCRIPCION'
+            DESCRIPCION, DESC_CORTA'
             )
         )
         ->where('ID','=', $datos['data'])
         ->get();
-            
+        
             return['seccion'=> $seccion];
     }
 
@@ -232,6 +236,7 @@ class Seccion extends Model
                 $seccion=seccion::insertGetId([
                     'CODIGO'=> $datos['data']['codigo'],
                     'DESCRIPCION'=> $datos['data']['descripcion'],
+                    'DESC_CORTA'=> $datos['data']['descripcionCorta'],
                     'ID_SUCURSAL'=>$user->id_sucursal]);
 
                 DB::connection('retail')->commit();
@@ -241,7 +246,9 @@ class Seccion extends Model
             }else{
                 $seccion = Seccion::Where('CODIGO','=',$datos['data']['codigo'])->where('ID_SUCURSAL', '=', $user->id_sucursal)
                     ->update([
-                    'DESCRIPCION'=> $datos['data']['descripcion']]);
+                    'DESCRIPCION'=> $datos['data']['descripcion'],
+                    'DESC_CORTA'=> $datos['data']['descripcionCorta']
+                ]);
                 DB::connection('retail')->commit();
                 return['response'=>true];
             }
