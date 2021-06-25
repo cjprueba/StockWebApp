@@ -60,8 +60,7 @@ class Cotizacion extends Model
             ->where('ID_SUCURSAL', '=', $data['id_sucursal'])
             ->where('VENTAS_TIENE_COTIZACION.fk_venta','=',$data['FK_VENTA'])
             ->limit(1)->get();
-            log::error(["DATOS:"=>$data]);
-            log::error(["COTIZACION:"=>$cotizacion_final]);    
+
 
         }else{
             $cotizacion_final = NewCotizacion::
