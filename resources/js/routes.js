@@ -330,11 +330,6 @@ export default new Router({
 			component: require('./components/pedido/CheckoutPedido.vue').default
 		},
 		{
-			path: '/pd3',
-			name: 'pdMostrar',
-			component: require('./components/pedido/MostrarPedido.vue').default
-		},
-		{
 
 			path: '/tr4',
 			name: 'transferenciaMostrarDevolucion',

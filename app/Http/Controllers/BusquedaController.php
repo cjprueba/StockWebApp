@@ -98,8 +98,10 @@ class BusquedaController extends Controller
             ->table('USERS_TIENE_SECCION')
             ->leftjoin('SECCIONES', 'SECCIONES.ID', '=', 'USERS_TIENE_SECCION.FK_SECCION')
             ->select(DB::raw('IFNULL(FK_SECCION, 0) AS ID_SECCION'),
-                    DB::raw('IFNULL(SECCIONES.DESCRIPCION, 0) AS DESCRIPCION'))
-            ->where('FK_USER', '=', $user->id)
+                    DB::raw('IFNULL(SECCIONES.DESCRIPCION, 0) AS DESCRIPCION',
+                    DB::raw('IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA')))
+            ->where('USERS_TIENE_SECCION.FK_USER', '=', $user->id)
+            ->where('SECCIONES.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get()
         ->toArray();
 
@@ -108,7 +110,8 @@ class BusquedaController extends Controller
         $secciones = DB::connection('retail')
                 ->table('SECCIONES')
                 ->select(DB::raw('IFNULL(ID, 0) AS ID_SECCION'),
-                        DB::raw('IFNULL(DESCRIPCION, 0) AS DESCRIPCION'))
+                        DB::raw('IFNULL(DESCRIPCION, 0) AS DESCRIPCION'),
+                    DB::raw('IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA'))
             ->where('ID_SUCURSAL','=',$user->id_sucursal)
             ->orderBy('DESCRIPCION', 'ASC')
             ->get()

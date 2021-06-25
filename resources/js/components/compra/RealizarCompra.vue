@@ -170,9 +170,50 @@
 							<input v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.CUOTAS }" class="form-control form-control-sm" type="number" v-model="cuotas" v-on:blur="formatoCantidadCuota" :disabled="deshabilitar_cuota">
 						</div>
 
+
 						<!-- ******************************************************************* -->
 					</div>
 
+					<div class="row" v-if="rack === 'SI'">
+							
+						<!-- ----------------------------------- TEXTBOX CONTAINER ------------------------------------- -->
+
+				        <div class="col-4">
+				            <container-nombre ref="componente_textbox_container" @nombre_container='enviar_nombre' :nombre='nombreContainer' @descripcion='traer_descripcion'></container-nombre>
+							<div class="form-text text-danger">{{messageInvalidContainer}}</div>
+				        </div> 
+
+						<!-- ----------------------------------- OPCIONES DE SECCION ------------------------------------- -->
+
+						<div class="col-2">
+							<label for="validationTooltip01">Seleccione Sección</label>
+							<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion" v-on:change='generarNroCaja()'>
+								<option value="null">Seleccionar</option>
+								<option v-for="seccion in secciones" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="form-text text-danger">
+							    {{messageInvalidSeccion}}
+							</div>
+						</div>
+
+						<!-- ------------------------------------------- SELECT DE PISO ------------------------------------------ -->
+
+						<div class="col-2">
+						    <label>Piso Rack</label>
+						    <select class="custom-select custom-select-sm" v-model="pisoRack">
+							    <option value="1" selected>Piso 1</option>
+							    <option value="2">Piso 2</option>
+							    <option value="3">Piso 3</option>
+							</select>
+						</div>
+
+						<!-- -------------------------------------------MULTIPLE SELECT DE GONDOLA------------------------------------------ -->
+						
+						<div class="col-4">
+							<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"> </select-gondola>
+							<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-12">
 
@@ -423,11 +464,23 @@
           	codigoCompra: '',
           	ocultar:false,
           	procesar: false,
+          	nombreContainer:'',
+          	descripcionContainer:'',
           	switch_un_producto: false,
           	proveedor: '',
           	descripcionProveedor: '',
           	tipo_compra: 'CO',
+          	rack: '',
           	cuotas: '',
+            secciones: [],
+            selectedSeccion: "null",
+            pisoRack: 1,
+            validarSeccion: false,
+            messageInvalidSeccion: '',
+	        seleccion_gondola: '',
+	        seleccion_gondola_modificar: [{}],
+	        messageInvalidContainer: '',
+			messageInvalidGondola: '',
           	producto: {
           		CODIGO: '',
           		DESCRIPCION: '',
@@ -627,7 +680,7 @@
 				} else {
 
 					Swal.fire(
-						'Error !',
+						'¡Error!',
 						data.statusText,
 						'error'
 					)
@@ -1198,6 +1251,31 @@
                 me.validar.FECHA_CREDITO = false;
             }
 
+            if(me.rack === 'SI'){
+
+            	if(me.nombreContainer === '' || me.nombreContainer.length === 0){
+	        		me.messageInvalidContainer = 'Por favor seleccione un container.';
+            		falta = true;
+            	}else{
+	        		me.messageInvalidContainer = '';
+            	}
+
+	        	if (me.selectedSeccion === '' || me.selectedSeccion === "null") {
+	        		me.validarSeccion = true;
+	        		me.messageInvalidSeccion = 'Por favor seleccione sucursal.';
+	        		falta = true;
+	        	} else {
+	        		me.validarSeccion = false;
+	        		me.messageInvalidSeccion = '';
+	        	}
+
+            	if(me.seleccion_gondola.length === 0){
+	        		me.messageInvalidGondola = 'Por favor seleccione una o varias góndolas.';
+            		falta = true;
+            	}else{
+	        		me.messageInvalidGondola = '';
+            	}
+            }
             // ------------------------------------------------------------------------
 
             // RETORNAR FALTA - SI ES TRUE SE DETIENE EL GUARDADO 
@@ -1250,6 +1328,7 @@
 
         	let me = this;
         	var tableCompra = $('#tablaCompra').DataTable();
+        	var deposito = false;
 
         	// ------------------------------------------------------------------------
         	
@@ -1273,6 +1352,14 @@
 
         	// ------------------------------------------------------------------------
 
+        	// CONTROLAR QUE TIPO DE SUCURSAL ES
+
+        	if(me.rack === 'SI'){
+        		deposito = true;
+        	}
+
+        	// ------------------------------------------------------------------------
+
         	var data = {
         		codigo: me.codigoCompra,
         		proveedor: me.proveedor,
@@ -1291,25 +1378,27 @@
         			fecha: me.credito.FECHA,
         			dias: me.credito.CANTIDAD,
         			cuotas: me.cuotas
-        		}
+        		},
+        		codigoContainer: me.nombreContainer,
+        		seccion: me.selectedSeccion.ID_SECCION,
+        		piso_rack: me.pisoRack,
+				seleccion_gondola: me.seleccion_gondola,
+				sistema_deposito: deposito
         	};
 
-        	// ------------------------------------------------------------------------
-
-        	// 
         	// ------------------------------------------------------------------------
 
       		// SWEET ALERT
 
       		Swal.fire({
-				title: 'Estas seguro ?',
-				text: "Guardar la compra !",
+				title: '¿Estás seguro?',
+				text: "¡Guardar la compra!",
 				type: 'warning',
 				showLoaderOnConfirm: true,
 				showCancelButton: true,
 				confirmButtonColor: '#d33',
 				cancelButtonColor: '#3085d6',
-				confirmButtonText: 'Si, guardalo!',
+				confirmButtonText: '¡Sí, guardalo!',
 				cancelButtonText: 'Cancelar',
 				preConfirm: () => {
 				    return Common.guardarModificarCompraCommon(data).then(data => {
@@ -1328,8 +1417,8 @@
 				if (result.value.response) {
 
 					Swal.fire(
-						'Guardado!',
-						'Se ha guardado correctamente la compra con codigo '+result.value.codigo+' !',
+						'¡Guardado!',
+						'¡Se ha guardado correctamente la compra con codigo '+result.value.codigo+'!',
 						'success'
 					)
 
@@ -1416,7 +1505,35 @@
         }, async f1() {
 		  	var x = await this.hola(4);
         	alert("ahora me ejecute"); // 10
-		}
+		},
+
+        llamarBusquedas(){	
+
+	      	axios.get('busquedas/').then((response) => {
+	           	this.secciones = response.data.secciones;
+	        }); 
+	    },
+	    traer_descripcion(data){
+          
+         this.descripcionContainer=data;
+         this.generarNroCaja();
+
+        },
+
+		enviar_nombre(data){
+
+          this.nombreContainer=data;
+           
+        },
+        generarNroCaja(){
+
+        	if(this.selectedSeccion !== "null"){
+
+        		this.factura.NRO_CAJA = this.selectedSeccion.DESC_CORTA + '' + this.descripcionContainer;
+        	}else{
+        		this.factura.NRO_CAJA = this.descripcionContainer;
+        	}
+        }
       },
         mounted() {
         		
@@ -1424,6 +1541,20 @@
 
         		let me = this;
         		
+        		// ------------------------------------------------------------------------
+
+        		// OBTENER SECCIONES 
+
+        		me.llamarBusquedas();
+
+        		// ------------------------------------------------------------------------
+
+        		// OBTENER RACK 
+
+	        	Common.obtenerParametroCommon().then(data => {
+			        me.rack = data.parametros[0].RACK;
+				});
+
         		// ------------------------------------------------------------------------
 
         		// INICIALIZAR MONEDA 
@@ -1771,14 +1902,14 @@
                     // ABRIR EL SWEET ALERT
 
                     Swal.fire({
-					  title: 'Estas seguro ?',
-					  text: "Eliminar el producto " + tableCompra.row($(this).parents('tr')).data().CODIGO + " !",
+					  title: '¿Estás seguro ?',
+					  text: "¡Eliminar el producto " + tableCompra.row($(this).parents('tr')).data().CODIGO + "!",
 					  type: 'warning',
 					  showLoaderOnConfirm: true,
 					  showCancelButton: true,
 					  confirmButtonColor: '#d33',
 					  cancelButtonColor: '#3085d6',
-					  confirmButtonText: 'Si, eliminalo!',
+					  confirmButtonText: '¡Sí, eliminalo!',
 					  cancelButtonText: 'Cancelar'
 					}).then((result) => {
 					  if (result.value) {
@@ -1792,8 +1923,8 @@
 	                    // *******************************************************************
 
 					  	Swal.fire(
-							      'Eliminado!',
-							      'Se ha eliminado el producto de la tabla !',
+							      '¡Eliminado!',
+							      '¡Se ha eliminado el producto de la tabla!',
 							      'success'
 						)
 
@@ -1852,7 +1983,7 @@
 					    me.editarCantidadProducto(tableCompra, cantidad, productoExistente.costo, productoExistente.row);
 					    Swal.fire({
 					      title: 'Cambiado',
-					      confirmButtonText: 'Aceptar !'
+					      confirmButtonText: '¡Aceptar!'
 					    })
 					  }
 					})
