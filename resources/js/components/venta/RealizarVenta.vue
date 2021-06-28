@@ -1892,6 +1892,7 @@
 											me.producto.CANTIDAD=x.CANTIDAD;
 											me.producto.TIPO_DESCUENTO = 7;
 											me.agregarProducto();
+											me.descuento_precio_controlar=false;
 										}else{
 											
 											me.checked.MAYORISTA_AUT=me.mayoristaAutReemplazo;
@@ -1900,7 +1901,7 @@
 											me.producto.TIPO_DESCUENTO = me.tipo_descuento_auxiliar;
 											me.agregarProducto();
 											me.descuento_precio_controlar=false;
-											console.log(me.producto.PREC_VENTA);
+											
 										}
 									}
 
@@ -2193,6 +2194,11 @@
 	            	me.validarCodigoProducto = false;
 	            	me.$bvToast.show('toast-servicio-repetido');
 	            	return;
+	            }
+	            //PONER DESCUENTO AL LOTE QUE CONTINUA SI ES TIPO 7 DE DESCUENTO Y YA EXISTEN OTROS DESCUENTOS ACTIVOS POR PARTE DE ALIMENTOS
+	            if(me.producto.TIPO_DESCUENTO===7 && me.descuento_precio_controlar===false && me.descuento_lote_validar===true){
+
+	              me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PREC_VENTA, me.moneda.DECIMAL);
 	            }
 
 	            // ------------------------------------------------------------------------
