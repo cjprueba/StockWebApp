@@ -32,7 +32,7 @@ class Parametro extends Model
 
     	$parametros = DB::connection('retail')
         ->table('parametros')
-        ->select(DB::raw('parametros.MONEDA, MONEDAS.DESCRIPCION, MONEDAS.CANDEC, parametros.TAB_UNICA, parametros.ID_SUCURSAL'))
+        ->select(DB::raw('parametros.MONEDA, MONEDAS.DESCRIPCION, MONEDAS.CANDEC, parametros.TAB_UNICA, parametros.ID_SUCURSAL, parametros.RACK AS RACK'))
         ->join('MONEDAS', 'parametros.MONEDA', '=', 'MONEDAS.CODIGO')
         ->where('parametros.ID_SUCURSAL','=',$user->id_sucursal)
         ->get();

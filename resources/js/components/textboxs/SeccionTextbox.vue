@@ -34,7 +34,8 @@
 							    <tr>
 							    	<th>ID</th>
 							        <th>Código</th>
-							        <th>Descripcion</th>
+							        <th>Descripción</th>
+							        <th>Descripción Corta</th>
 							    </tr>
 							</thead>       
 						</table>        
@@ -62,14 +63,14 @@
 		},
 
 		methods: {
-			enviarCodigoPadre(id, codigo, descripcion, id_sucursal){
+			enviarCodigoPadre(id, codigo, descripcion, desc_corta){
 
 				// ENVIAR CODIGO
-
+				
 				this.$emit('id', id);
 				this.$emit('codigo', codigo);
 		        this.$emit('descripcion', descripcion);
-		        this.$emit('id_sucursal', id_sucursal);
+		        this.$emit('desc_corta', desc_corta);
 
 				// ------------------------------------------------------------------------
 
@@ -80,11 +81,6 @@
 		      	table.ajax.reload( null, false );
 		    },
 
-
-			recargar(){
-		        var table = $('#tablaModalSeccion').DataTable();
-		      	table.ajax.reload( null, false );
-		    },
 		},
 
 		mounted(){
@@ -117,6 +113,7 @@
                     { "data": "ID" },
                     { "data": "CODIGO" },
                     { "data": "DESCRIPCION" },
+                    { "data": "DESC_CORTA" },
                 ]      
             });
 
@@ -128,10 +125,11 @@
                 me.id = table.row(this).data().ID;
 
                 Common.filtrarSeccionCommon(me.id).then(data => {  
-                    
+
                     me.enviarCodigoPadre(me.id,
                     data.seccion[0].CODIGO,
-                    data.seccion[0].DESCRIPCION);
+                    data.seccion[0].DESCRIPCION,
+                    data.seccion[0].DESC_CORTA);
                 })
 
                 // CERRAR EL MODAL

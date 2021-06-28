@@ -67,7 +67,7 @@
       methods: {
         recargar(){
           var tableContainer = $('#tablaModalContainer').DataTable();
-       tableContainer.ajax.reload( null, false );
+          tableContainer.ajax.reload( null, false );
         },
        enterContainer(Codigo){
 

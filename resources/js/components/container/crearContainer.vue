@@ -18,7 +18,7 @@
         <div class="row">
 
           <div class="col-12">
-            <container-nombre ref="componente_textbox_Container" @nombre_container='enviar_nombre' @existe_container='existe' :nombre='nombreContainer' :validarContainer='validarContainer' @id='enviar_id' @descripcion='traer_descripcion' @fecha_inicio='traer_inicio'  ></container-nombre>
+            <container-nombre ref="componente_textbox_container" @nombre_container='enviar_nombre' @existe_container='existe' :nombre='nombreContainer' :validarContainer='validarContainer' @id='enviar_id' @descripcion='traer_descripcion' @fecha_inicio='traer_inicio'  ></container-nombre>
           </div>   
             <div class="col-12">
 
@@ -233,7 +233,7 @@
                 this.mostrar_error = true;
                 this.mensaje = err;
               });
-              me.$refs.componente_textbox_Container.recargar();
+              me.$refs.componente_textbox_container.recargar();
               me.limpiar();
       	},
                 eliminarContainer(){
@@ -267,7 +267,7 @@
                      'warning'
                   )
                }
-             me.$refs.componente_textbox_Container.recargar();
+             me.$refs.componente_textbox_container.recargar();
                 
               }).catch((err) => {
                 console.log(err);
@@ -305,6 +305,11 @@
          
        },
         mounted() {
+
+          let me = this;
+
+          me.nuevoContainer();
+
           $(function(){
               $('#sandbox-container .input-daterange').datepicker({
                     keyboardNavigation: false,
@@ -316,7 +321,6 @@
 
       });
 
-          let me=this;
     hotkeys('f2', function(event, handler){
 
   event.preventDefault() 
