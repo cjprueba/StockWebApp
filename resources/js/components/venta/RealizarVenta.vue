@@ -1027,6 +1027,7 @@
          		PREC_VENTA: '',
          		PREMAYORISTA: '',
          		PREC_AUX: '',
+         		PREC_AUX_REEMPLAZO:'',
          		LOTE: '',
          		STOCK: '',
          		PRECIO_TOTAL: 0,
@@ -1845,6 +1846,7 @@
 		            	me.producto.DESCRIPCION = data.producto.DESCRIPCION;
 		            	me.producto.PREC_VENTA = data.producto.PREC_VENTA;
 		            	me.producto.PREC_AUX = data.producto.PREC_VENTA;
+		            	me.producto.PREC_AUX_REEMPLAZO= data.producto.PREC_VENTA;
 		            	me.producto.PREMAYORISTA = data.producto.PREMAYORISTA;
 		            	me.producto.LOTE = data.producto.LOTE;
 		            	me.producto.STOCK = data.producto.STOCK;
@@ -1896,6 +1898,7 @@
 										}else{
 											
 											me.checked.MAYORISTA_AUT=me.mayoristaAutReemplazo;
+											me.producto.PREC_VENTA=me.producto.PREC_AUX_REEMPLAZO;
 											me.producto.DESCUENTO=me.producto.DESCUENTO_REEMPLAZADO;
 											me.producto.CANTIDAD=x.CANTIDAD;
 											me.producto.TIPO_DESCUENTO = me.tipo_descuento_auxiliar;
@@ -2197,8 +2200,37 @@
 	            }
 	            //PONER DESCUENTO AL LOTE QUE CONTINUA SI ES TIPO 7 DE DESCUENTO Y YA EXISTEN OTROS DESCUENTOS ACTIVOS POR PARTE DE ALIMENTOS
 	            if(me.producto.TIPO_DESCUENTO===7 && me.descuento_precio_controlar===false && me.descuento_lote_validar===true){
+	            	//VOLVER AL PRECIO ORIGINAL
+	            	me.producto.PREC_VENTA=me.producto.PREC_AUX_REEMPLAZO;
+	            	//VERIFICAR EL DESCUENTO UNITARIO CON EL PRECIO ORIGINAL
+	               me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PREC_VENTA, me.moneda.DECIMAL);
+	               descuento_unitario=me.producto.DESCUENTO_UNITARIO;
+	                // ------------------------------------------------------------------------
 
-	              me.producto.DESCUENTO_UNITARIO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PREC_VENTA, me.moneda.DECIMAL);
+		            // RESTAR DESCUENTO DE PRECIO UNITARIO 
+
+		            me.producto.PREC_VENTA = Common.restarCommon(me.producto.PREC_VENTA, me.producto.DESCUENTO_UNITARIO, me.moneda.DECIMAL);
+		            precio=me.producto.PREC_VENTA;
+		            // ------------------------------------------------------------------------
+
+		            // CALCULAR DESCUENTO
+
+		            me.producto.DESCUENTO_MONTO = Common.descuentoCommon(me.producto.DESCUENTO, me.producto.PRECIO_TOTAL, me.moneda.DECIMAL);
+		            descuento_total=me.producto.DESCUENTO_MONTO
+		            // ------------------------------------------------------------------------
+
+		            // RESTAR DESCUENTO 
+
+		            me.producto.PRECIO_TOTAL = Common.restarCommon(me.producto.PRECIO_TOTAL, me.producto.DESCUENTO_MONTO, me.moneda.DECIMAL);
+		            precio_total=me.producto.PRECIO_TOTAL;
+
+		            // ------------------------------------------------------------------------
+
+		            // CALCULAR IVA
+
+	            	me.producto.IMPUESTO = Common.calcularIVACommon(me.producto.PRECIO_TOTAL, me.producto.IVA, me.moneda.DECIMAL);
+	            	impuesto=me.producto.IMPUESTO;
+
 	            }
 
 	            // ------------------------------------------------------------------------
