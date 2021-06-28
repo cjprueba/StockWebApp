@@ -6619,7 +6619,7 @@ function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta
 
 			tabla.rows().every(function(){
 				var data = this.data();
-				console.log(tipo_descuento);
+				
 				if(data['CODIGO'] === codigo && data['TIPO'] !== 3 && tipo_descuento!==7 && data['TIPO_DESCUENTO']!==7){
 					
 						if (tipo_respuesta === 1) {
@@ -6763,6 +6763,24 @@ function existenProductosDataTableCommon(tabla, codigo, tipo_respuesta){
 
         	
 
+}
+function cotizacionyMonedaDeVentaFormaPagoCommon(data) {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// OBTENER COTIZACION DE COMPRA
+			
+			return axios.post('/cotizacion/compra-venta',{fk_venta: data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
 }
 
 // ------------------------------------------------------------------------
@@ -7049,5 +7067,6 @@ export {
 		generarReporteSalidaProductosCommon,
 		guardarLoteDescuentoCommon,
 		existeProductoConDescuentoDataTableCommon,
-		existenProductosDataTableCommon
+		existenProductosDataTableCommon,
+		cotizacionyMonedaDeVentaFormaPagoCommon
 		};
