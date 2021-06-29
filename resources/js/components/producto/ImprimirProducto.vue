@@ -1,386 +1,502 @@
 <template>
-	
-	<div v-if="$can('producto.etiquetas') && $can('producto')" class="container-fluid mt-4">
 
-		<!-- -------------------------------------------------------- TITULO ----------------------------------------------------------- -->
-		
-		<vs-divider>
-				Imprimir Codigo QR o Codigo de Barra
-		</vs-divider>
-			
-	    <div v-if="ok" class=" ml-2 row my-2">
-				<div class="custom-control custom-switch">
-					<input  v-on:change="eliminar_valores" type="checkbox" class="mr-4 custom-control-input" id="switchQr" v-model="checkedQr">
-					<label class="custom-control-label" for="switchQr">Imprimir Qr</label>
-				</div>
-		</div>
+	<div class="container mt-3">
+		<div class="col-14">
+			<div class="card shadow border-bottom-primary mb-3">
+				<div v-if="$can('producto.etiquetas') && $can('producto')">
+					<!-- -------------------------------------------------------- TITULO ----------------------------------------------------------- -->
+					<div class="text-center card-header">Imprimir Codigo QR o Codigo de Barra</div>
+					<div class="card-body">
 
-
-
-	    <!-- --------------------------------------------------- TARJETAS ---------------------------------------------------------- -->
-		
-		<div class="row">
-
-		<!-- ------------------------------------------------- PRIMER CUADRO ---------------------------------------------------------- -->
-		
-	    <div class="col-10">
-    		<div class="card">
-      			<div class="card-body">
-
-
-  				<!-- ----------------------------------- CODIGO, DESCRIPCION Y LINEA DEL PRODUCTO ------------------------------------- -->
-
-				<div class="row mt-2">
-
-					<div class="col-3">
-						<codigo-producto v-bind:class="{ 'is-invalid': validar.codigoProd }" @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="producto.codigoProd" disabled></codigo-producto>
-					</div>
-
-					<div class="col-6">
-			    			<label>Descripción Del Producto</label>
-				      		<input v-bind:class="{ 'is-invalid': validar.descripion }" v-model="producto.descripcion" type="text" class="form-control form-control-sm" disabled>
-			    	</div>
-					    	
-
-					    			<!-- ------------------------------------------------------------------ -->
-
-					    			<!-- GONDOLA -->
-
-					    			<div class="col-3">
-					    				<label v-if="checkedQr" for="validationTooltip01">Lotes</label>
-            <select  class="custom-select custom-select-sm"  v-bind:class="{ 'is-invalid': validar.lote }" v-model="loteSeleccion" v-on:change="cambiar_stock" v-if="checkedQr"   @input="$emit('input', $event.target.value)" >
-                    <option :value="{id : 0, nlote: 0,cantidad : 0 }">0 - Seleccionar</option>
-                    <option  data-item-type="lote.LOTE" v-for="lote in lotes"  :id="lote.LOTE" :value="{id : lote.ID, nlote: lote.LOTE,cantidad : lote.CANTIDAD }">{{ lote.LOTE }} - {{ lote.CANTIDAD }}</option>
-                   
-            </select>
-					    			</div>
-
-					    			<!-- ------------------------------------------------------------------ -->
-
-				</div>
-
-				<!-- ---------------------------------- PRECIO UNITARIO, CANT EXISTENTE Y CANTIDAD ------------------------------------ -->
-
-				<div class="row mt-3">
-
-      				<!-- -------------------------------------- PRECIO MAYORISTA------------------------------------------------------- -->
-
-					<div class="col-3" >
-		    				<label>Precio Mayorista</label>
-			      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioMayorista" type="text" class="form-control form-control-sm" disabled>
-					</div>
-
-					<!-- -------------------------------------- PRECIO UNITARIO ------------------------------------------------------- -->
-
-					<div class="col-3" >
-		    				<label>Precio Unitario</label>
-			      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioUnitario" type="text" class="form-control form-control-sm" disabled>
-					</div>
-
-					<!-- -------------------------------------- CANTIDAD EXIST. ------------------------------------------------------- -->
-
-					<div class="col">
-							<label>Cantidad Existente</label>
-							<input v-bind:class="{ 'is-invalid': validar.cantidadExistente }" v-model="producto.cantidadExistente" type="text" class="form-control form-control-sm" disabled>
-					</div>	
-
-					<!-- ------------------------------------------- DESCUENTO -------------------------------------------------------- -->
+						
+							
+					    <div v-if="ok" class=" ml-2 row my-2">
+								<div class="custom-control custom-switch">
+									<input  v-on:change="eliminar_valores" type="checkbox" class="mr-4 custom-control-input" id="switchQr" v-model="checkedQr">
+									<label class="custom-control-label" for="switchQr">Imprimir Qr</label>
+								</div>
+						</div>
 
 
 
-					<!-- --------------------------------------------- CANTIDAD ------------------------------------------------------- -->
+					    <!-- --------------------------------------------------- TARJETAS ---------------------------------------------------------- -->
+						
+						<div class="row">
 
-					<div class="col">
-		    				<label>Cantidad</label>
-			      			<input v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
-					</div>
-				</div>
+						<!-- ------------------------------------------------- PRIMER CUADRO ---------------------------------------------------------- -->
+						
+					    <div class="col-12">
+				    		<div class="card">
+				      			<div class="card-body">
 
+					  				<!-- ----------------------------------- CODIGO, DESCRIPCION Y LINEA DEL PRODUCTO ------------------------------------- -->
+									<div class="row mt--2">
+
+										<div class="col-3">
+											<codigo-producto v-bind:class="{ 'is-invalid': validar.codigoProd }" @codigo_producto="cargarProductos" ref="compontente_codigo_producto" v-model="producto.codigoProd" disabled></codigo-producto>
+										</div>
+
+										<div class="col-6">
+								    			<label>Descripción Del Producto</label>
+									      		<input v-bind:class="{ 'is-invalid': validar.descripion }" v-model="producto.descripcion" type="text" class="form-control form-control-sm" disabled>
+								    	</div>
+										    	
+
+										<!-- ------------------------------------------------------------------ -->
+										<!-- GONDOLA -->
+
+										<div class="col-3">
+										    <label v-if="checkedQr" for="validationTooltip01">Lotes</label>
+					            			<select  class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validar.lote }" v-model="loteSeleccion" v-on:change="cambiar_stock" v-if="checkedQr" @input="$emit('input', $event.target.value)" >
+							                    <option :value="{id : 0, nlote: 0,cantidad : 0 }">0 - Seleccionar</option>
+							                    <option  data-item-type="lote.LOTE" v-for="lote in lotes"  :id="lote.LOTE" :value="{id : lote.ID, nlote: lote.LOTE,cantidad : lote.CANTIDAD }">{{ lote.LOTE }} - {{ lote.CANTIDAD }}</option>
+					            			</select>
+										</div>
+
+									<!-- ------------------------------------------------------------------ -->
+									</div>
+
+									<!-- ---------------------------------- PRECIO UNITARIO, CANT EXISTENTE Y CANTIDAD ------------------------------------ -->
+
+									<div class="row mt-3">
+
+					      				<!-- -------------------------------------- PRECIO MAYORISTA------------------------------------------------------- -->
+
+										<div class="col-3" >
+							    				<label>Precio Mayorista</label>
+								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioMayorista" type="text" class="form-control form-control-sm" disabled>
+										</div>
+
+										<!-- -------------------------------------- PRECIO UNITARIO ------------------------------------------------------- -->
+
+										<div class="col-3" >
+							    				<label>Precio Unitario</label>
+								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioUnitario" type="text" class="form-control form-control-sm" disabled>
+										</div>
+
+										<!-- -------------------------------------- CANTIDAD EXIST. ------------------------------------------------------- -->
+
+										<div class="col">
+												<label>Cantidad Existente</label>
+												<input v-bind:class="{ 'is-invalid': validar.cantidadExistente }" v-model="producto.cantidadExistente" type="text" class="form-control form-control-sm" disabled>
+										</div>	
+
+										<!-- ------------------------------------------- DESCUENTO -------------------------------------------------------- -->
+
+										<!-- --------------------------------------------- CANTIDAD ------------------------------------------------------- -->
+
+										<div class="col">
+							    				<label>Cantidad</label>
+								      			<input v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
+										</div>
+										
+
+
+									</div>
+									<hr>
+									<div class="row mt-3">
+										<div class="col-4" align="center">
+											<label class="form-check-label font-weight-bold ">Precio de Productos</label>
+											<br>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto1" v-model="seleccionPrecio" value="1">
+											  <label class="form-check-label" for="precioProducto1">Precio de Venta</label>
+											</div>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto2" v-model="seleccionPrecio" value="2">
+											  <label class="form-check-label" for="precioProducto2">Precio Mayorista</label>
+											</div>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto3" v-model="seleccionPrecio" value="3">
+											  <label class="form-check-label" for="precioProducto3">Precio Venta y Mayorista</label>
+											</div>
+										</div>
+
+										<div class="col-4" align="center">
+											<label class="form-check-label font-weight-bold ">Tamaño de Etiquetas</label>
+											<br>
+											
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet1" v-model="seleccionTamaño" value="1">
+											  <label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
+											</div>
+
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet2" v-model="seleccionTamaño" value="2">
+											  <label class="form-check-label" for="tamañoTiquet2">Proveedor (3,3cm x 2,2cm)</label>
+											</div>
+											
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
+											  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
+											</div>
+											
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
+											  <label class="form-check-label" for="tamañoTiquet4">Producto (5,5cm x 2,9cm)</label>
+											</div>
+										</div>
+
+										<!-- --------------------------------------------- TIPO DE CODIGO ------------------------------------------------------- -->
+										<div class="col-4">
+											<label class="form-check-label font-weight-bold ml-5">Tipo de Código</label>
+											<br>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo1"  v-model="seleccionCodigo" value="1">
+											  <label class="form-check-label" for="TipoDeCodigo1" >Código Interno</label>
+											</div>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo2" v-model="seleccionCodigo" value="2">
+											  <label class="form-check-label" for="TipoDeCodigo2">Código Producto </label>
+											</div>
+										</div>
+									</div>
+
+									<!-- --------------------------------------------- PROVEEDOR ------------------------------------------------------- -->
+									<div v-if="seleccionTamaño=='2'" class="col-12" >
+										<div class="row">
+											<div class="col-1"></div>
+											<div class="col-10"><hr></div>										
+										</div>
+										<div class="row">
+											<div class="col-6">
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput" class="form-label font-weight-bold ml-2 ">Nombre</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput" v-model="proveedor.nombre" v-bind:class="{ 'is-invalid': validarProveedor.nombre }">
+												</div>
+												
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput3" class="form-label font-weight-bold mt-2 ml-2">Dirección</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput3" v-model="proveedor.direccion" v-bind:class="{ 'is-invalid': validarProveedor.direccion }">
+												</div>
+
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput7" class="form-label  mt-2 font-weight-bold ml-2">Ciudad</label>
+												  	<input type="text" class="form-control form-control-sm"" id="formGroupExampleInput7" v-model="proveedor.ciudad" v-bind:class="{ 'is-invalid': validarProveedor.ciudad }">
+												</div>
+
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput4" class="form-label font-weight-bold  mt-2 ml-2">Teléfono</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput4" v-model="proveedor.telefono" v-bind:class="{ 'is-invalid': validarProveedor.telefono }">
+												</div>
+											</div>
+
+											<div class="col-6">
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput2" class="form-label font-weight-bold ml-2">Razón</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput2" v-model="proveedor.razon" v-bind:class="{ 'is-invalid': validarProveedor.razon }">
+												</div>
+												
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput5" class="form-label font-weight-bold  mt-2 ml-2">FAX</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput5" v-model="proveedor.fax" v-bind:class="{ 'is-invalid': validarProveedor.fax }">
+												</div>
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput6" class="form-label  mt-2 font-weight-bold ml-2">RUC</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.ruc" v-bind:class="{ 'is-invalid': validarProveedor.ruc }">
+												</div>
+												<hr>
+												<div class="row">
+													
+													<div class="col-7"></div>
+													<div class="mb-3 col " align="center">
+													  	<label for="formGroupExampleInput6" class="form-label  mt-2 font-weight-bold" >Cantidad de ticket</label>
+													  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.cantidad" v-bind:class="{ 'is-invalid': validarProveedor.cantidad }">
+													</div>
+														
+												</div>
+												
+													
+												</div>
+											</div>
+											
+										</div>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+
+				    	
+						<!-- --------------------------------------------------- SEGUNDO CUADRO ------------------------------------------------------- -->
+						
+				    	<div class="col-12">
+
+				    			<!-- -------------------------------- BOTONES LIMPIAR, GUARDAR, MODIFICAR Y ELIMINAR --------------------------------- -->	
+							<div class="row mt-4"> 
+								<div class="col text-center">
+									<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="!checkedQr" >Imprimir Qr</button>
+								</div>
+								<div class="col text-center">
+									<button v-on:click="Imprimir_barcode" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir</button>
+								</div>
+								<!-- <div class="col text-center">
+									<button v-on:click="Imprimir_barinterno" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo Interno</button>
+								</div> -->
+								<div class="col text-center">
+									<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Qr Link</button>
+								</div>
+							</div>
+				  		</div>
+				  		</div>
+
+							<!-- -------------------------------------- TARJETA DE TABLA DE PRODUCTOS ------------------------------------------------- -->
+						
+						<div class="card mt-3 my-2">
+							<div class="col-12">
+
+								<!-- --------------------------------------------MOSTRAR LOADING------------------------------------------------------- -->
+
+							    <div class="col-md-12">
+									<div v-if="procesar" class="d-flex justify-content-center mt-3">
+										Guardando...
+							            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
+							        </div>
+						        </div>
+								
+								<!-- ------------------------------------------ TABLA DE PRODUCTOS ---------------------------------------------------- -->
+								
+								<div class="col-md-12 mt-4">
+									<table id="tablaProductos" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
+						                <thead>
+						                    <tr>
+						                        <th></th>
+						                        <th class="codigoDeclarados">Codigo Producto</th>
+						                        <th >Codigo Interno</th>
+						                        <th>Descripción</th>
+						                        <th>Lote</th>
+				                        		<th class="cantidadColumna">Cantidad</th>
+						                        <th>Precio</th>
+						                        <th>Precio Mayorista</th>
+						                        <th>Acción</th>
+				                        		<th>Stock</th>
+				                        		<th>Id Lote</th>
+				                        		
+						                    </tr>
+						                </thead>
+						                <tbody>
+						                	
+						                </tbody>
+						                <tfoot>
+						                	<tr>
+						                		<th></th>
+						                		<th></th>
+						                		<th></th>
+						                		<th>TOTALES</th>
+							                	<th></th>
+							                	<th></th>
+							                	<th></th>
+							                	<th></th>
+							                <th></th>
+							                	<th></th>
+							                	<th></th>
+							                	
+						                	</tr>
+						                </tfoot>	
+				            		</table>
+				            	</div>
+
+							</div>
+						</div>
+
+						<!-- ------------------------------------------------------- MODALES------------------------------------------------------- -->
+
+						<!--------------------------------------------------- MODAL EDITAR PRODUCTO --------------------------------------------------->
+
+				                <div class="modal fade editar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+				                    <div class="modal-content">
+				                      <div class="modal-header">
+				                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
+				                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				                          <span aria-hidden="true">&times;</span>
+				                        </button>
+				                      </div>
+				                      <div class="modal-body">
+				                            <div class="row">
+				                                <div class="col-md-12">
+				                                    <label>Precio Unitario</label>
+				                                    <input type="text" name="" v-model="editarPrecio" class="form-control form-control-sm" disabled>
+				                                </div>
+				                                <div class="col-md-12 mt-3">
+				                                    <label>Cantidad</label>
+				                                    <input type="text" name="" v-model="editarCantidad" v-on:blur="formatoEditarPrecio()" class="form-control form-control-sm">
+				                                </div>
+				                            </div>      
+				                      </div>
+				                      <div class="modal-footer">
+				                        <button type="button" class="btn btn-warning" id="editarFila">Editar</button>
+				                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				                      </div>
+				                    </div>
+				                  </div>
+				                </div>  
+
+				        <!-- -------------------------------------------------MODAL ELIMINAR PRODUCTO --------------------------------------------------->
+
+				                <div class="modal fade eliminar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+				                    <div class="modal-content">
+				                      <div class="modal-header">
+				                        <h5 class="modal-title text-primary text-center" >¿Eliminar <font-awesome-icon icon="barcode"/> {{editarCodigo}}?</h5>
+				                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				                          <span aria-hidden="true">&times;</span>
+				                        </button>
+				                      </div>
+				                      <div class="modal-body text-center">
+				                            <button type="button" class="btn btn-danger" id="eliminarFila" data-dismiss="modal">Eliminar</button>
+				                        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				                      </div>
+				                    </div>
+				                  </div>
+				                </div>
+
+				        <!---------------------------------------------------- MODAL MOSTRAR PRODUCTO ---------------------------------------------------->
+
+				                <div class="modal fade mostrar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+				                    <div class="modal-content">
+				                      <div class="modal-header">
+				                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
+				                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				                          <span aria-hidden="true">&times;</span>
+				                        </button>
+				                      </div>
+				                      <div class="modal-body">
+				                          <div class="card" >
+											  <img  :src="productoImagen[0].IMAGEN" class="card-img-top" alt="">
+											  <div class="card-body">
+											    <p class="card-text text-center">{{productoImagen[0].DESCRIPCION}}</p>
+											  </div>
+											  <ul class="list-group list-group-flush">
+											    <li class="list-group-item"><span class="text-primary text-left">Stock: </span> <span class="float-right">{{productoImagen[0].STOCK}}</span></li>
+											    <li class="list-group-item"><span class="text-primary text-left">Precio Costo: </span> <span class="float-right">{{productoImagen[0].PRECOSTO}}</span></li>
+											    <li class="list-group-item"><span class="text-primary text-left">Precio Venta: </span> <span class="float-right">{{productoImagen[0].PREC_VENTA}}</span></li>
+											    <li class="list-group-item"><span class="text-primary text-left">Precio Mayorista: </span> <span class="float-right">{{productoImagen[0].PREMAYORISTA}}</span></li>
+											    <li class="list-group-item"><span class="text-primary text-left">Precio VIP: </span> <span class="float-right">{{productoImagen[0].PREVIP}}</span></li>
+											    <li class="list-group-item"><span class="text-primary text-left">Última Compra: </span> <span class="float-right">{{productoImagen[0].FECHULT_C}}</span></li>
+											  </ul>
+											  
+											</div>  
+				                      </div>
+				                      <div class="modal-footer">
+				                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				                      </div>
+				                    </div>
+				                  </div>
+				                </div>        
+
+				        <!------------------------------------------------ MODAL PRODUCTOS SIN REGISTRAR ------------------------------------------------>
+
+				        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+						  <div class="modal-dialog modal-dialog-scrollable" role="document">
+						    <div class="modal-content">
+						      <div class="modal-header">
+						        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
+						        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						          <span aria-hidden="true">&times;</span>
+						        </button>
+						      </div>
+						      <div class="modal-body">
+						        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
+								  <thead class="thead-light">
+								    <tr>
+								      <th scope="col">#</th>
+								      <th scope="col">Código</th>
+								      <th scope="col">Cantidad</th>
+								      <th scope="col">Guardado</th>
+								      <th scope="col">No guardado</th>
+								    </tr>
+								  </thead>
+								  <tbody>
+								    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
+								      <th scope="row">{{index+1}}</th>
+								      <td>{{no_registrado.cod_prod}}</td>
+								      <td>{{no_registrado.cantidad}}</td>
+								      <td>{{no_registrado.guardado}}</td>
+								      <td>{{no_registrado.restante}}</td>
+								    </tr>
+								  </tbody>
+								</table>
+						      </div>
+						      <div class="modal-footer">
+						        <button type="button" class="btn btn-secondary" v-on:click="mostrarRemision" data-dismiss="modal">Cerrar</button>
+						      </div>
+						    </div>
+						  </div>
+						</div>
+						
+						 
+						<!-- ---------------------------------------------------------- TOASTS -------------------------------------------------------- -->
+
+						<!-- ------------------------------------------------ TOAST CODIGO PRODUCTO REPETIDO ------------------------------------------ -->
+
+						<b-toast id="toast-codigo-repetido" variant="warning" solid>
+					      <template v-slot:toast-title>
+					        <div class="d-flex flex-grow-1 align-items-baseline">
+					          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+					          <strong class="mr-auto">¡Error!</strong>
+					          <small class="text-muted mr-2">repetido</small>
+					        </div>
+					      </template>
+					      ¡Este producto ya existe en la tabla, favor de elegir otro o modificarlo!
+					    </b-toast>
+
+					    <!-- ---------------------------------------------TOAST PRODUCTO MODIFICADO---------------------------------------------------- -->
+
+						<b-toast id="toast-producto-modificado" variant="success" solid>
+					      <template v-slot:toast-title>
+					        <div class="d-flex flex-grow-1 align-items-baseline">
+					          <strong class="mr-auto">¡Éxito!</strong>
+					          <small class="text-muted mr-2">modificado</small>
+					        </div>
+					      </template>
+					      ¡Este producto ha sido modificado con éxito!
+					    </b-toast>
+
+					    <!-- ------------------------------------------------TOAST CODIGO PRODUCTO REPETIDO-------------------------------------------- -->
+
+						<b-toast id="toast-editar-cero" variant="warning" solid>
+					      <template v-slot:toast-title>
+					        <div class="d-flex flex-grow-1 align-items-baseline">
+					          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+					          <strong class="mr-auto">¡Error!</strong>
+					          <small class="text-muted mr-2">cero</small>
+					        </div>
+					      </template>
+					      ¡La cantidad y el precio no deben ser cero!
+					    </b-toast>
+
+					    <!-- ----------------------------------------------TOAST CODIGO PRODUCTO REPETIDO---------------------------------------------- -->
+
+						<b-toast id="toast-cantidad-superada" variant="warning" solid>
+					      <template v-slot:toast-title>
+					        <div class="d-flex flex-grow-1 align-items-baseline">
+					          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+					          <strong class="mr-auto">¡Error!</strong>
+					          <small class="text-muted mr-2">superada</small>
+					        </div>
+					      </template>
+					      ¡La cantidad ha superado el stock!
+					    </b-toast>
+
+					    <!-- -------------------------------------------------TOAST COMPLETAR CABECERA------------------------------------------------- -->
+
+						<b-toast id="toast-completar-cabecera" variant="warning" solid>
+					      <template v-slot:toast-title>
+					        <div class="d-flex flex-grow-1 align-items-baseline">
+					          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+					          <strong class="mr-auto">¡Error!</strong>
+					          <small class="text-muted mr-2">incompleto</small>
+					        </div>
+					      </template>
+					      ¡Complete todos los datos correctamente!
+					    </b-toast>
+				  	</div>
 				</div>
 			</div>
 		</div>
-    	
-		<!-- --------------------------------------------------- SEGUNDO CUADRO ------------------------------------------------------- -->
-		
-    	<div class="col-2">
-    		<div class="card">
-
-    			<!-- -------------------------------- BOTONES LIMPIAR, GUARDAR, MODIFICAR Y ELIMINAR --------------------------------- -->
-		
-      			<div class="card-body">
-
-					
-					<div class="row mt-4"> <div class="col text-center">
-						<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="!checkedQr" >Imprimir Qr</button>
-					</div></div>
-					<div class="row mt-4"> <div class="col text-center">
-						<button v-on:click="Imprimir_barcode" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo de Barra</button>
-					</div></div>
-					<div class="row mt-4"> <div class="col text-center">
-						<button v-on:click="Imprimir_barinterno" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo Interno</button>
-					</div></div>
-					<div class="row mt-4"> <div class="col text-center">
-						<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Qr Link</button>
-					</div></div>
-				</div>
-
-    		</div>
-  		</div>
-  		</div>
-
-			<!-- -------------------------------------- TARJETA DE TABLA DE PRODUCTOS ------------------------------------------------- -->
-		
-		<div class="card mt-3 my-2">
-			<div class="col-12">
-
-				<!-- --------------------------------------------MOSTRAR LOADING------------------------------------------------------- -->
-
-			    <div class="col-md-12">
-					<div v-if="procesar" class="d-flex justify-content-center mt-3">
-						Guardando...
-			            <div class="spinner-grow text-success" role="status" aria-hidden="true"></div>
-			        </div>
-		        </div>
-				
-				<!-- ------------------------------------------ TABLA DE PRODUCTOS ---------------------------------------------------- -->
-				
-				<div class="col-md-12 mt-4">
-					<table id="tablaProductos" class="display nowrap table table-striped table-bordered table-sm mb-3" style="width:100%">
-		                <thead>
-		                    <tr>
-		                        <th></th>
-		                        <th class="codigoDeclarados">Codigo Producto</th>
-		                        <th >Codigo Interno</th>
-		                        <th>Descripción</th>
-		                        <th>Lote</th>
-                        		<th class="cantidadColumna">Cantidad</th>
-		                        <th>Precio</th>
-		                        <th>Precio Mayorista</th>
-		                        <th>Acción</th>
-                        		<th>Stock</th>
-                        		<th>Id Lote</th>
-                        		
-		                    </tr>
-		                </thead>
-		                <tbody>
-		                	
-		                </tbody>
-		                <tfoot>
-		                	<tr>
-		                		<th></th>
-		                		<th></th>
-		                		<th></th>
-		                		<th>TOTALES</th>
-			                	<th></th>
-			                	<th></th>
-			                	<th></th>
-			                	<th></th>
-			                <th></th>
-			                	<th></th>
-			                	<th></th>
-			                	
-		                	</tr>
-		                </tfoot>	
-            		</table>
-            	</div>
-
-			</div>
-		</div>
-
-		<!-- ------------------------------------------------------- MODALES------------------------------------------------------- -->
-
-		<!--------------------------------------------------- MODAL EDITAR PRODUCTO --------------------------------------------------->
-
-                <div class="modal fade editar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label>Precio Unitario</label>
-                                    <input type="text" name="" v-model="editarPrecio" class="form-control form-control-sm" disabled>
-                                </div>
-                                <div class="col-md-12 mt-3">
-                                    <label>Cantidad</label>
-                                    <input type="text" name="" v-model="editarCantidad" v-on:blur="formatoEditarPrecio()" class="form-control form-control-sm">
-                                </div>
-                            </div>      
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" id="editarFila">Editar</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>  
-
-        <!-- -------------------------------------------------MODAL ELIMINAR PRODUCTO --------------------------------------------------->
-
-                <div class="modal fade eliminar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" >¿Eliminar <font-awesome-icon icon="barcode"/> {{editarCodigo}}?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body text-center">
-                            <button type="button" class="btn btn-danger" id="eliminarFila" data-dismiss="modal">Eliminar</button>
-                        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-        <!---------------------------------------------------- MODAL MOSTRAR PRODUCTO ---------------------------------------------------->
-
-                <div class="modal fade mostrar-producto-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title text-primary text-center" ><font-awesome-icon icon="barcode"/> {{editarCodigo}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                          <div class="card" >
-							  <img  :src="productoImagen[0].IMAGEN" class="card-img-top" alt="">
-							  <div class="card-body">
-							    <p class="card-text text-center">{{productoImagen[0].DESCRIPCION}}</p>
-							  </div>
-							  <ul class="list-group list-group-flush">
-							    <li class="list-group-item"><span class="text-primary text-left">Stock: </span> <span class="float-right">{{productoImagen[0].STOCK}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Costo: </span> <span class="float-right">{{productoImagen[0].PRECOSTO}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Venta: </span> <span class="float-right">{{productoImagen[0].PREC_VENTA}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio Mayorista: </span> <span class="float-right">{{productoImagen[0].PREMAYORISTA}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Precio VIP: </span> <span class="float-right">{{productoImagen[0].PREVIP}}</span></li>
-							    <li class="list-group-item"><span class="text-primary text-left">Última Compra: </span> <span class="float-right">{{productoImagen[0].FECHULT_C}}</span></li>
-							  </ul>
-							  
-							</div>  
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>        
-
-        <!------------------------------------------------ MODAL PRODUCTOS SIN REGISTRAR ------------------------------------------------>
-
-        <div class="modal fade" id="modal_no_registrados" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-		  <div class="modal-dialog modal-dialog-scrollable" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title" id="exampleModalScrollableTitle">Productos no registrados</h5>
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		          <span aria-hidden="true">&times;</span>
-		        </button>
-		      </div>
-		      <div class="modal-body">
-		        <table class="table table-striped table-light table-sm" v-if="no_registrados.length > 0">
-				  <thead class="thead-light">
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Código</th>
-				      <th scope="col">Cantidad</th>
-				      <th scope="col">Guardado</th>
-				      <th scope="col">No guardado</th>
-				    </tr>
-				  </thead>
-				  <tbody>
-				    <tr v-bind:class="{ 'table-danger': no_registrado.guardado === 0, 'table-warning': no_registrado.guardado > 0 }" v-for="(no_registrado, index) in no_registrados">
-				      <th scope="row">{{index+1}}</th>
-				      <td>{{no_registrado.cod_prod}}</td>
-				      <td>{{no_registrado.cantidad}}</td>
-				      <td>{{no_registrado.guardado}}</td>
-				      <td>{{no_registrado.restante}}</td>
-				    </tr>
-				  </tbody>
-				</table>
-		      </div>
-		      <div class="modal-footer">
-		        <button type="button" class="btn btn-secondary" v-on:click="mostrarRemision" data-dismiss="modal">Cerrar</button>
-		      </div>
-		    </div>
-		  </div>
-		</div>
-		
-		 
-		<!-- ---------------------------------------------------------- TOASTS -------------------------------------------------------- -->
-
-		<!-- ------------------------------------------------ TOAST CODIGO PRODUCTO REPETIDO ------------------------------------------ -->
-
-		<b-toast id="toast-codigo-repetido" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">¡Error!</strong>
-	          <small class="text-muted mr-2">repetido</small>
-	        </div>
-	      </template>
-	      ¡Este producto ya existe en la tabla, favor de elegir otro o modificarlo!
-	    </b-toast>
-
-	    <!-- ---------------------------------------------TOAST PRODUCTO MODIFICADO---------------------------------------------------- -->
-
-		<b-toast id="toast-producto-modificado" variant="success" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <strong class="mr-auto">¡Éxito!</strong>
-	          <small class="text-muted mr-2">modificado</small>
-	        </div>
-	      </template>
-	      ¡Este producto ha sido modificado con éxito!
-	    </b-toast>
-
-	    <!-- ------------------------------------------------TOAST CODIGO PRODUCTO REPETIDO-------------------------------------------- -->
-
-		<b-toast id="toast-editar-cero" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">¡Error!</strong>
-	          <small class="text-muted mr-2">cero</small>
-	        </div>
-	      </template>
-	      ¡La cantidad y el precio no deben ser cero!
-	    </b-toast>
-
-	    <!-- ----------------------------------------------TOAST CODIGO PRODUCTO REPETIDO---------------------------------------------- -->
-
-		<b-toast id="toast-cantidad-superada" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">¡Error!</strong>
-	          <small class="text-muted mr-2">superada</small>
-	        </div>
-	      </template>
-	      ¡La cantidad ha superado el stock!
-	    </b-toast>
-
-	    <!-- -------------------------------------------------TOAST COMPLETAR CABECERA------------------------------------------------- -->
-
-		<b-toast id="toast-completar-cabecera" variant="warning" solid>
-	      <template v-slot:toast-title>
-	        <div class="d-flex flex-grow-1 align-items-baseline">
-	          <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
-	          <strong class="mr-auto">¡Error!</strong>
-	          <small class="text-muted mr-2">incompleto</small>
-	        </div>
-	      </template>
-	      ¡Complete todos los datos correctamente!
-	    </b-toast>
-  	</div>
+	</div>
   	<!-- ---------------------------------------------------- FIN-------------- ------------------------------------------------------- -->
 </template>
 
@@ -400,6 +516,9 @@
 				ivaProducto: '',
 				btnguardar: true,
 				codigo_remision: '',
+				seleccionTamaño: 0,
+				seleccionCodigo: 0,
+				seleccionPrecio: 0,
 
 				productoImagen: [{
 	         		PREVIP: '',
@@ -428,6 +547,29 @@
 					cantidadExistente: '',
 					descuento: ''
 				},
+
+				validarProveedor:{
+					nombre: false,
+					direccion: false,
+					ciudad: false,
+					telefono: false,
+					razon: false,
+					fax: false,
+					ruc: false,
+					cantidad: false
+				},
+				proveedor:{
+					nombre: '',
+					direccion: '',
+					ciudad: '',
+					telefono: '',
+					razon: '',
+					fax: '',
+					ruc: '',
+					cantidad: '',
+					controlar:true
+				},
+
 
 				validar:{
 				
@@ -767,6 +909,69 @@
 
 				// ------------------------------------------------------------------------
 
+        	},
+
+        	controlador(){
+        		let me=this;
+        		if (me.seleccionTamaño==='2') {
+        			if(me.proveedor.nombre==='' || me.proveedor.nombre.length===0){
+						me.validarProveedor.nombre= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.nombre=false;
+					}
+
+					if(me.proveedor.direccion==='' || me.proveedor.direccion.length===0){
+						me.validarProveedor.direccion= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.direccion=false;
+					}
+
+					if(me.proveedor.ciudad==='' || me.proveedor.ciudad.length===0){
+						me.validarProveedor.ciudad= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.ciudad=false;
+					}
+
+					if(me.proveedor.telefono==='' || me.proveedor.telefono.length===0){
+						me.validarProveedor.telefono= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.telefono=false;
+					}
+
+					if(me.proveedor.razon==='' || me.proveedor.razon.length===0){
+						me.validarProveedor.razon= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.razon=false;
+					}
+
+					if(me.proveedor.fax==='' || me.proveedor.fax.length===0){
+						me.validarProveedor.fax= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.fax=false;
+					}
+
+					if(me.proveedor.ruc==='' || me.proveedor.ruc.length===0){
+						me.validarProveedor.ruc= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.ruc=false;
+					}
+
+					if(me.proveedor.cantidad==='' || me.proveedor.cantidad.length===0){
+						me.validarProveedor.cantidad= true;
+						me.proveedor.controlar=false;
+					}else{
+						me.validarProveedor.cantidad=false;
+					}
+					return me.proveedor.controlar;
+        		}
+	        		
         	},
 
 			inivarCabecera(tablaEnviada){
@@ -1432,69 +1637,97 @@
 
 	        	this.decimal = valor;
 	        },
-	        Imprimir_QR(){
 
+
+
+	        Imprimir_QR(){
 				let me = this;
-           var tableProductos = $('#tablaProductos').DataTable();
+           		var tableProductos = $('#tablaProductos').DataTable();
 				// ------------------------------------------------------------------------ 
                     
 				Common.generarPdfQrProductoCommon(tableProductos.rows().data().toArray()).then(response => {
-
-						var reader = new FileReader();
-						 reader.readAsDataURL(new Blob([response])); 
-						reader.onloadend = function() {
-						     var base64data = reader.result;
-						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						    return me.imprimir(base64data);
-						 }
-
+					var reader = new FileReader();
+					reader.readAsDataURL(new Blob([response])); 
+					reader.onloadend = function() {
+					     var base64data = reader.result;
+					     base64data = base64data.replace("data:application/octet-stream;base64,", "");
+					    return me.imprimir(base64data);
+					}
 				});
+			},
 
-		},
-			        Imprimir_barcode(){
 
+
+
+
+			Imprimir_barcode(){
 				let me = this;
-           var tableProductos = $('#tablaProductos').DataTable();
-				// ------------------------------------------------------------------------ 
-                    
-				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray()).then(response => {
+				console.log(me.seleccionCodigo);
+				if(me.controlador()===false){
+					me.proveedor.controlar=true;
+					return;
+				}
+				if (me.seleccionTamaño==='1'){
 
+				}
+				else if (me.seleccionTamaño==='2'){
+
+				}
+				else if(me.seleccionTamaño==='3'){
+					var precio=me.seleccionPrecio;
+					var tamañoEtiqueta = me.seleccionTamaño;
+					var tipoCodigo = me.seleccionCodigo;
+					var tableProductos = $('#tablaProductos').DataTable();
+					// ------------------------------------------------------------------------    
+					console.log("entre producto");
+					Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio).then(response => {	
 						var reader = new FileReader();
-						 reader.readAsDataURL(new Blob([response])); 
+						reader.readAsDataURL(new Blob([response])); 
 						reader.onloadend = function() {
-						     var base64data = reader.result;
-						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
+						    var base64data = reader.result;
+						    base64data = base64data.replace("data:application/octet-stream;base64,", "");
 						    return me.imprimir(base64data);
-						 }
+						}
+					});
+				}				
+			},
 
-				});
 
-		},
-					        Imprimir_barinterno(){
 
-				let me = this;
-           var tableProductos = $('#tablaProductos').DataTable();
-				// ------------------------------------------------------------------------ 
+
+			// Imprimir_barinterno(){
+
+			// 	let me = this;
+   //         		var tableProductos = $('#tablaProductos').DataTable();
+			// 	// ------------------------------------------------------------------------ 
                     
-				Common.generarPdfBarinternoProductoCommon(tableProductos.rows().data().toArray()).then(response => {
+			// 	Common.generarPdfBarinternoProductoCommon(tableProductos.rows().data().toArray()).then(response => {
 
-						var reader = new FileReader();
-						 reader.readAsDataURL(new Blob([response])); 
-						reader.onloadend = function() {
-						     var base64data = reader.result;
-						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						    return me.imprimir(base64data);
-						 }
+			// 			var reader = new FileReader();
+			// 			reader.readAsDataURL(new Blob([response])); 
+			// 			reader.onloadend = function() {
+			// 			     var base64data = reader.result;
+			// 			     base64data = base64data.replace("data:application/octet-stream;base64,", "");
+			// 			    return me.imprimir(base64data);
+			// 			 }
 
-				});
+			// 	});
+			// },
 
-		},
+
+
+
+
 		imprimir(base64) {
 
 				let me = this;
 
-				qz.websocket.connect().then(function() { 
-					return qz.printers.find("QR");              // Pass the printer name into the next Promise
+				qz.websocket.connect().then(function() {
+					if(me.seleccionTamaño==='1'){
+						return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
+					}else{
+						return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise
+					} 
 				}).then(function(printer) {
 
 					var config = qz.configs.create(printer);

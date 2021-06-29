@@ -176,28 +176,42 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
-       public static function crear_barcode($datos)
-    {
-    $name = '111'; 
-    $type = 'C128B';
+    public static function crear_barcode($datos){
+      if ($datos['tamaño']==='3'){
+        return(qr::etiqueta_tipo_3($datos));
+      }    
+    }
 
-    $pdf = new TCPDF('L','mm',array(105,22));
-    $pdf->SetPrintHeader(false);
-    $pdf->SetPrintFooter(false);
-    $pdf->addPage();
 
-    $pdf->SetFont('helvetica', '', 6);
- //definir estilo del Barcode 
+    public static function etiqueta_tipo_1($datos){ 
+    }
+
+
+    public static function etiqueta_tipo_2($datos){
+    }
+
+
+    public static function etiqueta_tipo_3($datos){
+      $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+
+      $pdf->SetFont('helvetica', '', 6);
+      $name = '111'; 
+      $type = 'C128B';
+
+       //definir estilo del Barcode 
     //-------------------------------------------------------------------------
         $style = array(
             'position' => '',
-            'align' => 'C',
+            'align' => 'N',
             'stretch' => true,
-            'fitwidth' => true,
+            'fitwidth' => false,
             'cellfitalign' => '',
             'border' => false, // border
-            'hpadding' => 'auto',
-            'vpadding' => 'auto',
+            'hpadding' => 3,
+            'vpadding' => 1.5,
             'fgcolor' => array(0, 0, 0),
             'bgcolor' => false, //array(255,255,255),
                      'text' => true, // whether to display the text below the barcode
@@ -205,181 +219,161 @@ class Qr extends Model
                      'fontsize' => 6, //font size
             'stretchtext' => 4
         );
+         $pag=1;
+         $x=25;
+         $y = 0.3;
+         $z = 2;
+         $c=0;
 
+          foreach ($datos["data"] as $key => $value) {
+                  while($c<$value["CANTIDAD"]){
+                    $c=$c+1;
+                    if($x>97){
+                         $y=$y+27;
+                         if($y > 22){
 
-        //definir la posición del primer bardoce
-    $pag=1;
-       $x=25;
-       $y = 3;
-       $z = 2;
-       $c=0;
-//-----------------------------------------------------------------------------------------------------------------
+                            $pag=$pag+1;
+                            $pdf->AddPage();
+                
+                            $y = 0.3;
+                        }
+                   
+                    $x=25;
+                   }
+                  if ($datos['codigo']==='2'){
+                    $pdf->write1DBarcode($value["CODIGO"], $type, $x, $y, 30, 12, 0.2, $style, 'N');
+                  }else{
+                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x, $y, 30, 12, 0.2, $style, 'N');
+                  }
+                   
+                  if($datos['precio']==='1'){
+                    $pdf->text($x-14, $y+11, $value['PRECIO'], false, false, true);
+                  
+                  }else if($datos['precio']==='2'){
+                    $pdf->text($x-14, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
-          //proceso del codigo de Barra
-       //--------------------------------------------------------------------------------------------------------
-      /* $codigos = DB::connection('retail')
-        ->table('productos_aux')
-        ->select(DB::raw(
-                        'CODIGO_interno AS CODIGO'
-                    ))
-                 
-        ->where('productos_aux.ID_SUCURSAL','=', 9)
-        ->where('productos_aux.CODIGO_INTERNO','like', '9-%')
-        ->orderby('CODIGO')
-        ->limit(52)->get()->toArray();
-*/
-        foreach ($datos["data"] as $key => $value) {
-          while($c<$value["CANTIDAD"]){
-            $c=$c+1;
-                       if($x>97){
-             $y=$y+27;
-             if($y > 22){
+                  }else if($datos['precio']==='3'){
+                    $pdf->text($x-16, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
+                  }
 
-                $pag=$pag+1;
-                $pdf->AddPage();
-    
-                $y = 3;
-            }
-           
-            $x=25;
-           }
-           $pdf->write1DBarcode($value["CODIGO"], $type, $x, $y, 30, 14.4, 0.2, $style, 'N');
-           
-            
-           //$y=$y+35;
+                  $pdf->text($x-23.5, $y+14, substr($value['DESCRIPCION'], 0,24), false, false, true, 0, 1, '', false, '', 0); 
 
-           $x=$x+37-1.5;
-          }
+                    
+                   //$y=$y+35;
+
+                   $x=$x+37-1.5;
+                  }
         $c=0;
      
       
         }
-     
-/*        $pdf->write1DBarcode($fn_sku, $type, $x + 48.7, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');
-        $pdf->write1DBarcode($fn_sku, $type, $x + 48.7 * 2, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');*/
-  /*    $pdf->Text($z, 18 ,'      '.$fn_sku);*/
-                 //The second line fn_sku
-/*        
-        $pdf->Text($z + 48.7, $y + $i * 25 + 13, '   ' . $fn_sku);
-        $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 13, '   ' . $fn_sku);
-        $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 13, '   ' . $fn_sku);
-                 //third line title
-        $pdf->Text($x, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7 * 2, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7 * 3, $y + $i * 25 + 15, '   ' . $title);
-                 //fourth line
-        $pdf->Text($z, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 17, "(MADE IN CHINA)");*/
-  
-        return $pdf->Output($name . ".pdf", 'I'); //D Download I Show
-        
-
-    }
-     public static function crear_barinterno($datos)
-    {
-    $name = '111'; 
-    $type = 'C128B';
-
-    $pdf = new TCPDF('L','mm',array(105,22));
-    $pdf->SetPrintHeader(false);
-    $pdf->SetPrintFooter(false);
-    $pdf->addPage();
-
-    $pdf->SetFont('helvetica', '', 6);
- //definir estilo del Barcode 
-    //-------------------------------------------------------------------------
-        $style = array(
-            'position' => '',
-            'align' => 'C',
-            'stretch' => true,
-            'fitwidth' => true,
-            'cellfitalign' => '',
-            'border' => false, // border
-            'hpadding' => 'auto',
-            'vpadding' => 'auto',
-            'fgcolor' => array(0, 0, 0),
-            'bgcolor' => false, //array(255,255,255),
-                     'text' => true, // whether to display the text below the barcode
-                     'font' => 'helvetica', //font
-                     'fontsize' => 6, //font size
-            'stretchtext' => 4
-        );
+           return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+    } 
 
 
-        //definir la posición del primer bardoce
-    $pag=1;
-       $x=25;
-       $y = 3;
-       $z = 2;
-       $c=0;
-//-----------------------------------------------------------------------------------------------------------------
+    //-------------------------CODIGO INTERNO---------------------------------------------------------------------------------
+//      public static function crear_barinterno($datos)
+//     {
+//     $name = '111'; 
+//     $type = 'C128B';
 
-          //proceso del codigo de Barra
-       //--------------------------------------------------------------------------------------------------------
-      /* $codigos = DB::connection('retail')
-        ->table('productos_aux')
-        ->select(DB::raw(
-                        'CODIGO_interno AS CODIGO'
-                    ))
+//     $pdf = new TCPDF('L','mm',array(105,22));
+//     $pdf->SetPrintHeader(false);
+//     $pdf->SetPrintFooter(false);
+//     $pdf->addPage();
+
+//     $pdf->SetFont('helvetica', '', 6);
+//  //definir estilo del Barcode 
+//     //-------------------------------------------------------------------------
+//         $style = array(
+//             'position' => '',
+//             'align' => 'C',
+//             'stretch' => true,
+//             'fitwidth' => true,
+//             'cellfitalign' => '',
+//             'border' => false, // border
+//             'hpadding' => 'auto',
+//             'vpadding' => 'auto',
+//             'fgcolor' => array(0, 0, 0),
+//             'bgcolor' => false, //array(255,255,255),
+//                      'text' => true, // whether to display the text below the barcode
+//                      'font' => 'helvetica', //font
+//                      'fontsize' => 6, //font size
+//             'stretchtext' => 4
+//         );
+
+
+//         //definir la posición del primer bardoce
+//     $pag=1;
+//        $x=25;
+//        $y = 3;
+//        $z = 2;
+//        $c=0;
+// //-----------------------------------------------------------------------------------------------------------------
+
+//           //proceso del codigo de Barra
+//        //--------------------------------------------------------------------------------------------------------
+//       /* $codigos = DB::connection('retail')
+//         ->table('productos_aux')
+//         ->select(DB::raw(
+//                         'CODIGO_interno AS CODIGO'
+//                     ))
                  
-        ->where('productos_aux.ID_SUCURSAL','=', 9)
-        ->where('productos_aux.CODIGO_INTERNO','like', '9-%')
-        ->orderby('CODIGO')
-        ->limit(52)->get()->toArray();
-*/
-        foreach ($datos["data"] as $key => $value) {
-          while($c<$value["CANTIDAD"]){
-            $c=$c+1;
-                       if($x>97){
-             $y=$y+27;
-             if($y > 22){
+//         ->where('productos_aux.ID_SUCURSAL','=', 9)
+//         ->where('productos_aux.CODIGO_INTERNO','like', '9-%')
+//         ->orderby('CODIGO')
+//         ->limit(52)->get()->toArray();
+// */
+//         foreach ($datos["data"] as $key => $value) {
+//           while($c<$value["CANTIDAD"]){
+//             $c=$c+1;
+//                        if($x>97){
+//              $y=$y+27;
+//              if($y > 22){
 
-                $pag=$pag+1;
-                $pdf->AddPage();
+//                 $pag=$pag+1;
+//                 $pdf->AddPage();
     
-                $y = 3;
-            }
+//                 $y = 3;
+//             }
            
-            $x=25;
-           }
-           $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x, $y, 30, 14.4, 0.2, $style, 'N');
+//             $x=25;
+//            }
+//            $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x, $y, 30, 12, 0.2, $style, 'N');
            
             
-           //$y=$y+35;
+//            //$y=$y+35;
 
-           $x=$x+37-1.5;
-          }
-        $c=0;
+//            $x=$x+37-1.5;
+//           }
+//         $c=0;
      
       
-        }
+//         }
      
-/*        $pdf->write1DBarcode($fn_sku, $type, $x + 48.7, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');
-        $pdf->write1DBarcode($fn_sku, $type, $x + 48.7 * 2, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');*/
-  /*    $pdf->Text($z, 18 ,'      '.$fn_sku);*/
-                 //The second line fn_sku
-/*        
-        $pdf->Text($z + 48.7, $y + $i * 25 + 13, '   ' . $fn_sku);
-        $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 13, '   ' . $fn_sku);
-        $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 13, '   ' . $fn_sku);
-                 //third line title
-        $pdf->Text($x, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7 * 2, $y + $i * 25 + 15, '   ' . $title);
-        $pdf->Text($x + 48.7 * 3, $y + $i * 25 + 15, '   ' . $title);
-                 //fourth line
-        $pdf->Text($z, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 17, "(MADE IN CHINA)");
-        $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 17, "(MADE IN CHINA)");*/
+// /*        $pdf->write1DBarcode($fn_sku, $type, $x + 48.7, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');
+//         $pdf->write1DBarcode($fn_sku, $type, $x + 48.7 * 2, $y + $i * 25, 44.2, 14.4, 0.4, $style, 'N');*/
+//   /*    $pdf->Text($z, 18 ,'      '.$fn_sku);*/
+//                  //The second line fn_sku
+// /*        
+//         $pdf->Text($z + 48.7, $y + $i * 25 + 13, '   ' . $fn_sku);
+//         $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 13, '   ' . $fn_sku);
+//         $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 13, '   ' . $fn_sku);
+//                  //third line title
+//         $pdf->Text($x, $y + $i * 25 + 15, '   ' . $title);
+//         $pdf->Text($x + 48.7, $y + $i * 25 + 15, '   ' . $title);
+//         $pdf->Text($x + 48.7 * 2, $y + $i * 25 + 15, '   ' . $title);
+//         $pdf->Text($x + 48.7 * 3, $y + $i * 25 + 15, '   ' . $title);
+//                  //fourth line
+//         $pdf->Text($z, $y + $i * 25 + 17, "(MADE IN CHINA)");
+//         $pdf->Text($z + 48.7, $y + $i * 25 + 17, "(MADE IN CHINA)");
+//         $pdf->Text($z + 48.7 * 2, $y + $i * 25 + 17, "(MADE IN CHINA)");
+//         $pdf->Text($z + 48.7 * 3, $y + $i * 25 + 17, "(MADE IN CHINA)");*/
   
-        return $pdf->Output($name . ".pdf", 'i'); //D Download I Show
+//         return $pdf->Output($name . ".pdf", 'i'); //D Download I Show
         
 
-    }
+//     }
            public static function crear_etiqueta_gondola()
     {
 $pdf = new TCPDF('L','mm',array(95,48));
