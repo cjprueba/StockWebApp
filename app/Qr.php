@@ -185,66 +185,7 @@ class Qr extends Model
     }
 
 
-    public static function etiqueta_tipo_1($datos){ 
-    }
-
-
-    public static function etiqueta_tipo_2($datos){
-       $pdf = new TCPDF('L','mm',array(105,22));
-      $pdf->SetPrintHeader(false);
-      $pdf->SetPrintFooter(false);
-      $pdf->addPage();
-      $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
-
-
-      $pdf->SetFont('helvetica', '', 6);
-      $pag=1;
-      $x=25;
-      $y = 0.3;
-      $z = 2;
-      $c=0;
-      while($datos['proveedor']['cantidad']>$c){
-        $c=$c+1;
-        if($x>97){
-          $y=$y+27;
-          if($y > 22){
-            $pag=$pag+1;
-            $pdf->AddPage();
-            $y = 0.3;
-          }
-          $x=25;
-        }
-        // $html = 
-        // '
-        // <p style="font-size:5px"><b>'.$datos['proveedor']['nombre'].'</b><br>
-        // <b>'.$datos['proveedor']['razon'].'</b><br>
-        // '.$datos['proveedor']['direccion'].' '.$datos['proveedor']['ciudad'].'<br>
-        // Telef: '.$datos['proveedor']['telefono'].'<br>
-        // Fax: '.$datos['proveedor']['fax'].'<br>
-        // RUC: '.$datos['proveedor']['ruc'].'<br>
-        // Ciudad del Este - Paraguay
-        // </p>
-        // ';
-        // $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 0, 0, false, '', false); 
-        $pdf->SetFont('Times','B');
-        $pdf->text($x-23, $y+1, $datos['proveedor']['nombre'], false, false, true);
-        $pdf->SetFont('Times','B');
-        $pdf->text($x-23, $y+3, $datos['proveedor']['razon'], false, false, true);
-        $pdf->SetFont('Times');
-        $pdf->text($x-23, $y+6, $datos['proveedor']['direccion']." / ".$datos['proveedor']['ciudad'], false, false, true);
-        $pdf->text($x-23, $y+8, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
-        $pdf->text($x-23, $y+10, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
-        $pdf->text($x-23, $y+12, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
-        $pdf->text($x-23, $y+15, "Ciudad del Este - Paraguay", false, false, true);
-
-        //$y=$y+35;
-        $x=$x+37-1.5;
-      }
-       return $pdf->Output("etiqueta_tipo_2" . ".pdf", 'D'); //D Download I Show
-    }
-
-
-    public static function etiqueta_tipo_3($datos){
+    public static function etiqueta_tipo_1($datos){
       $pdf = new TCPDF('L','mm',array(105,22));
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
@@ -254,8 +195,8 @@ class Qr extends Model
       $name = '111'; 
       $type = 'C128B';
 
-       //definir estilo del Barcode 
-    //-------------------------------------------------------------------------
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
         $style = array(
             'position' => '',
             'align' => 'N',
@@ -317,6 +258,149 @@ class Qr extends Model
                   $pdf->SetFontSize(5.5);
                   $pdf->SetFont('freesans');
                   $pdf->text($x-23.5, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
+
+                    
+                   //$y=$y+35;
+
+                   $x=$x+37-1.5;
+                  }
+        $c=0;
+     
+      
+        }
+           return $pdf->Output($name . ".pdf", 'D'); //D Download I Show 
+    }
+
+
+    public static function etiqueta_tipo_2($datos){
+       $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+      $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
+
+
+      $pdf->SetFont('helvetica', '', 6);
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      while($datos['proveedor']['cantidad']>$c){
+        $c=$c+1;
+        if($x>97){
+          $y=$y+27;
+          if($y > 22){
+            $pag=$pag+1;
+            $pdf->AddPage();
+            $y = 0.3;
+          }
+          $x=25;
+        }
+        // $html = 
+        // '
+        // <p style="font-size:5px"><b>'.$datos['proveedor']['nombre'].'</b><br>
+        // <b>'.$datos['proveedor']['razon'].'</b><br>
+        // '.$datos['proveedor']['direccion'].' '.$datos['proveedor']['ciudad'].'<br>
+        // Telef: '.$datos['proveedor']['telefono'].'<br>
+        // Fax: '.$datos['proveedor']['fax'].'<br>
+        // RUC: '.$datos['proveedor']['ruc'].'<br>
+        // Ciudad del Este - Paraguay
+        // </p>
+        // ';
+        // $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 0, 0, false, '', false);
+        $pdf->SetFontSize(7); 
+        $pdf->SetFont('Times','B');
+        $pdf->text($x-25, $y+1, $datos['proveedor']['nombre'], false, false, true);
+        $pdf->SetFont('Times','B');
+        $pdf->text($x-25, $y+3, $datos['proveedor']['razon'], false, false, true);
+        $pdf->SetFont('Times');
+        $pdf->text($x-25, $y+6, $datos['proveedor']['direccion']." / ".$datos['proveedor']['ciudad'], false, false, true);
+        $pdf->text($x-25, $y+8.5, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
+        $pdf->text($x-25, $y+11, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
+        $pdf->text($x-25, $y+13.5, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
+        $pdf->text($x-25, $y+16.5, "Ciudad del Este - Paraguay", false, false, true);
+
+        //$y=$y+35;
+        $x=$x+37-1.5;
+      }
+       return $pdf->Output("etiqueta_tipo_2" . ".pdf", 'D'); //D Download I Show
+    }
+
+
+    public static function etiqueta_tipo_3($datos){
+      $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+
+      $pdf->SetFont('helvetica', '', 6);
+      $name = '111'; 
+      $type = 'C128B';
+
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
+        $style = array(
+            'position' => '',
+            'align' => 'N',
+            'stretch' => true,
+            'fitwidth' => false,
+            'cellfitalign' => '',
+            'border' => false, // border
+            'hpadding' => 3,
+            'vpadding' => 1.5,
+            'fgcolor' => array(0, 0, 0),
+            'bgcolor' => false, //array(255,255,255),
+                     'text' => true, // whether to display the text below the barcode
+                     'font' => 'helvetica', //font
+                     'fontsize' => 6, //font size
+            'stretchtext' => 4
+        );
+         $pag=1;
+         $x=25;
+         $y = 0.3;
+         $z = 2;
+         $c=0;
+
+          foreach ($datos["data"] as $key => $value) {
+                  while($c<$value["CANTIDAD"]){
+                    $c=$c+1;
+                    if($x>97){
+                         $y=$y+27;
+                         if($y > 22){
+
+                            $pag=$pag+1;
+                            $pdf->AddPage();
+                
+                            $y = 0.3;
+                        }
+                   
+                    $x=25;
+                   }
+                  if ($datos['codigo']==='2'){
+                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+4, $y, 34, 12, 0.2, $style, 'N');
+                  }else{
+                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+4, $y, 34, 12, 0.2, $style, 'N');
+                  }
+                   
+                  if($datos['precio']==='1'){
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
+                    $pdf->text($x-12, $y+11, $value['PRECIO'], false, false, true);
+                  
+                  }else if($datos['precio']==='2'){
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
+                    $pdf->text($x-12, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
+
+                  }else if($datos['precio']==='3'){
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
+                    $pdf->text($x-15, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
+                  }
+                  $pdf->SetFontSize(6.5);
+                  $pdf->SetFont('freesans');
+                  $pdf->text($x-23, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;
