@@ -197,7 +197,7 @@
           <div class="bg-white py-2 collapse-inner rounded" id="accordionMov">
             <h6 class="collapse-header">Opciones:</h6>
 
-            <a v-if="$can('movimientos.productosal')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductosMov" aria-expanded="true" aria-controls="collapseProductosMov" ><font-awesome-icon/>Salida de Productos</a>
+            <a v-if="$can('movimientos.productosal')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductosMov" aria-expanded="true" aria-controls="collapseProductosMov" >Salida de Productos</a>
             <div id="collapseProductosMov" class="collapse bg-#ced4da"   aria-labelledby="headingProductosMov" data-parent="#accordionMov" >
               <hr>
               <router-link v-if="$can('movimientos.salidadeproducto')" class="collapse-item" :to="{name: 'salidaProducto'}">Realizar Salida</router-link>
@@ -207,7 +207,7 @@
 
 
 
-            <a v-if="$can('movimientos.productopres')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductoPres" aria-expanded="true" aria-controls="collapseProductoPres" ><font-awesome-icon />Préstamo de Productos</a>
+            <a v-if="$can('movimientos.productopres')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseProductoPres" aria-expanded="true" aria-controls="collapseProductoPres" >Préstamo de Productos</a>
             <div id="collapseProductoPres" class="collapse bg-#ced4da"   aria-labelledby="headingProductoPres" data-parent="#accordionMov">
               <hr>
               <router-link v-if="$can('movimientos.prestamodeproductos')" class="collapse-item" :to="{name: 'prestarProducto'}">Realizar Préstamo</router-link>
@@ -217,7 +217,7 @@
 
 
 
-            <a v-if="$can('movimientos.nota')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseNotaDeCredito" aria-expanded="true" aria-controls="collapseNotaDeCredito" ><font-awesome-icon /> Nota de Credito</a>
+            <a v-if="$can('movimientos.nota')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseNotaDeCredito" aria-expanded="true" aria-controls="collapseNotaDeCredito" >Nota de Credito</a>
             <div id="collapseNotaDeCredito" class="collapse bg-#ced4da"   aria-labelledby="headingNotaDeCredito" data-parent="#accordionMov">
               <hr>
               <router-link v-if="$can('movimientos.notadecredito')" class="collapse-item" :to="{name: 'notaCredito'}">Realizar Nota</router-link>
