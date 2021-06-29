@@ -4252,7 +4252,7 @@ function generarPdfQrProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio){
 
 			// ------------------------------------------------------------------------
 
@@ -4289,19 +4289,19 @@ function generarPdfBarcodeProductoCommon(datos){
 				},
 				(error) => { return error }
 			);
-/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
-				(response) => {
-					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-					const link = document.createElement('a');
-					link.href = url;
-					//DESCARGAR
-					// link.setAttribute('download', 'file.pdf');
-					// document.body.appendChild(link);
-					link.target = '_blank'
-					link.click();
-				},
-				(error) => { return error }
-			);*/
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio }}).then( 
+// 				(response) => {
+// 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+// 					const link = document.createElement('a');
+// 					link.href = url;
+// 					//DESCARGAR
+// 					// link.setAttribute('download', 'file.pdf');
+// 					// document.body.appendChild(link);
+// 					link.target = '_blank'
+// 					link.click();
+// 				},
+// 				(error) => { return error }
+// 			);
 			// ------------------------------------------------------------------------
 
 }
@@ -4317,32 +4317,32 @@ function generarPdfBarinternoProductoCommon(datos){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barinterno', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
-				(response) => {
+			// return axios({url: '/barinterno', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+			// 	(response) => {
 
-					// var base64data = '';
+			// 		// var base64data = '';
 
-					// const url = window.URL.createObjectURL(new Blob([response.data]));
-					// var reader = new FileReader();
-					//  reader.readAsDataURL(new Blob([response.data])); 
-					//  reader.onloadend = function() {
-					//      base64data = reader.result;
-					//  }
+			// 		// const url = window.URL.createObjectURL(new Blob([response.data]));
+			// 		// var reader = new FileReader();
+			// 		//  reader.readAsDataURL(new Blob([response.data])); 
+			// 		//  reader.onloadend = function() {
+			// 		//      base64data = reader.result;
+			// 		//  }
 
-					 return response.data;
-					// return var blobToBase64 = function(blob, callback) {
-					//     var reader = new FileReader();
-					//     reader.onload = function() {
-					//         var dataUrl = reader.result;
-					//         var base64 = dataUrl.split(',')[1];
-					//         callback(base64);
-					//     };
-					//     reader.readAsDataURL(blob);
-					// };
-				},
-				(error) => { return error }
-			);
-/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+			// 		 return response.data;
+			// 		// return var blobToBase64 = function(blob, callback) {
+			// 		//     var reader = new FileReader();
+			// 		//     reader.onload = function() {
+			// 		//         var dataUrl = reader.result;
+			// 		//         var base64 = dataUrl.split(',')[1];
+			// 		//         callback(base64);
+			// 		//     };
+			// 		//     reader.readAsDataURL(blob);
+			// 		// };
+			// 	},
+			// 	(error) => { return error }
+			// );
+return axios({url: 'barinterno', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4354,7 +4354,7 @@ function generarPdfBarinternoProductoCommon(datos){
 					link.click();
 				},
 				(error) => { return error }
-			);*/
+			);
 			// ------------------------------------------------------------------------
 
 }
