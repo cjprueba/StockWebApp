@@ -300,16 +300,23 @@ class Qr extends Model
                   }
                    
                   if($datos['precio']==='1'){
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
                     $pdf->text($x-14, $y+11, $value['PRECIO'], false, false, true);
                   
                   }else if($datos['precio']==='2'){
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
                     $pdf->text($x-14, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
                   }else if($datos['precio']==='3'){
-                    $pdf->text($x-16, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
+                    $pdf->SetFontSize(7);
+                    $pdf->SetFont('','B');
+                    $pdf->text($x-17, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
                   }
-
-                  $pdf->text($x-23.5, $y+14, substr($value['DESCRIPCION'], 0,24), false, false, true, 0, 1, '', false, '', 0); 
+                  $pdf->SetFontSize(5.5);
+                  $pdf->SetFont('freesans');
+                  $pdf->text($x-23.5, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;
