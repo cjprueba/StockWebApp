@@ -1662,34 +1662,27 @@
 
 			Imprimir_barcode(){
 				let me = this;
-				console.log(me.seleccionCodigo);
 				if(me.controlador()===false){
 					me.proveedor.controlar=true;
 					return;
 				}
-				if (me.seleccionTamaño==='1'){
 
-				}
-				else if (me.seleccionTamaño==='2'){
+			    var precio=me.seleccionPrecio;
+				var tamañoEtiqueta = me.seleccionTamaño;
+				var tipoCodigo = me.seleccionCodigo;
+				var proveedorA = me.proveedor;
+				var tableProductos = $('#tablaProductos').DataTable();
 
-				}
-				else if(me.seleccionTamaño==='3'){
-					var precio=me.seleccionPrecio;
-					var tamañoEtiqueta = me.seleccionTamaño;
-					var tipoCodigo = me.seleccionCodigo;
-					var tableProductos = $('#tablaProductos').DataTable();
-					// ------------------------------------------------------------------------    
-					console.log("entre producto");
-					Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio).then(response => {	
-						var reader = new FileReader();
-						reader.readAsDataURL(new Blob([response])); 
-						reader.onloadend = function() {
-						    var base64data = reader.result;
-						    base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						    return me.imprimir(base64data);
-						}
-					});
-				}				
+
+				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA).then(response => {	
+					var reader = new FileReader();
+					reader.readAsDataURL(new Blob([response])); 
+					reader.onloadend = function() {
+					    var base64data = reader.result;
+					    base64data = base64data.replace("data:application/octet-stream;base64,", "");
+					    return me.imprimir(base64data);
+					}
+				});				
 			},
 
 

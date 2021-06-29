@@ -177,7 +177,9 @@ class Qr extends Model
 
     }
     public static function crear_barcode($datos){
-      if ($datos['tamaño']==='3'){
+      if($datos['tamaño']==='2'){
+        return(qr::etiqueta_tipo_2($datos));
+      }else if ($datos['tamaño']==='3'){
         return(qr::etiqueta_tipo_3($datos));
       }    
     }
@@ -188,6 +190,57 @@ class Qr extends Model
 
 
     public static function etiqueta_tipo_2($datos){
+       $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+      $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
+
+
+      $pdf->SetFont('helvetica', '', 6);
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      while($datos['proveedor']['cantidad']>$c){
+        $c=$c+1;
+        if($x>97){
+          $y=$y+27;
+          if($y > 22){
+            $pag=$pag+1;
+            $pdf->AddPage();
+            $y = 0.3;
+          }
+          $x=25;
+        }
+        // $html = 
+        // '
+        // <p style="font-size:5px"><b>'.$datos['proveedor']['nombre'].'</b><br>
+        // <b>'.$datos['proveedor']['razon'].'</b><br>
+        // '.$datos['proveedor']['direccion'].' '.$datos['proveedor']['ciudad'].'<br>
+        // Telef: '.$datos['proveedor']['telefono'].'<br>
+        // Fax: '.$datos['proveedor']['fax'].'<br>
+        // RUC: '.$datos['proveedor']['ruc'].'<br>
+        // Ciudad del Este - Paraguay
+        // </p>
+        // ';
+        // $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 0, 0, false, '', false); 
+        $pdf->SetFont('Times','B');
+        $pdf->text($x-23, $y+1, $datos['proveedor']['nombre'], false, false, true);
+        $pdf->SetFont('Times','B');
+        $pdf->text($x-23, $y+3, $datos['proveedor']['razon'], false, false, true);
+        $pdf->SetFont('Times');
+        $pdf->text($x-23, $y+6, $datos['proveedor']['direccion']." / ".$datos['proveedor']['ciudad'], false, false, true);
+        $pdf->text($x-23, $y+8, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
+        $pdf->text($x-23, $y+10, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
+        $pdf->text($x-23, $y+12, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
+        $pdf->text($x-23, $y+15, "Ciudad del Este - Paraguay", false, false, true);
+
+        //$y=$y+35;
+        $x=$x+37-1.5;
+      }
+       return $pdf->Output("etiqueta_tipo_2" . ".pdf", 'D'); //D Download I Show
     }
 
 
