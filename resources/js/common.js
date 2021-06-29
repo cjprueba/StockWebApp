@@ -4252,7 +4252,7 @@ function generarPdfQrProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor){
 
 			// ------------------------------------------------------------------------
 
@@ -4264,7 +4264,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio}}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4289,7 +4289,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio){
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio }}).then( 
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
 // 				(response) => {
 // 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 // 					const link = document.createElement('a');
