@@ -4264,7 +4264,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio}}).then( 
 				(response) => {
 
 					// var base64data = '';
