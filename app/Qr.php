@@ -229,13 +229,15 @@ class Qr extends Model
         // </p>
         // ';
         // $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 0, 0, false, '', false);
-        $pdf->SetFontSize(6.5); 
+        $pdf->SetFontSize(6.3); 
         $pdf->SetFont('freesans','B');
         $pdf->text($x-25, $y+1, $datos['proveedor']['nombre'], false, false, true);
         $pdf->SetFont('freesans','B');
         $pdf->text($x-25, $y+3, $datos['proveedor']['razon'], false, false, true);
         $pdf->SetFont('freesans');
+        $pdf->SetFontSize(5.5);
         $pdf->text($x-25, $y+6, $datos['proveedor']['direccion']." / ".$datos['proveedor']['ciudad'], false, false, true);
+        $pdf->SetFontSize(6.5);
         $pdf->text($x-25, $y+8.5, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
         $pdf->text($x-25, $y+11, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
         $pdf->text($x-25, $y+13.5, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
@@ -298,25 +300,25 @@ class Qr extends Model
                     $x=25;
                    }
                   if ($datos['codigo']==='2'){
-                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+2, $y, 35, 12, 0.2, $style, 'N');
+                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+1.8, $y, 35, 12, 0.2, $style, 'N');
                   }else{
-                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+2, $y, 35, 12, 0.2, $style, 'N');
+                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.7, $y, 35, 12, 0.2, $style, 'N');
                   }
                    
                   if($datos['precio']==='1'){
                     $pdf->SetFontSize(7);
                     $pdf->SetFont('','B');
-                    $pdf->text($x-14, $y+11, $value['PRECIO'], false, false, true);
+                    $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
                   
                   }else if($datos['precio']==='2'){
                     $pdf->SetFontSize(7);
                     $pdf->SetFont('','B');
-                    $pdf->text($x-14, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
+                    $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
                   }else if($datos['precio']==='3'){
                     $pdf->SetFontSize(7);
                     $pdf->SetFont('','B');
-                    $pdf->text($x-16, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
+                    $pdf->text($x-16.5, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
                   }
                   $pdf->SetFontSize(6.3);
                   $pdf->SetFont('freesans');
@@ -380,15 +382,16 @@ class Qr extends Model
           }
           $pdf->SetFontSize(7);
           $pdf->SetFont('freesans', 'B');
-          $pdf->text($x-24, $y+2, $value['DESCRIPCION'], false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-25, $y+2, $value['DESCRIPCION'], false, false, true, 0, 1, '', false, '', 0);
 
           if ($datos['codigo']==='2'){
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+8, $y+8, 57, 12, 0.2, $style, 'N');
+            $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+8, 57, 12, 0.2, $style, 'N');
           }else{
-            $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+8, $y, 50, 12, 0.2, $style, 'N');
+            $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+8, 57, 12, 0.2, $style, 'N');
           }
           $y=$y+28;
         }
+
         $c=0;
       }
         return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
