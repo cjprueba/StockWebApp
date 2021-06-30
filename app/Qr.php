@@ -300,9 +300,9 @@ class Qr extends Model
                     $x=25;
                    }
                   if ($datos['codigo']==='2'){
-                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+1.5, $y, 34.5, 12, 0.2, $style, 'N');
+                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
                   }else{
-                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 34.5, 12, 0.2, $style, 'N');
+                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
                   }
                    
                   if($datos['precio']==='1'){
@@ -320,9 +320,9 @@ class Qr extends Model
                     $pdf->SetFont('','B');
                     $pdf->text($x-16.5, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
                   }
-                  $pdf->SetFontSize(6);
+                  $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
-                  $pdf->text($x-24.5, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
+                  $pdf->text($x-23.8, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;
@@ -382,12 +382,12 @@ class Qr extends Model
           }
           $pdf->SetFontSize(7);
           $pdf->SetFont('freesans', 'B');
-          $pdf->text($x-25, $y+2, $value['DESCRIPCION'], false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-23.8, $y+2, $value['DESCRIPCION'], false, false, true, 0, 1, '', false, '', 0);
 
           if ($datos['codigo']==='2'){
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+9, 57, 12, 0.2, $style, 'N');
+            $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+9, 55, 12, 0.2, $style, 'N');
           }else{
-            $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+9, 57, 12, 0.2, $style, 'N');
+            $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+9, 55, 12, 0.2, $style, 'N');
           }
           $y=$y+28;
         }
