@@ -1,7 +1,9 @@
 <template>
 		<!-- VENTA POR MARCA Y CATEGORIA -->
 	<div>
-		<div class="card shadow border-bottom-primary" >
+		<div v-if="$can('reporte.venta') && $can('reporte.venta.viejo')">
+		  <div class="card shadow border-bottom-primary" >
+
 		  	<div class="card-header">Venta por marcas y categorías</div>
 			<div class="card-body">
 			  	<div class="form-row">
@@ -267,6 +269,10 @@
 
 		<!-- CARD PARA MARCA Y SU CATEGORIA -->
 
+	  </div>
+	  <div v-else>
+		<cuatrocientos-cuatro></cuatrocientos-cuatro>
+	  </div>
 	</div>
 		<!-- FIN DE VENTA POR MARCA Y CATEGORIA -->
 

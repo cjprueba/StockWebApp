@@ -20,6 +20,7 @@
             <option v-if="$can('reporte.venta.transferencia') && $can('reporte.web')" value="11">Ventas por Transferencia</option>
             <option v-if="$can('reporte.venta.vale') && $can('reporte.web')" value="10">Ventas por Vales</option>
             <option v-if="$can('reporte.venta.vendedor') && $can('reporte.web')" value="5">Ventas por Vendedor</option>
+            <option v-if="$can('reporte.venta.viejo') && $can('reporte.web')" value="14">.....Reporte de Ventas - Viejo Sistema.....</option>
 				</select>			
 			</div>
 
@@ -100,8 +101,11 @@
         <venta-tarjeta-rpt v-if="reporte === '13'" id="reporte13"></venta-tarjeta-rpt>
       </transition>
 
-		</div>
+      <transition name="slide-fade">  
+        <venta-marca-categoria v-if="reporte === '14'" id="reporte14"></venta-marca-categoria>
+      </transition>
 
+		</div>
     <!-- ------------------------------------------------------------------------ -->
 
     <div v-else>
