@@ -234,7 +234,8 @@ class TransferenciaPorMes implements FromArray, WithTitle,WithEvents,ShouldAutoS
           if ($this->hojas==1){
              return 'TRANSFERENCIAS';
           }else{
-             return $this->DESCRIPCION." ".$this->DESCRIPCIONL  ;
+            $titulo=$this->DESCRIPCION." ".$this->DESCRIPCIONL;
+            return substr($titulo, 1,30); 
           }
        
         }
