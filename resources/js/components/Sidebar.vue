@@ -71,6 +71,7 @@
               <router-link v-if="$can('reporte.productos')" class="collapse-item" :to="{name: 'rptProductoWeb'}">Productos</router-link>
               <router-link v-if="$can('reporte.transferencia')" class="collapse-item" :to="{name: 'rptTransferenciaWeb'}">Transferencias</router-link>
               <router-link v-if="$can('reporte.venta')" class="collapse-item" :to="{name: 'rptVentaWeb'}">Ventas</router-link>
+              <!-- <router-link class="collapse-item" :to="{name: 'rptVenta'}">Ventas</router-link> -->
               <router-link v-if="$can('reporte.notadecredito')" class="collapse-item" :to="{name: 'notaDeCraeditoReporte'}">Nota de Credito</router-link>
             </div>
           </div>

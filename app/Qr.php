@@ -177,7 +177,9 @@ class Qr extends Model
 
     }
     public static function crear_barcode($datos){
-      if($datos['tamaño']==='2'){
+      if($datos['tamaño']==='1'){
+        return(qr::etiqueta_tipo_1($datos));
+      }else if($datos['tamaño']==='2'){
         return(qr::etiqueta_tipo_2($datos));
       }else if ($datos['tamaño']==='3'){
         return(qr::etiqueta_tipo_3($datos));
@@ -188,8 +190,104 @@ class Qr extends Model
 
 
     public static function etiqueta_tipo_1($datos){
+      $name = '111'; 
+      $type = 'C128B';
+
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
+      $style = array(
+        'position' => '',
+        'align' => 'N',
+        'stretch' => true,
+        'fitwidth' => false,
+        'cellfitalign' => '',
+        'border' => false, // border
+        'hpadding' => 3,
+        'vpadding' => 1.5,
+        'fgcolor' => array(0, 0, 0),
+        'bgcolor' => false, //array(255,255,255),
+        'text' => true, // whether to display the text below the barcode
+        'font' => 'helvetica', //font
+        'fontsize' => 6, //font size
+        'stretchtext' => 4
+      );
+
+      $pdf = new TCPDF('L','mm',array(90,35));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
       
-    }
+      foreach ($datos["data"] as $key => $value) {
+        while($c<$value["CANTIDAD"]){
+          $c=$c+1;
+          if($y > 28){
+            $pag=$pag+1;
+            $pdf->AddPage();
+            $y = 0.3;
+          }
+
+
+          // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
+          $pdf->SetFont('helvetica', 'B', 16);
+          
+          // //Color Negro
+          $pdf->SetTextColor(0, 0, 0);
+          $pdf->text($x-23.8, $y+1, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0);
+          //Tamaño de fuente
+          $pdf->SetFontSize(13);
+          if($value['MONEDA']===1){
+            $pdf->text($x+29, $y+14, 'G$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+          }elseif ($value['MONEDA']===2) {
+            $pdf->text($x+29, $y+14, 'U$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+          }elseif ($value['MONEDA']===3) {
+            $pdf->text($x+29, $y+14, 'R$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+          }
+          $pdf->SetFontSize(8);
+          $pdf->text($x+29, $y+11, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFontSize(6.5);
+          $pdf->text($x+45.5, $y+20.5, 'COD. INTERNO', false, false, true, 0, 1, '', false, '', 0);
+          // //background
+          $pdf->SetFontSize(28);
+          $pdf->writeHTMLCell(51, 0, $x-22, $y+9,  '',1, 0, 1, 'C', true, 'J', true);
+
+          $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+45, $y+22, 30, 12, 0, $style, 'N');
+          $pdf->write1DBarcode($value["CODIGO"], $type, $x-12.9, $y+22, 42, 12, 0, $style, 'N');
+          
+
+
+
+          //Color Blanco
+          $pdf->SetTextColor(1000, 1000, 1000);
+          //Tamaño de fuente
+          $pdf->SetFontSize(10); 
+          $pdf->text($x-21, $y+11, 'DESDE 6', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-15, $y+15, 'UNID.', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFontSize(13);
+          if($value['MONEDA']===1){
+            $pdf->text($x-3, $y+14, 'G$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+          }elseif ($value['MONEDA']===2) {
+            $pdf->text($x-3, $y+14, 'U$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+          }elseif ($value['MONEDA']===3) {
+            $pdf->text($x-3, $y+14, 'R$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+          }
+          $pdf->SetFontSize(8);
+          $pdf->text($x-3, $y+11, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFontSize(20);
+          $pdf->SetFont('helvetica');
+          $pdf->text($x-5.3, $y+8.5, '|', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-5.3, $y+12, '|', false, false, true, 0, 1, '', false, '', 0);
+
+          $y=$y+28;
+        }
+        $c=0;
+      }
+        return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+    } 
 
 
     public static function etiqueta_tipo_2($datos){
@@ -362,7 +460,6 @@ class Qr extends Model
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
-      $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
 
 
       $pdf->SetFont('helvetica', '', 6);
@@ -503,7 +600,7 @@ class Qr extends Model
 //     }
            public static function crear_etiqueta_gondola()
     {
-$pdf = new TCPDF('L','mm',array(95,48));
+$pdf = new TCPDF('L','mm',array(90,48));
 
 // set document information
 
@@ -551,7 +648,8 @@ $pdf->writeHTMLCell(0, 0, 5, 3, $html, 0, 0, 0, false, '', false);
 
 $html = 
 '
-<table cellspacing="1" >
+
+<table border=1 cellspacing="1" >
 <tr  align="left">
 <td bgcolor="#000000" align="right" style="color:white" width="55"><p>DESDE 6 UNID.</p></td>
 <td  width="1" bgcolor="#FFFFFF"><BR></td>
