@@ -271,6 +271,7 @@
 						                        <th>Acción</th>
 				                        		<th>Stock</th>
 				                        		<th>Id Lote</th>
+				                        		<th>Moneda</th>
 				                        		
 						                    </tr>
 						                </thead>
@@ -288,6 +289,7 @@
 							                	<th></th>
 							                	<th></th>
 							                <th></th>
+							                	<th></th>
 							                	<th></th>
 							                	<th></th>
 							                	
@@ -545,7 +547,9 @@
 					precioUnitario: '',
 					precioMayorista:'',
 					cantidadExistente: '',
-					descuento: ''
+					descuento: '',
+					moneda:''
+
 				},
 
 				validarProveedor:{
@@ -1255,6 +1259,7 @@
                             me.producto.interno=response.data.producto.CODIGO_INTERNO;
 	                         me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
 	                        me.producto.linea = response.data.producto.LINEA;
+	                        me.producto.moneda= response.data.producto.MONEDA;
                             me.lotes=response.data.lote;
 	                        if(me.checkedMayorista === true){
 
@@ -1380,7 +1385,7 @@
 
 	            // CARGAR DATO EN TABLA
 
-	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno);
+	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda );
 
 
 	            // ------------------------------------------------------------------------
@@ -1400,7 +1405,7 @@
 
 	        },
 
-	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno){
+	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda){
 
 	        	// ------------------------------------------------------------------------
 
@@ -1484,7 +1489,8 @@
 			                    "ACCION":    "&emsp;<a role='button' id='mostrarProductoFila' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a role='button' id='editarModal' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a role='button'  title='Eliminar'><i id='eliminarModal' class='fa fa-trash text-danger' aria-hidden='true'></i></a>",
 			                  
 			                    "STOCK": stock,
-			                    "ID_LOTE": me.loteSeleccion.id
+			                    "ID_LOTE": me.loteSeleccion.id,
+			                    "MONEDA": moneda
 
 			                   
 			                } ] )
@@ -1792,7 +1798,13 @@
 				                "targets": [ 10 ],
 				                "visible": false,
 				                "searchable": false
+				            },
+							{
+				                "targets": [ 11 ],
+				                "visible": false,
+				                "searchable": false
 				            }
+
 				           
 				        ], 
                         "columns": [
@@ -1807,6 +1819,7 @@
                             { "data": "ACCION" },
                             { "data": "STOCK" },
                             { "data": "ID_LOTE" },
+                            { "data": "MONEDA" },
                         ],
 
                         "footerCallback": function(row, data, start, end, display) {
