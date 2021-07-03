@@ -1751,6 +1751,7 @@
 					   	qz.websocket.disconnect();
 					   	Swal.close();
 					   	tableProductos.clear().draw();
+					   	
 					});
 						 
 					   
