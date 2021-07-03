@@ -78,4 +78,37 @@ class VentaCredito extends Model
     	/*  --------------------------------------------------------------------------------- */
 
     }
+
+        public static function obtener_credito_cliente($fk_venta){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER CREDITOS CLIENTES
+
+        $credito_cliente = VentaCredito::select(DB::raw('VENTAS_CREDITO.FK_VENTA, VENTAS_CREDITO.SALDO'))
+        ->leftjoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CREDITO.FK_VENTA')
+        ->where('VENTAS_CREDITO.SALDO', '>', 'VENTAS_CREDITO.PAGO')
+        ->where('VENTAS.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->where('VENTAS.ID', '=', $fk_venta)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR 
+
+        if (count($credito_cliente) > 0) {
+            return ['response' => true, 'credito' => $credito_cliente];
+        } else {
+            return ['response' => false, 'statusText' => 'No se han encontrado créditos'];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

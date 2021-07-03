@@ -985,14 +985,19 @@ class Cliente extends Model
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['PAGO'] = Common::precio_candec($post->PAGO, $post->MONEDA);
                 $nestedData['SALDO'] =  Common::precio_candec($post->SALDO, $post->MONEDA);
+
                 
                 if ($post->SALDO == 0) {
                     $nestedData['ESTATUS'] = 'table-success';
+                         $nestedData['ACCION'] = "&emsp;";
                 } else if ($post->FECHA_CREDITO_FIN <= $dia) {
+                    $nestedData['ACCION'] = "&emsp;<a href='#' id='abonar' title='Pagar'><i class='fa fa-cash-register' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = 'table-danger';
                 } else if ($post->SALDO > 0) {
+                       $nestedData['ACCION'] = "&emsp;<a href='#' id='abonar' title='Pagar'><i class='fa fa-cash-register' aria-hidden='true'></i></a>";
                     $nestedData['ESTATUS'] = 'table-warning';
                 } 
+                 $nestedData['SALDO_CRUDO'] = $post->SALDO;
 
                 $data[] = $nestedData;
 

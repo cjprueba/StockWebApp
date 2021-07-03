@@ -4264,7 +4264,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
+			/*return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4288,20 +4288,20 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 					// };
 				},
 				(error) => { return error }
+			);*/
+return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
-// 				(response) => {
-// 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-// 					const link = document.createElement('a');
-// 					link.href = url;
-// 					//DESCARGAR
-// 					// link.setAttribute('download', 'file.pdf');
-// 					// document.body.appendChild(link);
-// 					link.target = '_blank'
-// 					link.click();
-// 				},
-// 				(error) => { return error }
-// 			);
 			// ------------------------------------------------------------------------
 
 }
