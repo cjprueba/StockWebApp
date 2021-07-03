@@ -400,6 +400,7 @@ Route::post('cotizacionGuardar', 'CotizacionController@guardarCotizacion');
 Route::post('cotizacionFiltrar', 'CotizacionController@filtrarCotizacion');
 Route::post('eliminarCotizacion', 'CotizacionController@eliminarCotizacion');
 Route::post('/obtener/Cotizaciones/Venta', 'CotizacionController@obtenerVentaCotizacion');
+Route::post('cotizacion/compra-venta', 'CotizacionController@cotizacionCompraDia');
 
 /* -------------------------------------------------------------------------- */
 

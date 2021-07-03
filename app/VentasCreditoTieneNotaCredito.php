@@ -23,11 +23,12 @@ class VentasCreditoTieneNotaCredito extends Model
     	try {
 
 	    	/*  --------------------------------------------------------------------------------- */
-
+	    	
 	    	$vt_nc = VentasCreditoTieneNotaCredito::insertGetId([
 	    		'FK_VENTA' => $data["FK_VENTA"],
 	    		'FK_NOTA_CREDITO' => $data["FK_NOTA_CREDITO"],
-	    		'MONTO' => $data["MONTO"] 
+	    		'MONTO' => $data["MONTO"],
+	    		'FK_MONEDA'=> $data["MONEDA"],
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */
