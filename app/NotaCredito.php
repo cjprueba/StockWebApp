@@ -2157,4 +2157,36 @@ class NotaCredito extends Model
         /*  --------------------------------------------------------------------------------- */
     }
 
+ public static function Obtener_Nota_Credito_Con_id_venta($id_nota){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER NOTA DE CREDITO CON O SIN COTIZACION
+
+           
+                $nota_credito = NotaCredito::select(DB::raw('NOTA_CREDITO.FK_VENTA, NOTA_CREDITO.TOTAL'))
+                ->where('NOTA_CREDITO.ID','=',$id_nota)
+                ->get()->toArray();
+            
+       
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR 
+
+        if (count($nota_credito) > 0) {
+            return ['response' => true, 'nota' => $nota_credito];
+        } else {
+            return ['response' => false, 'statusText' => 'No se han encontrado Notas de Credito'];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
