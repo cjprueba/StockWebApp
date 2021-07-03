@@ -164,16 +164,17 @@
 												  	<label for="formGroupExampleInput" class="form-label font-weight-bold ml-2 ">Nombre</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput" v-model="proveedor.nombre" v-bind:class="{ 'is-invalid': validarProveedor.nombre }">
 												</div>
+
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput2" class="form-label font-weight-bold ml-2">Razón</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput2" v-model="proveedor.razon" v-bind:class="{ 'is-invalid': validarProveedor.razon }">
+												</div>
 												
 												<div class="mb-3">
 												  	<label for="formGroupExampleInput3" class="form-label font-weight-bold mt-2 ml-2">Dirección</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput3" v-model="proveedor.direccion" v-bind:class="{ 'is-invalid': validarProveedor.direccion }">
 												</div>
 
-												<div class="mb-3">
-												  	<label for="formGroupExampleInput7" class="form-label  mt-2 font-weight-bold ml-2">Ciudad</label>
-												  	<input type="text" class="form-control form-control-sm"" id="formGroupExampleInput7" v-model="proveedor.ciudad" v-bind:class="{ 'is-invalid': validarProveedor.ciudad }">
-												</div>
 
 												<div class="mb-3">
 												  	<label for="formGroupExampleInput4" class="form-label font-weight-bold  mt-2 ml-2">Teléfono</label>
@@ -182,10 +183,7 @@
 											</div>
 
 											<div class="col-6">
-												<div class="mb-3">
-												  	<label for="formGroupExampleInput2" class="form-label font-weight-bold ml-2">Razón</label>
-												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput2" v-model="proveedor.razon" v-bind:class="{ 'is-invalid': validarProveedor.razon }">
-												</div>
+												
 												
 												<div class="mb-3">
 												  	<label for="formGroupExampleInput5" class="form-label font-weight-bold  mt-2 ml-2">FAX</label>
@@ -194,6 +192,11 @@
 												<div class="mb-3">
 												  	<label for="formGroupExampleInput6" class="form-label  mt-2 font-weight-bold ml-2">RUC</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.ruc" v-bind:class="{ 'is-invalid': validarProveedor.ruc }">
+												</div>
+
+												<div class="mb-3">
+												  	<label for="formGroupExampleInput7" class="form-label  mt-2 font-weight-bold ml-2">Ciudad</label>
+												  	<input type="text" class="form-control form-control-sm"" id="formGroupExampleInput7" v-model="proveedor.ciudad" v-bind:class="{ 'is-invalid': validarProveedor.ciudad }">
 												</div>
 												<hr>
 												<div class="row">
@@ -1678,7 +1681,8 @@
 				var tipoCodigo = me.seleccionCodigo;
 				var proveedorA = me.proveedor;
 				var tableProductos = $('#tablaProductos').DataTable();
-
+				var delayInMilliseconds = 3000;
+	        	
 
 				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA).then(response => {	
 					var reader = new FileReader();
@@ -1686,9 +1690,14 @@
 					reader.onloadend = function() {
 					    var base64data = reader.result;
 					    base64data = base64data.replace("data:application/octet-stream;base64,", "");
+
 					    return me.imprimir(base64data);
 					}
-				});				
+				});
+
+				
+
+			
 			},
 
 
@@ -1720,6 +1729,7 @@
 		imprimir(base64) {
 
 				let me = this;
+				var tableProductos = $('#tablaProductos').DataTable();
 
 				qz.websocket.connect().then(function() {
 					if(me.seleccionTamaño==='1'){
@@ -1740,6 +1750,7 @@
 					return qz.print(config, data).then(function() {
 					   	qz.websocket.disconnect();
 					   	Swal.close();
+					   	tableProductos.clear().draw();
 					});
 						 
 					   
