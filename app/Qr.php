@@ -185,7 +185,9 @@ class Qr extends Model
         return(qr::etiqueta_tipo_3($datos));
       }elseif ($datos['tamaño']==='4') {
         return(qr::etiqueta_tipo_4($datos));
-      }    
+      }elseif ($datos['tamaño']==='5') {
+        return(qr::crear_pdf_qr_2($datos));
+      }     
     }
 
 
@@ -334,12 +336,12 @@ class Qr extends Model
         $pdf->text($x-24.5, $y+3, $datos['proveedor']['razon'], false, false, true);
         $pdf->SetFont('freesans');
         $pdf->SetFontSize(5.5);
-        $pdf->text($x-24.5, $y+6, $datos['proveedor']['direccion']." / ".$datos['proveedor']['ciudad'], false, false, true);
+        $pdf->text($x-24.5, $y+6, $datos['proveedor']['direccion'], false, false, true);
         $pdf->SetFontSize(6);
         $pdf->text($x-24.5, $y+8.5, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
         $pdf->text($x-24.5, $y+11, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
         $pdf->text($x-24.5, $y+13.5, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
-        $pdf->text($x-24.5, $y+16.5, "Ciudad del Este - Paraguay", false, false, true);
+        $pdf->text($x-24.5, $y+16.5, $datos['proveedor']['ciudad'], false, false, true);
 
         //$y=$y+35;
         $x=$x+37-1.5;

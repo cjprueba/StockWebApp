@@ -135,6 +135,12 @@
 											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
 											  <label class="form-check-label" for="tamañoTiquet4">Producto (5,5cm x 2,9cm)</label>
 											</div>
+
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
+											  <label class="form-check-label" for="tamañoTiquet5">QR Link (3,3cm x 2,2cm)</label>
+											</div>
+
 										</div>
 
 										<!-- --------------------------------------------- TIPO DE CODIGO ------------------------------------------------------- -->
@@ -227,18 +233,18 @@
 
 				    			<!-- -------------------------------- BOTONES LIMPIAR, GUARDAR, MODIFICAR Y ELIMINAR --------------------------------- -->	
 							<div class="row mt-4"> 
-								<div class="col text-center">
+								<!-- <div class="col text-center">
 									<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="!checkedQr" >Imprimir Qr</button>
-								</div>
+								</div> -->
 								<div class="col text-center">
 									<button v-on:click="Imprimir_barcode" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir</button>
 								</div>
 								<!-- <div class="col text-center">
 									<button v-on:click="Imprimir_barinterno" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Codigo Interno</button>
 								</div> -->
-								<div class="col text-center">
+								<!-- <div class="col text-center">
 									<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="checkedQr">Imprimir Qr Link</button>
-								</div>
+								</div> -->
 							</div>
 				  		</div>
 				  		</div>
@@ -1751,7 +1757,7 @@
 					   	qz.websocket.disconnect();
 					   	Swal.close();
 					   	tableProductos.clear().draw();
-					   	
+
 					});
 						 
 					   
