@@ -7535,87 +7535,151 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // CALCULO DE PAGO PRO VENTA 
-
-            $creditos = VentaCredito::obtener_creditos_cliente($data["data"]["cliente"]);
+            if($data["data"]["tipo_proceso"]==3){
+                    $creditos = VentaCredito::obtener_creditos_cliente($data["data"]["cliente"]);
             
-            if ($creditos["response"] === false) {
-                return $creditos;
-            } else {
-                $creditos = $creditos["creditos"];
-            }
+                    if ($creditos["response"] === false) {
+                        return $creditos;
+                    } else {
+                        $creditos = $creditos["creditos"];
+                    }
 
             /*  --------------------------------------------------------------------------------- */
 
             // RECORRER VENTAS CON CREDITO 
 
-            foreach ($creditos as $key => $value) {
-                
-                if ($value->SALDO >= $datos['EFECTIVO'] && $datos['EFECTIVO'] !== 0) {
+                    foreach ($creditos as $key => $value) {
+                        
+                        if ($value->SALDO >= $datos['EFECTIVO'] && $datos['EFECTIVO'] !== 0) {
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // INSERTAR VENTAS DET CREDITO 
+                            // INSERTAR VENTAS DET CREDITO 
 
-                    VentaAbonoDet::guardar_referencia([
-                        'FK_VENTA' => $value->FK_VENTA,
-                        'FK_VENTAS_ABONO' => $venta_abono_id,
-                        'PAGO' => $datos['EFECTIVO']
-                    ]);
+                            VentaAbonoDet::guardar_referencia([
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_VENTAS_ABONO' => $venta_abono_id,
+                                'PAGO' => $datos['EFECTIVO']
+                            ]);
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // ACTUALIZAR VENTA CREDITO 
+                            // ACTUALIZAR VENTA CREDITO 
 
-                    VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
-                    ->update([
-                        'PAGO' => \DB::raw('PAGO + '.$datos['EFECTIVO'].''),
-                        'SALDO' => ($value->SALDO - $datos['EFECTIVO']),
-                        'FECHA_CANCELACION'=> $fecha
-                    ]);
+                            VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                            ->update([
+                                'PAGO' => \DB::raw('PAGO + '.$datos['EFECTIVO'].''),
+                                'SALDO' => ($value->SALDO - $datos['EFECTIVO']),
+                                'FECHA_CANCELACION'=> $fecha
+                            ]);
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // FIJAR CERO EFECTIVO 
+                            // FIJAR CERO EFECTIVO 
 
-                    $datos['EFECTIVO'] = 0;
+                            $datos['EFECTIVO'] = 0;
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                } else if($value->SALDO > 0 && $datos['EFECTIVO'] !== 0) {
+                        } else if($value->SALDO > 0 && $datos['EFECTIVO'] !== 0) {
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // INSERTAR VENTAS DET CREDITO 
+                            // INSERTAR VENTAS DET CREDITO 
 
-                    VentaAbonoDet::guardar_referencia([
-                        'FK_VENTA' => $value->FK_VENTA,
-                        'FK_VENTAS_ABONO' => $venta_abono_id,
-                        'PAGO' => $value->SALDO
-                    ]);
+                            VentaAbonoDet::guardar_referencia([
+                                'FK_VENTA' => $value->FK_VENTA,
+                                'FK_VENTAS_ABONO' => $venta_abono_id,
+                                'PAGO' => $value->SALDO
+                            ]);
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // ACTUALIZAR VENTA CREDITO 
+                            // ACTUALIZAR VENTA CREDITO 
 
-                    VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
-                    ->update([
-                        'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
-                        'SALDO' => 0,
-                        'FECHA_CANCELACION'=> $fecha
+                            VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
+                            ->update([
+                                'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
+                                'SALDO' => 0,
+                                'FECHA_CANCELACION'=> $fecha
 
-                    ]);
+                            ]);
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                    // FIJAR CERO EFECTIVO 
+                            // FIJAR CERO EFECTIVO 
 
-                    $datos['EFECTIVO'] = $datos['EFECTIVO'] - $value->SALDO;
+                            $datos['EFECTIVO'] = $datos['EFECTIVO'] - $value->SALDO;
 
-                    /*  --------------------------------------------------------------------------------- */
+                            /*  --------------------------------------------------------------------------------- */
 
-                }
+                        }
 
+                    }
+            }else{
+                    $credito = VentaCredito::obtener_credito_cliente($data["data"]["fk_venta"]);
+            
+                    if ($credito["response"] === false) {
+                        return $credito;
+                    } else {
+                        $credito = $credito["credito"];
+                    }
+                    if($credito[0]["SALDO"]>=$datos["EFECTIVO"] && $datos['EFECTIVO'] !== 0){
+                        //GUARDAR REFERENCIA EN ABONO_DET
+
+                        VentaAbonoDet::guardar_referencia([
+                                'FK_VENTA' => $credito[0]["FK_VENTA"],
+                                'FK_VENTAS_ABONO' => $venta_abono_id,
+                                'PAGO' => $datos['EFECTIVO']
+                            ]);
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // ACTUALIZAR VENTA CREDITO 
+
+                            VentaCredito::where('FK_VENTA', '=',$credito[0]["FK_VENTA"])
+                            ->update([
+                                'PAGO' => \DB::raw('PAGO + '.$datos['EFECTIVO'].''),
+                                'SALDO' => ($credito[0]["SALDO"] - $datos['EFECTIVO']),
+                                'FECHA_CANCELACION'=> $fecha
+                            ]);
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // FIJAR CERO EFECTIVO 
+
+                            $datos['EFECTIVO'] = 0;
+                    }elseif($credito[0]["SALDO"]>0 && $datos['EFECTIVO'] !== 0){
+
+                                // INSERTAR VENTAS DET CREDITO 
+
+                            VentaAbonoDet::guardar_referencia([
+                                'FK_VENTA' =>$credito[0]["FK_VENTA"],
+                                'FK_VENTAS_ABONO' => $venta_abono_id,
+                                'PAGO' => $credito[0]["SALDO"]
+                            ]);
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // ACTUALIZAR VENTA CREDITO 
+
+                            VentaCredito::where('FK_VENTA', '=', $credito[0]["FK_VENTA"])
+                            ->update([
+                                'PAGO' => \DB::raw('PAGO + '.$credito[0]["SALDO"].''),
+                                'SALDO' => 0,
+                                'FECHA_CANCELACION'=> $fecha
+
+                            ]);
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // FIJAR CERO EFECTIVO 
+
+                            $datos['EFECTIVO'] = $datos['EFECTIVO'] - $value->SALDO;
+                    }
             }
+
+            
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -7938,12 +8002,57 @@ class Venta extends Model
             }
 
             /*  --------------------------------------------------------------------------------- */
+            $nota_credito=NotaCredito::Obtener_Nota_Credito_Con_id_venta($data['id_nota_credito']);
+            if ($nota_credito["response"] === false) {
+                return $nota_credito;
+            } else {
+                $nota_credito = $nota_credito["nota"][0];
+            }
 
             // RECORRER VENTAS CON CREDITO 
+            $saldo=0;
+            $saldo_restado=0;
+            $total_nota_credito=0;
+            $total_nota_credito_restado=0;
+             /*  --------------------------------------------------------------------------------- */   
+            //COTIZAR EL TOTAL DE NOTA DE CREDITO EN LA MONEDA SELECCIONADA.
+            $total_nota_credito=COTIZACION::CALMONED(['monedaProducto' => (int)$data["moneda"], 'monedaSistema' => (int)$data["moneda_aplicar"], 'precio' => $data['total'], 'decSistema' => $data["candec"], "id_sucursal" => $user->id_sucursal,"FK_VENTA"=>$nota_credito["FK_VENTA"]]);
+             if($data["moneda_aplicar"]<>$data["moneda"]){
+                if(!$total_nota_credito["response"]){
+                    return $total_nota_credito;
+                }else{
+                   $total_nota_credito=Common::quitar_coma($total_nota_credito["valor"],$data["candec"]);
+                }
+             } else{
+                  $total_nota_credito=$data['total'];
+             }       
+            
 
             foreach ($creditos as $key => $value) {
+
+                if($data["moneda_aplicar"]<>$data["moneda"]){
+                      /*  --------------------------------------------------------------------------------- */
+                     //COTIZAR EL SALDO DE CREDITO EN LA MONEDA SELECCIONADA.
+                        $saldo=COTIZACION::CALMONED(['monedaProducto' => (int)$data["moneda"], 'monedaSistema' => (int)$data["moneda_aplicar"], 'precio' => $value->SALDO, 'decSistema' => $data["candec"], "id_sucursal" => $user->id_sucursal,"FK_VENTA"=>$value->FK_VENTA]);
+                       
+                        if(!$saldo["response"]){
+                            return $saldo;
+                        }else{
+                             
+                            $saldo=Common::quitar_coma($saldo["valor"],$data["candec"]);
+                        }
+                  
                     
-                    if ($value->SALDO >= $data['total'] && $data['total'] !== 0) {
+                    
+                        /* log::error(["saldo"=>$saldo,"NC"=>$total_nota_credito]);*/
+
+                     /*  --------------------------------------------------------------------------------- */
+
+                }else{
+                    $saldo=$value->SALDO;
+                }
+                    
+                    if ($saldo >= $total_nota_credito && $total_nota_credito !== 0) {
 
                         /*  --------------------------------------------------------------------------------- */
 
@@ -7952,28 +8061,41 @@ class Venta extends Model
                         VentasCreditoTieneNotaCredito::guardar_referencia([
                             'FK_VENTA' => $value->FK_VENTA,
                             'FK_NOTA_CREDITO' => $data['id_nota_credito'],
-                            'MONTO' => $data['total']
+                            'MONTO' => $total_nota_credito,
+                            'MONEDA'=> $data["moneda_aplicar"]
                         ]);
 
                         /*  --------------------------------------------------------------------------------- */
 
                         // ACTUALIZAR VENTA CREDITO 
 
+                        if($data["moneda_aplicar"]<>$data["moneda"]){
+                            //ACTUALIZAR EL TOTAL NOTA CREDITO CON LA COTIZACION DE LA VENTA A APLICAR
+                            $total_nota_credito_restado=COTIZACION::CALMONED(['monedaProducto' => (int)$data["moneda_aplicar"], 'monedaSistema' => (int)$data["moneda"],'precio' => $total_nota_credito, 'decSistema' => $data["candec"], "id_sucursal" => $user->id_sucursal,"FK_VENTA"=>$value->FK_VENTA]);
+
+                            if(!$total_nota_credito_restado["response"]){
+                                return $total_nota_credito_restado;
+                            }else{
+                                $total_nota_credito_restado=Common::quitar_coma($total_nota_credito_restado["valor"],$data["candec"]);
+                            }
+                        }else{
+                            $total_nota_credito_restado=$total_nota_credito;
+                        }
                         VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                         ->update([
-                            'PAGO' => \DB::raw('PAGO + '.$data['total'].''),
-                            'SALDO' => ($value->SALDO - $data['total'])
+                            'PAGO' => \DB::raw('PAGO + '.$total_nota_credito_restado.''),
+                            'SALDO' => ($value->SALDO - $total_nota_credito_restado)
                         ]);
 
                         /*  --------------------------------------------------------------------------------- */
 
                         // FIJAR CERO EFECTIVO 
 
-                        $data['total'] = 0;
+                        $total_nota_credito = 0;
 
                         /*  --------------------------------------------------------------------------------- */
 
-                    } else if($value->SALDO > 0  && $data['total'] !== 0) {
+                    } else if($saldo > 0  && $total_nota_credito !== 0) {
 
                         /*  --------------------------------------------------------------------------------- */
 
@@ -7982,24 +8104,27 @@ class Venta extends Model
                         VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                         ->update([
                             'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
-                            'SALDO' => 0
+                            'SALDO' => 0,
+                            'FECHA_CANCELACION'=>$fecha
                         ]);
 
                         /*  --------------------------------------------------------------------------------- */
 
                         // GUARDAR REFERENCIA
 
+
                         VentasCreditoTieneNotaCredito::guardar_referencia([
                             'FK_VENTA' => $value->FK_VENTA,
                             'FK_NOTA_CREDITO' => $data['id_nota_credito'],
-                            'MONTO' => $value->SALDO
+                            'MONTO' => $saldo,
+                            'MONEDA'=> $data["moneda_aplicar"]
                         ]);
 
                         /*  --------------------------------------------------------------------------------- */
                         
                         // FIJAR CERO EFECTIVO 
 
-                        $data['total'] = $data['total'] - $value->SALDO;
+                        $total_nota_credito = $total_nota_credito - $saldo;
 
                         /*  --------------------------------------------------------------------------------- */
 
