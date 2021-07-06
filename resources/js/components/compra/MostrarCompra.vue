@@ -55,7 +55,7 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<!-- MODAL MOSTRAR DETALLE TRANSFERENCIA -->
+		<!-- MODAL MOSTRAR DETALLE COMPRA -->
 
 		<modal-detalle-compra 
 		ref="ModalMostrarDetalleCompra"
@@ -72,7 +72,7 @@
 	  props: ['id_sucursal'],	
       data(){
         return {
-          	codigoTransferencia: '',
+          	codigoCOMPRA: '',
           	procesar: false
         }
       }, 
@@ -81,7 +81,7 @@
 
       			// ------------------------------------------------------------------------
 
-      			// MANDAR CODIGO TRANSFERENCIA
+      			// MANDAR CODIGO COMPRA
 
       			 this.$router.push('/cr2/'+ codigo + '');
 
@@ -134,7 +134,7 @@
 				  if (result.value) {
 				  	Swal.fire(
 						      'Eliminado!',
-						      'Se ha eliminado la transferencia y devuelto el stock !',
+						      'Se ha eliminado la COMPRA y devuelto el stock !',
 						      'success'
 					)
 
@@ -194,13 +194,13 @@
 
             		// ------------------------------------------------------------------------
 
-                	// EDITAR TRANSFERENCIA
+                	// EDITAR COMPRA
 
                     $('#tablaCompras').on('click', 'tbody tr #editar', function() {
 
 	                    // *******************************************************************
 
-	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
 	                    me.editarCompra(tableCompra.row( row ).data().CODIGO);
@@ -211,13 +211,13 @@
 
                     // ------------------------------------------------------------------------
 
-                    // ELIMINAR TRANSFERENCIA
+                    // ELIMINAR COMPRA
 
                     $('#tablaCompras').on('click', 'tbody tr #eliminar', function() {
 
 	                    // *******************************************************************
 
-	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
 	                    me.eliminarCompra(tableCompra.row( row ).data().CODIGO);
@@ -253,7 +253,7 @@
 
 	                    // *******************************************************************
 
-	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
 
 	                   	 var row  = $(this).parents('tr')[0];
 	                   	 me.mostrarModalTranferencia(tableCompra.row( row ).data().CODIGO);
