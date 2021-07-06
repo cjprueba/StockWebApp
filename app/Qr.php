@@ -98,27 +98,25 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
 /*       var_dump($datos);*/
         $pag=1;
-          $pdf = new FPDF('L','mm',array(110,31));
+          $pdf = new FPDF('L','mm',array(105,22));
           $pdf->AddPage();
-          $x=10;
-         $y = 1;
+          $x=25;
+          $y = 0.3;
+          $z = 2;
+          $c=0;
       foreach ($datos["data"] as $key => $value) {
         # code...
-           
-               while ($c<$value["CANTIDAD"]){
-                  $c=$c+1;
-                      if($x>77){
-                         $y=$y+31;
-                          if($y > 31){
-
-                           $pag=$pag+1;
-                           $pdf->AddPage();
-    
-                              $y =1;
-                      }
-           
-                    $x=10;
-             }
+          while ($c<$value["CANTIDAD"]){
+            $c=$c+1;
+            if($x>97){
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y=0.3;
+              }   
+              $x=25;
+            }
 
               
              Qr::crear_qr($value["CODIGO"]);
