@@ -124,7 +124,7 @@ class Qr extends Model
              Qr::crear_qr($value["CODIGO"]);
 
              $file=public_path(''.$value["CODIGO"].'.png');
-           $pdf->Image($file,$x,$y,28,28);
+           $pdf->Image($file,$x-13,$y,28,28);
            File::delete(''.$value["CODIGO"].'.png');
            //$y=$y+35;
            $x=$x+60-2;
@@ -418,7 +418,11 @@ class Qr extends Model
                   }else if($datos['precio']==='3'){
                     $pdf->SetFontSize(7);
                     $pdf->SetFont('','B');
-                    $pdf->text($x-16.5, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);                    
+                    if($value['MONEDA']===2){
+                      $pdf->text($x-16.5, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+                    }else{
+                      $pdf->text($x-20, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+                    }                   
                   }
                   $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
