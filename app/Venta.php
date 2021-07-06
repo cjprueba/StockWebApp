@@ -7675,7 +7675,7 @@ class Venta extends Model
 
                             // FIJAR CERO EFECTIVO 
 
-                            $datos['EFECTIVO'] = $datos['EFECTIVO'] - $value->SALDO;
+                            $datos['EFECTIVO'] = $datos['EFECTIVO'] - $credito[0]["SALDO"];
                     }
             }
 
@@ -8081,6 +8081,7 @@ class Venta extends Model
                         }else{
                             $total_nota_credito_restado=$total_nota_credito;
                         }
+                        log::error(["TOTAL_NOTA_CREDITO_A_RESTAR"=>$total_nota_credito_restado]);
                         VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                         ->update([
                             'PAGO' => \DB::raw('PAGO + '.$total_nota_credito_restado.''),
@@ -8124,8 +8125,9 @@ class Venta extends Model
                         
                         // FIJAR CERO EFECTIVO 
 
-                        $total_nota_credito = $total_nota_credito - $saldo;
 
+                        $total_nota_credito = $total_nota_credito - $saldo;
+                        log::error(["TOTAL_NOTA_CREDITO"=>$total_nota_credito]);
                         /*  --------------------------------------------------------------------------------- */
 
                     }
