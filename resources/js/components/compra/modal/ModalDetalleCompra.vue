@@ -10,11 +10,37 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
+		      	<div v-if="rack === true">
+			      	<div class="row mt-2">
+			      		<div class="col-4">
+							<span class="float-left"><strong class="ml-3"> Nro. Caja: </strong> {{factura.NRO_CAJA}}</span><br/>
+			      		</div>
+						<div class="col-4">
+							<span class="float-left"><strong> Container: </strong> {{descripcionContainer}}</span><br/>
+						</div>
+			      		<div class="col-4">
+							<span class="float-left"><strong> Sección: </strong> {{descripcionSeccion}} </span><br/>
+						</div>
+			      	</div>
+
+			      	<div class="row mb-3">	
+
+						<!-- ------------------------------------------- ARRAY DE GONDOLA CON SU PISO ------------------------------------------ -->
+
+						<div class="col-4 mt-3" v-if="selectedGondolaPiso.length > 0">
+							<div class="card" style="width: 18rem;">
+		  						<ul class="list-group list-group-flush">
+		    						<li class="list-group-item" v-for="gondola_piso in selectedGondolaPiso"><strong>GONDOLA:</strong> {{gondola_piso.GONDOLA.DESCRIPCION}} <strong>PISO:</strong> {{gondola_piso.PISO}}</li>
+		  						</ul>
+							</div>
+						</div>
+					</div>
+				</div>
 		        <table id="CompraProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
 					            <thead>
 					                <tr>
 					                    <th>ITEM</th>
-					                    <th>Codigo Producto</th>
+					                    <th>Código Producto</th>
 					                    <th>Descripción</th>
 					                    <th>Cantidad</th>
 					                    <th>Costo</th>
@@ -23,8 +49,6 @@
 					                    <th>Precio</th>
 					                </tr>
 					            </thead>
-					            <tbody>
-					            </tbody>
 					        </table>
 		      </div>
 		      <div class="modal-footer">
@@ -42,7 +66,14 @@
       data(){
         return {
           open: false,
-          codigo_compra: ''
+          codigo_compra: '',
+          rack: false,
+          descripcionContainer: '',
+		  descripcionSeccion: '',
+		  factura: {
+		  	NRO_CAJA: ''
+		  },
+		  selectedGondolaPiso: []
         }
       }, 
       methods: {
@@ -56,13 +87,36 @@
 
       			// ------------------------------------------------------------------------
 
-      			// LLAMAR MODAL TRANSFERENCIA PRODUCTOS
+      			// LLAMAR AJAX PARA CARGAR CABECERA 
+
+      			this.cargarCabecera(codigo);
+
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR MODAL COMPRA PRODUCTOS
 
       			$('#modalCompraProductos').modal('show');
 
       			// ------------------------------------------------------------------------
             	
             }, 
+
+            cargarCabecera(codigo){
+
+            	let me = this;
+
+				Common.obtenerCabeceraCompraCommon(codigo).then(data=> {
+		        		
+        			me.rack = data.SISTEMA_DEPOSITO;
+        			if(data.SISTEMA_DEPOSITO === true){
+        				me.factura.NRO_CAJA = data.NRO_FACTURA;
+        				me.descripcionContainer = data.CONTAINER_SECCION.DESCRIPCION;
+        				me.descripcionSeccion = data.CONTAINER_SECCION.DESCRIPCION_SECCION;
+        				me.selectedGondolaPiso = data.GONDOLAS_PISO;
+        			}
+		       	});
+			},
+
             obtenerDatosCompra(codigo){
 
             	// ------------------------------------------------------------------------
@@ -102,7 +156,7 @@
                     
 	 				// ------------------------------------------------------------------------
 
-	 				// CARGAR CODIGO TRANSFERENCIA
+	 				// CARGAR CODIGO COMPRA
 
       				this.codigo_compra = codigo;
 
