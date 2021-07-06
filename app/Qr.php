@@ -122,7 +122,7 @@ class Qr extends Model
             Qr::crear_qr($value["CODIGO"]);
 
             $file=public_path(''.$value["CODIGO"].'.png');
-            $pdf->Image($file,$x-20,$y-1,20,20);
+            $pdf->Image($file,$x-20,$y-2,25,25);
             File::delete(''.$value["CODIGO"].'.png');
             //$y=$y+35;
             $x=$x+37-1.5;
