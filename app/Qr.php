@@ -119,13 +119,13 @@ class Qr extends Model
             }
 
               
-             Qr::crear_qr($value["CODIGO"]);
+            Qr::crear_qr($value["CODIGO"]);
 
-             $file=public_path(''.$value["CODIGO"].'.png');
-           $pdf->Image($file,$x-22,$y+1,22,22);
-           File::delete(''.$value["CODIGO"].'.png');
-           //$y=$y+35;
-           $x=$x+60-2;
+            $file=public_path(''.$value["CODIGO"].'.png');
+            $pdf->Image($file,$x-20,$y-1,20,20);
+            File::delete(''.$value["CODIGO"].'.png');
+            //$y=$y+35;
+            $x=$x+37-1.5;
          }
          $c=0;
       }
