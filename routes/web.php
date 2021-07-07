@@ -30,6 +30,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/producto', 'ApiController@producto')->name('producto');
 Route::get('/productoqr', 'ApiController@productoqr')->name('productoqr');
 Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
+Route::get('/cajacompraqr', 'ApiController@CajaCompraqr')->name('cajacompraqr');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
