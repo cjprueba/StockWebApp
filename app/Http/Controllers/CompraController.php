@@ -126,4 +126,17 @@ class CompraController extends Controller
         /*  --------------------------------------------------------------------------------- */
         
     }
+        public function qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+    
+        $productos = Compra::CompraCajaQr($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
