@@ -1432,5 +1432,136 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 	}  
+        public static function CompraCajaQr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo_ca = $data["data"]["codigo_ca"];
+        //ENCABEZADO /CAJA/RACK/PISO
+        $encabezado= Compra::Select(DB::raw(
+            'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
+            GONDOLAS.DESCRIPCION AS RACK,
+            COMPRAS_TIENE_GONDOLA.PISO AS PISO'))
+        ->leftjoin('COMPRAS_TIENE_GONDOLA','COMPRAS_TIENE_GONDOLA.FK_COMPRA','=','COMPRAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
+        $data_encabezado=array();
+        if(!empty($encabezado)){
+            foreach ($encabezado as $post) {
+                # code...
+                $nestedDataEncabezado["RACK"]=$post->RACK;
+                $nestedDataEncabezado["PISO"]=$post->PISO;
+                $data_encabezado[]=$nestedDataEncabezado;
+            }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = Compra::select(DB::raw('COMPRASDET.COD_PROD, 
+            PRODUCTOS.DESCRIPCION, 
+            LOTES.LOTE, 
+            LOTES.CANTIDAD_INICIAL AS STOCK_INICIAL, 
+            LOTES.CANTIDAD AS STOCK_LOTE, 
+            LOTES.COSTO, 
+            SUBSTR(LOTES.FECHA_VENC,1,11) AS FECHA_VENC,PRODUCTOS_AUX.MONEDA'))
+            ->leftJoin('COMPRASDET', function($join){
+                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+                     ->on('COMPRASDET.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL');
+            })
+            ->leftJoin('PRODUCTOS_AUX', function($join){
+                $join->on('PRODUCTOS_AUX.CODIGO', '=', 'COMPRASDET.COD_PROD')
+                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL');
+            })
+          /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
+            ->leftjoin('lote_tiene_comprasdet','lote_tiene_comprasdet.ID_COMPRAS_DET','=','COMPRASDET.ID')
+            ->leftjoin('LOTES','LOTES.ID','=','lote_tiene_comprasdet.ID_LOTE')
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')          
+            ->where('COMPRAS.ID_SUCURSAL','=', $sucursal)
+            ->where('COMPRAS.NRO_FACTURA', '=' , $codigo_ca)
+            ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($post->COD_PROD);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+
+                $nestedData['COSTO'] = Common::precio_candec($post->COSTO, $post->MONEDA);
+             /*  $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                if($post->FECHA_VENC==='0000-00-00' || $post->FECHA_VENC==='1899-12-31'){
+                     $nestedData['FECHA_VENC'] = "NO POSEE";
+                }else{
+                     $nestedData['FECHA_VENC']=$post->FECHA_VENC;
+                }
+               
+
+                
+                $nestedData['STOCK_INICIAL'] = Common::formato_precio($post->STOCK_INICIAL,0);
+                $nestedData['STOCK_LOTE'] = Common::formato_precio($post->STOCK_LOTE,0);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_external"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+                    "encabezado"=> $data_encabezado
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
 }

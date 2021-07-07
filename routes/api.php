@@ -30,6 +30,8 @@ Route::delete('task/{id}', 'TaskController@delete');
 Route::post('productos', 'ProductoController@apiListarProductos');
 Route::post('producto/ofertas', 'ProductoController@ofertas');
 Route::post('producto/qr', 'ProductoController@qr');
+/*Route::post('login', 'API\AuthController@login');*/
+Route::post('compra/caja/qr', 'CompraController@qr');
 
 /* -------------------------------------------------------------------------- */
 

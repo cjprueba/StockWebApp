@@ -6782,6 +6782,24 @@ function cotizacionyMonedaDeVentaFormaPagoCommon(data) {
 
 			// ------------------------------------------------------------------------
 }
+function obtenerCompraCajaQRCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/compra/caja/qr', {'data': data}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7068,5 +7086,6 @@ export {
 		guardarLoteDescuentoCommon,
 		existeProductoConDescuentoDataTableCommon,
 		existenProductosDataTableCommon,
-		cotizacionyMonedaDeVentaFormaPagoCommon
+		cotizacionyMonedaDeVentaFormaPagoCommon,
+		obtenerCompraCajaQRCommon
 		};
