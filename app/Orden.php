@@ -151,8 +151,8 @@ class Orden extends Model
                 $cliente = mb_strtolower($post->CLIENTE.' '.$post->APELLIDOS);
                 $ciudad = mb_strtolower($post->CIUDAD);
                 $nestedData['ORDEN_ID'] = $post->ORDEN_ID;
-                $nestedData['CLIENTE'] = ucwords(utf8_encode($cliente));
-                $nestedData['CIUDAD'] = ucwords(utf8_encode($ciudad));
+                $nestedData['CLIENTE'] = ucwords(utf8_decode(utf8_encode($cliente)));
+                $nestedData['CIUDAD'] = ucwords(utf8_decode(utf8_encode($ciudad)));
                 $nestedData['FECHA'] = $post->FECHA;
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] =Common::formato_precio($post->TOTAL,0);
@@ -1212,10 +1212,10 @@ class Orden extends Model
 
                 $nestedData['ORDEN_ID'] = $post->id;
                 $nestedData['CLIENTE'] = ucwords(mb_strtolower(utf8_decode($cliente)));
-                $nestedData['CIUDAD'] = ucwords(mb_strtolower(utf8_decode($post->billing->city)));
-                $nestedData['FECHA'] = substr(utf8_encode($post->date_created), 0, -9);
-                $nestedData['HORA'] = substr(utf8_encode($post->date_created), 11);
-                $nestedData['TOTAL'] =Common::formato_precio(utf8_encode($post->total),0);
+                $nestedData['CIUDAD'] = ucwords(mb_strtolower(utf8_decode(utf8_encode($post->billing->city))));
+                $nestedData['FECHA'] = substr($post->date_created, 0, -9);
+                $nestedData['HORA'] = substr($post->date_created, 11);
+                $nestedData['TOTAL'] =Common::formato_precio($post->total,0);
 
                 // if ($post->status === "pending") {
                 //     $nestedData['ESTADO'] = '<span class="badge badge-secondary">Pendiente de Pago</span>';
