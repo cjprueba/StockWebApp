@@ -1447,7 +1447,9 @@ class Compra extends Model
             COMPRAS_TIENE_GONDOLA.PISO AS PISO'))
         ->leftjoin('COMPRAS_TIENE_GONDOLA','COMPRAS_TIENE_GONDOLA.FK_COMPRA','=','COMPRAS.ID')
         ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)
+        ->groupby("GONDOLAS.ID", "COMPRAS_TIENE_GONDOLA.PISO")
+        ->get();
         $data_encabezado=array();
         if(!empty($encabezado)){
             foreach ($encabezado as $post) {
@@ -1550,7 +1552,7 @@ class Compra extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "data"            => $data,
+                    "productos"            => $data,
                     "encabezado"=> $data_encabezado
         );
         

@@ -237,7 +237,7 @@ class Qr extends Model
           
           // //Color Negro
           $pdf->SetTextColor(0, 0, 0);
-          $pdf->text($x-24.5, $y, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-24.5, $y, substr($value['DESCRIPCION'], 0,26), false, false, true, 0, 1, '', false, '', 0);
           //Tamaño de fuente
           $pdf->SetFontSize(13);
           if($value['MONEDA']===1){
