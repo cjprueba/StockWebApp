@@ -295,7 +295,7 @@ class Qr extends Model
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
-      $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
+      // $datos['proveedor']['nombre']=strtoupper($datos['proveedor']['nombre']);
 
 
       $pdf->SetFont('helvetica', '', 6);
@@ -327,19 +327,20 @@ class Qr extends Model
         // </p>
         // ';
         // $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 0, 0, false, '', false);
+
         $pdf->SetFontSize(6); 
         $pdf->SetFont('freesans','B');
-        $pdf->text($x-24.5, $y+1, $datos['proveedor']['nombre'], false, false, true);
+        $pdf->text($x-24.5, $y+1, strtoupper(utf8_decode(utf8_encode($datos['proveedor']['nombre']))), false, false, true);
         $pdf->SetFont('freesans','B');
-        $pdf->text($x-24.5, $y+3, $datos['proveedor']['razon'], false, false, true);
+        $pdf->text($x-24.5, $y+3, utf8_decode(utf8_encode($datos['proveedor']['razon'])), false, false, true);
         $pdf->SetFont('freesans');
         $pdf->SetFontSize(5.5);
-        $pdf->text($x-24.5, $y+6, $datos['proveedor']['direccion'], false, false, true);
+        $pdf->text($x-24.5, $y+6, utf8_decode(utf8_encode($datos['proveedor']['direccion'])), false, false, true);
         $pdf->SetFontSize(6);
-        $pdf->text($x-24.5, $y+8.5, "Telef.: ".$datos['proveedor']['telefono'], false, false, true);
-        $pdf->text($x-24.5, $y+11, "Fax.: ".$datos['proveedor']['fax'], false, false, true);
-        $pdf->text($x-24.5, $y+13.5, "RUC.: ".$datos['proveedor']['ruc'], false, false, true);
-        $pdf->text($x-24.5, $y+16.5, $datos['proveedor']['ciudad'], false, false, true);
+        $pdf->text($x-24.5, $y+8.5, "Telef.: ".utf8_decode(utf8_encode($datos['proveedor']['telefono'])), false, false, true);
+        $pdf->text($x-24.5, $y+11, "Fax.: ".utf8_decode(utf8_encode($datos['proveedor']['fax'])), false, false, true);
+        $pdf->text($x-24.5, $y+13.5, "RUC.: ".utf8_decode(utf8_encode($datos['proveedor']['ruc'])), false, false, true);
+        $pdf->text($x-24.5, $y+16.5, utf8_decode(utf8_encode($datos['proveedor']['ciudad'])), false, false, true);
 
         //$y=$y+35;
         $x=$x+37-1.5;
@@ -424,7 +425,7 @@ class Qr extends Model
                   }
                   $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
-                  $pdf->text($x-23.8, $y+14, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0); 
+                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])), 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;
@@ -483,7 +484,7 @@ class Qr extends Model
           }
           $pdf->SetFontSize(7);
           $pdf->SetFont('freesans', 'B');
-          $pdf->text($x-23.8, $y+2, $value['DESCRIPCION'], false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-23.8, $y+2, utf8_decode(utf8_encode($value['DESCRIPCION'])), false, false, true, 0, 1, '', false, '', 0);
 
           if ($datos['codigo']==='2'){
             $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+9, 55, 12, 0.2, $style, 'N');
