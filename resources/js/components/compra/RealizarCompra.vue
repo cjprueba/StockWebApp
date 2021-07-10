@@ -174,11 +174,13 @@
 						<!-- ******************************************************************* -->
 					</div>
 
+					<!-- ----------------------------------- MOSTRAR SI ES DEL SISTEMA DE DEPOSITO  ------------------------------------- -->
+
 					<div class="row" v-if="rack === 'SI'">
 							
 						<!-- ----------------------------------- TEXTBOX CONTAINER ------------------------------------- -->
 
-				        <div class="col-4">
+				        <div class="col-2">
 				            <container-nombre ref="componente_textbox_container" @nombre_container='enviar_nombre' :nombre='nombreContainer' @descripcion='traer_descripcion'></container-nombre>
 							<div class="form-text text-danger">{{messageInvalidContainer}}</div>
 				        </div> 
@@ -187,31 +189,41 @@
 
 						<div class="col-2">
 							<label for="validationTooltip01">Seleccione Sección</label>
-							<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion" v-on:change='generarNroCaja()'>
-								<option value="null">Seleccionar</option>
-								<option v-for="seccion in secciones" :value="seccion">{{ seccion.DESCRIPCION }}</option>
-							</select>
+							<seccion-textbox ref= "componente_textbox_seccion" :codigo="codigoSeccion" v-model="codigoSeccion" @descripcion="cargarDescripcion" @codigo="cargarCodigo" @desc_corta="cargarDescripcionCorta"></seccion-textbox>
 							<div class="form-text text-danger">
 							    {{messageInvalidSeccion}}
 							</div>
 						</div>
 
-						<!-- ------------------------------------------- SELECT DE PISO ------------------------------------------ -->
-
-						<div class="col-2">
-						    <label>Piso Rack</label>
-						    <select class="custom-select custom-select-sm" v-model="pisoRack">
-							    <option value="1" selected>Piso 1</option>
-							    <option value="2">Piso 2</option>
-							    <option value="3">Piso 3</option>
-							</select>
-						</div>
-
 						<!-- -------------------------------------------MULTIPLE SELECT DE GONDOLA------------------------------------------ -->
 						
 						<div class="col-4">
-							<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"> </select-gondola>
+							<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"></select-gondola>
 							<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+						</div>
+
+						<!-- ------------------------------------------- SELECT DE PISO ------------------------------------------ -->
+
+						<div class="col-4">
+						    <label>Piso Rack</label>
+						    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-on:change="selecionarGondolaPiso()" v-bind:class="{ 'is-invalid': validarPiso }">
+							    <option value="null">Seleccionar</option>
+							    <option value="1">Piso 1</option>
+							    <option value="2">Piso 2</option>
+							    <option value="3">Piso 3</option>
+							</select>
+							<div class="form-text text-danger">
+							    {{messageInvalidPiso}}
+							</div>
+						</div>
+
+						<!-- ------------------------------------------- ARRAY DE GONDOLA CON SU PISO ------------------------------------------ -->
+
+						<div class="col-4 mt-3" v-if="selectedGondolaPiso.length > 0">
+
+							<select class="form-control" size="4">
+								<option v-for="gondola_piso in selectedGondolaPiso"><strong>GONDOLA:</strong> {{gondola_piso.GONDOLA.DESCRIPCION}} <strong>PISO:</strong> {{gondola_piso.PISO}}</option>
+							</select>
 						</div>
 					</div>
 					<div class="row">
@@ -469,18 +481,24 @@
           	switch_un_producto: false,
           	proveedor: '',
           	descripcionProveedor: '',
+          	validarPiso: false,
           	tipo_compra: 'CO',
           	rack: '',
           	cuotas: '',
             secciones: [],
-            selectedSeccion: "null",
-            pisoRack: 1,
+            codigoSeccion: '',
+           	desc_cortaSeccion: '',
+            descripcionSeccion: '',
+            codigoSeccion: '',
+            pisoRack: "null",
             validarSeccion: false,
             messageInvalidSeccion: '',
+            messageInvalidPiso: '',
 	        seleccion_gondola: '',
 	        seleccion_gondola_modificar: [{}],
 	        messageInvalidContainer: '',
 			messageInvalidGondola: '',
+			selectedGondolaPiso: [],
           	producto: {
           		CODIGO: '',
           		DESCRIPCION: '',
@@ -534,8 +552,7 @@
           	},
           	deshabilitar_cuota: true,
           	shadow: false,
-          	btnguardar: true,
-
+          	btnguardar: true
         }
       }, 
       methods: {
@@ -579,6 +596,18 @@
         			me.cuotas = data.CUOTAS;
         			me.credito.CANTIDAD = data.PLAN_PAGO;
         			me.credito.OPCIONES = data.DEUDA_TIPO;
+        			me.factura.NRO_PEDIDO = data.NRO_PEDIDO;
+
+        			if(me.rack === 'SI'){
+
+        				me.selectedGondolaPiso = data.GONDOLAS_PISO;
+        				me.nombreContainer = data.CONTAINER_SECCION.CODIGO;
+        				me.descripcionContainer = data.CONTAINER_SECCION.DESCRIPCION;
+        				me.seleccion_gondola_modificar = data.GONDOLAS;
+        				me.codigoSeccion = data.CONTAINER_SECCION.CODIGO_SECCION;
+        				me.descripcionSeccion = data.CONTAINER_SECCION.DESCRIPCION_SECCION;
+        				me.desc_cortaSeccion = data.CONTAINER_SECCION.DESC_CORTA;
+        			}
 
         			// ------------------------------------------------------------------------
 
@@ -1251,6 +1280,9 @@
                 me.validar.FECHA_CREDITO = false;
             }
 
+            //---------------------------------------------------------------------------------------------
+            // VERIFICAR SI ES EL SISTEMA DE DEPOSITO
+
             if(me.rack === 'SI'){
 
             	if(me.nombreContainer === '' || me.nombreContainer.length === 0){
@@ -1260,13 +1292,20 @@
 	        		me.messageInvalidContainer = '';
             	}
 
-	        	if (me.selectedSeccion === '' || me.selectedSeccion === "null") {
-	        		me.validarSeccion = true;
-	        		me.messageInvalidSeccion = 'Por favor seleccione sucursal.';
+	        	if (me.codigoSeccion === '' || me.codigoSeccion === "null") {
+	        		me.messageInvalidSeccion = 'Por favor seleccione una sección.';
 	        		falta = true;
 	        	} else {
-	        		me.validarSeccion = false;
 	        		me.messageInvalidSeccion = '';
+	        	}
+
+	        	if (me.selectedGondolaPiso.length === 0) {
+	        		me.validarPiso = true;
+	        		me.messageInvalidPiso = 'Por favor seleccione un piso.';
+	        		falta = true;
+	        	} else {
+	        		me.validarPiso = false;
+	        		me.messageInvalidPiso = '';
 	        	}
 
             	if(me.seleccion_gondola.length === 0){
@@ -1276,6 +1315,7 @@
 	        		me.messageInvalidGondola = '';
             	}
             }
+
             // ------------------------------------------------------------------------
 
             // RETORNAR FALTA - SI ES TRUE SE DETIENE EL GUARDADO 
@@ -1380,9 +1420,8 @@
         			cuotas: me.cuotas
         		},
         		codigoContainer: me.nombreContainer,
-        		seccion: me.selectedSeccion.ID_SECCION,
-        		piso_rack: me.pisoRack,
-				seleccion_gondola: me.seleccion_gondola,
+        		seccion: me.codigoSeccion,
+        		gondolaPiso: me.selectedGondolaPiso,
 				sistema_deposito: deposito
         	};
 
@@ -1507,45 +1546,107 @@
         	alert("ahora me ejecute"); // 10
 		},
 
-        llamarBusquedas(){	
-
-	      	axios.get('busquedas/').then((response) => {
-	           	this.secciones = response.data.secciones;
-	        }); 
-	    },
 	    traer_descripcion(data){
           
+          // OBTENER DESCRIPCION DEL CONTAINER
+
          this.descripcionContainer=data;
+
+         // GENERAR NUMERO DE CAJA
+
          this.generarNroCaja();
 
         },
 
 		enviar_nombre(data){
 
+			// OBTENER CODIGO DEL CONTAINER
+
           this.nombreContainer=data;
            
         },
         generarNroCaja(){
 
-        	if(this.selectedSeccion !== "null"){
+        	// GENERADOR DE NRO DE CAJA
 
-        		this.factura.NRO_CAJA = this.selectedSeccion.DESC_CORTA + '' + this.descripcionContainer;
+        	this.factura.NRO_CAJA = this.desc_cortaSeccion + '' + this.descripcionContainer;
+
+        },
+
+        selecionarGondolaPiso(){
+
+        	let me = this;
+        	var cantidadGondolaNew = me.seleccion_gondola.length;
+        	var datos = [];
+        	var existe = false;
+
+        	if(cantidadGondolaNew>0){
+        		
+        		for (var i = me.seleccion_gondola.length-1; i >= 0; i--){
+
+        			// VERIFICAR SI YA EXISTE EN EL ARRAY
+        			
+        			for (var i2 = me.selectedGondolaPiso.length - 1; i2 >=0 ; i2--){
+
+        				//-----------------------------------------------------------------------
+        				// VOLVER A CARGAR SI YA EXISTE
+
+        				if(me.seleccion_gondola[i].ID === me.selectedGondolaPiso[i2].GONDOLA.ID){
+        					var datos2 = {
+        						GONDOLA: me.seleccion_gondola[i],
+        						PISO: me.selectedGondolaPiso[i2].PISO
+        					}
+        					datos[i] = datos2;
+        					existe = true;
+        				}
+        			}
+
+      				//----------------------------------------------------------------------------
+       				// AÑADIR SI NO EXISTE GONDOLA EN EL ARRAY
+
+	        		if(existe === false){
+	        			var datos3 = {
+	        				GONDOLA: me.seleccion_gondola[i],
+	        				PISO: me.pisoRack
+	        			}
+	        			datos[i] = datos3;	
+        			}
+        		}
+      			//---------------------------------------------------------------------------------
+       			// MODIFICAR ARRAY
+
+        		me.selectedGondolaPiso = datos;
+        		me.pisoRack = "null";
+        		existe = false;
+        		
         	}else{
-        		this.factura.NRO_CAJA = this.descripcionContainer;
+
+        		//--------------------------------------------------------------------------------------
+        		// LIMPIAR VARIABLES SI NO HAY GONDOLAS SELECCIONADAS 
+
+        		me.selectedGondolaPiso = [];
+        		me.pisoRack = "null";
+        		existe = false;
         	}
-        }
+        },
+
+			cargarCodigo(valor){
+				this.codigoSeccion = valor;
+			},
+			cargarDescripcion(valor){
+				this.descripcionSeccion = valor;
+			},
+
+			cargarDescripcionCorta(valor){
+				this.desc_cortaSeccion = valor;
+				this.generarNroCaja();
+			}
       },
         mounted() {
         		
         		// ------------------------------------------------------------------------
 
         		let me = this;
-        		
-        		// ------------------------------------------------------------------------
-
-        		// OBTENER SECCIONES 
-
-        		me.llamarBusquedas();
 
         		// ------------------------------------------------------------------------
 

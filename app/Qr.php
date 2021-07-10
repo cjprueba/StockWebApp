@@ -230,14 +230,14 @@ class Qr extends Model
             $pdf->AddPage();
             $y = 0.3;
           }
-
+    
 
           // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
           $pdf->SetFont('helvetica', 'B', 16);
           
           // //Color Negro
           $pdf->SetTextColor(0, 0, 0);
-          $pdf->text($x-24.5, $y, substr($value['DESCRIPCION'], 0,22), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-24.5, $y, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])) , 0,26), false, false, true, 0, 1, '', false, '', 0);
           //Tamaño de fuente
           $pdf->SetFontSize(13);
           if($value['MONEDA']===1){

@@ -11,7 +11,9 @@ use App\Deuda;
 use App\Pagos_Prov_Det;
 use App\CompraUser;
 use Illuminate\Support\Facades\Log;
-
+use App\Gondola;
+use App\Container;
+use App\Seccion;
 
 class Compra extends Model
 {
@@ -93,6 +95,49 @@ class Compra extends Model
     		$compra->PEDIDO = $data->data["nro_pedido"];
     		//$compra->FK_USER_CR = $user->id;
     		$compra->save();
+
+            // VERIFICAR SI ES SISTEMA DE DEPOSITO
+
+            if($data->data['sistema_deposito'] === true){
+
+                // OBTENER ID COMPRA 
+
+                $id_compra = Compra::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $codigo)
+                ->get();
+
+                // OBTENER ID CONTAINER
+
+                $id_container = Container::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $data->data["codigoContainer"])
+                ->get();
+
+                // OBTENER ID SECCION
+
+                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
+
+                // GUARDAR REFERENCIAS DE DEPOSITO
+
+                $deposito = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->insertGetId([
+                    'FK_CONTAINER' => $id_container[0]->ID,
+                    'FK_COMPRA' => $id_compra[0]->ID,
+                    'FK_SECCION' => $fk_seccion
+                ]);
+
+                // GUARDAR GONDOLAS DE LA COMPRA
+
+                foreach ($data->data["gondolaPiso"] as $key => $value) {
+
+                    $gondolas = DB::connection('retail')
+                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
+                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
+                        'FK_COMPRA' => $id_compra[0]->ID,
+                        'PISO' => $value["PISO"]]);
+                }
+            }   
     		
     		/*  --------------------------------------------------------------------------------- */
 
@@ -196,7 +241,7 @@ class Compra extends Model
 
 		// OBTENER ULTIMO CODIGO
 
-		$codigo =Compra::select('CODIGO')
+		$codigo = Compra::select('CODIGO')
 		->where(['ID_SUCURSAL' => $user->id_sucursal])
 		->orderBy('CODIGO', 'desc')
 		->first();
@@ -211,7 +256,7 @@ class Compra extends Model
 
 	}
 
-	 public static function mostrarDatatable($request)
+	public static function mostrarDatatable($request)
     {
 
         /*  --------------------------------------------------------------------------------- */
@@ -236,7 +281,7 @@ class Compra extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
-        // CONTAR LA CANTIDAD DE TRANSFERENCIAS ENCONTRADAS 
+        // CONTAR LA CANTIDAD DE COMPRAS ENCONTRADAS 
 
         $totalData = Compra::where('ID_SUCURSAL','=', $user->id_sucursal)
                      ->count();  
@@ -262,7 +307,7 @@ class Compra extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
                          ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
@@ -284,7 +329,7 @@ class Compra extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+            $posts =  Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
                          ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
@@ -346,8 +391,8 @@ class Compra extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['NRO_FACTURA'] = $post->NRO_CAJA;
-                $nestedData['FEC_FACTURA'] = $post->FEC_FACTURA;
+                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
+                $nestedData['FEC_FACTURA'] = substr($post->FEC_FACTURA, 0,10);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
@@ -462,7 +507,7 @@ class Compra extends Model
         // SI NO ENCUENTRA REGISTROS EN LAS CLAVES FORANEAS PROHIBIR ELIMINAR 
 
         if(count($compradet) <= 0) {
-        	return ["response" => false, "statusText" => "Esta compra no se podra eliminar o modificar a través de esta plataforma !"];
+        	return ["response" => false, "statusText" => "¡Esta compra no se podrá eliminar o modificar a través de esta plataforma!"];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -570,11 +615,29 @@ class Compra extends Model
         ->delete();
 
         /*  --------------------------------------------------------------------------------- */
+        // OBTENER ID COMPRA 
 
         $id_compra = Compra::select('ID')
         ->where('ID_SUCURSAL','=', $user->id_sucursal)
         ->where('CODIGO','=', $codigo["data"])
         ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        // ELIMINAR COMPRAS DEPOSITO 
+
+        DB::connection('retail')
+        ->table('COMPRAS_DEPOSITO')
+        ->where('FK_COMPRA','=', $id_compra[0]->ID)
+        ->delete();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // ELIMINAR COMPRAS TIENE GONDOLA 
+
+        DB::connection('retail')
+        ->table('COMPRAS_TIENE_GONDOLA')
+        ->where('FK_COMPRA','=', $id_compra[0]->ID)
+        ->delete();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -603,8 +666,6 @@ class Compra extends Model
         /*  --------------------------------------------------------------------------------- */
 
         // ELIMINAR DEUDAS 
-        
-        // OBTENER ID COMPRA 
 
         Deuda::where('FK_COMPRA','=', $id_compra[0]->ID)
             ->delete();
@@ -807,7 +868,8 @@ class Compra extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $compra = Compra::select(DB::raw(
-                        'COMPRAS.CODIGO,
+                        'COMPRAS.ID,
+                        COMPRAS.CODIGO,
                         PROVEEDORES.NOMBRE,
                         SUBSTRING(COMPRAS.FEC_FACTURA, 1, 10) AS FEC_FACTURA,
                         COMPRAS.FECALTAS,
@@ -818,6 +880,7 @@ class Compra extends Model
                         COMPRAS.MONEDA,
                         COMPRAS.PROVEEDOR,
                         COMPRAS.TOTAL,
+                        COMPRAS.PEDIDO AS NRO_PEDIDO,
                         DEUDAS.TIPO AS DEUDA_TIPO,
                         COMPRAS.EXENTAS'
                     ))
@@ -826,6 +889,65 @@ class Compra extends Model
         ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('COMPRAS.CODIGO','=', $codigo)
         ->get();
+
+        $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+        $compra[0]['SISTEMA_DEPOSITO'] = false;
+        if($deposito == 'SI'){
+
+            $compras_deposito = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')
+                ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','COMPRAS_DEPOSITO.FK_SECCION')
+                ->select(DB::raw('CONTAINERS.CODIGO,
+                    CONTAINERS.DESCRIPCION,
+                    SECCIONES.CODIGO AS CODIGO_SECCION,
+                    SECCIONES.DESCRIPCION AS DESCRIPCION_SECCION,
+                    SECCIONES.DESC_CORTA'))
+                ->where('COMPRAS_DEPOSITO.FK_COMPRA','=', $compra[0]["ID"])
+                ->get();
+
+            $gondolas = DB::connection('retail')
+                ->table('COMPRAS_TIENE_GONDOLA')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
+                ->select(DB::raw('GONDOLAS.ID, 
+                    GONDOLAS.CODIGO, 
+                    GONDOLAS.DESCRIPCION'))
+                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
+                ->get();
+
+            $compras_gondola = DB::connection('retail')
+                ->table('COMPRAS_TIENE_GONDOLA')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
+                ->select(DB::raw('COMPRAS_TIENE_GONDOLA.FK_GONDOLA AS GONDOLA,
+                    COMPRAS_TIENE_GONDOLA.PISO'))
+                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
+                ->get();
+
+            foreach ($compras_gondola as $key => $value) {
+                $compras_gondola[$key]->GONDOLA = $gondolas[$key];
+                $compras_gondola[$key]->PISO = $value->PISO;
+            }
+
+            $compra[0]['SISTEMA_DEPOSITO'] = true;
+
+            if(count($compras_gondola)>0){
+                $compra[0]["GONDOLAS_PISO"] = $compras_gondola;
+            }else{
+                $compra[0]['SISTEMA_DEPOSITO'] = false;
+            }
+
+            if(count($gondolas)>0){
+                $compra[0]["GONDOLAS"] = $gondolas;
+            }else{
+                $compra[0]['SISTEMA_DEPOSITO'] = false;
+            }
+            
+            if(count($compras_deposito)>0){
+                $compra[0]["CONTAINER_SECCION"] = $compras_deposito[0];
+            }else{
+                $compra[0]['SISTEMA_DEPOSITO'] = false;
+            }
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -982,7 +1104,7 @@ class Compra extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        // CARGAR DETALLE DE TRANSFERENCIA DET 
+        // CARGAR DETALLE DE COMPRAS DET 
 
         foreach ($compra_det as $key => $value) {
             $articulos[$key]["cantidad"] = $value->CANTIDAD;
@@ -1154,6 +1276,49 @@ class Compra extends Model
     			return $eliminar;
     		}
 
+            // VERIFICAR SI ES SISTEMA DE DEPOSITO
+
+            if($data->data['sistema_deposito'] === true){
+
+                // OBTENER ID COMPRA 
+
+                $id_compra = Compra::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $codigo)
+                ->get();
+
+                // OBTENER ID CONTAINER
+
+                $id_container = Container::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $data->data["codigoContainer"])
+                ->get();
+
+                // OBTENER ID SECCION
+
+                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
+
+                // GUARDAR REFERENCIAS DE DEPOSITO
+
+                $deposito = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->insertGetId([
+                    'FK_CONTAINER' => $id_container[0]->ID,
+                    'FK_COMPRA' => $id_compra[0]->ID,
+                    'FK_SECCION' => $fk_seccion
+                ]);
+
+                // GUARDAR GONDOLAS DE LA COMPRA
+
+                foreach ($data->data["gondolaPiso"] as $key => $value) {
+
+                    $gondolas = DB::connection('retail')
+                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
+                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
+                        'FK_COMPRA' => $id_compra[0]->ID,
+                        'PISO' => $value["PISO"]]);
+                }
+            } 
+
     		/*  --------------------------------------------------------------------------------- */
 
     		// RECORRER PRODUCTOS 
@@ -1267,5 +1432,138 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 	}  
+        public static function CompraCajaQr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo_ca = $data["data"]["codigo_ca"];
+        //ENCABEZADO /CAJA/RACK/PISO
+        $encabezado= Compra::Select(DB::raw(
+            'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
+            GONDOLAS.DESCRIPCION AS RACK,
+            COMPRAS_TIENE_GONDOLA.PISO AS PISO'))
+        ->leftjoin('COMPRAS_TIENE_GONDOLA','COMPRAS_TIENE_GONDOLA.FK_COMPRA','=','COMPRAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)
+        ->groupby("GONDOLAS.ID", "COMPRAS_TIENE_GONDOLA.PISO")
+        ->get();
+        $data_encabezado=array();
+        if(!empty($encabezado)){
+            foreach ($encabezado as $post) {
+                # code...
+                $nestedDataEncabezado["RACK"]=$post->RACK;
+                $nestedDataEncabezado["PISO"]=$post->PISO;
+                $data_encabezado[]=$nestedDataEncabezado;
+            }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = Compra::select(DB::raw('COMPRASDET.COD_PROD, 
+            PRODUCTOS.DESCRIPCION, 
+            LOTES.LOTE, 
+            LOTES.CANTIDAD_INICIAL AS STOCK_INICIAL, 
+            LOTES.CANTIDAD AS STOCK_LOTE, 
+            LOTES.COSTO, 
+            SUBSTR(LOTES.FECHA_VENC,1,11) AS FECHA_VENC,PRODUCTOS_AUX.MONEDA'))
+            ->leftJoin('COMPRASDET', function($join){
+                $join->on('COMPRASDET.CODIGO', '=', 'COMPRAS.CODIGO')
+                     ->on('COMPRASDET.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL');
+            })
+            ->leftJoin('PRODUCTOS_AUX', function($join){
+                $join->on('PRODUCTOS_AUX.CODIGO', '=', 'COMPRASDET.COD_PROD')
+                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'COMPRAS.ID_SUCURSAL');
+            })
+          /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
+            ->leftjoin('lote_tiene_comprasdet','lote_tiene_comprasdet.ID_COMPRAS_DET','=','COMPRASDET.ID')
+            ->leftjoin('LOTES','LOTES.ID','=','lote_tiene_comprasdet.ID_LOTE')
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')          
+            ->where('COMPRAS.ID_SUCURSAL','=', $sucursal)
+            ->where('COMPRAS.NRO_FACTURA', '=' , $codigo_ca)
+            ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($post->COD_PROD);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+
+                $nestedData['COSTO'] = Common::precio_candec($post->COSTO, $post->MONEDA);
+             /*  $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                if($post->FECHA_VENC==='0000-00-00' || $post->FECHA_VENC==='1899-12-31'){
+                     $nestedData['FECHA_VENC'] = "NO POSEE";
+                }else{
+                     $nestedData['FECHA_VENC']=$post->FECHA_VENC;
+                }
+               
+
+                
+                $nestedData['STOCK_INICIAL'] = Common::formato_precio($post->STOCK_INICIAL,0);
+                $nestedData['STOCK_LOTE'] = Common::formato_precio($post->STOCK_LOTE,0);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_external"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "productos"            => $data,
+                    "encabezado"=> $data_encabezado
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
 }
