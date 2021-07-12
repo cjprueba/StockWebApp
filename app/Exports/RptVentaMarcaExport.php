@@ -37,6 +37,8 @@ class RptVentaMarcaExport implements WithMultipleSheets
   private $checkedMarca;
   private $insert;
   private $checkedCategoria;
+  private $checkedProveedor;
+  private $proveedores;
   private $sucursal;
 
    private $vales = array("v", "a", "l", "e", "%");
@@ -52,6 +54,8 @@ class RptVentaMarcaExport implements WithMultipleSheets
         $this->sucursal = $datos['Sucursal'];
         $this->checkedMarca= $datos['AllBrand'];
         $this->checkedCategoria=$datos['AllCategory'];
+        $this->checkedProveedor=$datos['AllProveedores'];
+        $this->proveedores=$datos['Proveedores'];
         $this->marcas=$datos['Marcas'];
         $this->linea=$datos['Categorias'];
         $this->insert=$datos['Insert'];
@@ -66,6 +70,8 @@ class RptVentaMarcaExport implements WithMultipleSheets
     			'sucursal'=>$this->sucursal,
     			'checkedCategoria'=>$this->checkedCategoria,
     			'checkedMarca'=>$this->checkedMarca,
+    			'checkedProveedor'=>$this->checkedProveedor,
+    			'proveedores'=>$this->proveedores,
     			'marcas'=>$this->marcas,
     			'linea'=>$this->linea
     		);
