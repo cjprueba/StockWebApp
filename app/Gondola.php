@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use App\Producto;
 use App\Empleado_Tiene_Gondola;
 use App\Gondola_Tiene_Seccion;
-
+use App\Piso;
+use App\Sector;
+use App\Gondola_Tiene_Piso;
+use App\Gondola_Tiene_Sector;
 class Gondola extends Model
 {
 
@@ -61,14 +64,23 @@ class Gondola extends Model
         ->Where('gondolas.ID','=',$datos['id'])
         ->get()
         ->toArray();
-
-        if(count($gondolas)<=0){
+         if(count($gondolas)<=0){
            return ["response"=>false];
         }
+
+        if($datos['rack']==='SI'){
+            $pisos=Gondola_Tiene_Piso::Select(DB::raw('PISOS.ID,PISOS.NRO_PISO'))->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$datos['id'])->get()->toArray();
+            $sectores=Gondola_Tiene_Sector::Select(DB::raw('SECTORES.ID,SECTORES.DESCRIPCION'))->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$datos['id'])->get()->toArray();
+            return ["response"=>true,"Gondolas"=>$gondolas,'Pisos'=>$pisos,'Sectores'=>$sectores];
+        }else{
+            return ["response"=>true,"Gondolas"=>$gondolas];
+        }
+
+       
     
         // RETORNAR EL VALOR
 
-       return ["response"=>true,"Gondolas"=>$gondolas];
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -275,6 +287,14 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
                     $gondola_id=$gondolas;
                     Gondola_Tiene_Seccion::asignar_seccion($gondola_id, $seccion_id,$user->id_sucursal);
                 }
+                if($datos['data']['Rack']==='SI'){
+                    foreach ($datos['data']['Piso'] as $key => $value) {
+                        Gondola_Tiene_Piso::guardar_referencia(["FK_GONDOLA"=>$gondolas,"FK_PISO"=>$value]);
+                    }
+                    foreach ($datos['data']['Sector'] as $key => $value) {
+                        Gondola_Tiene_Sector::guardar_referencia(["FK_GONDOLA"=>$gondolas,"FK_SECTOR"=>$value]);
+                    }
+                }
                   
                
             }else{
@@ -360,6 +380,34 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         // RETORNAR EL VALOR
 
         return ['response' => true, 'gondolas' => $gondolas];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public static function configuracion_inicio_gondola()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        // OBTENER TODOS LOS PISOS
+        $pisos=Piso::Select(DB::raw('ID,DESCRIPCION,NRO_PISO'))->orderBy('NRO_PISO')->get();
+
+        /*  --------------------------------------------------------------------------------- */
+         // OBTENER TODOS LOS PISOS
+        $sectores=Sector::Select(DB::raw('ID,DESCRIPCION'))->orderBy('DESCRIPCION')->get();
+        /*  --------------------------------------------------------------------------------- */
+
+    
+        // RETORNAR EL VALOR
+        if(count($pisos)>0 && count($sectores)>0){
+             return ['response' => true, 'pisos' => $pisos,'sectores'=>$sectores];
+         }else{
+             return ['response' => false];
+         }
+       
 
         /*  --------------------------------------------------------------------------------- */
 

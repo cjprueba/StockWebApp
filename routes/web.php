@@ -229,6 +229,8 @@ Route::post('gondolaGuardar', 'GondolaController@gondolaGuardar');
 Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
 Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
+Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola');
+
 
 /* -------------------------------------------------------------------------- */
 

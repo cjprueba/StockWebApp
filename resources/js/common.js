@@ -3944,7 +3944,7 @@ function eliminarCategoriaCommon(data){
 
 			// ------------------------------------------------------------------------
 }
-function filtrarGondolasCommon(id){
+function filtrarGondolasCommon(id,rack){
 
 			// ------------------------------------------------------------------------
 
@@ -3955,7 +3955,7 @@ function filtrarGondolasCommon(id){
 			// ------------------------------------------------------------------------
 
 			// LLAMAR TELAS
-			return axios.post('/gondolasFiltrar', {'id': id}).then(function (response) {
+			return axios.post('/gondolasFiltrar', {'id': id, 'rack': rack}).then(function (response) {
 					return response.data;
 			});
 
@@ -6800,6 +6800,25 @@ function obtenerCompraCajaQRCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function inicioConfiguracionGondola() {
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// OBTENER COTIZACION DE COMPRA
+			
+			return axios.get('/configuracion/gondola').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7087,5 +7106,6 @@ export {
 		existeProductoConDescuentoDataTableCommon,
 		existenProductosDataTableCommon,
 		cotizacionyMonedaDeVentaFormaPagoCommon,
-		obtenerCompraCajaQRCommon
+		obtenerCompraCajaQRCommon,
+		inicioConfiguracionGondola
 		};
