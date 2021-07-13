@@ -21,7 +21,7 @@
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalCenterTitle">Telas: </small></h5>
+                          <h5 class="modal-title" id="exampleModalCenterTitle">Gondolas: </small></h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
@@ -52,7 +52,7 @@
 </template>
 <script>
   export default {
-    props: ['nombre','validarGondola'],
+    props: ['nombre','validarGondola','rack'],
     data(){
       return {
           productos: [],
@@ -62,7 +62,7 @@
      
     methods: {
       
-      enviarCodigoPadre(nombre,id,descripcion,id_seccion){
+      enviarCodigoPadre(nombre,id,descripcion,id_seccion,pisos,sectores){
         // ------------------------------------------------------------------------
 
         // ENVIAR CODIGO
@@ -71,6 +71,8 @@
         this.$emit('descripcion', descripcion);
         this.$emit('seccion', id_seccion);
         this.$emit('existe_gondola',true);
+        this.$emit('pisos',pisos);
+        this.$emit('sectores',sectores);
         // ------------------------------------------------------------------------
       },
       enterGondola(Codigo){
@@ -79,11 +81,15 @@
       // LLAMAR FUNCION PARA FILTRAR PRODUCTOS
 
       
-         Common.filtrarGondolasCommon(Codigo).then(data => {
+         Common.filtrarGondolasCommon(Codigo,me.rack).then(data => {
 
                       if(data.response===true){
-
-                       me.enviarCodigoPadre(Codigo,data.Gondolas[0].CODIGO,data.Gondolas[0].DESCRIPCION, data.Gondolas[0].ID_SECCION);
+                        if(me.rack==='SI'){
+                            me.enviarCodigoPadre(Codigo,data.Gondolas[0].CODIGO,data.Gondolas[0].DESCRIPCION, data.Gondolas[0].ID_SECCION,data.Pisos,data.Sectores);
+                        }else{
+                          me.enviarCodigoPadre(Codigo,data.Gondolas[0].CODIGO,data.Gondolas[0].DESCRIPCION, data.Gondolas[0].ID_SECCION,'','');
+                        }
+                     
       
 
                        }else{
@@ -93,6 +99,8 @@
                         me.$emit('descripcion', descripcion);
                         me.$emit('seccion', id_seccion);
                         me.$emit('existe_gondola',false);
+                        me.$emit('pisos','');
+                        me.$emit('sectores','');
                        }
                      
                   })
@@ -152,11 +160,21 @@
           // console.log(tableGondola.row(this).data());
 
           me.CODIGO = table.row(this).data().CODIGO;
-          Common.filtrarGondolasCommon(me.CODIGO).then(data => { 
-            me.enviarCodigoPadre(me.CODIGO,
-              data.Gondolas[0].CODIGO,
-              data.Gondolas[0].DESCRIPCION,
-              data.Gondolas[0].ID_SECCION);      
+          Common.filtrarGondolasCommon(me.CODIGO,me.rack).then(data => { 
+            if(me.rack==='SI'){
+               me.enviarCodigoPadre(me.CODIGO,
+                data.Gondolas[0].CODIGO,
+                data.Gondolas[0].DESCRIPCION,
+                data.Gondolas[0].ID_SECCION,
+                data.Pisos,
+                data.Sectores);      
+             }else{
+               me.enviarCodigoPadre(me.CODIGO,
+                data.Gondolas[0].CODIGO,
+                data.Gondolas[0].DESCRIPCION,
+                data.Gondolas[0].ID_SECCION,'','');      
+             }
+           
           })
 
             // CERRAR EL MODAL
