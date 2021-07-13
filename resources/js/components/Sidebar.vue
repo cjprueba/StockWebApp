@@ -608,7 +608,8 @@
             <a v-if="$can('gondola')" class="nav-item collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseOpcion2" aria-expanded="true" aria-controls="collapseOpcion2"><font-awesome-icon icon="th-large" /> Gondola</a>
             <div id="collapseOpcion2" class="collapse bg-white  rounded" aria-labelledby="headingOpcion2" data-parent="#accordionConf">
               <hr>
-              <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear</router-link>
+              <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear Gondola</router-link>
+              <router-link v-if="$can('gondola.crearpiso')" class="collapse-item" :to="{name: 'crearPiso'}">Crear Piso</router-link>
               <hr>  
             </div>
 
