@@ -90,7 +90,8 @@
 				this.codigo='';
 				this.descripcion='';
 				this.btn_guardar= true;
-				// console.log(this.$refs.gondola);
+				this.descriCorta = '';
+				this.validar.descriCorta = false;
 				this.validar.codigo=false;
 				this.validar.descripcion=false;
 				this.controlar=true;

@@ -73,13 +73,89 @@
 
 			<!-- ------------------------------------------------------------------------ -->
 
+			<!-- MODAL IMPRIMIR DIRECCION ORDEN -->
+
+		    <div class="modal fade agregar-rack-piso" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md" role="document">
+		            <div class="modal-content">
+		                <div class="modal-header">
+		                    <h5 class="modal-title text-primary text-center" >Transferencia: {{codigoTransferencia}}</h5>
+		                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		                          <span aria-hidden="true">&times;</span>
+		                    </button>
+		                </div>
+		  				
+	                	<div class="modal-body">
+		                  <div class="row">
+
+							<!-- NRO. CAJA -->
+
+							<div class="col-12">
+								<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+								<input class="form-control form-control-sm" type="text"  v-model="nro_caja">
+							</div>
+
+							<!-- ----------------------------------- TEXTBOX DE GONDOLA ------------------------------------- -->
+
+							<div class="col-12 mt-3">
+								<gondola-nombre ref="gondola" v-model="gondolaID" @nombre_gondola='enviar_nombre_gondola' :nombre='gondolaID' :validarGondola='validarGondola' @seccion="enviar_seccion"  :rack='rack' @pisos='traer_pisos' @sectores='traer_sectores'></gondola-nombre>
+								<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+							</div>
+
+							<!-- ----------------------------------- OPCIONES DE SECCION  ------------------------------------- -->
+
+		                    <div class="col-md-12">
+								<label for="validationTooltip01">Sección</label>
+								<select v-model="selectedSeccion" class="custom-select custom-select-sm" disabled>
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option  v-for="seccion in secciones" :value="seccion">{{seccion.DESCRIPCION}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidSeccion}}
+								</div>
+		                    </div>
+
+							<!-- ----------------------------------- OPCIONES DE SECTOR  ------------------------------------- -->
+
+		                    <div class="col-md-12 mt-3">
+							    <label>Sector Rack</label>
+							    <select class="custom-select custom-select-sm" v-model="sectorRack" v-bind:class="{ 'is-invalid': validarSector }">
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option v-for="sector in gondolaSector" :value="sector.ID">{{sector.DESCRIPCION}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidSector}}
+								</div>
+							</div>
+
+							<!-- ------------------------------------------- SELECT PISO ------------------------------------------ -->
+
+							<div class="col-12 mt-3">
+							    <label>Piso Rack</label>
+							    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-bind:class="{ 'is-invalid': validarPiso }">
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option v-for="piso in gondolaPiso" :value="piso.ID">PISO {{piso.NRO_PISO}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidPiso}}
+								</div>
+							</div>     
+		                </div>
+		                <div class="modal-footer">
+		                    <button type="button" class="btn btn-success" v-on:click="controlarDatos()">Importar</button>
+		                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+		                </div>
+		              </div>
+		            </div>
+		        </div>
+		    </div>
+			<!-- ------------------------------------------------------------------------ -->
+
 		</div>
 		<div v-else>
 	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
 	</div>
-
-	
 
 </template>
 <script>
@@ -87,7 +163,26 @@
       data(){
         return {
           	codigoTransferencia: '',
+          	codigo_origen: '',
           	procesar: false,
+          	rack:'',
+			nro_caja: '',
+            secciones: [],
+            selectedSeccion: 'null',
+            validarSeccion: false,
+            messageInvalidSeccion: '',
+			gondolaPiso: [],
+          	validarPiso: false,
+            pisoRack: 'null',
+            messageInvalidPiso: '',
+            gondolaSector: [],
+        	sectorRack:'null',
+            validarSector: false,
+			messageInvalidSector: '',
+	        gondolaID: '',
+	        validarGondola: false,
+			messageInvalidGondola: '',
+			controlador: false
           	
         }
       }, 
@@ -134,14 +229,14 @@
       			// MOSTRAR LA PREGUNTA DE ELIMINAR 
 
       			Swal.fire({
-				  title: 'Estas seguro ?',
-				  text: "Rechazar la Transferencia " + codigo + " !",
+				  title: '¿Estás seguro?',
+				  text: "¡Rechazar la Transferencia " + codigo + "!",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
 				  confirmButtonColor: '#d33',
 				  cancelButtonColor: '#3085d6',
-				  confirmButtonText: 'Si, rechazalo!',
+				  confirmButtonText: '¡Sí, rechazalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
 				    return Common.rechazarTransferenciaCommon(codigo, codigo_origen).then(data => {
@@ -158,8 +253,8 @@
 				}).then((result) => {
 				  if (result.value) {
 				  	Swal.fire(
-						      'Rechazado !',
-						      'Se ha rechazado la transferencia y devuelto al origen !',
+						      '¡Rechazado!',
+						      '¡Se ha rechazado la transferencia y devuelto al origen!',
 						      'success'
 					)
 
@@ -177,7 +272,8 @@
 				// ------------------------------------------------------------------------
 
       		},
-      		importarTransferencia(codigo, codigo_origen){
+
+      		importarTransferencia(data){
 
       			// ------------------------------------------------------------------------
 
@@ -185,57 +281,173 @@
 
       			var tableTransferencia = $('#tablaImportarTrans').DataTable();
 
-      			// ------------------------------------------------------------------------
-
-      			// MOSTRAR LA PREGUNTA DE ELIMINAR 
+      			// MOSTRAR LA PREGUNTA DE IMPORTAR 
 
       			Swal.fire({
-				  title: 'Estas seguro ?',
-				  text: "Importar la Transferencia " + codigo + " !",
-				  type: 'warning',
-				  showLoaderOnConfirm: true,
-				  showCancelButton: true,
-				  cancelButtonColor: '#3085d6',
-				  confirmButtonText: 'Si, importalo!',
-				  cancelButtonText: 'Cancelar',
-				  preConfirm: () => {
-				    return Common.importarTransferenciaCommon(codigo, codigo_origen).then(data => {
-				    	if (!data.response === true) {
-				          throw new Error(data.statusText);
-				        }
-				  		return data;
-				  	}).catch(error => {
-				        Swal.showValidationMessage(
-				          `Request failed: ${error}`
-				        )
-				    });
-				  }
-				}).then((result) => {
-				  if (result.value) {
-				  	Swal.fire(
-						      'Importado !',
-						      'Se ha importado la transferencia correctamente !',
-						      'success'
-					)
+					  title: '¿Estás seguro?',
+					  text: "¡Importar la Transferencia " + data.codigo + "!",
+					  type: 'warning',
+					  showLoaderOnConfirm: true,
+					  showCancelButton: true,
+					  cancelButtonColor: '#3085d6',
+					  confirmButtonText: '¡Sí, importalo!',
+					  cancelButtonText: 'Cancelar',
+					  preConfirm: () => {
+					    return Common.importarTransferenciaCommon(data).then(data => {
+					    	if (!data.response === true) {
+					          throw new Error(data.statusText);
+					        }
+					  		return data;
+					  	}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					    });
+					  }
+					}).then((result) => {
+					  if (result.value) {
+					  	Swal.fire(
+							      '¡Importado!',
+							      '¡Se ha importado la transferencia correctamente!',
+							      'success'
+						)
 
-				  	// ------------------------------------------------------------------------
+					  	// ------------------------------------------------------------------------
 
-				  	// RECARGAR TABLA 
-				  	
-					tableTransferencia.ajax.reload( null, false );
+					  	// RECARGAR TABLA 
+					  	
+						tableTransferencia.ajax.reload( null, false );
 
-					// ------------------------------------------------------------------------
+						// ------------------------------------------------------------------------
 
-				  }
-				})
+					  }
+					})
 
 				// ------------------------------------------------------------------------
 
-      		}
+      		},
+      		generarNroCaja(){
+
+	        	// GENERADOR DE NRO DE CAJA
+	        	console.log(this.codigoTransferencia);
+	        	if(this.selectedSeccion.DESC_CORTA !== undefined){
+	        		
+	        		this.nro_caja = this.selectedSeccion.DESC_CORTA + '-TRA' + this.codigoTransferencia;
+	        	}else{
+	        		this.nro_caja = 'TRA' + this.codigoTransferencia;
+	        	}
+	        },
+			enviar_nombre_gondola(data){
+
+	          this.gondolaID = data;
+	           
+	        },
+	        enviar_seccion(data){
+
+	        	for (var i = this.secciones.length - 1; i >= 0; i--) {
+	        		if(this.secciones[i].ID_SECCION === data){
+	        			this.selectedSeccion = this.secciones[i]; 
+	        		}
+	        	}
+
+				this.generarNroCaja();
+	        },
+	        
+	        traer_pisos(pisos_marcados){
+
+	          	let me = this;
+	            me.gondolaPiso = pisos_marcados;
+	        },
+	        traer_sectores(sectores_marcados){
+	          
+	          	let me =this;
+	            me.gondolaSector = sectores_marcados;
+
+	        },
+
+	      	BusquedaSeccion(){
+	        	axios.get('busquedas/').then((response) => {
+	          		this.secciones = response.data.seccion;
+
+	        	});
+	      	},
+			controlarDatos(){
+
+				// ------------------------------------------------------------------------
+
+				let me = this;
+
+	        	
+	        	if (me.selectedSeccion ===  "null" || me.selectedSeccion === '') {
+	        		me.messageInvalidSeccion = 'Por favor seleccione una sección.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.messageInvalidSeccion = '';
+	        	}
+
+	        	if (me.pisoRack === "null" || me.pisoRack === '') {
+	        		me.validarPiso = true;
+	        		me.messageInvalidPiso = 'Por favor seleccione un piso.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.validarPiso = false;
+	        		me.messageInvalidPiso = '';
+	        	}
+
+	        	if (me.sectorRack ===  "null" || me.sectorRack === '') {
+	        		me.validarSector = true;
+	        		me.messageInvalidSector = 'Por favor seleccione un sector.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.validarSector = false;
+	        		me.messageInvalidSector = '';
+	        	}
+
+            	if(me.gondolaID.length === 0){
+	        		me.messageInvalidGondola = 'Por favor seleccione una góndola.';
+            		me.controlador = true;
+            	}else{
+	        		me.messageInvalidGondola = '';
+            	}
+				
+				// ------------------------------------------------------------------------
+
+	            // RETORNAR CONTROLADOR - SI ES TRUE SE DETIENE EL GUARDADO 
+	            // SI ES FALSE CONTINUA LA OPERACION 
+
+	            if(me.controlador === true){
+	            	me.controlador = false;
+	            	return me.controlador;
+	            }
+
+		        var data = {
+		            codigo: me.codigoTransferencia, 
+		            codigo_origen: me.codigo_origen,
+	        		seccion: me.selectedSeccion.ID_SECCION,
+	        		piso: me.pisoRack,
+	        		sector: me.sectorRack,
+	        		gondola: me.gondolaID,
+	        		nro_caja: me.nro_caja,
+					sistema_deposito: true
+		        }
+
+		        me.importarTransferencia(data);
+		        
+	        	// ------------------------------------------------------------------------
+
+	        },
       },
         mounted() {
         	
         	let me = this;
+
+        	// ------------------------------------------------------------------------
+
+        	// OBTENER RACK 
+
+	        Common.obtenerParametroCommon().then(data => {
+			    me.rack = data.parametros[0].RACK;
+			});
 
             $(document).ready( function () {
 
@@ -315,7 +527,60 @@
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.importarTransferencia(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN);
+
+	                   	if(me.rack === 'SI'){
+
+				            // *******************************************************************
+
+				            me.codigoTransferencia = tableImportarTransferencia.row( row ).data().CODIGO;
+				            me.codigo_origen = tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN;
+
+				        	// ------------------------------------------------------------------------
+							// LIMPIAR LAS VARIABLES ANTES DE ABRIR EL MODAL
+
+							me.nro_caja = '';
+				            me.secciones = [];
+				            me.selectedSeccion = 'null';
+				            me.validarSeccion = false;
+				            me.messageInvalidSeccion = '';
+							me.gondolaPiso = [];
+				          	me.validarPiso = false;
+				            me.pisoRack = 'null';
+				            me.messageInvalidPiso = '';
+				            me.gondolaSector = [];
+				        	me.sectorRack ='null';
+				            me.validarSector = false;
+							me.messageInvalidSector = '';
+					        me.gondolaID = '';
+					        me.validarGondola = false;
+							me.messageInvalidGondola = '';
+							me.controlador = false;
+
+				        	// ------------------------------------------------------------------------
+							// OBTENER SECCIONES
+
+							me.BusquedaSeccion();
+
+				        	// ------------------------------------------------------------------------
+							// GENERAR PRIMERA PARTE DEL NRO. DE CAJA
+
+							me.generarNroCaja();
+
+			                // ABRIR EL MODAL
+			                     
+			                $('.agregar-rack-piso').modal('show');
+
+	                   	}else{
+
+		                   	var data = {
+		                   		codigo: tableImportarTransferencia.row( row ).data().CODIGO, 
+		                   		codigo_origen: tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN,
+								sistema_deposito: false
+		                   	}
+
+		                    me.importarTransferencia(data);
+	                   	}
+
 
 	                    // *******************************************************************
 
@@ -359,7 +624,7 @@
 
                     // ------------------------------------------------------------------------
 
-	 });
+	 		});
         }
     }
 </script>

@@ -1689,7 +1689,7 @@ function rechazarTransferenciaCommon(codigo, codigo_origen){
 
 }
 
-function importarTransferenciaCommon(codigo, codigo_origen){
+function importarTransferenciaCommon(data){
 
 			// ------------------------------------------------------------------------
 
@@ -1701,7 +1701,7 @@ function importarTransferenciaCommon(codigo, codigo_origen){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios.post('/transferenciaImportar', {'codigo': codigo, 'codigo_origen': codigo_origen}).then(function (response) {
+			return axios.post('/transferenciaImportar', {'data': data}).then(function (response) {
 					return response.data;
 			});
 
