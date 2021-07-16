@@ -10,6 +10,29 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
+		      	<div v-if="rack === true">
+			      	<div class="row mt-2">
+			      		<div class="col-4">
+							<span class="float-left"><strong class="ml-3"> Nro. Caja: </strong> {{nro_caja}}</span><br/>
+			      		</div>
+						<div class="col-4">
+							<span class="float-left"><strong> Sección: </strong> {{descripcionSeccion}} </span><br/>
+						</div>
+			      		<div class="col-4">
+							<span class="float-left"><strong> Sector: </strong> {{descripcionSector}}</span><br/>
+						</div>
+			      	</div>
+
+			      	<div class="row mt-3 mb-3">	
+
+			      		<div class="col-4">
+							<span class="float-left"><strong class="ml-3"> Góndola: </strong> {{descripcionGondola}}</span><br/>
+			      		</div>
+						<div class="col-4">
+							<span class="float-left"><strong> Piso: </strong> {{piso}} </span><br/>
+						</div>
+					</div>
+				</div>
 		        <table id="transferenciaProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
 					            <thead>
 					                <tr>
@@ -21,9 +44,6 @@
 					                    <th>Total</th>
 					                </tr>
 					            </thead>
-					            <tbody>
-					                <td></td>
-					            </tbody>
 					        </table>
 		      </div>
 		      <div class="modal-footer">
@@ -41,7 +61,13 @@
       data(){
         return {
           open: false,
-          codigo_transferencia: ''
+          codigo_transferencia: '',
+          rack: false,
+		  descripcionSeccion: '',
+          descripcionSector: '',
+		  descripcionGondola: '',
+		  piso: '',
+		  nro_caja:''
         }
       }, 
       methods: {
@@ -54,6 +80,11 @@
       			this.obtenerDatosTranferencia(codigo, codigo_origen);
 
       			// ------------------------------------------------------------------------
+      			// ------------------------------------------------------------------------
+
+      			// LLAMAR AJAX PARA CARGAR CABECERA 
+
+      			this.cargarCabeceraTransferencia(codigo, codigo_origen);
 
       			// LLAMAR MODAL TRANSFERENCIA PRODUCTOS
 
@@ -62,6 +93,24 @@
       			// ------------------------------------------------------------------------
             	
             }, 
+            cargarCabeceraTransferencia(codigo, codigo_origen){
+
+            	let me = this;
+
+            	Common.obtenerCabeceraTransferenciaCommon(codigo, codigo_origen).then(data => {
+            		
+        			me.rack = data.SISTEMA_DEPOSITO;
+
+        			if(data.SISTEMA_DEPOSITO === true){
+
+        				me.nro_caja = data.DATOS_DEPOSITO.NRO_CAJA;
+        				me.descripcionSeccion = data.DATOS_DEPOSITO.DESC_SECCION;
+        				me.descripcionGondola = data.DATOS_DEPOSITO.DESC_GONDOLA;
+        				me.descripcionSector = data.DATOS_DEPOSITO.DESC_SECTOR;
+        				me.piso = data.DATOS_DEPOSITO.DESC_PISO;
+        			}
+				});
+            },
             obtenerDatosTranferencia(codigo, codigo_origen){
 
             	// ------------------------------------------------------------------------

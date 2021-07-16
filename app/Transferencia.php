@@ -977,6 +977,40 @@ class Transferencia extends Model
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
+        // REVISAR ESTATUS 
+
+        $estatus = Transferencia::verificar_estatus($codigo, $sucursal);
+
+        $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
+        $transferencia[0]->SISTEMA_DEPOSITO = false;
+        
+        if($deposito == 'SI' && $estatus == 2){
+
+            $transferencias_deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')
+                ->select(DB::raw('TRANSFERENCIAS_DEPOSITO.NRO_CAJA,
+                    SECCIONES.DESCRIPCION AS DESC_SECCION,
+                    PISOS.NRO_PISO AS DESC_PISO,
+                    SECTORES.DESCRIPCION AS DESC_SECTOR,
+                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA
+                    '))
+                ->leftjoin('PISOS','PISOS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_PISO')
+                ->leftjoin('SECTORES','SECTORES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECCION')
+                ->where('TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=', $transferencia[0]->ID)
+                ->get();
+
+            if(count($transferencias_deposito)>0){
+                $transferencia[0]->SISTEMA_DEPOSITO = true;
+                $transferencia[0]->DATOS_DEPOSITO = $transferencias_deposito[0];
+            }else{
+                $transferencia[0]->SISTEMA_DEPOSITO = false;
+            }
+        }
+
+        /*  --------------------------------------------------------------------------------- */
 
         return $transferencia[0];
 
@@ -2071,8 +2105,8 @@ class Transferencia extends Model
 
         // INICIAR VARIABLES 
 
-        $codigo = $data["codigo"];
-        $codigo_origen = $data["codigo_origen"];
+        $codigo = $data["data"]["codigo"];
+        $codigo_origen = $data["data"]["codigo_origen"];
           $user = auth()->user();
             $dia = date("Y-m-d");
             $hora = date("H:i:s");
@@ -2199,10 +2233,10 @@ class Transferencia extends Model
 
             $dia = date("Y-m-d");
             $hora = date("H:i:s");
-            $codigo = $data["codigo"];
-            $codigo_origen = $data["codigo_origen"];
+            $codigo = $data["data"]["codigo"];
+            $codigo_origen = $data["data"]["codigo_origen"];
+            $sistema_deposito = $data["data"]["sistema_deposito"];
             $conversion = false;
-
             $precio_venta = 0;
             $precio_mayorista = 0;
             $precio_vip = 0;
@@ -2219,7 +2253,28 @@ class Transferencia extends Model
             // REVISAR SI EL ESTATUS SE ENCUENTRA EN 1 PARA SER IMPORTADO
 
             if ($estatus === false or $estatus === 0 or $estatus === 2) {
-                return ["response" => false, "statusText" => "Ya se encuentra procesada !"];
+                return ["response" => false, "statusText" => "¡Ya se encuentra procesada!"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+            // GUARDAR UBICACION DE CAJA
+
+            if($sistema_deposito === true){
+
+                $id_transferencia = transferencia::select(DB::raw('ID'))
+                    ->where('ID_SUCURSAL','=', $codigo_origen)
+                    ->where('CODIGO','=', $codigo)
+                    ->get();
+
+                $deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->insertGetId([
+                    'NRO_CAJA' => $data["data"]["nro_caja"],
+                    'FK_TRANSFERENCIA' => $id_transferencia[0]->ID,
+                    'FK_GONDOLA' => $data["data"]["gondola"],
+                    'FK_SECCION' => $data["data"]["seccion"],
+                    'FK_SECTOR' => $data["data"]["sector"],
+                    'FK_PISO' => $data["data"]["piso"]
+                ]);
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2336,7 +2391,7 @@ class Transferencia extends Model
             // REVISAR SI SUCURSAL DESTINO ES IGUAL A LA SUCURSAL
 
             if ($transferencia[0]->SUCURSAL_DESTINO !== $user->id_sucursal) {
-                return ["response" => false, "statusText" => "La transferencia no es de esta sucursal !"];
+                return ["response" => false, "statusText" => "¡La transferencia no es de esta sucursal!"];
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2344,7 +2399,7 @@ class Transferencia extends Model
             // CAMBIAR ESTADO DE TRANSFERENCIA A PROCESADO
 
             if (Transferencia::aceptar_transferencia($data) === false) {
-                return ["response" => false, "statusText" => "La transferencia no pudo cambiar de estado !"];
+                return ["response" => false, "statusText" => "¡La transferencia no pudo cambiar de estado!"];
             }
 
             /*  --------------------------------------------------------------------------------- */

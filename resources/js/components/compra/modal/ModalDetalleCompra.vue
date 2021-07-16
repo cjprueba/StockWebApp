@@ -13,7 +13,7 @@
 		      	<div v-if="rack === true">
 			      	<div class="row mt-2">
 			      		<div class="col-4">
-							<span class="float-left"><strong class="ml-3"> Nro. Caja: </strong> {{factura.NRO_CAJA}}</span><br/>
+							<span class="float-left"><strong class="ml-3"> Nro. Caja: </strong> {{nro_caja}}</span><br/>
 			      		</div>
 						<div class="col-4">
 							<span class="float-left"><strong> Container: </strong> {{descripcionContainer}}</span><br/>
@@ -23,16 +23,16 @@
 						</div>
 			      	</div>
 
-			      	<div class="row mb-3">	
+			      	<div class="row mt-3 mb-3">	
 
-						<!-- ------------------------------------------- ARRAY DE GONDOLA CON SU PISO ------------------------------------------ -->
-
-						<div class="col-4 mt-3" v-if="selectedGondolaPiso.length > 0">
-							<div class="card" style="width: 18rem;">
-		  						<ul class="list-group list-group-flush">
-		    						<li class="list-group-item" v-for="gondola_piso in selectedGondolaPiso"><strong>GONDOLA:</strong> {{gondola_piso.GONDOLA.DESCRIPCION}} <strong>PISO:</strong> {{gondola_piso.PISO}}</li>
-		  						</ul>
-							</div>
+			      		<div class="col-4">
+							<span class="float-left"><strong class="ml-3"> Sector: </strong> {{descripcionSector}}</span><br/>
+			      		</div>
+						<div class="col-4">
+							<span class="float-left"><strong> Góndola: </strong> {{descripcionGondola}}</span><br/>
+						</div>
+			      		<div class="col-4">
+							<span class="float-left"><strong> Piso: </strong> {{piso}} </span><br/>
 						</div>
 					</div>
 				</div>
@@ -70,10 +70,10 @@
           rack: false,
           descripcionContainer: '',
 		  descripcionSeccion: '',
-		  factura: {
-		  	NRO_CAJA: ''
-		  },
-		  selectedGondolaPiso: []
+          descripcionSector: '',
+		  descripcionGondola: '',
+		  piso: '',
+		  nro_caja:''
         }
       }, 
       methods: {
@@ -109,10 +109,12 @@
 		        		
         			me.rack = data.SISTEMA_DEPOSITO;
         			if(data.SISTEMA_DEPOSITO === true){
-        				me.factura.NRO_CAJA = data.NRO_FACTURA;
-        				me.descripcionContainer = data.CONTAINER_SECCION.DESCRIPCION;
-        				me.descripcionSeccion = data.CONTAINER_SECCION.DESCRIPCION_SECCION;
-        				me.selectedGondolaPiso = data.GONDOLAS_PISO;
+        				me.nro_caja = data.NRO_FACTURA;
+        				me.descripcionContainer = data.DATOS_DEPOSITO.DESCRIPCION;
+        				me.descripcionSeccion = data.DATOS_DEPOSITO.DESC_SECCION;
+        				me.descripcionGondola = data.DATOS_DEPOSITO.DESC_GONDOLA;
+        				me.descripcionSector = data.DATOS_DEPOSITO.DESC_SECTOR;
+        				me.piso = data.DATOS_DEPOSITO.DESC_PISO;
         			}
 		       	});
 			},
