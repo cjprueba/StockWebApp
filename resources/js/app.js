@@ -309,6 +309,7 @@ Vue.component('remision-filtrar', require('./components/textboxs/NotaDeRemisionT
 Vue.component('proveedor-nombre', require('./components/textboxs/Proveedor/ProveedorTextbox.vue').default);
 Vue.component('forma-pago-credito-textbox', require('./components/textboxs/FormaPagoCreditoTextbox.vue').default);
 Vue.component('nropiso-textbox', require('./components/textboxs/PisoTextbox.vue').default);
+Vue.component('sector-textbox', require('./components/textboxs/SectorTextbox.vue').default);
 
 /* ********************************************* */
 

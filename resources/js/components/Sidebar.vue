@@ -610,6 +610,7 @@
               <hr>
               <router-link v-if="$can('gondola.crear')" class="collapse-item" :to="{name: 'gondolaCrear'}">Crear Gondola</router-link>
               <router-link v-if="$can('gondola.crearpiso')" class="collapse-item" :to="{name: 'crearPiso'}">Crear Piso</router-link>
+              <router-link v-if="$can('gondola.crearsector')" class="collapse-item" :to="{name: 'crearSector'}">Crear Sector</router-link>
               <hr>  
             </div>
 

@@ -428,6 +428,11 @@ export default new Router({
 			component: require('./components/gondolas/CrearPiso.vue').default
 		},
 		{
+			path: '/crsect',
+			name: 'crearSector',
+			component: require('./components/gondolas/CrearSector.vue').default
+		},
+		{
 			path: '/CambioDeSucursal',
 			name: 'cambiarSucursal',
 			component: require('./components/usuario/CambiarSucursal.vue').default

@@ -6870,6 +6870,76 @@ function filtrarPisoCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+function nuevoSectorCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoSector').then(function (response) {
+					return response.data;
+			});
+}
+function filtrarSectorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/sectorFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function guardarsectorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarSector', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function eliminarsectorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarSector', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7160,5 +7230,9 @@ export {
 		guardarNroPisoCommon,
 		eliminarNroPisoCommon,
 		nuevoNroPisoCommon,
-		filtrarPisoCommon
+		filtrarPisoCommon,
+		nuevoSectorCommon,
+		filtrarSectorCommon,
+		guardarsectorCommon,
+		eliminarsectorCommon
 		};
