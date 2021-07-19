@@ -261,6 +261,22 @@
 	                    // *******************************************************************
 
 	                });
+	                $('#tablaCompras').on('click', 'tbody tr #qr_caja', function() {
+
+	                    // *******************************************************************
+
+	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
+
+	                   	 var row  = $(this).parents('tr')[0];
+	                   	  	me.procesar = true;
+						Common.generarRptPdfCajaCompraQrCommon(tableCompra.row( row ).data().NRO_FACTURA).then( () => {
+	                   		me.procesar = false;
+	                   	});
+	                   	
+
+	                    // *******************************************************************
+
+	                });
 
 	                // ------------------------------------------------------------------------
 	 });	

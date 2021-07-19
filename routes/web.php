@@ -24,6 +24,7 @@ Route::post('/qrcode','QrController@Crear');
 Route::post('/barcode','QrController@Crear_Barcode');
 Route::post('/barinterno','QrController@Crear_Barinterno');
 Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
+Route::post('/PdfQrCajaCompra','QrController@Crear_Pdf_Compra_Caja_Qr');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
