@@ -235,6 +235,32 @@ Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola
 
 /* -------------------------------------------------------------------------- */
 
+// PISO
+Route::get('piso', 'PisoController@mostrar');
+Route::post('piso', 'PisoController@encontrar');
+Route::post('pisoDatatable', 'PisoController@datatable');
+Route::post('pisoFiltrar', 'PisoController@filtrarPiso');
+Route::get('nuevoPiso', 'PisoController@PisoNuevo');
+Route::post('guardarPiso', 'PisoController@PisoGuardar');
+Route::post('eliminarPiso', 'PisoController@PisoEliminar');
+
+/* -------------------------------------------------------------------------- */
+
+// SECTOR
+
+Route::get('sector', 'SectorController@mostrar');
+Route::post('sector', 'SectorController@encontrar');
+Route::post('sectorDatatable', 'SectorController@datatable');
+
+Route::get('nuevoSector', 'SectorController@SectorNuevo');
+Route::post('sectorFiltrar', 'SectorController@filtrarSector');
+Route::post('guardarSector', 'SectorController@SectorGuardar');
+Route::post('eliminarSector', 'SectorController@SectorEliminar');
+
+
+
+/* -------------------------------------------------------------------------- */
+
 // PROVEEDOR
 
 Route::get('proveedor', 'ProveedorController@obtenerProveedores');
