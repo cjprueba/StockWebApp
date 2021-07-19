@@ -91,7 +91,8 @@ class Qr extends Model
     }
          public static function crear_pdf_qr_2($datos)
     {
-     $c=0;
+        $user = auth()->user();
+        $c=0;
 
 
        $file=public_path('qr.png');
@@ -119,7 +120,7 @@ class Qr extends Model
             }
 
               
-            Qr::crear_qr($value["CODIGO"]);
+            Qr::crear_qr($value["CODIGO"],1);
 
             $file=public_path(''.$value["CODIGO"].'.png');
             $pdf->Image($file,$x-20,$y-2.7,24,24);
@@ -164,16 +165,22 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
-         public static function crear_qr($codigo)
+         public static function crear_qr($codigo,$tipo)
     {
-     
+        $user = auth()->user();
         /*  --------------------------------------------------------------------------------- */
         $file=public_path(''.$codigo.'.png');
-       return \QRCode::text('http://131.196.192.165:8080/productoqr?s=9&c='.$codigo)->setOutfile($file)->png();
+        if($tipo===1){
+           return \QRCode::text('http://131.196.192.165:8080/productoqr?s='.$user->id_sucursal.'&c='.$codigo)->setOutfile($file)->png();
+         }elseif ($tipo===2) {
+            return \QRCode::text('http://131.196.192.165:8080/cajacompraqr?s='.$user->id_sucursal.'&c='.$codigo)->setOutfile($file)->png();
+         }
+      
 
         /*  --------------------------------------------------------------------------------- */
 
     }
+             
     public static function crear_barcode($datos){
       if($datos['tamaño']==='1'){
         return(qr::etiqueta_tipo_1($datos));
@@ -498,6 +505,38 @@ class Qr extends Model
       }
         return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     } 
+
+      public static function crear_pdf_CajaCompra_qr($datos)
+    {
+      
+
+          $file=public_path('qr.png');
+     
+          $pdf = new FPDF('L','mm',array(50,50));
+          $pdf->AddPage();
+          $x=0;
+          $y = 0;
+          $c=0;
+           Qr::crear_qr($datos["data"],2);
+
+            /*$pdf->Text(5,8,$datos["data"]);*/
+            $file=public_path($datos["data"].'.png');
+            $pdf->Image($file,$x,$y,50,50);
+           
+            File::delete($datos["data"].'.png');
+      
+
+
+     
+
+
+
+
+        return $pdf->Output('CajaCompraqr.pdf','i');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
 
     //-------------------------CODIGO INTERNO---------------------------------------------------------------------------------
