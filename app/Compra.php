@@ -1423,13 +1423,13 @@ class Compra extends Model
             'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
             GONDOLAS.DESCRIPCION AS RACK,
             PISOS.NRO_PISO AS PISO,
-            CONTAINER.DESCRIPCION AS CONTAINER,
+            CONTAINERS.DESCRIPCION AS CONTAINER,
             SECTORES.DESCRIPCION AS SECTOR'))
         ->leftjoin('COMPRAS_DEPOSITO','COMPRAS_DEPOSITO.FK_COMPRA','=','COMPRAS.ID')
         ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
         ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
         ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
-        ->leftjoin('CONTAINER','CONTAINER.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+        ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
         ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
        /* $data_encabezado=array();
         if(!empty($encabezado)){
