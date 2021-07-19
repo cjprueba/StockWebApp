@@ -293,7 +293,7 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
-           public function marcarTransferenciaDevolucion(Request $request)
+    public function marcarTransferenciaDevolucion(Request $request)
     {
 
         /*  --------------------------------------------------------------------------------- */
@@ -301,6 +301,21 @@ class TransferenciaControler extends Controller
         // MOSTRAR IMPORTAR
 
         $transferencia = Transferencia::marcar_Transferencia_Devolucion($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
+
+    public function modificarTransferenciaUbicacion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::modificarUbicacionTransferencia($request->all());
         return response()->json($transferencia);
 
         /*  --------------------------------------------------------------------------------- */

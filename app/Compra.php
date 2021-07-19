@@ -376,7 +376,12 @@ class Compra extends Model
                 } else {
                 	$nestedData['TIPO'] = 'N/A';
                 }
-
+                
+                $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+                $sistema_deposito = '';
+                if($deposito == 'SI'){
+                    $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>";
+                }
                 /*  --------------------------------------------------------------------------------- */
 
                 $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
@@ -384,7 +389,7 @@ class Compra extends Model
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>".$sistema_deposito;
 
                 $data[] = $nestedData;
 
@@ -1534,6 +1539,107 @@ class Compra extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+    public static function modificarUbicacionCompra($datos){
+
+        try {
+            
+            //INICIAR VARIABLE
+
+            $codigo = $datos["data"]["codigo"];
+            $diaHora = date("Y-m-d H:i:s");
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER ID DE COMPRA
+
+            $compra = Compra::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR COMPRA DEPOSITO 
+
+            DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')
+                ->where('FK_COMPRA','=', $compra[0]->ID)
+                ->delete();
+
+
+            // OBTENER ID CONTAINER
+
+            $id_container = Container::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $datos["data"]["codigoContainer"])
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // MODIFICAR NRO DE CAJA EN COMPRA
+
+            Compra::where([
+                ['CODIGO', '=', $codigo],
+                ['ID_SUCURSAL', '=', $user->id_sucursal]
+            ])
+            ->update([
+                'NRO_FACTURA' => $datos['data']["nro_caja"] 
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+            // INSERTAR COMPRA DEPOSITO 
+
+            $deposito = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->insertGetId([
+                        'FK_CONTAINER' => $id_container[0]->ID,
+                        'FK_COMPRA' => $compra[0]->ID,
+                        'FK_GONDOLA' => $datos["data"]["gondola"],
+                        'FK_SECCION' => $datos["data"]["seccion"],
+                        'FK_SECTOR' => $datos["data"]["sector"],
+                        'FK_PISO' => $datos["data"]["piso"]
+                    ]);
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // INSERTAR USER REFERENCIA
+
+            CompraUser::guardar_referencia($user->id, 4, $compra[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => true];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }catch (Exception $e){
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
     }
 
 }
