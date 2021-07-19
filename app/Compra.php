@@ -1466,6 +1466,7 @@ class Compra extends Model
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')          
             ->where('COMPRAS.ID_SUCURSAL','=', $sucursal)
             ->where('COMPRAS.NRO_FACTURA', '=' , $codigo_ca)
+            ->orderBy('LOTES.CANTIDAD','DESC')
             ->get();
                          
         /*  --------------------------------------------------------------------------------- */
