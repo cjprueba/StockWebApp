@@ -114,29 +114,17 @@ class Compra extends Model
                 ->where('CODIGO','=', $data->data["codigoContainer"])
                 ->get();
 
-                // OBTENER ID SECCION
-
-                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
-
                 // GUARDAR REFERENCIAS DE DEPOSITO
 
                 $deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')->insertGetId([
                     'FK_CONTAINER' => $id_container[0]->ID,
                     'FK_COMPRA' => $id_compra[0]->ID,
-                    'FK_SECCION' => $fk_seccion
+                    'FK_GONDOLA' => $data->data["gondola"],
+                    'FK_SECCION' => $data->data["seccion"],
+                    'FK_SECTOR' => $data->data["sector"],
+                    'FK_PISO' => $data->data["piso"]
                 ]);
-
-                // GUARDAR GONDOLAS DE LA COMPRA
-
-                foreach ($data->data["gondolaPiso"] as $key => $value) {
-
-                    $gondolas = DB::connection('retail')
-                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
-                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
-                        'FK_COMPRA' => $id_compra[0]->ID,
-                        'PISO' => $value["PISO"]]);
-                }
             }   
     		
     		/*  --------------------------------------------------------------------------------- */
@@ -307,7 +295,7 @@ class Compra extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, IFNULL(COMPRAS.NRO_FACTURA,"NO POSEE") AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
                          ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
@@ -334,7 +322,8 @@ class Compra extends Model
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
-                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                                    ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
+                                    ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -349,6 +338,7 @@ class Compra extends Model
             				->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
+                                  ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
                                       ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->count();
@@ -394,9 +384,15 @@ class Compra extends Model
                 $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
                 $nestedData['FEC_FACTURA'] = substr($post->FEC_FACTURA, 0,10);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
-                
-                $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+                if($post->NRO_FACTURA==="NO POSEE"){
+                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                }else{
+                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='qr_caja' title='Imprimir Qr'><i class='fa fa-qrcode text-secondary' aria-hidden='true'></i></a>";
+                }
+                
+               
 
                 $data[] = $nestedData;
 
@@ -627,15 +623,6 @@ class Compra extends Model
 
         DB::connection('retail')
         ->table('COMPRAS_DEPOSITO')
-        ->where('FK_COMPRA','=', $id_compra[0]->ID)
-        ->delete();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR COMPRAS TIENE GONDOLA 
-
-        DB::connection('retail')
-        ->table('COMPRAS_TIENE_GONDOLA')
         ->where('FK_COMPRA','=', $id_compra[0]->ID)
         ->delete();
 
@@ -891,59 +878,61 @@ class Compra extends Model
         ->get();
 
         $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
         $compra[0]['SISTEMA_DEPOSITO'] = false;
+
         if($deposito == 'SI'){
 
             $compras_deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')
-                ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
-                ->leftjoin('SECCIONES','SECCIONES.ID','=','COMPRAS_DEPOSITO.FK_SECCION')
                 ->select(DB::raw('CONTAINERS.CODIGO,
                     CONTAINERS.DESCRIPCION,
-                    SECCIONES.CODIGO AS CODIGO_SECCION,
-                    SECCIONES.DESCRIPCION AS DESCRIPCION_SECCION,
-                    SECCIONES.DESC_CORTA'))
+                    COMPRAS_DEPOSITO.FK_SECCION AS ID_SECCION,
+                    COMPRAS_DEPOSITO.FK_PISO AS PISO,
+                    COMPRAS_DEPOSITO.FK_SECTOR AS SECTOR,
+                    COMPRAS_DEPOSITO.FK_GONDOLA AS GONDOLA,
+                    SECCIONES.DESCRIPCION AS DESC_SECCION,
+                    PISOS.NRO_PISO AS DESC_PISO,
+                    SECTORES.DESCRIPCION AS DESC_SECTOR,
+                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA
+                    '))
+                ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+                ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
+                ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','COMPRAS_DEPOSITO.FK_SECCION')
                 ->where('COMPRAS_DEPOSITO.FK_COMPRA','=', $compra[0]["ID"])
                 ->get();
 
-            $gondolas = DB::connection('retail')
-                ->table('COMPRAS_TIENE_GONDOLA')
-                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-                ->select(DB::raw('GONDOLAS.ID, 
-                    GONDOLAS.CODIGO, 
-                    GONDOLAS.DESCRIPCION'))
-                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
-                ->get();
+            $secciones = Seccion::select(DB::raw('IFNULL(ID, 0) AS ID_SECCION,
+                    IFNULL(DESCRIPCION, 0) AS DESCRIPCION,
+                    IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA'))
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->orderBy('DESCRIPCION', 'ASC')
+                ->get()
+                ->toArray();
 
-            $compras_gondola = DB::connection('retail')
-                ->table('COMPRAS_TIENE_GONDOLA')
-                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-                ->select(DB::raw('COMPRAS_TIENE_GONDOLA.FK_GONDOLA AS GONDOLA,
-                    COMPRAS_TIENE_GONDOLA.PISO'))
-                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
-                ->get();
-
-            foreach ($compras_gondola as $key => $value) {
-                $compras_gondola[$key]->GONDOLA = $gondolas[$key];
-                $compras_gondola[$key]->PISO = $value->PISO;
-            }
-
-            $compra[0]['SISTEMA_DEPOSITO'] = true;
-
-            if(count($compras_gondola)>0){
-                $compra[0]["GONDOLAS_PISO"] = $compras_gondola;
-            }else{
-                $compra[0]['SISTEMA_DEPOSITO'] = false;
-            }
-
-            if(count($gondolas)>0){
-                $compra[0]["GONDOLAS"] = $gondolas;
-            }else{
-                $compra[0]['SISTEMA_DEPOSITO'] = false;
-            }
-            
+            $compra[0]['SECCIONES'] = $secciones;
             if(count($compras_deposito)>0){
-                $compra[0]["CONTAINER_SECCION"] = $compras_deposito[0];
+
+                $pisos = Gondola_Tiene_Piso::select(DB::raw('PISOS.ID,
+                        PISOS.NRO_PISO'))
+                    ->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')
+                    ->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$compras_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $sectores = Gondola_Tiene_Sector::select(DB::raw('SECTORES.ID,
+                    SECTORES.DESCRIPCION'))
+                    ->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')
+                    ->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$compras_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $compra[0]['SISTEMA_DEPOSITO'] = true;
+                $compra[0]['SECTORES'] = $sectores;
+                $compra[0]['PISOS'] = $pisos;
+                $compra[0]["DATOS_DEPOSITO"] = $compras_deposito[0];
             }else{
                 $compra[0]['SISTEMA_DEPOSITO'] = false;
             }
@@ -1294,29 +1283,18 @@ class Compra extends Model
                 ->where('CODIGO','=', $data->data["codigoContainer"])
                 ->get();
 
-                // OBTENER ID SECCION
-
-                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
-
                 // GUARDAR REFERENCIAS DE DEPOSITO
 
                 $deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')->insertGetId([
                     'FK_CONTAINER' => $id_container[0]->ID,
                     'FK_COMPRA' => $id_compra[0]->ID,
-                    'FK_SECCION' => $fk_seccion
+                    'FK_GONDOLA' => $data->data["gondola"],
+                    'FK_SECCION' => $data->data["seccion"],
+                    'FK_SECTOR' => $data->data["sector"],
+                    'FK_PISO' => $data->data["piso"]
                 ]);
 
-                // GUARDAR GONDOLAS DE LA COMPRA
-
-                foreach ($data->data["gondolaPiso"] as $key => $value) {
-
-                    $gondolas = DB::connection('retail')
-                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
-                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
-                        'FK_COMPRA' => $id_compra[0]->ID,
-                        'PISO' => $value["PISO"]]);
-                }
             } 
 
     		/*  --------------------------------------------------------------------------------- */
@@ -1432,7 +1410,7 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 	}  
-        public static function CompraCajaQr($data){
+          public static function CompraCajaQr($data){
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1444,13 +1422,16 @@ class Compra extends Model
         $encabezado= Compra::Select(DB::raw(
             'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
             GONDOLAS.DESCRIPCION AS RACK,
-            COMPRAS_TIENE_GONDOLA.PISO AS PISO'))
-        ->leftjoin('COMPRAS_TIENE_GONDOLA','COMPRAS_TIENE_GONDOLA.FK_COMPRA','=','COMPRAS.ID')
-        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)
-        ->groupby("GONDOLAS.ID", "COMPRAS_TIENE_GONDOLA.PISO")
-        ->get();
-        $data_encabezado=array();
+            PISOS.NRO_PISO AS PISO,
+            CONTAINER.DESCRIPCION AS CONTAINER,
+            SECTORES.DESCRIPCION AS SECTOR'))
+        ->leftjoin('COMPRAS_DEPOSITO','COMPRAS_DEPOSITO.FK_COMPRA','=','COMPRAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
+        ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
+        ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
+        ->leftjoin('CONTAINER','CONTAINER.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
+       /* $data_encabezado=array();
         if(!empty($encabezado)){
             foreach ($encabezado as $post) {
                 # code...
@@ -1458,7 +1439,7 @@ class Compra extends Model
                 $nestedDataEncabezado["PISO"]=$post->PISO;
                 $data_encabezado[]=$nestedDataEncabezado;
             }
-        }
+        }*/
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1522,7 +1503,7 @@ class Compra extends Model
                 $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
                 
                 $nestedData['LOTE'] = $post->LOTE;
-                if($post->FECHA_VENC==='0000-00-00' || $post->FECHA_VENC==='1899-12-31'){
+                if($post->FECHA_VENC==="0000-00-00" || $post->FECHA_VENC==="1899-12-31"){
                      $nestedData['FECHA_VENC'] = "NO POSEE";
                 }else{
                      $nestedData['FECHA_VENC']=$post->FECHA_VENC;
@@ -1552,8 +1533,8 @@ class Compra extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "productos"            => $data,
-                    "encabezado"=> $data_encabezado
+                    "data"            => $data,
+                    "encabezado"=> $encabezado
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1565,5 +1546,4 @@ class Compra extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
-
 }

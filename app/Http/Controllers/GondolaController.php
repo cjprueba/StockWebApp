@@ -94,4 +94,15 @@ class GondolaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+        public function ConfiguracionInicioGondola(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER GONDOLAS
+
+        $gondolas = Gondola::configuracion_inicio_gondola();
+        return response()->json($gondolas);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 }

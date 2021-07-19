@@ -183,7 +183,7 @@ class TransferenciaControler extends Controller
 
         // MOSTRAR IMPORTAR
 
-        $transferencia = Transferencia::importar_transferencia($request);
+        $transferencia = Transferencia::importar_transferencia($request->all());
         return response()->json($transferencia);
 
         /*  --------------------------------------------------------------------------------- */

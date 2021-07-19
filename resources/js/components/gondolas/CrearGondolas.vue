@@ -4,14 +4,14 @@
     <div v-if="$can('gondola.crear') && $can('gondola') && $can('configuracion')">
     <!-- MENSAJE DE ERROR SI NO HAY CONECCION  -->     
       <mensaje v-bind:mostrar_error="mostrar_error, mensaje"></mensaje>
-          <div class="col-6">
+          <div class="col-7">
             <div class="card shadow border-bottom-primary mb-3">
               <h5 class="text-center card-header">Gondolas</h5>
               <div class="card-body">            
                 <div class="row">
                   <div class="col-12">
                     <div class="mb-3">
-                      <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' @seccion="enviar_seccion" @id='enviar_id' @descripcion='traer_descripcion'></gondola-nombre>
+                      <gondola-nombre ref="componente_textbox_Gondola" @nombre_gondola='enviar_nombre' @existe_gondola='existe' :nombre='nombreGondola' :validarGondola='validarGondola' :rack='rack' @seccion="enviar_seccion" @id='enviar_id' @descripcion='traer_descripcion' @pisos='traer_pisos' @sectores='traer_sectores'></gondola-nombre>
                     </div>
 
                     <div class="invalid-feedback">{{messageInvalidSeccion}}</div>
@@ -29,8 +29,71 @@
                       </select>
                     </div>
 
+                <div class="row">
+                   <div class="col-md-1"></div>
+                      <div v-if="rack==='SI'" class="col-md-4">
 
-                      <div class="row">
+
+                        <label for="validationTooltip01">Seleccione Pisos</label> 
+                        <div class="container_checkbox1 rounded">
+                                    <div class="ml-3" v-for="piso in pisos">
+                                      <div class="custom-control custom-checkbox">
+                                        <input  type="checkbox" class="custom-control-input" :disabled="onPiso" 
+                                        :value="piso.NRO_PISO" 
+                                        :id='"Piso_"+piso.ID' 
+                                        v-model="selectedPiso" 
+                                        v-on:change="marcar_inferiores_piso"
+                                        v-bind:class="{ 'is-invalid': validarPiso }">
+                                        <label class="custom-control-label" :for='"Piso_"+piso.ID' >{{piso.DESCRIPCION }}</label>
+                                      </div>
+                                    </div>
+                                </div>
+                        <div>
+                              <div class="form-text text-danger">{{messageInvalidPiso}}</div>
+                          </div>
+                        <div  class="custom-control custom-switch mt-3">
+                          <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onPiso" v-on:change="seleccionarTodoPiso">
+                          <label class="custom-control-label" for="customSwitch1" >Seleccionar todos</label>
+                        </div>
+
+
+                    </div>
+                      <div class="col-md-2"></div>
+                       <div v-if="rack==='SI'" class="col-md-4">
+
+
+                        <label for="validationTooltip01">Seleccione Sectores</label> 
+                        <div class="container_checkbox1 rounded">
+                                    <div class="ml-3" v-for="sector in sectores">
+                                      <div class="custom-control custom-checkbox">
+                                        <input  type="checkbox" class="custom-control-input" :disabled="onSector" 
+                                        :value="sector.DESCRIPCION" 
+                                        :id='"Sectores_"+sector.ID' 
+                                        v-model="selectedSector" 
+                                        v-on:change="marcar_inferiores_sector"
+                                        v-bind:class="{ 'is-invalid': validarSector }">
+                                        <label class="custom-control-label" :for='"Sectores_"+sector.ID' >{{sector.DESCRIPCION }}</label>
+                                      </div>
+                                    </div>
+                                </div>
+                        <div>
+                              <div class="form-text text-danger">{{messageInvalidSector}}</div>
+                          </div>
+                        <div  class="custom-control custom-switch mt-3">
+                          <input type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onSector" v-on:change="seleccionarTodoSector">
+                          <label class="custom-control-label" for="customSwitch2" >Seleccionar todos</label>
+                        </div>
+
+
+                    </div>
+                
+                </div>
+                    
+
+
+
+
+                      <div class="row mt-3">
                         <div class="col" align="left">
                           <button v-on:click="nuevaGondola" type="submit" class="btn btn-primary">Nuevo (F2)</button>
                         </div>
@@ -63,7 +126,8 @@
       props: ['moneda'],
       data(){
         return {
-          menu : 0,
+          mayor : 0,
+          mayor_sector:0,
           messageInvalidFecha: '',
           idPermiso:"",
           switch_descuento:false,
@@ -87,9 +151,22 @@
           descripcionTela:"",
           deshabilitar:false,
           validarSeccion: false,
+          validarPiso:false,
           secciones: [],
+          sectores:[],
+          pisos:[],
+          onPiso:false,
+          onSector:false,
           messageInvalidSeccion: '',
-          selectedSeccion:"null"
+          messageInvalidPiso:'',
+          validarSector:false,
+          messageInvalidSector:'',
+          selectedSeccion:"null",
+          selectedPiso:[],
+          selectedSector:[],
+          selectedSectorID:[],
+          SelectedPisoID:[],
+          rack:''
         }
       }, 
       methods: {
@@ -143,12 +220,43 @@
 
           this.selectedSeccion=data;
         },
+         traer_pisos(pisos_marcados){
+          let me =this;
+            me.SelectedPisoID=[];
+            me.selectedPiso=[];
+             for (var key in pisos_marcados){
+                 me.SelectedPisoID[key]=pisos_marcados[key].ID;
+                 me.selectedPiso[key]=pisos_marcados[key].NRO_PISO;
+             }
+          
+           
+           
+            
+        },
+        traer_sectores(sectores_marcados){
+          
+          let me =this;
+            me.selectedSector=[];
+            me.selectedSectorID=[];
+            for (var key in sectores_marcados){
+                 me.selectedSectorID[key]=sectores_marcados[key].ID;
+                 me.selectedSector[key]=sectores_marcados[key].DESCRIPCION;
+             }
+          
+          
+           
+             
+        },
         limpiar(){
          
           let me =this;
           me.descripcionTela="";
           me.selectedSeccion="null";
           me.$refs.componente_textbox_Gondola.recargar();
+          me.selectedPiso=[];
+          me.SelectedPisoID=[];
+          me.selectedSector=[];
+          me.selectedSectorID=[];
           me.guardar= true;
         },
 
@@ -186,14 +294,43 @@
              } else {
               me.validarDescripcion = false;
              } 
+             if(me.rack==='SI'){
+                if(me.selectedPiso.length===0){
+                  me.validarPiso=true;
+                  me.messageInvalidPiso="Por Favor Seleccione la cantidad de pisos.";
+                  return
+                }else{
+                  me.validarPiso=false;
+                  me.messageInvalidPiso="";
+                }
+                if(me.selectedSector.length===0){
+                  me.validarSector=true;
+                  me.messageInvalidSector="Por Favor Seleccione la cantidad de sectores.";
+                  return
+                }else{
+                  me.validarSector=false;
+                  me.messageInvalidSector="";
+                }
+                   var data = {
+                  Codigo:me.nombreGondola,
+                  Descripcion:me.descripcionTela,
+                  SeccionGuardar:me.selectedSeccion,
+                  Existe:me.existeTela,
+                  Rack:me.rack,
+                  Piso:me.SelectedPisoID,
+                  Sector:me.selectedSectorID,
 
-             var data = {
-              Codigo:me.nombreGondola,
-              Descripcion:me.descripcionTela,
-              SeccionGuardar:me.selectedSeccion,
-              Existe:me.existeTela
+                 }
+               }else{
+                  var data = {
+                    Codigo:me.nombreGondola,
+                    Descripcion:me.descripcionTela,
+                    SeccionGuardar:me.selectedSeccion,
+                    Existe:me.existeTela
 
-             }
+                   }
+               }
+            
 
               Common.guardarGondolaCommon(data).then(data => {
                if(data.response===true){
@@ -288,6 +425,138 @@
          }
           
         },
+          seleccionarTodoPiso(){
+
+            let me = this;
+
+               me.SelectedPisoID=[];
+            if(me.onPiso === true) {
+               me.validarPiso=false;
+                me.messageInvalidPiso="";
+              for (var key in me.pisos){
+                   me.SelectedPisoID[key]=me.pisos[key].ID;
+                me.selectedPiso[key] = me.pisos[key].NRO_PISO;
+              }
+          }else{
+            me.selectedPiso = [];
+            me.SelectedPisoID=[];
+          }
+          },
+          seleccionarTodoSector(){
+
+            let me = this;
+             me.selectedSectorID=[];
+            if(me.onSector === true) {
+               me.validarSector=false;
+               me.messageInvalidSector="";
+              for (var key in me.sectores){
+      
+                me.selectedSector[key] = me.sectores[key].DESCRIPCION;
+                me.selectedSectorID[key]=me.sectores[key].ID;
+              }
+          }else{
+            me.selectedSector = [];
+            me.selectedSectorID=[];
+          }
+          },
+          marcar_inferiores_piso(){
+            let me=this;
+            me.mayor=0;
+            if(me.selectedPiso.length!==0){
+                me.validarPiso=false;
+                me.messageInvalidPiso="";
+                me.selectedPiso.sort();
+                if(me.mayor!==null){
+                    me.mayor= me.selectedPiso[me.selectedPiso.length-1];
+                }else{
+                  me.mayor=0;
+                }
+               
+              
+                me.selectedPiso=[];
+                me.SelectedPisoID=[];
+                me.selectedPiso.push(parseInt(me.mayor));
+              
+              /*  console.log(me.selectedPiso[me.selectedPiso.length-1]);*/
+                for (var key in me.pisos){
+                  
+
+                    
+                    if(me.mayor === me.pisos[key].NRO_PISO){
+                      me.SelectedPisoID.push(parseInt(me.pisos[key].ID));
+
+                        for (var i=me.pisos.length-1; i>=0; i--) {
+
+                             
+                           if(me.pisos[i]["NRO_PISO"]<me.mayor){
+                          
+                                 me.selectedPiso.push(parseInt(me.pisos[i]["NRO_PISO"]));
+                                  me.SelectedPisoID.push(parseInt(me.pisos[i]["ID"]));
+
+                                 document.getElementById("Piso_"+me.pisos[i]["ID"]).checked = true;
+                              
+                           }
+                        }
+                        
+                      return;
+
+                    }
+                  }
+            }
+          
+
+          },
+          marcar_inferiores_sector(){
+            let me=this;
+            me.mayor_sector=0;
+
+            if(me.selectedSector.length!==0){
+              
+               me.validarSector=false;
+               me.messageInvalidSector="";
+               me.selectedSector.sort();
+               
+                if(me.mayor_sector!==null){
+                    me.mayor_sector= me.selectedSector[me.selectedSector.length-1];
+
+                }else{
+                  me.mayor_sector=0;
+                }
+               
+              
+                me.selectedSector=[];
+                me.selectedSectorID=[];
+                me.selectedSector.push(me.mayor_sector);
+              
+             
+                for (var key in me.sectores){
+                  
+
+                    
+                    if(me.mayor_sector=== me.sectores[key].DESCRIPCION){
+                      me.selectedSectorID.push(parseInt(me.sectores[key].ID));
+
+                        for (var i=me.sectores.length-1; i>=0; i--) {
+
+                             
+                           if(me.sectores[i]["DESCRIPCION"]<me.mayor_sector){
+                          
+                                 me.selectedSector.push(me.sectores[i]["DESCRIPCION"]);
+                                  me.selectedSectorID.push(parseInt(me.sectores[i]["ID"]));
+
+                                 document.getElementById("Sectores_"+me.sectores[i]["ID"]).checked = true;
+                              
+                           }
+                        }
+                       
+                      return;
+
+                    }
+                  }
+            }
+          
+
+          },
       BusquedaSeccion(){
         axios.get('busquedas/').then((response) => {
           this.secciones = response.data.seccion;
@@ -299,28 +568,39 @@
         mounted() {
 
           let me=this;
+           Common.obtenerParametroCommon().then(data => {
+              me.rack = data.parametros[0].RACK;
+              if(me.rack==='SI'){
+                Common.inicioConfiguracionGondola().then(data => {
+                    if(data.response){
+                      me.pisos=data.pisos;
+                      me.sectores=data.sectores;
+                    }
+                 });
+              }
+        });
           this.BusquedaSeccion();
           this.nuevaGondola();
-    hotkeys('f2', function(event, handler){
+      hotkeys('f2', function(event, handler){
 
-  event.preventDefault() 
-   me.nuevaGondola();
-});
+        event.preventDefault() 
+         me.nuevaGondola();
+      });
   hotkeys('f3', function(event, handler){
 
-  event.preventDefault() 
-   me.guardarGondola();
-});
+      event.preventDefault() 
+       me.guardarGondola();
+    });
     hotkeys('f4', function(event, handler){
 
-  event.preventDefault() 
-   me.limpiar();
-});
-        hotkeys('f6', function(event, handler){
+      event.preventDefault() 
+       me.limpiar();
+    });
+    hotkeys('f6', function(event, handler){
 
-  event.preventDefault() 
-   me.eliminarGondola();
-});
+      event.preventDefault() 
+       me.eliminarGondola();
+    });
 
         }
     }

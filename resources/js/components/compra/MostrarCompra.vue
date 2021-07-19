@@ -29,7 +29,7 @@
 				<table id="tablaCompras" class="table table-striped table-hover table-bordered table-sm mb-3" style="width:100%">
 		            <thead>
 		                <tr>
-		                    <th>Codigo</th>
+		                    <th>Código</th>
 		                    <th>Proveedor</th>
 		                    <th>Plan</th>
 		                    <th>Nro. Factura</th>
@@ -109,14 +109,14 @@
       			// MOSTRAR LA PREGUNTA DE ELIMINAR 
 
       			Swal.fire({
-				  title: 'Estas seguro ?',
-				  text: "Eliminar la Compra " + codigo + " !",
+				  title: '¿Estás seguro?',
+				  text: "¡Eliminar la Compra " + codigo + "!",
 				  type: 'warning',
 				  showLoaderOnConfirm: true,
 				  showCancelButton: true,
 				  confirmButtonColor: '#d33',
 				  cancelButtonColor: '#3085d6',
-				  confirmButtonText: 'Si, eliminalo!',
+				  confirmButtonText: '¡Sí, eliminalo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
 				    return Common.eliminarCompraCommon(codigo).then(data => {
@@ -133,8 +133,8 @@
 				}).then((result) => {
 				  if (result.value) {
 				  	Swal.fire(
-						      'Eliminado!',
-						      'Se ha eliminado la COMPRA y devuelto el stock !',
+						      '¡Eliminado!',
+						      '¡Se ha eliminado la compra y devuelto el stock!',
 						      'success'
 					)
 
@@ -257,6 +257,22 @@
 
 	                   	 var row  = $(this).parents('tr')[0];
 	                   	 me.mostrarModalTranferencia(tableCompra.row( row ).data().CODIGO);
+
+	                    // *******************************************************************
+
+	                });
+	                $('#tablaCompras').on('click', 'tbody tr #qr_caja', function() {
+
+	                    // *******************************************************************
+
+	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
+
+	                   	 var row  = $(this).parents('tr')[0];
+	                   	  	me.procesar = true;
+						Common.generarRptPdfCajaCompraQrCommon(tableCompra.row( row ).data().NRO_FACTURA).then( () => {
+	                   		me.procesar = false;
+	                   	});
+	                   	
 
 	                    // *******************************************************************
 

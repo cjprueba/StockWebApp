@@ -24,6 +24,7 @@ Route::post('/qrcode','QrController@Crear');
 Route::post('/barcode','QrController@Crear_Barcode');
 Route::post('/barinterno','QrController@Crear_Barinterno');
 Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
+Route::post('/PdfQrCajaCompra','QrController@Crear_Pdf_Compra_Caja_Qr');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -229,6 +230,8 @@ Route::post('gondolaGuardar', 'GondolaController@gondolaGuardar');
 Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
 Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
+Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola');
+
 
 /* -------------------------------------------------------------------------- */
 
