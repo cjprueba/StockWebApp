@@ -118,6 +118,7 @@ Route::post('devolver_transferencia','TransferenciaControler@devolverTransferenc
 
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
 Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
+Route::post('transferenciaModificarUbicacion', 'TransferenciaControler@modificarTransferenciaUbicacion');
 
 /* -------------------------------------------------------------------------- */
 
@@ -445,6 +446,7 @@ Route::get('compra/mostrar_productos', 'CompraController@mostrarProductos');
 Route::post('compra/pdf', 'CompraController@getPdf');
 Route::post('compra/cabecera', 'CompraController@obtenerCabecera');
 Route::post('compra/cuerpo', 'CompraController@obtenerCuerpo');
+Route::post('compraModificarUbicacion', 'CompraController@ubicacionModificarCompra');
 
 /* -------------------------------------------------------------------------- */
 
