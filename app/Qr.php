@@ -517,13 +517,13 @@ class Qr extends Model
           $x=0;
           $y = 0;
           $c=0;
-           Qr::crear_qr($datos["data"],2);
+          Qr::crear_qr($datos["data"],2);
 
             /*$pdf->Text(5,8,$datos["data"]);*/
-            $file=public_path($datos["data"].'.png');
-            $pdf->Image($file,$x,$y,50,50);
+          $file=public_path($datos["data"].'.png');
+          $pdf->Image($file,$x,$y,50,50);
            
-            File::delete($datos["data"].'.png');
+          File::delete($datos["data"].'.png');
       
 
 
