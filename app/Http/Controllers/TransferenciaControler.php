@@ -321,5 +321,18 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+     public function qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+    
+        $productos = Transferencia::TransferenciaCajaQr($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 
 }
