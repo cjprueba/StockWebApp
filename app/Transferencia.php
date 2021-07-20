@@ -3740,6 +3740,7 @@ class Transferencia extends Model
 
         // INICIAR VARIABLES 
 
+
         $sucursal = $data["data"]["sucursal"];
         $codigo_ca = $data["data"]["codigo_ca"];
         //ENCABEZADO /CAJA/RACK/PISO
@@ -3780,7 +3781,7 @@ class Transferencia extends Model
             })
             ->leftJoin('PRODUCTOS_AUX', function($join){
                 $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
-                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.SUCURSAL_DESTINO');
+                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
             })
           /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
             ->leftjoin('transferenciadet_tiene_lotes','transferenciadet_tiene_lotes.ID_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
