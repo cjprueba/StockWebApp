@@ -295,7 +295,7 @@ class Compra extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, IFNULL(COMPRAS.NRO_FACTURA,"NO POSEE") AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
                          ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
@@ -322,7 +322,8 @@ class Compra extends Model
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
-                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                                    ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
+                                    ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -337,6 +338,7 @@ class Compra extends Model
             				->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
+                                  ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
                                       ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->count();
@@ -379,17 +381,28 @@ class Compra extends Model
                 
                 $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
                 $sistema_deposito = '';
+                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
                 if($deposito == 'SI'){
-                    $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>";
+                    if($post->NRO_FACTURA==="NO POSEE"){
+                       $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>";
+                    }else{
+                       $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;<a href='#' id='qr_caja' title='Imprimir Qr'><i class='fa fa-qrcode text-secondary' aria-hidden='true'></i></a>";
+                    }
                 }
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
+                
                 $nestedData['FEC_FACTURA'] = substr($post->FEC_FACTURA, 0,10);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
                     &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>".$sistema_deposito;
+
+                
+                
+               
+
 
                 $data[] = $nestedData;
 
@@ -1407,7 +1420,7 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 	}  
-        public static function CompraCajaQr($data){
+          public static function CompraCajaQr($data){
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1419,13 +1432,16 @@ class Compra extends Model
         $encabezado= Compra::Select(DB::raw(
             'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
             GONDOLAS.DESCRIPCION AS RACK,
-            PISOS.NRO_PISO AS PISO'))
+            PISOS.NRO_PISO AS PISO,
+            CONTAINERS.DESCRIPCION AS CONTAINER,
+            SECTORES.DESCRIPCION AS SECTOR'))
+        ->leftjoin('COMPRAS_DEPOSITO','COMPRAS_DEPOSITO.FK_COMPRA','=','COMPRAS.ID')
         ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
         ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
-        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)
-        ->groupby("GONDOLAS.ID", "PISOS.PISO")
-        ->get();
-        $data_encabezado=array();
+        ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
+        ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
+       /* $data_encabezado=array();
         if(!empty($encabezado)){
             foreach ($encabezado as $post) {
                 # code...
@@ -1433,7 +1449,7 @@ class Compra extends Model
                 $nestedDataEncabezado["PISO"]=$post->PISO;
                 $data_encabezado[]=$nestedDataEncabezado;
             }
-        }
+        }*/
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1460,6 +1476,7 @@ class Compra extends Model
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')          
             ->where('COMPRAS.ID_SUCURSAL','=', $sucursal)
             ->where('COMPRAS.NRO_FACTURA', '=' , $codigo_ca)
+            ->orderBy('LOTES.CANTIDAD','DESC')
             ->get();
                          
         /*  --------------------------------------------------------------------------------- */
@@ -1497,7 +1514,7 @@ class Compra extends Model
                 $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
                 
                 $nestedData['LOTE'] = $post->LOTE;
-                if($post->FECHA_VENC==='0000-00-00' || $post->FECHA_VENC==='1899-12-31'){
+                if($post->FECHA_VENC==="0000-00-00" || $post->FECHA_VENC==="1899-12-31"){
                      $nestedData['FECHA_VENC'] = "NO POSEE";
                 }else{
                      $nestedData['FECHA_VENC']=$post->FECHA_VENC;
@@ -1527,8 +1544,8 @@ class Compra extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "productos"            => $data,
-                    "encabezado"=> $data_encabezado
+                    "data"            => $data,
+                    "encabezado"=> $encabezado
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1540,6 +1557,7 @@ class Compra extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
 
     public static function modificarUbicacionCompra($datos){
 
@@ -1641,5 +1659,6 @@ class Compra extends Model
 
         }
     }
+
 
 }

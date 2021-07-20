@@ -24,6 +24,7 @@ Route::post('/qrcode','QrController@Crear');
 Route::post('/barcode','QrController@Crear_Barcode');
 Route::post('/barinterno','QrController@Crear_Barinterno');
 Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
+Route::post('/PdfQrCajaCompra','QrController@Crear_Pdf_Compra_Caja_Qr');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -231,6 +232,32 @@ Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
 Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
 Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola');
+
+
+/* -------------------------------------------------------------------------- */
+
+// PISO
+Route::get('piso', 'PisoController@mostrar');
+Route::post('piso', 'PisoController@encontrar');
+Route::post('pisoDatatable', 'PisoController@datatable');
+Route::post('pisoFiltrar', 'PisoController@filtrarPiso');
+Route::get('nuevoPiso', 'PisoController@PisoNuevo');
+Route::post('guardarPiso', 'PisoController@PisoGuardar');
+Route::post('eliminarPiso', 'PisoController@PisoEliminar');
+
+/* -------------------------------------------------------------------------- */
+
+// SECTOR
+
+Route::get('sector', 'SectorController@mostrar');
+Route::post('sector', 'SectorController@encontrar');
+Route::post('sectorDatatable', 'SectorController@datatable');
+
+Route::get('nuevoSector', 'SectorController@SectorNuevo');
+Route::post('sectorFiltrar', 'SectorController@filtrarSector');
+Route::post('guardarSector', 'SectorController@SectorGuardar');
+Route::post('eliminarSector', 'SectorController@SectorEliminar');
+
 
 
 /* -------------------------------------------------------------------------- */

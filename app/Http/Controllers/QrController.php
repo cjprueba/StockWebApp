@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Qr;
 class QrController extends Controller
 {
-    //
+    //CrearPdfCompraCaja
       public function Crear(Request $request)
     {
 
@@ -67,6 +67,22 @@ class QrController extends Controller
 
        $gondola = Qr::crear_etiqueta_gondola();
         return response()->json($gondola);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    } 
+    public function Crear_Pdf_Compra_Caja_Qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+/*      $file=public_path('qr.png');
+       return \QRCode::text('QR Code Generator for Laravel! xD')->setOutfile($file)->png();*/
+
+       $CompraCaja = Qr::crear_pdf_CajaCompra_qr($request->all());
+        return response()->json($CompraCaja);
         
         /*  --------------------------------------------------------------------------------- */
 

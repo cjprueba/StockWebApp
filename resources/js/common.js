@@ -4264,44 +4264,44 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
+			// return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
+			// 	(response) => {
+
+			// 		// var base64data = '';
+
+			// 		// const url = window.URL.createObjectURL(new Blob([response.data]));
+			// 		// var reader = new FileReader();
+			// 		//  reader.readAsDataURL(new Blob([response.data])); 
+			// 		//  reader.onloadend = function() {
+			// 		//      base64data = reader.result;
+			// 		//  }
+
+			// 		 return response.data;
+			// 		// return var blobToBase64 = function(blob, callback) {
+			// 		//     var reader = new FileReader();
+			// 		//     reader.onload = function() {
+			// 		//         var dataUrl = reader.result;
+			// 		//         var base64 = dataUrl.split(',')[1];
+			// 		//         callback(base64);
+			// 		//     };
+			// 		//     reader.readAsDataURL(blob);
+			// 		// };
+			// 	},
+			// 	(error) => { return error }
+			// );
+return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
 				(response) => {
-
-					// var base64data = '';
-
-					// const url = window.URL.createObjectURL(new Blob([response.data]));
-					// var reader = new FileReader();
-					//  reader.readAsDataURL(new Blob([response.data])); 
-					//  reader.onloadend = function() {
-					//      base64data = reader.result;
-					//  }
-
-					 return response.data;
-					// return var blobToBase64 = function(blob, callback) {
-					//     var reader = new FileReader();
-					//     reader.onload = function() {
-					//         var dataUrl = reader.result;
-					//         var base64 = dataUrl.split(',')[1];
-					//         callback(base64);
-					//     };
-					//     reader.readAsDataURL(blob);
-					// };
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
-// 				(response) => {
-// 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-// 					const link = document.createElement('a');
-// 					link.href = url;
-// 					//DESCARGAR
-// 					// link.setAttribute('download', 'file.pdf');
-// 					// document.body.appendChild(link);
-// 					link.target = '_blank'
-// 					link.click();
-// 				},
-// 				(error) => { return error }
-// 			);
 			// ------------------------------------------------------------------------
 
 }
@@ -6800,15 +6800,71 @@ function obtenerCompraCajaQRCommon(data){
 
 	// ------------------------------------------------------------------------
 }
-function inicioConfiguracionGondola() {
 
-			// ------------------------------------------------------------------------
+function guardarNroPisoCommon(data){
+	
+	// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
 
 			let me = this;
 
 			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarPiso', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function eliminarNroPisoCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarPiso', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function nuevoNroPisoCommon(){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.get('/nuevoPiso').then(function (response) {
+					return response.data;
+			});
+}
+
+	
+	// ------------------------------------------------------------------------
+
+
+function inicioConfiguracionGondola() {
+
+			// ------------------------------------------------------------------------
+
+
+			// INICIAR VARIABLES
+
+			let me = this;
 
 			// OBTENER COTIZACION DE COMPRA
 			
@@ -6818,6 +6874,7 @@ function inicioConfiguracionGondola() {
 
 			// ------------------------------------------------------------------------
 }
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6831,21 +6888,43 @@ function modificarUbicacionTransferenciaCommon(data){
 
 			// ------------------------------------------------------------------------
 
-			// INICIAR VARIABLES
-
-			let me = this;
-
 			// ------------------------------------------------------------------------
 
-			// CONSEGUIR RESPUESTA
-			
-			return axios.post('/transferenciaModificarUbicacion', {'data': data}).then(function (response) {
+      return axios.post('/transferenciaModificarUbicacion', {'data': data}).then(function (response) {
 					return response.data;
 			});
 
 			// ------------------------------------------------------------------------
 
 }
+function filtrarPisoCommon(data){
+			// GUARDAR PERMISO
+
+			return axios.post('/pisoFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+function nuevoSectorCommon(){
+	// ------------------------------------------------------------------------
+
+
+			// INICIAR VARIABLES
+
+			let me = this;
+  return axios.get('/nuevoSector').then(function (response) {
+					return response.data;
+			});
+}
+
+			// ------------------------------------------------------------------------
+
+
+			// CONSEGUIR RESPUESTA
+			
+			
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -6872,6 +6951,114 @@ function modificarUbicacionCompraCommon(data){
 			});
 
 			// ------------------------------------------------------------------------
+
+			
+}
+function filtrarSectorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/sectorFiltrar', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
+	
+	// ------------------------------------------------------------------------
+
+
+
+
+			// ------------------------------------------------------------------------
+
+
+ function guardarsectorCommon(data){
+			// GUARDAR PERMISO
+
+			return axios.post('/guardarSector', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+function eliminarsectorCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('/eliminarSector', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+  function generarRptPdfCajaCompraQrCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+
+			// INICIAR VARIABLES
+
+			let me = this;
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			/*return axios({url: 'PdfQrCajaCompra', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);*/
+return axios({url: 'PdfQrCajaCompra', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+			// ------------------------------------------------------------------------
+
 
 }
 
@@ -7164,5 +7351,15 @@ export {
 		obtenerCompraCajaQRCommon,
 		inicioConfiguracionGondola,
 		modificarUbicacionTransferenciaCommon,
-		modificarUbicacionCompraCommon
+		modificarUbicacionCompraCommon,
+		guardarNroPisoCommon,
+		eliminarNroPisoCommon,
+		nuevoNroPisoCommon,
+		filtrarPisoCommon,
+		nuevoSectorCommon,
+		filtrarSectorCommon,
+		guardarsectorCommon,
+		eliminarsectorCommon,
+		inicioConfiguracionGondola,
+		generarRptPdfCajaCompraQrCommon
 		};
