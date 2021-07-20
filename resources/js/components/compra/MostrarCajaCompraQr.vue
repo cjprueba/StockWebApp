@@ -23,6 +23,9 @@
 	    				<div class="clearfix grpelem" id="u267-5"><!-- content -->
 		    				<p>RACK: {{encabezados.RACK}} </p>
 						</div>
+						<div class="clearfix grpelem" id="u267-5B"><!-- content -->
+		    				<p>SECTOR: {{encabezados.SECTOR}} </p>
+						</div>
 	    				<div class="clearfix grpelem" id="u270-5"><!-- content -->
 				    		<p>PISO: {{encabezados.PISO}} </p>
 						</div>
@@ -115,7 +118,7 @@
 </template>
 <script>
 	export default {
-	  props: ['sucursal', 'codigo_ca'],	
+	  props: ['sucursal', 'codigo_ca', 'tipo_busqueda'],	
       data(){
         return {
           productos: [],
@@ -142,9 +145,9 @@
       		// OBTENER PRODUCTOS 
 
       		let me = this;
-      	
-
-	        Common.obtenerCompraCajaQRCommon({sucursal: me.sucursal, codigo_ca: me.codigo_ca}).then(data => {
+      		console.log(me.tipo_busqueda);
+      		
+      			Common.obtenerCompraCajaQRCommon({sucursal: me.sucursal, codigo_ca: me.codigo_ca, tipo_busqueda: me.tipo_busqueda}).then(data => {
 	        		console.log( me.codigo_ca);
 	        		me.codigoCa = me.codigo_ca;
 	        		me.productos = data.data;
@@ -152,7 +155,10 @@
 	        			// me.productos = data.data;
 	        			// me.imagen.oferta = data.oferta;
 	        			// me.imagen.logo = data.logo;
-	        });
+	        	});
+
+      		
+	        
 
 	         // ------------------------------------------------------------------------
 
@@ -195,7 +201,9 @@ html{min-height:100%;min-width:100%;-ms-text-size-adjust:none;}body,div,dl,dt,dd
 
 
 
-#u267-5{z-index:13;background-color:transparent;color:#000000;font-weight:bold;font-size:18px;line-height:24px;position:relative;margin-right:-10000px;margin-top:8px;width:31.84%;margin-left:7.5%}
+#u267-5{z-index:13;background-color:transparent;color:#000000;font-weight:bold;font-size:18px;line-height:24px;position:relative;margin-right:-10000px;margin-top:8px;width:31.84%;margin-left:5%}
+
+#u267-5B{z-index:13;background-color:transparent;color:#000000;font-weight:bold;font-size:18px;line-height:24px;position:relative;margin-right:-10000px;margin-top:8px;width:31.84%;margin-left:38%}
 
 
 #u270-5{z-index:17;background-color:transparent;color:#000000;font-weight:bold;font-size:18px;line-height:24px;position:relative;margin-right:-10000px;margin-top:8px;width:31.84%;margin-left:70%;left:3.1%;}
