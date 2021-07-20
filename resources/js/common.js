@@ -6852,11 +6852,6 @@ function nuevoNroPisoCommon(){
 					return response.data;
 			});
 }
-
-	
-	// ------------------------------------------------------------------------
-
-
 function inicioConfiguracionGondola() {
 
 			// ------------------------------------------------------------------------
@@ -6906,7 +6901,6 @@ function filtrarPisoCommon(data){
 
 	// ------------------------------------------------------------------------
 }
-
 function nuevoSectorCommon(){
 	// ------------------------------------------------------------------------
 
@@ -6972,17 +6966,7 @@ function filtrarSectorCommon(data){
 
 	// ------------------------------------------------------------------------
 }
-
-	
-	// ------------------------------------------------------------------------
-
-
-
-
-			// ------------------------------------------------------------------------
-
-
- function guardarsectorCommon(data){
+function guardarsectorCommon(data){
 			// GUARDAR PERMISO
 
 			return axios.post('/guardarSector', {'data':data}).then(function (response) {
@@ -7009,7 +6993,7 @@ function eliminarsectorCommon(data){
 
 	// ------------------------------------------------------------------------
 }
-  function generarRptPdfCajaCompraQrCommon(datos){
+function generarRptPdfCajaCompraQrCommon(datos){
 
 			// ------------------------------------------------------------------------
 
@@ -7360,6 +7344,5 @@ export {
 		filtrarSectorCommon,
 		guardarsectorCommon,
 		eliminarsectorCommon,
-		inicioConfiguracionGondola,
 		generarRptPdfCajaCompraQrCommon
 		};
