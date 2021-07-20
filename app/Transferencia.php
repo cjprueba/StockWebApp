@@ -3743,6 +3743,7 @@ class Transferencia extends Model
 
         $sucursal = $data["data"]["sucursal"];
         $codigo_ca = $data["data"]["codigo_ca"];
+        
         //ENCABEZADO /CAJA/RACK/PISO
         $encabezado= Transferencia::Select(DB::raw(
             'TRANSFERENCIAS_DEPOSITO.NRO_CAJA AS NUMERO_CAJA,
@@ -3768,7 +3769,7 @@ class Transferencia extends Model
 
         // PRODUCTOS CON OFERTA 
         
-        $posts = Transferencia::select(DB::raw('TRANSFERENCIAS_DET.CODIGO_PROD, 
+        $posts = Transferencia::select(DB::raw('TRANSFERENCIAS_DET.CODIGO_PROD as COD_PROD, 
             PRODUCTOS.DESCRIPCION, 
             LOTES.LOTE, 
             LOTES.CANTIDAD_INICIAL AS STOCK_INICIAL, 
@@ -3784,9 +3785,9 @@ class Transferencia extends Model
                      ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
             })
           /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
-            ->leftjoin('transferenciadet_tiene_lotes','transferenciadet_tiene_lotes.ID_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+            ->leftjoin('lote_tiene_transferenciadet','lote_tiene_transferenciadet.ID_TRANSFERENCIA_DET','=','TRANSFERENCIAS_DET.ID')
              ->leftjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
-            ->leftjoin('LOTES','LOTES.ID','=','transferenciadet_tiene_lotes.ID_LOTE')
+            ->leftjoin('LOTES','LOTES.ID','=','lote_tiene_transferenciadet.ID_LOTE')
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')          
             ->where('TRANSFERENCIAS.SUCURSAL_DESTINO','=', $sucursal)
             ->where('TRANSFERENCIAS_DEPOSITO.NRO_CAJA', '=' , $codigo_ca)
