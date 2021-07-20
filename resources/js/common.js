@@ -7045,6 +7045,24 @@ return axios({url: 'PdfQrCajaCompra', method: 'post', responseType: 'arraybuffer
 
 
 }
+function obtenerTransferenciaCajaQRCommon(data){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('api/transferencia/caja/qr', {'data': data}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7344,5 +7362,6 @@ export {
 		filtrarSectorCommon,
 		guardarsectorCommon,
 		eliminarsectorCommon,
-		generarRptPdfCajaCompraQrCommon
+		generarRptPdfCajaCompraQrCommon,
+		obtenerTransferenciaCajaQRCommon
 		};

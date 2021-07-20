@@ -3734,4 +3734,140 @@ class Transferencia extends Model
 
         }
     }
+              public static function TransferenciaCajaQr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo_ca = $data["data"]["codigo_ca"];
+        //ENCABEZADO /CAJA/RACK/PISO
+        $encabezado= Transferencia::Select(DB::raw(
+            'TRANSFERENCIAS_DEPOSITO.NRO_CAJA AS NUMERO_CAJA,
+            GONDOLAS.DESCRIPCION AS RACK,
+            PISOS.NRO_PISO AS PISO,
+            SECTORES.DESCRIPCION AS SECTOR'))
+        ->leftjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+        ->leftjoin('PISOS','PISOS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_PISO')
+        ->leftjoin('SECTORES','SECTORES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+        ->where('TRANSFERENCIAS_DEPOSITO.NRO_CAJA','=',$codigo_ca)->where('TRANSFERENCIAS.SUCURSAL_DESTINO','=',$sucursal)->get();
+       /* $data_encabezado=array();
+        if(!empty($encabezado)){
+            foreach ($encabezado as $post) {
+                # code...
+                $nestedDataEncabezado["RACK"]=$post->RACK;
+                $nestedDataEncabezado["PISO"]=$post->PISO;
+                $data_encabezado[]=$nestedDataEncabezado;
+            }
+        }*/
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = Transferencia::select(DB::raw('TRANSFERENCIAS_DET.CODIGO_PROD, 
+            PRODUCTOS.DESCRIPCION, 
+            LOTES.LOTE, 
+            LOTES.CANTIDAD_INICIAL AS STOCK_INICIAL, 
+            LOTES.CANTIDAD AS STOCK_LOTE, 
+            LOTES.COSTO, 
+            SUBSTR(LOTES.FECHA_VENC,1,11) AS FECHA_VENC,PRODUCTOS_AUX.MONEDA'))
+            ->leftJoin('TRANSFERENCIAS_DET', function($join){
+                $join->on('TRANSFERENCIAS_DET.CODIGO', '=', 'TRANSFERENCIAS.CODIGO')
+                     ->on('TRANSFERENCIAS_DET.ID_SUCURSAL', '=', 'TRANSFERENCIAS.ID_SUCURSAL');
+            })
+            ->leftJoin('PRODUCTOS_AUX', function($join){
+                $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS_DET.SUCURSAL_DESTINO');
+            })
+          /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
+            ->leftjoin('transferenciadet_tiene_lotes','transferenciadet_tiene_lotes.ID_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+             ->leftjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+            ->leftjoin('LOTES','LOTES.ID','=','transferenciadet_tiene_lotes.ID_LOTE')
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')          
+            ->where('TRANSFERENCIAS.SUCURSAL_DESTINO','=', $sucursal)
+            ->where('TRANSFERENCIAS_DEPOSITO.NRO_CAJA', '=' , $codigo_ca)
+            ->orderBy('LOTES.CANTIDAD','DESC')
+            ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($post->COD_PROD);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+
+                $nestedData['COSTO'] = Common::precio_candec($post->COSTO, $post->MONEDA);
+             /*  $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                if($post->FECHA_VENC==="0000-00-00" || $post->FECHA_VENC==="1899-12-31"){
+                     $nestedData['FECHA_VENC'] = "NO POSEE";
+                }else{
+                     $nestedData['FECHA_VENC']=$post->FECHA_VENC;
+                }
+               
+
+                
+                $nestedData['STOCK_INICIAL'] = Common::formato_precio($post->STOCK_INICIAL,0);
+                $nestedData['STOCK_LOTE'] = Common::formato_precio($post->STOCK_LOTE,0);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_external"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+                    "encabezado"=> $encabezado
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }
