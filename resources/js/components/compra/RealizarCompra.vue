@@ -1627,11 +1627,13 @@
 
           	let me = this;
             me.gondolaPiso = pisos_marcados;
+	        me.pisoRack = 'null';
         },
         traer_sectores(sectores_marcados){
           
           	let me =this;
             me.gondolaSector = sectores_marcados;
+	        me.sectorRack = 'null';
 
         },
 

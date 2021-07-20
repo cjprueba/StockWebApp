@@ -73,7 +73,7 @@
 
 			<!-- ------------------------------------------------------------------------ -->
 
-			<!-- MODAL IMPRIMIR DIRECCION ORDEN -->
+			<!-- MODAL AGREGAR UBICACION EN RACK  -->
 
 		    <div class="modal fade agregar-rack-piso" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
 		        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md" role="document">
@@ -142,7 +142,8 @@
 							</div>     
 		                </div>
 		                <div class="modal-footer">
-		                    <button type="button" class="btn btn-success" v-on:click="controlarDatos()">Importar</button>
+		                    <button type="button" class="btn btn-success"  v-if="btnguardar" v-on:click="controlarDatos()">Importar</button>
+		                    <button type="button" class="btn btn-warning"  v-else v-on:click="controlarDatos()">Modificar</button>
 		                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 		                </div>
 		              </div>
@@ -182,7 +183,8 @@
 	        gondolaID: '',
 	        validarGondola: false,
 			messageInvalidGondola: '',
-			controlador: false
+			controlador: false,
+			btnguardar: true
           	
         }
       }, 
@@ -329,7 +331,7 @@
       		generarNroCaja(){
 
 	        	// GENERADOR DE NRO DE CAJA
-	        	console.log(this.codigoTransferencia);
+
 	        	if(this.selectedSeccion.DESC_CORTA !== undefined){
 	        		
 	        		this.nro_caja = this.selectedSeccion.DESC_CORTA + '-TRA' + this.codigoTransferencia;
@@ -357,11 +359,13 @@
 
 	          	let me = this;
 	            me.gondolaPiso = pisos_marcados;
+	            me.pisoRack = 'null';
 	        },
 	        traer_sectores(sectores_marcados){
 	          
 	          	let me =this;
 	            me.gondolaSector = sectores_marcados;
+	            me.sectorRack = 'null';
 
 	        },
 
@@ -431,11 +435,120 @@
 					sistema_deposito: true
 		        }
 
-		        me.importarTransferencia(data);
+		        if(me.btnguardar){
+
+		        	me.importarTransferencia(data);
+		        }else{
+		        	me.editarUbicacionTransferencia(data);
+		        }
 		        
 	        	// ------------------------------------------------------------------------
 
 	        },
+	        editarUbicacionTransferencia(data){
+
+      			// ------------------------------------------------------------------------
+
+      			// INICIAR VARIABLES
+
+      			var tableTransferencia = $('#tablaImportarTrans').DataTable();
+      			let me = this;
+      			// ------------------------------------------------------------------------
+
+      			// MOSTRAR LA PREGUNTA DE IMPORTAR 
+
+      			Swal.fire({
+					  title: '¿Estás seguro?',
+					  text: "¡Cambiar ubicación de la Transferencia " + data.codigo + "!",
+					  type: 'warning',
+					  showLoaderOnConfirm: true,
+					  showCancelButton: true,
+					  cancelButtonColor: '#3085d6',
+					  confirmButtonText: '¡Sí, cambiar!',
+					  cancelButtonText: 'Cancelar',
+					  preConfirm: () => {
+					    return Common.modificarUbicacionTransferenciaCommon(data).then(data => {
+					    	if (!data.response === true) {
+					          throw new Error(data.statusText);
+					        }
+					  		return data;
+					  	}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					    });
+					  }
+					}).then((result) => {
+					  if (result.value) {
+					  	Swal.fire(
+							      '¡Modificado!',
+							      '¡Se ha cambiado la ubicación de la transferencia correctamente!',
+							      'success'
+						)
+
+					  	// ------------------------------------------------------------------------
+
+					  	// RECARGAR TABLA 
+					  	
+						tableTransferencia.ajax.reload( null, false );
+						me.btnguardar = true;
+
+						// ------------------------------------------------------------------------
+
+					  }
+					})
+
+				// ------------------------------------------------------------------------
+
+      		},
+	        obtenerCabeceraTransferencia(){
+
+	        	let me = this;
+
+	        	// ------------------------------------------------------------------------
+
+        		// AGREGAR CABECERA, ENVIO CERO PARA CODIGO ORIGEN PARA ESPECIFICAR QUE
+        		// NECESITO DATOS DE LA PROPIA SUCURSAL DEL USUARIO
+				
+				Common.obtenerCabeceraTransferenciaCommon(me.codigoTransferencia, me.codigo_origen).then(data => {
+            		
+
+        			if(data.SISTEMA_DEPOSITO === true){
+        				me.rack = 'SI';
+        			}else{
+        				me.rack = '';
+        			}
+        			
+        			me.secciones = data.SECCIONES;
+        			if(data.SISTEMA_DEPOSITO === true){
+        					
+	        			me.nombreContainer = data.DATOS_DEPOSITO.CODIGO;
+	        			me.descripcionContainer = data.DATOS_DEPOSITO.DESCRIPCION;
+	        			me.gondolaID = data.DATOS_DEPOSITO.GONDOLA;
+	        			me.gondolaSector = data.SECTORES;
+	        			me.gondolaPiso = data.PISOS;   
+	        			me.pisoRack = data.DATOS_DEPOSITO.PISO;
+	        			me.sectorRack = data.DATOS_DEPOSITO.SECTOR;
+	        			me.nro_caja = data.DATOS_DEPOSITO.NRO_CAJA;
+
+				        for (var i = me.secciones.length - 1; i >= 0; i--) {
+				        	if(me.secciones[i].ID_SECCION === data.DATOS_DEPOSITO.ID_SECCION){
+				        		me.selectedSeccion = me.secciones[i]; 
+				        	}
+				        }
+
+				        me.btnguardar = false;
+
+        				// ------------------------------------------------------------------------
+					    // ABRIR EL MODAL
+					                     
+					    $('.agregar-rack-piso').modal('show');
+				    }
+				        
+        			// ------------------------------------------------------------------------
+
+        		});
+	        }
       },
         mounted() {
         	
@@ -606,7 +719,8 @@
 	                    // *******************************************************************
 
 	                });
-	                    $('#tablaImportarTrans').on('click', 'tbody tr #devolucion', function() {
+	                
+	                $('#tablaImportarTrans').on('click', 'tbody tr #devolucion', function() {
 
 
 	                    // *******************************************************************
@@ -624,7 +738,54 @@
 
                     // ------------------------------------------------------------------------
 
-	 		});
+			
+	                // ------------------------------------------------------------------------
+
+	                // EDITAR UBICACION TRANSFERENCIA
+
+	               	$('#tablaImportarTrans').on('click', 'tbody tr #editarUbicacion', function() {
+
+		               // *******************************************************************
+
+		               // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+		              	
+		              	var row  = $(this).parents('tr')[0];
+
+					    // *******************************************************************
+
+					    me.codigoTransferencia = tableImportarTransferencia.row( row ).data().CODIGO;
+					    me.codigo_origen = tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN;
+					         
+					    // ------------------------------------------------------------------------
+						// LIMPIAR LAS VARIABLES ANTES DE ABRIR EL MODAL
+
+						me.nro_caja = '';
+					    me.secciones = [];
+					    me.selectedSeccion = 'null';
+					    me.validarSeccion = false;
+					    me.messageInvalidSeccion = '';
+						me.gondolaPiso = [];
+					    me.validarPiso = false;
+					    me.pisoRack = 'null';
+					    me.messageInvalidPiso = '';
+					    me.gondolaSector = [];
+					    me.sectorRack ='null';
+					    me.validarSector = false;
+						me.messageInvalidSector = '';
+					    me.gondolaID = '';
+					    me.validarGondola = false;
+						me.messageInvalidGondola = '';
+						me.controlador = false;
+
+					    // ------------------------------------------------------------------------
+						// LLAMAR DATOS ANTES DE EDITAR
+						me.obtenerCabeceraTransferencia();
+
+
+					    // ------------------------------------------------------------------------
+					});
+
+	 			});
         }
     }
 </script>

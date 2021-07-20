@@ -993,7 +993,11 @@ class Transferencia extends Model
                     SECCIONES.DESCRIPCION AS DESC_SECCION,
                     PISOS.NRO_PISO AS DESC_PISO,
                     SECTORES.DESCRIPCION AS DESC_SECTOR,
-                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA
+                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA,
+                    TRANSFERENCIAS_DEPOSITO.FK_SECCION AS ID_SECCION,
+                    TRANSFERENCIAS_DEPOSITO.FK_PISO AS PISO,
+                    TRANSFERENCIAS_DEPOSITO.FK_SECTOR AS SECTOR,
+                    TRANSFERENCIAS_DEPOSITO.FK_GONDOLA AS GONDOLA
                     '))
                 ->leftjoin('PISOS','PISOS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_PISO')
                 ->leftjoin('SECTORES','SECTORES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
@@ -1002,8 +1006,36 @@ class Transferencia extends Model
                 ->where('TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=', $transferencia[0]->ID)
                 ->get();
 
+
+            $secciones = Seccion::select(DB::raw('IFNULL(ID, 0) AS ID_SECCION,
+                    IFNULL(DESCRIPCION, 0) AS DESCRIPCION,
+                    IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA'))
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->orderBy('DESCRIPCION', 'ASC')
+                ->get()
+                ->toArray();
+
+            $transferencia[0]->SECCIONES = $secciones;
+
             if(count($transferencias_deposito)>0){
+
+                $pisos = Gondola_Tiene_Piso::select(DB::raw('PISOS.ID,
+                        PISOS.NRO_PISO'))
+                    ->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')
+                    ->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$transferencias_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $sectores = Gondola_Tiene_Sector::select(DB::raw('SECTORES.ID,
+                    SECTORES.DESCRIPCION'))
+                    ->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')
+                    ->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$transferencias_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
                 $transferencia[0]->SISTEMA_DEPOSITO = true;
+                $transferencia[0]->SECTORES = $sectores;
+                $transferencia[0]->PISOS = $pisos;
                 $transferencia[0]->DATOS_DEPOSITO = $transferencias_deposito[0];
             }else{
                 $transferencia[0]->SISTEMA_DEPOSITO = false;
@@ -1475,21 +1507,28 @@ class Transferencia extends Model
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
+                $sistema_deposito = "";
+
                 if ($post->ESTATUS === 1) {
                     $nestedData['ESTATUS'] = '<span class="badge badge-warning">Pendiente</span>';
                 } else if ($post->ESTATUS === 2) {
                     $nestedData['ESTATUS'] = '<span class="badge badge-success">Procesado</span>';
-                }
-                if($post->CONSIGNACION==1){
-                    $nestedData['ACCION'] = "<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-            &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolucion' title='Devolucion'><i class='fa fa-reply-all text-danger' aria-hidden='true'></i></a>";
-                }else{
-                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-                          &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i>";
 
+                    $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
+                    if($deposito == 'SI'){
+                        $sistema_deposito = "<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;";
+                    }
                 }
-                
+
+                if($post->CONSIGNACION==1){
+                    $consignacion="<a href='#' id='devolucion' title='Devolucion'><i class='fa fa-reply-all text-danger' aria-hidden='true'></i></a>";
+                }else{
+                    $consignacion = "";
+                }
              
+                $nestedData['ACCION'] = "<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;".$consignacion.''.$sistema_deposito;
 
                 $data[] = $nestedData;
 
@@ -3569,7 +3608,7 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }  
-     public static function marcar_Transferencia_Devolucion($datos){
+    public static function marcar_Transferencia_Devolucion($datos){
            
                  
             //TRAER ID_TRANSFERENCIA
@@ -3611,5 +3650,88 @@ class Transferencia extends Model
                         
 
 
+    }
+
+    public static function modificarUbicacionTransferencia($datos){
+
+        //INICIAR VARIABLE
+
+        $codigo = $datos["data"]['codigo'];
+        $codigo_origen = $datos["data"]['codigo_origen'];
+        $diaHora = date("Y-m-d H:i:s");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER ID DE TRANSFERENCIA
+
+            $transferencia = Transferencia::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$codigo_origen)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR TRANSFERENCIA DEPOSITO 
+
+            DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')
+                ->where('FK_TRANSFERENCIA','=', $transferencia[0]->ID)
+                ->delete();
+
+            /*  --------------------------------------------------------------------------------- */
+            // INSERTAR TRANSFERENCIA DEPOSITO 
+
+            $deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->insertGetId([
+                        'NRO_CAJA' => $datos["data"]["nro_caja"],
+                        'FK_TRANSFERENCIA' => $transferencia[0]->ID,
+                        'FK_GONDOLA' => $datos["data"]["gondola"],
+                        'FK_SECCION' => $datos["data"]["seccion"],
+                        'FK_SECTOR' => $datos["data"]["sector"],
+                        'FK_PISO' => $datos["data"]["piso"]
+                    ]);
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // INSERTAR USER REFERENCIA
+
+            TransferenciaUser::guardar_referencia($user->id, 4, $transferencia[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => true];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }catch (Exception $e){
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
     }
 }

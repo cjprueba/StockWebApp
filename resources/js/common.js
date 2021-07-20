@@ -6875,9 +6875,28 @@ function inicioConfiguracionGondola() {
 			// ------------------------------------------------------------------------
 }
 
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							  MODIFICAR UBICACION DE TRANFERENCIA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function modificarUbicacionTransferenciaCommon(data){
+
 			// ------------------------------------------------------------------------
 
+			// ------------------------------------------------------------------------
 
+      return axios.post('/transferenciaModificarUbicacion', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 function filtrarPisoCommon(data){
 			// GUARDAR PERMISO
 
@@ -6891,17 +6910,49 @@ function filtrarPisoCommon(data){
 function nuevoSectorCommon(){
 	// ------------------------------------------------------------------------
 
+
+			// INICIAR VARIABLES
+
+			let me = this;
+  return axios.get('/nuevoSector').then(function (response) {
+					return response.data;
+			});
+}
+
+			// ------------------------------------------------------------------------
+
+
+			// CONSEGUIR RESPUESTA
+			
+			
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 							  MODIFICAR UBICACION DE COMPRA
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+function modificarUbicacionCompraCommon(data){
+
+			// ------------------------------------------------------------------------
+
 			// INICIAR VARIABLES
 
 			let me = this;
 
 			// ------------------------------------------------------------------------
 
-			// GUARDAR PERMISO
-
-			return axios.get('/nuevoSector').then(function (response) {
+			// CONSEGUIR RESPUESTA
+			
+			return axios.post('/compraModificarUbicacion', {'data': data}).then(function (response) {
 					return response.data;
 			});
+
+			// ------------------------------------------------------------------------
+
+			
 }
 function filtrarSectorCommon(data){
 	
@@ -7298,6 +7349,9 @@ export {
 		existenProductosDataTableCommon,
 		cotizacionyMonedaDeVentaFormaPagoCommon,
 		obtenerCompraCajaQRCommon,
+		inicioConfiguracionGondola,
+		modificarUbicacionTransferenciaCommon,
+		modificarUbicacionCompraCommon,
 		guardarNroPisoCommon,
 		eliminarNroPisoCommon,
 		nuevoNroPisoCommon,

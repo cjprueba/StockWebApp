@@ -45,6 +45,91 @@
 
 
 			</div>	
+
+
+			<!-- MODAL IMPRIMIR DIRECCION ORDEN -->
+
+		    <div class="modal fade agregar-rack-piso" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md" role="document">
+		            <div class="modal-content">
+		                <div class="modal-header">
+		                    <h5 class="modal-title text-primary text-center" >Compra: {{codigoCompra}}</h5>
+		                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		                          <span aria-hidden="true">&times;</span>
+		                    </button>
+		                </div>
+		  				
+	                	<div class="modal-body">
+		                  <div class="row">
+
+							<!-- NRO. CAJA -->
+
+							<div class="col-12">
+								<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
+								<input class="form-control form-control-sm" type="text"  v-model="nro_caja">
+							</div>
+
+							<!-- ----------------------------------- TEXTBOX CONTAINER ------------------------------------- -->
+
+					        <div class="col-12">
+					            <container-nombre ref="componente_textbox_container" @nombre_container='enviar_nombre' :nombre='nombreContainer' @descripcion='traer_descripcion'></container-nombre>
+								<div class="form-text text-danger">{{messageInvalidContainer}}</div>
+					        </div> 
+
+							<!-- ----------------------------------- TEXTBOX DE GONDOLA ------------------------------------- -->
+
+							<div class="col-12 mt-3">
+								<gondola-nombre ref="gondola" v-model="gondolaID" @nombre_gondola='enviar_nombre_gondola' :nombre='gondolaID' :validarGondola='validarGondola' @seccion="enviar_seccion"  :rack='rack' @pisos='traer_pisos' @sectores='traer_sectores'></gondola-nombre>
+								<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+							</div>
+
+							<!-- ----------------------------------- OPCIONES DE SECCION  ------------------------------------- -->
+
+		                    <div class="col-md-12">
+								<label for="validationTooltip01">Sección</label>
+								<select v-model="selectedSeccion" class="custom-select custom-select-sm" disabled>
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option  v-for="seccion in secciones" :value="seccion">{{seccion.DESCRIPCION}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidSeccion}}
+								</div>
+		                    </div>
+
+							<!-- ----------------------------------- OPCIONES DE SECTOR  ------------------------------------- -->
+
+		                    <div class="col-md-12 mt-3">
+							    <label>Sector Rack</label>
+							    <select class="custom-select custom-select-sm" v-model="sectorRack" v-bind:class="{ 'is-invalid': validarSector }">
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option v-for="sector in gondolaSector" :value="sector.ID">{{sector.DESCRIPCION}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidSector}}
+								</div>
+							</div>
+
+							<!-- ------------------------------------------- SELECT PISO ------------------------------------------ -->
+
+							<div class="col-12 mt-3">
+							    <label>Piso Rack</label>
+							    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-bind:class="{ 'is-invalid': validarPiso }">
+	                        		<option value="null" selected>Seleccionar</option>
+							    	<option v-for="piso in gondolaPiso" :value="piso.ID">PISO {{piso.NRO_PISO}}</option>
+								</select>
+								<div class="form-text text-danger">
+								    {{messageInvalidPiso}}
+								</div>
+							</div>     
+		                </div>
+		                <div class="modal-footer">
+		                    <button type="button" class="btn btn-warning" v-on:click="controlarDatos()">Modificar</button>
+		                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+		                </div>
+		              </div>
+		            </div>
+		        </div>
+		    </div>
 		</div>
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -61,6 +146,8 @@
 		ref="ModalMostrarDetalleCompra"
 		></modal-detalle-compra>
 
+
+
 		<!-- ------------------------------------------------------------------------ -->
 
 	</div>
@@ -72,8 +159,29 @@
 	  props: ['id_sucursal'],	
       data(){
         return {
-          	codigoCOMPRA: '',
-          	procesar: false
+          	codigoCompra: '',
+          	procesar: false,
+          	rack:'',
+			nro_caja: '',
+            secciones: [],
+            selectedSeccion: 'null',
+            validarSeccion: false,
+            messageInvalidSeccion: '',
+			gondolaPiso: [],
+          	validarPiso: false,
+            pisoRack: 'null',
+            messageInvalidPiso: '',
+            gondolaSector: [],
+        	sectorRack:'null',
+            validarSector: false,
+			messageInvalidSector: '',
+	        gondolaID: '',
+	        validarGondola: false,
+			messageInvalidGondola: '',
+			controlador: false,
+	        nombreContainer: '',
+	        descripcionContainer: '',
+	        messageInvalidContainer: ''
         }
       }, 
       methods: {
@@ -95,6 +203,47 @@
       			this.$refs.ModalMostrarDetalleCompra.mostrarModal(codigo);
 
       			// ------------------------------------------------------------------------
+      		}, obtenerCabeceraCompra(){
+
+      			let me = this;
+
+        		Common.obtenerCabeceraCompraCommon(me.codigoCompra).then(data => {
+
+        			// FILTRAR DATOS DE DEPOSITO
+        			if(data.SISTEMA_DEPOSITO === true){
+        				me.rack = 'SI';
+        			}else{
+        				me.rack = '';
+        			}
+
+        			me.secciones = data.SECCIONES;
+
+        			if(data.SISTEMA_DEPOSITO === true){
+        					
+	        			me.nombreContainer = data.DATOS_DEPOSITO.CODIGO;
+	        			me.descripcionContainer = data.DATOS_DEPOSITO.DESCRIPCION;
+	        			me.gondolaID = data.DATOS_DEPOSITO.GONDOLA;
+	        			me.gondolaSector = data.SECTORES;
+	        			me.gondolaPiso = data.PISOS;   
+	        			me.pisoRack = data.DATOS_DEPOSITO.PISO;
+	        			me.sectorRack = data.DATOS_DEPOSITO.SECTOR;
+	        			me.nro_caja = data.NRO_FACTURA;
+		        		me.nombreContainer = data.DATOS_DEPOSITO.CODIGO;
+		        		me.descripcionContainer = data.DATOS_DEPOSITO.DESCRIPCION;
+
+				        for (var i = me.secciones.length - 1; i >= 0; i--) {
+				        	if(me.secciones[i].ID_SECCION === data.DATOS_DEPOSITO.ID_SECCION){
+				        		me.selectedSeccion = me.secciones[i]; 
+				        	}
+						}
+						
+						// ------------------------------------------------------------------------
+					 	// ABRIR EL MODAL
+							                     
+						$('.agregar-rack-piso').modal('show');
+	        		}
+        		});
+      			
 
       		}, eliminarCompra(codigo){
 
@@ -151,7 +300,194 @@
 
 				// ------------------------------------------------------------------------
 
-      		}
+      		},
+
+		    traer_descripcion(data){
+	          
+	          // OBTENER DESCRIPCION DEL CONTAINER
+
+	         this.descripcionContainer=data;
+
+	         // GENERAR NUMERO DE CAJA
+
+	         this.generarNroCaja();
+
+	        },
+
+			enviar_nombre(data){
+
+				// OBTENER CODIGO DEL CONTAINER
+
+	          this.nombreContainer=data;
+	           
+	        },
+	        generarNroCaja(){
+
+	        	// GENERADOR DE NRO DE CAJA
+	        	
+	        	if(this.selectedSeccion.DESC_CORTA !== undefined){
+	        		
+	        		this.nro_caja = this.selectedSeccion.DESC_CORTA + '' + this.descripcionContainer;
+	        	}else{
+	        		this.nro_caja = this.descripcionContainer;
+	        	}
+	        },
+			enviar_nombre_gondola(data){
+
+	          this.gondolaID = data;
+	           
+	        },
+	        enviar_seccion(data){
+
+	        	for (var i = this.secciones.length - 1; i >= 0; i--) {
+	        		if(this.secciones[i].ID_SECCION === data){
+	        			this.selectedSeccion = this.secciones[i]; 
+	        		}
+	        	}
+
+				this.generarNroCaja();
+	        },
+	        
+	        traer_pisos(pisos_marcados){
+
+	          	let me = this;
+	            me.gondolaPiso = pisos_marcados;
+	            me.pisoRack = 'null';
+	        },
+	        traer_sectores(sectores_marcados){
+	          
+	          	let me =this;
+	            me.gondolaSector = sectores_marcados;
+	            me.sectorRack = 'null';
+
+	        },
+	        controlarDatos(){
+
+				// ------------------------------------------------------------------------
+
+				let me = this;
+
+	        	
+	        	if (me.selectedSeccion ===  "null" || me.selectedSeccion === '') {
+	        		me.messageInvalidSeccion = 'Por favor seleccione una sección.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.messageInvalidSeccion = '';
+	        	}
+
+	        	if (me.pisoRack === "null" || me.pisoRack === '') {
+	        		me.validarPiso = true;
+	        		me.messageInvalidPiso = 'Por favor seleccione un piso.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.validarPiso = false;
+	        		me.messageInvalidPiso = '';
+	        	}
+
+	        	if (me.sectorRack ===  "null" || me.sectorRack === '') {
+	        		me.validarSector = true;
+	        		me.messageInvalidSector = 'Por favor seleccione un sector.';
+	        		me.controlador = true;
+	        	} else {
+	        		me.validarSector = false;
+	        		me.messageInvalidSector = '';
+	        	}
+
+            	if(me.gondolaID.length === 0){
+	        		me.messageInvalidGondola = 'Por favor seleccione una góndola.';
+            		me.controlador = true;
+            	}else{
+	        		me.messageInvalidGondola = '';
+            	}
+
+            	if(me.nombreContainer === '' || me.nombreContainer.length === 0){
+	        		me.messageInvalidContainer = 'Por favor seleccione un container.';
+            		me.controlador  = true;
+            	}else{
+	        		me.messageInvalidContainer = '';
+            	}
+				
+				// ------------------------------------------------------------------------
+
+	            // RETORNAR CONTROLADOR - SI ES TRUE SE DETIENE EL GUARDADO 
+	            // SI ES FALSE CONTINUA LA OPERACION 
+
+	            if(me.controlador === true){
+	            	me.controlador = false;
+	            	return me.controlador;
+	            }
+
+		        var data = {
+		            codigo: me.codigoCompra, 
+        			codigoContainer: me.nombreContainer,
+	        		seccion: me.selectedSeccion.ID_SECCION,
+	        		piso: me.pisoRack,
+	        		sector: me.sectorRack,
+	        		gondola: me.gondolaID,
+	        		nro_caja: me.nro_caja,
+					sistema_deposito: true
+		        }
+
+		        me.editarUbicacionCompra(data);
+		       
+	        	// ------------------------------------------------------------------------
+
+	        },
+	        editarUbicacionCompra(data){
+
+      			// ------------------------------------------------------------------------
+
+      			// INICIAR VARIABLES
+
+      			var tableCompra = $('#tablaCompras').DataTable();
+      			let me = this;
+      			// ------------------------------------------------------------------------
+
+      			// MOSTRAR LA PREGUNTA DE IMPORTAR 
+
+      			Swal.fire({
+					  title: '¿Estás seguro?',
+					  text: "¡Cambiar ubicación de la compra " + data.codigo + "!",
+					  type: 'warning',
+					  showLoaderOnConfirm: true,
+					  showCancelButton: true,
+					  cancelButtonColor: '#3085d6',
+					  confirmButtonText: '¡Sí, cambiar!',
+					  cancelButtonText: 'Cancelar',
+					  preConfirm: () => {
+					    return Common.modificarUbicacionCompraCommon(data).then(data => {
+					    	if (!data.response === true) {
+					          throw new Error(data.statusText);
+					        }
+					  		return data;
+					  	}).catch(error => {
+					        Swal.showValidationMessage(
+					          `Request failed: ${error}`
+					        )
+					    });
+					  }
+					}).then((result) => {
+					  if (result.value) {
+					  	Swal.fire(
+							      '¡Modificado!',
+							      '¡Se ha cambiado la ubicación de la compra correctamente!',
+							      'success'
+						)
+
+					  	// ------------------------------------------------------------------------
+
+					  	// RECARGAR TABLA 
+					  	
+						tableCompra.ajax.reload( null, false );
+
+						// ------------------------------------------------------------------------
+
+					  }
+					})
+
+				// ------------------------------------------------------------------------
+
+      		},
       },
         mounted() {
         	
@@ -279,6 +615,52 @@
 	                });
 
 	                // ------------------------------------------------------------------------
+	                // ------------------------------------------------------------------------
+
+	                // EDITAR UBICACION COMPRA
+
+	               	$('#tablaCompras').on('click', 'tbody tr #editarUbicacion', function() {
+
+		               // *******************************************************************
+
+		               // REDIRIGIR Y ENVIAR CODIGO COMPRA
+		              	
+		              	var row  = $(this).parents('tr')[0];
+
+					    // *******************************************************************
+
+					    me.codigoCompra = tableCompra.row( row ).data().CODIGO;
+					         
+					    // ------------------------------------------------------------------------
+						// LIMPIAR LAS VARIABLES ANTES DE ABRIR EL MODAL
+
+						me.nro_caja = '';
+					    me.secciones = [];
+					    me.selectedSeccion = 'null';
+					    me.validarSeccion = false;
+					    me.messageInvalidSeccion = '';
+						me.gondolaPiso = [];
+					    me.validarPiso = false;
+					    me.pisoRack = 'null';
+					    me.messageInvalidPiso = '';
+					    me.gondolaSector = [];
+					    me.sectorRack ='null';
+					    me.validarSector = false;
+						me.messageInvalidSector = '';
+					    me.gondolaID = '';
+					    me.validarGondola = false;
+						me.messageInvalidGondola = '';
+						me.controlador = false;
+						me.nombreContainer = '';
+						me.descripcionContainer = '';
+						me.messageInvalidContainer = '';
+
+					    // ------------------------------------------------------------------------
+						// LLAMAR DATOS ANTES DE EDITAR
+						me.obtenerCabeceraCompra();
+
+					    // ------------------------------------------------------------------------
+					});
 	 });	
         }
     }

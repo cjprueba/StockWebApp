@@ -139,4 +139,17 @@ class CompraController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+    public function ubicacionModificarCompra(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MODIFICAR COMPRA DEPOSITO
+
+        $compra = Compra::modificarUbicacionCompra($request->all());
+        return response()->json($compra); 
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
 }
