@@ -5,6 +5,7 @@ use App\Exports\Compras;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Compra;
+use App\Transferencia;
 
 class CompraController extends Controller
 {
@@ -132,8 +133,12 @@ class CompraController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER TODOS LOS DATOS DEL PRODUCTO
-    
-        $productos = Compra::CompraCajaQr($request->all());
+      if($request->tipo_busqueda===1){
+         $productos = Compra::CompraCajaQr($request->all());
+      }else{
+        $productos=Transferencia::TransferenciaCajaQr($request->all());
+      }
+       
         return response()->json($productos);
         
         /*  --------------------------------------------------------------------------------- */
