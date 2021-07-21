@@ -334,5 +334,19 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+        public function     obtenerCajaNumero(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::obtenerCajaNumero($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
 }
