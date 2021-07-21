@@ -246,18 +246,24 @@ class Qr extends Model
           
           // //Color Negro
           $pdf->SetTextColor(0, 0, 0);
-          $pdf->text($x-24.5, $y, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])) , 0,26), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-24.5, $y, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])) , 0,25), false, false, true, 0, 1, '', false, '', 0);
           //Tamaño de fuente
           $pdf->SetFontSize(13);
           if($value['MONEDA']===1){
             $pdf->text($x+28, $y+13, 'G$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
           }elseif ($value['MONEDA']===2) {
+            $pdf->SetFontSize(16);
             $pdf->text($x+28, $y+13, 'U$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-          }elseif ($value['MONEDA']===3) {
+            $pdf->SetFontSize(13);
+          }elseif ($value['MONEDA']===4) {
+            $pdf->SetFontSize(16);
             $pdf->text($x+28, $y+13, 'R$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+            $pdf->SetFontSize(13);
+          }elseif ($value['MONEDA']===3){
+            $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
           }
-          $pdf->SetFontSize(8);
-          $pdf->text($x+28, $y+10, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFontSize(10);
+          $pdf->text($x+28, $y+9, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
           $pdf->SetFontSize(6.5);
           $pdf->text($x+43.5, $y+19.2, 'COD. INTERNO', false, false, true, 0, 1, '', false, '', 0);
           // //background
@@ -280,12 +286,18 @@ class Qr extends Model
           if($value['MONEDA']===1){
             $pdf->text($x-4, $y+13, 'G$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
           }elseif ($value['MONEDA']===2) {
+            $pdf->SetFontSize(16);
             $pdf->text($x-4, $y+13, 'U$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
-          }elseif ($value['MONEDA']===3) {
+            $pdf->SetFontSize(13);
+          }elseif ($value['MONEDA']===4) {
+            $pdf->SetFontSize(16);
             $pdf->text($x-4, $y+13, 'R$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+            $pdf->SetFontSize(13);
+          }elseif ($value['MONEDA']===3) {
+            $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
           }
-          $pdf->SetFontSize(8);
-          $pdf->text($x-4, $y+10, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFontSize(10);
+          $pdf->text($x-4, $y+9, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
           $pdf->SetFontSize(20);
           $pdf->SetFont('helvetica');
           $pdf->text($x-6.3, $y+7.5, '|', false, false, true, 0, 1, '', false, '', 0);
