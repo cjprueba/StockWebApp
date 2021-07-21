@@ -87,4 +87,21 @@ class QrController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     } 
+        public function Crear_Pdf_Transferencia_Caja_Qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+
+/*      $file=public_path('qr.png');
+       return \QRCode::text('QR Code Generator for Laravel! xD')->setOutfile($file)->png();*/
+
+       $TransferenciaCaja = Qr::crear_pdf_CajaTransferencia_qr($request->all());
+        return response()->json($TransferenciaCaja);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    } 
+    
 }

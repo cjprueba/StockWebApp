@@ -1517,7 +1517,7 @@ class Transferencia extends Model
                     $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
 
                     if($deposito == 'SI'){
-                        $sistema_deposito = "<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;";
+                        $sistema_deposito = "<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;<a href='#' id='qr_caja' title='Imprimir Qr'><i class='fa fa-qrcode text-secondary' aria-hidden='true'></i></a>";
                     }
                 }
 
@@ -3871,5 +3871,20 @@ class Transferencia extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+        public static function obtenerCajaNumero($datos)
+    {
+        $id=Transferencia::select(DB::raw('ID'))->where('CODIGO','=',$datos["codigo"])->where('ID_SUCURSAL','=',$datos["origen"])->get()->toArray();
+        if(count($id)>0){
+            $Caja=DB::connection('retail')->table('transferencias_deposito')->Select(DB::raw('transferencias_deposito.NRO_CAJA AS NRO_CAJA'))->WHERE('TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=',$id[0]["ID"])->get()->toArray();
+            if(count($Caja)>0){
+                return["response"=>true,"caja"=>$Caja[0]->NRO_CAJA];
+            }else{
+                return["response"=>false];
+            }
+        }else{
+            return["response"=>false];
+        }
+    
     }
 }
