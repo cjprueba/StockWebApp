@@ -25,6 +25,8 @@ Route::post('/barcode','QrController@Crear_Barcode');
 Route::post('/barinterno','QrController@Crear_Barinterno');
 Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
 Route::post('/PdfQrCajaCompra','QrController@Crear_Pdf_Compra_Caja_Qr');
+
+Route::post('/PdfQrCajaTransferencia','QrController@Crear_Pdf_Transferencia_Caja_Qr');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -119,6 +121,8 @@ Route::post('devolver_transferencia','TransferenciaControler@devolverTransferenc
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
 Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
 Route::post('transferenciaModificarUbicacion', 'TransferenciaControler@modificarTransferenciaUbicacion');
+Route::post('transferencia/obtener/caja/numero', 'TransferenciaControler@obtenerCajaNumero');
+
 
 /* -------------------------------------------------------------------------- */
 

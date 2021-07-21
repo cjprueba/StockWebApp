@@ -7063,6 +7063,76 @@ function obtenerTransferenciaCajaQRCommon(data){
 
 	// ------------------------------------------------------------------------
 }
+function obtenerNumeroCajaCommon(codigo,origen){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('transferencia/obtener/caja/numero', {'codigo': codigo,'origen':origen}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+function generarRptPdfCajaTransferenciaQrCommon(datos){
+
+			// ------------------------------------------------------------------------
+
+
+			// INICIAR VARIABLES
+
+			let me = this;
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			/*return axios({url: 'PdfQrCajaCompra', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);*/
+return axios({url: 'PdfQrCajaTransferencia', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+			// ------------------------------------------------------------------------
+
+
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7363,5 +7433,7 @@ export {
 		guardarsectorCommon,
 		eliminarsectorCommon,
 		generarRptPdfCajaCompraQrCommon,
-		obtenerTransferenciaCajaQRCommon
+		obtenerTransferenciaCajaQRCommon,
+		obtenerNumeroCajaCommon,
+		generarRptPdfCajaTransferenciaQrCommon
 		};

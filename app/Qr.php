@@ -539,6 +539,38 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+          public static function crear_pdf_CajaTransferencia_qr($datos)
+    {
+      
+
+          $file=public_path('qr.png');
+     
+          $pdf = new FPDF('L','mm',array(50,50));
+          $pdf->AddPage();
+          $x=0;
+          $y = 0;
+          $c=0;
+          Qr::crear_qr($datos["data"],3);
+
+            /*$pdf->Text(5,8,$datos["data"]);*/
+          $file=public_path($datos["data"].'.png');
+          $pdf->Image($file,$x,$y,50,50);
+           
+          File::delete($datos["data"].'.png');
+      
+
+
+     
+
+
+
+
+        return $pdf->Output('CajaCompraqr.pdf','i');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 
 
     //-------------------------CODIGO INTERNO---------------------------------------------------------------------------------

@@ -734,7 +734,34 @@
 	                    // *******************************************************************
 
 	                });
+	                 $('#tablaImportarTrans').on('click', 'tbody tr #qr_caja', function() {
 
+	                    // *******************************************************************
+
+	                    // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+
+	                   	me.procesar = true;
+	                   	var row  = $(this).parents('tr')[0];
+	                   	 Common.obtenerNumeroCajaCommon(tableImportarTransferencia.row( row ).data().CODIGO, tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN).then(data => {
+	                   	 	    me.procesar = false;
+							   if(data.response===false){
+							  	Swal.fire(
+							      'Error!',
+							      '¡Esta transferencia no posee posiciones!',
+							      'danger'
+						         )
+							   }else{
+							   	 Common.generarRptPdfCajaTransferenciaQrCommon(data.caja).then( () => {
+				                   		me.procesar = false;
+				                  });
+							   }
+						 });
+	                   	
+	                   	
+
+	                    // *******************************************************************
+
+	                });
 
                     // ------------------------------------------------------------------------
 
@@ -786,6 +813,7 @@
 					});
 
 	 			});
+
         }
     }
 </script>
