@@ -145,10 +145,9 @@
       		// OBTENER PRODUCTOS 
 
       		let me = this;
-      		console.log(me.tipo_busqueda);
-      		
+      			
       			Common.obtenerCompraCajaQRCommon({sucursal: me.sucursal, codigo_ca: me.codigo_ca, tipo_busqueda: me.tipo_busqueda}).then(data => {
-	        		console.log( me.codigo_ca);
+	        	
 	        		me.codigoCa = me.codigo_ca;
 	        		me.productos = data.data;
 	        		me.encabezado = data.encabezado;
