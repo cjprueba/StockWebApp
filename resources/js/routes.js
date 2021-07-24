@@ -390,6 +390,11 @@ export default new Router({
 			component: require('./components/reportes/venta/Seccion/Inicio.vue').default
 		},
 		{
+			path: '/rptcomp',
+			name: 'rptCompras',
+			// component: require('').default
+		},
+		{
 			path: '/rptstw',
 			name: 'rptStockWeb',
 			component: require('./components/reportes/stock/ReporteStock.vue').default
