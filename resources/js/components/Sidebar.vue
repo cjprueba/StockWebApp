@@ -64,7 +64,7 @@
           <div id="collapseReporteWeb" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Lista de Reportes:</h6>
-
+              <router-link v-if="$can('reporte.compras')" class="collapse-item" :to="{name: 'rptCompras'}">Compras</router-link>
               <router-link v-if="$can('reporte.encargadadeseccion')" class="collapse-item" :to="{name: 'rptSeccion'}">Encargada de Sección</router-link>
         <!--        <router-link class="collapse-item" :to="{name: 'rptVencimiento'}">Vencimiento de Producto</router-link>
                <router-link class="collapse-item" :to="{name: 'rptStockWeb'}">Stock</router-link> -->
