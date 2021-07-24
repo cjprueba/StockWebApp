@@ -10,6 +10,9 @@ use App\Piso;
 use App\Sector;
 use App\Gondola_Tiene_Piso;
 use App\Gondola_Tiene_Sector;
+use App\Parametro;
+use App\ComprasDet;
+
 class Gondola extends Model
 {
 
@@ -375,11 +378,53 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         ->where('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD', '=', $codigo)
         ->get();
 
-        /*  --------------------------------------------------------------------------------- */
-       
-        // RETORNAR EL VALOR
+        $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+        
+        if($deposito === 'SI'){
 
-        return ['response' => true, 'gondolas' => $gondolas];
+            $compras = ComprasDet::select(DB::raw('COMPRAS.FECALTAS AS FECHA, 
+                GONDOLAS.DESCRIPCION AS GONDOLA, 
+                COMPRAS.CODIGO AS CODIGO'))
+                ->leftjoin('COMPRAS', function($join){
+                     $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                         ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                ->rightjoin('COMPRAS_DEPOSITO', 'COMPRAS_DEPOSITO.FK_COMPRA', '=', 'COMPRAS.ID')
+                ->leftjoin('GONDOLAS', 'GONDOLAS.ID','=', 'COMPRAS_DEPOSITO.FK_GONDOLA')
+                ->where('COMPRASDET.COD_PROD', '=', $codigo)
+                ->Where('COMPRASDET.ID_SUCURSAL', '=', $user->id_sucursal)
+                ->groupBy('COMPRAS_DEPOSITO.FK_COMPRA')
+                ->get();
+
+            $transferencias = DB::connection('retail')->table('TRANSFERENCIAS_DET')
+                ->select(DB::raw('TRANSFERENCIAS.FECMODIF AS FECHA,
+                            TRANSFERENCIAS.ID,
+                            TRANSFERENCIAS_DET.CODIGO,
+                            GONDOLAS.DESCRIPCION AS GONDOLA'))
+                ->leftJoin('TRANSFERENCIAS', function($join){
+                                        $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                                             ->on('TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                                    })
+                ->rightjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+                ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+                ->where('TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo)
+                ->where('TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal)
+                ->where('TRANSFERENCIAS.ESTATUS', '=', 2)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+           
+            // RETORNAR EL VALOR
+
+            return ['response' => true, 'gondolas' => $gondolas, 'COMPRAS' => $compras, 'TRANSFERENCIAS' => $transferencias];
+        }else{
+
+            /*  --------------------------------------------------------------------------------- */
+           
+            // RETORNAR EL VALOR
+            return ['response' => true, 'gondolas' => $gondolas];
+        }
+
 
         /*  --------------------------------------------------------------------------------- */
 

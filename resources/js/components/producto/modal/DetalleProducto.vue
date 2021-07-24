@@ -226,11 +226,15 @@
 						                            </div>
 						                            <div class="tab-pane fade" id="gondola" role="tabpanel" aria-labelledby="gondola-tab">
 
-						                            			<div v-if="loading.gondolas" class="d-flex justify-content-center">
-														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
-																</div>
-
-						                                        <table class="table table-borderless" v-if="gondolas.length > 0 && loading.gondolas === false">
+						                            		  <div v-if="loading.gondolas" class="d-flex justify-content-center">
+														     	<div class="spinner-grow" role="status" aria-hidden="true"></div>
+															  </div>
+														<div v-if="loading.gondolas === false">
+															<!-- TABLA DE GONDOLAS POR COMPRA  -->
+															<div class="col-md-6">
+								                                <label>POR PRODUCTO</label>
+								                            </div>
+						                                        <table class="table" v-if="gondolas.length > 0">
 																  <thead>
 																    <tr>
 																      <th scope="col">#</th>
@@ -242,19 +246,79 @@
 																  <tbody>
 																    <tr v-for="(gondola, index) in gondolas" class="cuerpoTabla">
 																      <th scope="row">{{index + 1}}</th>	
-																      <th>{{gondola.CODIGO}}</th>
+																      <th>{{gondola.ID}}</th>
 																      <td>{{gondola.DESCRIPCION}}</td>
 																      <td>{{gondola.FECALTAS}}</td>
 																    </tr>
 																  </tbody>
 																</table>
 
-																<div v-if="gondolas.length === 0 && loading.gondolas === false">
+																<div v-if="gondolas.length === 0">
 																	<div class="alert alert-primary" role="alert">
 																	  <font-awesome-icon icon="info-circle" /> No se asignaron góndolas
 																	</div>
 																</div>
+														<div v-if="rack === 'SI'">
+																	
+															<!-- TABLA DE GONDOLAS POR COMPRA  -->
+															<div class="col-md-6 mt-3">
+								                                <label>POR COMPRA</label>
+								                            </div>
+															<table class="table" v-if="comprasGondolas.length > 0">
+																<thead>
+																	<tr>
+																	    <th scope="col">#</th>
+																	    <th scope="col">Codigo Compra</th>
+																	    <th scope="col">Gondola</th>
+																	    <th scope="col">Fecha</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr v-for="(compra_gondola, index) in comprasGondolas" class="cuerpoTabla">
+																	    <th scope="row">{{index + 1}}</th>	
+																	    <th>{{compra_gondola.CODIGO}}</th>
+																	    <td>{{compra_gondola.GONDOLA}}</td>
+																	    <td>{{compra_gondola.FECHA}}</td>
+																	</tr>
+																</tbody>
+															 </table>
+															<div v-if="comprasGondolas.length === 0">
+																<div class="alert alert-primary" role="alert">
+																	<font-awesome-icon icon="info-circle" /> No hay compras con gondolas del producto.
+																</div>
+															</div>
+															 
+															 <!-- TABLA DE DEVOLUCIONES -->
+															 
+															<div class="col-md-6">
+								                                <label>POR TRANSFERENCIA</label>
+								                            </div>
+															<table class="table" v-if="transferenciasGondolas.length > 0">
+																<thead>
+																	<tr>
+																	    <th scope="col">#</th>
+																	    <th scope="col">Codigo Transferencia</th>
+																	    <th scope="col">Gondola</th>
+																	    <th scope="col">Fecha</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr v-for="(transferencia_gondola, index) in transferenciasGondolas" class="cuerpoTabla">
+																	    <th scope="row">{{index + 1}}</th>
+																	    <td>{{transferencia_gondola.CODIGO}}</td>
+																	    <td>{{transferencia_gondola.GONDOLA}}</td>
+																	    <td>{{transferencia_gondola.FECHA}}</td>
 
+																	</tr>
+																</tbody>
+															 </table>
+															<div v-if="transferenciasGondolas.length === 0">
+																<div class="alert alert-primary" role="alert">
+																	<font-awesome-icon icon="info-circle" /> No hay transferencias con gondolas del producto.
+																</div>
+															</div>
+														</div>
+													  </div>
 						                            </div>
 						                            <div class="tab-pane fade" id="proveedores" role="tabpanel" aria-labelledby="proveedores-tab">
 																<div v-if="loading.compras" class="d-flex justify-content-center">
@@ -724,7 +788,7 @@
 </template>
 <script>
 	export default {
-	  props: ["codigo"],	
+	  props: ["codigo", "rack"],	
       data(){
         return {
           	producto: {
@@ -781,6 +845,16 @@
           		CODIGO: '',
           		DESCRIPCION: '',
           		FECALTAS: ''
+          	},
+          	comprasGondolas: {
+          		CODIGO: '',
+          		GONDOLA: '',
+          		FECHA: ''
+          	},
+          	transferenciasGondolas: {
+          		CODIGO: '',
+          		GONDOLA: '',
+          		FECHA: ''
           	},
           	enviadas: {
 
@@ -923,7 +997,12 @@
 
       		Common.obtenerGondolasProductoCommon(me.codigo).then(data => {
       			me.loading.gondolas = false;
-           		me.gondolas = data;
+           		me.gondolas = data.gondolas;
+
+           		if(me.rack === 'SI'){
+           			me.comprasGondolas = data.COMPRAS;
+           			me.transferenciasGondolas = data.TRANSFERENCIAS;
+           		}
            	}).catch((err) => {
            		
            	});
