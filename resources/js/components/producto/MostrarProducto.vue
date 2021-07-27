@@ -144,7 +144,7 @@
 
 		<!-- MODAL DETALLE PRODUCTO -->
 
-		<producto-detalle ref="detalle_producto" :codigo="codigo"></producto-detalle>
+		<producto-detalle ref="detalle_producto" :codigo="codigo" :rack="rack"></producto-detalle>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -193,7 +193,7 @@
               DESCRIPCION: '',
               FECALTAS: ''
             },
-
+            rack: '',
             barcode: [],
             isLoading: false
         }
@@ -272,6 +272,15 @@
         	// INICIAR VARIABLES 
 
         	let me = this;
+
+
+          // ------------------------------------------------------------------------
+
+          // OBTENER RACK 
+
+          Common.obtenerParametroCommon().then(data => {
+            me.rack = data.parametros[0].RACK;
+          });
 
           // ------------------------------------------------------------------------
           

@@ -3083,7 +3083,7 @@ function obtenerGondolasProductoCommon(codigo){
 			// CONSEGUIR LOS DATOS DE LA CABECERA DE TRANSFERENCIA
 			
 			return axios.post('/gondola/producto', {'codigo': codigo}).then(function (response) {
-					return response.data.gondolas;
+					return response.data;
 			});
 
 			// ------------------------------------------------------------------------
