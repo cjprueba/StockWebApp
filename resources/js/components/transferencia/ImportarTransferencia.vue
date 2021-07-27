@@ -90,21 +90,21 @@
 
 							<!-- NRO. CAJA -->
 
-							<div class="col-12">
+							<div class="col-md-12">
 								<label class="mt-1" for="validationTooltip01">Nro. Caja</label>
 								<input class="form-control form-control-sm" type="text"  v-model="nro_caja">
 							</div>
 
 							<!-- ----------------------------------- TEXTBOX DE GONDOLA ------------------------------------- -->
 
-							<div class="col-12 mt-3">
+							<div class="col-md-12 mt-3">
 								<gondola-nombre ref="gondola" v-model="gondolaID" @nombre_gondola='enviar_nombre_gondola' :nombre='gondolaID' :validarGondola='validarGondola' @seccion="enviar_seccion"  :rack='rack' @pisos='traer_pisos' @sectores='traer_sectores'></gondola-nombre>
 								<div class="form-text text-danger">{{messageInvalidGondola}}</div>
 							</div>
 
 							<!-- ----------------------------------- OPCIONES DE SECCION  ------------------------------------- -->
 
-		                    <div class="col-md-12">
+		                    <div class="col-md-12 mt-3">
 								<label for="validationTooltip01">Sección</label>
 								<select v-model="selectedSeccion" class="custom-select custom-select-sm" disabled>
 	                        		<option value="null" selected>Seleccionar</option>
@@ -130,7 +130,7 @@
 
 							<!-- ------------------------------------------- SELECT PISO ------------------------------------------ -->
 
-							<div class="col-12 mt-3">
+							<div class="col-md-12 mt-3">
 							    <label>Piso Rack</label>
 							    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-bind:class="{ 'is-invalid': validarPiso }">
 	                        		<option value="null" selected>Seleccionar</option>

@@ -384,13 +384,20 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
 
             $compras = ComprasDet::select(DB::raw('COMPRAS.FECALTAS AS FECHA, 
                 GONDOLAS.DESCRIPCION AS GONDOLA, 
-                COMPRAS.CODIGO AS CODIGO'))
+                COMPRAS.CODIGO AS CODIGO,
+                COMPRAS.NRO_FACTURA AS NRO_CAJA,
+                SECCIONES.DESCRIPCION AS SECCION,
+                PISOS.NRO_PISO AS PISO,
+                SECTORES.DESCRIPCION AS SECTOR'))
                 ->leftjoin('COMPRAS', function($join){
                      $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
                          ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
                     })
                 ->rightjoin('COMPRAS_DEPOSITO', 'COMPRAS_DEPOSITO.FK_COMPRA', '=', 'COMPRAS.ID')
                 ->leftjoin('GONDOLAS', 'GONDOLAS.ID','=', 'COMPRAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECTORES', 'SECTORES.ID','=', 'COMPRAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('SECCIONES', 'SECCIONES.ID','=', 'COMPRAS_DEPOSITO.FK_SECCION')
+                ->leftjoin('PISOS', 'PISOS.ID','=', 'COMPRAS_DEPOSITO.FK_PISO')
                 ->where('COMPRASDET.COD_PROD', '=', $codigo)
                 ->Where('COMPRASDET.ID_SUCURSAL', '=', $user->id_sucursal)
                 ->groupBy('COMPRAS_DEPOSITO.FK_COMPRA')
@@ -399,14 +406,21 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
             $transferencias = DB::connection('retail')->table('TRANSFERENCIAS_DET')
                 ->select(DB::raw('TRANSFERENCIAS.FECMODIF AS FECHA,
                             TRANSFERENCIAS.ID,
-                            TRANSFERENCIAS_DET.CODIGO,
-                            GONDOLAS.DESCRIPCION AS GONDOLA'))
+                            TRANSFERENCIAS.CODIGO,
+                            GONDOLAS.DESCRIPCION AS GONDOLA,
+                            TRANSFERENCIAS_DEPOSITO.NRO_CAJA AS NRO_CAJA,
+                            SECCIONES.DESCRIPCION AS SECCION,
+                            PISOS.NRO_PISO AS PISO,
+                            SECTORES.DESCRIPCION AS SECTOR'))
                 ->leftJoin('TRANSFERENCIAS', function($join){
                                         $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
                                              ->on('TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
                                     })
                 ->rightjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
                 ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECTORES', 'SECTORES.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('SECCIONES', 'SECCIONES.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_SECCION')
+                ->leftjoin('PISOS', 'PISOS.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_PISO')
                 ->where('TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo)
                 ->where('TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal)
                 ->where('TRANSFERENCIAS.ESTATUS', '=', 2)
