@@ -95,6 +95,7 @@ class Compra extends Model
     		$compra->PEDIDO = $data->data["nro_pedido"];
     		//$compra->FK_USER_CR = $user->id;
     		$compra->save();
+                  // log::error(["ID.COMPRA"=>$compra->id]);
 
             // VERIFICAR SI ES SISTEMA DE DEPOSITO
 
@@ -138,6 +139,7 @@ class Compra extends Model
     			$compra_det = new ComprasDet();
     			
     			$c = $c + 1;
+                $compra_det->FK_COMPRAS = $compra->id;
     			$compra_det->CODIGO = $codigo;
     			$compra_det->ITEM = $c;
     			$compra_det->COD_PROD = $value['CODIGO'];
@@ -1263,6 +1265,12 @@ class Compra extends Model
                 'CUOTAS' => $cuotas,
     			'PEDIDO' => $data->data["nro_pedido"]
     		]);
+
+            // OBTENER ID COMPRA 
+             $id_compra = Compra::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $codigo)
+                ->get();
     		
     		/*  --------------------------------------------------------------------------------- */
 
@@ -1279,12 +1287,9 @@ class Compra extends Model
 
             if($data->data['sistema_deposito'] === true){
 
-                // OBTENER ID COMPRA 
+                
 
-                $id_compra = Compra::select('ID')
-                ->where('ID_SUCURSAL','=', $user->id_sucursal)
-                ->where('CODIGO','=', $codigo)
-                ->get();
+               
 
                 // OBTENER ID CONTAINER
 
@@ -1318,6 +1323,7 @@ class Compra extends Model
     			$compra_det = new ComprasDet();
     			
     			$c = $c + 1;
+                $compra_det->FK_COMPRAS=$id_compra[0]->ID;
     			$compra_det->CODIGO = $codigo;
     			$compra_det->ITEM = $c;
     			$compra_det->COD_PROD = $value['CODIGO'];

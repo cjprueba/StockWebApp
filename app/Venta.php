@@ -2129,6 +2129,50 @@ class Venta extends Model
             $items  = array_column( $data["data"]["productos"], 'ITEM');
               array_multisort($items, SORT_ASC, $data["data"]["productos"]);
               Log::error(["PRODUCTOS"=>$data["data"]["productos"]]);
+
+            $venta = Venta::insertGetId(
+                [
+                    "CODIGO" => $codigo, 
+                    "FECHA" => $dia, 
+                    "HORA" => $hora, 
+                    //"FACTURA" => '', 
+                    "CAJA" => $caja, 
+                    "CLIENTE" => $cliente, 
+                    "VENDEDOR" => $vendedor, 
+                    "TIPO" => $tipo_venta, 
+                    //"FORMA_PAGO" => '', 
+                    "PLAN_PAGO" => 0, 
+                    "TARJETA" => 0, 
+                    "DESCUENTO" => 0, 
+                    "GRAVADAS" => 0, 
+                    "IMPUESTOS" => 0, 
+                    "EXENTAS" => 0, 
+                    "BASE5" => 0, 
+                    "BASE10" => 0, 
+                    "SUB_TOTAL" => 0, 
+                    "TOTAL" => 0, 
+                    "EFECTIVO" => $efectivo, 
+                    "CHEQUE" => 0, 
+                    "VALE" => 0, 
+                    "DONACION" => 0, 
+                    "VUELTO" => $vuelto, 
+                    "GIROS" => 0, 
+                    "MONEDA" => $moneda, 
+                    "MONEDA1" => $dolares, 
+                    "MONEDA2" => $reales, 
+                    "MONEDA3" => $guaranies, 
+                    "MONEDA4" => $pesos, 
+                    "OPCION_IMPRESION" => $opcion_impresion, 
+                    "USER" => $user->name, 
+                    "FECALTAS" => $dia, 
+                    "HORALTAS" => $hora, 
+                    "ID_SUCURSAL" => $user->id_sucursal, 
+                    "CODIGO_CA" => $codigo_caja,
+                    "MAYORISTA"=> $may, 
+                    //"TIPO_PRECIO" =>
+                ]
+            );
+
             while($c < $filas) {
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2219,6 +2263,7 @@ class Venta extends Model
 
                         $id_ventas_det = Ventas_det::insertGetId(
                             [
+                            'FK_VENTA' => $venta,
                             'CODIGO' => $codigo, 
                             'CAJA' => $caja, 
                             'ITEM' => $c + 1, 
@@ -2535,48 +2580,20 @@ class Venta extends Model
 
             // INSERTAR VENTA 
 
-            $venta = Venta::insertGetId(
-                [
-                    "CODIGO" => $codigo, 
-                    "FECHA" => $dia, 
-                    "HORA" => $hora, 
-                    //"FACTURA" => '', 
-                    "CAJA" => $caja, 
-                    "CLIENTE" => $cliente, 
-                    "VENDEDOR" => $vendedor, 
-                    "TIPO" => $tipo_venta, 
-                    //"FORMA_PAGO" => '', 
-                    "PLAN_PAGO" => 0, 
-                    "TARJETA" => 0, 
-                    "DESCUENTO" => ($descuento_total + $descuento_general), 
-                    "GRAVADAS" => $total_gravadas, 
-                    "IMPUESTOS" => $total_iva, 
-                    "EXENTAS" => $total_exentas, 
-                    "BASE5" => $total_base5, 
-                    "BASE10" => $total_base10, 
-                    "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => ((($total_total - $descuento_general) - $cupon)), 
-                    "EFECTIVO" => $efectivo, 
-                    "CHEQUE" => 0, 
-                    "VALE" => 0, 
-                    "DONACION" => 0, 
-                    "VUELTO" => $vuelto, 
-                    "GIROS" => 0, 
-                    "MONEDA" => $moneda, 
-                    "MONEDA1" => $dolares, 
-                    "MONEDA2" => $reales, 
-                    "MONEDA3" => $guaranies, 
-                    "MONEDA4" => $pesos, 
-                    "OPCION_IMPRESION" => $opcion_impresion, 
-                    "USER" => $user->name, 
-                    "FECALTAS" => $dia, 
-                    "HORALTAS" => $hora, 
-                    "ID_SUCURSAL" => $user->id_sucursal, 
-                    "CODIGO_CA" => $codigo_caja,
-                    "MAYORISTA"=> $may, 
-                    //"TIPO_PRECIO" =>
-                ]
-            );
+            Venta::where('ID', '=', $venta)
+                    ->update([
+                            //"FORMA_PAGO" => '', 
+                            "DESCUENTO" => ($descuento_total + $descuento_general), 
+                            "GRAVADAS" => $total_gravadas, 
+                            "IMPUESTOS" => $total_iva, 
+                            "EXENTAS" => $total_exentas, 
+                            "BASE5" => $total_base5, 
+                            "BASE10" => $total_base10, 
+                            "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
+                            "TOTAL" => ((($total_total - $descuento_general) - $cupon)),  
+                            //"TIPO_PRECIO" =>
+                        ]
+                    );
             
             /*  --------------------------------------------------------------------------------- */
 
