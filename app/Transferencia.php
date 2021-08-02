@@ -884,7 +884,7 @@ class Transferencia extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // REVISAR SI HAY PRODUCTOS QUE NO SE GUARDARON TOTALMENTE 
-
+            DB::connection('retail')->commit();
             if ($opcion === 1) {
                 if (count($sin_stock) > 0) {
                     return ["response" => false, "productos" => $sin_stock];
@@ -894,7 +894,7 @@ class Transferencia extends Model
             }
 
             /*  --------------------------------------------------------------------------------- */
-            DB::connection('retail')->commit();
+            
             if ($opcion === 2) {
                 return true; 
             }
