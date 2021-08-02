@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SeccionExport;
 use DateTime;
+use App\Exports\Reportes\Gondola\VentaGondolaExport;
+use App\Temp_venta;
 
 class VentaController extends Controller
 {
@@ -369,6 +371,47 @@ class VentaController extends Controller
  
 
             $ventas = Venta::generarReporteVentaProveedor($request->all());
+            return response()->json($ventas);
+       
+        //return response()->json([$request->all()]);
+    }
+            public function descargarVentaGondola(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR REPORTE PROVEEDORES 
+
+            if($request->Insert==true){
+
+                  $datos=array(
+                        'inicio'=>date('Y-m-d', strtotime($request->Inicio)),
+                        'final'=>date('Y-m-d', strtotime($request->Final)),
+                        'sucursal'=>$request->Sucursal,
+                        'checkedGondola'=>$request->AllSecciones,
+                        'checkedSeccion'=>$request->AllGondolas,
+                        'gondolas'=>$request->Gondolas,
+                        'secciones'=>$request->secciones,
+                        'mayoristaContado'=>$request->MayoristaContado,
+                        'mayoristaCredito'=>$request->MayoristaCredito,
+                        'servicioDelivery'=>$request->ServicioDelivery,
+                        'utilidad'=>true
+                    );
+                  
+          
+                   Temp_venta::insertar_reporte($datos);
+            }
+         
+        return Excel::download(new VentaGondolaExport($request->all()), 'VentaSeccionGondola.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    public function reporteVentaGondola(Request $request)
+    {
+ 
+
+            $ventas = Venta::generarReporteVentaGondola($request->all());
             return response()->json($ventas);
        
         //return response()->json([$request->all()]);

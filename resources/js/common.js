@@ -7133,6 +7133,45 @@ return axios({url: 'PdfQrCajaTransferencia', method: 'post', responseType: 'arra
 
 
 }
+function generarReporteCompraEntradaSeccionCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/reporte_entrada_compra_seccion', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+function generarReporteCompraVentaSeccionCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/reporte_venta_compra_seccion', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7435,5 +7474,7 @@ export {
 		generarRptPdfCajaCompraQrCommon,
 		obtenerTransferenciaCajaQRCommon,
 		obtenerNumeroCajaCommon,
-		generarRptPdfCajaTransferenciaQrCommon
+		generarRptPdfCajaTransferenciaQrCommon,
+		generarReporteCompraEntradaSeccionCommon,
+		generarReporteCompraVentaSeccionCommon
 		};

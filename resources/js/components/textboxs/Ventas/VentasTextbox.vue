@@ -30,9 +30,10 @@
                                 <table id="tablaModalVentas" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
                                     <thead>
                                         <tr>
+                                            <th>Id Venta</th>
                                             <th>Codigo</th>
                                             <th>Caja</th>
-                                             <th>Codigo_Ca</th>
+                                            <th>Codigo_Ca</th>
                                             <th>Nombre</th>
                                             <th>Fecha</th>
                                             <th>Tipo</th>
@@ -75,12 +76,12 @@
        tableVenta.ajax.reload( null, false );
         },
 
-       enviarCodigoPadre(codigo,caja,fecha,hora,codigo_ca,tipo,cliente,vendedor,total,moneda){
+       enviarCodigoPadre(id_venta,codigo,caja,fecha,hora,codigo_ca,tipo,cliente,vendedor,total,moneda){
 
                 // ------------------------------------------------------------------------
            
                 // ENVIAR CODIGO
-                
+                 this.$emit('fk_venta',id_venta);
                  this.$emit('codigo',codigo);
                  this.$emit('codigoCaja', codigo_ca);
                  this.$emit('fecha', fecha);
@@ -124,6 +125,7 @@
                                  "type": "POST"
                                },
                         "columns": [
+                            { "data": "ID_VENTA" },
                             { "data": "CODIGO" },
                             { "data": "CAJA" },
                             { "data": "CODIGO_CA" },
@@ -162,7 +164,7 @@
                         /*console.log(me.tableVenta.row(this).data());*/
                     me.codigo = me.tableVenta.row(this).data().CODIGO;
                     me.caja = me.tableVenta.row(this).data().CAJA;
-                    me.fecha=me.tableVenta.row(this).data().FECHA
+                    me.fecha=me.tableVenta.row(this).data().FECHA;
                     var data = {
                       Codigo:me.codigo,
                       caja:me.caja,
@@ -176,7 +178,7 @@
                       
 
 
-                           me.enviarCodigoPadre(data.ventas[0].CODIGO,data.ventas[0].CAJA,data.ventas[0].FECHA,data.ventas[0].HORA,data.ventas[0].CODIGO_CA,data.ventas[0].TIPO,data.ventas[0].NOMBRE,data.ventas[0].NOMBRE_E,data.ventas[0].TOTAL,data.ventas[0].MONEDA);
+                           me.enviarCodigoPadre(data.ventas[0].FK_VENTA,data.ventas[0].CODIGO,data.ventas[0].CAJA,data.ventas[0].FECHA,data.ventas[0].HORA,data.ventas[0].CODIGO_CA,data.ventas[0].TIPO,data.ventas[0].NOMBRE,data.ventas[0].NOMBRE_E,data.ventas[0].TOTAL,data.ventas[0].MONEDA);
                            
                     })
                   

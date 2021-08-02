@@ -392,7 +392,7 @@ export default new Router({
 		{
 			path: '/rptcomp',
 			name: 'rptCompras',
-			// component: require('').default
+			component: require('./components/reportes/compra/inicio.vue').default
 		},
 		{
 			path: '/rptstw',
@@ -463,6 +463,8 @@ export default new Router({
 			name: 'notaDeCraeditoReporte',
 			component: require('./components/reportes/creditoNota/NotaCreditoReporte.vue').default
 		},
+		
+
 
 	],
 	mode: 'history'
