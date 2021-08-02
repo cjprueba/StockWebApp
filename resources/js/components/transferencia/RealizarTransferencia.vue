@@ -1490,14 +1490,14 @@
 
             // CONTROLADOR CABECERA
 
-            if (me.codigoOrigen.length === 0) {
+            if (me.codigoOrigen.length === 0 || me.codigoOrigen = me.codigoDestino) {
                 me.validarOrigen = true;
                 return true;
             } else {
                 me.validarOrigen = false;
             }
 
-            if (me.codigoDestino.length === 0) {
+            if (me.codigoDestino.length === 0 || me.codigoDestino = me.codigoOrigen) {
                 me.validarDestino = true;
                 return true;
             } else {
