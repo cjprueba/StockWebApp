@@ -100,7 +100,7 @@
           // CAMBIAR TAMAÑO FUENTE 
 
           $("#tablaLote").css("font-size", 12);
-          tableLote.columns.adjust().draw();
+         
 
           // ------------------------------------------------------------------------
 

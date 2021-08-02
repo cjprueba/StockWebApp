@@ -101,7 +101,7 @@
 
 		<!-- FORMA PAGO -->
 
-		<forma-pago-textbox :total="venta.TOTAL" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" :tipo="2" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-textbox>
+		<forma-pago-credito-textbox :total="venta.TOTAL" :fk_venta="venta.FK_VENTA" :total_crudo="venta.TOTAL_CRUDO" :moneda="moneda.CODIGO" :candec="moneda.DECIMAL" :customer="cliente.CODIGO" :tipo="2" @datos="formaPago" ref="compontente_medio_pago"></forma-pago-credito-textbox>
 
 		<!-- ------------------------------------------------------------------------ -->	
 
@@ -176,7 +176,8 @@
           	},
           	venta: {
           		TOTAL: 0,
-          		TOTAL_CRUDO: 0.00
+          		TOTAL_CRUDO: 0.00,
+          		FK_VENTA:'',
           	},
           	moneda: {
           		CODIGO: '',
@@ -704,6 +705,7 @@
 
 			        var row  = $(this).parents('tr')[0];
 			        // me.mostrarModalVenta(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+			        me.venta.FK_VENTA= me.tableVentaMostrar.row( row ).data().ID;
 			        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
 			        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
 			        me.venta.TOTAL = me.tableVentaMostrar.row( row ).data().TOTAL_SIN_LETRA;
@@ -711,6 +713,8 @@
 			        me.moneda.CODIGO = me.tableVentaMostrar.row( row ).data().MONEDA;
 			        me.moneda.DECIMAL = me.tableVentaMostrar.row( row ).data().CANDEC;
 			        me.cliente.CODIGO = me.tableVentaMostrar.row( row ).data().CLIENTE_CODIGO;
+			      
+			        
 		        	me.$refs.compontente_medio_pago.procesarFormas();
 
 			        // *******************************************************************

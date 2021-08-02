@@ -5,7 +5,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Proveedor;
 use App\Exports\VentasProveedor;
-use App\Exports\VentaProveedorExport;
+use App\Exports\VentasProveedorExport;
 use DateTime;
 use App\Temp_venta;
 class ProveedorController extends Controller
@@ -218,7 +218,7 @@ class ProveedorController extends Controller
                    Temp_venta::insertar_reporte($datos);
             }
            
-        return Excel::download(new VentaProveedorExport($request->all()), 'VentasProveedores.xlsx');
+        return Excel::download(new VentasProveedorExport($request->all()), 'VentasProveedores.xlsx');
 
         /*  --------------------------------------------------------------------------------- */
 

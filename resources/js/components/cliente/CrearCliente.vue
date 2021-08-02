@@ -777,7 +777,7 @@
 			let me = this;
 
 			Common.clienteNuevoCommon().then(data=> {
-		        	me.codigo = data.cliente+1;
+		        	me.codigo = data.cliente[0].CODIGO+1;
 		        	me.limiteCreditoDia = data.limite.LIMITE_DIAS;
 		        	me.btnguardar = true;
 		    });

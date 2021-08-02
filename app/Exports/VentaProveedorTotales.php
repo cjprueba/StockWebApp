@@ -155,7 +155,6 @@ class VentaProveedorTotales implements FromArray, WithTitle,WithEvents,ShouldAut
                     sum(ventasdet_servicios.PRECIO_UNIT) AS PRECIO_UNIT'))
                
                ->Where('VENTAS_ANULADO.ANULADO','=',0)
-               ->whereIn('VENTAS.TIPO',$this->tipos)
                ->Where('VENTAS.ID_SUCURSAL','=',$this->sucursal)
                //->Where('VENTASdet.FECALTAS','like',$dia.'%')
                ->whereBetween('VENTAS.FECALTAS', [$this->inicio, $this->fin])
