@@ -394,8 +394,8 @@ class Qr extends Model
             'fgcolor' => array(0, 0, 0),
             'bgcolor' => false, //array(255,255,255),
                      'text' => true, // whether to display the text below the barcode
-                     'font' => 'helvetica', //font
-                     'fontsize' => 6, //font size
+                     'font' => 'courier', //font
+                     'fontsize' => 9, //font size
             'stretchtext' => 4
         );
          $pag=1;
@@ -426,22 +426,22 @@ class Qr extends Model
                   }
                    
                   if($datos['precio']==='1'){
-                    $pdf->SetFontSize(7);
+                    $pdf->SetFontSize(8);
                     $pdf->SetFont('','B');
                     $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
                   
                   }else if($datos['precio']==='2'){
-                    $pdf->SetFontSize(7);
+                    $pdf->SetFontSize(8);
                     $pdf->SetFont('','B');
                     $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
                   }else if($datos['precio']==='3'){
-                    $pdf->SetFontSize(7);
+                    $pdf->SetFontSize(8);
                     $pdf->SetFont('','B');
                     if($value['MONEDA']===2){
-                      $pdf->text($x-16.5, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+                      $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
                     }else{
-                      $pdf->text($x-20, $y+11, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+                      $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
                     }                   
                   }
                   $pdf->SetFontSize(5.7);
