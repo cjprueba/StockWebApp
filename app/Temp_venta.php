@@ -34,25 +34,25 @@ class Temp_venta extends Model
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
-           
+           ->leftjoin('ventas','ventas.ID','ventasdet.FK_VENTA')
 
           
-           ->leftjoin('VENTAS',function($join){
+          /* ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
              ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
                ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-         })
+         })*/
             ->leftjoin('VENTAS_CUPON','VENTAS_CUPON.FK_VENTA','=','VENTAS.ID')
             ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
             ->select(
             DB::raw('VENTASDET.COD_PROD AS COD_PROD,
             	VENTASDET.CODIGO,
              VENTASDET_TIENE_LOTES.CANTIDAD AS VENDIDO,
-             MARCA.DESCRIPCION AS MARCA,
+             IFNULL(MARCA.DESCRIPCION,"INDEFINIDO") AS MARCA,
              LOTES.LOTE AS LOTE,
              LOTES.COSTO AS COSTO_UNIT,
              (VENTASDET_TIENE_LOTES.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
-             LINEAS.DESCRIPCION AS CATEGORIA,
+             IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
              SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
              SUBLINEA_DET.DESCRIPCION AS NOMBRE,
              PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
@@ -289,22 +289,24 @@ class Temp_venta extends Model
 			                 ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 			                 ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
 			                 ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
-			                  ->leftjoin('VENTAS',function($join){
+			                 ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+			                  /*->leftjoin('VENTAS',function($join){
 			                  $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
 			                  		->on('VENTAS.CAJA','=','VENTASDET.CAJA')
 			               			->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-			         			})
+			         			})*/
 			           			/* ->leftjoin('VENTASDET_DEVOLUCIONES','VENTASDET_DEVOLUCIONES.FK_VENTASDET','=','VENTASDET.ID')*/
 
 			            		 ->select(
 			            		 DB::raw('VENTASDET_DEVOLUCIONES.COD_PROD AS COD_PROD,
 			            			VENTASDET.CODIGO,
 			            		 VENTASDET_DEVOLUCIONES.CANTIDAD AS VENDIDO,
-			            		 MARCA.DESCRIPCION AS MARCA,
+			            		 
+			            		 IFNULL(MARCA.DESCRIPCION,"INDEFINIDO") AS MARCA,
+ 								 IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
 			            		 LOTES.LOTE AS LOTE,
 			            		 LOTES.COSTO AS COSTO_UNIT,
 			            		 (VENTASDET_DEVOLUCIONES.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
-			            		 LINEAS.DESCRIPCION AS CATEGORIA,
 			            		 SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 			            		 SUBLINEA_DET.DESCRIPCION AS NOMBRE,
 			            		 PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
@@ -426,28 +428,30 @@ class Temp_venta extends Model
 					           
 					            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 					             ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
-					            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_VENTA_DET', '=', 'VENTASDET.ID')
+					            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
 					            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
 					            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 					            ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
 					            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 					            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-					                         ->leftjoin('VENTAS',function($join){
+					             ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+					                        /* ->leftjoin('VENTAS',function($join){
 					             $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
 					             ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
 					               ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-					         })
+					         })*/
        
 
 						            ->select(
 						            DB::raw('NOTA_CREDITO_DET.CODIGO_PROD AS COD_PROD,
 						            
 						             nota_credito_tiene_lote.CANTIDAD AS VENDIDO,
-						             MARCA.DESCRIPCION AS MARCA,
+						            
 						             LOTES.LOTE AS LOTE,
 						             LOTES.COSTO AS COSTO_UNIT,
 						             (nota_credito_tiene_lote.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
-						             LINEAS.DESCRIPCION AS CATEGORIA,
+						             IFNULL(MARCA.DESCRIPCION,"INDEFINIDO") AS MARCA,
+ 								     IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
 						             SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 						             SUBLINEA_DET.DESCRIPCION AS NOMBRE,
 						             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
@@ -595,12 +599,12 @@ class Temp_venta extends Model
 				            ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
 				           /* ->leftjoin('VENTAS_CUPON','VENTAS_CUPON.FK_VENTA','=','VENTAS.ID')*/
 				           /* ->leftjoin('VENTASDET_DEVOLUCIONES','VENTASDET_DEVOLUCIONES.FK_VENTASDET','=','VENTASDET.ID')*/
-				          
-				           ->leftjoin('VENTAS',function($join){
+				           ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+				           /*->leftjoin('VENTAS',function($join){
 				             $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
 				             ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
 				               ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-				         })
+				         })*/
 				             ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
 				            ->select(
 				            DB::raw('VENTASDET.COD_PROD AS COD_PROD,
@@ -868,7 +872,7 @@ class Temp_venta extends Model
 				           
 				            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 				             ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
-				            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_VENTA_DET', '=', 'VENTASDET.ID')
+				           ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
 				            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
 				            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 				            ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
@@ -971,12 +975,12 @@ class Temp_venta extends Model
 	 
 			     $reporte=DB::connection('retail')->table('VENTAS_CREDITO')
 				    ->leftjoin('VENTAS','VENTAS.ID','=','VENTAS_CREDITO.FK_VENTA')
-
-	     	        ->leftjoin('VENTASDET',function($join){
+				     ->leftjoin('VENTASDET','VENTASDET.FK_VENTA','VENTAS.ID')
+	     	        /*->leftjoin('VENTASDET',function($join){
 					 $join->on('VENTASDET.CODIGO','=','VENTAS.CODIGO')
 						 ->on('VENTASDET.CAJA','=','VENTAS.CAJA')
 						 ->on('VENTASDET.ID_SUCURSAL','=','VENTAS.ID_SUCURSAL');
-					 })
+					 })*/
 	           
 		            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
 		            ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
@@ -1227,17 +1231,18 @@ class Temp_venta extends Model
 			      
 			      ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 			      ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
-			      ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_VENTA_DET', '=', 'VENTASDET.ID')
+			      ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
 			      ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
 			      ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 			      ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
 			      ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 			      ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-			      ->leftjoin('VENTAS',function($join){
+			       ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+			    /*  ->leftjoin('VENTAS',function($join){
 					   $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
 					    ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
 					    ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-			        })
+			        })*/
 			      
 	       
 
@@ -1326,11 +1331,11 @@ class Temp_venta extends Model
        
      	    $reporte=DB::connection('retail')->table('COMPRAS')
              
-            
-            ->leftjoin('COMPRASDET',function($join){
+            ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+            /*->leftjoin('COMPRASDET',function($join){
              $join->on('COMPRASDET.CODIGO','=','COMPRAS.CODIGO')
                   ->on('COMPRASDET.ID_SUCURSAL','=','COMPRAS.ID_SUCURSAL');
-            })
+            })*/
             ->leftjoin('PRODUCTOS_AUX',function($join){
              $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
                ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
@@ -1357,7 +1362,7 @@ class Temp_venta extends Model
              LOTES.LOTE AS LOTE,
              LOTES.COSTO AS COSTO_UNIT,
              SUM(COMPRASDET.COSTO_TOTAL) AS COSTO_TOTAL,
-             LINEAS.DESCRIPCION AS CATEGORIA,
+             IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
              IFNULL(SUBLINEAS.DESCRIPCION,"INDEFINIDO") AS SUBCATEGORIA,
              IFNULL(SUBLINEA_DET.DESCRIPCION,"INDEFINIDO") AS NOMBRE,
              PROVEEDORES.CODIGO AS PROVEEDOR,
@@ -1466,10 +1471,11 @@ class Temp_venta extends Model
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
             ->leftjoin('VENTASDET_TIENE_LOTES','VENTASDET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
             ->leftjoin('VENTASDET','VENTASDET.ID','=','VENTASDET_TIENE_LOTES.ID_VENTAS_DET')
-            ->leftjoin('VENTAS',function($join){
+             ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+           /* ->leftjoin('VENTAS',function($join){
              $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
                   ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-            })
+            })*/
            
             ->leftjoin('VENTAS_CUPON','VENTAS_CUPON.FK_VENTA','=','VENTAS.ID')
 	        ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
