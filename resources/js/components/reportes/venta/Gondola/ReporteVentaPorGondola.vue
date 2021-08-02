@@ -390,7 +390,7 @@
 			    })
 			 },
 			 filterItems: function(items, codigo) {
-			 		console.log(items);
+			 		
 			      return items.filter(function(item) {
 
                  

@@ -120,8 +120,8 @@
 						    <label class="mt-1">Tipo Compra</label>
 						    <select tabindex="7" class="custom-select custom-select-sm" v-model="tipo_compra" v-on:change="change_tipo" >
 							    <option value="CO">1 - CONTADO</option>
-							    <option value="CR">2 - CREDITO</option>
-							    <option value="CS">3 - CONSIGNACION</option>
+							    <option value="CR">2 - CRÉDITO</option>
+							    <option value="CS">3 - CONSIGNACIÓN</option>
 							</select>
 						</div>
 
@@ -139,7 +139,7 @@
 
 						<div class="col-4">
 							<label class="mt-1" for="validationTooltip01">Total Compra</label>
-							<div class="input-group input-group-sm mb-3" >
+							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
@@ -153,7 +153,7 @@
 						
 						<div class="col-4">
 							<label class="mt-1" for="validationTooltip01">Exentas</label>
-							<div class="input-group input-group-sm mb-3" >
+							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-sm">{{moneda.DESCRIPCION}}</span>
 								</div>
@@ -185,45 +185,50 @@
 							<div class="form-text text-danger">{{messageInvalidContainer}}</div>
 				        </div> 
 
+
+						<!-- -------------------------------------------TEXTBOX DE GONDOLA------------------------------------------ -->
+						
+						<div class="col-2">
+							<gondola-nombre ref="gondola" v-model="gondolaID" @nombre_gondola='enviar_nombre_gondola' :nombre='gondolaID' :validarGondola='validarGondola' @seccion="enviar_seccion"  :rack='rack' @pisos='traer_pisos' @sectores='traer_sectores'></gondola-nombre>
+							<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+						</div>
+
 						<!-- ----------------------------------- OPCIONES DE SECCION ------------------------------------- -->
 
-						<div class="col-2">
-							<label for="validationTooltip01">Seleccione Sección</label>
-							<seccion-textbox ref= "componente_textbox_seccion" :codigo="codigoSeccion" v-model="codigoSeccion" @descripcion="cargarDescripcion" @codigo="cargarCodigo" @desc_corta="cargarDescripcionCorta"></seccion-textbox>
+						<div class="col-4">
+							<label for="validationTooltip01">Sección</label>
+							<select v-model="selectedSeccion" class="custom-select custom-select-sm" disabled>
+                        		<option value="null" selected>Seleccionar</option>
+						    	<option  v-for="seccion in secciones" :value="seccion">{{seccion.DESCRIPCION}}</option>
+							</select>
 							<div class="form-text text-danger">
 							    {{messageInvalidSeccion}}
 							</div>
 						</div>
+						<!-- ------------------------------------------- SELECT SECTOR ------------------------------------------ -->
 
-						<!-- -------------------------------------------MULTIPLE SELECT DE GONDOLA------------------------------------------ -->
-						
-						<div class="col-4">
-							<select-gondola ref="gondola" v-model="seleccion_gondola" v-bind:selecciones="seleccion_gondola_modificar"></select-gondola>
-							<div class="form-text text-danger">{{messageInvalidGondola}}</div>
+						<div class="col-2">
+						    <label>Sector Rack</label>
+						    <select class="custom-select custom-select-sm" v-model="sectorRack" v-bind:class="{ 'is-invalid': validarSector }">
+                        		<option value="null" selected>Seleccionar</option>
+						    	<option v-for="sector in gondolaSector" :value="sector.ID">{{sector.DESCRIPCION}}</option>
+							</select>
+							<div class="form-text text-danger">
+							    {{messageInvalidSector}}
+							</div>
 						</div>
 
 						<!-- ------------------------------------------- SELECT DE PISO ------------------------------------------ -->
 
-						<div class="col-4">
+						<div class="col-2">
 						    <label>Piso Rack</label>
-						    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-on:change="selecionarGondolaPiso()" v-bind:class="{ 'is-invalid': validarPiso }">
-							    <option value="null">Seleccionar</option>
-							    <option value="1">Piso 1</option>
-							    <option value="2">Piso 2</option>
-							    <option value="3">Piso 3</option>
+						    <select class="custom-select custom-select-sm" v-model="pisoRack"  v-bind:class="{ 'is-invalid': validarPiso }">
+                        		<option value="null" selected>Seleccionar</option>
+						    	<option v-for="piso in gondolaPiso" :value="piso.ID">PISO {{piso.NRO_PISO}}</option>
 							</select>
 							<div class="form-text text-danger">
 							    {{messageInvalidPiso}}
 							</div>
-						</div>
-
-						<!-- ------------------------------------------- ARRAY DE GONDOLA CON SU PISO ------------------------------------------ -->
-
-						<div class="col-4 mt-3" v-if="selectedGondolaPiso.length > 0">
-
-							<select class="form-control" size="4">
-								<option v-for="gondola_piso in selectedGondolaPiso"><strong>GONDOLA:</strong> {{gondola_piso.GONDOLA.DESCRIPCION}} <strong>PISO:</strong> {{gondola_piso.PISO}}</option>
-							</select>
 						</div>
 					</div>
 					<div class="row">
@@ -384,7 +389,7 @@
 	                <thead>
 	                    <tr>
 	                        <th></th>
-	                        <th class="codigoDeclarados">Codigo</th>
+	                        <th class="codigoDeclarados">Código</th>
 	                        <th>Descripción</th>
 	                        <th>Lote</th>
 	                        <th>%</th>
@@ -445,11 +450,11 @@
 			<b-toast id="toast-producto-compra-modificado" variant="success" solid>
 		      <template v-slot:toast-title>
 		        <div class="d-flex flex-grow-1 align-items-baseline">
-		          <strong class="mr-auto">Éxito !</strong>
+		          <strong class="mr-auto">¡Éxito!</strong>
 		          <small class="text-muted mr-2">modificado</small>
 		        </div>
 		      </template>
-		      Este producto ha sido modificado con éxito !
+		      ¡Este producto ha sido modificado con éxito!
 		    </b-toast>
 
 		    <!-- ------------------------------------------------------------------------ -->
@@ -478,27 +483,28 @@
           	procesar: false,
           	nombreContainer:'',
           	descripcionContainer:'',
+	        messageInvalidContainer: '',
           	switch_un_producto: false,
           	proveedor: '',
           	descripcionProveedor: '',
-          	validarPiso: false,
           	tipo_compra: 'CO',
           	rack: '',
           	cuotas: '',
             secciones: [],
-            codigoSeccion: '',
-           	desc_cortaSeccion: '',
-            descripcionSeccion: '',
-            codigoSeccion: '',
-            pisoRack: "null",
+            selectedSeccion: 'null',
             validarSeccion: false,
             messageInvalidSeccion: '',
+			gondolaPiso: [],
+          	validarPiso: false,
+            pisoRack: 'null',
             messageInvalidPiso: '',
-	        seleccion_gondola: '',
-	        seleccion_gondola_modificar: [{}],
-	        messageInvalidContainer: '',
+            gondolaSector: [],
+        	sectorRack:'null',
+            validarSector: false,
+			messageInvalidSector: '',
+	        gondolaID: '',
+	        validarGondola: false,
 			messageInvalidGondola: '',
-			selectedGondolaPiso: [],
           	producto: {
           		CODIGO: '',
           		DESCRIPCION: '',
@@ -598,15 +604,29 @@
         			me.credito.OPCIONES = data.DEUDA_TIPO;
         			me.factura.NRO_PEDIDO = data.NRO_PEDIDO;
 
-        			if(me.rack === 'SI'){
 
-        				me.selectedGondolaPiso = data.GONDOLAS_PISO;
-        				me.nombreContainer = data.CONTAINER_SECCION.CODIGO;
-        				me.descripcionContainer = data.CONTAINER_SECCION.DESCRIPCION;
-        				me.seleccion_gondola_modificar = data.GONDOLAS;
-        				me.codigoSeccion = data.CONTAINER_SECCION.CODIGO_SECCION;
-        				me.descripcionSeccion = data.CONTAINER_SECCION.DESCRIPCION_SECCION;
-        				me.desc_cortaSeccion = data.CONTAINER_SECCION.DESC_CORTA;
+        			// FILTRAR DATOS DE DEPOSITO
+
+        			if(me.rack === 'SI'){
+     				
+        				me.secciones = data.SECCIONES;
+
+        				if(data.SISTEMA_DEPOSITO === true){
+        					
+	        				me.nombreContainer = data.DATOS_DEPOSITO.CODIGO;
+	        				me.descripcionContainer = data.DATOS_DEPOSITO.DESCRIPCION;
+	        				me.gondolaID = data.DATOS_DEPOSITO.GONDOLA;
+	        				me.gondolaSector = data.SECTORES;
+	        				me.gondolaPiso = data.PISOS;   
+	        				me.pisoRack = data.DATOS_DEPOSITO.PISO;
+	        				me.sectorRack = data.DATOS_DEPOSITO.SECTOR;
+
+				        	for (var i = me.secciones.length - 1; i >= 0; i--) {
+				        		if(me.secciones[i].ID_SECCION === data.DATOS_DEPOSITO.ID_SECCION){
+				        			me.selectedSeccion = me.secciones[i]; 
+				        		}
+				        	}
+				        }
         			}
 
         			// ------------------------------------------------------------------------
@@ -1292,14 +1312,14 @@
 	        		me.messageInvalidContainer = '';
             	}
 
-	        	if (me.codigoSeccion === '' || me.codigoSeccion === "null") {
+	        	if (me.selectedSeccion ===  "null" || me.selectedSeccion === '') {
 	        		me.messageInvalidSeccion = 'Por favor seleccione una sección.';
 	        		falta = true;
 	        	} else {
 	        		me.messageInvalidSeccion = '';
 	        	}
 
-	        	if (me.selectedGondolaPiso.length === 0) {
+	        	if (me.pisoRack === "null" || me.pisoRack === '') {
 	        		me.validarPiso = true;
 	        		me.messageInvalidPiso = 'Por favor seleccione un piso.';
 	        		falta = true;
@@ -1308,8 +1328,17 @@
 	        		me.messageInvalidPiso = '';
 	        	}
 
-            	if(me.seleccion_gondola.length === 0){
-	        		me.messageInvalidGondola = 'Por favor seleccione una o varias góndolas.';
+	        	if (me.sectorRack ===  "null" || me.sectorRack === '') {
+	        		me.validarSector = true;
+	        		me.messageInvalidSector = 'Por favor seleccione un sector.';
+	        		falta = true;
+	        	} else {
+	        		me.validarSector = false;
+	        		me.messageInvalidSector = '';
+	        	}
+
+            	if(me.gondolaID.length === 0){
+	        		me.messageInvalidGondola = 'Por favor seleccione una góndola.';
             		falta = true;
             	}else{
 	        		me.messageInvalidGondola = '';
@@ -1420,8 +1449,10 @@
         			cuotas: me.cuotas
         		},
         		codigoContainer: me.nombreContainer,
-        		seccion: me.codigoSeccion,
-        		gondolaPiso: me.selectedGondolaPiso,
+        		seccion: me.selectedSeccion.ID_SECCION,
+        		piso: me.pisoRack,
+        		sector: me.sectorRack,
+        		gondola: me.gondolaID,
 				sistema_deposito: deposito
         	};
 
@@ -1568,79 +1599,50 @@
         generarNroCaja(){
 
         	// GENERADOR DE NRO DE CAJA
-
-        	this.factura.NRO_CAJA = this.desc_cortaSeccion + '' + this.descripcionContainer;
-
-        },
-
-        selecionarGondolaPiso(){
-
-        	let me = this;
-        	var cantidadGondolaNew = me.seleccion_gondola.length;
-        	var datos = [];
-        	var existe = false;
-
-        	if(cantidadGondolaNew>0){
+        	
+        	if(this.selectedSeccion.DESC_CORTA !== undefined){
         		
-        		for (var i = me.seleccion_gondola.length-1; i >= 0; i--){
-
-        			// VERIFICAR SI YA EXISTE EN EL ARRAY
-        			
-        			for (var i2 = me.selectedGondolaPiso.length - 1; i2 >=0 ; i2--){
-
-        				//-----------------------------------------------------------------------
-        				// VOLVER A CARGAR SI YA EXISTE
-
-        				if(me.seleccion_gondola[i].ID === me.selectedGondolaPiso[i2].GONDOLA.ID){
-        					var datos2 = {
-        						GONDOLA: me.seleccion_gondola[i],
-        						PISO: me.selectedGondolaPiso[i2].PISO
-        					}
-        					datos[i] = datos2;
-        					existe = true;
-        				}
-        			}
-
-      				//----------------------------------------------------------------------------
-       				// AÑADIR SI NO EXISTE GONDOLA EN EL ARRAY
-
-	        		if(existe === false){
-	        			var datos3 = {
-	        				GONDOLA: me.seleccion_gondola[i],
-	        				PISO: me.pisoRack
-	        			}
-	        			datos[i] = datos3;	
-        			}
-        		}
-      			//---------------------------------------------------------------------------------
-       			// MODIFICAR ARRAY
-
-        		me.selectedGondolaPiso = datos;
-        		me.pisoRack = "null";
-        		existe = false;
-        		
+        		this.factura.NRO_CAJA = this.selectedSeccion.DESC_CORTA + '' + this.descripcionContainer;
         	}else{
-
-        		//--------------------------------------------------------------------------------------
-        		// LIMPIAR VARIABLES SI NO HAY GONDOLAS SELECCIONADAS 
-
-        		me.selectedGondolaPiso = [];
-        		me.pisoRack = "null";
-        		existe = false;
+        		this.factura.NRO_CAJA = this.descripcionContainer;
         	}
         },
+		enviar_nombre_gondola(data){
 
-			cargarCodigo(valor){
-				this.codigoSeccion = valor;
-			},
-			cargarDescripcion(valor){
-				this.descripcionSeccion = valor;
-			},
+          this.gondolaID = data;
+           
+        },
+        enviar_seccion(data){
 
-			cargarDescripcionCorta(valor){
-				this.desc_cortaSeccion = valor;
-				this.generarNroCaja();
-			}
+        	for (var i = this.secciones.length - 1; i >= 0; i--) {
+        		if(this.secciones[i].ID_SECCION === data){
+        			this.selectedSeccion = this.secciones[i]; 
+        		}
+        	}
+
+			this.generarNroCaja();
+        },
+        
+        traer_pisos(pisos_marcados){
+
+          	let me = this;
+            me.gondolaPiso = pisos_marcados;
+	        me.pisoRack = 'null';
+        },
+        traer_sectores(sectores_marcados){
+          
+          	let me =this;
+            me.gondolaSector = sectores_marcados;
+	        me.sectorRack = 'null';
+
+        },
+
+      	BusquedaSeccion(){
+        	axios.get('busquedas/').then((response) => {
+          		this.secciones = response.data.seccion;
+
+        	});
+      	}
       },
         mounted() {
         		
@@ -1655,6 +1657,12 @@
 	        	Common.obtenerParametroCommon().then(data => {
 			        me.rack = data.parametros[0].RACK;
 				});
+
+        		// ------------------------------------------------------------------------
+
+        		// OBTENER SECCIONES 
+
+        		me.BusquedaSeccion();
 
         		// ------------------------------------------------------------------------
 

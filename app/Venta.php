@@ -28,6 +28,7 @@ use App\VentaRetencion;
 use App\VentasTieneAgencia;
 use App\VentasTieneAutorizacion;
 use App\VentasCreditoTieneNotaCredito;
+use App\VentaAnuladoTieneAutorizacion;
 use App\Movimiento_Caja;
 use DateTime;
 use App\LoteTieneDescuento;
@@ -2129,6 +2130,50 @@ class Venta extends Model
             $items  = array_column( $data["data"]["productos"], 'ITEM');
               array_multisort($items, SORT_ASC, $data["data"]["productos"]);
               Log::error(["PRODUCTOS"=>$data["data"]["productos"]]);
+
+            $venta = Venta::insertGetId(
+                [
+                    "CODIGO" => $codigo, 
+                    "FECHA" => $dia, 
+                    "HORA" => $hora, 
+                    //"FACTURA" => '', 
+                    "CAJA" => $caja, 
+                    "CLIENTE" => $cliente, 
+                    "VENDEDOR" => $vendedor, 
+                    "TIPO" => $tipo_venta, 
+                    //"FORMA_PAGO" => '', 
+                    "PLAN_PAGO" => 0, 
+                    "TARJETA" => 0, 
+                    "DESCUENTO" => 0, 
+                    "GRAVADAS" => 0, 
+                    "IMPUESTOS" => 0, 
+                    "EXENTAS" => 0, 
+                    "BASE5" => 0, 
+                    "BASE10" => 0, 
+                    "SUB_TOTAL" => 0, 
+                    "TOTAL" => 0, 
+                    "EFECTIVO" => $efectivo, 
+                    "CHEQUE" => 0, 
+                    "VALE" => 0, 
+                    "DONACION" => 0, 
+                    "VUELTO" => $vuelto, 
+                    "GIROS" => 0, 
+                    "MONEDA" => $moneda, 
+                    "MONEDA1" => $dolares, 
+                    "MONEDA2" => $reales, 
+                    "MONEDA3" => $guaranies, 
+                    "MONEDA4" => $pesos, 
+                    "OPCION_IMPRESION" => $opcion_impresion, 
+                    "USER" => $user->name, 
+                    "FECALTAS" => $dia, 
+                    "HORALTAS" => $hora, 
+                    "ID_SUCURSAL" => $user->id_sucursal, 
+                    "CODIGO_CA" => $codigo_caja,
+                    "MAYORISTA"=> $may, 
+                    //"TIPO_PRECIO" =>
+                ]
+            );
+
             while($c < $filas) {
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2219,6 +2264,7 @@ class Venta extends Model
 
                         $id_ventas_det = Ventas_det::insertGetId(
                             [
+                            'FK_VENTA' => $venta,
                             'CODIGO' => $codigo, 
                             'CAJA' => $caja, 
                             'ITEM' => $c + 1, 
@@ -2535,48 +2581,20 @@ class Venta extends Model
 
             // INSERTAR VENTA 
 
-            $venta = Venta::insertGetId(
-                [
-                    "CODIGO" => $codigo, 
-                    "FECHA" => $dia, 
-                    "HORA" => $hora, 
-                    //"FACTURA" => '', 
-                    "CAJA" => $caja, 
-                    "CLIENTE" => $cliente, 
-                    "VENDEDOR" => $vendedor, 
-                    "TIPO" => $tipo_venta, 
-                    //"FORMA_PAGO" => '', 
-                    "PLAN_PAGO" => 0, 
-                    "TARJETA" => 0, 
-                    "DESCUENTO" => ($descuento_total + $descuento_general), 
-                    "GRAVADAS" => $total_gravadas, 
-                    "IMPUESTOS" => $total_iva, 
-                    "EXENTAS" => $total_exentas, 
-                    "BASE5" => $total_base5, 
-                    "BASE10" => $total_base10, 
-                    "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
-                    "TOTAL" => ((($total_total - $descuento_general) - $cupon)), 
-                    "EFECTIVO" => $efectivo, 
-                    "CHEQUE" => 0, 
-                    "VALE" => 0, 
-                    "DONACION" => 0, 
-                    "VUELTO" => $vuelto, 
-                    "GIROS" => 0, 
-                    "MONEDA" => $moneda, 
-                    "MONEDA1" => $dolares, 
-                    "MONEDA2" => $reales, 
-                    "MONEDA3" => $guaranies, 
-                    "MONEDA4" => $pesos, 
-                    "OPCION_IMPRESION" => $opcion_impresion, 
-                    "USER" => $user->name, 
-                    "FECALTAS" => $dia, 
-                    "HORALTAS" => $hora, 
-                    "ID_SUCURSAL" => $user->id_sucursal, 
-                    "CODIGO_CA" => $codigo_caja,
-                    "MAYORISTA"=> $may, 
-                    //"TIPO_PRECIO" =>
-                ]
-            );
+            Venta::where('ID', '=', $venta)
+                    ->update([
+                            //"FORMA_PAGO" => '', 
+                            "DESCUENTO" => ($descuento_total + $descuento_general), 
+                            "GRAVADAS" => $total_gravadas, 
+                            "IMPUESTOS" => $total_iva, 
+                            "EXENTAS" => $total_exentas, 
+                            "BASE5" => $total_base5, 
+                            "BASE10" => $total_base10, 
+                            "SUB_TOTAL" => ($total_gravadas + $total_exentas), 
+                            "TOTAL" => ((($total_total - $descuento_general) - $cupon)),  
+                            //"TIPO_PRECIO" =>
+                        ]
+                    );
             
             /*  --------------------------------------------------------------------------------- */
 
@@ -5847,6 +5865,7 @@ class Venta extends Model
                     })
             ->leftjoin('MONEDAS', 'VENTAS.MONEDA', '=', 'MONEDAS.CODIGO')
           ->select( 
+             DB::raw('VENTAS.ID AS FK_VENTA'),
             DB::raw('VENTAS.CODIGO AS CODIGO'),
             DB::raw('VENTAS.CAJA AS CAJA'),
             DB::raw('VENTAS.CODIGO_CA AS CODIGO_CA'),
@@ -5878,6 +5897,7 @@ class Venta extends Model
                     })
             ->leftjoin('MONEDAS', 'VENTAS.MONEDA', '=', 'MONEDAS.CODIGO')
             ->select(
+            DB::raw('VENTAS.ID AS FK_VENTA'),
             DB::raw('VENTAS.CODIGO AS CODIGO'),
             DB::raw('VENTAS.CAJA AS CAJA'),
             DB::raw('VENTAS.CODIGO_CA AS CODIGO_CA'),
@@ -5931,6 +5951,7 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
+                            0 => 'FK_VENTA', 
                             0 => 'CODIGO', 
                             1 => 'caja',
                             2 => 'codigo_ca',
@@ -5974,13 +5995,14 @@ class Venta extends Model
              ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
               ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
             ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+            DB::raw('VENTAS.ID AS FK_VENTA,
+                VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
                 CLIENTES.NOMBRE AS NOMBRE,
                 VENTAS.TIPO AS TIPO,
-              IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
+                IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                 VENTAS.DESCUENTO AS DESCUENTO,
                 VENTAS.TOTAL AS TOTAL,
                 MONEDAS.DESCRIPCION AS MONEDA'))
@@ -6018,7 +6040,8 @@ class Venta extends Model
             ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
               ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
             ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+            DB::raw('VENTAS.ID AS FK_VENTA
+                VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
@@ -6037,10 +6060,11 @@ class Venta extends Model
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)
             ->Where('VENTAS.FECALTAS','=',$dia)
              ->Where('VENTAS_ANULADO.anulado','<>',1)  
-             ->where('VENTAS.TIPO','<>','CR')
+            /* ->where('VENTAS.TIPO','<>','CR')*/
             ->where('CAJA','=',$request->input('caja_numero')) 
             ->where(function ($query) use ($search) {
-                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                $query->where('VENTAS.ID', 'LIKE',"%{$search}%")
+                                      ->orwhere('VENTAS.CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
                                       ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
                             })
@@ -6058,7 +6082,8 @@ class Venta extends Model
             ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
              ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
             ->select(
-            DB::raw('VENTAS.CODIGO AS CODIGO, 
+            DB::raw('VENTAS.ID AS FK_VENTA
+                VENTAS.CODIGO AS CODIGO, 
                 VENTAS.CAJA AS CAJA,
                 VENTAS.CODIGO_CA AS CODIGO_CA,
                 VENTAS.FECALTAS AS FECHA,
@@ -6076,11 +6101,12 @@ class Venta extends Model
             ->leftjoin('TARJETAS', 'TARJETAS.CODIGO', '=', 'VENTAS.TARJETA')
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal)   
             ->Where('VENTAS.FECALTAS','=',$dia)
-            ->where('VENTAS.TIPO','<>','CR')
+           /* ->where('VENTAS.TIPO','<>','CR')*/
              ->Where('VENTAS_ANULADO.anulado','<>',1)
             ->where('CAJA','=',$request->input('caja_numero'))
             ->where(function ($query) use ($search) {
-                                $query->where('VENTAS.CODIGO','LIKE',"%{$search}%")
+                                $query->where('VENTAS.ID', 'LIKE',"%{$search}%")
+                                      ->orWhere('VENTAS.CODIGO','LIKE',"%{$search}%")
                                       ->orWhere('CLIENTES.NOMBRE', 'LIKE',"%{$search}%")
                                       ->orWhere('ventas.CODIGO_CA', 'LIKE',"%{$search}%");
                             }) 
@@ -6104,7 +6130,7 @@ class Venta extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
-
+                  $nestedData['ID_VENTA'] = $post->FK_VENTA;
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CAJA'] = $post->CAJA;
                 $nestedData['CODIGO_CA'] = $post->CODIGO_CA;
@@ -6155,10 +6181,8 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
 
            $venta = DB::connection('retail')->table('VENTAS')->select(
-            DB::raw('VENTAS.TOTAL AS TOTAL,VENTAS.ID AS ID'))
-            ->Where('VENTAS.CODIGO','=',$datos['data']['codigo'])
-            ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
-            ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
+            DB::raw('VENTAS.TIPO,VENTAS.TOTAL AS TOTAL,VENTAS.ID AS ID'))
+            ->Where('VENTAS.ID','=',$datos['data']['id_venta'])
             ->get()
             ->toArray();
             
@@ -6173,15 +6197,37 @@ class Venta extends Model
            if($id_cupon!==0){
             Cupon::actualizar_uso($id_cupon,2);
            }
+           //SI ES DISTINTO DE VENTAS AL CONTADO
+           if($venta["0"]->TIPO!=="CO"){
+                //SI LA VENTAS ES A CREDITO ENTONCES
+                if($venta["0"]->TIPO==="CR"){
+                  //ELIMINAR REGISTROS DE DEUDAS SI NO EXISTEN YA PAGOS EXISTENTES
+                    $venta_credito = DB::connection('retail')->table('VENTAS_CREDITO')->select(
+                    DB::raw('VENTAS_CREDITO.PAGO'))
+                    ->Where('VENTAS_CREDITO.FK_VENTA','=',$datos['data']['id_venta'])
+                    ->where('VENTAS_CREDITO.PAGO','=',0)
+                    ->get()
+                    ->toArray();
+                    //SI ENCUENTRA EL REGISTRO Y SIN PAGAR ENTONCES ELIMINA
+                    if(count($venta_credito)>0){
+                        DB::connection('retail')->table('VENTAS_CREDITO')->where('FK_VENTA', $datos['data']['id_venta'])
+                         ->delete();
+                    }else{
+                        return ["response"=>false,"status_text"=>"Esta venta ya posee pagos."];
+                        // SI NO ENCUENTRA IMPLICA QUE YA EXISTEN PAGOS ENTONCES NO ELIMINA Y RETORNA
 
+                    }
+
+                }
+           }
             $venta= DB::connection('retail')->table('VENTAS')->where('CODIGO', $datos['data']['codigo'])
                ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
-              ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
-            ->update(['FECMODIF'=>$dia,'HORMODIF'=>$hora, 'USERM'=>$user->name]);
+               ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
+               ->update(['FECMODIF'=>$dia,'HORMODIF'=>$hora, 'USERM'=>$user->name]);
 
-                  $venta = DB::connection('retail')->table('VENTASDET')
-                   ->leftjoin('VENTASDET_TIENE_LOTES', 'ID_VENTAS_DET', '=', 'VENTASDET.ID')
-                   ->select(
+            $venta = DB::connection('retail')->table('VENTASDET')
+            ->leftjoin('VENTASDET_TIENE_LOTES', 'ID_VENTAS_DET', '=', 'VENTASDET.ID')
+            ->select(
             DB::raw('VENTASDET.COD_PROD AS COD_PROD'),
             DB::raw('VENTASDET.ID AS ID'),
             DB::raw('VENTASDET_TIENE_LOTES.ID_LOTE AS ID_LOTE'),
@@ -6215,7 +6261,8 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
-
+            //GUARDAR LA AUTORIZACION DE LA ANULACION DE LA FACTURA
+            VentaAnuladoTieneAutorizacion::guardar_referencia(["FK_VENTA"=>$datos['data']['id_venta'],"FK_USER"=>$datos["data"]["autorizacion"]["ID_USUARIO"],"FK_USER_SUPERVISOR"=>$datos["data"]["autorizacion"]["ID_USER_SUPERVISOR"]]);
             DB::connection('retail')->commit();
 
             return ["response"=>true,"ventas"=>$venta];

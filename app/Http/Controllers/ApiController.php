@@ -20,7 +20,7 @@ class ApiController extends Controller
     {
         return view('productoQR');
     }
-        public function CajaCompraqr()
+        public function Cajaqr()
     {
 
         return view('CajaCompraQr');

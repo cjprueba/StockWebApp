@@ -390,6 +390,11 @@ export default new Router({
 			component: require('./components/reportes/venta/Seccion/Inicio.vue').default
 		},
 		{
+			path: '/rptcomp',
+			name: 'rptCompras',
+			component: require('./components/reportes/compra/inicio.vue').default
+		},
+		{
 			path: '/rptstw',
 			name: 'rptStockWeb',
 			component: require('./components/reportes/stock/ReporteStock.vue').default
@@ -423,6 +428,16 @@ export default new Router({
 			component: require('./components/seccion/CrearSecciones.vue').default
 		},
 		{
+			path: '/crpiso',
+			name: 'crearPiso',
+			component: require('./components/gondolas/CrearPiso.vue').default
+		},
+		{
+			path: '/crsect',
+			name: 'crearSector',
+			component: require('./components/gondolas/CrearSector.vue').default
+		},
+		{
 			path: '/CambioDeSucursal',
 			name: 'cambiarSucursal',
 			component: require('./components/usuario/CambiarSucursal.vue').default
@@ -448,6 +463,8 @@ export default new Router({
 			name: 'notaDeCraeditoReporte',
 			component: require('./components/reportes/creditoNota/NotaCreditoReporte.vue').default
 		},
+		
+
 
 	],
 	mode: 'history'

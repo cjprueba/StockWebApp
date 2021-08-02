@@ -469,7 +469,7 @@ class Transferencia extends Model
         
         /*  --------------------------------------------------------------------------------- */
 
-        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+        //OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
 
@@ -505,380 +505,409 @@ class Transferencia extends Model
         $total_iva = 0;
         $total_subtotal = 0;
 
-        $lote = 0;
-        if(isset($datos["cabecera"]["cotizacion"])){
-            $cotizacion_data = $datos["cabecera"]["cotizacion"];
-        }else{
-             $cotizacion_data='';
-        }
         
 
-        /*  --------------------------------------------------------------------------------- */
-        
-        // PARAMETRO 
-        
-        $parametro = Parametro::mostrarParametro();
-        $candec = $parametro['parametros'][0]->CANDEC;
+        try{
+            DB::connection('retail')->beginTransaction();
 
-        /*  --------------------------------------------------------------------------------- */
 
-        // SOLICITAR ULTIMO CODIGO TRANSFERENCIA SI ES GUARDADO, SI ES MODIFICACION AGARRAR EL CODIGO ENVIADO
 
-        if ($opcion === 1) {
-            $codigo = Transferencia::ultimo_codigo();
-        } else if ($opcion === 2) {
-            $codigo = $datos["codigo"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER COTIZACION 
-        $moneda_enviar=0;
-         if(isset( $datos["cabecera"]["monedaEnviar"])){
-            $moneda_enviar=$datos["cabecera"]["monedaEnviar"];
-            $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
-
-            if($datos["cabecera"]["switchCotizacion"] == true){
-                if($moneda_enviar == 1){
-                    $cotizacion = $datos["cabecera"]["cotizacion"]["Guaranies"];
-                }elseif($moneda_enviar == 2){
-                    $cotizacion = $datos["cabecera"]["cotizacion"]["Dolar"];
-                }elseif($moneda_enviar == 3){
-                    $cotizacion = $datos["cabecera"]["cotizacion"]["Pesos"];
-                }elseif($moneda_enviar == 4){
-                    $cotizacion = $datos["cabecera"]["cotizacion"]["Reales"];
-                }
-            }
-
-        }else{
-             $moneda_enviar=$datos["cabecera"]["monedaSistema"];
-             $cotizacion=1;
-        }
-
-       
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR TRANSFERENCIA SI ES GUARDADO
-
-        if ($opcion === 1) {
-            $transferencia = DB::connection('retail')
-            ->table('transferencias')
-            ->insertGetId(
-                [
-                'CODIGO' => $codigo, 
-                'SUCURSAL_ORIGEN' => $datos["cabecera"]["origen"],
-                'SUCURSAL_DESTINO' => $datos["cabecera"]["destino"],
-                'DIRECCION' =>  '',
-                'TELEFONO' => '',
-                'FECHA' => $dia,
-                'HORA' => $hora,
-                'ENVIA' => $datos["cabecera"]["envia"],
-                'TRANSPORTA' => $datos["cabecera"]["transporta"],
-                'RECIBE' => $datos["cabecera"]["recibe"],
-                'NRO_CAJA' => $datos["cabecera"]["nro_caja"],
-                'SUB_TOTAL' => 0,
-                'IVA' => 0,
-                'TOTAL' => 0,
-                'ENVIADO' => 'SI',
-                'DEVUELTO' => 'NO',
-                'MONEDA' => $datos["cabecera"]["monedaSistema"],
-                'MONEDA_ENVIAR' => $moneda_enviar,
-                'USERALTAS' =>  $user->name,
-                'FECALTAS' =>  $dia,
-                'HORALTAS' =>  $hora,
-                'ID_SUCURSAL' => $user->id_sucursal,
-                'ESTATUS' => 0,
-                'CAMBIO' => $cotizacion,
-                'CONSIGNACION'=>$datos["cabecera"]["consignacion"]
-                ]
-            );
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // INSERTAR REFERENCIA COTIZACION 
+            $lote = 0;
             if(isset($datos["cabecera"]["cotizacion"])){
-                TransferenciasTieneCotizacion::guardar_referencia([
-                        'FK_TRANSFERENCIA' => $transferencia,
-                        'COTIZACION' => $cotizacion_data
-                ]);
+                $cotizacion_data = $datos["cabecera"]["cotizacion"];
+            }else{
+                 $cotizacion_data='';
             }
             
 
             /*  --------------------------------------------------------------------------------- */
+            
+            // PARAMETRO 
+            
+            $parametro = Parametro::mostrarParametro();
+            $candec = $parametro['parametros'][0]->CANDEC;
 
-        }
+            /*  --------------------------------------------------------------------------------- */
 
-        /*  --------------------------------------------------------------------------------- */
+            // SOLICITAR ULTIMO CODIGO TRANSFERENCIA SI ES GUARDADO, SI ES MODIFICACION AGARRAR EL CODIGO ENVIADO
 
-        // RECORRER TODAS LAS FILAS DEL DATATABLE
+            if ($opcion === 1) {
+                $codigo = Transferencia::ultimo_codigo();
+            } else if ($opcion === 2) {
+                $codigo = $datos["codigo"];
+            }
 
-        while($c < $filas) {
+            /*  --------------------------------------------------------------------------------- */
 
-                    /*  --------------------------------------------------------------------------------- */
+            // OBTENER COTIZACION 
+            $moneda_enviar=0;
+             if(isset( $datos["cabecera"]["monedaEnviar"])){
+                $moneda_enviar=$datos["cabecera"]["monedaEnviar"];
+                $cotizacion = Cotizacion::cotizacion_dia($datos["cabecera"]["monedaSistema"], $datos["cabecera"]["monedaEnviar"]);
 
-                    // INICIAR DATOS 
+                if($datos["cabecera"]["switchCotizacion"] == true && $datos["cabecera"]["monedaEnviar"] != $datos["cabecera"]["monedaSistema"] ){
+                    if($moneda_enviar == 1){
+                        $cotizacion = $datos["cabecera"]["cotizacion"]["Guaranies"];
+                    }elseif($moneda_enviar == 2){
+                        $cotizacion = $datos["cabecera"]["cotizacion"]["Dolar"];
+                    }elseif($moneda_enviar == 3){
+                        $cotizacion = $datos["cabecera"]["cotizacion"]["Pesos"];
+                    }elseif($moneda_enviar == 4){
+                        $cotizacion = $datos["cabecera"]["cotizacion"]["Reales"];
+                    }
+                }
 
-                    $cod_prod = $datos["data"][$c]["CODIGO"];
-                    $cantidad = Common::quitar_coma($datos["data"][$c]["CANTIDAD"], $parametro['parametros'][0]->CANDEC);
-                    $cantidad_total = $cantidad;
-                    $precio = Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC);
-                    $porcentaje = $datos["data"][$c]["IVA_PORCENTAJE"];
+            }else{
+                 $moneda_enviar=$datos["cabecera"]["monedaSistema"];
+                 $cotizacion=1;
+            }
 
-                    /*  --------------------------------------------------------------------------------- */
+           
 
-                    // $iva = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+            /*  --------------------------------------------------------------------------------- */
 
-                    /*  --------------------------------------------------------------------------------- */
+            // INSERTAR TRANSFERENCIA SI ES GUARDADO
+             $transferencia = Transferencia::select('ID')
+                                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                                ->where('CODIGO','=', $codigo)
+                                ->get();
+            if(isset($transferencia[0]->ID)){
+                 $transferencia = $transferencia[0]->ID;
+            }
+           
 
-                    // REVISAR IMPUESTO
+            if ($opcion === 1) {
+                $transferencia = DB::connection('retail')
+                ->table('transferencias')
+                ->insertGetId(
+                    [
+                    'CODIGO' => $codigo, 
+                    'SUCURSAL_ORIGEN' => $datos["cabecera"]["origen"],
+                    'SUCURSAL_DESTINO' => $datos["cabecera"]["destino"],
+                    'DIRECCION' =>  '',
+                    'TELEFONO' => '',
+                    'FECHA' => $dia,
+                    'HORA' => $hora,
+                    'ENVIA' => $datos["cabecera"]["envia"],
+                    'TRANSPORTA' => $datos["cabecera"]["transporta"],
+                    'RECIBE' => $datos["cabecera"]["recibe"],
+                    'NRO_CAJA' => $datos["cabecera"]["nro_caja"],
+                    'SUB_TOTAL' => 0,
+                    'IVA' => 0,
+                    'TOTAL' => 0,
+                    'ENVIADO' => 'SI',
+                    'DEVUELTO' => 'NO',
+                    'MONEDA' => $datos["cabecera"]["monedaSistema"],
+                    'MONEDA_ENVIAR' => $moneda_enviar,
+                    'USERALTAS' =>  $user->name,
+                    'FECALTAS' =>  $dia,
+                    'HORALTAS' =>  $hora,
+                    'ID_SUCURSAL' => $user->id_sucursal,
+                    'ESTATUS' => 0,
+                    'CAMBIO' => $cotizacion,
+                    'CONSIGNACION'=>$datos["cabecera"]["consignacion"]
+                    ]
+                );
 
-                    // if ($datos["data"][$c]["IVA_PORCENTAJE"] === 5) {
+                /*  --------------------------------------------------------------------------------- */
 
-                    //     /*  --------------------------------------------------------------------------------- */
+                // INSERTAR REFERENCIA COTIZACION 
+                if(isset($datos["cabecera"]["cotizacion"])){
+                    TransferenciasTieneCotizacion::guardar_referencia([
+                            'FK_TRANSFERENCIA' => $transferencia,
+                            'COTIZACION' => $cotizacion_data
+                    ]);
+                }
+                
 
-                    //     // BASE 5 
+                /*  --------------------------------------------------------------------------------- */
 
-                    //     $base5 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+            }
 
-                    //     /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
-                    // } else if ($datos["data"][$c]["IVA_PORCENTAJE"] === 10) {
+            // RECORRER TODAS LAS FILAS DEL DATATABLE
 
-                    //     /*  --------------------------------------------------------------------------------- */
-
-                    //     // BASE 10 
-
-                    //     $base10 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
-
-                    //     /*  --------------------------------------------------------------------------------- */
-
-                    // } else {
-
-                    //     /*  --------------------------------------------------------------------------------- */
-
-                    //     // EXENTAS 
-
-                    //     $exentas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
-
-                    //     /*  --------------------------------------------------------------------------------- */
-
-                    // }
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // REALIZAR CALCULOS 
-                    
-                    // $gravadas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC) - Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
-                    $total = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
-
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // OBTENER DATOS FALTANTES 
-
-                    $producto = Producto::datosVariosProducto($cod_prod);
-
-                    /*  --------------------------------------------------------------------------------- */ 
-
-                    // RESTAR STOCK DEL PRODUCTO
-
-                    $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
-                    
-                    /*  --------------------------------------------------------------------------------- */ 
-
-                    // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
-
-                    if ($respuesta_resta["datos"]) {
+            while($c < $filas) {
 
                         /*  --------------------------------------------------------------------------------- */
 
-                        // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
+                        // INICIAR DATOS 
 
-                        $cantidad_guardada = 0;
+                        $cod_prod = $datos["data"][$c]["CODIGO"];
+                        $cantidad = Common::quitar_coma($datos["data"][$c]["CANTIDAD"], $parametro['parametros'][0]->CANDEC);
+                        $cantidad_total = $cantidad;
+                        $precio = Common::quitar_coma($datos["data"][$c]["PRECIO"], $parametro['parametros'][0]->CANDEC);
+                        $porcentaje = $datos["data"][$c]["IVA_PORCENTAJE"];
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // $iva = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // REVISAR IMPUESTO
+
+                        // if ($datos["data"][$c]["IVA_PORCENTAJE"] === 5) {
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        //     // BASE 5 
+
+                        //     $base5 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        // } else if ($datos["data"][$c]["IVA_PORCENTAJE"] === 10) {
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        //     // BASE 10 
+
+                        //     $base10 = Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        // } else {
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        //     // EXENTAS 
+
+                        //     $exentas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
+
+                        //     /*  --------------------------------------------------------------------------------- */
+
+                        // }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // REALIZAR CALCULOS 
+                        
+                        // $gravadas = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC) - Common::quitar_coma($datos["data"][$c]["IVA"], $parametro['parametros'][0]->CANDEC);
+                        $total = Common::quitar_coma($datos["data"][$c]["TOTAL"], $parametro['parametros'][0]->CANDEC);
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // OBTENER DATOS FALTANTES 
+
+                        $producto = Producto::datosVariosProducto($cod_prod);
+
+                        /*  --------------------------------------------------------------------------------- */ 
+
+                        // RESTAR STOCK DEL PRODUCTO
+
+                        $respuesta_resta = Stock::restar_stock_producto($cod_prod, $cantidad);
+                        
+                        /*  --------------------------------------------------------------------------------- */ 
+
+                        // SI LA RESPUESTA TIENE DATOS GUARDA EL REGISTRO 
+
+                        if ($respuesta_resta["datos"]) {
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // SUMAR LA CANTIDAD DEVUELTA POR EL ARRAY 
+
+                            $cantidad_guardada = 0;
+
+                            foreach ($respuesta_resta["datos"] as $key => $value) {
+                                $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
+                            }
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
+
+                            if ($cantidad !== $cantidad_guardada) {
+                                $total = $precio * $cantidad_guardada;
+                            }
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // CALCULAR IVA
+
+                            $impuesto = Common::calculo_iva($porcentaje, $total, $candec);
+                            
+                            /*  --------------------------------------------------------------------------------- */
+
+                            // TOTALES 
+
+                            $total_total = $total_total + $total;
+                            $total_iva = $total_iva + $impuesto["impuesto"];
+
+                            /*  --------------------------------------------------------------------------------- */
+                            // OBTENER ID TRANSFERENCIA
+
+
+                            // INSERTAR TRANSFERENCIA DET 
+
+                            $id_transferencias_det = DB::connection('retail')
+                            ->table('transferencias_det')
+                            ->insertGetId(
+                                [
+                                'FK_TRANSFERENCIA' =>$transferencia,
+                                'CODIGO' => $codigo, 
+                                'ITEM' => $c + 1,
+                                'CODIGO_PROD' => $cod_prod,
+                                'CODIGO_INTERNO' =>  $producto['producto'][0]->CODIGO_INTERNO,
+                                'LOTE' => $lote,
+                                'DESCRIPCION' => $datos["data"][$c]["DESCRIPCION"],
+                                'TIPO' => $datos["data"][$c]["ITEM"],
+                                'CANTIDAD' => $cantidad_guardada,
+                                'PRECIO' => $precio,
+                                'EXENTAS' => $impuesto["exentas"],
+                                'GRABADAS' => $impuesto["gravadas"],
+                                'IVA' => $impuesto["impuesto"],
+                                'TOTAL' => $total,
+                                'DESCUENTO' => 0,
+                                'BASE5' => $impuesto["base5"],
+                                'BASE10' => $impuesto["base10"],
+                                'DEVUELTO' => 'NO',
+                                'USERALTAS' => $user->name,
+                                'FECALTAS' =>  $dia,
+                                'HORALTAS' =>  $hora,
+                                'ID_SUCURSAL' => $user->id_sucursal
+                                ]
+                            );
+
+                            /*  --------------------------------------------------------------------------------- */
+
+                        }
+
+                        /*  --------------------------------------------------------------------------------- */
+
+                        // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
 
                         foreach ($respuesta_resta["datos"] as $key => $value) {
-                            $cantidad_guardada = $cantidad_guardada + $value["cantidad"];
+                            TransferenciaDet_tiene_Lotes::guardar_referencia($id_transferencias_det, $value["id"], $value["cantidad"]);
                         }
-
-                        /*  --------------------------------------------------------------------------------- */
-
-                        // SI LA CANTIDAD GUARDADA DIFIERE CON LA CANTIDAD A ENVIAR SE RECALCULA EL TOTAL
-
-                        if ($cantidad !== $cantidad_guardada) {
-                            $total = $precio * $cantidad_guardada;
-                        }
-
-                        /*  --------------------------------------------------------------------------------- */
-
-                        // CALCULAR IVA
-
-                        $impuesto = Common::calculo_iva($porcentaje, $total, $candec);
                         
                         /*  --------------------------------------------------------------------------------- */
 
-                        // TOTALES 
+                        // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
 
-                        $total_total = $total_total + $total;
-                        $total_iva = $total_iva + $impuesto["impuesto"];
-
-                        /*  --------------------------------------------------------------------------------- */
-
-                        // INSERTAR TRANSFERENCIA DET 
-
-                        $id_transferencias_det = DB::connection('retail')
-                        ->table('transferencias_det')
-                        ->insertGetId(
-                            [
-                            'CODIGO' => $codigo, 
-                            'ITEM' => $c + 1,
-                            'CODIGO_PROD' => $cod_prod,
-                            'CODIGO_INTERNO' =>  $producto['producto'][0]->CODIGO_INTERNO,
-                            'LOTE' => $lote,
-                            'DESCRIPCION' => $datos["data"][$c]["DESCRIPCION"],
-                            'TIPO' => $datos["data"][$c]["ITEM"],
-                            'CANTIDAD' => $cantidad_guardada,
-                            'PRECIO' => $precio,
-                            'EXENTAS' => $impuesto["exentas"],
-                            'GRABADAS' => $impuesto["gravadas"],
-                            'IVA' => $impuesto["impuesto"],
-                            'TOTAL' => $total,
-                            'DESCUENTO' => 0,
-                            'BASE5' => $impuesto["base5"],
-                            'BASE10' => $impuesto["base10"],
-                            'DEVUELTO' => 'NO',
-                            'USERALTAS' => $user->name,
-                            'FECALTAS' =>  $dia,
-                            'HORALTAS' =>  $hora,
-                            'ID_SUCURSAL' => $user->id_sucursal
-                            ]
-                        );
+                        if ($respuesta_resta["response"] === false){
+                            $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
+                        }
 
                         /*  --------------------------------------------------------------------------------- */
+                        
+                        // AUMENTAR CONTADOR 
 
-                    }
+                        $c++;
 
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // AQUI RECORRO EL ARRAY MANDANDO LOS ID LOTE Y LA TRANSFERENCIA EN LA TABLA DE CLAVES FORANEAS
-
-                    foreach ($respuesta_resta["datos"] as $key => $value) {
-                        TransferenciaDet_tiene_Lotes::guardar_referencia($id_transferencias_det, $value["id"], $value["cantidad"]);
-                    }
-                    
-                    /*  --------------------------------------------------------------------------------- */
-
-                    // CARGAR LOS PRODUCTOS CON LAS CANTIDADES QUE NO SE GUARDARON 
-
-                    if ($respuesta_resta["response"] === false){
-                        $sin_stock[] = (array)['cod_prod' => $cod_prod, 'guardado' => (float)$cantidad - (float)$respuesta_resta["restante"], "restante" => $respuesta_resta["restante"], "cantidad" => $cantidad];
-                    }
-
-                    /*  --------------------------------------------------------------------------------- */
-                    
-                    // AUMENTAR CONTADOR 
-
-                    $c++;
-
-                    /*  --------------------------------------------------------------------------------- */
-         }
-        
-        /*  --------------------------------------------------------------------------------- */ 
-
-        // MODIFICAR TRANSFERENCIA GUARDADA O MODIFICAR TRANSFERENCIA POR EL USUARIO
-
-        if ($opcion === 1) {
-
-            /*  --------------------------------------------------------------------------------- */ 
-
-            // INSERTAR USER REFERENCIA
-
-            TransferenciaUser::guardar_referencia($user->id, 1, $transferencia, $diaHora);
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // MODIFICAR TRANSFERENCIA RECIEN GUARDADA 
-
-            $transferencia = DB::connection('retail')
-            ->table('transferencias')
-            ->where('CODIGO','=', $codigo)
-            ->where('ID_SUCURSAL','=',$user->id_sucursal)
-            ->update([
-                'IVA' => $total_iva,
-                'SUB_TOTAL' => ($total_total - $total_iva),
-                'TOTAL' => $total_total
-                ]);
+                        /*  --------------------------------------------------------------------------------- */
+             }
             
             /*  --------------------------------------------------------------------------------- */ 
 
-            
+            // MODIFICAR TRANSFERENCIA GUARDADA O MODIFICAR TRANSFERENCIA POR EL USUARIO
 
-        } else if ($opcion === 2) {
+            if ($opcion === 1) {
 
-            /*  --------------------------------------------------------------------------------- */
+                /*  --------------------------------------------------------------------------------- */ 
 
-            $transferencia = Transferencia::select(DB::raw('ID'))
-            ->where('CODIGO','=', $codigo)
-            ->where('ID_SUCURSAL','=',$user->id_sucursal)
-            ->get();
+                // INSERTAR USER REFERENCIA
 
-            /*  --------------------------------------------------------------------------------- */
+                TransferenciaUser::guardar_referencia($user->id, 1, $transferencia, $diaHora);
 
-            // INSERTAR USER REFERENCIA
+                /*  --------------------------------------------------------------------------------- */
 
-            TransferenciaUser::guardar_referencia($user->id, 2, $transferencia[0]->ID, $diaHora);
+                // MODIFICAR TRANSFERENCIA RECIEN GUARDADA 
 
-            /*  --------------------------------------------------------------------------------- */
+                $transferencia = DB::connection('retail')
+                ->table('transferencias')
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->update([
+                    'IVA' => $total_iva,
+                    'SUB_TOTAL' => ($total_total - $total_iva),
+                    'TOTAL' => $total_total
+                    ]);
+                
+                /*  --------------------------------------------------------------------------------- */ 
 
-            // MODIDIFICAR TRANSFERENCIA 
+                
 
-            $transferencia = DB::connection('retail')
-            ->table('transferencias')
-            ->where('CODIGO','=', $codigo)
-            ->where('ID_SUCURSAL','=',$user->id_sucursal)
-            ->update([
-                'SUCURSAL_ORIGEN' => $datos["cabecera"]["origen"],
-                'SUCURSAL_DESTINO' => $datos["cabecera"]["destino"],
-                'DIRECCION' =>  '',
-                'TELEFONO' => '',
-                'FECHA' => $dia,
-                'HORA' => $hora,
-                'ENVIA' => $datos["cabecera"]["envia"],
-                'TRANSPORTA' => $datos["cabecera"]["transporta"],
-                'RECIBE' => $datos["cabecera"]["recibe"],
-                'NRO_CAJA' => $datos["cabecera"]["nro_caja"],
-                'IVA' => $total_iva,
-                'SUB_TOTAL' => ($total_total - $total_iva),
-                'TOTAL' => $total_total,
-                'ENVIADO' => 'SI',
-                'DEVUELTO' => 'NO',
-                'MONEDA' => $datos["cabecera"]["monedaSistema"],
-                'MONEDA_ENVIAR' => $moneda_enviar,
-                'USERMODIF' =>  $user->name,
-                'FECMODIF' =>  $dia,
-                'HORMODIF' =>  $hora,
-                'CAMBIO' => $cotizacion
-                ]);
+            } else if ($opcion === 2) {
 
-            /*  --------------------------------------------------------------------------------- */ 
+                /*  --------------------------------------------------------------------------------- */
 
-        }
+                $transferencia = Transferencia::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->get();
 
-        /*  --------------------------------------------------------------------------------- */
+                /*  --------------------------------------------------------------------------------- */
 
-        // REVISAR SI HAY PRODUCTOS QUE NO SE GUARDARON TOTALMENTE 
+                // INSERTAR USER REFERENCIA
 
-        if ($opcion === 1) {
-            if (count($sin_stock) > 0) {
-                return ["response" => false, "productos" => $sin_stock];
-            } else {
-                return ["response" => true];
+                TransferenciaUser::guardar_referencia($user->id, 2, $transferencia[0]->ID, $diaHora);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // MODIDIFICAR TRANSFERENCIA 
+
+                $transferencia = DB::connection('retail')
+                ->table('transferencias')
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->update([
+                    'SUCURSAL_ORIGEN' => $datos["cabecera"]["origen"],
+                    'SUCURSAL_DESTINO' => $datos["cabecera"]["destino"],
+                    'DIRECCION' =>  '',
+                    'TELEFONO' => '',
+                    'FECHA' => $dia,
+                    'HORA' => $hora,
+                    'ENVIA' => $datos["cabecera"]["envia"],
+                    'TRANSPORTA' => $datos["cabecera"]["transporta"],
+                    'RECIBE' => $datos["cabecera"]["recibe"],
+                    'NRO_CAJA' => $datos["cabecera"]["nro_caja"],
+                    'IVA' => $total_iva,
+                    'SUB_TOTAL' => ($total_total - $total_iva),
+                    'TOTAL' => $total_total,
+                    'ENVIADO' => 'SI',
+                    'DEVUELTO' => 'NO',
+                    'MONEDA' => $datos["cabecera"]["monedaSistema"],
+                    'MONEDA_ENVIAR' => $moneda_enviar,
+                    'USERMODIF' =>  $user->name,
+                    'FECMODIF' =>  $dia,
+                    'HORMODIF' =>  $hora,
+                    'CAMBIO' => $cotizacion
+                    ]);
+
+                /*  --------------------------------------------------------------------------------- */ 
+
             }
-        }
 
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
-        if ($opcion === 2) {
-            return true; 
+            // REVISAR SI HAY PRODUCTOS QUE NO SE GUARDARON TOTALMENTE 
+
+            if ($opcion === 1) {
+                if (count($sin_stock) > 0) {
+                    return ["response" => false, "productos" => $sin_stock];
+                } else {
+                    return ["response" => true];
+                }
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+            DB::connection('retail')->commit();
+            if ($opcion === 2) {
+                return true; 
+            }
+        }catch (Exception $e){
+            DB::connection('retail')->rollBack();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            
+            return ["response" => false];
+
+            /*  --------------------------------------------------------------------------------- */
         }
         
         /*  --------------------------------------------------------------------------------- */
@@ -975,6 +1004,72 @@ class Transferencia extends Model
         ->where('TRANSFERENCIAS.ID_SUCURSAL','=', $sucursal)
         ->where('TRANSFERENCIAS.CODIGO','=', $codigo)
         ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        // REVISAR ESTATUS 
+
+        $estatus = Transferencia::verificar_estatus($codigo, $sucursal);
+
+        $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
+        $transferencia[0]->SISTEMA_DEPOSITO = false;
+        
+        if($deposito == 'SI' && $estatus == 2){
+
+            $transferencias_deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')
+                ->select(DB::raw('TRANSFERENCIAS_DEPOSITO.NRO_CAJA,
+                    SECCIONES.DESCRIPCION AS DESC_SECCION,
+                    PISOS.NRO_PISO AS DESC_PISO,
+                    SECTORES.DESCRIPCION AS DESC_SECTOR,
+                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA,
+                    TRANSFERENCIAS_DEPOSITO.FK_SECCION AS ID_SECCION,
+                    TRANSFERENCIAS_DEPOSITO.FK_PISO AS PISO,
+                    TRANSFERENCIAS_DEPOSITO.FK_SECTOR AS SECTOR,
+                    TRANSFERENCIAS_DEPOSITO.FK_GONDOLA AS GONDOLA
+                    '))
+                ->leftjoin('PISOS','PISOS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_PISO')
+                ->leftjoin('SECTORES','SECTORES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECCION')
+                ->where('TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=', $transferencia[0]->ID)
+                ->get();
+
+
+            $secciones = Seccion::select(DB::raw('IFNULL(ID, 0) AS ID_SECCION,
+                    IFNULL(DESCRIPCION, 0) AS DESCRIPCION,
+                    IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA'))
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->orderBy('DESCRIPCION', 'ASC')
+                ->get()
+                ->toArray();
+
+            $transferencia[0]->SECCIONES = $secciones;
+
+            if(count($transferencias_deposito)>0){
+
+                $pisos = Gondola_Tiene_Piso::select(DB::raw('PISOS.ID,
+                        PISOS.NRO_PISO'))
+                    ->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')
+                    ->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$transferencias_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $sectores = Gondola_Tiene_Sector::select(DB::raw('SECTORES.ID,
+                    SECTORES.DESCRIPCION'))
+                    ->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')
+                    ->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$transferencias_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $transferencia[0]->SISTEMA_DEPOSITO = true;
+                $transferencia[0]->SECTORES = $sectores;
+                $transferencia[0]->PISOS = $pisos;
+                $transferencia[0]->DATOS_DEPOSITO = $transferencias_deposito[0];
+            }else{
+                $transferencia[0]->SISTEMA_DEPOSITO = false;
+            }
+        }
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1151,115 +1246,131 @@ class Transferencia extends Model
         $diaHora = date("Y-m-d H:i:s");
         
         /*  --------------------------------------------------------------------------------- */
-
-        // VERIFICAR SI EXISTE
-        
-        if (Transferencia::verificar_existencia($codigo) === false) {
-            return ["response" => false, "statusText" => "No existe Transferencia !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // VERIFICAR ESTATUS
-        
-        $estatus = Transferencia::verificar_estatus($codigo, $user->id_sucursal);
-
-        if ($estatus === false) {
-            return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // VERIFICAR SI LA TRANSFERENCIA YA SE PROCESO 
-
-        if ($estatus === 1 or $estatus === 2) {
-            return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER EL CODIGO Y LA CANTIDA DEL PRODUCTO 
-
-        $transferencias_det = DB::connection('retail')
-        ->table('transferencias_det')
-        ->select(DB::raw(
-                        'ID,
-                        CODIGO_PROD, 
-                        CANTIDAD,
-                        LOTE'
-                    ))
-        ->where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('CODIGO','=', $codigo)
-        ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RECORRER FILAS DE TRANSFERENCIA DET 
-
-        foreach ($transferencias_det as $key => $td) {
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // ELIMINAR CLAVES FORANEAS DE TRANSFERENCIA TIENE LOTES 
-            
-            $tdtl = TransferenciaDet_tiene_Lotes::eliminar_referencia($td->ID);
-            
-            /*  --------------------------------------------------------------------------------- */
-
-            // DEVOLVER STOCK 
-
-            foreach ($tdtl as $key => $value) {
-                Stock::sumar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
+        try{
+            DB::connection('retail')->beginTransaction();
+            if (Transferencia::verificar_existencia($codigo) === false) {
+                return ["response" => false, "statusText" => "No existe Transferencia !"];
             }
 
             /*  --------------------------------------------------------------------------------- */
 
-        }
+            // VERIFICAR ESTATUS
+            
+            $estatus = Transferencia::verificar_estatus($codigo, $user->id_sucursal);
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR TODA TRANSFERENIA DET
-
-        $transferencias_det = DB::connection('retail')
-        ->table('transferencias_det')
-        ->where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('CODIGO','=', $codigo)
-        ->delete();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR TODA TRANSFERENIA
-
-        if ($opcion === 1) {
+            if ($estatus === false) {
+                return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
-            $transferencia = Transferencia::select(DB::raw('ID'))
+            // VERIFICAR SI LA TRANSFERENCIA YA SE PROCESO 
+
+            if ($estatus === 1 or $estatus === 2) {
+                return ["response" => false, "statusText" => "Ya se encuentra procesada o enviada !"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER EL CODIGO Y LA CANTIDA DEL PRODUCTO 
+
+            $transferencias_det = DB::connection('retail')
+            ->table('transferencias_det')
+            ->select(DB::raw(
+                            'ID,
+                            CODIGO_PROD, 
+                            CANTIDAD,
+                            LOTE'
+                        ))
+            ->where('ID_SUCURSAL','=', $user->id_sucursal)
             ->where('CODIGO','=', $codigo)
-            ->where('ID_SUCURSAL','=',$user->id_sucursal)
             ->get();
 
             /*  --------------------------------------------------------------------------------- */
 
-            // INSERTAR USER REFERENCIA
+            // RECORRER FILAS DE TRANSFERENCIA DET 
 
-            TransferenciaUser::guardar_referencia($user->id, 3, $transferencia[0]->ID, $diaHora);
+            foreach ($transferencias_det as $key => $td) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // ELIMINAR CLAVES FORANEAS DE TRANSFERENCIA TIENE LOTES 
+                
+                $tdtl = TransferenciaDet_tiene_Lotes::eliminar_referencia($td->ID);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // DEVOLVER STOCK 
+
+                foreach ($tdtl as $key => $value) {
+                    Stock::sumar_stock_id_lote($value->ID_LOTE, $value->CANTIDAD);
+                }
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
-           $transferencias = DB::connection('retail')
-           ->table('transferencias')
-           ->where('ID_SUCURSAL','=', $user->id_sucursal)
-           ->where('CODIGO','=', $codigo)
-           ->delete();
- 
+            // ELIMINAR TODA TRANSFERENIA DET
+
+            $transferencias_det = DB::connection('retail')
+            ->table('transferencias_det')
+            ->where('ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('CODIGO','=', $codigo)
+            ->delete();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ELIMINAR TODA TRANSFERENIA
+
+            if ($opcion === 1) {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                $transferencia = Transferencia::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->get();
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // INSERTAR USER REFERENCIA
+
+                TransferenciaUser::guardar_referencia($user->id, 3, $transferencia[0]->ID, $diaHora);
+
+                /*  --------------------------------------------------------------------------------- */
+
+               $transferencias = DB::connection('retail')
+               ->table('transferencias')
+               ->where('ID_SUCURSAL','=', $user->id_sucursal)
+               ->where('CODIGO','=', $codigo)
+               ->delete();
+     
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+            DB::connection('retail')->commit();
+            // RETORNAR VALOR 
+
+            return ["response" => true];
+            
+        }catch(Exception $e){
+
+            DB::connection('retail')->rollBack();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            
+            return ["response" => false];
+
+            /*  --------------------------------------------------------------------------------- */
         }
+
+        // VERIFICAR SI EXISTE
         
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR VALOR 
-
-        return ["response" => true];
+        
 
         /*  --------------------------------------------------------------------------------- */
     }
@@ -1272,34 +1383,52 @@ class Transferencia extends Model
         // INICIAR VARIABLES 
 
         $codigo = $data["codigo"];
+        try{
+            DB::connection('retail')->beginTransaction();
+                 // ELIMINAR TRANSFERENCIA 
 
-        /*  --------------------------------------------------------------------------------- */
+            $eliminar = Transferencia::eliminar(["data" => $codigo], 2);
 
-        // ELIMINAR TRANSFERENCIA 
+            /*  --------------------------------------------------------------------------------- */
 
-        $eliminar = Transferencia::eliminar(["data" => $codigo], 2);
+            // SI ELIMINAR RETORNA FALSE - SE DETIENE LA MODIFICACION
+             
+            if ($eliminar["response"] === false) {
+                return ["response" => false, "statusText" => $eliminar["statusText"]];
+            }
 
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
-        // SI ELIMINAR RETORNA FALSE - SE DETIENE LA MODIFICACION
-         
-        if ($eliminar["response"] === false) {
-            return ["response" => false, "statusText" => $eliminar["statusText"]];
+            // MODIFICAR TRANSFERENCIA 
+
+            Transferencia::guardar_modificar($data, 2);
+
+            /*  --------------------------------------------------------------------------------- */
+            DB::connection('retail')->commit();
+
+            // RETORNAR VALOR 
+
+            return ["response" => true];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }catch(Exception $e){
+
+            DB::connection('retail')->rollBack();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            
+            return ["response" => false];
+
+            /*  --------------------------------------------------------------------------------- */
+
         }
 
         /*  --------------------------------------------------------------------------------- */
 
-        // MODIFICAR TRANSFERENCIA 
-
-        Transferencia::guardar_modificar($data, 2);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR VALOR 
-
-        return ["response" => true];
-
-        /*  --------------------------------------------------------------------------------- */
+       
 
     }
 
@@ -1441,21 +1570,28 @@ class Transferencia extends Model
                 $nestedData['HORA'] = $post->HORA;
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
 
+                $sistema_deposito = "";
+
                 if ($post->ESTATUS === 1) {
                     $nestedData['ESTATUS'] = '<span class="badge badge-warning">Pendiente</span>';
                 } else if ($post->ESTATUS === 2) {
                     $nestedData['ESTATUS'] = '<span class="badge badge-success">Procesado</span>';
-                }
-                if($post->CONSIGNACION==1){
-                    $nestedData['ACCION'] = "<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-            &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;<a href='#' id='devolucion' title='Devolucion'><i class='fa fa-reply-all text-danger' aria-hidden='true'></i></a>";
-                }else{
-                    $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a> &emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
-                          &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i>";
 
+                    $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
+                    if($deposito == 'SI'){
+                        $sistema_deposito = "<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;<a href='#' id='qr_caja' title='Imprimir Qr'><i class='fa fa-qrcode text-secondary' aria-hidden='true'></i></a>";
+                    }
                 }
-                
+
+                if($post->CONSIGNACION==1){
+                    $consignacion="<a href='#' id='devolucion' title='Devolucion'><i class='fa fa-reply-all text-danger' aria-hidden='true'></i></a>";
+                }else{
+                    $consignacion = "";
+                }
              
+                $nestedData['ACCION'] = "<a href='#' id='mostrarTransferencia' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='importarTransferencia' title='Importar'><i class='fa fa-check text-success' aria-hidden='true'></i></a>&emsp;<a href='#' id='rechazarTransferencia' title='Cancelar'><i class='fa fa-times text-danger' aria-hidden='true'></i></a>
+                    &emsp;<a href='#' id='imprimirReporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>&emsp;".$consignacion.''.$sistema_deposito;
 
                 $data[] = $nestedData;
 
@@ -2071,8 +2207,8 @@ class Transferencia extends Model
 
         // INICIAR VARIABLES 
 
-        $codigo = $data["codigo"];
-        $codigo_origen = $data["codigo_origen"];
+        $codigo = $data["data"]["codigo"];
+        $codigo_origen = $data["data"]["codigo_origen"];
           $user = auth()->user();
             $dia = date("Y-m-d");
             $hora = date("H:i:s");
@@ -2199,10 +2335,10 @@ class Transferencia extends Model
 
             $dia = date("Y-m-d");
             $hora = date("H:i:s");
-            $codigo = $data["codigo"];
-            $codigo_origen = $data["codigo_origen"];
+            $codigo = $data["data"]["codigo"];
+            $codigo_origen = $data["data"]["codigo_origen"];
+            $sistema_deposito = $data["data"]["sistema_deposito"];
             $conversion = false;
-
             $precio_venta = 0;
             $precio_mayorista = 0;
             $precio_vip = 0;
@@ -2219,7 +2355,28 @@ class Transferencia extends Model
             // REVISAR SI EL ESTATUS SE ENCUENTRA EN 1 PARA SER IMPORTADO
 
             if ($estatus === false or $estatus === 0 or $estatus === 2) {
-                return ["response" => false, "statusText" => "Ya se encuentra procesada !"];
+                return ["response" => false, "statusText" => "¡Ya se encuentra procesada!"];
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+            // GUARDAR UBICACION DE CAJA
+
+            if($sistema_deposito === true){
+
+                $id_transferencia = transferencia::select(DB::raw('ID'))
+                    ->where('ID_SUCURSAL','=', $codigo_origen)
+                    ->where('CODIGO','=', $codigo)
+                    ->get();
+
+                $deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->insertGetId([
+                    'NRO_CAJA' => $data["data"]["nro_caja"],
+                    'FK_TRANSFERENCIA' => $id_transferencia[0]->ID,
+                    'FK_GONDOLA' => $data["data"]["gondola"],
+                    'FK_SECCION' => $data["data"]["seccion"],
+                    'FK_SECTOR' => $data["data"]["sector"],
+                    'FK_PISO' => $data["data"]["piso"]
+                ]);
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2336,7 +2493,7 @@ class Transferencia extends Model
             // REVISAR SI SUCURSAL DESTINO ES IGUAL A LA SUCURSAL
 
             if ($transferencia[0]->SUCURSAL_DESTINO !== $user->id_sucursal) {
-                return ["response" => false, "statusText" => "La transferencia no es de esta sucursal !"];
+                return ["response" => false, "statusText" => "¡La transferencia no es de esta sucursal!"];
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2344,7 +2501,7 @@ class Transferencia extends Model
             // CAMBIAR ESTADO DE TRANSFERENCIA A PROCESADO
 
             if (Transferencia::aceptar_transferencia($data) === false) {
-                return ["response" => false, "statusText" => "La transferencia no pudo cambiar de estado !"];
+                return ["response" => false, "statusText" => "¡La transferencia no pudo cambiar de estado!"];
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -3514,7 +3671,7 @@ class Transferencia extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }  
-     public static function marcar_Transferencia_Devolucion($datos){
+    public static function marcar_Transferencia_Devolucion($datos){
            
                  
             //TRAER ID_TRANSFERENCIA
@@ -3556,5 +3713,241 @@ class Transferencia extends Model
                         
 
 
+    }
+
+    public static function modificarUbicacionTransferencia($datos){
+
+        //INICIAR VARIABLE
+
+        $codigo = $datos["data"]['codigo'];
+        $codigo_origen = $datos["data"]['codigo_origen'];
+        $diaHora = date("Y-m-d H:i:s");
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        try {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER ID DE TRANSFERENCIA
+
+            $transferencia = Transferencia::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$codigo_origen)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR TRANSFERENCIA DEPOSITO 
+
+            DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')
+                ->where('FK_TRANSFERENCIA','=', $transferencia[0]->ID)
+                ->delete();
+
+            /*  --------------------------------------------------------------------------------- */
+            // INSERTAR TRANSFERENCIA DEPOSITO 
+
+            $deposito = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->insertGetId([
+                        'NRO_CAJA' => $datos["data"]["nro_caja"],
+                        'FK_TRANSFERENCIA' => $transferencia[0]->ID,
+                        'FK_GONDOLA' => $datos["data"]["gondola"],
+                        'FK_SECCION' => $datos["data"]["seccion"],
+                        'FK_SECTOR' => $datos["data"]["sector"],
+                        'FK_PISO' => $datos["data"]["piso"]
+                    ]);
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // INSERTAR USER REFERENCIA
+
+            TransferenciaUser::guardar_referencia($user->id, 4, $transferencia[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => true];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }catch (Exception $e){
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+              public static function TransferenciaCajaQr($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+
+        $sucursal = $data["data"]["sucursal"];
+        $codigo_ca = $data["data"]["codigo_ca"];
+        
+        //ENCABEZADO /CAJA/RACK/PISO
+        $encabezado= Transferencia::Select(DB::raw(
+            'TRANSFERENCIAS_DEPOSITO.NRO_CAJA AS NUMERO_CAJA,
+            GONDOLAS.DESCRIPCION AS RACK,
+            PISOS.NRO_PISO AS PISO,
+            SECTORES.DESCRIPCION AS SECTOR'))
+        ->leftjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+        ->leftjoin('PISOS','PISOS.ID','=','TRANSFERENCIAS_DEPOSITO.FK_PISO')
+        ->leftjoin('SECTORES','SECTORES.ID','=','TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+        ->where('TRANSFERENCIAS_DEPOSITO.NRO_CAJA','=',$codigo_ca)->where('TRANSFERENCIAS.SUCURSAL_DESTINO','=',$sucursal)->get();
+       /* $data_encabezado=array();
+        if(!empty($encabezado)){
+            foreach ($encabezado as $post) {
+                # code...
+                $nestedDataEncabezado["RACK"]=$post->RACK;
+                $nestedDataEncabezado["PISO"]=$post->PISO;
+                $data_encabezado[]=$nestedDataEncabezado;
+            }
+        }*/
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PRODUCTOS CON OFERTA 
+        
+        $posts = Transferencia::select(DB::raw('TRANSFERENCIAS_DET.CODIGO_PROD as COD_PROD, 
+            PRODUCTOS.DESCRIPCION, 
+            LOTES.LOTE, 
+            LOTES.CANTIDAD_INICIAL AS STOCK_INICIAL, 
+            LOTES.CANTIDAD AS STOCK_LOTE, 
+            LOTES.COSTO, 
+            SUBSTR(LOTES.FECHA_VENC,1,11) AS FECHA_VENC,PRODUCTOS_AUX.MONEDA'))
+            ->leftJoin('TRANSFERENCIAS_DET', function($join){
+                $join->on('TRANSFERENCIAS_DET.CODIGO', '=', 'TRANSFERENCIAS.CODIGO')
+                     ->on('TRANSFERENCIAS_DET.ID_SUCURSAL', '=', 'TRANSFERENCIAS.ID_SUCURSAL');
+            })
+            ->leftJoin('PRODUCTOS_AUX', function($join){
+                $join->on('PRODUCTOS_AUX.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')
+                     ->on('PRODUCTOS_AUX.ID_SUCURSAL', '=', 'TRANSFERENCIAS.SUCURSAL_DESTINO');
+            })
+          /*  ->leftjoin('MONEDAS','MONEDAS.CODIGO','=','PRODUCTOS_AUX.MONEDA')*/
+            ->leftjoin('lote_tiene_transferenciadet','lote_tiene_transferenciadet.ID_TRANSFERENCIA_DET','=','TRANSFERENCIAS_DET.ID')
+             ->leftjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+            ->leftjoin('LOTES','LOTES.ID','=','lote_tiene_transferenciadet.ID_LOTE')
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO_PROD')          
+            ->where('TRANSFERENCIAS.SUCURSAL_DESTINO','=', $sucursal)
+            ->where('TRANSFERENCIAS_DEPOSITO.NRO_CAJA', '=' , $codigo_ca)
+            ->orderBy('LOTES.CANTIDAD','DESC')
+            ->get();
+                         
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERT IMAGE DEFAULT TO BLOB 
+        
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                $imagen = Imagen::obtenerImagenURL($post->COD_PROD);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+
+
+                $nestedData['COSTO'] = Common::precio_candec($post->COSTO, $post->MONEDA);
+             /*  $nestedData['PRECOSTO'] = Common::precio_candec($post->PRECOSTO, $post->MONEDA);
+                $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
+                
+                $nestedData['LOTE'] = $post->LOTE;
+                if($post->FECHA_VENC==="0000-00-00" || $post->FECHA_VENC==="1899-12-31"){
+                     $nestedData['FECHA_VENC'] = "NO POSEE";
+                }else{
+                     $nestedData['FECHA_VENC']=$post->FECHA_VENC;
+                }
+               
+
+                
+                $nestedData['STOCK_INICIAL'] = Common::formato_precio($post->STOCK_INICIAL,0);
+                $nestedData['STOCK_LOTE'] = Common::formato_precio($post->STOCK_LOTE,0);
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                $nestedData['IMAGEN'] = $imagen["imagen_external"];
+
+                /*  --------------------------------------------------------------------------------- */
+
+                
+                $data[] = $nestedData;
+
+            }
+
+
+        } 
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "data"            => $data,
+                    "encabezado"=> $encabezado
+        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public static function obtenerCajaNumero($datos)
+    {
+        $id=Transferencia::select(DB::raw('ID'))->where('CODIGO','=',$datos["codigo"])->where('ID_SUCURSAL','=',$datos["origen"])->get()->toArray();
+        if(count($id)>0){
+            $Caja=DB::connection('retail')->table('transferencias_deposito')->Select(DB::raw('transferencias_deposito.NRO_CAJA AS NRO_CAJA'))->WHERE('TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=',$id[0]["ID"])->get()->toArray();
+            if(count($Caja)>0){
+                return["response"=>true,"caja"=>$Caja[0]->NRO_CAJA];
+            }else{
+                return["response"=>false];
+            }
+        }else{
+            return["response"=>false];
+        }
+    
     }
 }

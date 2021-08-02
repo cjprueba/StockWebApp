@@ -95,6 +95,7 @@ class Compra extends Model
     		$compra->PEDIDO = $data->data["nro_pedido"];
     		//$compra->FK_USER_CR = $user->id;
     		$compra->save();
+                  // log::error(["ID.COMPRA"=>$compra->id]);
 
             // VERIFICAR SI ES SISTEMA DE DEPOSITO
 
@@ -114,29 +115,17 @@ class Compra extends Model
                 ->where('CODIGO','=', $data->data["codigoContainer"])
                 ->get();
 
-                // OBTENER ID SECCION
-
-                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
-
                 // GUARDAR REFERENCIAS DE DEPOSITO
 
                 $deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')->insertGetId([
                     'FK_CONTAINER' => $id_container[0]->ID,
                     'FK_COMPRA' => $id_compra[0]->ID,
-                    'FK_SECCION' => $fk_seccion
+                    'FK_GONDOLA' => $data->data["gondola"],
+                    'FK_SECCION' => $data->data["seccion"],
+                    'FK_SECTOR' => $data->data["sector"],
+                    'FK_PISO' => $data->data["piso"]
                 ]);
-
-                // GUARDAR GONDOLAS DE LA COMPRA
-
-                foreach ($data->data["gondolaPiso"] as $key => $value) {
-
-                    $gondolas = DB::connection('retail')
-                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
-                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
-                        'FK_COMPRA' => $id_compra[0]->ID,
-                        'PISO' => $value["PISO"]]);
-                }
             }   
     		
     		/*  --------------------------------------------------------------------------------- */
@@ -150,6 +139,7 @@ class Compra extends Model
     			$compra_det = new ComprasDet();
     			
     			$c = $c + 1;
+                $compra_det->FK_COMPRAS = $compra->id;
     			$compra_det->CODIGO = $codigo;
     			$compra_det->ITEM = $c;
     			$compra_det->COD_PROD = $value['CODIGO'];
@@ -307,7 +297,7 @@ class Compra extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, COMPRAS.NRO_FACTURA AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
+            $posts = Compra::select(DB::raw('COMPRAS.CODIGO, COMPRAS.MONEDA, PROVEEDORES.NOMBRE, COMPRAS.TIPO, IFNULL(COMPRAS.NRO_FACTURA,"NO POSEE") AS NRO_FACTURA, COMPRAS.FEC_FACTURA, COMPRAS.TOTAL'))
                          ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
@@ -334,7 +324,8 @@ class Compra extends Model
                          ->where('COMPRAS.ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
-                                      ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
+                                    ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
+                                    ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->offset($start)
                             ->limit($limit)
@@ -349,6 +340,7 @@ class Compra extends Model
             				->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
                             ->where(function ($query) use ($search) {
                                 $query->where('COMPRAS.CODIGO','LIKE',"{$search}%")
+                                  ->orWhere('COMPRAS.NRO_FACTURA', 'LIKE',"%{$search}%")
                                       ->orWhere('PROVEEDORES.NOMBRE', 'LIKE',"%{$search}%");
                             })
                             ->count();
@@ -388,15 +380,31 @@ class Compra extends Model
                 } else {
                 	$nestedData['TIPO'] = 'N/A';
                 }
-
+                
+                $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+                $sistema_deposito = '';
+                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
+                if($deposito == 'SI'){
+                    if($post->NRO_FACTURA==="NO POSEE"){
+                       $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>";
+                    }else{
+                       $sistema_deposito = "&emsp;<a href='#' id='editarUbicacion' title='Editar Ubicación'><i class='fa fa-box-open text-dark' aria-hidden='true'></i></a>&emsp;<a href='#' id='qr_caja' title='Imprimir Qr'><i class='fa fa-qrcode text-secondary' aria-hidden='true'></i></a>";
+                    }
+                }
                 /*  --------------------------------------------------------------------------------- */
 
-                $nestedData['NRO_FACTURA'] = $post->NRO_FACTURA;
+                
                 $nestedData['FEC_FACTURA'] = substr($post->FEC_FACTURA, 0,10);
                 $nestedData['TOTAL'] = Common::precio_candec($post->TOTAL, $post->MONEDA);
+
                 
                 $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrar' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editar' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminar' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
+                    &emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>".$sistema_deposito;
+
+                
+                
+               
+
 
                 $data[] = $nestedData;
 
@@ -627,15 +635,6 @@ class Compra extends Model
 
         DB::connection('retail')
         ->table('COMPRAS_DEPOSITO')
-        ->where('FK_COMPRA','=', $id_compra[0]->ID)
-        ->delete();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR COMPRAS TIENE GONDOLA 
-
-        DB::connection('retail')
-        ->table('COMPRAS_TIENE_GONDOLA')
         ->where('FK_COMPRA','=', $id_compra[0]->ID)
         ->delete();
 
@@ -891,59 +890,61 @@ class Compra extends Model
         ->get();
 
         $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+
         $compra[0]['SISTEMA_DEPOSITO'] = false;
+
         if($deposito == 'SI'){
 
             $compras_deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')
-                ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
-                ->leftjoin('SECCIONES','SECCIONES.ID','=','COMPRAS_DEPOSITO.FK_SECCION')
                 ->select(DB::raw('CONTAINERS.CODIGO,
                     CONTAINERS.DESCRIPCION,
-                    SECCIONES.CODIGO AS CODIGO_SECCION,
-                    SECCIONES.DESCRIPCION AS DESCRIPCION_SECCION,
-                    SECCIONES.DESC_CORTA'))
+                    COMPRAS_DEPOSITO.FK_SECCION AS ID_SECCION,
+                    COMPRAS_DEPOSITO.FK_PISO AS PISO,
+                    COMPRAS_DEPOSITO.FK_SECTOR AS SECTOR,
+                    COMPRAS_DEPOSITO.FK_GONDOLA AS GONDOLA,
+                    SECCIONES.DESCRIPCION AS DESC_SECCION,
+                    PISOS.NRO_PISO AS DESC_PISO,
+                    SECTORES.DESCRIPCION AS DESC_SECTOR,
+                    GONDOLAS.DESCRIPCION AS DESC_GONDOLA
+                    '))
+                ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+                ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
+                ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','COMPRAS_DEPOSITO.FK_SECCION')
                 ->where('COMPRAS_DEPOSITO.FK_COMPRA','=', $compra[0]["ID"])
                 ->get();
 
-            $gondolas = DB::connection('retail')
-                ->table('COMPRAS_TIENE_GONDOLA')
-                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-                ->select(DB::raw('GONDOLAS.ID, 
-                    GONDOLAS.CODIGO, 
-                    GONDOLAS.DESCRIPCION'))
-                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
-                ->get();
+            $secciones = Seccion::select(DB::raw('IFNULL(ID, 0) AS ID_SECCION,
+                    IFNULL(DESCRIPCION, 0) AS DESCRIPCION,
+                    IFNULL(SECCIONES.DESC_CORTA, 0) AS DESC_CORTA'))
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->orderBy('DESCRIPCION', 'ASC')
+                ->get()
+                ->toArray();
 
-            $compras_gondola = DB::connection('retail')
-                ->table('COMPRAS_TIENE_GONDOLA')
-                ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-                ->select(DB::raw('COMPRAS_TIENE_GONDOLA.FK_GONDOLA AS GONDOLA,
-                    COMPRAS_TIENE_GONDOLA.PISO'))
-                ->where('COMPRAS_TIENE_GONDOLA.FK_COMPRA','=', $compra[0]["ID"])
-                ->get();
-
-            foreach ($compras_gondola as $key => $value) {
-                $compras_gondola[$key]->GONDOLA = $gondolas[$key];
-                $compras_gondola[$key]->PISO = $value->PISO;
-            }
-
-            $compra[0]['SISTEMA_DEPOSITO'] = true;
-
-            if(count($compras_gondola)>0){
-                $compra[0]["GONDOLAS_PISO"] = $compras_gondola;
-            }else{
-                $compra[0]['SISTEMA_DEPOSITO'] = false;
-            }
-
-            if(count($gondolas)>0){
-                $compra[0]["GONDOLAS"] = $gondolas;
-            }else{
-                $compra[0]['SISTEMA_DEPOSITO'] = false;
-            }
-            
+            $compra[0]['SECCIONES'] = $secciones;
             if(count($compras_deposito)>0){
-                $compra[0]["CONTAINER_SECCION"] = $compras_deposito[0];
+
+                $pisos = Gondola_Tiene_Piso::select(DB::raw('PISOS.ID,
+                        PISOS.NRO_PISO'))
+                    ->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')
+                    ->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$compras_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $sectores = Gondola_Tiene_Sector::select(DB::raw('SECTORES.ID,
+                    SECTORES.DESCRIPCION'))
+                    ->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')
+                    ->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$compras_deposito[0]->GONDOLA)
+                    ->get()
+                    ->toArray();
+
+                $compra[0]['SISTEMA_DEPOSITO'] = true;
+                $compra[0]['SECTORES'] = $sectores;
+                $compra[0]['PISOS'] = $pisos;
+                $compra[0]["DATOS_DEPOSITO"] = $compras_deposito[0];
             }else{
                 $compra[0]['SISTEMA_DEPOSITO'] = false;
             }
@@ -1264,6 +1265,12 @@ class Compra extends Model
                 'CUOTAS' => $cuotas,
     			'PEDIDO' => $data->data["nro_pedido"]
     		]);
+
+            // OBTENER ID COMPRA 
+             $id_compra = Compra::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $codigo)
+                ->get();
     		
     		/*  --------------------------------------------------------------------------------- */
 
@@ -1280,12 +1287,9 @@ class Compra extends Model
 
             if($data->data['sistema_deposito'] === true){
 
-                // OBTENER ID COMPRA 
+                
 
-                $id_compra = Compra::select('ID')
-                ->where('ID_SUCURSAL','=', $user->id_sucursal)
-                ->where('CODIGO','=', $codigo)
-                ->get();
+               
 
                 // OBTENER ID CONTAINER
 
@@ -1294,29 +1298,18 @@ class Compra extends Model
                 ->where('CODIGO','=', $data->data["codigoContainer"])
                 ->get();
 
-                // OBTENER ID SECCION
-
-                $fk_seccion = Seccion::conseguir_id($data->data["seccion"], $user->id_sucursal);
-
                 // GUARDAR REFERENCIAS DE DEPOSITO
 
                 $deposito = DB::connection('retail')
                 ->table('COMPRAS_DEPOSITO')->insertGetId([
                     'FK_CONTAINER' => $id_container[0]->ID,
                     'FK_COMPRA' => $id_compra[0]->ID,
-                    'FK_SECCION' => $fk_seccion
+                    'FK_GONDOLA' => $data->data["gondola"],
+                    'FK_SECCION' => $data->data["seccion"],
+                    'FK_SECTOR' => $data->data["sector"],
+                    'FK_PISO' => $data->data["piso"]
                 ]);
 
-                // GUARDAR GONDOLAS DE LA COMPRA
-
-                foreach ($data->data["gondolaPiso"] as $key => $value) {
-
-                    $gondolas = DB::connection('retail')
-                    ->table('COMPRAS_TIENE_GONDOLA')->insertGetId([
-                        'FK_GONDOLA' => $value["GONDOLA"]["ID"],
-                        'FK_COMPRA' => $id_compra[0]->ID,
-                        'PISO' => $value["PISO"]]);
-                }
             } 
 
     		/*  --------------------------------------------------------------------------------- */
@@ -1330,6 +1323,7 @@ class Compra extends Model
     			$compra_det = new ComprasDet();
     			
     			$c = $c + 1;
+                $compra_det->FK_COMPRAS=$id_compra[0]->ID;
     			$compra_det->CODIGO = $codigo;
     			$compra_det->ITEM = $c;
     			$compra_det->COD_PROD = $value['CODIGO'];
@@ -1432,7 +1426,7 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 	}  
-        public static function CompraCajaQr($data){
+          public static function CompraCajaQr($data){
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1444,13 +1438,16 @@ class Compra extends Model
         $encabezado= Compra::Select(DB::raw(
             'COMPRAS.NRO_FACTURA AS NUMERO_CAJA,
             GONDOLAS.DESCRIPCION AS RACK,
-            COMPRAS_TIENE_GONDOLA.PISO AS PISO'))
-        ->leftjoin('COMPRAS_TIENE_GONDOLA','COMPRAS_TIENE_GONDOLA.FK_COMPRA','=','COMPRAS.ID')
-        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_TIENE_GONDOLA.FK_GONDOLA')
-        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)
-        ->groupby("GONDOLAS.ID", "COMPRAS_TIENE_GONDOLA.PISO")
-        ->get();
-        $data_encabezado=array();
+            PISOS.NRO_PISO AS PISO,
+            CONTAINERS.DESCRIPCION AS CONTAINER,
+            SECTORES.DESCRIPCION AS SECTOR'))
+        ->leftjoin('COMPRAS_DEPOSITO','COMPRAS_DEPOSITO.FK_COMPRA','=','COMPRAS.ID')
+        ->leftjoin('GONDOLAS','GONDOLAS.ID','=','COMPRAS_DEPOSITO.FK_GONDOLA')
+        ->leftjoin('PISOS','PISOS.ID','=','COMPRAS_DEPOSITO.FK_PISO')
+        ->leftjoin('SECTORES','SECTORES.ID','=','COMPRAS_DEPOSITO.FK_SECTOR')
+        ->leftjoin('CONTAINERS','CONTAINERS.ID','=','COMPRAS_DEPOSITO.FK_CONTAINER')
+        ->where('COMPRAS.NRO_FACTURA','=',$codigo_ca)->where('COMPRAS.ID_SUCURSAL','=',$sucursal)->get();
+       /* $data_encabezado=array();
         if(!empty($encabezado)){
             foreach ($encabezado as $post) {
                 # code...
@@ -1458,7 +1455,7 @@ class Compra extends Model
                 $nestedDataEncabezado["PISO"]=$post->PISO;
                 $data_encabezado[]=$nestedDataEncabezado;
             }
-        }
+        }*/
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -1485,6 +1482,7 @@ class Compra extends Model
             ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'COMPRASDET.COD_PROD')          
             ->where('COMPRAS.ID_SUCURSAL','=', $sucursal)
             ->where('COMPRAS.NRO_FACTURA', '=' , $codigo_ca)
+            ->orderBy('LOTES.CANTIDAD','DESC')
             ->get();
                          
         /*  --------------------------------------------------------------------------------- */
@@ -1522,7 +1520,7 @@ class Compra extends Model
                 $nestedData['PREMAYORISTA'] = Common::precio_candec($post->PREMAYORISTA, $post->MONEDA);*/
                 
                 $nestedData['LOTE'] = $post->LOTE;
-                if($post->FECHA_VENC==='0000-00-00' || $post->FECHA_VENC==='1899-12-31'){
+                if($post->FECHA_VENC==="0000-00-00" || $post->FECHA_VENC==="1899-12-31"){
                      $nestedData['FECHA_VENC'] = "NO POSEE";
                 }else{
                      $nestedData['FECHA_VENC']=$post->FECHA_VENC;
@@ -1552,8 +1550,8 @@ class Compra extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "productos"            => $data,
-                    "encabezado"=> $data_encabezado
+                    "data"            => $data,
+                    "encabezado"=> $encabezado
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -1564,6 +1562,599 @@ class Compra extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+
+
+    public static function modificarUbicacionCompra($datos){
+
+        try {
+            
+            //INICIAR VARIABLE
+
+            $codigo = $datos["data"]["codigo"];
+            $diaHora = date("Y-m-d H:i:s");
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+            $user = auth()->user();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INICIAR TRANSACCION 
+
+            DB::connection('retail')->beginTransaction();
+
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER ID DE COMPRA
+
+            $compra = Compra::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR COMPRA DEPOSITO 
+
+            DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')
+                ->where('FK_COMPRA','=', $compra[0]->ID)
+                ->delete();
+
+
+            // OBTENER ID CONTAINER
+
+            $id_container = Container::select('ID')
+                ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                ->where('CODIGO','=', $datos["data"]["codigoContainer"])
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // MODIFICAR NRO DE CAJA EN COMPRA
+
+            Compra::where([
+                ['CODIGO', '=', $codigo],
+                ['ID_SUCURSAL', '=', $user->id_sucursal]
+            ])
+            ->update([
+                'NRO_FACTURA' => $datos['data']["nro_caja"] 
+            ]);
+
+            /*  --------------------------------------------------------------------------------- */
+            // INSERTAR COMPRA DEPOSITO 
+
+            $deposito = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->insertGetId([
+                        'FK_CONTAINER' => $id_container[0]->ID,
+                        'FK_COMPRA' => $compra[0]->ID,
+                        'FK_GONDOLA' => $datos["data"]["gondola"],
+                        'FK_SECCION' => $datos["data"]["seccion"],
+                        'FK_SECTOR' => $datos["data"]["sector"],
+                        'FK_PISO' => $datos["data"]["piso"]
+                    ]);
+
+            /*  --------------------------------------------------------------------------------- */ 
+
+            // INSERTAR USER REFERENCIA
+
+            CompraUser::guardar_referencia($user->id, 4, $compra[0]->ID, $diaHora);
+
+            /*  --------------------------------------------------------------------------------- */
+            
+            // ENVIAR TRANSACCION A BD
+
+            DB::connection('retail')->commit();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            return ["response" => true];
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }catch (Exception $e){
+            
+            /*  --------------------------------------------------------------------------------- */
+
+           // NO GUARDAR NINGUN CAMBIO 
+
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
+
+        }
+    }
+
+    
+public static function generar_Reporte_Entrada_Seccion($datos) 
+    {
+
+        
+         /*  --------------------------------------------------------------------------------- */
+
+         // INCICIAR VARIABLES 
+        
+            $insert=$datos["data"]["Insert"];
+            $marcas[] = array();
+            $categorias[] = array();
+            $totales[] = array();
+            $secciones_array=array();
+            $secciones_totales_array=array();
+            $secciones_productos_array=array();
+            $user = auth()->user();
+            $user=$user->id;
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+            $total_general=0;
+            $total_descuento=0;
+            $total_preciounit=0;
+            $cantidadvendida=0;
+            $costo=0;
+            $totalcosto=0;
+     
+
+                 if($insert==true){
+                     $data=array(
+                        'inicio'=>date('Y-m-d', strtotime($datos["data"]["Inicio"])),
+                        'final'=>date('Y-m-d', strtotime($datos["data"]["Final"])),
+                        'sucursal'=>$datos["data"]["Sucursal"],
+                        'checkedProveedor'=>$datos["data"]["AllProveedores"],
+                        'checkedSeccion'=>$datos["data"]["AllSecciones"],
+                        'proveedores'=>$datos["data"]["Proveedores"],
+                        'secciones'=>$datos["data"]["secciones"]
+                    );
+                
+
+                    
+                     Temp_venta::insertar_reporte_Entrada_Seccion($data);
+                    }
+
+                                    $temp=DB::connection('retail')->table('temp_ventas')
+                
+                                       ->select(
+                                        DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR,
+                                            temp_ventas.PROVEEDOR_NOMBRE AS PROVEEDOR_NOMBRE,
+                                            CONCAT(temp_ventas.SECCION," ", temp_ventas.PROVEEDOR_NOMBRE) AS DESCRIPCION,
+                                            temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                                            IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
+                                            IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS VENDIDO,
+                                             IFNULL((SELECT SUM(t.PRECIO) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS TOTAL,
+                                            IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS COSTO_TOTAL,
+                                            IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE,
+                                            IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
+                                         ->where('USER_ID','=',$user)
+                                         ->where('ID_SUCURSAL','=',$sucursal)
+                                       ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.SECCION_CODIGO') 
+                                       ->orderby('temp_ventas.SECCION','ASC')
+                                       ->orderby('temp_ventas.PROVEEDOR_NOMBRE','ASC')
+                            
+                                       ->get()
+                                       ->toArray();
+
+                                $TOTALG=DB::connection('retail')->table('temp_ventas')
+                                   ->select(
+                                    DB::raw('  IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
+                                        SUM(COSTO_UNIT) AS COSTO_UNIT,
+                                        SUM(COSTO_TOTAL) AS COSTO_TOTAL'))
+                                   ->where('USER_ID','=',$user)
+                                   ->where('ID_SUCURSAL','=',$sucursal)
+                                  ->get()
+                                  ->toArray();
+
+                          
+
+                        $total_porcentaje=$TOTALG[0]->COSTO_TOTAL;
+                     
+
+                      
+                         
+
+                        foreach ($temp as $key => $value) {
+
+
+
+                              
+                               
+                              
+                              
+
+                             $secciones_array[]=array(
+                                'TOTALES'=> $value->DESCRIPCION,
+                                'VENDIDO'=> $value->VENDIDO,
+                                'ENTRADA'=>$value->ENTRADA,
+                                'COSTO'=> $value->COSTO_UNIT,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                'PRECIO_UNIT'=>0,
+                                'TOTAL'=>$value->TOTAL,
+                                'SECCIONES'=>$value->SECCION_CODIGO,
+                                'PROVEEDORES'=>$value->PROVEEDOR,
+                                'PROVEEDOR_NOMBRE'=>$value->PROVEEDOR_NOMBRE,
+                                'SECCION_NOMBRE'=>$value->SECCION_NOMBRE,
+                                'PORCENTAJE'=>($value->COSTO_TOTAL*100)/$total_porcentaje
+                                
+                            );
+                        }
+
+
+
+                          
+
+   
+                                 //TOTALES POR CATEGORIA AGRUPADOS POR MARCA
+                                 /*  --------------------------------------------------------------------------------- */
+                              
+                   
+                            
+
+                   /*  --------------------------------------------------------------------------------- */  
+                   //TRAER TODOS LOS PRODUCTOS CON EL CODIGO DE MARCA
+                   /*  --------------------------------------------------------------------------------- */
+                   
+                  $temp=DB::connection('retail')->table('temp_ventas')
+                 
+                   ->select(
+                    DB::raw('temp_ventas.COD_PROD AS COD_PROD,
+                        temp_ventas.LOTE AS LOTE,
+                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS VENDIDO,
+                         IFNULL((SELECT SUM(t.PRECIO) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS TOTAL,
+
+                        IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
+                        SUM(COSTO_TOTAL) AS COSTO_TOTAL,
+                        COSTO_UNIT AS COSTO_UNIT,
+                        temp_ventas.CATEGORIA AS CATEGORIA,
+                        IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO,
+                        temp_ventas.SUBCATEGORIA AS SUBCATEGORIA,
+                        temp_ventas.MARCA AS MARCA,
+                        temp_ventas.MARCAS_CODIGO AS MARCAS_CODIGO,
+                        temp_ventas.SECCION AS SECCION,
+                        temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                        Temp_ventas.PROVEEDOR AS PROVEEDOR'))
+                  ->where('temp_ventas.ID_SUCURSAL','=',$sucursal)
+                  ->where('temp_ventas.USER_ID','=',$user)
+                  ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','Temp_ventas.PROVEEDOR') 
+                  ->orderby('COD_PROD')
+                  ->get()
+                  ->toArray();
+                   $total_general=0;
+                   $total_descuento=0;
+                   $total_preciounit=0;
+                   $cantidadvendida=0;
+                   $costo=0;
+                   $totalcosto=0;
+           
+                  foreach ($temp as $key => $value) {
+                        if($value->COSTO_TOTAL==0){
+                          $value->COSTO_TOTAL='0';
+                        }
+                        if($value->COSTO_UNIT==0){
+                          $value->COSTO_UNIT='0';
+                        }
+                        if($value->STOCK==0){
+                          $value->STOCK='0';
+                        }
+                    
+                      
+                        $secciones_productos_array[]=array(
+                             
+                                'COD_PROD'=> $value->COD_PROD,
+                                'LOTE'=> $value->LOTE,
+                                'STOCK'=> $value->STOCK,
+                                'CATEGORIA'=> $value->CATEGORIA,
+                                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
+                                'MARCA'=> $value->MARCA,
+                                'VENDIDO'=> $value->VENDIDO,
+                                'COSTO_UNIT'=>$value->COSTO_UNIT,
+                                'COSTO_TOTAL'=>$value->COSTO_TOTAL,
+                                'TOTAL'=>$value->TOTAL,
+                                'ENTRADA'=>$value->ENTRADA,
+                                'PROVEEDOR_CODIGO'=> $value->PROVEEDOR,
+                                'SECCION'=> $value->SECCION,
+                                'SECCION_CODIGO'=>$value->SECCION_CODIGO
+                        );
+                  }
+                    $seccion_total=DB::connection('retail')->table('temp_ventas')
+                
+                                       ->select(
+                                        DB::raw('temp_ventas.SECCION AS DESCRIPCION,
+                                            temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                                            IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS ENTRADA,
+                                            IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS VENDIDO,
+                                            IFNULL((SELECT SUM(t.precio) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS TOTAL,
+                                           IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS COSTO_TOTAL,
+                                            IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
+                                         ->where('USER_ID','=',$user)
+                                         ->where('ID_SUCURSAL','=',$sucursal)
+                                       ->GROUPBY('temp_ventas.SECCION_CODIGO') 
+                                       ->orderby('temp_ventas.SECCION','ASC')
+                            
+                                       ->get()
+                                       ->toArray();
+                                 foreach ($seccion_total as $key => $value) {
+
+                              
+                               
+
+                                  $secciones_totales_array[]=array(
+                                    'TOTALES'=> $value->DESCRIPCION,
+                                    'VENDIDO'=> $value->VENDIDO,
+                                    'COSTO'=> $value->COSTO_UNIT,
+                                    'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                    'ENTRADA'=>$value->ENTRADA,
+                                    'TOTAL'=>$value->TOTAL,
+                                    'SECCIONES'=>$value->SECCION_CODIGO,
+                                    'PORCENTAJE'=>($value->COSTO_TOTAL*100)/$total_porcentaje
+                                );
+                            # code...
+                        }
+
+                  
+
+
+
+                 
+ 
+            /*  --------------------------------------------------------------------------------- */
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR TODOS LOS ARRAYS
+
+
+            return ['compras' => $secciones_productos_array, 'secciones' => $secciones_array,'secciones_totales'=>$secciones_totales_array];
+
+            /*  --------------------------------------------------------------------------------- */
+    }
+    public static function generar_Reporte_Compra_Venta_Seccion($datos) 
+    {
+
+        
+         /*  --------------------------------------------------------------------------------- */
+
+         // INCICIAR VARIABLES 
+        
+            $insert=$datos["data"]["Insert"];
+            $marcas[] = array();
+            $categorias[] = array();
+            $totales[] = array();
+            $secciones_array=array();
+            $secciones_totales_array=array();
+            $secciones_productos_array=array();
+            $user = auth()->user();
+            $user=$user->id;
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+            $total_general=0;
+            $total_descuento=0;
+            $total_preciounit=0;
+            $cantidadvendida=0;
+            $costo=0;
+            $totalcosto=0;
+     
+
+            if($insert==true){
+                 $data=array(
+                    'inicio'=>date('Y-m-d', strtotime($datos["data"]["Inicio"])),
+                    'final'=>date('Y-m-d', strtotime($datos["data"]["Final"])),
+                    'sucursal'=>$datos["data"]["Sucursal"],
+                    'checkedProveedor'=>$datos["data"]["AllProveedores"],
+                    'checkedSeccion'=>$datos["data"]["AllSecciones"],
+                    'proveedores'=>$datos["data"]["Proveedores"],
+                    'secciones'=>$datos["data"]["secciones"]
+                );
+                    
+                Temp_venta::insertar_reporte_Compra_Venta_Seccion($data);
+
+            }
+
+                                    $temp=DB::connection('retail')->table('temp_ventas')
+                
+                                       ->select(
+                                        DB::raw('temp_ventas.PROVEEDOR AS PROVEEDOR,
+                                            temp_ventas.PROVEEDOR_NOMBRE AS PROVEEDOR_NOMBRE,
+                                            CONCAT(temp_ventas.SECCION," ", temp_ventas.PROVEEDOR_NOMBRE) AS DESCRIPCION,
+                                            temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                                            IFNULL(SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.CREDITO_COBRADO=0,0) as ENTRADA,
+                                            IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO,
+                                            IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL,
+                                            IFNULL(SUM(PRECIO),0) AS TOTAL,
+                                             IFNULL(SUM(DESCUENTO),0) AS DESCUENTO,
+                                            IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE,
+                                            IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
+                                         ->where('USER_ID','=',$user)
+                                         ->where('ID_SUCURSAL','=',$sucursal)
+                                       ->GROUPBY('temp_ventas.PROVEEDOR','temp_ventas.SECCION_CODIGO') 
+                                       ->orderby('temp_ventas.SECCION','ASC')
+                                       ->orderby('temp_ventas.PROVEEDOR_NOMBRE','ASC')
+                            
+                                       ->get()
+                                       ->toArray();
+
+                                $TOTALG=DB::connection('retail')->table('temp_ventas')
+                                   ->select(
+                                    DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO,
+                                        SUM(PRECIO_UNIT) AS PRECIO_UNIT,
+                                        SUM(PRECIO) AS TOTAL'))
+                                   ->where('USER_ID','=',$user)
+                                   ->where('ID_SUCURSAL','=',$sucursal)
+                                  ->get()
+                                  ->toArray();
+
+                          
+
+                        $total_porcentaje=$TOTALG[0]->TOTAL;
+                     
+
+                      
+                         
+
+                        foreach ($temp as $key => $value) {
+
+
+
+                              
+                               
+                              
+                              
+
+                             $secciones_array[]=array(
+                                'TOTALES'=> $value->DESCRIPCION,
+                                'VENDIDO'=> $value->VENDIDO,
+                                'COSTO'=> $value->COSTO_UNIT,
+                                'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                'TOTAL'=>$value->TOTAL,
+                                'DESCUENTO'=>$value->DESCUENTO,
+                                'SECCIONES'=>$value->SECCION_CODIGO,
+                                'PROVEEDORES'=>$value->PROVEEDOR,
+                                'PROVEEDOR_NOMBRE'=>$value->PROVEEDOR_NOMBRE,
+                                'SECCION_NOMBRE'=>$value->SECCION_NOMBRE,
+                                'PORCENTAJE'=>($value->TOTAL*100)/$total_porcentaje
+                                
+                            );
+                        }
+
+
+
+                          
+
+   
+                                 //TOTALES POR CATEGORIA AGRUPADOS POR MARCA
+                                 /*  --------------------------------------------------------------------------------- */
+                              
+                   
+                            
+
+                   /*  --------------------------------------------------------------------------------- */  
+                   //TRAER TODOS LOS PRODUCTOS CON EL CODIGO DE MARCA
+                   /*  --------------------------------------------------------------------------------- */
+                   
+                  $temp=DB::connection('retail')->table('temp_ventas')
+                 
+                   ->select(
+                    DB::raw('temp_ventas.COD_PROD AS COD_PROD,
+                        temp_ventas.LOTE AS LOTE,
+                        SUM(temp_ventas.VENDIDO) AS VENDIDO,
+                        IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
+                        SUM(COSTO_TOTAL) AS COSTO_TOTAL,
+                        COSTO_UNIT AS COSTO_UNIT,
+                        PRECIO_UNIT AS PRECIO_UNIT,
+                        IFNULL(SUM(PRECIO),0) AS TOTAL,
+                        IFNULL(SUM(DESCUENTO),0) AS DESCUENTO,
+                        temp_ventas.CATEGORIA AS CATEGORIA,
+                        IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO,
+                        temp_ventas.SUBCATEGORIA AS SUBCATEGORIA,
+                        temp_ventas.MARCA AS MARCA,
+                        temp_ventas.MARCAS_CODIGO AS MARCAS_CODIGO,
+                        temp_ventas.SECCION AS SECCION,
+                        temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                        Temp_ventas.PROVEEDOR AS PROVEEDOR'))
+                  ->where('temp_ventas.ID_SUCURSAL','=',$sucursal)
+                  ->where('temp_ventas.USER_ID','=',$user)
+                  ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','Temp_ventas.PROVEEDOR') 
+                  ->orderby('COD_PROD')
+                  ->get()
+                  ->toArray();
+                   $total_general=0;
+                   $total_descuento=0;
+                   $total_preciounit=0;
+                   $cantidadvendida=0;
+                   $costo=0;
+                   $totalcosto=0;
+           
+                  foreach ($temp as $key => $value) {
+                        if($value->COSTO_TOTAL==0){
+                          $value->COSTO_TOTAL='0';
+                        }
+                        if($value->COSTO_UNIT==0){
+                          $value->COSTO_UNIT='0';
+                        }
+                        if($value->STOCK==0){
+                          $value->STOCK='0';
+                        }
+                    
+                      
+                        $secciones_productos_array[]=array(
+                             
+                                'COD_PROD'=> $value->COD_PROD,
+                                'LOTE'=> $value->LOTE,
+                                'STOCK'=> $value->STOCK,
+                                'CATEGORIA'=> $value->CATEGORIA,
+                                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
+                                'MARCA'=> $value->MARCA,
+                                'VENDIDO'=> $value->VENDIDO,
+                                'COSTO_UNIT'=>$value->COSTO_UNIT,
+                                'COSTO_TOTAL'=>$value->COSTO_TOTAL,
+                                'PRECIO_UNIT'=>$value->PRECIO_UNIT,
+                                'TOTAL'=>$value->TOTAL,
+                                'PROVEEDOR_CODIGO'=> $value->PROVEEDOR,
+                                'SECCION'=> $value->SECCION,
+                                'SECCION_CODIGO'=>$value->SECCION_CODIGO
+                        );
+                  }
+                    $seccion_total=DB::connection('retail')->table('temp_ventas')
+                
+                                       ->select(
+                                        DB::raw('temp_ventas.SECCION AS DESCRIPCION,
+                                            temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                                            IFNULL(SUM(temp_ventas.VENDIDO),0) AS VENDIDO,
+                                            IFNULL(SUM(COSTO_TOTAL),0) AS COSTO_TOTAL,
+                                               IFNULL(SUM(PRECIO),0) AS TOTAL,
+                                                  IFNULL(SUM(DESCUENTO),0) AS DESCUENTO,
+                                            IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
+                                         ->where('USER_ID','=',$user)
+                                         ->where('ID_SUCURSAL','=',$sucursal)
+                                       ->GROUPBY('temp_ventas.SECCION_CODIGO') 
+                                       ->orderby('temp_ventas.SECCION','ASC')
+                            
+                                       ->get()
+                                       ->toArray();
+                                 foreach ($seccion_total as $key => $value) {
+
+                              
+                               
+
+                                  $secciones_totales_array[]=array(
+                                    'TOTALES'=> $value->DESCRIPCION,
+                                    'VENDIDO'=> $value->VENDIDO,
+                                    'COSTO'=> $value->COSTO_UNIT,
+                                    'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                    'TOTAL'=>$value->TOTAL,
+                                    'DESCUENTO'=>$value->DESCUENTO,
+                                    'SECCIONES'=>$value->SECCION_CODIGO,
+                                    'PORCENTAJE'=>($value->TOTAL*100)/$total_porcentaje
+                                );
+                            # code...
+                        }
+
+                  
+
+
+
+                 
+ 
+            /*  --------------------------------------------------------------------------------- */
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR TODOS LOS ARRAYS
+
+
+            return ['compras' => $secciones_productos_array, 'secciones' => $secciones_array,'secciones_totales'=>$secciones_totales_array];
+
+            /*  --------------------------------------------------------------------------------- */
     }
 
 }

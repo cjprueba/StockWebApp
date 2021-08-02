@@ -183,7 +183,7 @@ class TransferenciaControler extends Controller
 
         // MOSTRAR IMPORTAR
 
-        $transferencia = Transferencia::importar_transferencia($request);
+        $transferencia = Transferencia::importar_transferencia($request->all());
         return response()->json($transferencia);
 
         /*  --------------------------------------------------------------------------------- */
@@ -293,7 +293,7 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
-           public function marcarTransferenciaDevolucion(Request $request)
+    public function marcarTransferenciaDevolucion(Request $request)
     {
 
         /*  --------------------------------------------------------------------------------- */
@@ -306,5 +306,47 @@ class TransferenciaControler extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+
+    public function modificarTransferenciaUbicacion(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::modificarUbicacionTransferencia($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+     public function qr(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODOS LOS DATOS DEL PRODUCTO
+    
+        $productos = Transferencia::TransferenciaCajaQr($request->all());
+        return response()->json($productos);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public function     obtenerCajaNumero(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MOSTRAR IMPORTAR
+
+        $transferencia = Transferencia::obtenerCajaNumero($request->all());
+        return response()->json($transferencia);
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
 
 }

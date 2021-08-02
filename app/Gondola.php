@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use App\Producto;
 use App\Empleado_Tiene_Gondola;
 use App\Gondola_Tiene_Seccion;
+use App\Piso;
+use App\Sector;
+use App\Gondola_Tiene_Piso;
+use App\Gondola_Tiene_Sector;
+use App\Parametro;
+use App\ComprasDet;
 
 class Gondola extends Model
 {
@@ -61,14 +67,23 @@ class Gondola extends Model
         ->Where('gondolas.ID','=',$datos['id'])
         ->get()
         ->toArray();
-
-        if(count($gondolas)<=0){
+         if(count($gondolas)<=0){
            return ["response"=>false];
         }
+
+        if($datos['rack']==='SI'){
+            $pisos=Gondola_Tiene_Piso::Select(DB::raw('PISOS.ID,PISOS.NRO_PISO'))->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$datos['id'])->get()->toArray();
+            $sectores=Gondola_Tiene_Sector::Select(DB::raw('SECTORES.ID,SECTORES.DESCRIPCION'))->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$datos['id'])->get()->toArray();
+            return ["response"=>true,"Gondolas"=>$gondolas,'Pisos'=>$pisos,'Sectores'=>$sectores];
+        }else{
+            return ["response"=>true,"Gondolas"=>$gondolas];
+        }
+
+       
     
         // RETORNAR EL VALOR
 
-       return ["response"=>true,"Gondolas"=>$gondolas];
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -275,6 +290,14 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
                     $gondola_id=$gondolas;
                     Gondola_Tiene_Seccion::asignar_seccion($gondola_id, $seccion_id,$user->id_sucursal);
                 }
+                if($datos['data']['Rack']==='SI'){
+                    foreach ($datos['data']['Piso'] as $key => $value) {
+                        Gondola_Tiene_Piso::guardar_referencia(["FK_GONDOLA"=>$gondolas,"FK_PISO"=>$value]);
+                    }
+                    foreach ($datos['data']['Sector'] as $key => $value) {
+                        Gondola_Tiene_Sector::guardar_referencia(["FK_GONDOLA"=>$gondolas,"FK_SECTOR"=>$value]);
+                    }
+                }
                   
                
             }else{
@@ -355,11 +378,95 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         ->where('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD', '=', $codigo)
         ->get();
 
-        /*  --------------------------------------------------------------------------------- */
-       
-        // RETORNAR EL VALOR
+        $deposito = (Parametro::mostrarParametro())["parametros"][0]->RACK;
+        
+        if($deposito === 'SI'){
 
-        return ['response' => true, 'gondolas' => $gondolas];
+            $compras = ComprasDet::select(DB::raw('COMPRAS.FECALTAS AS FECHA, 
+                GONDOLAS.DESCRIPCION AS GONDOLA, 
+                COMPRAS.CODIGO AS CODIGO,
+                COMPRAS.NRO_FACTURA AS NRO_CAJA,
+                SECCIONES.DESCRIPCION AS SECCION,
+                PISOS.NRO_PISO AS PISO,
+                SECTORES.DESCRIPCION AS SECTOR'))
+                ->leftjoin('COMPRAS', function($join){
+                     $join->on('COMPRAS.CODIGO', '=', 'COMPRASDET.CODIGO')
+                         ->on('COMPRAS.ID_SUCURSAL', '=', 'COMPRASDET.ID_SUCURSAL');
+                    })
+                ->rightjoin('COMPRAS_DEPOSITO', 'COMPRAS_DEPOSITO.FK_COMPRA', '=', 'COMPRAS.ID')
+                ->leftjoin('GONDOLAS', 'GONDOLAS.ID','=', 'COMPRAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECTORES', 'SECTORES.ID','=', 'COMPRAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('SECCIONES', 'SECCIONES.ID','=', 'COMPRAS_DEPOSITO.FK_SECCION')
+                ->leftjoin('PISOS', 'PISOS.ID','=', 'COMPRAS_DEPOSITO.FK_PISO')
+                ->where('COMPRASDET.COD_PROD', '=', $codigo)
+                ->Where('COMPRASDET.ID_SUCURSAL', '=', $user->id_sucursal)
+                ->groupBy('COMPRAS_DEPOSITO.FK_COMPRA')
+                ->get();
+
+            $transferencias = DB::connection('retail')->table('TRANSFERENCIAS_DET')
+                ->select(DB::raw('TRANSFERENCIAS.FECMODIF AS FECHA,
+                            TRANSFERENCIAS.ID,
+                            TRANSFERENCIAS.CODIGO,
+                            GONDOLAS.DESCRIPCION AS GONDOLA,
+                            TRANSFERENCIAS_DEPOSITO.NRO_CAJA AS NRO_CAJA,
+                            SECCIONES.DESCRIPCION AS SECCION,
+                            PISOS.NRO_PISO AS PISO,
+                            SECTORES.DESCRIPCION AS SECTOR'))
+                ->leftJoin('TRANSFERENCIAS', function($join){
+                                        $join->on('TRANSFERENCIAS.CODIGO', '=', 'TRANSFERENCIAS_DET.CODIGO')
+                                             ->on('TRANSFERENCIAS.SUCURSAL_ORIGEN', '=', 'TRANSFERENCIAS_DET.ID_SUCURSAL');
+                                    })
+                ->rightjoin('TRANSFERENCIAS_DEPOSITO','TRANSFERENCIAS_DEPOSITO.FK_TRANSFERENCIA','=','TRANSFERENCIAS.ID')
+                ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'TRANSFERENCIAS_DEPOSITO.FK_GONDOLA')
+                ->leftjoin('SECTORES', 'SECTORES.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_SECTOR')
+                ->leftjoin('SECCIONES', 'SECCIONES.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_SECCION')
+                ->leftjoin('PISOS', 'PISOS.ID','=', 'TRANSFERENCIAS_DEPOSITO.FK_PISO')
+                ->where('TRANSFERENCIAS_DET.CODIGO_PROD', '=', $codigo)
+                ->where('TRANSFERENCIAS.SUCURSAL_DESTINO', '=', $user->id_sucursal)
+                ->where('TRANSFERENCIAS.ESTATUS', '=', 2)
+                ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+           
+            // RETORNAR EL VALOR
+
+            return ['response' => true, 'gondolas' => $gondolas, 'COMPRAS' => $compras, 'TRANSFERENCIAS' => $transferencias];
+        }else{
+
+            /*  --------------------------------------------------------------------------------- */
+           
+            // RETORNAR EL VALOR
+            return ['response' => true, 'gondolas' => $gondolas];
+        }
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+        public static function configuracion_inicio_gondola()
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+        // OBTENER TODOS LOS PISOS
+        $pisos=Piso::Select(DB::raw('ID,DESCRIPCION,NRO_PISO'))->orderBy('NRO_PISO')->get();
+
+        /*  --------------------------------------------------------------------------------- */
+         // OBTENER TODOS LOS PISOS
+        $sectores=Sector::Select(DB::raw('ID,DESCRIPCION'))->orderBy('DESCRIPCION')->get();
+        /*  --------------------------------------------------------------------------------- */
+
+    
+        // RETORNAR EL VALOR
+        if(count($pisos)>0 && count($sectores)>0){
+             return ['response' => true, 'pisos' => $pisos,'sectores'=>$sectores];
+         }else{
+             return ['response' => false];
+         }
+       
 
         /*  --------------------------------------------------------------------------------- */
 

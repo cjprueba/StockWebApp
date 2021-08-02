@@ -24,13 +24,16 @@ Route::post('/qrcode','QrController@Crear');
 Route::post('/barcode','QrController@Crear_Barcode');
 Route::post('/barinterno','QrController@Crear_Barinterno');
 Route::get('/etigondola','QrController@Crear_Etiqueta_Gondola');
+Route::post('/PdfQrCajaCompra','QrController@Crear_Pdf_Compra_Caja_Qr');
+
+Route::post('/PdfQrCajaTransferencia','QrController@Crear_Pdf_Transferencia_Caja_Qr');
 // HOME 
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/producto', 'ApiController@producto')->name('producto');
 Route::get('/productoqr', 'ApiController@productoqr')->name('productoqr');
 Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
-Route::get('/cajacompraqr', 'ApiController@CajaCompraqr')->name('cajacompraqr');
+Route::get('/cajaqr', 'ApiController@Cajaqr')->name('cajaqr');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
@@ -117,6 +120,9 @@ Route::post('devolver_transferencia','TransferenciaControler@devolverTransferenc
 
 Route::post('marcar_transferencia_devolucion','TransferenciaControler@marcarTransferenciaDevolucion');
 Route::get('transferencia/cobrar', 'TransferenciaControler@cobrarDataTable');
+Route::post('transferenciaModificarUbicacion', 'TransferenciaControler@modificarTransferenciaUbicacion');
+Route::post('transferencia/obtener/caja/numero', 'TransferenciaControler@obtenerCajaNumero');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -229,6 +235,34 @@ Route::post('gondolaGuardar', 'GondolaController@gondolaGuardar');
 Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
 Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
+Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola');
+
+
+/* -------------------------------------------------------------------------- */
+
+// PISO
+Route::get('piso', 'PisoController@mostrar');
+Route::post('piso', 'PisoController@encontrar');
+Route::post('pisoDatatable', 'PisoController@datatable');
+Route::post('pisoFiltrar', 'PisoController@filtrarPiso');
+Route::get('nuevoPiso', 'PisoController@PisoNuevo');
+Route::post('guardarPiso', 'PisoController@PisoGuardar');
+Route::post('eliminarPiso', 'PisoController@PisoEliminar');
+
+/* -------------------------------------------------------------------------- */
+
+// SECTOR
+
+Route::get('sector', 'SectorController@mostrar');
+Route::post('sector', 'SectorController@encontrar');
+Route::post('sectorDatatable', 'SectorController@datatable');
+
+Route::get('nuevoSector', 'SectorController@SectorNuevo');
+Route::post('sectorFiltrar', 'SectorController@filtrarSector');
+Route::post('guardarSector', 'SectorController@SectorGuardar');
+Route::post('eliminarSector', 'SectorController@SectorEliminar');
+
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -416,6 +450,11 @@ Route::get('compra/mostrar_productos', 'CompraController@mostrarProductos');
 Route::post('compra/pdf', 'CompraController@getPdf');
 Route::post('compra/cabecera', 'CompraController@obtenerCabecera');
 Route::post('compra/cuerpo', 'CompraController@obtenerCuerpo');
+Route::post('compraModificarUbicacion', 'CompraController@ubicacionModificarCompra');
+Route::post('reporte_entrada_compra_seccion', 'CompraController@generar_reporte_entrada_seccion');
+Route::post('reporte_venta_compra_seccion', 'CompraController@generar_reporte_venta_compra_seccion');
+
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -628,6 +667,9 @@ Route::post('export-transferencia-consignacion', 'ExportController@descargarTran
 Route::post('reporte_salida_productos', 'SalidaProductoController@reporteSalidaProductos');
 
 /* -------------------------------------------------------------------------- */
+//REPORTE DE COMPRAS
+Route::post('export_entrada_seccion_proveedor', 'CompraController@reporteEntradaSeccion');
+
 
 // CUPONES
 Route::post('/cupon/datatable', 'CuponController@datatable');

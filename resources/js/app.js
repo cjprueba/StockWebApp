@@ -164,10 +164,11 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode )
+
 
 
 /* ********************************************* */
@@ -308,6 +309,8 @@ Vue.component('sucursal-filtrar', require('./components/textboxs/SucursalTextbox
 Vue.component('remision-filtrar', require('./components/textboxs/NotaDeRemisionTextbox.vue').default);
 Vue.component('proveedor-nombre', require('./components/textboxs/Proveedor/ProveedorTextbox.vue').default);
 Vue.component('forma-pago-credito-textbox', require('./components/textboxs/FormaPagoCreditoTextbox.vue').default);
+Vue.component('nropiso-textbox', require('./components/textboxs/PisoTextbox.vue').default);
+Vue.component('sector-textbox', require('./components/textboxs/SectorTextbox.vue').default);
 
 /* ********************************************* */
 
@@ -398,6 +401,8 @@ Vue.component('venta-transferencia-rpt' , require('./components/reportes/VentaTr
 Vue.component('venta-delivery-rpt' , require('./components/reportes/ServicioDelivery.vue').default);
 Vue.component('venta-tarjeta-rpt' , require('./components/reportes/VentaTarjeta.vue').default);
 Vue.component('productos-salida-rpt', require('./components/reportes/producto/Salida/SalidaDeProductoRpt.vue').default);
+Vue.component('compra-entrada-rpt', require('./components/reportes/compra/Entrada/EntradaCompra.vue').default);
+
 
 
 /* ********************************************* */

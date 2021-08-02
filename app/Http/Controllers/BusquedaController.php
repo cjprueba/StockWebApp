@@ -105,6 +105,8 @@ class BusquedaController extends Controller
         ->get()
         ->toArray();
 
+
+
          /*  *********** OBTENER LA SECCION GENERAL POR SUCURSAL *********** */
 
         $secciones = DB::connection('retail')
