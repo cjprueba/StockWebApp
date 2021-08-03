@@ -7171,6 +7171,29 @@ function generarReporteCompraVentaSeccionCommon(data){
 			// ------------------------------------------------------------------------
 
 }
+function generarRptPdfInventarioGondolaCommon(codigo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'inventarioGondola/pdf', method: 'post', responseType: 'blob', 'data': data}  ).then(function (response) {
+					const url = window.URL.createObjectURL(new Blob([response.data]));
+					const link = document.createElement('a');
+					link.href = url;
+					link.target = '_blank'
+					link.click();
+			});
+
+			// ------------------------------------------------------------------------
+
+}
 
 
 // ------------------------------------------------------------------------
@@ -7476,5 +7499,6 @@ export {
 		obtenerNumeroCajaCommon,
 		generarRptPdfCajaTransferenciaQrCommon,
 		generarReporteCompraEntradaSeccionCommon,
-		generarReporteCompraVentaSeccionCommon
+		generarReporteCompraVentaSeccionCommon,
+		generarRptPdfInventarioGondolaCommon
 		};

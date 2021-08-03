@@ -10,11 +10,16 @@
 				 <li class="breadcrumb-item active" aria-current="page">Mostrar Inventario</li>
 			</ol>
 		</nav>
-
+     <div class="col-md-12">
+        <div v-if="procesar" class="d-flex justify-content-center mt-3">
+          <strong>Procesando...   </strong>
+                  <div class="spinner-grow" role="status" aria-hidden="true"></div>
+        </div>
+    </div>
     <!-- ------------------------------------------------------------------------------------- -->
 
     <!-- TABLA CONTEO -->
-
+    
 		<table id="tablaConteo" class="table table-striped table-bordered table-sm" style="width:100%">
 		    <thead>
 		        <tr>
@@ -25,6 +30,7 @@
 		            <th>Fecha Creación</th>
 		            <th>Fecha Modificación</th>
 		            <th>Acción</th>
+                <th>Id_Gondola</th>
 		        </tr>
 		    </thead>	
 		 </table>
@@ -77,6 +83,8 @@
         return {
           menu : 0,
           Accion_procesar: 0,
+          procesar:false,
+          datos:[],
           inventario: {
             ID: '',
             tipo: "1"
@@ -144,8 +152,16 @@
                             { "data": "SUCURSAL" },
                             { "data": "FECALTAS" },
                             { "data": "FECMODIF" },
-                            { "data": "ACCION" }
-                        ]      
+                            { "data": "ACCION" },
+                            { "data": "ID_GONDOLA" }
+                        ],    
+                        "columnDefs": [
+                        {
+                        "targets": [ 7 ],
+                        "visible": false,
+                        "searchable": false
+                        }
+                    ]   
                     });
 
                   // ------------------------------------------------------------------------
@@ -180,6 +196,39 @@
 
                      
                       
+                      
+
+                      // *******************************************************************
+
+                  });
+                   $('#tablaConteo').on('click', 'tbody tr #reporte', function() {
+
+                      // *******************************************************************
+
+                      // ENVIAR A COMMON FUNCTION PARA GENERAR REPORTE PDF
+                      let me=this;
+                       var row  = $(this).parents('tr')[0];
+                      
+                        me.datos={
+                          ID_INV: table.row( row ).data().ID,
+                          ID_GONDOLA: table.row( row ).data().ID_GONDOLA
+                        };
+                      me.procesar = true;
+                        axios({
+                          url: '/export_inventario_gondola',
+                          method: 'POST',
+                          data: me.datos,
+                          responseType: 'blob', // important
+                        }).then((response) => {
+                          me.procesar = false;
+                           const url = window.URL.createObjectURL(new Blob([response.data]));
+                           const link = document.createElement('a');
+                           link.href = url;
+                           link.setAttribute('download', 'Inventario_Gondola_'+table.row( row ).data().ID+'.xlsx'); //or any other extension
+                           document.body.appendChild(link);
+                           link.click();
+
+                        });
                       
 
                       // *******************************************************************

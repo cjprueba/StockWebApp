@@ -429,7 +429,7 @@ class Inventario extends Model
 
   			$posts = DB::connection('retail')
   			->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID,CONTEO.GONDOLA AS GONDOLA, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
                         ->offset($start)
             ->limit($limit)
@@ -452,7 +452,7 @@ class Inventario extends Model
 
             $posts =  DB::connection('retail')
             ->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID,CONTEO.GONDOLA AS GONDOLA, conteo.OBSERVACION, conteo.MOTIVO, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                                 $query->where('conteo.ID','LIKE',"%{$search}%")
@@ -493,23 +493,26 @@ class Inventario extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
+                $gondola='';
+                if($post->GONDOLA<>0 && $post->GONDOLA<>658){
+                    $gondola="&emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
 
+                }
                 $nestedData['ID'] = $post->ID;
                 $nestedData['OBSERVACION'] = $post->OBSERVACION;
                 $nestedData['MOTIVO'] = $post->MOTIVO;
                 $nestedData['SUCURSAL'] = $post->SUCURSAL;
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;
+                 $nestedData['ID_GONDOLA'] = $post->GONDOLA;
 
                 if($user->can("inventario.mostrar.procesar")){
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
-                    ";
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>".$gondola;
 
                 }else{
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;
-                    ";
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>".$gondola;
 
                 }
                 
