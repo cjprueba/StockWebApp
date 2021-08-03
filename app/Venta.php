@@ -6262,7 +6262,7 @@ class Venta extends Model
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update(['ANULADO'=> 1,'FECMODIF'=>$dia,'HORMODIF'=>$hora,'USERM'=>$user->name]);
             //GUARDAR LA AUTORIZACION DE LA ANULACION DE LA FACTURA
-            VentaAnuladoTieneAutorizacion::guardar_referencia(["FK_VENTA"=>$datos['data']['id_venta'],"FK_USER"=>$datos["data"]["autorizacion"]["ID_USUARIO"],"FK_USER_SUPERVISOR"=>$datos["data"]["autorizacion"]["ID_USER_SUPERVISOR"]]);
+            VentaAnuladoTieneAutorizacion::guardar_referencia(["FK_VENTA"=>$datos['data']['id_venta'],"FK_USER"=>$datos['data']['autorizacion']['ID_USUARIO'],"FK_USER_SUPERVISOR"=>$datos['data']['autorizacion']['ID_USER_SUPERVISOR']]);
             DB::connection('retail')->commit();
 
             return ["response"=>true,"ventas"=>$venta];
