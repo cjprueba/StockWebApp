@@ -1,278 +1,280 @@
 <template>
 		<!-- COMPRAS POR SECCION Y PROVEEDOR -->
 	<div>
-		<div class="card shadow border-bottom-primary mt-3" >
-		  	<div class="card-header">Compras Por Sectores y Proveedores</div>
-			<div class="card-body">
-			  	<div class="form-row">
-			  		<div class="col-md-4 mb-3">
-			  			
-			  			<label for="validationTooltip01">Seleccione Sucursal</label>
-						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
-							 <option value="null" selected>Seleccionar</option>
-							 <option v-for="sucursal in sucursales" :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
-						</select>
-						<div class="invalid-feedback">
-					        {{messageInvalidSucursal}}
-					    </div>
-
-					  	<label class="mt-3" for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
-						<div id="sandbox-container">
-							<div class="input-daterange input-group">
-								   <input  v-on:change="habilitar_insert" type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
-								   <div class="input-group-append form-control-sm">
-								   		<span class="input-group-text">a</span>
-								   </div>
-								   <input v-on:change="habilitar_insert"  type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
-							</div>
+		<div v-if="$can('reporte.compras.entrada') && $can('reporte.compras')">
+			<div class="card shadow border-bottom-primary mt-3" >
+			  	<div class="card-header">Compras Por Sectores y Proveedores</div>
+				<div class="card-body">
+				  	<div class="form-row">
+				  		<div class="col-md-4 mb-3">
+				  			
+				  			<label for="validationTooltip01">Seleccione Sucursal</label>
+							<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSucursal }" v-model="selectedSucursal">
+								 <option value="null" selected>Seleccionar</option>
+								 <option v-for="sucursal in sucursales" :value="sucursal.CODIGO">{{ sucursal.DESCRIPCION }}</option>
+							</select>
 							<div class="invalid-feedback">
-					        	{{messageInvalidFecha}}
-					    	</div>
-						</div>		
+						        {{messageInvalidSucursal}}
+						    </div>
 
-						<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
+						  	<label class="mt-3" for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
+							<div id="sandbox-container">
+								<div class="input-daterange input-group">
+									   <input  v-on:change="habilitar_insert" type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
+									   <div class="input-group-append form-control-sm">
+									   		<span class="input-group-text">a</span>
+									   </div>
+									   <input v-on:change="habilitar_insert"  type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
+								</div>
+								<div class="invalid-feedback">
+						        	{{messageInvalidFecha}}
+						    	</div>
+							</div>		
 
-						
-					</div>
+							<!-- -------------------------------------------MOSTRAR TIPO----------------------------------------------- -->
 
-					<div class="col-md-4">
-						<label for="validationTooltip01">Seleccione Sección</label> 
-						<div class="container_checkbox1 rounded">
-		                    <div class="ml-3" v-for="seccion in secciones">
-		                      <div class="custom-control custom-checkbox">
-		                        <input v-on:change="habilitar_insert"  type="checkbox" class="custom-control-input" :disabled="onSeccion" 
-		                        :value="seccion.ID_SECCION" 
-		                        :id="seccion.ID_SECCION" 
-		                        v-model="selectedSeccion" 
-		                        v-bind:class="{ 'is-invalid': validarSeccion }">
-		                        <label class="custom-control-label" :for="seccion.ID_SECCION">{{seccion.DESCRIPCION }}</label>
-		                      </div>
-		                    </div>
-		                </div>
-						<div>
-					        <div class="form-text text-danger">{{messageInvalidSeccion}}</div>
-					    </div>
-						<div  class="custom-control custom-switch mt-3">
-						  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onSeccion" v-on:change="seleccionarTodo">
-						  <label class="custom-control-label" for="customSwitch1" >Seleccionar todas las secciones</label>
+							
 						</div>
-					</div>
 
-					<!-- ------------------------------------------- GONDOLAS ----------------------------------------------- -->
-				
-					<div class="col-md-4">
-						<label for="validationTooltip02">Seleccione Proveedor</label> 
-						<div class="container_checkbox1 rounded">
-		                    <div class="ml-3" v-for="proveedor in proveedores">
-		                      <div class="custom-control custom-checkbox">
-		                        <input  v-on:change="habilitar_insert" type="checkbox" class="custom-control-input" :disabled="onProveedor" 
-		                        :value="proveedor.CODIGO" 
-		                        :id='"Piso_"+proveedor.CODIGO' 
-		                        v-model="selectedProveedor" 
-		                        v-bind:class="{ 'is-invalid': validarProveedor }">
-		                        <label class="custom-control-label" :for='"Piso_"+proveedor.CODIGO' >{{proveedor.NOMBRE}}</label>
-		                      </div>
-		                    </div>
-		                </div>
-						<div>
-						    <div class="form-text text-danger">{{messageInvalidProveedor}}</div>
+						<div class="col-md-4">
+							<label for="validationTooltip01">Seleccione Sección</label> 
+							<div class="container_checkbox1 rounded">
+			                    <div class="ml-3" v-for="seccion in secciones">
+			                      <div class="custom-control custom-checkbox">
+			                        <input v-on:change="habilitar_insert"  type="checkbox" class="custom-control-input" :disabled="onSeccion" 
+			                        :value="seccion.ID_SECCION" 
+			                        :id="seccion.ID_SECCION" 
+			                        v-model="selectedSeccion" 
+			                        v-bind:class="{ 'is-invalid': validarSeccion }">
+			                        <label class="custom-control-label" :for="seccion.ID_SECCION">{{seccion.DESCRIPCION }}</label>
+			                      </div>
+			                    </div>
+			                </div>
+							<div>
+						        <div class="form-text text-danger">{{messageInvalidSeccion}}</div>
+						    </div>
+							<div  class="custom-control custom-switch mt-3">
+							  <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="onSeccion" v-on:change="seleccionarTodo">
+							  <label class="custom-control-label" for="customSwitch1" >Seleccionar todas las secciones</label>
+							</div>
 						</div>
-						<div class="custom-control custom-switch mt-3">
-							<input  type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor" v-on:change="seleccionarTodo">
-							<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
-						</div>
-		            </div>
-				</div>
-				<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download" /> Descargar</button>
-			    <button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button>
-			</div>
-		</div>
 
-
-		<!-- CARD PARA MARCA Y SU CATEGORIA -->
-
-		<div class="row">
-
-			<!-- SPINNER DESCARGA -->
-
-			<div class="col-md-12">
-				<div v-if="descarga" class="d-flex justify-content-center mt-3">
-					<strong>Descargando...   </strong>
-	                <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
-	             </div>
-            </div>
-
-			<!-- SPINNER CONSULTA -->
-
-			<div class="col-md-12">
-				<div v-if="cargado" class="d-flex justify-content-center mt-3">
-					<strong>Cargando...   </strong>
-	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
-	             </div>
-            </div>
-            		<!-- CARD PARA MARCA Y SU CATEGORIA -->
-             <div class="col-md-12">
-	                <div class="card-body">
-						<div class="ct-chart">
-							<canvas id="secciones">
-								
-							</canvas>
-						</div>
-					</div>
-	    	</div>
-	     	
-
-         
-	           	<div class="col-md-12">
-		     		<table class="table table-striped table-hover table-light table-sm" v-if="responseSeccion.length > 0">
-					  <thead>
-					    <tr>
-					      <th scope="col">#</th>
-					      <th scope="col">Seccion-Proveedor</th>
-					      <th scope="col">Entrada</th>
-					      <th scope="col">Vendido</th>
-					      <th scope="col">Costo Total</th>
-					      <th scope="col">Total</th>
-					      <th scope="col">Porcentaje</th>
-					    </tr>
-					  </thead>
-					  <tbody>
-					    <tr v-for="(seccion, index) in responseSeccion" v-on:click="clicked(seccion)"  data-toggle="modal" data-target="#exampleModalCenter">
-					      <th scope="row">{{index+1}}</th>
-					      <td>{{seccion.TOTALES}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.ENTRADA)}}</td>
-					       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.VENDIDO)}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.TOTAL)}}</td>
-					        <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.PORCENTAJE)}}</td>
-					    </tr>
-					  </tbody>
-					  <tfoot>
-						<tr>
-						  <th></th>
-						  <th>TOTALES</th>
-						  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((aca, item) => aca + parseInt(item.ENTRADA), 0))}}</th>
-						  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((aca, item) => aca + parseInt(item.VENDIDO), 0))}}</th>
-						   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.COSTO_TOTAL, 0))}}</th>
-						   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
-						   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.PORCENTAJE, 0))}}</th>
-						</tr>
-					  </tfoot>
-					</table>
-		     	</div>
-        </div>
-			<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">Seccion: <small>{{seccionTitulo}}</small></h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        <table class="table" v-if="datosFilas !== null">
-						  <thead>
-						    <tr >
-						      <th style="font-size: 12px" scope="col">#</th>
-						      <th style="font-size: 12px" scope="col">CODIGO</th>
-						      <th style="font-size: 12px" scope="col">LOTE</th>
-						      <th style="font-size: 12px" scope="col">MARCA</th>
-						      <th style="font-size: 12px" scope="col">CATEGORIA</th>
-						      <th style="font-size: 12px" scope="col">SUBCATEGORIA</th>
-						      <th style="font-size: 12px" scope="col">STOCK</th>
-						      <th style="font-size: 12px" scope="col">ENTRADA</th>
-						      <th style="font-size: 12px" scope="col">VENDIDO</th>
-						      <th style="font-size: 12px" scope="col">COSTO UNITARIO</th>
-						      <th style="font-size: 12px" scope="col">COSTO TOTAL</th>
-						      <th style="font-size: 12px" scope="col">TOTAL</th>
-						    </tr>
-						  </thead>
-						  <tbody>
-						    <tr style="font-size: 12px" v-for="(compras, index) in filterProductos(responseCompras, datosFilas,datosProveedor)">
-						      <th scope="row">{{index+1}}</th>
-						      <td>{{compras.COD_PROD}}</td>
-						      <td>{{compras.LOTE}}</td>
-						      <td>{{compras.MARCA}}</td>
-						      <td>{{compras.CATEGORIA}}</td>
-						      <td>{{compras.SUBCATEGORIA}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.STOCK)}}</td>
-						       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.ENTRADA)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.VENDIDO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.COSTO_UNIT)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.COSTO_TOTAL)}}</td>
-						       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.TOTAL)}}</td>
-						    </tr>
-						  </tbody>
-						</table>
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>	
-
-			<!-- FIN DE TALA DE DATOS CRUDOS -->
-
-			<div class="col-md-12">
-				<div class="card border-left-primary mt-3" v-for="seccion in responseSeccionTotales">
-					<div class="row">
-						
-						<div class="col-md-6">
-							  <div class="card-header font-weight-bold text-primary">
-							    {{seccion.TOTALES}}
-							  </div>
-					    </div>
-					    <div class="col-md-6">
-							  <div class="card-header font-weight-bold text-primary text-right">
-							    {{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}
-							  </div>
-					    </div>
-					</div>  
+						<!-- ------------------------------------------- GONDOLAS ----------------------------------------------- -->
 					
-					<div class="card-body">
-						<table class="table table-sm">
-						  <thead class="thead-light">
+						<div class="col-md-4">
+							<label for="validationTooltip02">Seleccione Proveedor</label> 
+							<div class="container_checkbox1 rounded">
+			                    <div class="ml-3" v-for="proveedor in proveedores">
+			                      <div class="custom-control custom-checkbox">
+			                        <input  v-on:change="habilitar_insert" type="checkbox" class="custom-control-input" :disabled="onProveedor" 
+			                        :value="proveedor.CODIGO" 
+			                        :id='"Piso_"+proveedor.CODIGO' 
+			                        v-model="selectedProveedor" 
+			                        v-bind:class="{ 'is-invalid': validarProveedor }">
+			                        <label class="custom-control-label" :for='"Piso_"+proveedor.CODIGO' >{{proveedor.NOMBRE}}</label>
+			                      </div>
+			                    </div>
+			                </div>
+							<div>
+							    <div class="form-text text-danger">{{messageInvalidProveedor}}</div>
+							</div>
+							<div class="custom-control custom-switch mt-3">
+								<input  type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onProveedor" v-on:change="seleccionarTodo">
+								<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
+							</div>
+			            </div>
+					</div>
+					<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download" /> Descargar</button>
+				    <button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button>
+				</div>
+			</div>
+
+
+			<!-- CARD PARA MARCA Y SU CATEGORIA -->
+
+			<div class="row">
+
+				<!-- SPINNER DESCARGA -->
+
+				<div class="col-md-12">
+					<div v-if="descarga" class="d-flex justify-content-center mt-3">
+						<strong>Descargando...   </strong>
+		                <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
+		             </div>
+	            </div>
+
+				<!-- SPINNER CONSULTA -->
+
+				<div class="col-md-12">
+					<div v-if="cargado" class="d-flex justify-content-center mt-3">
+						<strong>Cargando...   </strong>
+		                <div class="spinner-grow" role="status" aria-hidden="true"></div>
+		             </div>
+	            </div>
+	            		<!-- CARD PARA MARCA Y SU CATEGORIA -->
+	             <div class="col-md-12">
+		                <div class="card-body">
+							<div class="ct-chart">
+								<canvas id="secciones">
+									
+								</canvas>
+							</div>
+						</div>
+		    	</div>
+		     	
+
+	         
+		           	<div class="col-md-12">
+			     		<table class="table table-striped table-hover table-light table-sm" v-if="responseSeccion.length > 0">
+						  <thead>
 						    <tr>
 						      <th scope="col">#</th>
-						      <th scope="col">Proveedor</th>
+						      <th scope="col">Seccion-Proveedor</th>
 						      <th scope="col">Entrada</th>
-						       <th scope="col">Vendido</th>
+						      <th scope="col">Vendido</th>
 						      <th scope="col">Costo Total</th>
-						       <th scope="col">Total</th>
+						      <th scope="col">Total</th>
 						      <th scope="col">Porcentaje</th>
 						    </tr>
 						  </thead>
 						  <tbody>
-						    <tr v-for="(proveedores, index) in filterItems(responseSeccion, seccion.SECCIONES)">
+						    <tr v-for="(seccion, index) in responseSeccion" v-on:click="clicked(seccion)"  data-toggle="modal" data-target="#exampleModalCenter">
 						      <th scope="row">{{index+1}}</th>
-						      <td>{{proveedores.PROVEEDOR_NOMBRE}}</td>
-						       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.ENTRADA)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.VENDIDO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.COSTO_TOTAL)}}</td>
-						        <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.TOTAL)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.PORCENTAJE)}}</td>
+						      <td>{{seccion.TOTALES}}</td>
+						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.ENTRADA)}}</td>
+						       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.VENDIDO)}}</td>
+						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}</td>
+						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.TOTAL)}}</td>
+						        <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.PORCENTAJE)}}</td>
 						    </tr>
 						  </tbody>
 						  <tfoot>
 							<tr>
 							  <th></th>
 							  <th>TOTALES</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.ENTRADA)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.VENDIDO)}}</th>
-							   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.TOTAL)}}</th>
-							   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.PORCENTAJE)}}</th>
+							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((aca, item) => aca + parseInt(item.ENTRADA), 0))}}</th>
+							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((aca, item) => aca + parseInt(item.VENDIDO), 0))}}</th>
+							   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.COSTO_TOTAL, 0))}}</th>
+							   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
+							   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseSeccion.reduce((acc, item) => acc + item.PORCENTAJE, 0))}}</th>
 							</tr>
 						  </tfoot>
 						</table>
+			     	</div>
+	        </div>
+				<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h5 class="modal-title" id="exampleModalCenterTitle">Seccion: <small>{{seccionTitulo}}</small></h5>
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+					      </div>
+					      <div class="modal-body">
+					        <table class="table" v-if="datosFilas !== null">
+							  <thead>
+							    <tr >
+							      <th style="font-size: 12px" scope="col">#</th>
+							      <th style="font-size: 12px" scope="col">CODIGO</th>
+							      <th style="font-size: 12px" scope="col">LOTE</th>
+							      <th style="font-size: 12px" scope="col">MARCA</th>
+							      <th style="font-size: 12px" scope="col">CATEGORIA</th>
+							      <th style="font-size: 12px" scope="col">SUBCATEGORIA</th>
+							      <th style="font-size: 12px" scope="col">STOCK</th>
+							      <th style="font-size: 12px" scope="col">ENTRADA</th>
+							      <th style="font-size: 12px" scope="col">VENDIDO</th>
+							      <th style="font-size: 12px" scope="col">COSTO UNITARIO</th>
+							      <th style="font-size: 12px" scope="col">COSTO TOTAL</th>
+							      <th style="font-size: 12px" scope="col">TOTAL</th>
+							    </tr>
+							  </thead>
+							  <tbody>
+							    <tr style="font-size: 12px" v-for="(compras, index) in filterProductos(responseCompras, datosFilas,datosProveedor)">
+							      <th scope="row">{{index+1}}</th>
+							      <td>{{compras.COD_PROD}}</td>
+							      <td>{{compras.LOTE}}</td>
+							      <td>{{compras.MARCA}}</td>
+							      <td>{{compras.CATEGORIA}}</td>
+							      <td>{{compras.SUBCATEGORIA}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.STOCK)}}</td>
+							       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.ENTRADA)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.VENDIDO)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.COSTO_UNIT)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.COSTO_TOTAL)}}</td>
+							       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(compras.TOTAL)}}</td>
+							    </tr>
+							  </tbody>
+							</table>
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>	
+
+				<!-- FIN DE TALA DE DATOS CRUDOS -->
+
+				<div class="col-md-12">
+					<div class="card border-left-primary mt-3" v-for="seccion in responseSeccionTotales">
+						<div class="row">
+							
+							<div class="col-md-6">
+								  <div class="card-header font-weight-bold text-primary">
+								    {{seccion.TOTALES}}
+								  </div>
+						    </div>
+						    <div class="col-md-6">
+								  <div class="card-header font-weight-bold text-primary text-right">
+								    {{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}
+								  </div>
+						    </div>
+						</div>  
+						
+						<div class="card-body">
+							<table class="table table-sm">
+							  <thead class="thead-light">
+							    <tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Proveedor</th>
+							      <th scope="col">Entrada</th>
+							       <th scope="col">Vendido</th>
+							      <th scope="col">Costo Total</th>
+							       <th scope="col">Total</th>
+							      <th scope="col">Porcentaje</th>
+							    </tr>
+							  </thead>
+							  <tbody>
+							    <tr v-for="(proveedores, index) in filterItems(responseSeccion, seccion.SECCIONES)">
+							      <th scope="row">{{index+1}}</th>
+							      <td>{{proveedores.PROVEEDOR_NOMBRE}}</td>
+							       <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.ENTRADA)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.VENDIDO)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.COSTO_TOTAL)}}</td>
+							        <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.TOTAL)}}</td>
+							      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(proveedores.PORCENTAJE)}}</td>
+							    </tr>
+							  </tbody>
+							  <tfoot>
+								<tr>
+								  <th></th>
+								  <th>TOTALES</th>
+								  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.ENTRADA)}}</th>
+								  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.VENDIDO)}}</th>
+								   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.COSTO_TOTAL)}}</th>
+								  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.TOTAL)}}</th>
+								   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(seccion.PORCENTAJE)}}</th>
+								</tr>
+							  </tfoot>
+							</table>
+						</div>
 					</div>
 				</div>
-			</div>
-
-
-
+		</div>
+		<div v-else>
+      		<cuatrocientos-cuatro></cuatrocientos-cuatro>
+    	</div>
 	</div>
 		<!-- FIN DE VENTA POR GONDOLA -->
 
