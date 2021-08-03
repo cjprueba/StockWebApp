@@ -82,7 +82,7 @@
 							<label for="validationTooltip01">Origen</label>
 							<div class="input-group ">
 								<div class="input-group-prepend">
-									<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(1)"><font-awesome-icon icon="search"/></button>
+									<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".origen-modal" v-on:click="cargarSucursales(1,0),activarBuscar(1)" disabled><font-awesome-icon icon="search"/></button>
 								</div>
 								<input class="form-control form-control-sm" type="text" v-model="codigoOrigen" v-on:blur="cargarSucursales(2, 1)" disabled>
 							</div>
