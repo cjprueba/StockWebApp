@@ -2584,7 +2584,8 @@ class Venta extends Model
             Venta::where('ID', '=', $venta)
                     ->update([
                             //"FORMA_PAGO" => '', 
-                            "DESCUENTO" => ($descuento_total + $descuento_general), 
+                            "DESCUENTO" => ($descuento_total + $descuento_general),
+                            "TIPO" =>  $tipo_venta,
                             "GRAVADAS" => $total_gravadas, 
                             "IMPUESTOS" => $total_iva, 
                             "EXENTAS" => $total_exentas, 
