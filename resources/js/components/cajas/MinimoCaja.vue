@@ -79,7 +79,7 @@
           // CAMBIAR TAMAÑO FUENTE 
 
           $("#tablaMinimo").css("font-size", 12);
-          tableMinimo.columns.adjust().draw();
+         
 
           // ------------------------------------------------------------------------
 

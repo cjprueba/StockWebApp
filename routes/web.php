@@ -451,6 +451,10 @@ Route::post('compra/pdf', 'CompraController@getPdf');
 Route::post('compra/cabecera', 'CompraController@obtenerCabecera');
 Route::post('compra/cuerpo', 'CompraController@obtenerCuerpo');
 Route::post('compraModificarUbicacion', 'CompraController@ubicacionModificarCompra');
+Route::post('reporte_entrada_compra_seccion', 'CompraController@generar_reporte_entrada_seccion');
+Route::post('reporte_venta_compra_seccion', 'CompraController@generar_reporte_venta_compra_seccion');
+
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -663,6 +667,9 @@ Route::post('export-transferencia-consignacion', 'ExportController@descargarTran
 Route::post('reporte_salida_productos', 'SalidaProductoController@reporteSalidaProductos');
 
 /* -------------------------------------------------------------------------- */
+//REPORTE DE COMPRAS
+Route::post('export_entrada_seccion_proveedor', 'CompraController@reporteEntradaSeccion');
+
 
 // CUPONES
 Route::post('/cupon/datatable', 'CuponController@datatable');

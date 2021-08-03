@@ -11,84 +11,85 @@
   <!-- ------------------------------------------------------------------------------------- -->
       
      <div v-if="$can('venta.anular') && $can('venta')" class="offset-md-2 col-8">
-    <div class="card mt-3 shadow-sm">
-      <h5 class="card-header">Anulacion De Ventas</h5>
-      <div class="card-body">
+        <div class="card mt-3 shadow-sm">
+           <h5 class="card-header">Anulacion De Ventas</h5>
+           <div class="card-body">
        
-        <div class="row" >
+            <div class="row" >
 
-           <div class="col-md-6">
-             <div class="form-input form-input-inline">
-              <ventas-id class="form-input-inline form-input-sm" ref="componente_textbox_Ventas" @codigo='traer_codigo'  :nombre='codigo' :validarVenta='validarVenta' @codigoCaja='traer_CodigoCaja' @fecha='traer_fecha' @hora='traer_hora' @tipo='traer_tipo' @moneda='traer_moneda' @total='traer_total' @vendedor='traer_vendedor' @cliente='traer_cliente' v-model='codigo'></ventas-id>
-            </div>    
-          </div>            
-            <div class="col-md-6">
-              <label >Caja:</label>
-            <input v-model="caja" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 "  :tabindex=1 v-bind:class="{ 'is-invalid': validarCaja }" disabled >
-            </div>
- 
+               <div class="col-md-6">
+                 <div class="form-input form-input-inline">
+                  <ventas-id class="form-input-inline form-input-sm" ref="componente_textbox_Ventas" @fk_venta="traer_fk_venta" @codigo='traer_codigo'  :nombre='codigo' :validarVenta='validarVenta' @codigoCaja='traer_CodigoCaja' @fecha='traer_fecha' @hora='traer_hora' @tipo='traer_tipo' @moneda='traer_moneda' @total='traer_total' @vendedor='traer_vendedor' @cliente='traer_cliente' v-model='codigo'></ventas-id>
+                 </div>    
+               </div>            
+                <div class="col-md-6">
+                  <label >Caja:</label>
+                   <input v-model="caja" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 "  :tabindex=1 v-bind:class="{ 'is-invalid': validarCaja }" disabled >
+                </div>
+     
 
-  <hr>
-        <div class="col-md-3 mt-3">
-          <label for="selectedInicialFecha">Fecha:</label>
-                   <input type="text" class="form-control form-control-sm" id="selectedInicialFecha" data-date-format="yyyy-mm-dd" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
-                
-        </div>
+                <hr>
+                <div class="col-md-3 mt-3">
+                  <label for="selectedInicialFecha">Fecha:</label>
+                  <input type="text" class="form-control form-control-sm" id="selectedInicialFecha" data-date-format="yyyy-mm-dd" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>    
+                </div>
+                     
                  
-             
-          <div class="col-md-3 mt-3">
-            <label for="formGroupExampleInput2">Codigo_Ca:</label>
-          <input v-model="codigo_ca" type="text" class="form-control form-control-sm"  id="formGroupExampleInput2 " :tabindex=3 v-on:blur="filtrarVenta"  >
-          </div>
+                <div class="col-md-3 mt-3">
+                  <label for="formGroupExampleInput2">Codigo_Ca:</label>
+                  <input v-model="codigo_ca" type="text" class="form-control form-control-sm"  id="formGroupExampleInput2 " :tabindex=3 v-on:blur="filtrarVenta"  >
+                </div>
 
-          <div class="col-md-3 mt-3">
-            <label for="formGroupExampleInput2">Hora:</label>
-          <input v-model="hora" type="text" class="form-control form-control-sm"  id="formGroupExampleInput2 " :tabindex=3   >
-          </div>
-          <div class="col-md-3 mt-3">
-             <label for="formGroupExampleInput3">Tipo:</label>
-          <input v-model="tipo" type="text" class="form-control form-control-sm"  id="formGroupExampleInput3 " :tabindex=4   >
-          </div>
-         
-          <div class="col-md-6 mt-3">
-            <label >Cliente:</label>
-            <input v-model="cliente" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=5    >
-          </div>
-          <div class="col-md-6 mt-3">
-            <label >Vendedor:</label>
-            <input v-model="vendedor" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=6   >
-          </div>
-          <div class="col-md-6 mt-3">
-            <label >Moneda:</label>
-            <input v-model="mon" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=7   >
-          </div>
-            <div class="col-md-6 mt-3">
-            <label >Total:</label>
-            <input v-model="total" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=8   >
-          </div>
-        
-
-
-            <div class="col-12">
-
-                 <hr>
-
-            </div>
+                <div class="col-md-3 mt-3">
+                  <label for="formGroupExampleInput2">Hora:</label>
+                  <input v-model="hora" type="text" class="form-control form-control-sm"  id="formGroupExampleInput2 " :tabindex=3   >
+                </div>
+                <div class="col-md-3 mt-3">
+                  <label for="formGroupExampleInput3">Tipo:</label>
+                  <input v-model="tipo" type="text" class="form-control form-control-sm"  id="formGroupExampleInput3 " :tabindex=4   >
+                </div>
                
-              
+                <div class="col-md-6 mt-3">
+                  <label >Cliente:</label>
+                  <input v-model="cliente" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=5    >
+                </div>
+                <div class="col-md-6 mt-3">
+                  <label >Vendedor:</label>
+                  <input v-model="vendedor" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=6   >
+                </div>
+                <div class="col-md-6 mt-3">
+                  <label >Moneda:</label>
+                  <input v-model="mon" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=7   >
+                </div>
+                  <div class="col-md-6 mt-3">
+                  <label >Total:</label>
+                  <input v-model="total" type="text" class="form-control form-control-sm"  id="formGroupExampleInput1 " :tabindex=8   >
+                </div>
+            
 
-             </div>
-                    <div  class="col-11 mt-3 text-right">
-                     <button v-on:click="anularVenta" type="submit" class="btn btn-danger">Anular(F6)</button>
-                  </div>
+
+                <div class="col-12">
+
+                     <hr>
+
+                </div>
+                   
+                  
+
+           </div>
+            <div  class="col-11 mt-3 text-right">
+                <button v-on:click="autorizar" type="submit" class="btn btn-danger">Anular(F6)</button>
+            </div>
 
     </div>
   </div>
+
 </div>
 <div v-else>
   <cuatrocientos-cuatro></cuatrocientos-cuatro>
 </div>
-     </div>
+<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
+</div>
 
 
 </div>
@@ -102,7 +103,13 @@
           menu : 0,
           messageInvalidFecha: '',
           idPermiso:"",
-        
+         autorizacion: {
+            HABILITAR: 0,
+            CODIGO: 0,
+            ID_USUARIO: 0,
+            PERMITIDO: 0,
+            ID_USER_SUPERVISOR: 0
+          },
           switch_descuento:false,
           validarVenta:false,
           validarDescuento:false,
@@ -135,6 +142,8 @@
           validarCheck:false,
           descripcionTela:"",
           deshabilitar:false,
+          permiso:false,
+          id_venta:''
         }
       }, 
       methods: {
@@ -197,10 +206,34 @@
           this.total=data;
            
         },
+         traer_fk_venta(data){
+
+          this.id_venta=data;
+           
+        },
+       
         enviar_id(id){
 
           this.idPermiso=id;
         },
+        autorizacionData(data){
+
+        // ------------------------------------------------------------------------
+
+        // LLAMAR MODAL
+        
+        if (data.response === true) {
+
+             
+          this.autorizacion.ID_USUARIO = data.usuario;
+          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+
+          this.anularVenta();
+        }
+
+        // ------------------------------------------------------------------------
+
+      },
         limpiar(){
          
           let me =this;
@@ -249,7 +282,7 @@
               co_ca:me.codigo_ca,
               fecha:me.selectedInicialFecha,
               codigo:me.codigo,
-              caja:me.caja,
+              caja:me.caja
              }
               Common.filtrarVentasCommon(data).then(data => {
                         if(data.response===true){
@@ -271,8 +304,11 @@
 
 
         },
-               anularVenta(){
-   
+        autorizar(){
+        this.$refs.autorizacion_componente.mostrarModal();
+        },
+      anularVenta(){
+               console.log(this.autorizacion);
              let me =this;
              if(me.codigo===""){
                
@@ -294,10 +330,14 @@
              var data = {
               codigo:me.codigo,
               caja:me.caja,
+              id_venta:me.id_venta,
+
+              autorizacion:me.autorizacion
+
              }
              Swal.fire({
           title: 'Estas seguro ?',
-          text: "anular la venta " + me.codigo + " !",
+          text: "anular la venta " + me.id_venta + " !",
           type: 'warning',
           showLoaderOnConfirm: true,
           showCancelButton: true,
