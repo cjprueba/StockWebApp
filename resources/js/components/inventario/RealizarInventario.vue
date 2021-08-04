@@ -147,7 +147,7 @@
 					<table id="tablaProductosConteo" class="table table-striped table-bordered table-sm" style="width:100%">
 		                <thead>
 		                    <tr>
-		                        <th >Codigo Producto</th>
+		                        <th>Código Producto</th>
 		                        <th>Descripción</th>
 		                        <th class="conteoColumna">Conteo</th>
 		                        <th class="stockColumna">Stock</th>
@@ -255,8 +255,8 @@
            			if (data.response === true) {
 
            				Swal.fire(
-						  'Creado !',
-						  'El conteo de inventario ha sido creado correctamente !',
+						  '¡Creado!',
+						  '¡El conteo de inventario ha sido creado correctamente!',
 						  'success'
 						).then((result) => {
 						  if (result.value) {
@@ -337,12 +337,6 @@
 					   		this.playSound(require("./../../../sonidos/error.mp3"));
 
 					   		// ------------------------------------------------------------------------
-
-					   		// LLAMAR A TOAST ERROR 
-
-					   		me.toast('Error - '+codigo+'', 'Este producto no existe !','b-toaster-top-right', 'danger');
-
-					   		// ------------------------------------------------------------------------
 					   }
 				});
 
@@ -398,7 +392,8 @@
 
 					   		// MOSTRAR TOAST 
 
-					   		me.toast('Contado - '+me.codigoResponse+'', 'Cantidad: '+me.cantidadResponse+'','b-toaster-top-right', 'success');
+
+					   			me.toast('Contado - '+me.codigoResponse+'', 'Cantidad: '+me.cantidadResponse+'','b-toaster-top-right', 'success');
 
 					   		// ------------------------------------------------------------------------
 
@@ -421,7 +416,7 @@
 
 					   		// LLAMAR A TOAST ERROR 
 
-					   		me.toast('Error - '+this.codigoProductoCantidad+'', 'Este producto no existe !','b-toaster-top-right', 'danger');
+					   		me.toast('Error - '+this.codigoProductoCantidad+'', '¡Este producto no existe!','b-toaster-top-right', 'danger');
 
 					   		// ------------------------------------------------------------------------
 					   }
