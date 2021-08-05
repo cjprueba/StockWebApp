@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Inventario;
+use  App\Exports\Reportes\Inventario\InventarioImageGondolaExport;
 
 class InventarioController extends Controller
 {
@@ -122,4 +123,17 @@ class InventarioController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+        public function Inventario_Gondola_Productos(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGA REPORTE 
+
+        return Excel::download(new InventarioImageGondolaExport($request->all()), 'Inventario_Gondola.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 }
