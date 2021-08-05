@@ -266,9 +266,12 @@ class Sucursal extends Model
 
     	/*  --------------------------------------------------------------------------------- */
 
+        $user = auth()->user();
+
     	// OBTENER TODAS LAS SUCURSALES
 
     	$sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
+        ->where('CODIGO', '=', $user->id_sucursal)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
