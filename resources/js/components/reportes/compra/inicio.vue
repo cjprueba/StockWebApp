@@ -3,13 +3,13 @@
 
 		<!-- ------------------------------------------------------------------------ -->
 
-		<div v-if="$can('reporte.venta')">
+		<div v-if="$can('reporte.compras')">
 			
 			<div class="mb-3">
-				<label for="validationTooltip01">Seleccione Reporte Ventas</label>
+				<label for="validationTooltip01">Seleccione Reporte Compra - Venta</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-            <option  value="3">Entrada</option> 
+            <option v-if="$can('reporte.compras') && $can('reporte.compras.entrada')" value="3">Entrada</option> 
     
 				</select>			
 			</div>

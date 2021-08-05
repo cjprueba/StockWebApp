@@ -12,6 +12,7 @@ use App\SalidaProductoDet;
 use App\DevolucionProvDet;
 use App\Stock;
 use App\NotaCreditoDet;
+use App\Gondola_tiene_Productos;
 
 class Inventario extends Model
 {
@@ -47,7 +48,34 @@ class Inventario extends Model
         $estatus = Inventario::comprobar_status($dato);
 
         if ($estatus["response"] === false){
+
             return $estatus;
+        }
+
+        $gondola = DB::connection('retail')
+            ->table('CONTEO')
+            ->select(DB::raw('IFNULL(CONTEO.GONDOLA, 0) AS ID_GONDOLA,
+                IFNULL(GONDOLAS.DESCRIPCION, 0) AS DESCRIPCION'))
+            ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'CONTEO.GONDOLA')
+            ->where('CONTEO.ID', '=', $id)
+            ->get();
+
+        if(count($gondola) > 0){
+
+            if($gondola[0]->ID_GONDOLA != 658 && $gondola[0]->ID_GONDOLA != 0){
+
+                $verificar_producto = Gondola_tiene_Productos::select(DB::raw('ID'))
+                    ->where('GONDOLA_COD_PROD', '=', $codigo)
+                    ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                    ->where('ID_GONDOLA', '=', $gondola[0]->ID_GONDOLA)
+                    ->get();
+
+                if(count($verificar_producto) == 0){
+
+                    return ["response" => false, "status" => 'El producto no pertenece a la góndola '.$gondola[0]->DESCRIPCION, "codigo" => $codigo];
+                }
+
+            }
         }
 
        /*  --------------------------------------------------------------------------------- */
