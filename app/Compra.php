@@ -239,8 +239,13 @@ class Compra extends Model
 		/*  --------------------------------------------------------------------------------- */
 
 		// RETORNAR VALOR 
+        if(isset($codigo['CODIGO'])){
+            return $codigo['CODIGO'] + 1;
+        }else{
+            return 1;
+        }
 
-		return $codigo['CODIGO'] + 1;
+		
 
 		/*  --------------------------------------------------------------------------------- */
 
