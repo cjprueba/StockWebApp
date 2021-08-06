@@ -268,8 +268,12 @@
 																<thead>
 																	<tr>
 																	    <th scope="col">#</th>
-																	    <th scope="col">Codigo Compra</th>
-																	    <th scope="col">Gondola</th>
+																	    <th scope="col">Código Compra</th>
+																	    <th scope="col">Nro. Caja</th>
+																	    <th scope="col">Góndola</th>
+																	    <th scope="col">Sección</th>
+																	    <th scope="col">Sector</th>
+																	    <th scope="col">Piso</th>
 																	    <th scope="col">Fecha</th>
 																	</tr>
 																</thead>
@@ -277,7 +281,11 @@
 																	<tr v-for="(compra_gondola, index) in comprasGondolas" class="cuerpoTabla">
 																	    <th scope="row">{{index + 1}}</th>	
 																	    <th>{{compra_gondola.CODIGO}}</th>
+																	    <td>{{compra_gondola.NRO_CAJA}}</td>
 																	    <td>{{compra_gondola.GONDOLA}}</td>
+																	    <td>{{compra_gondola.SECCION}}</td>
+																	    <td>{{compra_gondola.SECTOR}}</td>
+																	    <td>{{compra_gondola.PISO}}</td>
 																	    <td>{{compra_gondola.FECHA}}</td>
 																	</tr>
 																</tbody>
@@ -297,16 +305,24 @@
 																<thead>
 																	<tr>
 																	    <th scope="col">#</th>
-																	    <th scope="col">Codigo Transferencia</th>
-																	    <th scope="col">Gondola</th>
+																	    <th scope="col">Código Transferencia</th>
+																	    <th scope="col">Nro. Caja</th>
+																	    <th scope="col">Góndola</th>
+																	    <th scope="col">Sección</th>
+																	    <th scope="col">Sector</th>
+																	    <th scope="col">Piso</th>
 																	    <th scope="col">Fecha</th>
 																	</tr>
 																</thead>
 																<tbody>
 																	<tr v-for="(transferencia_gondola, index) in transferenciasGondolas" class="cuerpoTabla">
 																	    <th scope="row">{{index + 1}}</th>
-																	    <td>{{transferencia_gondola.CODIGO}}</td>
+																	    <th>{{transferencia_gondola.CODIGO}}</th>
+																	    <td>{{transferencia_gondola.NRO_CAJA}}</td>
 																	    <td>{{transferencia_gondola.GONDOLA}}</td>
+																	    <td>{{transferencia_gondola.SECCION}}</td>
+																	    <td>{{transferencia_gondola.SECTOR}}</td>
+																	    <td>{{transferencia_gondola.PISO}}</td>
 																	    <td>{{transferencia_gondola.FECHA}}</td>
 
 																	</tr>
