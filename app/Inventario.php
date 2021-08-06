@@ -12,6 +12,7 @@ use App\SalidaProductoDet;
 use App\DevolucionProvDet;
 use App\Stock;
 use App\NotaCreditoDet;
+use App\Gondola_tiene_Productos;
 
 class Inventario extends Model
 {
@@ -47,7 +48,34 @@ class Inventario extends Model
         $estatus = Inventario::comprobar_status($dato);
 
         if ($estatus["response"] === false){
+
             return $estatus;
+        }
+
+        $gondola = DB::connection('retail')
+            ->table('CONTEO')
+            ->select(DB::raw('IFNULL(CONTEO.GONDOLA, 0) AS ID_GONDOLA,
+                IFNULL(GONDOLAS.DESCRIPCION, 0) AS DESCRIPCION'))
+            ->leftjoin('GONDOLAS', 'GONDOLAS.ID', '=', 'CONTEO.GONDOLA')
+            ->where('CONTEO.ID', '=', $id)
+            ->get();
+
+        if(count($gondola) > 0){
+
+            if($gondola[0]->ID_GONDOLA != 658 && $gondola[0]->ID_GONDOLA != 0){
+
+                $verificar_producto = Gondola_tiene_Productos::select(DB::raw('ID'))
+                    ->where('GONDOLA_COD_PROD', '=', $codigo)
+                    ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+                    ->where('ID_GONDOLA', '=', $gondola[0]->ID_GONDOLA)
+                    ->get();
+
+                if(count($verificar_producto) == 0){
+
+                    return ["response" => false, "status" => 'El producto no pertenece a la góndola '.$gondola[0]->DESCRIPCION, "codigo" => $codigo];
+                }
+
+            }
         }
 
        /*  --------------------------------------------------------------------------------- */
@@ -429,7 +457,7 @@ class Inventario extends Model
 
   			$posts = DB::connection('retail')
   			->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID,CONTEO.GONDOLA AS GONDOLA, conteo.OBSERVACION, conteo.MOTIVO, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECALTAS, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
                         ->offset($start)
             ->limit($limit)
@@ -452,7 +480,7 @@ class Inventario extends Model
 
             $posts =  DB::connection('retail')
             ->table('conteo')
-  			->select(DB::raw('conteo.ID, conteo.OBSERVACION, conteo.MOTIVO, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
+  			->select(DB::raw('conteo.ID,CONTEO.GONDOLA AS GONDOLA, conteo.OBSERVACION, conteo.MOTIVO, conteo.FECALTAS, conteo.ID_SUCURSAL AS SUCURSAL, conteo.FECMODIF'))
             ->where('conteo.ID_SUCURSAL','=', $user->id_sucursal)
             ->where(function ($query) use ($search) {
                                 $query->where('conteo.ID','LIKE',"%{$search}%")
@@ -493,23 +521,26 @@ class Inventario extends Model
                 /*  --------------------------------------------------------------------------------- */
 
                 // CARGAR EN LA VARIABLE 
+                $gondola='';
+                if($post->GONDOLA<>0 && $post->GONDOLA<>658){
+                    $gondola="&emsp;<a href='#' id='reporte' title='Reporte'><i class='fa fa-file text-secondary' aria-hidden='true'></i></a>";
 
+                }
                 $nestedData['ID'] = $post->ID;
                 $nestedData['OBSERVACION'] = $post->OBSERVACION;
                 $nestedData['MOTIVO'] = $post->MOTIVO;
                 $nestedData['SUCURSAL'] = $post->SUCURSAL;
                 $nestedData['FECALTAS'] = $post->FECALTAS;
                 $nestedData['FECMODIF'] = $post->FECMODIF;
+                 $nestedData['ID_GONDOLA'] = $post->GONDOLA;
 
                 if($user->can("inventario.mostrar.procesar")){
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>
-                    ";
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;<a href='#' id='procesarInventario' title='Imprimir'><i class='fa fa-check-square text-success' aria-hidden='true'></i></a>".$gondola;
 
                 }else{
                     $nestedData['ACCION'] = "&emsp;<a href='#' id='mostrarInventario' title='Mostrar'><i class='fa fa-list'  aria-hidden='true'></i></a>&emsp;<a href='#' id='editarInventario' title='Editar'><i class='fa fa-edit text-warning' aria-hidden='true'></i></a>&emsp;<a href='#' id='eliminarInventario' title='Eliminar'><i class='fa fa-trash text-danger' aria-hidden='true'></i></a>
-                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>&emsp;
-                    ";
+                    &emsp;<a href='#' id='imprimirInventario' title='Imprimir'><i class='fa fa-print text-primary' aria-hidden='true'></i></a>".$gondola;
 
                 }
                 
