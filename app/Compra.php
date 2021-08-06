@@ -231,7 +231,7 @@ class Compra extends Model
 
 		// OBTENER ULTIMO CODIGO
 
-		$codigo = Compra::select('CODIGO')
+		$codigo = Compra::select('IFNULL(CODIGO,0) AS CODIGO')
 		->where(['ID_SUCURSAL' => $user->id_sucursal])
 		->orderBy('CODIGO', 'desc')
 		->first();
