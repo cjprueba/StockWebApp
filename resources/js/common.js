@@ -1872,7 +1872,7 @@ function cambiarSucursalCommon(data){
 
 }
 
-function obtenerSucursalesCommon(){
+function obtenerSucursalesInventarioCommon(){
 
 			// ------------------------------------------------------------------------
 
@@ -1884,7 +1884,7 @@ function obtenerSucursalesCommon(){
 
 			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
 
-			return axios.get('/sucursal').then(function (response) {
+			return axios.get('/sucursalInventario').then(function (response) {
 					return response.data.sucursales;
 				});
 
@@ -7229,7 +7229,6 @@ export {
 		eliminarTransferenciaCommon,
 		enviarTransferenciaCommon,
 		agregarInventarioCommon,
-		obtenerSucursalesCommon,
 		guardarInventarioCommon,
 		obtenerProductosComprasDetCommon,
 		obtenerCategoriasCommon,
@@ -7500,5 +7499,6 @@ export {
 		generarRptPdfCajaTransferenciaQrCommon,
 		generarReporteCompraEntradaSeccionCommon,
 		generarReporteCompraVentaSeccionCommon,
-		generarRptPdfInventarioGondolaCommon
+		generarRptPdfInventarioGondolaCommon,
+		obtenerSucursalesInventarioCommon
 		};
