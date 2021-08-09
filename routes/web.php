@@ -353,6 +353,7 @@ Route::post('export', 'ExportController@mostrar');
 
 Route::get('sucursal', 'SucursalController@mostrar');
 Route::post('sucursal', 'SucursalController@encontrar');
+Route::get('sucursalInventario', 'SucursalController@mostrarSucursal');
 Route::post('sucursal/sucursalDatatable', 'SucursalController@sucursalDatatable');
 Route::post('sucursalFiltrar', 'SucursalController@filtrarSucursal');
 Route::post('sucursalGuardar', 'SucursalController@guardarSucursal');

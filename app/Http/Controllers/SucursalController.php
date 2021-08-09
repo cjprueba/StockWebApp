@@ -81,4 +81,9 @@ class SucursalController extends Controller
         $sucursales = Sucursal::encontrarSucursal($request->all());
         return response()->json($sucursales);
     }
+
+    public function mostrarSucursal(Request $request){
+        $sucursales = Sucursal::mostrar_sucursal($request->all());
+        return response()->json($sucursales);
+    }
 }
