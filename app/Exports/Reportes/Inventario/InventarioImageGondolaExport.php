@@ -138,7 +138,11 @@ class InventarioImageGondolaExport implements FromArray, WithHeadings, WithTitle
 			        $drawing->setName($value['COD_PROD']);
 			        $drawing->setDescription($value['COD_PROD']);
 
+
 			       // $imagen = 'C:/laragon/www/StockWebApp/storage/'.$value['COD_PROD'].'.jpg'; 
+
+			        /*$imagen = 'C:/laragon/www/StockWebApp-ultimo/storage/'.$value['COD_PROD'].'.jpg'; */
+
 			           $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
 
 			        if(!file_exists($imagen)) {

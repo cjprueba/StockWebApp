@@ -549,6 +549,7 @@ Route::post('export_producto_salida', 'SalidaProductoController@descargarSalida'
 Route::post('export_inventario_gondola', 'ExportController@descargarInventario');
 
 
+
 /* -------------------------------------------------------------------------- */
 
 // TRASNSPORTE 
