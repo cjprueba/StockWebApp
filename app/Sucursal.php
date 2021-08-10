@@ -311,4 +311,30 @@ class Sucursal extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+    
+    public static function mostrar_sucursal($data){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $user = auth()->user();
+
+        // OBTENER TODAS LAS SUCURSALES
+
+        $sucursales = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC'))
+        ->where('CODIGO', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if ($sucursales) {
+            return ['sucursales' => $sucursales];
+        } else {
+            return ['sucursales' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

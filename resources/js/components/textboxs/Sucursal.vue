@@ -41,7 +41,7 @@
 
             	// ------------------------------------------------------------------------
 
-           		Common.obtenerSucursalesCommon().then(data => {
+           		Common.obtenerSucursalesInventarioCommon().then(data => {
 						  me.sucursales = data
 				});
 
