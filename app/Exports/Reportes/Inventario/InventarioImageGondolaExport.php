@@ -76,7 +76,6 @@ class InventarioImageGondolaExport implements FromArray, WithHeadings, WithTitle
 
         $this->total = count($inventario);
         $this->productos = $inventario;
-
         return $inventario;
     }
         public function headings(): array
