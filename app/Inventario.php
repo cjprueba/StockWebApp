@@ -84,8 +84,9 @@ class Inventario extends Model
         ->table('PRODUCTOS_AUX')
         ->select(DB::raw('CODIGO'))
         ->where('CODIGO_INTERNO', '=', $codigo)
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
-
+        
        /*  --------------------------------------------------------------------------------- */
 
        // CAMBIAR CODIGO PRODUCTO
@@ -94,7 +95,7 @@ class Inventario extends Model
             $codigointerno = $codigo;
             $codigo = $codigo_interno[0]->CODIGO;
        } 
-         
+
        /*  --------------------------------------------------------------------------------- */
 
         // REVISAR SI EXISTE PRODUCTO 
