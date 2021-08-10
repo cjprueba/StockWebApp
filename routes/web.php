@@ -546,7 +546,7 @@ Route::post('export_venta_proveedor', 'ProveedorController@descargar_excel');
 Route::post('vencimientoProductoDatatable', 'StockController@vencimientoDatatable');
 Route::post('export_venta_gondola', 'VentaController@descargarVentaGondola');
 Route::post('export_producto_salida', 'SalidaProductoController@descargarSalida');
-Route::get('export_inventario_gonodola', 'ExportController@descargarInventario');
+Route::post('export_inventario_gondola', 'ExportController@descargarInventario');
 
 
 /* -------------------------------------------------------------------------- */
