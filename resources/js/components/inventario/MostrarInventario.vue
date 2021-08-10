@@ -216,7 +216,7 @@
                       me.procesar = true;
                         axios({
                           url: '/export_inventario_gondola',
-                          method: 'GET',
+                          method: 'POST',
                           data: me.datos,
                           responseType: 'blob', // important
                         }).then((response) => {
