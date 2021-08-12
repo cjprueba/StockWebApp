@@ -349,7 +349,7 @@
 
 								<div class="col-md-1">
 									<label for="validationTooltip01">Cantidad</label>
-									<input v-model="producto.CANTIDAD" class="form-control form-control-sm" type="text">
+									<input v-model="producto.CANTIDAD" class="form-control form-control-sm" type="text" disabled>
 								</div>
 
 								<div class="col-md-1">
@@ -2392,7 +2392,6 @@
 					DESCRIPCION: '',
 					LOTE: '',
 					PREC_VENTA: '',
-					CANTIDAD: '',
 					PRECIO_TOTAL: '',
 					PREC_VENTA: '',
 					CANTIDAD: 1,
