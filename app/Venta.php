@@ -6495,7 +6495,7 @@ class Venta extends Model
                     $nestedData['ACCION'] = '<form class="form-inline">
                                             <div class="custom-control custom-checkbox">
                                               <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->COD_PROD.'">
-                                              <label for='.$post->COD_PROD.' class="custom-control-label"></label>
+                                              <label for="'.$post->COD_PROD.'"  class="custom-control-label"></label>
                                               <input type="number" value='.$nestedData['CANTIDAD'].' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$nestedData['CANTIDAD'].'>
                                             </div>
                                          </form>';
