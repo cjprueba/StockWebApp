@@ -228,7 +228,7 @@ class Inventario extends Model
     	->table('conteo')->insertGetId([
             'OBSERVACION' => $observacion, 
             'FECALTAS' => $diaHora, 
-            'ID_SUCURSAL' => $id_sucursal, 
+            'ID_SUCURSAL' => $user->id_sucursal, 
             'GONDOLA' => $gondola, 
             'MOTIVO' => $motivo,
             'FK_USER' => $user->id, 
