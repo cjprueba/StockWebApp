@@ -15,6 +15,7 @@
             <option v-if="$can('reporte.venta.delivery') && $can('reporte.web')"value="12">Ventas por Delivery</option> 
             <option v-if="$can('reporte.venta.gondola') && $can('reporte.web')" value="9">Ventas por Góndola</option>
             <option v-if="$can('reporte.venta.marcaycategoria') && $can('reporte.web')" value="3">Ventas por Marca y Categoría</option>
+            <option v-if="$can('reporte.venta.vencidos') && $can('reporte.web')" value="15">Ventas por Productos Vencidos</option>
             <option v-if="$can('reporte.venta.proveedor') && $can('reporte.web')" value="8">Ventas por Proveedor</option>
             <option v-if="$can('reporte.venta.tarjeta') && $can('reporte.web')" value="13">Ventas por Tarjeta</option>
             <option v-if="$can('reporte.venta.transferencia') && $can('reporte.web')" value="11">Ventas por Transferencia</option>
@@ -103,6 +104,12 @@
 
       <transition name="slide-fade">  
         <venta-marca-categoria v-if="reporte === '14'" id="reporte14"></venta-marca-categoria>
+      </transition>
+
+      <!-- REPORTE VENTA POR PRODUCTOS VENCIDOS -->
+
+      <transition name="slide-fade">  
+        <venta-producto-vencido-rpt v-if="reporte === '15'" id="reporte15"></venta-producto-vencido-rpt>
       </transition>
 
 		</div>
