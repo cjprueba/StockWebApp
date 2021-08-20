@@ -9,6 +9,7 @@ use App\Exports\StockExport;
 use App\Exports\StockImageExport;
 use App\Exports\PeriodoProductoExport;
 use App\Exports\ProductosVencidosExport;
+use App\Exports\VentaProductoVencidoExport;
 
 
 class StockController extends Controller
@@ -163,5 +164,23 @@ class StockController extends Controller
         return response()->json($stock);
 
     }
+    
+    public function productoVencidoVentaDatatable(Request $request){
 
+        $stock = Stock::reporteVentaProductoVencido($request);
+        return response()->json($stock);
+
+    }
+
+    public function descagrarVentaProductoVencido(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR ARCHIVO EXCEL 
+
+        return Excel::download(new VentaProductoVencidoExport($request->all()), 'VENTA_PRODUCTOS_VENCIDOS.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

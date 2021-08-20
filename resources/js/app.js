@@ -393,6 +393,7 @@ Vue.component('venta-diaria-rpt', require('./components/reportes/venta/Diario/Re
 Vue.component('transferencia-consignacion-rpt', require('./components/reportes/transferencia/Consignacion/TransferenciaConsignacionRpt.vue').default);
 Vue.component('venta-vendedor-rpt', require('./components/reportes/venta/Vendedor/VentaVendedorRpt.vue').default);
 Vue.component('venta-proveedor-rpt', require('./components/reportes/venta/Proveedor/ReporteVentaProveedor.vue').default);
+Vue.component('venta-producto-vencido-rpt', require('./components/reportes/venta/Producto/ReporteVentaProductoVencido.vue').default);
 Vue.component('productos-vencidos-rpt', require('./components/reportes/producto/Vencido/VencimientoDeProductoRpt.vue').default);
 Vue.component('productos-stock-rpt', require('./components/reportes/stock/ReporteStock.vue').default);
 Vue.component('venta-gondola-rpt', require('./components/reportes/venta/Gondola/ReporteVentaPorGondola.vue').default);
