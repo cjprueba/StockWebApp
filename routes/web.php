@@ -551,10 +551,6 @@ Route::get('export_inventario_gonodola', 'ExportController@descargarInventario')
 Route::post('export_venta_producto_vencido', 'StockController@descagrarVentaProductoVencido');
 
 
-
-
-
-
 /* -------------------------------------------------------------------------- */
 
 // TRASNSPORTE 

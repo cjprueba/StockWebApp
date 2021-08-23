@@ -22,9 +22,10 @@ class SubCategoria extends Model
 
         // OBTENER TODAS LAS SUB CATEGORIAS
 
-        $subCategorias = SubCategoria::select(DB::raw('CODIGO, DESCRIPCION'))
+        $subCategorias = SubCategoria::select(DB::raw('SUBLINEAS.CODIGO, SUBLINEAS.DESCRIPCION'))
         ->leftjoin('LINEAS_TIENE_SUBLINEAS', 'LINEAS_TIENE_SUBLINEAS.FK_COD_SUBLINEA', '=', 'SUBLINEAS.CODIGO')
         ->where('LINEAS_TIENE_SUBLINEAS.FK_COD_LINEA', '=', $categoria)
+        ->orderBy('SUBLINEAS.DESCRIPCION')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

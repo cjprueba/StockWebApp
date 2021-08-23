@@ -21,6 +21,7 @@ class Talle extends Model
     	$talles = DB::connection('retail')
         ->table('TALLES')
         ->select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

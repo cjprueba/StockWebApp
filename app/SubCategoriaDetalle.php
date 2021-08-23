@@ -48,6 +48,7 @@ class SubCategoriaDetalle extends Model
         // OBTENER TODAS LAS SUB CATEGORIAS
 
         $subCategoriasDetalle = SubCategoriaDetalle::select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

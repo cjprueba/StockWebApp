@@ -21,6 +21,7 @@ class Tela extends Model
     	$telas = DB::connection('retail')
         ->table('TELAS')
         ->select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

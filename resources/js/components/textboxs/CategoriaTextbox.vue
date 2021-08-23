@@ -5,8 +5,8 @@
             </div>
 
             <select :tabindex="tabIndexPadre" class="custom-select custom-select-sm" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_categoria }" @input="$emit('input', $event.target.value)" v-on:change="enviarOpcionesPadre($event.target.value)">
-                    <option :value="null">0 - Seleccionar</option>
-                    <option v-for="categoria in categorias" :selected="categoria.CODIGO === parseInt(value)" :value="categoria.CODIGO">{{ categoria.CODIGO }} - {{ categoria.DESCRIPCION }}</option>
+                    <option :value="null">Seleccionar</option>
+                    <option v-for="categoria in categorias" :selected="categoria.CODIGO === parseInt(value)" :value="categoria.CODIGO">{{ categoria.DESCRIPCION }}</option>
             </select>
 			
 	</div>	
