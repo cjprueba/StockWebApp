@@ -326,7 +326,8 @@
                     Codigo:me.nombreGondola,
                     Descripcion:me.descripcionTela,
                     SeccionGuardar:me.selectedSeccion,
-                    Existe:me.existeTela
+                    Existe:me.existeTela,
+                    Rack:me.rack
 
                    }
                }

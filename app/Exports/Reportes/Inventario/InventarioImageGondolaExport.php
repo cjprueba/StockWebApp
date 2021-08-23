@@ -22,7 +22,7 @@ class InventarioImageGondolaExport implements FromArray, WithHeadings, WithTitle
 
 	private $ID_INVENTARIO;
 	private $ID_GONDOLA;
-	private $productos;
+	private $productos=array();
 	private $total;
 	private $row_number;
 	public function __construct($datos)
@@ -76,7 +76,6 @@ class InventarioImageGondolaExport implements FromArray, WithHeadings, WithTitle
 
         $this->total = count($inventario);
         $this->productos = $inventario;
-
         return $inventario;
     }
         public function headings(): array
@@ -139,11 +138,15 @@ class InventarioImageGondolaExport implements FromArray, WithHeadings, WithTitle
 			        $drawing->setName($value['COD_PROD']);
 			        $drawing->setDescription($value['COD_PROD']);
 
+
+			       // $imagen = 'C:/laragon/www/StockWebApp/storage/'.$value['COD_PROD'].'.jpg'; 
+
 			        /*$imagen = 'C:/laragon/www/StockWebApp-ultimo/storage/'.$value['COD_PROD'].'.jpg'; */
+
 			           $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
 
 			        if(!file_exists($imagen)) {
-			        	/*$drawing->setPath('C:/laragon/www/StockWebApp-ultimo/storage/product.png');*/
+			        	//$drawing->setPath('C:/laragon/www/StockWebApp/storage/product.png');
 			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
 			        } else {
 			        	$drawing->setPath($imagen);
