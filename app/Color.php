@@ -18,6 +18,7 @@ class Color extends Model
 
     	// OBTENER TODAS LAS CATEGORIAS
 
+
     	$colores = Color::select(DB::raw('CODIGO, DESCRIPCION'))
             ->orderBy('DESCRIPCION')
             ->get();
