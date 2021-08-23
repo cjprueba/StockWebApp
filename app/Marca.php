@@ -32,6 +32,7 @@ class Marca extends Model
     	$marca = Marca::select(DB::raw('CODIGO, DESCRIPCION'))
         ->leftjoin('LINEAS_TIENE_MARCAS', 'LINEAS_TIENE_MARCAS.FK_COD_MARCA', '=', 'MARCA.CODIGO')
         ->where('LINEAS_TIENE_MARCAS.FK_COD_LINEA_LINEAS_TIENE_MARCAS', '=', $categoria)
+        ->orderBy('DESCRIPCION')
         ->get();
       
         /*  --------------------------------------------------------------------------------- */

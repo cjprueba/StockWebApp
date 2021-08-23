@@ -18,10 +18,9 @@ class Color extends Model
 
     	// OBTENER TODAS LAS CATEGORIAS
 
-    	$colores = DB::connection('retail')
-        ->table('COLORES')
-        ->select(DB::raw('CODIGO, DESCRIPCION'))
-        ->get();
+    	$colores = Color::select(DB::raw('CODIGO, DESCRIPCION'))
+            ->orderBy('DESCRIPCION')
+            ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
