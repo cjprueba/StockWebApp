@@ -446,7 +446,7 @@ class Qr extends Model
                   }
                   $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
-                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION']))), 0,22), false, false, true, 0, 1, '', false, '', 0); 
+                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;
