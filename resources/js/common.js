@@ -6673,6 +6673,7 @@ function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta
 				    			'respuesta': true,
 				    			'cantidad': data['CANTIDAD'],
 				    			'costo': data['COSTO'],
+				    			'iva': data['IVA'],
 				    			'row': tabla.row( this )
 				    		}
 				    	} else if (tipo_respuesta === 3) {
@@ -7195,6 +7196,26 @@ function generarRptPdfInventarioGondolaCommon(codigo){
 
 }
 
+function generarReporteInventarioSeccionCommon(data){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios.post('/reporte_inventario_seccion', {'data': data}).then(function (response) {
+					return response.data;
+			});
+
+			// ------------------------------------------------------------------------
+
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7500,5 +7521,6 @@ export {
 		generarReporteCompraEntradaSeccionCommon,
 		generarReporteCompraVentaSeccionCommon,
 		generarRptPdfInventarioGondolaCommon,
-		obtenerSucursalesInventarioCommon
+		obtenerSucursalesInventarioCommon,
+		generarReporteInventarioSeccionCommon
 		};
