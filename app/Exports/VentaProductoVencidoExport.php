@@ -154,12 +154,12 @@ class VentaProductoVencidoExport implements FromArray, WithHeadings, WithTitle, 
                     $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
                     $drawing->setName('Logo');
                     $drawing->setDescription('Logo');
-                    $imagen = 'C:/laragon/www/StockWebApp/public/images/'.$value['COD_PROD'].'.jpg';
-                    // $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+                    // $imagen = 'C:/laragon/www/StockWebApp/public/images/'.$value['COD_PROD'].'.jpg';
+                    $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
 
                     if(!file_exists($imagen)) {
-                        $drawing->setPath('C:/laragon/www/StockWebApp/public/images/SinImagen.png');
-                        // $drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
+                        // $drawing->setPath('C:/laragon/www/StockWebApp/public/images/SinImagen.png');
+                        $drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
                     } else {
                         $drawing->setPath($imagen);
                     }
