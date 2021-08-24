@@ -87,7 +87,7 @@
 
 										<div class="col">
 							    				<label>Cantidad</label>
-								      			<input v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
+								      			<input ref="cantidad_ticket" v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
 										</div>
 										
 
@@ -1251,6 +1251,7 @@
 	                        me.producto.linea = '';
 	                        me.producto.descuento = '';
 	                        me.producto.interno='';
+	                        me.$refs.compontente_codigo_producto.vaciarDevolver();
 
 	                        // *******************************************************************
 
@@ -1270,6 +1271,7 @@
 	                        me.producto.linea = response.data.producto.LINEA;
 	                        me.producto.moneda= response.data.producto.MONEDA;
                             me.lotes=response.data.lote;
+                            me.$refs.cantidad_ticket.focus();
 	                        if(me.checkedMayorista === true){
 
 	                        	me.producto.descuento = 0;
@@ -1313,7 +1315,7 @@
 	            var iva = 0;
 	            var precioConDescuento=0;
 	            var descuento = 0;
-
+	              me.$refs.compontente_codigo_producto.vaciarDevolver();
 	            // ------------------------------CONTROLADOR------------------------------------------
 
 	            // CONTROLADOR
@@ -1395,6 +1397,8 @@
 	            // CARGAR DATO EN TABLA
 
 	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda );
+	          
+
 
 
 	            // ------------------------------------------------------------------------
@@ -1554,6 +1558,7 @@
 	            this.producto.precioUnitario = '';
 	            this.producto.precioMayorista = '';
 	            this.producto.cantidadExistente = '';
+	            this.$refs.compontente_codigo_producto.vaciarDevolver();
 
 	            // ------------------------------------------------------------------------   
 
@@ -1784,7 +1789,7 @@
             let me = this;
             var precio = 0;
             var iva = 0;
-
+            me.$refs.compontente_codigo_producto.vaciarDevolver();
 		    me.codigo_remision = me.nuevaNotaDeRemision();
 		 	
 

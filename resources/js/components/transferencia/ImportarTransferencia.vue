@@ -142,8 +142,8 @@
 							</div>     
 		                </div>
 		                <div class="modal-footer">
-		                    <button type="button" class="btn btn-success"  v-if="btnguardar" v-on:click="controlarDatos()">Importar</button>
-		                    <button type="button" class="btn btn-warning"  v-else v-on:click="controlarDatos()">Modificar</button>
+		                    <button  type="button" class="btn btn-success"  v-if="btnguardar" v-on:click="controlarDatos()">Importar</button>
+		                    <button  type="button" class="btn btn-warning"  v-else v-on:click="controlarDatos()">Modificar</button>
 		                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 		                </div>
 		              </div>
@@ -156,6 +156,7 @@
 		<div v-else>
 	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
 	</div>
 
 </template>
@@ -163,6 +164,13 @@
 	 export default {
       data(){
         return {
+        	autorizacion: {
+	            HABILITAR: 0,
+	            CODIGO: 0,
+	            ID_USUARIO: 0,
+	            PERMITIDO: 0,
+	            ID_USER_SUPERVISOR: 0
+	        },
           	codigoTransferencia: '',
           	codigo_origen: '',
           	procesar: false,
@@ -218,6 +226,9 @@
 
       			// ------------------------------------------------------------------------
       		},
+      		autorizar(){
+		        this.$refs.autorizacion_componente.mostrarModal();
+		    },
       		rechazarTransferencia(codigo, codigo_origen){
 
       			// ------------------------------------------------------------------------
@@ -339,6 +350,24 @@
 	        		this.nro_caja = 'TRA' + this.codigoTransferencia;
 	        	}
 	        },
+	        autorizacionData(data){
+
+		        // ------------------------------------------------------------------------
+
+		        // LLAMAR MODAL
+		        
+		        if (data.response === true) {
+
+		             
+		          this.autorizacion.ID_USUARIO = data.usuario;
+		          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+
+		          this.importarAutorizado();
+		        }
+
+		        // ------------------------------------------------------------------------
+
+		    },
 			enviar_nombre_gondola(data){
 
 	          this.gondolaID = data;
@@ -501,6 +530,7 @@
 				// ------------------------------------------------------------------------
 
       		},
+      		
 	        obtenerCabeceraTransferencia(){
 
 	        	let me = this;
@@ -548,7 +578,68 @@
         			// ------------------------------------------------------------------------
 
         		});
-	        }
+	        },
+	        importarAutorizado(){
+      			let me = this;
+  				
+               	if(me.rack === 'SI'){
+               		console.log("buenas 2");
+
+		            // *******************************************************************
+
+		            
+
+		        	// ------------------------------------------------------------------------
+					// LIMPIAR LAS VARIABLES ANTES DE ABRIR EL MODAL
+					console.log("buenas 3");
+					me.nro_caja = '';
+		            me.secciones = [];
+		            me.selectedSeccion = 'null';
+		            me.validarSeccion = false;
+		            me.messageInvalidSeccion = '';
+					me.gondolaPiso = [];
+		          	me.validarPiso = false;
+		            me.pisoRack = 'null';
+		            me.messageInvalidPiso = '';
+		            me.gondolaSector = [];
+		        	me.sectorRack ='null';
+		            me.validarSector = false;
+					me.messageInvalidSector = '';
+			        me.gondolaID = '';
+			        me.validarGondola = false;
+					me.messageInvalidGondola = '';
+					me.controlador = false;
+					console.log("buenas 4");
+
+		        	// ------------------------------------------------------------------------
+					// OBTENER SECCIONES
+
+					me.BusquedaSeccion();
+					console.log("buenas 5");
+
+		        	// ------------------------------------------------------------------------
+					// GENERAR PRIMERA PARTE DEL NRO. DE CAJA
+
+					me.generarNroCaja();
+					console.log("buenas 6");
+
+	                // ABRIR EL MODAL
+	                     
+	                $('.agregar-rack-piso').modal('show');
+	                console.log("buenas 7");
+
+               	}else{
+
+                   	var data = {
+                   		codigo: me.codigoTransferencia, 
+                   		codigo_origen: me.codigo_origen,
+						sistema_deposito: false
+                   	}
+
+                    me.importarTransferencia(data);
+               	}
+      		}
+
       },
         mounted() {
         	
@@ -636,63 +727,16 @@
                     $('#tablaImportarTrans').on('click', 'tbody tr #importarTransferencia', function() {
 
 	                    // *******************************************************************
+	                    var row  = $(this).parents('tr')[0];
+	                    me.codigoTransferencia = tableImportarTransferencia.row( row ).data().CODIGO;
+		            	me.codigo_origen = tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN;
 
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
+	                    
+	                    me.autorizar();
+
 	                   	
-	                   	var row  = $(this).parents('tr')[0];
-
-	                   	if(me.rack === 'SI'){
-
-				            // *******************************************************************
-
-				            me.codigoTransferencia = tableImportarTransferencia.row( row ).data().CODIGO;
-				            me.codigo_origen = tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN;
-
-				        	// ------------------------------------------------------------------------
-							// LIMPIAR LAS VARIABLES ANTES DE ABRIR EL MODAL
-
-							me.nro_caja = '';
-				            me.secciones = [];
-				            me.selectedSeccion = 'null';
-				            me.validarSeccion = false;
-				            me.messageInvalidSeccion = '';
-							me.gondolaPiso = [];
-				          	me.validarPiso = false;
-				            me.pisoRack = 'null';
-				            me.messageInvalidPiso = '';
-				            me.gondolaSector = [];
-				        	me.sectorRack ='null';
-				            me.validarSector = false;
-							me.messageInvalidSector = '';
-					        me.gondolaID = '';
-					        me.validarGondola = false;
-							me.messageInvalidGondola = '';
-							me.controlador = false;
-
-				        	// ------------------------------------------------------------------------
-							// OBTENER SECCIONES
-
-							me.BusquedaSeccion();
-
-				        	// ------------------------------------------------------------------------
-							// GENERAR PRIMERA PARTE DEL NRO. DE CAJA
-
-							me.generarNroCaja();
-
-			                // ABRIR EL MODAL
-			                     
-			                $('.agregar-rack-piso').modal('show');
-
-	                   	}else{
-
-		                   	var data = {
-		                   		codigo: tableImportarTransferencia.row( row ).data().CODIGO, 
-		                   		codigo_origen: tableImportarTransferencia.row( row ).data().CODIGO_ORIGEN,
-								sistema_deposito: false
-		                   	}
-
-		                    me.importarTransferencia(data);
-	                   	}
+	                   	
 
 
 	                    // *******************************************************************
