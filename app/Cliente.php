@@ -116,7 +116,7 @@ class Cliente extends Model
             /*  ************************************************************ */  
 
         }
-
+        
         $data = array();
 
         /*  --------------------------------------------------------------------------------- */
@@ -134,10 +134,10 @@ class Cliente extends Model
 
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CI'] = $post->CI;
-                $nestedData['NOMBRE'] = utf8_encode($post->NOMBRE);
+                $nestedData['NOMBRE'] = utf8_decode(utf8_encode($post->NOMBRE));
                 $nestedData['RUC'] = $post->RUC;
-                $nestedData['DIRECCION'] = utf8_encode($post->DIRECCION);
-                $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
+                $nestedData['DIRECCION'] = utf8_decode(utf8_encode($post->DIRECCION));
+                $nestedData['CIUDAD'] = utf8_decode(utf8_encode($post->CIUDAD));
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['RETENTOR'] = $post->RETENTOR;
@@ -332,7 +332,8 @@ class Cliente extends Model
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
                         EMPRESAS.NOMBRE AS EMPRESA,
                         CLIENTES.CREDITO_DISPONIBLE,
-                        CLIENTES.RETENTOR'))
+                        CLIENTES.RETENTOR,
+                        CLIENTES.PORC_RETENCION'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -409,7 +410,8 @@ class Cliente extends Model
                 'HORALTAS'=> $hora,
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'RETENTOR' => $datos['data']['retentor'],
-                'CREDITO_DISPONIBLE' => $datos['data']['limite']]);
+                'CREDITO_DISPONIBLE' => $datos['data']['limite'],
+                'PORC_RETENCION' => $datos['data']['porc_retencion']]);
 
                 $codigo = $codigo["0"]["CODIGO"]+1;
                 
@@ -458,7 +460,8 @@ class Cliente extends Model
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
                     'HORMODIF'=>$hora,
-                    'RETENTOR' => $datos['data']['retentor']]);
+                    'RETENTOR' => $datos['data']['retentor'],
+                    'PORC_RETENCION' => $datos['data']['porc_retencion']]);
 
                 /*  --------------------------------------------------------------------------------- */
 

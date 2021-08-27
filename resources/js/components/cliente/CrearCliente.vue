@@ -30,7 +30,7 @@
 			    	<div class="form-group row">
 			    		<label class="col-sm-3 col-form-label">Código Cliente</label>
 			    		<div class="col-sm-9">
-					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" @razonSocial="cargarRazonSocial" @retentor="cargarRetentor" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
+					    	<cliente-filtrar ref="componente_textbox_cliente" :codigo="codigo" @codigo="cargarCodigo" @nombre="cargarNombre" @cedula="cargarCi" @ruc="cargarRuc" @direccion="cargarDireccion" @ciudad="cargarCiudad" @telefono="cargarTelefono" @celular="cargarCelular" @email="cargarEmail" @tipo="cargarTipo" @limite="cargarLimite" @empresaID="cargarEmpresaID" @empresa="cargarEmpresa" @diaLimite="cargarLimiteDia" @creditoDisponible="cargarCreditoDisponible" @razonSocial="cargarRazonSocial" @retentor="cargarRetentor" @porc_retencion="cargarRetencionPorcentaje" v-model='codigo' v-bind:class="{ 'is-invalid': validar.codigo }"></cliente-filtrar>
 					    </div>
 			    	</div>
 
@@ -175,7 +175,14 @@
 					    </div>
 			    	</div>
 
-			    	<!-- --------------------------------------- RETENTOR -------------------------------------------- -->
+			    	<!-- --------------------------------------- RETENTOR PORCENTAJE -------------------------------------------- -->
+			   		
+			   		<div class="form-group row mst-3" v-if="switcher.retentor">
+			    		<label class="col-sm-3 col-form-label">Porcentaje Retención</label>
+			    		<div class="col-sm-9">
+					    	<input type="number" v-model="porcentaje_retencion" min="1" max="100" class="form-control form-control-sm" v-bind:class="{ 'is-invalid': validar.porcentaje_retencion }">
+					    </div>
+			    	</div>
 
 			    	<div class="col-md-12">
 			    		<hr>
@@ -316,6 +323,7 @@
 				limiteCredito: '',
 				limiteCreditoDia: '',
 				creditoDisponible: '',
+				porcentaje_retencion: 0,
 				razonSocial: '',
 				btnguardar: true,
 				existe: false,
@@ -326,7 +334,8 @@
 					ci: false,
 					ruc: false,
 					direccion: false,
-					telefono: false
+					telefono: false,
+					porcentaje_retencion: false
 				},
                 map: null,
                 myCoordinates: {
@@ -417,7 +426,8 @@
 					idEmpresa: this.idEmpresa,
 					diaLimite: this.limiteCreditoDia,
 					razonSocial: this.razonSocial,
-					retentor: this.switcher.retentor
+					retentor: this.switcher.retentor,
+					porc_retencion: this.porcentaje_retencion
 				}
 
 				// *******************************************************************
@@ -593,6 +603,13 @@
 					me.validar.telefono =  false;
 				}
 
+				if(me.switcher.retentor === true && (me.porcentaje_retencion === 0 || me.porcentaje_retencion === '')){
+					me.validar.porcentaje_retencion = true;
+					me.controlar = false;
+				}else{
+					me.validar.porcentaje_retencion =  false;
+				}
+
 				if((me.idEmpresa === 'null' || me.idEmpresa=== '') && me.tipo === 'FUNCIONARIO' && me.existe === false){
 					
 					me.$bvToast.show('toast-completar-datos');
@@ -640,6 +657,8 @@
 				me.idEmpresa = '';
 				me.empresa = '';
 				me.controlar = true;
+				me.porcentaje_retencion = 0;
+				me.switcher.retentor = false;
 			},
 
 			// FILTRA LOS DATOS DEL DATATABLE AL INPUT
@@ -759,6 +778,15 @@
 				// ------------------------------------------------------------------
 
 			},
+			cargarRetencionPorcentaje(valor) {
+
+				// ------------------------------------------------------------------
+
+				this.porcentaje_retencion = valor;
+
+				// ------------------------------------------------------------------
+
+			},
 			enviarPadre(data){
 
 				// ------------------------------------------------------------------------
@@ -768,6 +796,7 @@
                 this.$emit('data', data);
 
 				// ------------------------------------------------------------------------
+
 
 		  	}
 		},
