@@ -349,7 +349,7 @@
 
 								<div class="col-md-1">
 									<label for="validationTooltip01">Cantidad</label>
-									<input v-model="producto.CANTIDAD" class="form-control form-control-sm" type="text">
+									<input v-model="producto.CANTIDAD" class="form-control form-control-sm" type="text" disabled>
 								</div>
 
 								<div class="col-md-1">
@@ -1008,7 +1008,8 @@
          		CI: '',
          		NOMBRE: '',
          		TIPO: '',
-         		RETENTOR: 0
+         		RETENTOR: 0,
+         		RETENCION_PORCENTAJE:0
          	},
          	vendedor: {
          		CODIGO: 1,
@@ -1657,6 +1658,7 @@
       			// ------------------------------------------------------------------------
 
       			this.cliente.RETENTOR = data.retentor;
+      			this.cliente.RETENCION_PORCENTAJE=Common.dividirCommon(data.porcentaje,100,2);
       			this.calculoRetencion(this.venta.IMPUESTO);
 
       			// ------------------------------------------------------------------------
@@ -2188,7 +2190,8 @@
 
 	            	// EDITAR CANTIDAD PRODUCTO 
 	            	
-	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto, precio, productoExistente.row, descuento, descuento_total, descuento_unitario, rowClass);
+	            	
+	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto,productoExistente.iva, precio, productoExistente.row, descuento, descuento_total, descuento_unitario, rowClass);
 	            	return;
 
 	            	// ------------------------------------------------------------------------
@@ -2290,7 +2293,7 @@
 
 	            // ------------------------------------------------------------------------
 
-	        }, editarCantidadProducto(tabla, cantidad, impuesto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
+	        }, editarCantidadProducto(tabla, cantidad, impuesto,iva_producto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
 	        	
 	        	// ------------------------------------------------------------------------
 
@@ -2320,12 +2323,16 @@
 	            // CARGAR CANTIDAD
 
 	            tabla.cell(row, 6).data(cantidad).draw();
+	             // ------------------------------------------------------------------------
 
+	            // CALCULAR PRECIO TOTAL
+
+	            precio_total = Common.multiplicarCommon(cantidad, precio, me.moneda.DECIMAL);
 	            // ------------------------------------------------------------------------
 	            
 	            // CARGAR IMPUESTO
-
-	            tabla.cell(row, 7).data(impuesto).draw();
+	          
+	            tabla.cell(row, 7).data(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)).draw();
 
 	            // ------------------------------------------------------------------------
 
@@ -2339,11 +2346,7 @@
 
 	            tabla.cell(row, 14).data(descuento_unitario).draw();
 
-	            // ------------------------------------------------------------------------
-
-	            // CALCULAR PRECIO TOTAL
-
-	            precio_total = Common.multiplicarCommon(cantidad, precio, me.moneda.DECIMAL);
+	           
 
 			    // ------------------------------------------------------------------------
 
@@ -2392,7 +2395,6 @@
 					DESCRIPCION: '',
 					LOTE: '',
 					PREC_VENTA: '',
-					CANTIDAD: '',
 					PRECIO_TOTAL: '',
 					PREC_VENTA: '',
 					CANTIDAD: 1,
@@ -2741,7 +2743,10 @@
 				// CALCULAR EL 30 % DE LA RETENCION \
 
 				if (this.cliente.RETENTOR === 1) {
-					this.venta.RETENCION = Common.multiplicarCommon(0.3, total, this.moneda.DECIMAL);
+
+					this.venta.RETENCION = Common.multiplicarCommon(this.cliente.RETENCION_PORCENTAJE, total, this.moneda.DECIMAL);
+					//console.log(total);
+					//console.log(this.venta.RETENCION);
 				}
 
 				// ------------------------------------------------------------------------

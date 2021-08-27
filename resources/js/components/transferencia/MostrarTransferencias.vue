@@ -69,6 +69,7 @@
 		<div v-else>
 	    	<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
 	</div>
   
 	 
@@ -83,13 +84,41 @@
         return {
           	codigoTransferencia: '',
           	procesar: false,
+          	enviar: '',
           	ajustes: {
           		IMPRESORA_TICKET: '',
           		IMPRESORA_MATRICIAL: ''
-          	}
+          	},
+          	autorizacion: {
+	            HABILITAR: 0,
+	            CODIGO: 0,
+	            ID_USUARIO: 0,
+	            PERMITIDO: 0,
+	            ID_USER_SUPERVISOR: 0
+	        }
         }
       }, 
       methods: {
+      		autorizar(){
+		        this.$refs.autorizacion_componente.mostrarModal();
+		    },
+		    autorizacionData(data){
+
+		        // ------------------------------------------------------------------------
+
+		        // LLAMAR MODAL
+		        
+		        if (data.response === true) {
+
+		             
+		          this.autorizacion.ID_USUARIO = data.usuario;
+		          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+		          this.enviarTransferencia(this.enviar);
+		        }
+
+		        // ------------------------------------------------------------------------
+
+		    },
       		inicio() {
 
 				// ------------------------------------------------------------------------ 
@@ -197,8 +226,12 @@
       			// ------------------------------------------------------------------------
 
       			// INICIAR VARIABLES
-
+      			let me=this;
       			var tableTransferencia = $('#tablaTransferencias').DataTable();
+      			var data = {
+	              	codigo: codigo,
+	              	autorizacion:me.autorizacion
+	            }
 
       			// ------------------------------------------------------------------------
 
@@ -214,7 +247,7 @@
 				  confirmButtonText: 'Si, envialo!',
 				  cancelButtonText: 'Cancelar',
 				  preConfirm: () => {
-				    return Common.enviarTransferenciaCommon(codigo).then(data => {
+				    return Common.enviarTransferenciaCommon(data).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -460,7 +493,9 @@
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.enviarTransferencia(tableTransferencia.row( row ).data().CODIGO);
+	                   	me.enviar = tableTransferencia.row( row ).data().CODIGO;
+	                    me.autorizar();
+	                    
 
 	                    // *******************************************************************
 

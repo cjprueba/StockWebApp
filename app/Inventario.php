@@ -228,7 +228,7 @@ class Inventario extends Model
     	->table('conteo')->insertGetId([
             'OBSERVACION' => $observacion, 
             'FECALTAS' => $diaHora, 
-            'ID_SUCURSAL' => $id_sucursal, 
+            'ID_SUCURSAL' => $user->id_sucursal, 
             'GONDOLA' => $gondola, 
             'MOTIVO' => $motivo,
             'FK_USER' => $user->id, 
@@ -1235,5 +1235,251 @@ class Inventario extends Model
             throw $e;
 
         }   
+    }
+        public static function generar_Reporte_Inventario_Seccion($datos) 
+    {
+
+        
+         /*  --------------------------------------------------------------------------------- */
+
+         // INCICIAR VARIABLES 
+        
+            $insert=$datos["data"]["Insert"];
+            $marcas[] = array();
+            $categorias[] = array();
+            $totales[] = array();
+            $secciones_array=array();
+            $secciones_totales_array=array();
+            $secciones_productos_array=array();
+            $user = auth()->user();
+            $user=$user->id;
+            $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
+            $final = date('Y-m-d', strtotime($datos["data"]['Final']));
+            $sucursal = $datos["data"]['Sucursal'];
+            $total_general=0;
+            $total_descuento=0;
+            $total_preciounit=0;
+            $cantidadvendida=0;
+            $costo=0;
+            $totalcosto=0;
+            $total_porcentaje_cantidad_sobrante=0;
+            $total_porcentaje_cantidad_perdida=0;
+            $total_porcentaje_costo_sobrante=0;
+            $total_porcentaje_costo_perdida=0;
+            $temp_seccion_gondola=[];
+
+            if($insert==true){
+                 $data=array(
+                    'inicio'=>date('Y-m-d', strtotime($datos["data"]["Inicio"])),
+                    'final'=>date('Y-m-d', strtotime($datos["data"]["Final"])),
+                    'sucursal'=>$datos["data"]["Sucursal"],
+                    'checkedProveedor'=>$datos["data"]["AllProveedores"],
+                    'checkedSeccion'=>$datos["data"]["AllSecciones"],
+                    'proveedores'=>$datos["data"]["Proveedores"],
+                    'secciones'=>$datos["data"]["secciones"],
+                    'gondolas'=>$datos["data"]["gondolas"],
+                    'checkedGondola'=>$datos["data"]["AllGondolas"]
+                 );
+                    
+                 Temp_venta::insertar_reporte_Inventario_Seccion($data);
+               
+
+            }
+            $temp_seccion_gondola=DB::connection('retail')->table('temp_ventas')
+                
+                     ->select(
+                         DB::raw('IFNULL(temp_ventas.GONDOLA,0) AS GONDOLA,
+                          IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO") AS GONDOLA_NOMBRE,
+                          CONCAT(IFNULL(temp_ventas.SECCION,"INDEFINIDO")," ", IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO")) AS DESCRIPCION,
+                          temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_PERDIDA ,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_SOBRANTE,
+                          IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE'))
+                       ->where('USER_ID','=',$user)
+                       ->where('ID_SUCURSAL','=',$sucursal)
+                       ->GROUPBY('temp_ventas.SECCION_CODIGO','temp_ventas.GONDOLA') 
+                       ->orderby('temp_ventas.SECCION','ASC')
+                       ->orderby('temp_ventas.GONDOLA_NOMBRE','ASC')
+                            
+                ->get()
+                ->toArray();
+               
+            if($datos["data"]['Agrupado']==='1'){
+                $temp=$temp_seccion_gondola;
+
+            }else{
+                 $temp=DB::connection('retail')->table('temp_ventas')
+                
+                     ->select(
+                         DB::raw('IFNULL(temp_ventas.GONDOLA,0) AS GONDOLA,
+                          IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO") AS GONDOLA_NOMBRE,
+                          IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS DESCRIPCION,
+                          IFNULL(temp_ventas.SECCION_CODIGO,0) AS SECCION_CODIGO,
+                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_PERDIDA ,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_SOBRANTE,
+                          IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE'))
+                       ->where('USER_ID','=',$user)
+                       ->where('ID_SUCURSAL','=',$sucursal)
+                       ->GROUPBY('temp_ventas.SECCION_CODIGO') 
+                       ->orderby('temp_ventas.SECCION','ASC')
+                            
+                ->get()
+                ->toArray();
+            }
+            
+
+           $TOTALG=DB::connection('retail')->table('temp_ventas')
+              ->select(
+               DB::raw(  'IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as CANTIDAD_PERDIDA,
+                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as CANTIDAD_SOBRANTE,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as COSTO_PERDIDA,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as COSTO_SOBRANTE'))
+              ->where('USER_ID','=',$user)
+              ->where('ID_SUCURSAL','=',$sucursal)
+              ->limit(1)
+            ->get()
+            ->toArray();
+
+                          
+
+            $total_porcentaje_costo_perdida=$TOTALG[0]->COSTO_PERDIDA;
+            $total_porcentaje_costo_sobrante=$TOTALG[0]->COSTO_SOBRANTE;
+            $total_porcentaje_cantidad_perdida=$TOTALG[0]->CANTIDAD_PERDIDA;
+            $total_porcentaje_cantidad_sobrante=$TOTALG[0]->CANTIDAD_SOBRANTE;
+
+            foreach ($temp as $key => $value) {
+
+                             $secciones_array[]=array(
+                                'TOTALES'=> $value->DESCRIPCION,
+                                'CANTIDAD_PERDIDA'=> intval($value->CANTIDAD_PERDIDA),
+                                'CANTIDAD_SOBRANTE'=> intval($value->CANTIDAD_SOBRANTE),
+                                'COSTO_PERDIDA'=> $value->COSTO_PERDIDA,
+                                'COSTO_SOBRANTE'=>$value->COSTO_SOBRANTE,
+                                'SECCIONES'=>$value->SECCION_CODIGO,
+                                'GONDOLA'=>$value->GONDOLA,
+                                'GONDOLA_NOMBRE'=>$value->GONDOLA_NOMBRE,
+                                'SECCION_NOMBRE'=>$value->SECCION_NOMBRE,
+                                'PORCENTAJE_CANTIDAD_PERDIDA'=>($value->CANTIDAD_PERDIDA*100)/$total_porcentaje_cantidad_perdida,
+                                'PORCENTAJE_CANTIDAD_SOBRANTE'=>($value->CANTIDAD_SOBRANTE*100)/$total_porcentaje_cantidad_sobrante,
+                                'PORCENTAJE_COSTO_PERDIDA'=>($value->COSTO_PERDIDA*100)/$total_porcentaje_costo_perdida,
+                                'PORCENTAJE_COSTO_SOBRANTE'=>($value->COSTO_SOBRANTE*100)/$total_porcentaje_costo_sobrante
+                                
+                             );
+            }
+        
+                   
+                $temp=DB::connection('retail')->table('temp_ventas')
+                 
+                   ->select(
+                     DB::raw('temp_ventas.COD_PROD AS COD_PROD,
+                        
+                        SUM(temp_ventas.VENDIDO) AS VENDIDO,
+                        IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_PERDIDA,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_SOBRANTE,
+                        temp_ventas.CATEGORIA AS CATEGORIA,
+                        IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO,
+                        temp_ventas.SUBCATEGORIA AS SUBCATEGORIA,
+                        temp_ventas.GONDOLA AS GONDOLA,
+                        temp_ventas.SECCION AS SECCION,
+                        temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                        Temp_ventas.PROVEEDOR AS PROVEEDOR'))
+                  ->where('temp_ventas.ID_SUCURSAL','=',$sucursal)
+                  ->where('temp_ventas.USER_ID','=',$user)
+                  ->GROUPBY('temp_ventas.COD_PROD','Temp_ventas.SECCION_CODIGO') 
+                  ->orderby('COD_PROD')
+                ->get()
+                ->toArray();
+                $total_general=0;
+                $total_descuento=0;
+                $total_preciounit=0;
+                $cantidadvendida=0;
+                $costo=0;
+                $totalcosto=0;
+           
+                foreach ($temp as $key => $value) {
+
+                        
+                    
+                      
+                        $secciones_productos_array[]=array(
+                             
+                                'COD_PROD'=> $value->COD_PROD,
+                               
+                                'STOCK'=> $value->STOCK,
+                                'CATEGORIA'=> $value->CATEGORIA,
+                                'SUBCATEGORIA'=> $value->SUBCATEGORIA,
+                                'CANTIDAD_PERDIDA'=> $value->CANTIDAD_PERDIDA,
+                                'CANTIDAD_SOBRANTE'=>$value->CANTIDAD_SOBRANTE,
+                                'COSTO_PERDIDA'=>$value->COSTO_PERDIDA,
+                                'COSTO_SOBRANTE'=>$value->COSTO_SOBRANTE,
+                                'GONDOLA_CODIGO'=> $value->GONDOLA,
+                                'SECCION'=> $value->SECCION,
+                                'SECCION_CODIGO'=>$value->SECCION_CODIGO
+                        );
+                  }
+                $seccion_total=DB::connection('retail')->table('temp_ventas')
+                
+                     ->select(
+                       DB::raw('temp_ventas.SECCION AS DESCRIPCION,
+                          temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
+                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO),0) as CANTIDAD_PERDIDA,
+                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO),0) as CANTIDAD_SOBRANTE,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO),0) as COSTO_PERDIDA,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO),0) as COSTO_SOBRANTE'))
+                        ->where('USER_ID','=',$user)
+                        ->where('ID_SUCURSAL','=',$sucursal)
+                        ->GROUPBY('temp_ventas.SECCION_CODIGO') 
+                        ->orderby('temp_ventas.SECCION','ASC')
+                   
+                ->get()
+                ->toArray();
+                foreach ($seccion_total as $key => $value) {
+
+                              
+                               
+
+                                  $secciones_totales_array[]=array(
+                                    'TOTALES'=> $value->DESCRIPCION,
+                                    'SECCIONES'=>$value->SECCION_CODIGO,
+                                    'CANTIDAD_PERDIDA'=> $value->CANTIDAD_PERDIDA,
+                                    'CANTIDAD_SOBRANTE'=> $value->CANTIDAD_SOBRANTE,
+                                    'COSTO_PERDIDA'=> $value->COSTO_PERDIDA,
+                                    'COSTO_SOBRANTE'=>$value->COSTO_SOBRANTE,
+                                    'PORCENTAJE_CANTIDAD_PERDIDA'=>($value->CANTIDAD_PERDIDA*100)/$total_porcentaje_cantidad_perdida,
+                                    'PORCENTAJE_CANTIDAD_SOBRANTE'=>($value->CANTIDAD_SOBRANTE*100)/$total_porcentaje_cantidad_sobrante,
+                                    'PORCENTAJE_COSTO_PERDIDA'=>($value->COSTO_PERDIDA*100)/$total_porcentaje_costo_perdida,
+                                    'PORCENTAJE_COSTO_SOBRANTE'=>($value->COSTO_SOBRANTE*100)/$total_porcentaje_costo_sobrante
+                                );
+                            # code...
+                }
+
+                  
+
+
+
+                 
+ 
+            /*  --------------------------------------------------------------------------------- */
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR TODOS LOS ARRAYS
+
+
+            return ['productos' => $secciones_productos_array, 'secciones' => $secciones_array,'secciones_totales'=>$temp_seccion_gondola];
+
+            /*  --------------------------------------------------------------------------------- */
     } 
 }

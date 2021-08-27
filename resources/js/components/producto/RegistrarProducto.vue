@@ -227,8 +227,8 @@
 							            </div>
 
 							            <select :tabindex=3 class="custom-select custom-select-sm" v-on:change="llamarSubCategoria($event.target.value, subCategorias)" v-bind:shadow="shadow, validar_sub_categoria" :disabled="deshabilitar.subCategoria">
-							                    <option :value="null">0 - Seleccionar</option>
-							                    <option v-for="subCategoria in subCategorias" :selected="subCategoria.CODIGO === parseInt(seleccion_sub_categoria)" :value="subCategoria.CODIGO">{{ subCategoria.CODIGO }} - {{ subCategoria.DESCRIPCION }}</option>
+							                    <option :value="null">Seleccionar</option>
+							                    <option v-for="subCategoria in subCategorias" :selected="subCategoria.CODIGO === parseInt(seleccion_sub_categoria)" :value="subCategoria.CODIGO">{{ subCategoria.DESCRIPCION }}</option>
 							            </select>
 
 						            </div>
@@ -350,8 +350,8 @@
 
 					    			<label for="validationTooltip01">Marca</label>
 						            <select :tabindex=9 class="custom-select custom-select-sm" v-on:change="seleccionarMarca($event.target.value)" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_marca }"  :disabled="!mostrar_marca">
-						                    <option :value="null">0 - Seleccionar</option>
-						                    <option v-for="marca in marcas" :selected="marca.CODIGO === parseInt(seleccion_marca)" :value="marca.CODIGO">{{ marca.CODIGO }} - {{ marca.DESCRIPCION }}</option>
+						                    <option :value="null">Seleccionar</option>
+						                    <option v-for="marca in marcas" :selected="marca.CODIGO === parseInt(seleccion_marca)" :value="marca.CODIGO">{{ marca.DESCRIPCION }}</option>
 						            </select>
 					    			<!-- <div class="col-md-12">
 					    				<search-marca :tabIndexPadre=9 v-model="seleccion_marca" ref="componente_select_marca" v-bind:shadow="shadow, validar_marca" @marcaDescripcion="descripcionMarca" :categoria="seleccion_categoria" :deshabilitar="!mostrar_marca"></search-marca>
@@ -382,10 +382,10 @@
 					    			<div class="col-md-12">
 					    				<select :tabindex=10 class="custom-select custom-select-sm" v-model="seleccion.temporada" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.temporada }">
 					    					<option value="0">SELECCIONAR</option>
-						                    <option value="1">1 - PRIMAVERA</option>
-						                    <option value="2">2 - VERANO</option>
-						                    <option value="3">3 - OTOÑO</option>
-						                    <option value="4">4 - INVIERNO</option>
+						                    <option value="1">PRIMAVERA</option>
+						                    <option value="2">VERANO</option>
+						                    <option value="3">OTOÑO</option>
+						                    <option value="4">INVIERNO</option>
 						            	</select>
 					    			</div>	
 
@@ -432,15 +432,15 @@
 					    					<label>Presentación</label>
 					    				</div>
 					    				<select :tabindex=12 class="custom-select custom-select-sm" v-model="seleccion_presentacion" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar_presentacion }">
-						                    <option value="UNIDADES">1 - UNIDADES</option>
-						                    <option value="2">2 - PESABLE</option>
-						                    <option value="3">3 - METROS</option>
-						                    <option value="4">4 - CAJAS</option>
-						                    <option value="5">5 - CIEN</option>
-						                    <option value="6">6 - DOCENA</option>
-						                    <option value="7">7 - LITROS</option>
-						                    <option value="8">8 - PAQUETES</option>
-						                    <option value="9">9 - SOBRES</option>
+						                    <option value="UNIDADES">UNIDADES</option>
+						                    <option value="2">PESABLE</option>
+						                    <option value="3">METROS</option>
+						                    <option value="4">CAJAS</option>
+						                    <option value="5">CIEN</option>
+						                    <option value="6">DOCENA</option>
+						                    <option value="7">LITROS</option>
+						                    <option value="8">PAQUETES</option>
+						                    <option value="9">SOBRES</option>
 						            	</select>
 					    			</div>	
 
@@ -800,12 +800,12 @@
 					    				</div>
 					    				<select :tabindex=27 class="custom-select custom-select-sm" v-model="seleccion.periodo" v-bind:class="{ 'shadow-sm': shadow, 'is-invalid': validar.periodo }">
 					    					<option value="0">SELECCIONAR</option>
-						                    <option value="1">1 - UN MES</option>
-						                    <option value="2">2 - DOS MESES</option>
-						                    <option value="3">3 - TRES MESES</option>
-						                    <option value="4">4 - CUATROS MESES</option>
-						                    <option value="5">5 - CINCO MESES</option>
-						                    <option value="6">6 - SEIS MESES</option>
+						                    <option value="1">UN MES</option>
+						                    <option value="2">DOS MESES</option>
+						                    <option value="3">TRES MESES</option>
+						                    <option value="4">CUATROS MESES</option>
+						                    <option value="5">CINCO MESES</option>
+						                    <option value="6">SEIS MESES</option>
 						            	</select>
 					    			</div>
 
@@ -948,14 +948,6 @@
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
 
-		<!-- ------------------------------------------------------------------------ -->
-
-		<!-- MODAL DETALLE PRODUCTO -->
-
-		<producto-detalle ref="detalle_producto" :codigo="codigo_producto"></producto-detalle>
-
-		<!-- ------------------------------------------------------------------------ -->
-
 	</div>
 </template>
 <script>
@@ -1002,10 +994,10 @@
           shadow: true,
           mostrar_precios: true,
           descripcion_precio: '',
-          precio_venta: '',
-          precio_mayorista: '',
-          precio_vip: '',
-          precio_costo: '',
+          precio_venta: 0,
+          precio_mayorista: 0,
+          precio_vip: 0,
+          precio_costo: 0,
           candec_moneda_textbox: 0,
           stock_minimo: 0,
           mostrar_color: false,
@@ -1062,9 +1054,6 @@
           		boton_primary: true,
           		boton_warning: false,
           		mostrar_nuevo: false,
-          },
-          validar: {
-          	periodo: false
           },
           deshabilitar: {
           	subCategoria: true
@@ -1841,7 +1830,6 @@
             	}
 
             	if (this.seleccion_sub_categoria === 'null' || this.seleccion_sub_categoria === '') {
-            		alert(this.seleccion_sub_categoria);
             		retornar = true;
             		this.validar_sub_categoria = true;
             	} else {
@@ -2259,6 +2247,7 @@
 	          	this.descripcion = '';
 	          	this.seleccion_categoria = 'null';
 	          	this.seleccion_sub_categoria = 'null';
+	          	this.seleccion_sub_categoria_detalle = 'null';
 	          	this.seleccion_color = 'null';
 	          	this.seleccion_tela = 'null';
 	          	this.seleccion_talle = 'null';
@@ -2267,8 +2256,8 @@
 	          	this.seleccion_proveedor = 'null';
 	          	this.seleccion_moneda = String(this.monedaCodigo);
 	          	this.seleccion_proveedor = 'null';
-	          	this.seleccion_gondola = 'null';
-	          	this.seleccion_gondola_modificar = '';
+	          	this.seleccion_gondola = null;
+	          	this.seleccion_gondola_modificar = null;
 	          	this.seleccion_presentacion = 'UNIDADES';
 	          	this.seleccion.temporada = '0';
 	          	this.seleccion.periodo = '0';
@@ -2280,10 +2269,10 @@
 	          	this.fileName = 'Imagen';
 	          	this.mostrar_precios = false;
 	          	//this.descripcion_precio = '';
-	          	this.precio_venta = '';
-	          	this.precio_mayorista = '';
-	          	this.precio_vip = '';
-	          	this.precio_costo = '';
+	          	this.precio_venta = 0;
+	          	this.precio_mayorista = 0;
+	          	this.precio_vip = 0;
+	          	this.precio_costo = 0;
 	          	//this.candec_moneda_textbox = 0;
 	          	this.stock_minimo = 0;
 	          	this.mostrar_color = false;
@@ -2443,12 +2432,6 @@
                                this.descripcion_precio =data.parametros[0].DESCRIPCION;
                                
                             	this.llamarPrecios(this.descripcion_precio);
-
-                                
-
-				                 
-		
-				    
 			 });
 
 

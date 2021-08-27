@@ -1909,6 +1909,7 @@ class Venta extends Model
             $pago_al_entregar = $data["data"]["pago"]["PAGO_AL_ENTREGAR"];
             $tipo_venta = 'CO';
             $estatus_venta = 0;
+            $porcentaje_retencion=0;
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2047,6 +2048,7 @@ class Venta extends Model
 
             if(isset($data["data"]["cabecera"]["RETENCION"])){
                 $retencion = Common::quitar_coma($data["data"]["cabecera"]["RETENCION"], 2);
+                $porcentaje_retencion=Common::quitar_coma(($data["data"]["cliente"]["RETENCION_PORCENTAJE"]*100), 2);
             }else{
                 $retencion= 0;
             }
@@ -2706,6 +2708,7 @@ class Venta extends Model
                 VentaRetencion::guardar_referencia([
                         'FK_VENTA' => $venta,
                         'MONTO' => $retencion,
+                        'PORCENTAJE'=>$porcentaje_retencion
                 ]);
                 
             }
@@ -3690,14 +3693,14 @@ class Venta extends Model
         // CANTIDAD DE VENTAS 
 
         if ($ventas === 0) {
-            return ["response" => false, "statusText" => "No se ha encontrado ningúna venta !"];
+            return Venta::resumen_pdf_vacio($dato);
         }
 
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER EL PRIMER TICKET 
 
-        $primer_ticket = Venta::select('CODIGO_CA')
+        $primer_ticket = Venta::select(DB::raw('IFNULL(CODIGO_CA,0) AS CODIGO_CA'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('FECHA', '=', $fecha)
         ->where('CAJA', '=', $dato['caja'])
@@ -3707,7 +3710,7 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        $ultimo_ticket = Venta::select('CODIGO_CA')
+        $ultimo_ticket = Venta::select(DB::raw('IFNULL(CODIGO_CA,0) AS CODIGO_CA'))
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('FECHA', '=', $fecha)
         ->where('CAJA', '=', $dato['caja'])
@@ -3719,7 +3722,7 @@ class Venta extends Model
 
         // SUMAR TODOS LOS VALORES CONTADO
 
-        $contado = Venta::select(DB::raw('SUM(EFECTIVO) AS T_EFECTIVO, SUM(TARJETAS) AS T_TARJETAS, SUM(VALE) AS T_VALES, SUM(CHEQUE) AS T_CHEQUE, SUM(DONACION) AS T_DONACION, SUM(GIROS) AS T_GIROS, SUM(VUELTO) AS T_VUELTOS, SUM(BASE5) AS T_BASE5, SUM(BASE10) AS T_BASE10, SUM(EXENTAS) AS T_EXENTAS, SUM(MONEDA1) AS DOLARES, SUM(MONEDA2) AS REALES, SUM(MONEDA3) AS GUARANIES, SUM(MONEDA4) AS PESOS, SUM(TOTAL) AS T_TOTAL'))
+        $contado = Venta::select(DB::raw('IFNULL(SUM(EFECTIVO),0) AS T_EFECTIVO, IFNULL(SUM(TARJETAS),0) AS T_TARJETAS, IFNULL(SUM(VALE),0) AS T_VALES, IFNULL(SUM(CHEQUE),0) AS T_CHEQUE, IFNULL(SUM(DONACION),0) AS T_DONACION, IFNULL(SUM(GIROS),0) AS T_GIROS, IFNULL(SUM(VUELTO),0) AS T_VUELTOS, IFNULL(SUM(BASE5),0) AS T_BASE5, IFNULL(SUM(BASE10),0) AS T_BASE10, IFNULL(SUM(EXENTAS),0) AS T_EXENTAS, IFNULL(SUM(MONEDA1),0) AS DOLARES, IFNULL(SUM(MONEDA2),0) AS REALES, IFNULL(SUM(MONEDA3),0) AS GUARANIES, IFNULL(SUM(MONEDA4),0) AS PESOS, IFNULL(SUM(TOTAL),0) AS T_TOTAL'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
@@ -3921,13 +3924,14 @@ class Venta extends Model
 
         // RETENCION 30%
 
-        $retencion = Venta::select(DB::raw('IFNULL(SUM(VENTAS_RETENCION.MONTO),0) AS T_TOTAL'))
+        $retencion = Venta::select(DB::raw('IFNULL(SUM(VENTAS_RETENCION.MONTO),0) AS T_TOTAL,PORCENTAJE'))
         ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-        ->leftjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_RETENCION.FK_VENTA')
+        ->rightjoin('VENTAS_RETENCION', 'VENTAS.ID', '=', 'VENTAS_RETENCION.FK_VENTA')
         ->where('ID_SUCURSAL', '=', $user->id_sucursal)
         ->where('VENTAS.FECHA', '=', $fecha)
         ->where('VENTAS_ANULADO.ANULADO', '<>', 1)
-        ->get();
+        ->where('VENTAS.CAJA', '=', $dato['caja'])
+        ->GROUPBY('PORCENTAJE')->orderby('PORCENTAJE')->get();
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -4283,11 +4287,20 @@ class Venta extends Model
         $pdf->Cell(20, 4, '', 0);
         $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
         $pdf->Ln(4);
-
-        $pdf->Cell(25, 4, utf8_decode('Retención 30%:'), 0);
-        $pdf->Cell(20, 4, '', 0);
-        $pdf->Cell(15, 4, Common::precio_candec($retencion[0]["T_TOTAL"], $parametro[0]->MONEDA),0,0,'R');
-        $pdf->Ln(4);
+        if(count($retencion)>0){
+            foreach ($retencion as $key => $value) {
+                $pdf->Cell(25, 4, utf8_decode('Retención '.$value->PORCENTAJE.'%:'), 0);
+                $pdf->Cell(20, 4, '', 0);
+                $pdf->Cell(15, 4, Common::precio_candec($value->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+                $pdf->Ln(4);
+            }
+        }else{
+            $pdf->Cell(25, 4, utf8_decode('Retención:'), 0);
+            $pdf->Cell(20, 4, '', 0);
+            $pdf->Cell(15, 4,Common::precio_candec(0,$parametro[0]->MONEDA) ,0,0,'R');
+            $pdf->Ln(4);
+        }
+        
 
         $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
         $pdf->Cell(20, 4, '', 0);
@@ -4345,6 +4358,410 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+    public static function resumen_pdf_vacio($dato) {
+        $user = auth()->user();
+        $fecha = date('Y-m-d');
+        $hora = date('H:i:s');
+        $nota_credito_guaranies = 0;
+        $nota_credito_dolares = 0;
+        $nota_credito_pesos = 0;
+        $nota_credito_reales = 0;
+        $nota_credito_cheque = 0;
+        $nota_credito_transferencia = 0;
+        $nota_credito_total = 0;
+        $cheque_dolar = 0.00;
+        $cheque_guarani = 0;
+        $cheque_peso = 0.00;
+        $cheque_real = 0.00;
+        $guaranies=0;
+        $reales=0;
+        $pesos=0;
+        $dolares=0;
+        //COMENZAR CON LAS CONSULTAS 
+        $parametro = Parametro::select(DB::raw('EMPRESA, PROPIETARIO, DIRECCION, CIUDAD, ACTIVIDAD, RUC, MONEDA'))
+        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+     
+         // SUMAR TODOS LOS VALORES ABONO
+
+        $abono = VentaAbono::select(DB::raw('IFNULL(SUM(PAGO), 0) AS T_TOTAL'))
+        ->where('FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('FECHA', '=', $fecha)
+        ->where('CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TARJETA ABONO
+    
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // TRANSFERENCIA ABONO
+        
+        $transferenciaAbono = VentaAbonoTransferencia::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_TRANSFERENCIA.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_TRANSFERENCIA.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // GIRO ABONO
+        
+        $giroAbono = VentaAbonoGiro::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_GIRO.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_GIRO.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // VALE ABONO
+        
+        $valeAbono = VentaAbonoVale::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_VALE.MONTO), 0) AS TOTAL'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_VALE.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CHEQUE ABONO
+        
+        $chequeAbono = VentaAbonoCheque::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_CHEQUE.MONTO), 0) AS TOTAL, VENTAS_ABONO_CHEQUE.MONEDA'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_CHEQUE.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->groupBy('VENTAS_ABONO_CHEQUE.MONEDA')
+        ->get();
+
+         foreach ($chequeAbono as $key => $value) {
+
+           if ($value->MONEDA === 1) {
+                $cheque_guarani = $cheque_guarani + $value->TOTAL;
+           } else if ($value->MONEDA === 2) {
+                $cheque_dolar = $cheque_dolar + $value->TOTAL;
+           } else if ($value->MONEDA === 3) {
+                $cheque_peso = $cheque_peso + $value->TOTAL;
+           } else if ($value->MONEDA === 4) {
+                $cheque_real = $cheque_real + $value->TOTAL;
+           }
+
+        }
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS ABONO
+        
+        $monedaAbono = VentaAbonoMoneda::select(DB::raw('IFNULL(SUM(VENTAS_ABONO_MONEDAS.MONTO), 0) AS TOTAL, VENTAS_ABONO_MONEDAS.FK_MONEDA'))
+        ->leftjoin('VENTAS_ABONO', 'VENTAS_ABONO.ID', '=', 'VENTAS_ABONO_MONEDAS.FK_ABONO')
+        ->where('VENTAS_ABONO.FK_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('VENTAS_ABONO.FECHA', '=', $fecha)
+        ->where('VENTAS_ABONO.CAJA', '=', $dato['caja'])
+        ->groupBy('VENTAS_ABONO_MONEDAS.FK_MONEDA')
+        ->get();
+
+        foreach ($monedaAbono as $key => $value) {
+
+           if ($value->FK_MONEDA === 1) {
+                $guaranies = $guaranies + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 2) {
+                $dolares = $dolares + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 3) {
+                $pesos = $pesos + $value->TOTAL;
+           } else if ($value->FK_MONEDA === 4) {
+                $reales = $reales + $value->TOTAL;
+           }
+
+        }
+
+        $nota_credito = NotaCredito::select(DB::raw('IFNULL(SUM(NOTA_CREDITO_MEDIOS.TOTAL), 0) AS TOTAL, NOTA_CREDITO_MEDIOS.TIPO_MEDIO, IFNULL(SUM(NOTA_CREDITO.TOTAL), 0) AS MONTO'))
+        ->leftjoin('NOTA_CREDITO_MEDIOS', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_MEDIOS.FK_NOTA_CREDITO')
+        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->whereDate('NOTA_CREDITO.FECMODIF', '=', $fecha)
+        ->where('NOTA_CREDITO.CAJA', '=', $dato['caja'])
+        ->where('NOTA_CREDITO.PROCESADO', '=', 1)
+        ->groupBy('NOTA_CREDITO_MEDIOS.TIPO_MEDIO')
+        ->get();
+        foreach ($nota_credito as $key => $value) {
+
+            $nota_credito_total = $nota_credito_total + $value->MONTO;
+
+            if ($value->TIPO_MEDIO === 1) {
+                $nota_credito_guaranies = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 2) {
+                $nota_credito_dolares = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 3) {
+                $nota_credito_pesos = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 4) {
+                $nota_credito_reales = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 5) {
+                $nota_credito_cheque = $value->TOTAL;    
+            } else if ($value->TIPO_MEDIO === 6) {
+                $nota_credito_transferencia = $value->TOTAL;    
+            } 
+             
+        }
+        $pdf = new FPDF('P','mm',array(80,190));
+        $pdf->AddPage();
+         
+        // CABECERA
+
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(60,4, $parametro[0]->EMPRESA,0,1,'C');
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(60,4, 'RESUMEN DE CAJA',0,1,'C');
+        $pdf->Cell(30,4, 'Fecha: '.$fecha ,0,0,'L');
+        $pdf->Cell(30,4, 'Hora: '.$hora ,0,1,'R');
+        $pdf->Cell(60,4, 'Caja: '.$dato['caja'] ,0,1,'C');
+          
+        $pdf->Cell(25, 4, 'Cajero:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $user->name,0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Intervalo Ticket:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, '0 - 0',0,0,'R');
+
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS 
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, 'Dolares:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $dolares- $nota_credito_dolares, 2),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Reales:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $reales- $nota_credito_reales, 4),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Guaranies:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($guaranies-$nota_credito_guaranies, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Pesos:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $pesos- $nota_credito_pesos, 3),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MONEDAS 
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, utf8_decode('Dotación:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        // $pdf->Cell(25, 4, 'Efectivo:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_EFECTIVO, $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Tarjetas:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Transferencia:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $transferenciaAbono[0]->TOTAL-$nota_credito_transferencia, 1),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+        // CHEQUES 
+        $pdf->SetFont('Helvetica','B',8);
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, 'CHEQUES:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, '',0,0,'R');
+        $pdf->Ln(4);
+        $pdf->SetFont('Helvetica','',8);
+
+        $pdf->Cell(25, 4, 'Guaranies', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_guarani, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Dolares', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_dolar, 2),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Pesos', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_peso, 3),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Reales', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($cheque_real, 4),0,0,'R');
+        $pdf->Ln(4);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+
+        $pdf->Ln(2);
+        $pdf->Cell(60,0,'','T');
+        $pdf->Ln(2);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Cell(25, 4, 'Giros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $giroAbono[0]->TOTAL, 1),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Vales:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $valeAbono[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Giros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $giroAbono[0]->TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Donación:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Retiros:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0 , $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        // $pdf->Cell(25, 4, 'Vuelto:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec($contado[0]->T_VUELTOS, $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Gastos:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'Total Ventas:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec( $abono[0]->T_TOTAL, $parametro[0]->MONEDA),0,0,'R');
+        // $pdf->Ln(4);
+
+        // $pdf->Cell(25, 4, 'Total Efectivo:', 0);
+        // $pdf->Cell(20, 4, '', 0);
+        // $pdf->Cell(15, 4, Common::precio_candec(($contado[0]->T_EFECTIVO + $contado[0]->T_CHEQUE + $contado[0]->T_VALES + $contado[0]->T_GIROS), $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Ln(2);
+        $pdf->Cell(25, 4, utf8_decode('Ventas Crédito:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Ventas PE:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec(0, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, utf8_decode('Notas Crédito:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, Common::precio_candec($nota_credito_total, $parametro[0]->MONEDA),0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, utf8_decode('Retención:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4,Common::precio_candec(0,$parametro[0]->MONEDA) ,0,0,'R');
+        $pdf->Ln(4);
+        $pdf->Cell(25, 4, 'Tickets Anulados:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, 0,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL GRAVADAS 10%:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, 0,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL GRAVADAS 5%:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, 0,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'TOTAL EXENTAS:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, 0,0,0,'R');
+        $pdf->Ln(6);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // LINEA 
+        
+        $pdf->Cell(60,0,'','T');
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Ln(6);
+
+        $pdf->Cell(25, 4, utf8_decode('HABILITACIÓN CAJA:'), 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $user->name,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 4, 'HORA:', 0);
+        $pdf->Cell(20, 4, '', 0);
+        $pdf->Cell(15, 4, $hora,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 10, utf8_decode('HABILITACIÓN CAJA:'), 0);
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $user->name,0,0,'R');
+        $pdf->Ln(4);
+
+        $pdf->Cell(25, 10, 'HORA:', 0);
+        $pdf->Cell(20, 10, '', 0);
+        $pdf->Cell(15, 10, $hora,0,0,'R');
+        $pdf->Ln(4);
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pdf->Output('ticket.pdf','i');
     }
 
     public static function ticket_pdf($dato) {
@@ -6495,7 +6912,7 @@ class Venta extends Model
                     $nestedData['ACCION'] = '<form class="form-inline">
                                             <div class="custom-control custom-checkbox">
                                               <input  type="checkbox" name="check" class="custom-control-input call-checkbox" id="'.$post->COD_PROD.'">
-                                              <label for='.$post->COD_PROD.' class="custom-control-label"></label>
+                                              <label for="'.$post->COD_PROD.'"  class="custom-control-label"></label>
                                               <input type="number" value='.$nestedData['CANTIDAD'].' id="'.$post->COD_PROD.'" name="'.$post->COD_PROD.'" class="form-control-sm" min="0" max='.$nestedData['CANTIDAD'].'>
                                             </div>
                                          </form>';

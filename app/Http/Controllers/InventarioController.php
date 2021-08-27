@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Inventario;
 use  App\Exports\Reportes\Inventario\InventarioImageGondolaExport;
+use  App\Exports\Reportes\Inventario\Web\InventarioSeccionExport;
 
 class InventarioController extends Controller
 {
@@ -134,6 +135,66 @@ class InventarioController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
 
+    }
+    public function generar_reporte_inventario_seccion(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MODIFICAR COMPRA DEPOSITO
+
+        $inventario = Inventario::generar_Reporte_Inventario_Seccion($request->all());
+        return response()->json($inventario); 
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+        public function ExportInventarioSeccion(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // MODIFICAR COMPRA DEPOSITO
+/*
+            if($request->Insert==true){
+
+                  $datos=array(
+                        'inicio'=>date('Y-m-d', strtotime($request->Inicio)),
+                        'final'=>date('Y-m-d', strtotime($request->Final)),
+                        'sucursal'=>$request->Sucursal,
+                        'checkedProveedor'=>$request->AllProveedores,
+                        'checkedSeccion'=>$request->AllSecciones,
+                        'proveedores'=>$request->Proveedores,
+                        'secciones'=>$request->secciones,
+                    );
+                  
+          
+                   Temp_venta::insertar_reporte_Entrada_Seccion($datos);
+            }*/
+            $data=array();
+
+           $datos=array(
+                        'Inicio'=>$request->Inicio,
+                        'Final'=>$request->Final,
+                        'Sucursal'=>$request->Sucursal,
+                        'AllProveedores'=>$request->AllProveedores,
+                        'AllSecciones'=>$request->AllSecciones,
+                        'Proveedores'=>$request->Proveedores,
+                        'secciones'=>$request->secciones,
+                        'gondolas'=>$request->gondolas,
+                        'AllGondolas'=>$request->AllGondolas,
+                        'Agrupado'=>$request->Agrupado,
+                        'Insert'=>$request->Insert
+                    );
+           $data["data"]=$datos;
+           $respuesta=Inventario::generar_Reporte_Inventario_Seccion($data);
+          
+         
+        return Excel::download(new InventarioSeccionExport($respuesta,$request->Agrupado), 'InventarioSeccionGondola.xlsx');
+
+       /* $compra = Compra::generar_Reporte_Entrada_Seccion($request->all());
+        return response()->json($compra); */
+        
+        /*  --------------------------------------------------------------------------------- */
+        
     }
     
 }

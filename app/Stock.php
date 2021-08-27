@@ -2909,4 +2909,159 @@ class Stock extends Model
         /*  --------------------------------------------------------------------------------- */
 
     }
+
+
+    public static function reporteVentaProductoVencido($request) {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+
+                0 => 'LOTES.COD_PROD',
+                1 => 'LOTES.FECHA_VENC',
+                2 => 'PRODUCTOS.DESCRIPCION',
+                3 => 'LINEAS.DESCRIPCION',
+                4 => 'VENTASDET.PRECIO_UNIT', 
+                5 => 'VENTASDET_TIENE_LOTES.CANTIDAD', 
+                6 => 'LOTES.FECHA_VENC', 
+                7 => 'LOTES.LOTE', 
+                8 => 'LOTES.CANTIDAD_INICIAL',
+                9 => 'LOTES.CANTIDAD',  
+        );
+        
+
+        // INICIAR VARIABLES 
+ 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $datos = $request->input("datos");
+        $inicio = date('Y-m-d', strtotime($datos["Inicio"]));
+        $final = date('Y-m-d', strtotime($datos["Final"]));
+        $sucursal = $datos["Sucursal"];
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value'))){            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+            
+            $posts = Stock::select(DB::raw(" 
+                    LOTES.COD_PROD,
+                    LOTES.FECHA_VENC AS FECHA_VENCIMIENTO,
+                    PRODUCTOS.DESCRIPCION,
+                    LINEAS.DESCRIPCION AS CATEGORIA,
+                    VENTASDET.PRECIO_UNIT AS PRECIO,
+                    SUM(VENTASDET_TIENE_LOTES.CANTIDAD) AS VENDIDO,
+                    LOTES.ID AS LOTE_ID,
+                    LOTES.LOTE AS LOTE,
+                    LOTES.CANTIDAD_INICIAL AS CANTIDAD_INICIAL,
+                    IFNULL(LOTES.CANTIDAD, 0) AS STOCK,
+                    0 AS IMAGEN"))
+                ->leftjoin("PRODUCTOS","PRODUCTOS.CODIGO","=","LOTES.COD_PROD")
+                ->leftjoin("LINEAS","LINEAS.CODIGO","=","PRODUCTOS.LINEA")
+                ->leftjoin("VENTASDET_TIENE_LOTES","VENTASDET_TIENE_LOTES.ID_LOTE","=","LOTES.ID")
+                ->rightjoin("VENTASDET", function($join){
+                    $join->on("VENTASDET.ID", "=", "VENTASDET_TIENE_LOTES.ID_VENTAS_DET")
+                         ->on("VENTASDET.FECALTAS", ">=", "LOTES.FECHA_VENC");
+                    })
+                ->where("LOTES.ID_SUCURSAL", "=", $sucursal)
+                ->whereBetween("LOTES.FECHA_VENC",[$inicio, $final])
+                ->groupBy('LOTES.COD_PROD','LOTES.lOTE')
+                ->orderBy($order, $dir)
+                ->get();
+
+            /*  ************************************************************ */
+
+        } 
+
+        $data = array();
+
+        $parametro = Parametro::consultaPersonalizada('MONEDA');
+        $candec = (Parametro::candec($parametro->MONEDA))['CANDEC'];
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts)){
+            foreach ($posts as $post){
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->COD_PROD;
+
+                $filename = '../storage/app/public/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                
+                if(file_exists($filename)) {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/'.$post->COD_PROD.'.jpg';
+                } else {
+                    $imagen_producto = 'http://131.196.192.165:8080/storage/imagenes/productos/product.png';
+                }
+
+                $nestedData['IMAGEN'] = "<img src='".$imagen_producto."'  width='100%'>";
+                $nestedData['DESCRIPCION'] = $post->DESCRIPCION;
+                $nestedData['CATEGORIA'] = $post->CATEGORIA;
+                $nestedData['VENDIDO'] = $post->VENDIDO;
+                $nestedData['PRECIO'] = Common::formato_precio($post->PRECIO, $candec);
+                $nestedData['FECHA_VENCIMIENTO'] = substr($post->FECHA_VENCIMIENTO,0,-9);
+                $nestedData['LOTE'] = $post->LOTE;
+                $nestedData['CANTIDAD_INICIAL'] = $post->CANTIDAD_INICIAL;
+                $nestedData['STOCK'] = $post->STOCK;
+
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+        
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD ENCONTRADAS
+
+        $totalData = count($posts); 
+
+        /*  --------------------------------------------------------------------------------- */
+
+
+        // CONTAR LA CANTIDAD FILTRADA
+
+        $totalFiltered = $totalData;
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+       return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

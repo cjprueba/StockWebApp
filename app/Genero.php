@@ -16,6 +16,7 @@ class Genero extends Model
     	$generos = DB::connection('retail')
         ->table('GENERO')
         ->select(DB::raw('CODIGO, DESCRIPCION'))
+        ->orderBy('DESCRIPCION')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

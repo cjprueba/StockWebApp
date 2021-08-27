@@ -25,6 +25,7 @@ class Proveedor extends Model
     	// OBTENER TODOS LOS PROVEEDORES
 
     	$proveedores = Proveedor::select(DB::raw('CODIGO, NOMBRE AS DESCRIPCION'))
+        ->orderBy('NOMBRE')
         ->get();
 
         /*  --------------------------------------------------------------------------------- */

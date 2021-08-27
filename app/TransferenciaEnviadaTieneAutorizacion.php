@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
-class VentaRetencion extends Model
+class TransferenciaEnviadaTieneAutorizacion extends Model
 {
-    protected $connection = 'retail';
-    protected $table = 'ventas_retencion';
+	protected $connection = 'retail';
+	protected $table = 'transferencia_enviada_tiene_autorizacion';
+	public $timestamps = false;
 
     public static function guardar_referencia($data){
 
@@ -17,15 +17,16 @@ class VentaRetencion extends Model
 
 	    	/*  --------------------------------------------------------------------------------- */
 
-	    	$retencion = VentaRetencion::insertGetId([
-	    		'MONTO' => $data["MONTO"],
-	    		'FK_VENTA' => $data["FK_VENTA"],
-	    		'PORCENTAJE'=>$data["PORCENTAJE"]
+	    	$autorizacion = TransferenciaEnviadaTieneAutorizacion::insertGetId([
+	    		'FK_TRANSFERENCIA' => $data["FK_TRANSFERENCIA"],
+	    		'FK_USER'=> $data["FK_USER"],
+	    		'FK_USER_SUPERVISOR' => $data["FK_USER_SUPERVISOR"]
 	    	]);
+
 
 	    	/*  --------------------------------------------------------------------------------- */
 
-	    	Log::info('Venta Retencion: Éxito al guardar.', ['VENTA' => $data["FK_VENTA"], 'ID RETENCION' => $retencion]);
+	    	Log::info('Usuario Supervisor: Éxito al guardar y confirmar.', ['TRANSFERENCIAS' => $data["FK_TRANSFERENCIA"], 'FK_USER' => $autorizacion]);
 
 	    	/*  --------------------------------------------------------------------------------- */
 
@@ -35,7 +36,7 @@ class VentaRetencion extends Model
 
 			// ERROR 
 
-			Log::error('Venta Retencion: Error al guardar.', ['VENTA' => $data["FK_VENTA"]]);
+			Log::error('Usuario Supervisor: Error al guardar y confirmar.', ['TRANSFERENCIAS' => $data["FK_TRANSFERENCIA"]]);
 
 			/*  --------------------------------------------------------------------------------- */
 
