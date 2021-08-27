@@ -115,8 +115,24 @@ class Cliente extends Model
 
             /*  ************************************************************ */  
 
-        }
+('PRIMAVERA 2021', '09-21-2021 11:15:22', '12-20-2021'),
+('INVIERNO 2021', '06-21-2021', '09-20-2021'),
+('VERANO 2021', '12-21-2021', '03-20-2022');
+('PRIMAVERA 2021', '09-21-2021T11:15:22.000Z', '12-20-2021T11:15:22.000Z'),
+('INVIERNO 2021', '06-21-2021T11:15:22.000Z', '09-20-2021T11:15:22.000Z'),
+('VERANO 2021', '12-21-2021T11:15:22.000Z', '03-20-2022T11:15:22.000Z');
+INSERT INTO entrega(fecha_entrega , nombre_coleccion , num_paginas)
+VALUES
+( '08-20-2021', 'PRIMAVERA 2021', 9),
+( '05-20-2021', 'INVIERNO 2021', 13),
+( '11-20-2021', 'VERANO 2021', 30);
 
+INSERT INTO regalo(id_regalo, fecha_entrega, nombre_coleccion, peso)
+VALUES
+(1,'09-10-2021', 'PRIMAVERA 2021', 3),
+(2,'06-11-2021', 'INVIERNO 2021', 2),
+(3,'12-09-2021', 'VERANO 2021', 5);
+        }
         $data = array();
 
         /*  --------------------------------------------------------------------------------- */
@@ -134,10 +150,10 @@ class Cliente extends Model
 
                 $nestedData['CODIGO'] = $post->CODIGO;
                 $nestedData['CI'] = $post->CI;
-                $nestedData['NOMBRE'] = utf8_encode($post->NOMBRE);
+                $nestedData['NOMBRE'] = utf8_decode(utf8_encode($post->NOMBRE));
                 $nestedData['RUC'] = $post->RUC;
-                $nestedData['DIRECCION'] = utf8_encode($post->DIRECCION);
-                $nestedData['CIUDAD'] = utf8_encode($post->CIUDAD);
+                $nestedData['DIRECCION'] = utf8_decode(utf8_encode($post->DIRECCION));
+                $nestedData['CIUDAD'] = utf8_decode(utf8_encode($post->CIUDAD));
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['RETENTOR'] = $post->RETENTOR;
@@ -332,7 +348,8 @@ class Cliente extends Model
                         CLIENTES.DIAS_CREDITO AS LIMITEDIA,
                         EMPRESAS.NOMBRE AS EMPRESA,
                         CLIENTES.CREDITO_DISPONIBLE,
-                        CLIENTES.RETENTOR'))
+                        CLIENTES.RETENTOR,
+                        CLIENTES.PORC_RETENCION'))
                     ->leftjoin('EMPRESAS', 'EMPRESAS.ID', '=', 'CLIENTES.FK_EMPRESA')
                     ->where('CLIENTES.ID_SUCURSAL', '=', $user->id_sucursal)
                     ->Where('CLIENTES.ID','=',$datos['data'])
@@ -409,7 +426,8 @@ class Cliente extends Model
                 'HORALTAS'=> $hora,
                 'ID_SUCURSAL' => $user->id_sucursal,
                 'RETENTOR' => $datos['data']['retentor'],
-                'CREDITO_DISPONIBLE' => $datos['data']['limite']]);
+                'CREDITO_DISPONIBLE' => $datos['data']['limite'],
+                'PORC_RETENCION' => $datos['data']['porc_retencion']]);
 
                 $codigo = $codigo["0"]["CODIGO"]+1;
                 
@@ -458,7 +476,8 @@ class Cliente extends Model
                     'USERM'=>$user->name,
                     'FECMODIF'=>$dia,
                     'HORMODIF'=>$hora,
-                    'RETENTOR' => $datos['data']['retentor']]);
+                    'RETENTOR' => $datos['data']['retentor'],
+                    'PORC_RETENCION' => $datos['data']['porc_retencion']]);
 
                 /*  --------------------------------------------------------------------------------- */
 
