@@ -2189,7 +2189,7 @@
 	            	// ------------------------------------------------------------------------
 
 	            	// EDITAR CANTIDAD PRODUCTO 
-	            	console.log(productoExistente.iva);
+	            	
 	            	
 	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto,productoExistente.iva, precio, productoExistente.row, descuento, descuento_total, descuento_unitario, rowClass);
 	            	return;
@@ -2331,7 +2331,7 @@
 	            // ------------------------------------------------------------------------
 	            
 	            // CARGAR IMPUESTO
-	            console.log(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL) );
+	          
 	            tabla.cell(row, 7).data(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)).draw();
 
 	            // ------------------------------------------------------------------------
