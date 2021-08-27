@@ -12,6 +12,7 @@
           <option  v-if="$can('movimientos.salidadeproducto') && $can('reporte.web')" value="1">Salida de productos</option>
           <option  v-if="$can('reporte.productos.stockprod') && $can('reporte.web')" value="2">Stock de productos</option>
 					<option  v-if="$can('reporte.productos.vencimientoprod') && $can('reporte.web')" value="3">Vencimiento de productos</option>
+          <option  v-if="$can('reporte.productos.vencimientoprod') && $can('reporte.web')" value="4">Inventario de productos</option>
           
 				</select>			
 			</div>
@@ -29,7 +30,10 @@
 			<transition name="slide-fade">	
 				<productos-vencidos-rpt v-if="reporte === '3'" id="reporte3"></productos-vencidos-rpt>
 			</transition>
-
+        <transition name="slide-fade">  
+        <inventario-seccion-rpt v-if="reporte === '4'" id="reporte4"></inventario-seccion-rpt>
+      </transition>
+      
 			<!-- FIN DE REPORTES POR PRODUCTO -->
 		</div>
 

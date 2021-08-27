@@ -105,6 +105,19 @@ class EmpleadoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
+        public function datatable_recibe(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // Mostrar Colores
+
+        $empleados = Empleado::empleados_datatable_recibe($request);
+        return response()->json($empleados);
+        
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     public function empleadoNuevo(){
          /*  --------------------------------------------------------------------------------- */
 

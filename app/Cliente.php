@@ -68,7 +68,7 @@ class Cliente extends Model
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR,IFNULL(PORC_RETENCION,0) AS PORC_RETENCION'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -89,7 +89,7 @@ class Cliente extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR'))
+            $posts = Cliente::select(DB::raw('CODIGO, CI, NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, TIPO, RETENTOR,IFNULL(PORC_RETENCION,0) AS PORC_RETENCION'))
                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('CI','LIKE',"%{$search}%")
@@ -141,6 +141,8 @@ class Cliente extends Model
                 $nestedData['TELEFONO'] = $post->TELEFONO;
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['RETENTOR'] = $post->RETENTOR;
+                $nestedData['RETENCION_PORCENTAJE']=$post->PORC_RETENCION;
+                
                 
                 $data[] = $nestedData;
 

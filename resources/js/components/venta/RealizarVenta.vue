@@ -1008,7 +1008,8 @@
          		CI: '',
          		NOMBRE: '',
          		TIPO: '',
-         		RETENTOR: 0
+         		RETENTOR: 0,
+         		RETENCION_PORCENTAJE:0
          	},
          	vendedor: {
          		CODIGO: 1,
@@ -1657,6 +1658,7 @@
       			// ------------------------------------------------------------------------
 
       			this.cliente.RETENTOR = data.retentor;
+      			this.cliente.RETENCION_PORCENTAJE=Common.dividirCommon(data.porcentaje,100,2);
       			this.calculoRetencion(this.venta.IMPUESTO);
 
       			// ------------------------------------------------------------------------
@@ -2742,7 +2744,7 @@
 
 				if (this.cliente.RETENTOR === 1) {
 
-					this.venta.RETENCION = Common.multiplicarCommon(0.3, total, this.moneda.DECIMAL);
+					this.venta.RETENCION = Common.multiplicarCommon(this.cliente.RETENCION_PORCENTAJE, total, this.moneda.DECIMAL);
 					//console.log(total);
 					//console.log(this.venta.RETENCION);
 				}

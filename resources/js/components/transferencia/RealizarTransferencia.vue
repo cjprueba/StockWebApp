@@ -130,7 +130,7 @@
 						<label class="mt-1" for="validationTooltip01">Envia</label>
 						<div class="input-group">
 							<div class="input-group-prepend">
-								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".empleado-modal" v-on:click="activarBuscarEmpleado(1)"><font-awesome-icon icon="search"/></button>
+								<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".empleado-filtro-modal-envia" v-on:click="activarBuscarEmpleado(1)"><font-awesome-icon icon="search"/></button>
 							</div>
 							<input tabindex="3" class="form-control form-control-sm" v-model="codigoEnvia" type="text" v-on:blur="cargarEmpleados(1)">
 						</div>
@@ -174,9 +174,10 @@
 						<label class="mt-1" for="validationTooltip01">Recibe</label>
 						<div class="input-group">
 							<div class="input-group-prepend">
-								<button type="button" class="btn btn-secondary btn-sm"  v-on:click="activarBuscarEmpleado(3)" data-toggle="modal" data-target=".empleado-modal"><font-awesome-icon icon="search"/></button>
+								<button  type="button" class="btn btn-secondary btn-sm" id="btn_recibe_busqueda"  v-on:click="activarBuscarEmpleado(3)" data-toggle="modal" data-target=".empleado-filtro-modal" ><font-awesome-icon icon="search"/></button>
 							</div>
-							<input tabindex="5" class="form-control form-control-sm" v-model="codigoRecibe" type="text" v-on:blur="cargarEmpleados(3)">
+							<input tabindex="5" class="form-control form-control-sm" id="input_recibe_txt" v-model="codigoRecibe" type="text" v-on:blur="cargarEmpleados(3)" >
+						
 						</div>
 					</div>	
 
@@ -411,6 +412,77 @@
 					    </div>
 					  </div>
 					</div>	
+				<!-- ******************************************************************* -->
+
+							<!-- MODAL EMPLEADOS FILTRADO -->
+
+					<div class="modal fade empleado-filtro-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h5 class="modal-title" id="exampleModalCenterTitle">Empleados: </small></h5>
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+					      </div>
+					      <div class="modal-body">
+					        	<table id="tablaModalEmpleadosFiltro" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+							        <thead>
+							            <tr>
+							                <th>Codigo</th>
+							                <th>Nombre</th>
+							                <th>CI</th>
+							                <th>Dirección</th>
+							                <th>SUCURSAL</th>
+							            </tr>
+							        </thead>
+	                                <tbody>
+	                                    <td></td>
+	                                </tbody>
+							    </table>        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>	
+					<!-- ******************************************************************* -->
+
+							<!-- MODAL EMPLEADOS FILTRADO ENVIA -->
+
+					<div class="modal fade empleado-filtro-modal-envia" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h5 class="modal-title" id="exampleModalCenterTitle">Empleados: </small></h5>
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					          <span aria-hidden="true">&times;</span>
+					        </button>
+					      </div>
+					      <div class="modal-body">
+					        	<table id="tablaModalEmpleadosFiltroEnvia" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
+							        <thead>
+							            <tr>
+							                <th>Codigo</th>
+							                <th>Nombre</th>
+							                <th>CI</th>
+							                <th>Dirección</th>
+							                <th>SUCURSAL</th>
+							            </tr>
+							        </thead>
+	                                <tbody>
+	                                    <td></td>
+	                                </tbody>
+							    </table>        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>	
+
 
 	        <!-- ******************************************************************* -->
 
@@ -729,6 +801,9 @@
             switch_cotizacion: false,
             procesar: false,
             cantidad_row: 0,
+            disabled_destino:true,
+            table_recibe:'',
+            table_envia:'',
             cotizacion: {
             	Guaranies: '',
             	Dolares: '',
@@ -852,9 +927,15 @@
       		if (this.buscarOrigen === true) {
       			me.codigoOrigen = row.CODIGO; 	
 		      	me.descripcionOrigen = row.DESCRIPCION;
+		      	this.TablaEmpleadoEnvia();
       		} else if (this.buscarDestino === true) {
       			me.codigoDestino = row.CODIGO; 	
 		      	me.descripcionDestino = row.DESCRIPCION;
+		      	$('#input_recibe_txt').removeClass('disabled');
+			    $('#input_recibe_txt').attr("data-toggle", "modal");
+				$('#btn_recibe_busqueda').removeClass('disabled');
+				$('#btn_recibe_busqueda').attr("data-toggle", "modal");
+		      	this.TablaEmpleadoRecibe();
       		}
 		},
       	llamarDatatable(){
@@ -923,6 +1004,11 @@
 							me.validarDestino = true;
 							me.codigoDestino = '';
 							me.descripcionDestino = '';
+							$('#input_recibe_txt').addClass('disabled');
+							$('#input_recibe_txt').removeAttr('data-toggle');
+							$('#btn_recibe_busqueda').addClass('disabled');
+							$('#btn_recibe_busqueda').removeAttr('data-toggle');
+							
 						}
 
 						// *******************************************************************
@@ -934,12 +1020,21 @@
 						// LLENAR DESCRIPCION DE ACUERDO A OPCION
 
 						if (origen === 1) {
+
 							me.descripcionOrigen = response.data.sucursal[0].DESCRIPCION;
 							me.validarOrigen = false;
+							me.TablaEmpleadoEnvia();
 						} else if (origen === 2) {
 							me.descripcionDestino = response.data.sucursal[0].DESCRIPCION;
 							me.validarDestino = false;
+							me.disabled_destino=false;
+							$('#input_recibe_txt').removeClass('disabled');
+							$('#input_recibe_txt').attr("data-toggle", "modal");
+							$('#btn_recibe_busqueda').removeClass('disabled');
+							$('#btn_recibe_busqueda').attr("data-toggle", "modal");
+							me.TablaEmpleadoRecibe();
 						}
+						
 
 						// *******************************************************************
 					}
@@ -950,6 +1045,148 @@
 
        		// ------------------------------------------------------------------------
        		
+       	},
+       	TablaEmpleadoRecibe(){
+       		let me=this;
+
+       		            me.table_recibe = $('#tablaModalEmpleadosFiltro').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				        	{ extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary' }
+				        ],
+
+                        "ajax":{
+                        	    "data": {
+                        	    	 "_token": $('meta[name="csrf-token"]').attr('content'),
+                                    Destino:me.codigoDestino
+                                 },
+                                 "url": "/empleado/recibe",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "NOMBRE" },
+                            { "data": "CI" },
+                            { "data": "DIRECCION" },
+                            { "data": "ID_SUCURSAL" }
+                        ]      
+                    });
+       		          
+       		        $(document).ready( function () {
+       		            
+       		            $('#tablaModalEmpleadosFiltro').on('click', 'tbody tr', function() {
+                    	
+
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                    } else {
+                        me.table_recibe.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+
+                    // *******************************************************************
+
+                    // CARGAR LOS VALORES A LAS VARIABLES DE ACUERDO A - ENVIA, TRANPORTA, RECIBE
+
+     
+                       me.codigoRecibe = me.table_recibe.row(this).data().CODIGO;
+                       me.descripcionRecibe = me.table_recibe.row(this).data().NOMBRE; 
+                    
+                     
+                    // *******************************************************************
+
+                    // CERRAR EL MODAL
+                     
+                    $('.empleado-filtro-modal').modal('hide');
+
+                    // *******************************************************************
+
+                   });
+       		    });
+       		          
+       		              
+       	},
+       	       	TablaEmpleadoEnvia(){
+       		let me=this;
+
+       		            me.table_envia = $('#tablaModalEmpleadosFiltroEnvia').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "destroy": true,
+                        "bAutoWidth": true,
+                        "select": true,
+                        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'B><'col-sm-12 col-md-4'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				        "buttons": [
+				        	{ extend: 'copy', text: '<i class="fa fa-copy"></i>', titleAttr: 'Copiar', className: 'btn btn-secondary' },
+				        	{ extend: 'excelHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Excel', className: 'btn btn-success' },
+				            { extend: 'pdfHtml5', text: '<i class="fa fa-file"></i>', titleAttr: 'Pdf', className: 'btn btn-danger' }, 
+				            { extend: 'print', text: '<i class="fa fa-print"></i>', titleAttr: 'Imprimir', className: 'btn btn-secondary' }
+				        ],
+
+                        "ajax":{
+                        	    "data": {
+                        	    	 "_token": $('meta[name="csrf-token"]').attr('content'),
+                                    Destino:me.codigoOrigen
+                                 },
+                                 "url": "/empleado/recibe",
+                                 "dataType": "json",
+                                 "type": "POST"
+                               },
+                        "columns": [
+                            { "data": "CODIGO" },
+                            { "data": "NOMBRE" },
+                            { "data": "CI" },
+                            { "data": "DIRECCION" },
+                            { "data": "ID_SUCURSAL" }
+                        ]      
+                    });
+       		          
+       		        $(document).ready( function () {
+       		           
+       		            $('#tablaModalEmpleadosFiltroEnvia').on('click', 'tbody tr', function() {
+                    	
+
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                    } else {
+                        me.table_envia.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+
+                    // *******************************************************************
+
+                    // CARGAR LOS VALORES A LAS VARIABLES DE ACUERDO A - ENVIA, TRANPORTA, RECIBE
+
+     
+                       me.codigoEnvia = me.table_envia.row(this).data().CODIGO;
+                       me.descripcionEnvia = me.table_envia.row(this).data().NOMBRE; 
+                    
+                     
+                    // *******************************************************************
+
+                    // CERRAR EL MODAL
+                     
+                    $('.empleado-filtro-modal-envia').modal('hide');
+
+                    // *******************************************************************
+
+                   });
+       		    });
+       		          
+       		              
        	},
        	cargarEmpleados(origen)	{
 
@@ -1007,14 +1244,32 @@
 						// LLENAR DESCRIPCION DE ACUERDO A OPCION
 
 						if (origen === 1) {
-							me.descripcionEnvia = response.data.empleado[0].NOMBRE;
-							me.validarEnvia = false;
+							if(parseInt(me.codigoOrigen)===parseInt(response.data.empleado[0].ID_SUCURSAL) ){
+								me.descripcionEnvia = response.data.empleado[0].NOMBRE;
+							     me.validarEnvia = false;
+							}else{
+								me.validarEnvia = true;
+								me.codigoEnvia = '';
+								me.descripcionEnvia = '';
+							}
+							
 						} else if (origen === 2) {
 							me.descripcionTransporta = response.data.empleado[0].NOMBRE;
 							me.validarTransporta = false;
 						} else if (origen === 3) {
-							me.descripcionRecibe = response.data.empleado[0].NOMBRE;
-							me.validarRecibe = false;
+							
+							if(parseInt(me.codigoDestino)===parseInt(response.data.empleado[0].ID_SUCURSAL) ){
+								
+								me.descripcionRecibe = response.data.empleado[0].NOMBRE;
+								me.validarRecibe = false;
+							}else{
+								
+								me.validarRecibe = true;
+								me.descripcionRecibe = '';
+								me.codigoRecibe = '';
+							}
+							
+							
 						}
 
 						// *******************************************************************
@@ -2041,6 +2296,10 @@
             // ------------------------------------------------------------------------
             
             // INICIAR VARIABLES
+            $('#input_recibe_txt').addClass('disabled');
+            $('#input_recibe_txt').removeAttr('data-toggle');
+			$('#btn_recibe_busqueda').addClass('disabled');
+			$('#btn_recibe_busqueda').removeAttr('data-toggle');
 
             let me = this;
             var precio = 0;
@@ -2115,6 +2374,7 @@
 
                 $('#tablaModalEmpleados').on('click', 'tbody tr', function() {
 
+
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
                     } else {
@@ -2146,6 +2406,7 @@
                     // *******************************************************************
 
                 });
+                  
 
                 //FIN TABLA MODAL EMPLEADOS
                 // <<   
