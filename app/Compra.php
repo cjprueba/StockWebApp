@@ -98,16 +98,16 @@ class Compra extends Model
                   // log::error(["ID.COMPRA"=>$compra->id]);
 
             // VERIFICAR SI ES SISTEMA DE DEPOSITO
-
-            if($data->data['sistema_deposito'] === true){
-
-                // OBTENER ID COMPRA 
+            // OBTENER ID COMPRA 
 
                 $id_compra = Compra::select('ID')
                 ->where('ID_SUCURSAL','=', $user->id_sucursal)
                 ->where('CODIGO','=', $codigo)
                 ->get();
 
+            if($data->data['sistema_deposito'] === true){
+
+                
                 // OBTENER ID CONTAINER
 
                 $id_container = Container::select('ID')
@@ -178,7 +178,7 @@ class Compra extends Model
 
     		}
 
-    		DB::connection('retail')->commit();
+    		
 
     		/*  --------------------------------------------------------------------------------- */
 
@@ -196,6 +196,11 @@ class Compra extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
+            //GUARDAR LA AUTORIZACION
+
+            CompraRealizadoTieneAutorizacion::guardar_referencia(["FK_COMPRA"=>$id_compra[0]->ID, "FK_USER"=>$data['data']['autorizacion']['ID_USUARIO'],"FK_USER_SUPERVISOR"=>$data['data']['autorizacion']['ID_USER_SUPERVISOR']]);
+
+            DB::connection('retail')->commit();
     		// RETORNAR VALOR 
 
     		return ["response" => true, "codigo" => $codigo];

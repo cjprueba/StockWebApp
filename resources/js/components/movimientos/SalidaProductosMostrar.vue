@@ -47,7 +47,7 @@
 		<modal-detalle-salida-productos ref="componente_modal_detalle_salida"></modal-detalle-salida-productos>
 
 		<!-- ------------------------------------------------------------------------ -->
-
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
 	</div>
 	<div v-else>
 		<cuatrocientos-cuatro></cuatrocientos-cuatro>
@@ -59,10 +59,39 @@
 	 export default {
       data(){
         return {
-        	procesar: false
+        	procesar: false,
+        	devolverPro: '',
+        	autorizacion: {
+	            HABILITAR: 0,
+	            CODIGO: 0,
+	            ID_USUARIO: 0,
+	            PERMITIDO: 0,
+	            ID_USER_SUPERVISOR: 0
+	        }
         }
       }, 
       methods: {
+      		autorizar(){
+		        this.$refs.autorizacion_componente.mostrarModal();
+		    },
+		    autorizacionData(data){
+
+		        // ------------------------------------------------------------------------
+
+		        // LLAMAR MODAL
+		        
+		        if (data.response === true) {
+
+		             
+		          this.autorizacion.ID_USUARIO = data.usuario;
+		          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+
+		          this.devolverSalida(this.devolverPro);
+		        }
+
+		        // ------------------------------------------------------------------------
+
+		    },
       		mostrarModalDetalle(codigo) {
 
       			// ------------------------------------------------------------------------
@@ -146,6 +175,11 @@
       			// ------------------------------------------------------------------------
 
       			var tableSalidaProductos = $('#tablaSalidaProductos').DataTable();
+      			var data = {
+      				id: id,
+      				autorizacion: this.autorizacion
+      			};
+      			console.log(data.autorizacion);
 
       			Swal.fire({
 					title: 'Estas seguro ?',
@@ -158,7 +192,7 @@
 					confirmButtonText: 'Si, devolver !',
 					cancelButtonText: 'Cancelar',
 					preConfirm: () => {
-					    return Common.devolverSalidaCommon(id).then(data => {
+					    return Common.devolverSalidaCommon(data).then(data => {
 				    	if (!data.response === true) {
 				          throw new Error(data.statusText);
 				        }
@@ -263,7 +297,10 @@
 	                    // REDIRIGIR Y ENVIAR CODIGO TRANSFERENCIA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.devolverSalida(tableSalidaProductos.row( row ).data().CODIGO);
+	                   	me.devolverPro = tableSalidaProductos.row( row ).data().CODIGO;
+
+	                    me.autorizar();
+	                    // me.devolverSalida();
 
 	                    // *******************************************************************
 
