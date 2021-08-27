@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="container-fluid">
-		  <div class="modal fade bg-danger" id="modalAutorizacion" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal fade bg-primary" id="modalAutorizacion" tabindex="-1" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			  <div class="modal-dialog modal-lg " role="document">
 			    <div class="modal-content">
 			      <div class="modal-header text-center">

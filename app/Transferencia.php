@@ -16,6 +16,8 @@ use Luecano\NumeroALetras\NumeroALetras;
 use App\TransferenciaUser;
 use App\Central_tiene_Sucursales;
 use App\TransferenciasTieneCotizacion;
+use App\TransferenciaImportadoTieneAutorizacion;
+use App\TransferenciaEnviadaTieneAutorizacion;
 use Illuminate\Support\Facades\Log;
 
 class Transferencia extends Model
@@ -2263,17 +2265,19 @@ class Transferencia extends Model
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-          $dia = date("Y-m-d");
+        $dia = date("Y-m-d");
+        $codigo = $data["data"]["codigo"];
+        $id_transferencia = transferencia::select(DB::raw('ID'))
+                    ->where('ID_SUCURSAL','=', $user->id_sucursal)
+                    ->where('CODIGO','=', $codigo)
+                    ->get();
 
         /*  --------------------------------------------------------------------------------- */
 
         // INICIAR VARIABLES 
 
-        $codigo = $data["data"];
-
+        
         /*  --------------------------------------------------------------------------------- */
-
-        // REVISAR ESTATUS 
 
         $estatus = Transferencia::verificar_estatus($codigo, $user->id_sucursal);
 
@@ -2299,6 +2303,10 @@ class Transferencia extends Model
                 'ESTATUS' => 1,
                 'FECMODIF'=>  $dia
             ]);
+            TransferenciaEnviadaTieneAutorizacion::guardar_referencia([
+                "FK_TRANSFERENCIA"=> $id_transferencia[0]->ID,
+                "FK_USER"=>$data['data']['autorizacion']['ID_USUARIO'],
+                "FK_USER_SUPERVISOR"=>$data['data']['autorizacion']['ID_USER_SUPERVISOR']]);
 
         }
 
@@ -2314,6 +2322,7 @@ class Transferencia extends Model
 
     public static function importar_transferencia($data)
     {
+        
 
         try {
             
@@ -2359,14 +2368,13 @@ class Transferencia extends Model
             }
 
             /*  --------------------------------------------------------------------------------- */
-            // GUARDAR UBICACION DE CAJA
-
-            if($sistema_deposito === true){
-
-                $id_transferencia = transferencia::select(DB::raw('ID'))
+            $id_transferencia = transferencia::select(DB::raw('ID'))
                     ->where('ID_SUCURSAL','=', $codigo_origen)
                     ->where('CODIGO','=', $codigo)
                     ->get();
+            // GUARDAR UBICACION DE CAJA
+
+            if($sistema_deposito === true){
 
                 $deposito = DB::connection('retail')
                 ->table('TRANSFERENCIAS_DEPOSITO')->insertGetId([
@@ -2687,8 +2695,9 @@ class Transferencia extends Model
 
             /*  --------------------------------------------------------------------------------- */
             
+            
+            TransferenciaImportadoTieneAutorizacion::guardar_referencia(["FK_TRANSFERENCIA"=> $id_transferencia[0]->ID,"FK_USER"=>$data['data']['autorizacion']['ID_USUARIO'],"FK_USER_SUPERVISOR"=>$data['data']['autorizacion']['ID_USER_SUPERVISOR']]);
             // ENVIAR TRANSACCION A BD
-
             DB::connection('retail')->commit();
 
             /*  --------------------------------------------------------------------------------- */

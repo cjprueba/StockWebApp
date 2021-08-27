@@ -114,7 +114,7 @@
 
 					    	<div class="col-md-12">
 					    		<div class="float-right mt-3">
-					    		 	<button class="btn btn-success btn-sm" v-on:click="guardar">Procesar</button>
+					    		 	<button class="btn btn-success btn-sm" v-on:click="autorizar">Procesar</button>
 					    		</div>	
 					    	</div>
 
@@ -125,26 +125,18 @@
 					</div>
 				</div>
 		</div>
-
-		<!-- ------------------------------------------------------------------------ -->
-
-        <!-- <div v-else>
-            <cuatrocientos-cuatro></cuatrocientos-cuatro>
-        </div> -->
-        
-        <!-- ------------------------------------------------------------------------ -->
         
 		<!-- TOAST PRODUCTO TRANSFERENCIA MODIFICADO -->
 
-			<b-toast id="toast-producto-devolucion-modificado" variant="success" solid>
-		      <template v-slot:toast-title>
-		        <div class="d-flex flex-grow-1 align-items-baseline">
-		          <strong class="mr-auto">Éxito !</strong>
-		          <small class="text-muted mr-2">modificado</small>
-		        </div>
-		      </template>
-		      Este producto ha sido modificado con éxito !
-		    </b-toast>
+		<b-toast id="toast-producto-devolucion-modificado" variant="success" solid>
+	      <template v-slot:toast-title>
+	        <div class="d-flex flex-grow-1 align-items-baseline">
+	          <strong class="mr-auto">Éxito !</strong>
+	          <small class="text-muted mr-2">modificado</small>
+	        </div>
+	      </template>
+	      Este producto ha sido modificado con éxito !
+	    </b-toast>
 
 		<!-- ------------------------------------------------------------------------ -->
 
@@ -162,11 +154,13 @@
 	    </b-toast>
 
 	    <!-- ------------------------------------------------------------------------ -->
-
+        <autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion> 
 	</div>
     <div v-else>
         <cuatrocientos-cuatro></cuatrocientos-cuatro>
-    </div>  	
+    </div> 
+
+    	
 </template>
 <script>
     export default {
@@ -188,6 +182,13 @@
         		DECIMAL: '',
         		LOTE_ID: ''
         	},
+            autorizacion: {
+                HABILITAR: 0,
+                CODIGO: 0,
+                ID_USUARIO: 0,
+                PERMITIDO: 0,
+                ID_USER_SUPERVISOR: 0
+            },
         	validar: {
         		CODIGO: false,
         		CANTIDAD: false,
@@ -214,6 +215,27 @@
         }
       }, 
       methods: {
+        autorizar(){
+        this.$refs.autorizacion_componente.mostrarModal();
+        },
+        autorizacionData(data){
+
+            // ------------------------------------------------------------------------
+
+            // LLAMAR MODAL
+            
+            if (data.response === true) {
+
+                 
+              this.autorizacion.ID_USUARIO = data.usuario;
+              this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+
+              this.guardar();
+            }
+
+            // ------------------------------------------------------------------------
+
+        },
       	cargarLotes(codigo){
 
       		// ------------------------------------------------------------------------
@@ -565,6 +587,7 @@
         		observacion: me.devolucion.OBSERVACION,
         		moneda: me.devolucion.MONEDA,
         		total: me.devolucion.TOTAL,
+                autorizacion:me.autorizacion, 
         		productos: tableSalida.rows().data().toArray()
         	};
 

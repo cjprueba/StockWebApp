@@ -436,10 +436,10 @@
 
 			<div class="col-12 mt-3 mb-3">
 					<div class="text-right" v-if="btnguardar">
-						<button v-on:click="guardarCompra()" class="btn btn-primary" id="guardar">Guardar</button>
+						<button v-on:click="autorizar" class="btn btn-primary" id="guardar">Guardar</button>
 					</div>
 					<div class="text-right" v-else>
-						<button v-on:click="guardarCompra()" class="btn btn-warning" id="modificar">Modificar</button>
+						<button v-on:click="autorizar" class="btn btn-warning" id="modificar">Modificar</button>
 					</div>	
 			</div>
 
@@ -464,13 +464,7 @@
 		<div v-else>
 			<cuatrocientos-cuatro></cuatrocientos-cuatro>
 		</div>
-
-		<!-- ------------------------------------------------------------------------ -->
-
-		
-
-		<!-- ------------------------------------------------------------------------ -->
-
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
     </div>   	
 </template>
 <script>
@@ -478,6 +472,13 @@
 	  props: ['candec', 'monedaCodigo'],	
       data(){
         return {
+        	autorizacion: {
+	            HABILITAR: 0,
+	            CODIGO: 0,
+	            ID_USUARIO: 0,
+	            PERMITIDO: 0,
+	            ID_USER_SUPERVISOR: 0
+	        },
           	codigoCompra: '',
           	ocultar:false,
           	procesar: false,
@@ -562,6 +563,22 @@
         }
       }, 
       methods: {
+      		autorizar(){
+		        this.$refs.autorizacion_componente.mostrarModal();
+		    },
+		    autorizacionData(data){
+
+		        // ------------------------------------------------------------------------
+
+		        // LLAMAR MODAL
+		        
+		        if (data.response === true) {
+		             
+		          this.autorizacion.ID_USUARIO = data.usuario;
+		          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+		          this.guardarCompra();
+		        }
+	    	},
       		mostrarCompra(codigo){
 
         	// ------------------------------------------------------------------------
@@ -1453,7 +1470,8 @@
         		piso: me.pisoRack,
         		sector: me.sectorRack,
         		gondola: me.gondolaID,
-				sistema_deposito: deposito
+				sistema_deposito: deposito,
+				autorizacion: me.autorizacion
         	};
 
         	// ------------------------------------------------------------------------

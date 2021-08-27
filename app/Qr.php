@@ -242,11 +242,11 @@ class Qr extends Model
     
 
           // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
-          $pdf->SetFont('helvetica', 'B', 16);
+          $pdf->SetFont('helvetica', 'B', 15);
           
           // //Color Negro
           $pdf->SetTextColor(0, 0, 0);
-          $pdf->text($x-24.5, $y, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])) , 0,25), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x-24.5, $y, utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), false, false, true, 0, 1, '', false, '', 0);
           //Tamaño de fuente
           $pdf->SetFontSize(13);
           if($value['MONEDA']===1){
@@ -446,7 +446,7 @@ class Qr extends Model
                   }
                   $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
-                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode($value['DESCRIPCION'])), 0,22), false, false, true, 0, 1, '', false, '', 0); 
+                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), 0,22), false, false, true, 0, 1, '', false, '', 0); 
 
                     
                    //$y=$y+35;

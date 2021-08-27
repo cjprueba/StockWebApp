@@ -45,7 +45,7 @@ class SalidaProducto extends Model
             }
 
             /*  --------------------------------------------------------------------------------- */
-
+            SalidaProductoTieneAutorizacion::guardar_referencia(["FK_SALIDA_PRODUCTO"=>$salidaProducto["id"],"FK_USER"=>$data['data']['autorizacion']['ID_USUARIO'],"FK_USER_SUPERVISOR"=>$data['data']['autorizacion']['ID_USER_SUPERVISOR']]);
             // RETORNAR VALOR 
             DB::connection('retail')->commit();
             return ["response" => true, "statusText" => "Se ha realizado con éxito la salida"];
@@ -729,8 +729,8 @@ class SalidaProducto extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // OBTENER DATOS DETALLE 
-
-            $salida_det = SalidaProducto::mostrar_cuerpo($data['codigo']);
+            
+            $salida_det = SalidaProducto::mostrar_cuerpo($data['codigo']['id']);
             
             /*  --------------------------------------------------------------------------------- */
 
@@ -750,9 +750,11 @@ class SalidaProducto extends Model
 
             /*  --------------------------------------------------------------------------------- */
 
-            SalidaProducto::where('ID','=', $data['codigo'])
+            SalidaProducto::where('ID','=', $data['codigo']['id'])
             ->where('ID_SUCURSAL','=', $user->id_sucursal)
             ->update(['ESTADO' => 1]);
+
+            DevolverProductoTieneAutorizacion::guardar_referencia(["FK_SALIDA_PRODUCTO"=>$data['codigo']['id'],"FK_USER"=>$data['codigo']['autorizacion']['ID_USUARIO'],"FK_USER_SUPERVISOR"=>$data['codigo']['autorizacion']['ID_USER_SUPERVISOR']]);
 
             /*  --------------------------------------------------------------------------------- */
 

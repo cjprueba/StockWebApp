@@ -145,7 +145,7 @@
 		<modal-detalle-compra 
 		ref="ModalMostrarDetalleCompra"
 		></modal-detalle-compra>
-
+		<autorizacion @data="autorizacionData" ref="autorizacion_componente"></autorizacion>
 
 
 		<!-- ------------------------------------------------------------------------ -->
@@ -159,8 +159,16 @@
 	  props: ['id_sucursal'],	
       data(){
         return {
+        	autorizacion: {
+	            HABILITAR: 0,
+	            CODIGO: 0,
+	            ID_USUARIO: 0,
+	            PERMITIDO: 0,
+	            ID_USER_SUPERVISOR: 0
+	        },
           	codigoCompra: '',
           	procesar: false,
+          	eliminar: '',
           	rack:'',
 			nro_caja: '',
             secciones: [],
@@ -185,6 +193,27 @@
         }
       }, 
       methods: {
+      		autorizar(){
+		        this.$refs.autorizacion_componente.mostrarModal();
+		    },
+		    autorizacionData(data){
+
+		        // ------------------------------------------------------------------------
+
+		        // LLAMAR MODAL
+		        
+		        if (data.response === true) {
+
+		             
+		          this.autorizacion.ID_USUARIO = data.usuario;
+		          this.autorizacion.ID_USER_SUPERVISOR = data.id_user_supervisor;
+
+		          this.eliminarCompra(this.eliminar);
+		        }
+
+		        // ------------------------------------------------------------------------
+
+		    },
       		editarCompra(codigo){
 
       			// ------------------------------------------------------------------------
@@ -556,7 +585,10 @@
 	                    // REDIRIGIR Y ENVIAR CODIGO COMPRA
 	                   	
 	                   	var row  = $(this).parents('tr')[0];
-	                    me.eliminarCompra(tableCompra.row( row ).data().CODIGO);
+	                   	me.eliminar = tableCompra.row( row ).data().CODIGO;
+	                   	me.autorizar();
+
+	                    // me.eliminarCompra(tableCompra.row( row ).data().CODIGO);
 
 	                    // *******************************************************************
 
