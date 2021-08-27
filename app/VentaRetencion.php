@@ -20,6 +20,7 @@ class VentaRetencion extends Model
 	    	$retencion = VentaRetencion::insertGetId([
 	    		'MONTO' => $data["MONTO"],
 	    		'FK_VENTA' => $data["FK_VENTA"],
+	    		'PORCENTAJE'=>$data["PORCENTAJE"]
 	    	]);
 
 	    	/*  --------------------------------------------------------------------------------- */

@@ -402,6 +402,7 @@ Vue.component('venta-delivery-rpt' , require('./components/reportes/ServicioDeli
 Vue.component('venta-tarjeta-rpt' , require('./components/reportes/VentaTarjeta.vue').default);
 Vue.component('productos-salida-rpt', require('./components/reportes/producto/Salida/SalidaDeProductoRpt.vue').default);
 Vue.component('compra-entrada-rpt', require('./components/reportes/compra/Entrada/EntradaCompra.vue').default);
+Vue.component('inventario-seccion-rpt', require('./components/reportes/producto/Inventario/ReporteInventarioSeccion.vue').default);
 
 
 

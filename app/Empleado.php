@@ -423,5 +423,137 @@ class Empleado extends Model
             return ["response"=>true];
         }
     }
+        public static function empleados_datatable_recibe($request){
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+        $user = auth()->user();
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
+                            0 =>'ID', 
+                            1 =>'NOMBRE',
+                            2=> 'CI',
+                            3=> 'DIRECCION',
+                            4=> 'ID_SUCURSAL',
+                        );
+        // CONTAR LA CANTIDAD DE EMPLEADOS ENCONTRADAS 
+        $totalData = Empleado::
+        where('ID_SUCURSAL','=', $request->Destino)
+        ->count();
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+
+            $posts = Empleado::select(DB::raw('EMPLEADOS.ID, EMPLEADOS.NOMBRE, EMPLEADOS.CI, EMPLEADOS.DIRECCION, SUCURSALES.DESCRIPCION'))
+                    ->join('SUCURSALES', 'ID_SUCURSAL', '=', 'SUCURSALES.CODIGO')
+                         ->where('ID_SUCURSAL','=',  $request->Destino)
+                         ->offset($start)
+                         ->limit($limit)
+                         ->orderBy($order,$dir)
+                         ->get();
+                        
+
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+
+            $posts = Empleado::select(DB::raw('EMPLEADOS.ID, EMPLEADOS.NOMBRE, EMPLEADOS.CI, EMPLEADOS.DIRECCION, SUCURSALES.DESCRIPCION'))
+                            ->join('SUCURSALES', 'ID_SUCURSAL', '=', 'SUCURSALES.CODIGO')
+                            ->where('ID_SUCURSAL','=',  $request->Destino)
+                            ->where(function ($query) use ($search) {
+                                $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('EMPLEADOS.CODIGO', 'LIKE',"%{$search}%")
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            ->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = Empleado::where(function ($query) use ($search) {
+                                $query->where('CI','LIKE',"%{$search}%")
+                                      ->orWhere('CODIGO', 'LIKE',"%{$search}%")
+                                      ->orWhere('NOMBRE', 'LIKE',"%{$search}%");
+                            })
+                             ->where('ID_SUCURSAL','=',  $request->Destino)
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // CARGAR EN LA VARIABLE 
+
+                $nestedData['CODIGO'] = $post->ID;
+                $nestedData['NOMBRE'] = $post->NOMBRE;
+                $nestedData['CI'] = $post->CI;
+                $nestedData['DIRECCION'] = $post->DIRECCION;
+                $nestedData['ID_SUCURSAL'] = $post->DESCRIPCION;
+                
+                $data[] = $nestedData;
+
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+       return $json_data;
+    }
     
 }

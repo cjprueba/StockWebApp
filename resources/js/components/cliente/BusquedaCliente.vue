@@ -191,7 +191,8 @@
                             { "data": "CIUDAD" },
                             { "data": "TELEFONO" },
                             { "data": "TIPO"},
-                            { "data": "RETENTOR", "visible": false}
+                            { "data": "RETENTOR", "visible": false},
+                            { "data": "RETENCION_PORCENTAJE", "visible": false}
                         ]      
                     });
 
@@ -219,7 +220,7 @@
                     me.cliente.NOMBRE = tableClientes.row(this).data().NOMBRE;
                     me.cliente.TIPO = tableClientes.row(this).data().TIPO;
 
-                    me.enviarPadre(me.cliente.CODIGO, me.cliente.NOMBRE, me.cliente.TIPO, {'retentor': tableClientes.row(this).data().RETENTOR});
+                    me.enviarPadre(me.cliente.CODIGO, me.cliente.NOMBRE, me.cliente.TIPO, {'retentor': tableClientes.row(this).data().RETENTOR,'porcentaje':tableClientes.row(this).data().RETENCION_PORCENTAJE});
 
                     // *******************************************************************
 
