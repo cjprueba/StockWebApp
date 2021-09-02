@@ -25,4 +25,10 @@ class ApiController extends Controller
 
         return view('CajaCompraQr');
     }
+    public function bannerCotizacion()
+    {
+
+        return view('bannerCotizacion');
+    }
+    
 }

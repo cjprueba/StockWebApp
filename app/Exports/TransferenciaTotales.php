@@ -50,19 +50,74 @@ class TransferenciaTotales implements FromArray, WithTitle,WithEvents,ShouldAuto
      public $marcas_array_aux=[];
     private $descuentogeneral;
     private $descuentos; 
+    private $sucursal;
     /**
     * @return \Illuminate\Support\Collection
     */
-     public function __construct( array $ventageneral=[], array $RESULTS=[] )
+     public function __construct( array $ventageneral=[], array $RESULTS=[] ,$sucursal)
     {
         
         $this->ventageneral =$ventageneral ;
       $this->RESULTS =$RESULTS ;
+      $this->sucursal=$sucursal;
     }
  public function  array(): array
     {
       
       $marcas_array[]=array('TOTALES',"",'STOCK','RECIBIDO','COSTO','TOTAL_COSTO','PRECIO','TOTAL_PRECIO');
+       $this->stockarray = DB::connection('retail')
+            ->table('LOTES as l')
+            ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'l.COD_PROD')
+             ->leftjoin('PRODUCTOS_AUX',function($join){
+             $join->on('PRODUCTOS_AUX.CODIGO','=','PRODUCTOS.CODIGO')
+               ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','l.ID_SUCURSAL');
+          })
+            ->select(DB::raw('SUM(l.CANTIDAD) AS CANTIDAD'),
+            DB::raw('PRODUCTOS.MARCA'),
+            DB::raw('PRODUCTOS.LINEA'))
+            ->where('l.ID_SUCURSAL', '=', $this->sucursal)
+             ->where('PRODUCTOS_AUX.PROVEEDOR', '=',19)
+            ->groupBy('PRODUCTOS_AUX.PROVEEDOR')
+            ->get();
+            foreach ($this->stockarray as $this->stockarrays) 
+            {
+                     $this->stocktotal=$this->stocktotal+$this->stockarrays->CANTIDAD;
+                      $this->general_stock=$this->general_stock+$this->stocktotal;
+            };
+            foreach ($this->ventageneral as $key=> $value){
+                  if($value->PROVEEDOR==19){
+                     $this->total_general=$this->total_general+$value->PRECIO_VENTA;
+                     $this->total_preciounit=$this->total_preciounit+$value->PRECIO_UNIT_VENTA;
+                     $this->cantidadvendida=$this->cantidadvendida+$value->CANTIDAD_S;
+                    $this->costo=$this->costo+$value->PRECOSTO;
+                   $this->totalcosto=$this->totalcosto+$value->PRECOSTO_TOTAL;
+                  }
+            }
+            $this->posicion=$this->posicion+1;
+                 $marcas_array[]=array(
+                'TOTALES'=> "TOKUTOKUYA",
+                ''=>"",
+                'STOCK'=> $this->stocktotal,
+                'CANTIDAD'=> $this->cantidadvendida,
+                'COSTO'=> $this->costo,
+                'TOTAL_COSTO'=> $this->totalcosto,
+                'PRECIO'=> $this->total_preciounit,
+                'TOTAL_PRECIO'=> $this->total_general,
+              
+                );
+               
+               $this->general_cantidad=$this->general_cantidad+$this->cantidadvendida;
+               $this->general_costo=$this->general_costo+$this->totalcosto;
+               $this->general_costo_unit=$this->general_costo_unit+$this->costo;
+               $this->general_precio=$this->general_precio+$this->total_general;
+               $this->general_precio_unit=$this->general_precio_unit+$this->total_preciounit;
+               $this->stocktotal=0;
+               $this->cantidadvendida=0;
+               $this->costo=0;
+               $this->totalcosto=0;
+               $this->total_preciounit=0;
+               $this->total_general=0;
+
        foreach ($this->RESULTS as $key => $PROVEE) {
         $this->stockarray = DB::connection('retail')
             ->table('LOTES as l')
