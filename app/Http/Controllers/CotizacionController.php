@@ -52,5 +52,9 @@ class CotizacionController extends Controller
     }
     
     /*  --------------------------------------------------------------------------------- */
+    public function cotizacionDiaBanner(Request $request){
+        $cotizaciones = Cotizacion::cotizacion_dia_monedas_banner($request->all());
+        return response()->json($cotizaciones);
+    }
 
 }
