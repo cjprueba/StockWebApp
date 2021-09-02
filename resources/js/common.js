@@ -7216,6 +7216,25 @@ function generarReporteInventarioSeccionCommon(data){
 
 }
 
+function obtenerCotizacionBannerCommon(sucursal){
+	
+	// ------------------------------------------------------------------------
+
+	// INICIAR VARIABLES
+
+	let me = this;
+
+	// ------------------------------------------------------------------------
+
+	// GUARDAR PERMISO
+
+	return axios.post('cotizacionBanner', {'sucursal': sucursal}).then(function (response) {
+		return response.data;
+	});
+
+	// ------------------------------------------------------------------------
+}
+
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -7522,5 +7541,6 @@ export {
 		generarReporteCompraVentaSeccionCommon,
 		generarRptPdfInventarioGondolaCommon,
 		obtenerSucursalesInventarioCommon,
-		generarReporteInventarioSeccionCommon
+		generarReporteInventarioSeccionCommon,
+		obtenerCotizacionBannerCommon
 		};

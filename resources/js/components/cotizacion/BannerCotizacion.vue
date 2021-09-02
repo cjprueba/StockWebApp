@@ -102,6 +102,12 @@
       data(){
         return {
           productos: [],
+          cotizacion: {
+          	guarani:'',
+          	dolar:'',
+          	real:'',
+          	peso: ''
+          },
           imagen: {
           	oferta: '',
           	logo: ''
@@ -121,12 +127,19 @@
       		// OBTENER PRODUCTOS 
 
       		let me = this;
-
-	        Common.obtenerProductoOfertaCommon(this.sucursal).then(data => {
-	        			me.productos = data.data;
-	        			me.imagen.oferta = data.oferta;
-	        			me.imagen.logo = data.logo;
+      		Common.obtenerCotizacionBannerCommon(this.sucursal).then(data => {
+	        			me.cotizacion.guarani = data.Guaranies;
+	        			// me.cotizacion.dolar = data.dolar;
+	        			// me.cotizacion.real = data.real;
+	        			// me.cotizacion.peso = data.peso;
 	        });
+	        console.log(me.cotizacion.guarani);
+
+	        // Common.obtenerProductoOfertaCommon(this.sucursal).then(data => {
+	        // 			me.productos = data.data;
+	        // 			me.imagen.oferta = data.oferta;
+	        // 			me.imagen.logo = data.logo;
+	        // });
 
 	         // ------------------------------------------------------------------------
 

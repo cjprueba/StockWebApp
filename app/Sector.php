@@ -45,7 +45,6 @@ class Sector extends Model
             //  CARGAR TODOS LAS SECCIONES ENCONTRADOS 
 
             $posts = Sector::select(DB::raw('ID, DESCRIPCION'))
-                         ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)

@@ -23,9 +23,7 @@ class Piso extends Model
                             2 => 'DESCRIPCION'
                         );
         // CONTAR LA CANTIDAD DE SECCIONES ENCONTRADAS 
-        $totalData = Piso::
-        where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->count();
+        $totalData = Piso::count(); 
         // INICIAR VARIABLES 
 
         $totalFiltered = $totalData; 
@@ -43,10 +41,9 @@ class Piso extends Model
 
             /*  ************************************************************ */
 
-            //  CARGAR TODOS LAS SECCIONES ENCONTRADOS 
+            //  CARGAR TODOS LOS PISOS ENCONTRADOS 
 
             $posts = Piso::select(DB::raw('ID, NRO_PISO, DESCRIPCION'))
-                         ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
                          ->orderBy($order,$dir)
@@ -68,7 +65,6 @@ class Piso extends Model
             // CARGAR LOS PISOS FILTRADOS EN DATATABLE
 
             $posts = Piso::select(DB::raw('ID, NRO_PISO, DESCRIPCION'))
-                            ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('NRO_PISO','LIKE',"%{$search}%")
                                       ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
@@ -86,7 +82,6 @@ class Piso extends Model
                                 $query->where('NRO_PISO','LIKE',"%{$search}%")
                                       ->orWhere('DESCRIPCION', 'LIKE',"%{$search}%");
                             })
-                             ->where('ID_SUCURSAL','=', $user->id_sucursal)
                              ->count();
 
             /*  ************************************************************ */  
@@ -166,10 +161,12 @@ class Piso extends Model
         )
         ->where('NRO_PISO','=', $datos['data'])
         ->get();
+        $data[0]["NRO_PISO"]=0;
+
         if(count($piso)>0){
         	return['piso'=> $piso, 'response'=>true];
         }else{
-        	return['piso'=> $piso, 'response'=>false];
+        	return['piso'=> $data[0]["NRO_PISO"], 'response'=>false];
         }
 
         
@@ -192,7 +189,7 @@ class Piso extends Model
         // RETORNAR EL VALOR
         
         if (count($piso) > 0) {
-            return ['piso' => $piso];
+            return ['piso' => $piso[0]["NRO_PISO"]];
         } else {
             return ['piso' => 0];
         }
@@ -206,7 +203,6 @@ class Piso extends Model
 
         //OBTENER EL ULTIMO CODIGO DE LA SECCION
         $piso = Piso::select(DB::raw('IFNULL(NRO_PISO,0) AS NRO_PISO'))
-                        ->where('ID_SUCURSAL', '=', $user->id_sucursal)
                         ->orderby('NRO_PISO','DESC')
                         ->limit(1)
                         ->get()
