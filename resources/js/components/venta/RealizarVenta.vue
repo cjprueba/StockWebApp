@@ -1140,7 +1140,8 @@
          	cantidad_restante:0,
          	mayoristaAutReemplazo: false,
          	tipo_descuento_auxiliar:0,
-         	descuento_precio_controlar:true
+         	descuento_precio_controlar:true,
+         	desbloquear_venta_swal:false
 
         }
       }, 
@@ -1207,6 +1208,8 @@
 	        	Swal.fire({
 				  title: 'Guardando venta',
 				  html: 'Cerrare en cuanto guarde la venta.',
+				  allowOutsideClick: false,
+				  allowEscapeKey: false,
 				  onBeforeOpen: () => {
 
 				  	// ------------------------------------------------------------------------
@@ -1223,10 +1226,11 @@
 
 					    	if (!data.response === true) {
 					          throw new Error(data.statusText);
+					          
 					        }
 
 					        if (data.response) {
-
+					        	
 					        	Swal.close();
 
 								// ------------------------------------------------------------------------
@@ -1270,9 +1274,19 @@
 							// ------------------------------------------------------------------------
 
 					}).catch(error => {
-					        Swal.showValidationMessage(
+						  
+						  Swal.close();
+						   	Swal.fire({
+								title: 'ERROR AL GUARDAR VENTA',
+								html:`Request failed: ${error}`,
+								type: 'warning',
+								confirmButtonColor: '#d33',
+								confirmButtonText: 'Aceptar',
+							})		        
+						  /*  Swal.showValidationMessage(
 					          `Request failed: ${error}`
-					        )
+					        )*/
+
 					 });
 				  }
 				}).then((result) => {
@@ -2189,7 +2203,7 @@
 	            	// ------------------------------------------------------------------------
 
 	            	// EDITAR CANTIDAD PRODUCTO 
-	            	console.log(productoExistente.iva);
+	            	
 	            	
 	            	me.editarCantidadProducto(tableVenta, cantidadNueva, impuesto,productoExistente.iva, precio, productoExistente.row, descuento, descuento_total, descuento_unitario, rowClass);
 	            	return;
@@ -2331,7 +2345,7 @@
 	            // ------------------------------------------------------------------------
 	            
 	            // CARGAR IMPUESTO
-	            console.log(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL) );
+	          
 	            tabla.cell(row, 7).data(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)).draw();
 
 	            // ------------------------------------------------------------------------
