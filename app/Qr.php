@@ -171,7 +171,7 @@ class Qr extends Model
         /*  --------------------------------------------------------------------------------- */
         $file=public_path(''.$codigo.'.png');
         if($tipo===1){
-           return \QRCode::text('http://131.196.192.165:8080/productoqr?s='.$user->id_sucursal.'&c='.$codigo)->setOutfile($file)->png();
+           return \QRCode::text('http://131.196.192.165:8080/productoqr?s='.$user->id_sucursal.'&c="'.$codigo."" )->setOutfile($file)->png();
          }elseif ($tipo===2) {
             return \QRCode::text('http://131.196.192.165:8080/cajaqr?s='.$user->id_sucursal.'&c='.$codigo.'&t=1')->setOutfile($file)->png();
          }elseif ($tipo===3){

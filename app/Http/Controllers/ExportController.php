@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Exports\VentasMarca;
 use App\Exports\RptVentaMarcaExport;
+use App\Exports\RptTransferenciaVentaExport;
 use App\Exports\Reportes\Inventario\InventarioImageGondolaExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
