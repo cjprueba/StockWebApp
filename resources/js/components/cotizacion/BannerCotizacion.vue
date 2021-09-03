@@ -102,9 +102,7 @@
 	        });
 	      
 
-	        Common.obtenerProductoOfertaCommon(this.sucursal).then(data => {
-	        			me.productos = data.data;
-	        			me.imagen.oferta = data.oferta;
+	        Common.obtenerLogoTokuCommon(this.sucursal).then(data => {
 	        			me.imagen.logo = data.logo;
 	        });
 
