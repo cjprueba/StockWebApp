@@ -323,19 +323,6 @@ class ProductoController extends Controller
         /*  --------------------------------------------------------------------------------- */
 
     }
-    public function logotoku(Request $request)
-    {
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER TODOS LOS DATOS DEL PRODUCTO
-
-        $productos = Producto::logotoku($request->all());
-        return response()->json($productos);
-        
-        /*  --------------------------------------------------------------------------------- */
-
-    }
 
     public function catalogo_cliente(Request $request)
     {

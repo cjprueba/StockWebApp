@@ -98,12 +98,8 @@
 	        			me.cotizacion.dolar = data.Dolares;
 	        			me.cotizacion.real = data.Reales;
 	        			me.cotizacion.peso = data.Pesos;
+	        			me.imagen.logo = data.logo_toku;
 	        			
-	        });
-	      
-
-	        Common.obtenerLogoTokuCommon(this.sucursal).then(data => {
-	        			me.imagen.logo = data.logo;
 	        });
 
 	         // ------------------------------------------------------------------------

@@ -2244,6 +2244,15 @@ class Cotizacion extends Model
                $formula_rs_id = $reales[0]->ID;
             }
 
+            $path = '../storage/app/imagenes/logo.png';
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $imagen = file_get_contents($path);
+            $imagen_logo = "<img src='data:image/jpg;base64,".base64_encode($imagen)."' width='20%' class='img-fluid' >";
+            $json_data = $imagen_logo;
+            
+            /*  --------------------------------------------------------------------------------- */
+
+
         /*  --------------------------------------------------------------------------------- */
 
         // RETORNAR VALOR
@@ -2260,7 +2269,8 @@ class Cotizacion extends Model
             'formula_gs_id' => $formula_gs_id, 
             'formula_usd_id' => $formula_usd_id,
             'formula_ps_id' => $formula_ps_id,
-            'formula_rs_id' => $formula_rs_id
+            'formula_rs_id' => $formula_rs_id,
+            'logo_toku' =>$json_data
         ];
 
         /*  --------------------------------------------------------------------------------- */    
