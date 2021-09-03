@@ -1,99 +1,65 @@
 <template>
-<div class="container-fluid ">
-  <div id="demo" class="carousel slide m-1" data-ride="carousel">
-        <!-- El carrusel -->
-        <div class="carousel-inner">
-            <div align=center><span v-html="imagen.logo"></span></div>
-           
-            <div v-bind:class="{'carousel-item': true, active: activar(index) }" v-for="(producto, index) in productos">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-md-6 text-center align-self-center border-right">
-                            <!-- <img src="./img/product1.jpg" class="img-fluid"> -->
-                            <div class="card-img">
-                            <span v-html="producto.IMAGEN"></span>
-                        	</div>
-                        </div>
-                        <div class="col-md-6 my-auto">
-                            <!-- <div class="offer"><big><b>{{producto.DESCUENTO}}% OFF</b></big></div> -->
-                            <div class="row title mb-2">
-                                <div class="col-md-12 text-center">
-                                    
-                                    <h1 class="font-weight-bold text-truncate">{{producto.DESCRIPCION}} </h1>
-                                    <h6 class="font-weight-light" >{{producto.CATEGORIA}} </h6>
-                                    <h3 class="font-weight-light" >{{producto.CODIGO}} </h3>
-                                    <!-- <p>Ofrecemos una variedad de sabores únicos que son particulares de los frijoles y los métodos de fabricación.
-                                        La marca proviene del estado de Georgia, el lugar de nacimiento de Coca Cola, en los Estados Unidos.
-                                    </p> -->
-                                </div>
-                            </div>
-                            <!-- <div class="row prices">
-                                <label class="radio">
-                                    <span>
-                                        <div class="row">
-                                            <big class="centrar texto-chico">Antes</big>
-                                        </div>
-                                        <div class="row incorrecto">
-                                            {{producto.PREC_VENTA}}
-                                        </div>
-                                    </span>
-                                </label> 
+	<div class="container-fluid ">
+		<div class="col-12">
+			<div class="row ">
+				<div class="col">
+					<div class="p-3 text-white fixed-top text-center titulo"><strong>CAMBIOS DEL DÍA</strong> </div> 	
+				</div>
+			</div>
 
-                                
-                                                      
-                            </div> -->
-                            <div class="row">
-                            	
-                            	<div class="col-md-12">
-                            		<div class="text-center">
-                            			<span class="" v-html="imagen.oferta"></span>
-                            		</div>
-                            	</div>	
+			
+			<div class="row no-gutters position-relative ">
 
-                            	<div class="col-md-12 mt-3">
-                            		<hr>
-                            		<h1 class="text-center text-danger">
-                            			{{producto.DESCUENTO}}% OFF
-                            		</h1>
-                            		<hr>
-                            	</div>	
+				<div class="col-md-2 mb-md-0 p-md-4 text-right">
+				    <div style="font-size:125px">
+				    	<span class="flag-icon flag-icon-py"></span>
+				    </div>
+				</div>
+				<div class="col-md-2 position-static p-4 pl-md-0 text-left mt-1">
+				  	<br>
+				    <p style="font-size:1.5vw; "><strong>GUARANÍ</strong></p>
+				    <p style="font-size:3.5vw; "><strong>G$ {{cotizacion.guarani}} </strong></p>
+				   
+				</div>
 
-                            	<div class="col-md-12 text-center mt-3">
-                            		<span  class="badge badge-primary">
-		                                <p style="font-size:1vw;">ANTES</p><br>
-		                                <p style="font-size:3vw;" class="incorrecto">{{producto.PREC_VENTA}}</p>
-		                            </span>
 
-		                            <span  class="badge badge-danger">
-		                                <p style="font-size:2vw;">AHORA</p><br>
-		                                <p style="font-size:7vw;color:yellow">{{producto.PREC_DESCUENTO}}</p>
-		                            </span>
-                            	</div>
+				<div class="col-md-2 mb-md-0 p-md-4 text-right">
+				    <div style="font-size:125px">
+				    	<span class="flag-icon flag-icon-br"></span>
+				    </div>
+				</div>
+				<div class="col-md-2 position-static p-4 pl-md-0 text-left mt-1">
+				  	<br>
+				    <p style="font-size:1.5vw; "><strong>REAL</strong></p>
+				    <p style="font-size:3.5vw; "><strong>R$ {{cotizacion.real}} </strong></p>
+				</div>
 
-                            		
-                            </div>	
-                            
-                            
 
-                            
-                        </div>
+				<div class="col-md-2 mb-md-0 p-md-4 text-right">
+				    <div style="font-size:125px">
+				    	<span class="flag-icon flag-icon-ar"></span>
+				    </div>
+				</div>
+				<div class="col-md-2 position-static p-4 pl-md-0 text-left mt-1">
+				  	<br>
+				    <p style="font-size:1.5vw; "><strong>PESO</strong></p>
+				    <p style="font-size:3.5vw; "><strong>P$ {{cotizacion.peso}}</strong> </p>
+				</div>
 
-                        <div>
-                        </div>	
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-  
-        <!-- Left and right controls -->
-        <a class="carousel-control-prev" href="#demo" data-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </a>
-        <a class="carousel-control-next" href="#demo" data-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </a>
-    </div>
+
+			</div>	
+
+			
+			<div class="row ">
+
+				<div class="fixed-bottom img-thumbnail" align=center><span v-html="imagen.logo"></span></div>
+			</div>
+		</div>
+		
+
+			
+	
+
 	</div>
 </template>
 <script>
@@ -129,17 +95,18 @@
       		let me = this;
       		Common.obtenerCotizacionBannerCommon(this.sucursal).then(data => {
 	        			me.cotizacion.guarani = data.Guaranies;
-	        			// me.cotizacion.dolar = data.dolar;
-	        			// me.cotizacion.real = data.real;
-	        			// me.cotizacion.peso = data.peso;
+	        			me.cotizacion.dolar = data.Dolares;
+	        			me.cotizacion.real = data.Reales;
+	        			me.cotizacion.peso = data.Pesos;
+	        			
 	        });
-	        console.log(me.cotizacion.guarani);
+	      
 
-	        // Common.obtenerProductoOfertaCommon(this.sucursal).then(data => {
-	        // 			me.productos = data.data;
-	        // 			me.imagen.oferta = data.oferta;
-	        // 			me.imagen.logo = data.logo;
-	        // });
+	        Common.obtenerProductoOfertaCommon(this.sucursal).then(data => {
+	        			me.productos = data.data;
+	        			me.imagen.oferta = data.oferta;
+	        			me.imagen.logo = data.logo;
+	        });
 
 	         // ------------------------------------------------------------------------
 
@@ -184,7 +151,7 @@
 	    display: flex;
 	    justify-content: center;
 	    align-items: center;
-	    background: #f0f5d3;
+	    background: #ffffff;
 	    font-size: 0.8rem;
 	}
 	.col-12, .col-md-9{
@@ -224,6 +191,7 @@
 	.centrar{
 	    margin: auto;
 	}
+	
 	label.radion span{
 	    padding: 1vh 10vh;
 	    display: inline-block;
@@ -238,6 +206,10 @@
 	.carousel-control-prev-icon{
 	    visibility: hidden;
 	}
+	.img-thumbnail{
+		background: #f7f7f7;
+		padding: 15px;
+	}
 	.carousel-control-next-icon{
 	    visibility: hidden;
 	}
@@ -247,6 +219,14 @@
 	}
 	.texto-chico{
 	    font-size: 20px;
+	}
+	.titulo{
+	    font-size: 70px ;
+	    font-family: Verdana;
+	    background: #82bb39;
+	}
+	.color{
+		background: #f7f7f7;
 	}
 	.carousel-item{
 	    border: 1px;

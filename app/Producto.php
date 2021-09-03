@@ -3599,7 +3599,7 @@ $lotes= DB::connection('retail')
         $path = '../storage/app/imagenes/logo.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $imagen = file_get_contents($path);
-        $imagen_logo = "<img src='data:image/jpg;base64,".base64_encode($imagen)."' >";
+        $imagen_logo = "<img src='data:image/jpg;base64,".base64_encode($imagen)."' width='20%' class='img-fluid' >";
 
         /*  --------------------------------------------------------------------------------- */
 
