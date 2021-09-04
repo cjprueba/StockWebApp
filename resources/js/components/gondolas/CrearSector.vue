@@ -177,7 +177,7 @@
 			cargarSector(valor){
 				
 				this.Sector=valor;
-				this.descripcion="SECTOR "+valor;
+				this.descripcion="SECTOR "+valor;	
 				this.btn_guardar=false;
 			},
 			validarSector(valor){

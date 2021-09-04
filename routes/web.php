@@ -34,6 +34,7 @@ Route::get('/producto', 'ApiController@producto')->name('producto');
 Route::get('/productoqr', 'ApiController@productoqr')->name('productoqr');
 Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::get('/cajaqr', 'ApiController@Cajaqr')->name('cajaqr');
+Route::get('/bannerCotizacion', 'ApiController@bannerCotizacion')->name('bannerCotizacion');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
@@ -441,6 +442,7 @@ Route::post('cotizacionFiltrar', 'CotizacionController@filtrarCotizacion');
 Route::post('eliminarCotizacion', 'CotizacionController@eliminarCotizacion');
 Route::post('/obtener/Cotizaciones/Venta', 'CotizacionController@obtenerVentaCotizacion');
 Route::post('cotizacion/compra-venta', 'CotizacionController@cotizacionCompraDia');
+Route::post('cotizacionBanner', 'CotizacionController@cotizacionDiaBanner');
 
 /* -------------------------------------------------------------------------- */
 

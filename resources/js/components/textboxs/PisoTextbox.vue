@@ -9,7 +9,7 @@
 				<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".piso_modal" ><font-awesome-icon icon="search"/></button>
 			</div>
 
-			<input ref="Nro_Piso" id="Numero_Piso" class="custom-select custom-select-sm" type="text" :value="Nr_Piso" @input="$emit('input', $event.target.value)" v-on:keyup.prevent.13="enterNroPiso($event.target.value)" v-on:blur="enterNroPiso($event.target.value)">
+			<input ref="Nro_Piso" id="Numero_Piso" placeholder="Cargar nombre del nuevo sector" class="custom-select custom-select-sm" type="number" :value="Nr_Piso" @input="$emit('input', $event.target.value)" v-on:keyup="enterNroPiso($event.target.value)" v-on:blur="enterNroPiso($event.target.value)" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
 		
 		</div>	
 				
@@ -65,8 +65,6 @@
 			enviarNro_PisoPadre(Nro_Piso, descripcion){
 
 				// ENVIAR Nro_Piso
-				console.log(Nro_Piso);
-				console.log(descripcion);
 				this.$emit('Nro_Piso', Nro_Piso);
 		        this.$emit('descripcion', descripcion);
 		        this.$emit('existe_piso',true);
@@ -85,10 +83,12 @@
 		        Common.filtrarPisoCommon(Codigo).then(data => {
 
                     if(data.response===true){
-                    	console.log(data);
                     	me.enviarNro_PisoPadre(data.piso[0].NRO_PISO,data.piso[0].DESCRIPCION);
                     	
                     }else{
+                    	// if(typeof Codigo === "string" || Codigo instanceof String){
+                    	// 	Codigo = 0;
+                    	// }
 	                    
 	                    me.$emit('Nro_Piso',Codigo);
 	                    me.$emit('descripcion', '');
@@ -144,14 +144,13 @@
 
                 // CARGAR LOS VALORES A LAS VARIABLES
 
-                me.id = table.row(this).data().ID;
-
-                Common.filtrarPisoCommon(me.id).then(data => {  
-
-                    me.enviarNro_PisoPadre(me.id,
-                    data.piso[0].NRO_PISO,
-                    data.piso[0].DESCRIPCION,
-                )});
+                me.id = table.row(this).data().NRO_PISO;
+                Common.filtrarPisoCommon(me.id).then(data => {
+                    me.enviarNro_PisoPadre(
+                    	data.piso[0].NRO_PISO,
+                    	data.piso[0].DESCRIPCION
+                	)
+                });
 
                 // CERRAR EL MODAL
                      

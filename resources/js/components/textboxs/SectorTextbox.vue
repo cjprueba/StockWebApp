@@ -9,7 +9,7 @@
 				<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".sector_modal" ><font-awesome-icon icon="search"/></button>
 			</div>
 
-			<input ref="Sector" id="Desc_Sector" class="custom-select custom-select-sm" placeholder="Introducir nombre del nuevo sector" type="text" :value="Sect" @input="$emit('input', $event.target.value)" v-on:keyup.prevent.13="enterSector($event.target.value)" v-on:blur="enterSector($event.target.value)">
+			<input ref="Sector" id="Desc_Sector" onKeyUp="document.getElementById(this.id).value=document.getElementById(this.id).value.toUpperCase()" class="custom-select custom-select-sm" placeholder="Introducir nombre del nuevo sector" type="text" :value="Sect" @input="$emit('input', $event.target.value)" v-on:keyup="enterSector($event.target.value)" v-on:blur="enterSector($event.target.value)" >
 		
 		</div>	
 				
@@ -84,7 +84,6 @@
                     	me.enviarSectorPadre(data.sector[0].DESCRIPCION);
                     	
                     }else{
-	                    
 	                    me.$emit('Sector',Codigo);
 	                    me.$emit('existe_sector',false);
                     } 

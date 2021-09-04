@@ -2042,4 +2042,238 @@ class Cotizacion extends Model
                 return ["response"=>false,'statusText'=>$ex->getMessage()];
               }
     }
+        public static function cotizacion_dia_monedas_banner($sucursal)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $hoy = date("Y-m-d");
+        $valor = 0;
+
+        $valor_guaranies = 0;
+        $valor_dolares = 0;
+        $valor_pesos = 0;
+        $valor_reales = 0;
+
+
+        $activar_guaranies = false;
+        $activar_dolares = false;
+        $activar_pesos = false;
+        $activar_reales = false;
+
+        $formula_gs_id = '';
+        $formula_usd_id = '';
+        $formula_ps_id = '';
+        $formula_rs_id = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+
+       /* $user = auth()->user();*/
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER PARAMETROS 
+
+        $parametros = Parametro::mostrarParametroSucursal($sucursal);
+        $monedaSistema = $parametros['parametros'][0]->MONEDA;
+
+        /*  --------------------------------------------------------------------------------- */
+
+            $guaranies = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 1)
+            ->where('ID_SUCURSAL', '=', $sucursal)
+            ->where('FECHA','=',$hoy)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)
+            ->get();
+
+            if(count($guaranies)<=0){
+
+                $guaranies = NewCotizacion::
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+                ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+                ->where('COTIZACIONES.FK_A', '=', 1)
+                ->where('ID_SUCURSAL', '=', $sucursal)
+                ->orderBy('COTIZACIONES.ID','DESC')
+                ->limit(1)
+                ->get();
+
+            }
+
+        /*  --------------------------------------------------------------------------------- */
+
+            $dolares = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 2)
+            ->where('ID_SUCURSAL', '=', $sucursal)
+            ->where('FECHA','=', $hoy)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)
+            ->get();
+
+            if(count($dolares)<=0){
+
+                $dolares = NewCotizacion::
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+                ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+                ->where('COTIZACIONES.FK_A', '=', 2)
+                ->where('ID_SUCURSAL', '=', $sucursal)
+                ->orderBy('COTIZACIONES.ID','DESC')
+                ->limit(1)
+                ->get();
+
+            }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $pesos = NewCotizacion::
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+        ->where('COTIZACIONES.FK_A', '=', 3)
+        ->where('ID_SUCURSAL', '=', $sucursal)
+        ->where('FECHA','=',$hoy)
+        ->orderBy('COTIZACIONES.ID','DESC')
+        ->limit(1)
+        ->get();
+
+        if(count($pesos)<=0){
+
+            $pesos = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 3)
+            ->where('ID_SUCURSAL', '=', $sucursal)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)
+            ->get();
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $reales = NewCotizacion::
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+        ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+        ->where('COTIZACIONES.FK_A', '=', 4)
+        ->where('ID_SUCURSAL', '=', $sucursal)
+        ->where('FECHA','=',$hoy)
+        ->orderBy('COTIZACIONES.ID','DESC')
+        ->limit(1)
+        ->get();
+            
+
+        if(count($reales)<=0){
+
+            $reales = NewCotizacion::
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
+            ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
+            ->where('COTIZACIONES.FK_A', '=', 4)
+            ->where('ID_SUCURSAL', '=', $sucursal)
+            ->orderBy('COTIZACIONES.ID','DESC')
+            ->limit(1)
+            ->get();
+
+        }
+
+
+      
+        /*  --------------------------------------------------------------------------------- */
+        
+        // REVISAR SI POSEEN COTIZACIONES 
+
+            if (count($guaranies) <= 0) {
+                $valor_guaranies = '';
+
+                if ($monedaSistema !== 1) {
+                    $activar_guaranies = true;
+                }
+
+            } else {
+                $valor_guaranies = (float)$guaranies[0]->CAMBIO;
+                $formula_gs_id = $guaranies[0]->ID;
+            }
+
+            if (count($dolares) <= 0) {
+                $valor_dolares = '';
+
+                if ($monedaSistema !== 2) {
+                    $activar_dolares = true;
+                }
+
+            } else {
+                $valor_dolares = (float)$dolares[0]->CAMBIO;
+                $formula_usd_id = $dolares[0]->ID;
+            }
+
+            if (count($pesos) <= 0) {
+                $valor_pesos = '';
+
+                if ($monedaSistema !== 3) {
+                    $activar_pesos = true;
+                }
+
+            } else {
+                $valor_pesos = (float)$pesos[0]->CAMBIO;
+                $formula_ps_id = $pesos[0]->ID;
+            }
+
+            if (count($reales) <= 0) {
+               $valor_reales = '';
+
+               if ($monedaSistema !== 4) {
+                    $activar_reales = true;
+                }
+
+            } else {
+               $valor_reales = (float)$reales[0]->CAMBIO;
+               $formula_rs_id = $reales[0]->ID;
+            }
+
+            $path = '../storage/app/imagenes/logo.png';
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $imagen = file_get_contents($path);
+            $imagen_logo = "<img src='data:image/jpg;base64,".base64_encode($imagen)."' width='20%' class='img-fluid' >";
+            $json_data = $imagen_logo;
+            
+            /*  --------------------------------------------------------------------------------- */
+
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR VALOR
+        
+        return [
+            'Guaranies' => $valor_guaranies, 
+            'Dolares' => $valor_dolares,
+            'Pesos' => $valor_pesos,
+            'Reales' => $valor_reales,
+            'activar_guaranies' => $activar_guaranies,
+            'activar_dolares' => $activar_dolares,
+            'activar_pesos' => $activar_pesos,
+            'activar_reales' => $activar_reales,
+            'formula_gs_id' => $formula_gs_id, 
+            'formula_usd_id' => $formula_usd_id,
+            'formula_ps_id' => $formula_ps_id,
+            'formula_rs_id' => $formula_rs_id,
+            'logo_toku' =>$json_data
+        ];
+
+        /*  --------------------------------------------------------------------------------- */    
+         
+    }
 }

@@ -172,14 +172,14 @@
 			numeroPiso(){
 				Common.nuevoNroPisoCommon().then(data=>{
 				this.Nro_Piso=data.piso+1;
-				this.descripcion="PISO N°"
+				this.descripcion="PISO N° (NUEVO)"
 		        this.btn_guardar = true;
 				});
 
 			},
 
 			cargarPiso(valor){
-				console.log(valor);
+				// console.log(valor);
 				this.Nro_Piso=valor;
 				this.btn_guardar=false;
 			},
@@ -189,7 +189,6 @@
 			},
 
 			cargarDescripcion(valor){
-				console.log(valor);
 				this.descripcion = valor;
 			}
 		},
