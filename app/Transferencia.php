@@ -1151,8 +1151,10 @@ class Transferencia extends Model
             $transferencia[$key]->IVA_PORCENTAJE = $producto[0]->IMPUESTO;
 
             /*  --------------------------------------------------------------------------------- */
-
-            $transferencia[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            /*if($transferencia[$key]->CANTIDAD<1000){
+                 $transferencia[$key]->CANTIDAD = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
+            }*/
+           
             $transferencia[$key]->PRECIO = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
             $transferencia[$key]->IVA = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
             $transferencia[$key]->TOTAL = Common::precio_candec_sin_letra($value->TOTAL, $value->MONEDA);
@@ -3618,6 +3620,7 @@ class Transferencia extends Model
             $articulos[$key]["precio"] = $value->PRECIO;
             $articulos[$key]["total"] = $value->TOTAL;
             $cantidad = $cantidad + $value->CANTIDAD;
+
             $total = $total + Common::quitar_coma($value->TOTAL, $candec['CANDEC']);
             $c = $c + 1;
         }
