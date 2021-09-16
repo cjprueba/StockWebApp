@@ -1325,17 +1325,24 @@ class Transferencia extends Model
             ->delete();
 
             /*  --------------------------------------------------------------------------------- */
+             // ELIMINAR LA AUTORIZACION DE TRANSFERENCIA
+             $transferencia = Transferencia::select(DB::raw('ID'))
+                ->where('CODIGO','=', $codigo)
+                ->where('ID_SUCURSAL','=',$user->id_sucursal)
+                ->get();
+
+             DB::connection('retail')
+            ->table('transferencia_enviada_tiene_autorizacion')
+            ->where('FK_TRANSFERENCIA','=', $transferencia[0]->ID)
+            ->delete();
+            /*  --------------------------------------------------------------------------------- */
 
             // ELIMINAR TODA TRANSFERENIA
-
             if ($opcion === 1) {
 
                 /*  --------------------------------------------------------------------------------- */
 
-                $transferencia = Transferencia::select(DB::raw('ID'))
-                ->where('CODIGO','=', $codigo)
-                ->where('ID_SUCURSAL','=',$user->id_sucursal)
-                ->get();
+
 
                 /*  --------------------------------------------------------------------------------- */
 
