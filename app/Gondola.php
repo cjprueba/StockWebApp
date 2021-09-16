@@ -72,8 +72,21 @@ class Gondola extends Model
         }
 
         if($datos['rack']==='SI'){
-            $pisos=Gondola_Tiene_Piso::Select(DB::raw('PISOS.ID,PISOS.NRO_PISO'))->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$datos['id'])->get()->toArray();
-            $sectores=Gondola_Tiene_Sector::Select(DB::raw('SECTORES.ID,SECTORES.DESCRIPCION'))->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$datos['id'])->get()->toArray();
+
+            $pisos=Gondola_Tiene_Piso::select(DB::raw('PISOS.ID,PISOS.NRO_PISO'))
+                ->leftjoin('PISOS','PISOS.ID','=','GONDOLA_TIENE_PISOS.FK_PISO')
+                ->where('GONDOLA_TIENE_PISOS.FK_GONDOLA','=',$datos['id'])
+                ->orderBy('PISOS.DESCRIPCION')
+                ->get()
+                ->toArray();
+
+            $sectores=Gondola_Tiene_Sector::select(DB::raw('SECTORES.ID,SECTORES.DESCRIPCION'))
+                ->leftjoin('SECTORES','SECTORES.ID','=','GONDOLA_TIENE_SECTORES.FK_SECTOR')
+                ->where('GONDOLA_TIENE_SECTORES.FK_GONDOLA','=',$datos['id'])
+                ->orderBy('SECTORES.DESCRIPCION')
+                ->get()
+                ->toArray();
+
             return ["response"=>true,"Gondolas"=>$gondolas,'Pisos'=>$pisos,'Sectores'=>$sectores];
         }else{
             return ["response"=>true,"Gondolas"=>$gondolas];
