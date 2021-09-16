@@ -586,107 +586,137 @@ class Compra extends Model
         $user = auth()->user();
         $diaHora = date('Y-m-d H:i:s');
         $id_compra = 0;
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // VERIFICAR ELIMINACION 
-
-        $verificacion = Compra::verificar_eliminacion($codigo);
-        
-        /*  --------------------------------------------------------------------------------- */
-
-        if ($verificacion["response"] === false) {
-        	return $verificacion;
-        } else {
-        	$verificacion = $verificacion["data"];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR TODA LAS REFERENCIAS
-
-        foreach ($verificacion as $key => $value) {
-
-        	/*  --------------------------------------------------------------------------------- */
-
-        	// ELIMINAR REFERENCIA 
-
-        	Lotes_tiene_ComprasDet::where('ID_COMPRAS_DET','=', $value->COMPRA_ID)
-        	->delete();
-
-        	/*  --------------------------------------------------------------------------------- */
-
-        	// ELIMINAR LOTE 
-
-        	Stock::eliminar_lote_por_id($value->LOTE_ID);
-
-        	/*  --------------------------------------------------------------------------------- */
-
-        }
-        
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR COMPRAS DET 
-
-        ComprasDet::where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('CODIGO','=', $codigo["data"])
-        ->delete();
-
-        /*  --------------------------------------------------------------------------------- */
-        // OBTENER ID COMPRA 
-
-        $id_compra = Compra::select('ID')
-        ->where('ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('CODIGO','=', $codigo["data"])
-        ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-        // ELIMINAR COMPRAS DEPOSITO 
-
-        DB::connection('retail')
-        ->table('COMPRAS_DEPOSITO')
-        ->where('FK_COMPRA','=', $id_compra[0]->ID)
-        ->delete();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // ELIMINAR TODA LA COMPRA
-        // SI LA OPCION ES 1 ELIMINAR LA COMPRA, SINO SOLO ELIMINAR COMPRASDET
-
-        if ($codigo["opcion"] === 1) {
+        try {
             
             /*  --------------------------------------------------------------------------------- */
 
-            // INSERTAR USER REFERENCIA
+            // INICIAR TRANSACCION 
 
-            CompraUser::guardar_referencia($user->id, 3, $id_compra[0]["ID"], $diaHora);
+            DB::connection('retail')->beginTransaction();
+            /*  --------------------------------------------------------------------------------- */
+
+            // VERIFICAR ELIMINACION 
+
+            $verificacion = Compra::verificar_eliminacion($codigo);
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            if ($verificacion["response"] === false) {
+            	return $verificacion;
+            } else {
+            	$verificacion = $verificacion["data"];
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
-            // REVISAR SI HAY DEUDA
+            // ELIMINAR TODA LAS REFERENCIAS
 
-        	Compra::where('ID_SUCURSAL','=', $user->id_sucursal)
-        	->where('CODIGO','=', $codigo["data"])
-        	->delete();
+            foreach ($verificacion as $key => $value) {
 
-            /*  --------------------------------------------------------------------------------- */
-        }
+            	/*  --------------------------------------------------------------------------------- */
+
+            	// ELIMINAR REFERENCIA 
+
+            	Lotes_tiene_ComprasDet::where('ID_COMPRAS_DET','=', $value->COMPRA_ID)
+            	->delete();
+
+            	/*  --------------------------------------------------------------------------------- */
+
+            	// ELIMINAR LOTE 
+
+            	Stock::eliminar_lote_por_id($value->LOTE_ID);
+
+            	/*  --------------------------------------------------------------------------------- */
+
+            }
         
-        /*  --------------------------------------------------------------------------------- */
+            /*  --------------------------------------------------------------------------------- */
 
-        // ELIMINAR DEUDAS 
+            // ELIMINAR COMPRAS DET 
 
-        Deuda::where('FK_COMPRA','=', $id_compra[0]->ID)
+            ComprasDet::where('ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('CODIGO','=', $codigo["data"])
             ->delete();
 
+            /*  --------------------------------------------------------------------------------- */
+            // OBTENER ID COMPRA 
+
+            $id_compra = Compra::select('ID')
+            ->where('ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('CODIGO','=', $codigo["data"])
+            ->get();
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR COMPRAS DEPOSITO 
+
+            DB::connection('retail')
+            ->table('COMPRAS_DEPOSITO')
+            ->where('FK_COMPRA','=', $id_compra[0]->ID)
+            ->delete();
+
+
+            /*  --------------------------------------------------------------------------------- */
+
+            /*  --------------------------------------------------------------------------------- */
+            // ELIMINAR COMPRAS AUTORIZACION 
+
+            DB::connection('retail')
+            ->table('COMPRAS_TIENE_AUTORIZACION')
+            ->where('FK_COMPRA','=', $id_compra[0]->ID)
+            ->delete();
+            
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // ELIMINAR TODA LA COMPRA
+            // SI LA OPCION ES 1 ELIMINAR LA COMPRA, SINO SOLO ELIMINAR COMPRASDET
+
+            if ($codigo["opcion"] === 1) {
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // INSERTAR USER REFERENCIA
+
+                CompraUser::guardar_referencia($user->id, 3, $id_compra[0]["ID"], $diaHora);
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // REVISAR SI HAY DEUDA
+
+            	Compra::where('ID_SUCURSAL','=', $user->id_sucursal)
+            	->where('CODIGO','=', $codigo["data"])
+            	->delete();
+
+                /*  --------------------------------------------------------------------------------- */
+            }
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // ELIMINAR DEUDAS 
+
+            Deuda::where('FK_COMPRA','=', $id_compra[0]->ID)
+                ->delete();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            DB::connection('retail')->commit();
+            return ["response" => true];
+
         /*  --------------------------------------------------------------------------------- */
+    }catch (Exception $e){
+            
+            /*  --------------------------------------------------------------------------------- */
 
-        // RETORNAR VALOR 
+           // NO GUARDAR NINGUN CAMBIO 
 
-        return ["response" => true];
+           DB::connection('retail')->rollBack();
+           throw $e;
+           
+           /*  --------------------------------------------------------------------------------- */
 
-        /*  --------------------------------------------------------------------------------- */
-    }
+        }
+   }     
 
     public static function mostrar_productos($request) {
 
