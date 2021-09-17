@@ -36,4 +36,31 @@ class Gondola_Tiene_Piso extends Model
 
 
     }
+    public static function eliminar_referencia($datos){
+
+        $user = auth()->user();
+        
+      
+            //var_dump($datos['data']['Marcados']);
+        try { 
+            DB::connection('retail')->beginTransaction();
+        /*  --------------------------------------------------------------------------------- */
+                Gondola_Tiene_Piso::where(
+            [
+                'FK_GONDOLA' => $datos["FK_GONDOLA"],
+                'FK_PISO' => $datos["FK_PISO"]
+            ]
+            )->delete();
+             DB::connection('retail')->commit();
+             
+           
+        /*  --------------------------------------------------------------------------------- */
+        }catch(Exception $ex){
+            DB::connection('retail')->rollBack(); 
+             return ["response"=>false,'statusText'=>$ex->getMessage()];
+           
+        }
+
+
+    }
 }

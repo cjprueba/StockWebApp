@@ -36,4 +36,31 @@ class Gondola_Tiene_Sector extends Model
 
 
     }
+    public static function eliminar_referencia($datos){
+
+        $user = auth()->user();
+        
+      
+            //var_dump($datos['data']['Marcados']);
+        try { 
+            DB::connection('retail')->beginTransaction();
+        /*  --------------------------------------------------------------------------------- */
+                Gondola_Tiene_Sector::where(
+            [
+                'FK_GONDOLA' => $datos["FK_GONDOLA"],
+                'FK_SECTOR' => $datos["FK_SECTOR"]
+            ]
+            )->delete();
+             DB::connection('retail')->commit();
+             
+           
+        /*  --------------------------------------------------------------------------------- */
+        }catch(Exception $ex){
+            DB::connection('retail')->rollBack(); 
+             return ["response"=>false,'statusText'=>$ex->getMessage()];
+           
+        }
+
+
+    }
 }
