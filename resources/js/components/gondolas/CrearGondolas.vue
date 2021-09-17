@@ -166,7 +166,13 @@
           selectedSector:[],
           selectedSectorID:[],
           SelectedPisoID:[],
-          rack:''
+          rack:'',
+          AnteriorPiso:[] ,
+          DesmarcadoPiso:[],
+          AnteriorSector:[] ,
+          DesmarcadoSector:[],
+          NuevosPisos:[],
+          NuevosSectores:[],
         }
       }, 
       methods: {
@@ -224,12 +230,20 @@
           let me =this;
             me.SelectedPisoID=[];
             me.selectedPiso=[];
+           /* me.AnteriorPiso=pisos_marcados;*/
              for (var key in pisos_marcados){
                  me.SelectedPisoID[key]=pisos_marcados[key].ID;
                  me.selectedPiso[key]=pisos_marcados[key].NRO_PISO;
+                 me.AnteriorPiso.push({
+                      "ID": pisos_marcados[key].ID,
+                      "NRO_PISO":pisos_marcados[key].NRO_PISO,
+                      "MARCADO":true,
+                 });
+                
+
              }
           
-           
+           /*console.log(me.AnteriorPiso);*/
            
             
         },
@@ -238,9 +252,16 @@
           let me =this;
             me.selectedSector=[];
             me.selectedSectorID=[];
+            me.AnteriorSector=[];
             for (var key in sectores_marcados){
                  me.selectedSectorID[key]=sectores_marcados[key].ID;
                  me.selectedSector[key]=sectores_marcados[key].DESCRIPCION;
+                 me.AnteriorSector.push({
+                      "ID": sectores_marcados[key].ID,
+                      "DESCRIPCION":sectores_marcados[key].DESCRIPCION,
+                      "MARCADO":true,
+                 });
+               
              }
           
           
@@ -257,6 +278,12 @@
           me.SelectedPisoID=[];
           me.selectedSector=[];
           me.selectedSectorID=[];
+          me.DesmarcadoPiso=[];
+          me.DesmarcadoSector=[];
+          me.NuevosPisos=[];
+          me.NuevosSectores=[];
+          me.AnteriorPiso=[];
+          me.AnteriorSector=[];
           me.guardar= true;
         },
 
@@ -311,7 +338,12 @@
                   me.validarSector=false;
                   me.messageInvalidSector="";
                 }
-                   var data = {
+                me.verificar_desmarcados_pisos();
+                me.verificar_desmarcados_sectores();
+                me.verificar_marcados_pisos();
+                me.verificar_marcados_sectores();
+                
+                  var data = {
                   Codigo:me.nombreGondola,
                   Descripcion:me.descripcionTela,
                   SeccionGuardar:me.selectedSeccion,
@@ -319,7 +351,10 @@
                   Rack:me.rack,
                   Piso:me.SelectedPisoID,
                   Sector:me.selectedSectorID,
-
+                  PisosDesmarcados:me.DesmarcadoPiso,
+                  SectoresDesmarcados:me.DesmarcadoSector,
+                  PisosNuevos:me.NuevosPisos,
+                  SectoresNuevos:me.NuevosSectores
                  }
                }else{
                   var data = {
@@ -331,6 +366,7 @@
 
                    }
                }
+
             
 
               Common.guardarGondolaCommon(data).then(data => {
@@ -492,7 +528,7 @@
                            if(me.pisos[i]["NRO_PISO"]<me.mayor){
                           
                                  me.selectedPiso.push(parseInt(me.pisos[i]["NRO_PISO"]));
-                                  me.SelectedPisoID.push(parseInt(me.pisos[i]["ID"]));
+                                 me.SelectedPisoID.push(parseInt(me.pisos[i]["ID"]));
 
                                  document.getElementById("Piso_"+me.pisos[i]["ID"]).checked = true;
                               
@@ -543,7 +579,7 @@
                            if(me.sectores[i]["DESCRIPCION"]<me.mayor_sector){
                           
                                  me.selectedSector.push(me.sectores[i]["DESCRIPCION"]);
-                                  me.selectedSectorID.push(parseInt(me.sectores[i]["ID"]));
+                                 me.selectedSectorID.push(parseInt(me.sectores[i]["ID"]));
 
                                  document.getElementById("Sectores_"+me.sectores[i]["ID"]).checked = true;
                               
@@ -558,6 +594,112 @@
           
 
           },
+      verificar_desmarcados_pisos(){
+        let me=this;
+        var encontrado=false;
+        me.DesmarcadoPiso=[];
+        //recorrido para encontrar los desmarcados, si existen desmarcados.
+        for (var i=0; i<me.AnteriorPiso.length; i++){
+
+          for ( var key in me.SelectedPisoID) { 
+            
+           
+           
+              if(me.SelectedPisoID[key]===me.AnteriorPiso[i]["ID"]){
+                encontrado=true;
+              }
+          }
+          if(encontrado){
+             me.AnteriorPiso[i]["MARCADO"]=true;
+          }else{
+             me.AnteriorPiso[i]["MARCADO"]=false;
+          }
+          encontrado=false;
+        }
+        for (var i=0; i<me.AnteriorPiso.length; i++){
+           
+            if( me.AnteriorPiso[i]["MARCADO"]===false){
+                me.DesmarcadoPiso.push({
+                      "ID": me.AnteriorPiso[i]["ID"],
+                      "NRO_PISO":me.AnteriorPiso[i]["NRO_PISO"],
+                 });
+            }
+        }
+        /*console.log(me.DesmarcadoPiso);*/
+      },
+
+      verificar_desmarcados_sectores(){
+         let me=this;
+        var encontrado=false;
+        me.DesmarcadoSector=[];
+        //recorrido para encontrar los desmarcados, si existen desmarcados.
+        for (var i=0; i<me.AnteriorSector.length; i++){
+
+          for ( var key in me.selectedSectorID) { 
+            
+           
+           
+              if(me.selectedSectorID[key]===me.AnteriorSector[i]["ID"]){
+                encontrado=true;
+              }
+          }
+          if(encontrado){
+             me.AnteriorSector[i]["MARCADO"]=true;
+          }else{
+             me.AnteriorSector[i]["MARCADO"]=false;
+          }
+          encontrado=false;
+        }
+        for (var i=0; i<me.AnteriorSector.length; i++){
+           
+            if( me.AnteriorSector[i]["MARCADO"]===false){
+                me.DesmarcadoSector.push({
+                      "ID": me.AnteriorSector[i]["ID"],
+                      "DESCRIPCION":me.AnteriorSector[i]["DESCRIPCION"],
+                 });
+            }
+        }
+       /* console.log(me.DesmarcadoSector);*/
+      },
+      verificar_marcados_pisos(){
+        let me=this;
+        var nuevo=true;
+         me.NuevosPisos=[];
+         for ( var key in me.SelectedPisoID) { 
+             for (var i=0; i<me.AnteriorPiso.length; i++){
+                if(me.SelectedPisoID[key]===me.AnteriorPiso[i]["ID"]){
+                  nuevo=false;
+                }
+             }
+             if(nuevo){
+              me.NuevosPisos.push({
+                      "ID": me.SelectedPisoID[key],
+                 });
+             }
+             nuevo=true;
+          }
+        /*  console.log(me.NuevosPisos);*/
+      },
+      verificar_marcados_sectores(){
+         let me=this;
+        var nuevo=true;
+         me.NuevosSectores=[];
+         for ( var key in me.selectedSectorID) { 
+             for (var i=0; i<me.AnteriorSector.length; i++){
+                if(me.selectedSectorID[key]===me.AnteriorSector[i]["ID"]){
+                  nuevo=false;
+                }
+             }
+             if(nuevo){
+              me.NuevosSectores.push({
+                      "ID": me.selectedSectorID[key],
+                 });
+             }
+             nuevo=true;
+          }
+         /* console.log(me.NuevosSectores);*/
+      },
+      
       BusquedaSeccion(){
         axios.get('busquedas/').then((response) => {
           this.secciones = response.data.seccion;
