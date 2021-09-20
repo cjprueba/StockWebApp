@@ -13,6 +13,7 @@ use App\Gondola_Tiene_Sector;
 use App\Parametro;
 use App\ComprasDet;
 
+
 class Gondola extends Model
 {
 
@@ -287,6 +288,7 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         $hora = date("H:i:s");
         $codigo_gondola=$datos['data']['Codigo'];
         $seccion_id = $datos['data']['SeccionGuardar'];
+       
       
             //var_dump($datos['data']['Marcados']);
         try { 
@@ -315,6 +317,63 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
                
             }else{
                  //GONDOLAS UPDATE
+                if($datos['data']['Rack']==='SI'){
+                    //SI EXISTEN PISOS DESMARCADOS ENTONCES...
+                  
+                    if(isset($datos['data']['PisosDesmarcados'][0]["ID"])){
+                        //VERIFICAR SI EXISTEN CAJAS EN LAS GONDOLAS Y EN LOS PISOS DESMARCADOS POR COMPRAS.
+                        $compra = Gondola::VerificarComprasPisos($datos['data']['PisosDesmarcados'],$codigo_gondola);
+
+                        if(!$compra["response"]){
+                            return $compra;
+                        }
+                        //VERIFICAR SI EXISTEN CAJAS EN LAS GONDOLAS Y EN EL PISO DESMARCADO POR TRANSFERENCIAS.
+                        $transferencias = Gondola::VerificarTransferenciasPisos($datos['data']['PisosDesmarcados'],$codigo_gondola);
+
+                        if(!$transferencias["response"]){
+                            return $transferencias;
+                        }
+                        //ELIMINAR LAS REFERENCIAS DE LA GONDOLA CON LOS PISOS DESMARCADOS.
+                        Gondola::EliminarReferenciaPiso($datos['data']['PisosDesmarcados'],$codigo_gondola);
+                      
+                    }
+                    //-----------------------------------------------------------------------------------------------------------------------
+
+                    //SI EXISTEN SECTORES DESMARCADOS ENTONCES..
+                    if(isset($datos['data']['SectoresDesmarcados'][0]["ID"])){
+                         //VERIFICAR SI EXISTEN CAJAS EN LAS GONDOLAS Y EN LOS SECTORES DESMARCADOS POR COMPRAS.
+                        $compra = Gondola::VerificarComprasSectores($datos['data']['SectoresDesmarcados'],$codigo_gondola);
+
+                        if(!$compra["response"]){
+                            return $compra;
+                        }
+                        //VERIFICAR SI EXISTEN CAJAS EN LAS GONDOLAS Y EN LOS SECTORES DESMARCADOS POR TRANSFERENCIAS.
+                        $transferencias = Gondola::VerificarTransferenciasSectores($datos['data']['SectoresDesmarcados'],$codigo_gondola);
+
+                        if(!$transferencias["response"]){
+                            return $transferencias;
+                        }
+                        //ELIMINAR LAS REFERENCIAS DE LA GONDOLA CON LOS PISOS DESMARCADOS.
+                        Gondola::EliminarReferenciaSector($datos['data']['SectoresDesmarcados'],$codigo_gondola);
+                    }
+                    //------------------------------------------------------------------------------------------------------------------------
+
+                    //SI EXISTEN NUEVOS PISOS ENTONCES..
+                    if(isset($datos['data']['PisosNuevos'][0]["ID"])){
+                        foreach($datos['data']['PisosNuevos'] as $key => $value){
+                            Gondola_Tiene_Piso::guardar_referencia(["FK_GONDOLA"=>$codigo_gondola,"FK_PISO"=>$value["ID"]]);
+                        }
+                    }
+                    //------------------------------------------------------------------------------------------------------------------------
+
+                    // SI EXISTEN NUEVOS SECTORES ENTONCES..
+                    if(isset($datos['data']['SectoresNuevos'][0]["ID"])){
+                        foreach($datos['data']['SectoresNuevos'] as $key => $value){
+                           Gondola_Tiene_Sector::guardar_referencia(["FK_GONDOLA"=>$codigo_gondola,"FK_SECTOR"=>$value["ID"]]);
+                        }
+                    }
+                    //------------------------------------------------------------------------------------------------------------------------
+                }
                 $gondolas=Gondola::where('ID', '=' ,$codigo_gondola)
                 ->update([
                     'DESCRIPCION'=> $datos['data']['Descripcion'], 
@@ -484,6 +543,111 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
         /*  --------------------------------------------------------------------------------- */
 
     }
+     public static function VerificarComprasPisos($pisos,$gondola){
+            $response=true; 
+            $statusText='';
+                              
+            foreach ($pisos  as $key => $value){
+                $compras = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->select('ID')
+                ->where('FK_GONDOLA','=',$gondola)
+                ->where('FK_PISO','=',$value["ID"])
+                ->limit(1)
+                ->get()
+                ->toArray();
+                if(count($compras)>0){
+                    $response=false;
+                    $statusText=$statusText.'La Gondola : '.$gondola. ' Con Piso : '.$value["NRO_PISO"].' Ya Posee Cajas En Compras <br>';
+                }
+            }
+            if(!$response){
+                return["response"=>false, "statusText"=> '<br>'.$statusText];
+            }else{
+                return["response"=>true];
+            }
+     }
+
+     public static function VerificarTransferenciasPisos($pisos,$gondola){
+            $response=true; 
+            $statusText='';                      
+            foreach ($pisos  as $key => $value){
+                $transferencias = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->select('ID')
+                ->where('FK_GONDOLA','=',$gondola)
+                ->where('FK_PISO','=',$value["ID"])
+                ->limit(1)
+                ->get()
+                ->toArray();
+                if(count($transferencias)>0){
+                    $response=false;
+                    $statusText=$statusText.'La Gondola : '.$gondola. ' Con Piso : '.$value["NRO_PISO"].' Ya Posee Cajas En Transferencias <br>';
+                }
+            }
+            if(!$response){
+                return["response"=>false, "statusText"=> '<br>'.$statusText];
+            }else{
+                return["response"=>true];
+            }
+     }
+      public static function EliminarReferenciaPiso($pisos,$gondola){
+
+         foreach ($pisos  as $key => $value){
+            Gondola_Tiene_Piso::eliminar_referencia(["FK_GONDOLA"=>$gondola,"FK_PISO"=>$value["ID"]]);
+         }
+         return;
+      }
+     public static function VerificarComprasSectores($sectores,$gondola){
+            $response=true; 
+            $statusText='';                      
+            foreach ($sectores  as $key => $value){
+                $compras = DB::connection('retail')
+                ->table('COMPRAS_DEPOSITO')->select('ID')
+                ->where('FK_GONDOLA','=',$gondola)
+                ->where('FK_SECTOR','=',$value["ID"])
+                ->limit(1)
+                ->get()
+                ->toArray();
+                if(count($compras)>0){
+                    $response=false;
+                    $statusText=$statusText.'La Gondola : '.$gondola. ' Con Sector : '.$value["DESCRIPCION"].' Ya Posee Cajas En Compras <br>';
+                }
+            }
+            if(!$response){
+                return["response"=>false, "statusText"=> '<br>'.$statusText];
+            }else{
+                return["response"=>true];
+            }
+     }
+
+     public static function VerificarTransferenciasSectores($sectores,$gondola){
+            $response=true; 
+            $statusText='';                      
+            foreach ($sectores  as $key => $value){
+                $transferencias = DB::connection('retail')
+                ->table('TRANSFERENCIAS_DEPOSITO')->select('ID')
+                ->where('FK_GONDOLA','=',$gondola)
+                ->where('FK_SECTOR','=',$value["ID"])
+                ->limit(1)
+                ->get()
+                ->toArray();
+                if(count($transferencias)>0){
+                    $response=false;
+                    $statusText=$statusText.'La Gondola : '.$gondola. ' Con Sector : '.$value["DESCRIPCION"].' Ya Posee Cajas En Transferencias <br>';
+                }
+            }
+            if(!$response){
+                return["response"=>false, "statusText"=> '<br>'.$statusText];
+            }else{
+                return["response"=>true];
+            }
+     }
+      public static function EliminarReferenciaSector($pisos,$gondola){
+
+         foreach ($pisos  as $key => $value){
+            Gondola_Tiene_Sector::eliminar_referencia(["FK_GONDOLA"=>$gondola,"FK_SECTOR"=>$value["ID"]]);
+         }
+         return;
+      }
 
     
 }
