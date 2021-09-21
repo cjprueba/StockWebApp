@@ -14,14 +14,6 @@
         padding: 1.85px 4px;
         font-size: 11px;
     }
-    .h1{
-        font-size: 24px;
-        font-weight: bold;
-    }
-    .h2{
-        font-size: 21px;
-        font-weight: bold;
-    }
     .tabla1{
         margin-bottom: 3px;
     }
@@ -105,7 +97,7 @@
     }
 
     .tablaFooter2 td {
-        border: 1px solid #fff;
+        margin-top: -20px;
     }
 
     @if($tipo=='fisico')
@@ -178,24 +170,6 @@
             </tr>
             @endif
             @endfor
-            <!-- <tr>
-                <td style="border:0;">&nbsp;</td>
-                <td style="border:0;">&nbsp;</td>
-                <td align="right"><strong>TOTAL S/.</strong></td>
-                <td align="right"><span class="text">{{ $total }}</span></td>
-            </tr> -->
-            <!-- <tr>
-                <td style="border:0;">&nbsp;</td>
-                <td align="center" style="border:0;">
-                    <table width="200" border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td align="center" class="cancelado">CANCELADO</td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="border:0;">&nbsp;</td>
-                <td align="center" style="border:0;" class="emisor"><strong>EMISOR</strong></td>
-            </tr> -->
         </table>
         <table width="100%" class="tablaFooter">
             <tr>
@@ -203,17 +177,13 @@
                 <td width="65%" align="left"><span class="text">{{ $letra }}</span></td>
                 <td width="20%" align="left"><span class="text">{{ $total }}</span></td>
             </tr>
-
         </table>
         <table width="100%" class="tablaFooter2">
             <tr>
-                
-                <td width="23%">&nbsp;</td>
-                <td width="14%" align="left"><span class="text">{{ $base5 }}</span></td>
-                <td width="21%" align="left"><span class="text">{{ $base10 }}</span></td>
-                <td width="19%" align="left"><span class="text">{{ $iva }}</span></td>
-                <td width="23%">&nbsp;</td>
-              
+                <td width="23%"></td>
+                <td width="17%" align="left"><span class="text">{{ $base5 }}</span></td>
+                <td width="13%" align="left"><span class="text">{{ $base10 }}</span></td>
+                <td width="47%" align="left"><span class="text">{{ $iva }}</span></td>
             </tr>
         </table>
     </div>
