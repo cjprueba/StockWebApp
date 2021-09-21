@@ -5505,7 +5505,6 @@ class Venta extends Model
                 
                 // AGREGAR ARTICULOS 
                 
-                $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,30)));
                 $data['articulos'] = $articulos;
 
                 // CARGAR SUB TOTALES POR HOJA
@@ -5543,7 +5542,7 @@ class Venta extends Model
         
         // DESCARGAR ARCHIVO PDF 
 
-        $mpdf->Output();
+        $mpdf->Output($namefile,"D");
     }
 
     public static function datatable_venta($request){
