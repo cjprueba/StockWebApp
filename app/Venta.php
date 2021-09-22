@@ -30,6 +30,7 @@ use App\VentasTieneAutorizacion;
 use App\VentasCreditoTieneNotaCredito;
 use App\VentaAnuladoTieneAutorizacion;
 use App\Movimiento_Caja;
+use App\Producto;
 use DateTime;
 use App\LoteTieneDescuento;
 use Illuminate\Support\Facades\Schema;
@@ -492,20 +493,20 @@ class Venta extends Model
            
         foreach ($temp as $key => $value){
 
-            if($value->TOTAL==0){
-                $value->TOTAL='0';
+            if($value->TOTAL == 0){
+                $value->TOTAL = '0';
             }
 
-            if($value->PRECIO_UNIT==0){
-                $value->PRECIO_UNIT='0';
+            if($value->PRECIO_UNIT == 0){
+                $value->PRECIO_UNIT = '0';
             }
 
-            if($value->STOCK==0){
-                $value->STOCK='0';
+            if($value->STOCK == 0){
+                $value->STOCK = '0';
             }
 
-            if($value->DESCUENTO==0){
-                $value->DESCUENTO='0';
+            if($value->DESCUENTO == 0){
+                $value->DESCUENTO = '0';
             }
          
             $total_general = $total_general + $value->TOTAL;
@@ -573,8 +574,7 @@ class Venta extends Model
                     DB::raw('PRODUCTOS.MARCA AS MARCA'),
                     DB::raw('PRODUCTOS.LINEA AS LINEA'))  
             ->whereBetween('v.FECALTAS', [$inicio , $final])
-            ->where([
-                ['v.ID_SUCURSAL', '=', $sucursal],
+            ->where([['v.ID_SUCURSAL', '=', $sucursal],
                 ['v.ANULADO', '<>', 1],
                 ['v.DESCRIPCION', 'NOT LIKE', 'DESCUENTO%']])
             ->groupBy('v.COD_PROD')
@@ -647,8 +647,7 @@ class Venta extends Model
             ->whereBetween('v.FECALTAS', [$inicio , $final])
             ->whereIn('PRODUCTOS.MARCA', $datos['Marcas'])
             ->whereIn('PRODUCTOS.LINEA', $datos['Categorias'])
-            ->where([
-                ['v.ID_SUCURSAL', '=', $sucursal],
+            ->where([['v.ID_SUCURSAL', '=', $sucursal],
                 ['v.ANULADO', '<>', 1],
                 ['v.DESCRIPCION', 'NOT LIKE', 'DESCUENTO%']])
             ->groupBy('v.COD_PROD')
@@ -981,8 +980,7 @@ class Venta extends Model
                 ->select(DB::raw('VENTASDET.PRECIO'),
                     DB::raw('VENTASDET.PRECIO_UNIT'),
                     DB::raw('VENTASDET.ITEM'),
-                    DB::raw('PRODUCTOS.MARCA')
-                )
+                    DB::raw('PRODUCTOS.MARCA'))
             ->where([['VENTASDET.ID_SUCURSAL', '=', $descuento->ID_SUCURSAL],
                     ['VENTASDET.CODIGO', '=', $descuento->CODIGO],
                     ['VENTASDET.CAJA', '=', $descuento->CAJA],
@@ -1802,7 +1800,7 @@ class Venta extends Model
                 $retencion = Common::quitar_coma($data["data"]["cabecera"]["RETENCION"], 2);
                 $porcentaje_retencion=Common::quitar_coma(($data["data"]["cliente"]["RETENCION_PORCENTAJE"]*100), 2);
             }else{
-                $retencion= 0;
+                $retencion = 0;
             }
 
             /*  --------------------------------------------------------------------------------- */
@@ -2192,12 +2190,11 @@ class Venta extends Model
                     // CAMBIAR ESTATUS NOTA DE CREDITO 
 
                     NotaCredito::where('ID', '=', $data["data"]["productos"][$c]["ID"]) 
-                        ->update([ 
-                            'PROCESADO' => 1,
-                            'FECMODIF' => $dia,
-                            'HORMODIF' => $hora
-                        ]
-                    );
+                    ->update([ 
+                        'PROCESADO' => 1,
+                        'FECMODIF' => $dia,
+                        'HORMODIF' => $hora
+                    ]);
 
                     /*  --------------------------------------------------------------------------------- */
 
@@ -2851,11 +2848,8 @@ class Venta extends Model
                 VENTASDET_DEVOLUCIONES.PRECIO,
                 VENTAS.MONEDA,
                 0 AS IVA_PORCENTAJE'))
-            ->leftJoin('VENTAS', function($join){
-                $join->on('VENTAS.CODIGO', '=', 'VENTASDET_DEVOLUCIONES.CODIGO')
-                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET_DEVOLUCIONES.ID_SUCURSAL')
-                     ->on('VENTAS.CAJA', '=', 'VENTASDET_DEVOLUCIONES.CAJA');
-            })
+            ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'VENTASDET_DEVOLUCIONES.FK_VENTASDET')
+            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
         ->where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTASDET_DEVOLUCIONES.CODIGO','=', $codigo)
         ->where('VENTASDET_DEVOLUCIONES.CAJA','=', $caja)
@@ -2867,8 +2861,7 @@ class Venta extends Model
 
             // BUSCAR IVA PRODUCTO
 
-            $producto = DB::connection('retail')->table('PRODUCTOS')
-                ->select(DB::raw('IMPUESTO'))
+            $producto = Producto::select(DB::raw('IMPUESTO'))
             ->where('CODIGO', '=', $value->COD_PROD)
             ->get();
 
@@ -2943,7 +2936,7 @@ class Venta extends Model
             // CARGAR DATOS EN ARRAY
 
             $data[] = $nestedData;
-            $item_array[]= $nestedData['ITEM'];
+            $item_array[] = $nestedData['ITEM'];
         }
 
         /*  --------------------------------------------------------------------------------- */
@@ -3063,11 +3056,7 @@ class Venta extends Model
                 VENTASDET.PRECIO,
                 VENTAS.MONEDA,
                 0 AS IVA_PORCENTAJE'))
-            ->leftJoin('VENTAS', function($join){
-                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-            })
+            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
         ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTASDET.CODIGO','=', $codigo)
         ->where('VENTASDET.CAJA','=', $caja)
@@ -3081,8 +3070,7 @@ class Venta extends Model
 
             // BUSCAR IVA PRODUCTO
 
-            $producto = DB::connection('retail')->table('PRODUCTOS')
-                ->select(DB::raw('IMPUESTO'))
+            $producto = Producto::select(DB::raw('IMPUESTO'))
             ->where('CODIGO', '=', $value->COD_PROD)
             ->get();
 
@@ -3992,10 +3980,10 @@ class Venta extends Model
         $cheque_guarani = 0;
         $cheque_peso = 0.00;
         $cheque_real = 0.00;
-        $guaranies=0;
-        $reales=0;
-        $pesos=0;
-        $dolares=0;
+        $guaranies= 0;
+        $reales= 0;
+        $pesos= 0;
+        $dolares= 0;
 
         //COMENZAR CON LAS CONSULTAS 
 
@@ -5328,7 +5316,7 @@ class Venta extends Model
                 ],
             ],
             'default_font' => 'arial',
-            "format" => [240,141],
+            "format" => [ 240, 148 ],
         ]);
 
         $mpdf->SetDisplayMode('fullpage');
@@ -5853,7 +5841,7 @@ class Venta extends Model
  
         // OBTENER TODOS LOS DATOS DEL TALLE
 
-        if($datos['id']['co_ca']===1){
+        if($datos['id']['co_ca'] === 1){
 
             $venta = Venta::leftJoin('CLIENTES', function($join){
                     $join->on('VENTAS.CLIENTE', '=', 'CLIENTES.CODIGO')
@@ -5916,13 +5904,13 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        if(count($venta)<=0){
-           return ["response"=>false];
+        if(count($venta) <= 0){
+           return ["response" => false];
         }
+        
         // RETORNAR EL VALOR
         
-       return ["response"=>true,"ventas"=>$venta];
-
+        return ["response" => true, "ventas" => $venta];
     }
 
     public static function ventas_datatable($request){
@@ -5940,17 +5928,17 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-            0 => 'FK_VENTA', 
-            0 => 'CODIGO', 
-            1 => 'caja',
-            2 => 'codigo_ca',
-            3 => 'fecha',
-            4 => 'nombre',
-            5 => 'tipo',
-            6 => 'tarjeta',
-            7 => 'descuento',
-            8 => 'total',
-            9 => 'moneda'
+            0 => 'VENTAS.ID', 
+            1 => 'VENTAS.CODIGO', 
+            2 => 'VENTAS.CAJA',
+            3 => 'VENTAS.CODIGO_CA',
+            4 => 'CLIENTES.NOMBRE',
+            5 => 'VENTAS.FECALTAS',
+            6 => 'VENTAS.TIPO',
+            7 => 'VENTAS_TARJETA.MONTO',
+            8 => 'VENTAS.DESCUENTO',
+            9 => 'VENTAS.TOTAL',
+            10 => 'MONEDAS.DESCRIPCION'
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -5989,13 +5977,14 @@ class Venta extends Model
                     VENTAS.CODIGO AS CODIGO, 
                     VENTAS.CAJA AS CAJA,
                     VENTAS.CODIGO_CA AS CODIGO_CA,
-                    VENTAS.FECALTAS AS FECHA,
+                    SUBSTRING(VENTAS.FECALTAS, 1, 10) AS FECHA,
                     CLIENTES.NOMBRE AS NOMBRE,
                     VENTAS.TIPO AS TIPO,
                     IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                     VENTAS.DESCUENTO AS DESCUENTO,
                     VENTAS.TOTAL AS TOTAL,
-                    MONEDAS.DESCRIPCION AS MONEDA'))
+                    MONEDAS.DESCRIPCION AS MONEDA,
+                    MONEDAS.CANDEC AS CANDEC'))
                 ->leftJoin('CLIENTES', function($join){
                     $join->on('CLIENTES.CODIGO', '=', 'VENTAS.CLIENTE')
                          ->on('CLIENTES.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
@@ -6024,12 +6013,13 @@ class Venta extends Model
                     VENTAS.CAJA AS CAJA,
                     VENTAS.CODIGO_CA AS CODIGO_CA,
                     CLIENTES.NOMBRE AS NOMBRE,
-                    VENTAS.FECALTAS AS FECHA,
+                    SUBSTRING(VENTAS.FECALTAS, 1, 10) AS FECHA,
                     VENTAS.TIPO AS TIPO,
                     IFNULL(VENTAS_TARJETA.MONTO, 0) AS TARJETA,
                     VENTAS.DESCUENTO AS DESCUENTO,
                     VENTAS.TOTAL AS TOTAL,
-                    MONEDAS.DESCRIPCION AS MONEDA'))
+                    MONEDAS.DESCRIPCION AS MONEDA,
+                    MONEDAS.CANDEC AS CANDEC'))
                 ->leftjoin('VENTAS_TARJETA', 'FK_VENTA', '=', 'VENTAS.ID')
                 ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
                 ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'VENTAS.MONEDA')
@@ -6080,7 +6070,7 @@ class Venta extends Model
                 $nestedData['TIPO'] = $post->TIPO;
                 $nestedData['TARJETA'] = $post->TARJETA;
                 $nestedData['DESCUENTO'] = $post->DESCUENTO;
-                $nestedData['TOTAL'] = $post->TOTAL;
+                $nestedData['TOTAL'] = Common::precio_candec_sin_letra($post->TOTAL, $post->CANDEC);
                 $nestedData['MONEDA'] = $post->MONEDA;
 
                 $data[] = $nestedData;
@@ -6156,19 +6146,19 @@ class Venta extends Model
 
                     //SI ENCUENTRA EL REGISTRO Y SIN PAGAR ENTONCES ELIMINA
 
-                    if(count($venta_credito)>0){
+                    if(count($venta_credito) > 0){
 
                         VentaCredito::where('FK_VENTA', $datos['data']['id_venta'])->delete();
 
                     }else{
 
                         // SI NO ENCUENTRA IMPLICA QUE YA EXISTEN PAGOS ENTONCES NO ELIMINA Y RETORNA
-                        return ["response"=>false,"status_text"=>"Esta venta ya posee pagos."];
+                        return ["response" => false,"status_text" => "Esta venta ya posee pagos."];
                     }
                 }
             }
 
-            $venta= Venta::where('CODIGO', $datos['data']['codigo'])
+            $venta = Venta::where('CODIGO', $datos['data']['codigo'])
             ->Where('VENTAS.CAJA','=',$datos['data']['caja'])
             ->Where('VENTAS.ID_SUCURSAL','=',$user->id_sucursal) 
             ->update([
@@ -6245,12 +6235,12 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-            0 => 'ITEM', 
-            1 => 'COD_PROD',
-            2 => 'DESCRIPCION',
-            3 => 'CANTIDAD',
-            4 => 'PRECIO',
-            5 => 'TOTAL'
+            0 => 'VENTASDET.ITEM', 
+            1 => 'VENTASDET.COD_PROD',
+            2 => 'VENTASDET.DESCRIPCION',
+            3 => 'VENTASDET.CANTIDAD',
+            4 => 'VENTASDET.PRECIO_UNIT',
+            5 => 'VENTASDET.PRECIO'
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -6296,11 +6286,7 @@ class Venta extends Model
                     IFNULL((SELECT SUM(NC_DET.CANTIDAD) FROM NOTA_CREDITO_DET as NC_DET LEFT JOIN NOTA_CREDITO AS NC ON NC.ID=NC_DET.FK_NOTA_CREDITO WHERE ((NC_DET.FK_VENTASDET = VENTASDET.ID) AND (NC.PROCESADO <> 2))),0) AS CANTIDAD_DEVUELTA,
                     IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE, 
                     IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS DESCUENTO_CUPON_PORCENTAJE'))
-                ->leftJoin('VENTAS', function($join){
-                    $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                         ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                         ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-                })
+                ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
                 ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
                 ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
                 ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
@@ -6325,8 +6311,10 @@ class Venta extends Model
 
             $posts =  Ventas_det::select(DB::raw('
                     VENTASDET.ID, 
-                    VENTASDET.ITEM, VENTASDET.COD_PROD, 
-                    VENTASDET.DESCRIPCION, VENTASDET.CANTIDAD, 
+                    VENTASDET.ITEM, 
+                    VENTASDET.COD_PROD, 
+                    VENTASDET.DESCRIPCION, 
+                    VENTASDET.CANTIDAD, 
                     VENTASDET.IVA AS IMPUESTO, 
                     PRODUCTOS.IMPUESTO AS IVA_PORCENTAJE, 
                     VENTASDET.PRECIO_UNIT AS PRECIO, 
@@ -6336,11 +6324,7 @@ class Venta extends Model
                     IFNULL(ventasdet_descuento.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE, 
                     IFNULL((SELECT SUM(NC_DET.CANTIDAD) FROM NOTA_CREDITO_DET as NC_DET LEFT JOIN NOTA_CREDITO AS NC ON NC.ID=NC_DET.FK_NOTA_CREDITO WHERE ((NC_DET.FK_VENTASDET = VENTASDET.ID) AND (NC.PROCESADO <> 2))),0) AS CANTIDAD_DEVUELTA,
                     IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_GENERAL_PORCENTAJE'))
-                ->leftJoin('VENTAS', function($join){
-                   $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                        ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                        ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-                })
+                ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
                 ->leftjoin('NOTA_CREDITO_DET', 'NOTA_CREDITO_DET.FK_VENTASDET', '=', 'VENTASDET.ID')
                 ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
                 ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
@@ -6473,12 +6457,12 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-            0 => 'ITEM', 
-            1 => 'COD_PROD',
-            2 => 'DESCRIPCION',
-            3 => 'CANTIDAD',
-            4 => 'PRECIO_UNIT',
-            5 => 'PRECIO',
+            0 => 'VENTASDET.ITEM', 
+            1 => 'VENTASDET.COD_PROD',
+            2 => 'VENTASDET.DESCRIPCION',
+            3 => 'VENTASDET.CANTIDAD',
+            4 => 'VENTASDET.PRECIO_UNIT',
+            5 => 'VENTASDET.PRECIO',
             6 => 'ventasdet_descuento.PORCENTAJE',
             7 => 'ventasdet_descuento.TOTAL'
         );
@@ -6488,11 +6472,7 @@ class Venta extends Model
         // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
 
         $totalData = Ventas_det::join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-            ->leftJoin('VENTAS', function($join){
-                $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                     ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                     ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-            })
+            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
         ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTASDET.CODIGO','=', $codigo)
         ->where('VENTASDET.CAJA','=', $caja)
@@ -6528,11 +6508,7 @@ class Venta extends Model
                     VENTAS.MONEDA'))
                 ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                 ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
-                ->leftJoin('VENTAS', function($join){
-                   $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                        ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                        ->on('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-                })
+                ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
             ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
             ->where('VENTASDET.CODIGO','=', $codigo)
             ->where('VENTASDET.CAJA','=', $caja)
@@ -6549,7 +6525,7 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Ventas_det::select(DB::raw('VENTASDET.ITEM, 
+            $posts = Ventas_det::select(DB::raw('VENTASDET.ITEM, 
                     VENTASDET.COD_PROD, 
                     VENTASDET.DESCRIPCION, 
                     VENTASDET.CANTIDAD, 
@@ -6560,11 +6536,7 @@ class Venta extends Model
                     VENTAS.MONEDA'))
                 ->join('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
                 ->leftjoin('ventasdet_descuento', 'ventasdet_descuento.FK_VENTASDET', '=', 'VENTASDET.ID')
-                ->leftJoin('VENTAS', function($join){
-                   $join->on('VENTAS.CODIGO', '=', 'VENTASDET.CODIGO')
-                        ->on('VENTAS.ID_SUCURSAL', '=', 'VENTASDET.ID_SUCURSAL')
-                        ->ON('VENTAS.CAJA', '=', 'VENTASDET.CAJA');
-                })
+                ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
             ->where('VENTASDET.CODIGO','=', $codigo)
             ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
             ->where('VENTASDET.CAJA','=', $caja)
@@ -6636,12 +6608,12 @@ class Venta extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-            0 => 'CODIGO', 
-            1 => 'PROVEEDOR',
-            2 => 'TIPO',
-            3 => 'NRO_FACTURA',
-            4 => 'FEC_FACTURA',
-            5 => 'TOTAL',
+            0 => 'COMPRAS.CODIGO', 
+            1 => 'PROVEEDORES.NOMBRE',
+            2 => 'COMPRAS.TIPO',
+            3 => 'COMPRAS.NRO_FACTURA',
+            4 => 'COMPRAS.FEC_FACTURA',
+            5 => 'COMPRAS.TOTAL',
             6 => 'ACCION',
         );
         
@@ -6692,7 +6664,7 @@ class Venta extends Model
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  Compra::select(DB::raw('
+            $posts = Compra::select(DB::raw('
                     COMPRAS.CODIGO, 
                     COMPRAS.MONEDA, 
                     PROVEEDORES.NOMBRE, 
@@ -7007,8 +6979,8 @@ class Venta extends Model
                 "MONEDA4" => $datos['PESOS'], 
                 "USERM" => $user->name, 
                 "FECMODIF" => $dia, 
-                "HORMODIF" => $hora]
-            );
+                "HORMODIF" => $hora
+            ]);
             
             /*  --------------------------------------------------------------------------------- */
 
@@ -7493,7 +7465,7 @@ class Venta extends Model
                     $credito = $credito["credito"];
                 }
 
-                if($credito[0]["SALDO"]>=$datos["EFECTIVO"] && $datos['EFECTIVO'] !== 0){
+                if($credito[0]["SALDO"]>= $datos["EFECTIVO"] && $datos['EFECTIVO'] !== 0){
 
                     //GUARDAR REFERENCIA EN ABONO_DET
 
@@ -8001,7 +7973,7 @@ class Venta extends Model
 
                     }else{
 
-                        $total_nota_credito_restado=$total_nota_credito;
+                        $total_nota_credito_restado= $total_nota_credito;
                     }
                    
                     VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
@@ -8026,7 +7998,7 @@ class Venta extends Model
 
                     VentaCredito::where('FK_VENTA', '=', $value->FK_VENTA)
                     ->update([
-                        'PAGO' => \DB::raw('PAGO + '.$value->SALDO.''),
+                        'PAGO' => DB::raw('PAGO + '.$value->SALDO.''),
                         'SALDO' => 0,
                         'FECHA_CANCELACION' => $fecha
                     ]);
@@ -8379,11 +8351,7 @@ class Venta extends Model
 
         $descuento_producto = Venta::select(DB::raw('IFNULL(SUM(ventasdet_descuento.TOTAL),0) AS T_TOTAL'))
             ->leftjoin('VENTAS_ANULADO', 'VENTAS.ID', '=', 'VENTAS_ANULADO.FK_VENTA')
-            ->leftjoin('VENTASDET',function($join){
-                $join->on('VENTASDET.CODIGO','=','VENTAS.CODIGO')
-                     ->on('VENTASDET.CAJA','=','VENTAS.CAJA')
-                     ->on('VENTASDET.ID_SUCURSAL','=','VENTAS.ID_SUCURSAL');
-                })
+            ->leftjoin('VENTASDET', 'VENTASDET.FK_VENTA', '=', 'VENTAS.ID')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
         ->where('VENTAS.ID_SUCURSAL', '=', $datos['data']["sucursal"])
         ->where('VENTAS.FECHA', '=', $final)
@@ -8547,27 +8515,27 @@ class Venta extends Model
 
         foreach ($movimiento_caja_entrada as $key => $value) {
           
-            if($c_rows_entrada==0 && $caja_aux==0){
+            if($c_rows_entrada == 0 && $caja_aux == 0){
     
-                $entrada2[$c_rows_entrada]['GUARANIES'] =0;
-                $entrada2[$c_rows_entrada]['DOLARES'] =0;
-                $entrada2[$c_rows_entrada]['PESOS'] =0;
-                $entrada2[$c_rows_entrada]['REALES'] =0;
-                $caja_aux=$value["CAJAS"];
+                $entrada2[$c_rows_entrada]['GUARANIES'] = 0;
+                $entrada2[$c_rows_entrada]['DOLARES'] = 0;
+                $entrada2[$c_rows_entrada]['PESOS'] = 0;
+                $entrada2[$c_rows_entrada]['REALES'] = 0;
+                $caja_aux = $value["CAJAS"];
             }
 
-            if($caja_aux!=$value["CAJAS"]){
+            if($caja_aux != $value["CAJAS"]){
     
-                $c_rows_entrada=$c_rows_entrada+1;
-                $caja_aux=$value["CAJAS"];
+                $c_rows_entrada = $c_rows_entrada+1;
+                $caja_aux = $value["CAJAS"];
                 $guaranies_e = Common::precio_candec(0, 1);
                 $dolares_e = Common::precio_candec(0, 2);
                 $pesos_e = Common::precio_candec(0, 3);
                 $reales_e = Common::precio_candec(0, 4);
-                $entrada2[$c_rows_entrada]['GUARANIES'] =0;
-                $entrada2[$c_rows_entrada]['DOLARES'] =0;
-                $entrada2[$c_rows_entrada]['PESOS'] =0;
-                $entrada2[$c_rows_entrada]['REALES'] =0;
+                $entrada2[$c_rows_entrada]['GUARANIES'] = 0;
+                $entrada2[$c_rows_entrada]['DOLARES'] = 0;
+                $entrada2[$c_rows_entrada]['PESOS'] = 0;
+                $entrada2[$c_rows_entrada]['REALES'] = 0;
             }
     
             if($caja_aux == $value["CAJAS"]){
@@ -8614,7 +8582,7 @@ class Venta extends Model
         $pesos_s = Common::precio_candec(0, 3);
         $reales_s = Common::precio_candec(0, 4);
        
-        $caja_aux=0;
+        $caja_aux = 0;
 
         foreach ($movimiento_caja_salida as $key => $value) {
 
@@ -8629,7 +8597,7 @@ class Venta extends Model
 
             if($caja_aux != $value["CAJAS"]){
 
-                $c_rows_salida = $c_rows_salida+1;
+                $c_rows_salida = $c_rows_salida + 1;
                 $caja_aux = $value["CAJAS"];
                 $guaranies_s = Common::precio_candec(0, 1);
                 $dolares_s = Common::precio_candec(0, 2);
@@ -8686,16 +8654,16 @@ class Venta extends Model
 
         foreach ($movimiento_caja_entrada_t as $key => $value) {
 
-            if($value["MONEDA"]==1){
+            if($value["MONEDA"] == 1){
                 $guaranies_e = $value["TOTAL"];
             }
-            if($value["MONEDA"]==2){
+            if($value["MONEDA"] == 2){
                 $dolares_e = $value["TOTAL"];
             }
-            if($value["MONEDA"]==3){
+            if($value["MONEDA"] == 3){
                 $pesos_e = $value["TOTAL"];
             }
-            if($value["MONEDA"]==4){
+            if($value["MONEDA"] == 4){
                 $reales_e = $value["TOTAL"];
             }
         }
@@ -8714,16 +8682,16 @@ class Venta extends Model
 
         foreach ($movimiento_caja_salida_t as $key => $value) {
 
-            if($value["MONEDA"]==1){
+            if($value["MONEDA"] == 1){
                 $guaranies_s = $value["TOTAL"];
             }
-            if($value["MONEDA"]==2){
+            if($value["MONEDA"] == 2){
                 $dolares_s = $value["TOTAL"];
             }
-            if($value["MONEDA"]==3){
+            if($value["MONEDA"] == 3){
                 $pesos_s = $value["TOTAL"];
             }
-            if($value["MONEDA"]==4){
+            if($value["MONEDA"] == 4){
                 $reales_s = $value["TOTAL"];
             }
         }
@@ -8738,36 +8706,36 @@ class Venta extends Model
 
             foreach ($entrada2 as $key => $entrada_m) {
 
-                if($entrada_m["CAJA"]==$value["CAJAS"]){
-                    $value["DOLARES"]=$value["DOLARES"]+$entrada_m["DOLARES"];
-                    $value["GUARANIES"]=$value["GUARANIES"]+$entrada_m["GUARANIES"];
-                    $value["REALES"]=$value["REALES"]+$entrada_m["REALES"];
-                    $value["PESOS"]=$value["PESOS"]+$entrada_m["PESOS"];
+                if($entrada_m["CAJA"] == $value["CAJAS"]){
+                    $value["DOLARES"] = $value["DOLARES"] + $entrada_m["DOLARES"];
+                    $value["GUARANIES"] = $value["GUARANIES"] + $entrada_m["GUARANIES"];
+                    $value["REALES"] = $value["REALES"] + $entrada_m["REALES"];
+                    $value["PESOS"] = $value["PESOS"] + $entrada_m["PESOS"];
                 }
             }
 
             foreach ($salida2 as $key => $salida_m) {
 
-                if($salida_m["CAJAS"]==$value["CAJAS"]){
+                if($salida_m["CAJAS"] == $value["CAJAS"]){
 
-                    $value["DOLARES"]=$value["DOLARES"]-$salida_m["DOLARES"];
-                    $value["GUARANIES"]=$value["GUARANIES"]-$salida_m["GUARANIES"];
-                    $value["REALES"]=$value["REALES"]-$salida_m["REALES"];
-                    $value["PESOS"]=$value["PESOS"]-$salida_m["PESOS"];
+                    $value["DOLARES"] = $value["DOLARES"] - $salida_m["DOLARES"];
+                    $value["GUARANIES"] = $value["GUARANIES"] - $salida_m["GUARANIES"];
+                    $value["REALES"] = $value["REALES"] - $salida_m["REALES"];
+                    $value["PESOS"] = $value["PESOS"] - $salida_m["PESOS"];
                 }
             }
 
-            $efectivo[$c_rows]['CAJA'] = $value["CAJAS"] ;
+            $efectivo[$c_rows]['CAJA'] = $value["CAJAS"];
             $efectivo[$c_rows]['DOLARES'] = Common::precio_candec($value["DOLARES"], $candec);
             $efectivo[$c_rows]['REALES'] = Common::precio_candec($value["REALES"], 4);
             $efectivo[$c_rows]['GUARANIES'] = Common::precio_candec($value["GUARANIES"], 1);
             $efectivo[$c_rows]['PESOS'] = Common::precio_candec($value["PESOS"], 3);
-            $medios[$c_rows]['CAJAS'] = $value["CAJAS"] ;
+            $medios[$c_rows]['CAJAS'] = $value["CAJAS"];
             $medios[$c_rows]['TARJETAS'] = Common::precio_candec($value["T_TARJETAS"], 1);
             $medios[$c_rows]['VALES'] = Common::precio_candec($value["T_VALES"], $candec);
             $medios[$c_rows]['TRANSFERENCIAS'] = Common::precio_candec($value["T_TRANSFERENCIA"], 1);
             $medios[$c_rows]['GIROS'] = Common::precio_candec($value["T_GIROS"], 1);
-            $c_rows = $c_rows+1;
+            $c_rows = $c_rows + 1;
         }
 
         //FIN DE EFECTIVO Y MEDIOS
@@ -8791,7 +8759,7 @@ class Venta extends Model
 
             if($caja_aux != $value["CAJAS"]){
 
-                $c_rows_cheque = $c_rows_cheque+1;
+                $c_rows_cheque = $c_rows_cheque + 1;
                 $caja_aux = $value["CAJAS"];
                 $guaranies_c = Common::precio_candec(0, 1);
                 $dolares_c = Common::precio_candec(0, 2);
@@ -8819,10 +8787,10 @@ class Venta extends Model
                     $reales_c = Common::precio_candec($value["TOTAL"], 4);
                 }
 
-                $cheques_c[$c_rows_cheque]['GUARANIES'] =$guaranies_c;
-                $cheques_c[$c_rows_cheque]['DOLARES'] =$dolares_c;
-                $cheques_c[$c_rows_cheque]['PESOS'] =$pesos_c;
-                $cheques_c[$c_rows_cheque]['REALES'] =$reales_c;
+                $cheques_c[$c_rows_cheque]['GUARANIES'] = $guaranies_c;
+                $cheques_c[$c_rows_cheque]['DOLARES'] = $dolares_c;
+                $cheques_c[$c_rows_cheque]['PESOS'] = $pesos_c;
+                $cheques_c[$c_rows_cheque]['REALES'] = $reales_c;
             }
         }
 
@@ -8902,9 +8870,9 @@ class Venta extends Model
         $data['abono'] = Common::precio_candec($abono[0]["T_TOTAL"], (int)$parametro[0]['MONEDA']);
         $data['movimientoCajaEntrada'] = Common::precio_candec($movimiento_caja_entrada_total[0]->TOTAL_SISTEMA, (int)$parametro[0]['MONEDA']);
         $data['movimientoCajaSalida'] = Common::precio_candec($movimiento_caja_salida_total[0]->TOTAL_SISTEMA, (int)$parametro[0]['MONEDA']);
-        $data['totalV'] = ($abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL+$movimiento_caja_entrada_total[0]->TOTAL_SISTEMA) - $movimiento_caja_salida_total[0]->TOTAL_SISTEMA;
+        $data['totalV'] = ($abono[0]->T_TOTAL + $contado[0]->T_TOTAL + $credito[0]->T_TOTAL + $pe[0]->T_TOTAL + $movimiento_caja_entrada_total[0]->TOTAL_SISTEMA) - $movimiento_caja_salida_total[0]->TOTAL_SISTEMA;
         $data['totalV'] = Common::precio_candec($data['totalV'],(int)$parametro[0]['MONEDA']);
-        $data['total'] = $abono[0]->T_TOTAL+$contado[0]->T_TOTAL+$credito[0]->T_TOTAL+$pe[0]->T_TOTAL-$salida_p[0]->T_TOTAL;
+        $data['total'] = $abono[0]->T_TOTAL + $contado[0]->T_TOTAL + $credito[0]->T_TOTAL + $pe[0]->T_TOTAL - $salida_p[0]->T_TOTAL;
         $data['total'] = Common::precio_candec($data['total'],(int)$parametro[0]['MONEDA']);
         $data['totalGes'] = Common::precio_candec($cajas_totales[0]['GUARANIES'],1);
         $data['totalDles'] = Common::precio_candec($cajas_totales[0]['DOLARES'], (int)$parametro[0]['MONEDA']);
@@ -9071,8 +9039,8 @@ class Venta extends Model
             }
         }
         
-        if($datos->input("filtro")=="PROVEEDOR"){
-            if($datos->input("AllProveedores")=='false'){
+        if($datos->input("filtro") == "PROVEEDOR"){
+            if($datos->input("AllProveedores") == 'false'){
                 $posts->whereIn('temp_ventas.PROVEEDOR',$datos->input("Proveedores"));
             }
         }
@@ -9081,7 +9049,7 @@ class Venta extends Model
 
         // ORDENAR 
 
-        if($datos->input("Agrupar")=="false"){
+        if($datos->input("Agrupar") == "false"){
             $posts->orderby('UTILIDAD','DESC');
         }else{
             
@@ -9114,7 +9082,7 @@ class Venta extends Model
                 $nestedData['UTILIDAD'] = round($post->UTILIDAD,2);
                 $nestedData['DESCUENTO'] = round($post->DESCUENTO,2);
                 $data[] = $nestedData;
-                $c = $c+1;
+                $c = $c + 1;
             }
         }
         
@@ -9164,11 +9132,7 @@ class Venta extends Model
                      ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
                 })
             ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
-            ->leftjoin('VENTAS',function($join){
-                $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
-                     ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
-                     ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-                })
+            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
             ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
             ->select(DB::raw('
                 VENTASDET.COD_PROD AS COD_PROD,
@@ -9224,31 +9188,31 @@ class Venta extends Model
 
                 if ($value->PORCENTAJE_GENERAL > 0) {
 
-                    $descuento_precio = round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
-                    $total_des = $total_des+$descuento_precio;
-                    $value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
-                    $value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
-                    $value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
-                    $descuento = ($precio*$value->DESCUENTO_PORCENTAJE)/100;
-                    $precio_descontado = $precio-$descuento;
-                    $descuento_general = ($precio_descontado*$value->PORCENTAJE_GENERAL)/100;
-                    $precio_descontado_general = $precio_descontado-$descuento_general;
-                    $precio_descontado_total = $descuento+$descuento_general;
-                    $descuento_real = ($precio_descontado_total*100)/$precio;
+                    $descuento_precio = round((($value->PRECIO * $value->PORCENTAJE_GENERAL) / 100),2);
+                    $total_des = $total_des + $descuento_precio;
+                    $value->PRECIO = (round($value->PRECIO - $descuento_precio,2));
+                    $value->DESCUENTO = ($value->DESCUENTO + round($descuento_precio,2));
+                    $value->PRECIO_UNIT = round((($value->PRECIO_UNIT * $value->PORCENTAJE_GENERAL) / 100),2);
+                    $descuento = ($precio * $value->DESCUENTO_PORCENTAJE) / 100;
+                    $precio_descontado = $precio - $descuento;
+                    $descuento_general = ($precio_descontado * $value->PORCENTAJE_GENERAL) / 100;
+                    $precio_descontado_general = $precio_descontado - $descuento_general;
+                    $precio_descontado_total = $descuento + $descuento_general;
+                    $descuento_real = ($precio_descontado_total * 100) / $precio;
                     $value->DESCUENTO_PORCENTAJE = $descuento_real;
                                 
                 }
                                
-                if($value->DESCUENTO_PORCENTAJE==0){
-                    $value->DESCUENTO_PORCENTAJE='0';
+                if($value->DESCUENTO_PORCENTAJE == 0){
+                    $value->DESCUENTO_PORCENTAJE = '0';
                 }
 
-                if($value->NOMBRE==NULL){
-                    $value->NOMBRE='';
+                if($value->NOMBRE == NULL){
+                    $value->NOMBRE = '';
                 }
                 
-                if($value->SECCION==NULL){
-                    $value->SECCION='INDEFINIDO';
+                if($value->SECCION == NULL){
+                    $value->SECCION = 'INDEFINIDO';
                 }
                    
                 $nestedData['COD_PROD'] = $value->COD_PROD;
@@ -9297,11 +9261,7 @@ class Venta extends Model
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-            ->leftjoin('VENTAS',function($join){
-                $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
-                    ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
-                    ->on('VENTAS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-            })
+            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
             ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
                 $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','NOTA_CREDITO_DET.CODIGO_PROD')
                     ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','NOTA_CREDITO_DET.ID_SUCURSAL');
@@ -9412,9 +9372,9 @@ class Venta extends Model
             6 => 'PREMAYORISTA',
             7 => 'STOCK',
             8 => 'CANTIDAD_INICIAL',
-            9=> 'ULTIMA_ENTRADA',
-            10=> 'ULTIMO_MOVIMIENTO',
-            11=> 'ULTIMA_VENTA',
+            9 => 'ULTIMA_ENTRADA',
+            10 => 'ULTIMO_MOVIMIENTO',
+            11 => 'ULTIMA_VENTA',
         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -9683,24 +9643,23 @@ class Venta extends Model
             );
         }
 
-        $ser = DB::connection('retail')->table('ventasdet_servicios')
-            ->leftjoin('VENTAS',function($join){
-                $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
-                    ->on('VENTAS.CAJA','=','ventasdet_servicios.CAJA')
-                    ->on('VENTAS.ID_SUCURSAL','=','ventasdet_servicios.ID_SUCURSAL');
+        $ser = VentasDetServicios::leftjoin('VENTAS',function($join){
+                $join->on('VENTAS.CODIGO','=','VENTASDET_SERVICIOS.CODIGO')
+                    ->on('VENTAS.CAJA','=','VENTASDET_SERVICIOS.CAJA')
+                    ->on('VENTAS.ID_SUCURSAL','=','VENTASDET_SERVICIOS.ID_SUCURSAL');
                 })
             ->leftjoin('VENTAS_ANULADO', 'VENTAS_ANULADO.FK_VENTA', '=', 'VENTAS.ID')
                 ->select(DB::raw('
-                    SUM(ventasdet_servicios.PRECIO) AS PRECIO_SERVICIO,
-                    sum(ventasdet_servicios.CANTIDAD) AS VENDIDO,
-                    sum(ventasdet_servicios.PRECIO_UNIT) AS PRECIO_UNIT')) 
+                    SUM(VENTASDET_SERVICIOS.PRECIO) AS PRECIO_SERVICIO,
+                    SUM(VENTASDET_SERVICIOS.CANTIDAD) AS VENDIDO,
+                    SUM(VENTASDET_SERVICIOS.PRECIO_UNIT) AS PRECIO_UNIT')) 
         ->Where('VENTAS_ANULADO.ANULADO','=',0)
         ->Where('VENTAS.ID_SUCURSAL','=',$sucursal)
         ->whereBetween('VENTAS.FECALTAS', [$inicio, $final])
         ->get()
         ->toArray();
         
-        if(count($ser)>0){
+        if(count($ser) > 0){
         
             $total_general = $total_general + $ser[0]->PRECIO_SERVICIO;
             $total_preciounit = $total_preciounit + $ser[0]->PRECIO_UNIT;
@@ -9781,26 +9740,26 @@ class Venta extends Model
         ->get()
         ->toArray();
 
-        $total_general=0;
-        $total_descuento=0;
-        $total_preciounit=0;
-        $cantidadvendida=0;
-        $costo=0;
-        $totalcosto=0;
+        $total_general = 0;
+        $total_descuento = 0;
+        $total_preciounit = 0;
+        $cantidadvendida = 0;
+        $costo = 0;
+        $totalcosto = 0;
        
         foreach ($temp as $key => $value) {
 
-            if($value->TOTAL==0){
-                $value->TOTAL='0';
+            if($value->TOTAL == 0){
+                $value->TOTAL ='0';
             }
-            if($value->PRECIO_UNIT==0){
-                $value->PRECIO_UNIT='0';
+            if($value->PRECIO_UNIT == 0){
+                $value->PRECIO_UNIT ='0';
             }
-            if($value->STOCK==0){
-                $value->STOCK='0';
+            if($value->STOCK == 0){
+                $value->STOCK ='0';
             }
-            if($value->DESCUENTO==0){
-                $value->DESCUENTO='0';
+            if($value->DESCUENTO == 0){
+                $value->DESCUENTO ='0';
             }
                
             $total_general = $total_general + $value->TOTAL;
@@ -9913,8 +9872,7 @@ class Venta extends Model
         ->get()
         ->toArray();
 
-        $ser = DB::connection('retail')->table('ventasdet_servicios')
-            ->leftjoin('VENTAS',function($join){
+        $ser = VentasDetServicios::leftjoin('VENTAS',function($join){
                 $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
                      ->on('VENTAS.CAJA','=','ventasdet_servicios.CAJA')
                      ->on('VENTAS.ID_SUCURSAL','=','ventasdet_servicios.ID_SUCURSAL');
@@ -9969,12 +9927,12 @@ class Venta extends Model
                 $secciones_array[] = array(
                     'TOTALES'=> 'SERVICIO DE DELIVERY',
                     'VENDIDO' => $ser[0]->VENDIDO,
-                    'DESCUENTO'=>0,
+                    'DESCUENTO'=> 0,
                     'COSTO'=> 0,
                     'COSTO_TOTAL'=> 0,
                     'PRECIO' => $ser[0]->PRECIO_UNIT,
                     'TOTAL' => $ser[0]->PRECIO_SERVICIO,
-                    'PORCENTAJE'=> ($ser[0]->PRECIO_UNIT*100)/$total_porcentaje
+                    'PORCENTAJE'=> ($ser[0]->PRECIO_UNIT * 100) / $total_porcentaje
                 );
             }
         }
@@ -10003,7 +9961,7 @@ class Venta extends Model
                 'COSTO_TOTAL' => $TOTAL[0]->COSTO_TOTAL,
                 'PRECIO' => $TOTAL[0]->PRECIO_UNIT,
                 'TOTAL' => $TOTAL[0]->TOTAL,  
-                'PORCENTAJE' => (100*$TOTAL[0]->TOTAL)/$total_porcentaje,
+                'PORCENTAJE' => (100 * $TOTAL[0]->TOTAL) / $total_porcentaje,
             );
         }
 
@@ -10030,7 +9988,7 @@ class Venta extends Model
                 'COSTO_TOTAL' => $TOTAL[0]->COSTO_TOTAL,
                 'PRECIO' => $TOTAL[0]->PRECIO_UNIT,
                 'TOTAL' => $TOTAL[0]->TOTAL,  
-                'PORCENTAJE'=>(100*$TOTAL[0]->TOTAL)/$total_porcentaje,
+                'PORCENTAJE'=> (100 * $TOTAL[0]->TOTAL) / $total_porcentaje,
             );
         }
                           
@@ -10066,7 +10024,7 @@ class Venta extends Model
                 'COSTO_TOTAL' => $value->COSTO_TOTAL,
                 'TOTAL' => $value->TOTAL,
                 'DESCUENTO' => $value->DESCUENTO,
-                'PORCENTAJE'=>($value->TOTAL*100)/$total_porcentaje
+                'PORCENTAJE'=> ($value->TOTAL * 100) / $total_porcentaje
             );
         }
 
