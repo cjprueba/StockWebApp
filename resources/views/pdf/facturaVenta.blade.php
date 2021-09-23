@@ -160,13 +160,13 @@
             </tr>
             @else
             <tr>
-                <td width="11%">&nbsp;</td>
-                <td width="6%">&nbsp;</td>
-                <td width="31%">&nbsp;</td>
-                <td width="10%">&nbsp;</td>
-                <td width="10%">&nbsp;</td>
                 <td width="11%" align="left">&nbsp;</td>
-                <td width="21%" align="left">&nbsp;</td>
+                <td width="8%"  align="center">&nbsp;</td>
+                <td width="32%" align="left">&nbsp;</td>
+                <td width="10%" align="left">&nbsp;</td>
+                <td width="10%" align="center">&nbsp;</td>
+                <td width="13%" align="center">&nbsp;</td>
+                <td width="16%" align="left">&nbsp;</td>
             </tr>
             @endif
             @endfor
@@ -174,7 +174,7 @@
 
 
 
-
+ 
 
         <table width="100%" class="tablaFooter">
             <tr>
