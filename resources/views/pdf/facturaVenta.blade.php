@@ -89,7 +89,7 @@
     }
 
     .tablaFooter {
-        margin-top: 33.5px;
+        margin-top: 34px;
     }
 
     .tablaFooter td {
@@ -178,8 +178,8 @@
 
         <table width="100%" class="tablaFooter">
             <tr>
-                <td width="15%" align="center"></td>
-                <td width="70%" align="left"><span class="text">{{ $letra }}</span></td>
+                <td width="13%" align="center"></td>
+                <td width="72%" style="font-size: 9px;" align="left"><span class="text">{{ $letra }}</span></td>
                 <td width="15%" align="left"><span class="text">{{ $total }}</span></td>
             </tr>
         </table>
