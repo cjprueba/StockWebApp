@@ -4867,6 +4867,51 @@ function reporteDeliveryCommon(data){
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
+function busquedaCajeroCommon(data){
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/busquedaCajero',{'data':data}).then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+}
+function reporteCajeroVentaCommon(data){
+	// CONSEGUIR EL CODIGO
+
+	return axios({url: 'pdf-rptCajero', method: 'post', responseType: 'arraybuffer', data: {'data': data}}).then(function (response){
+			const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+			const link = document.createElement('a');
+			link.href = url;
+			//DESCARGAR
+			// link.setAttribute('download', 'file.pdf');
+			// document.body.appendChild(link);
+			link.target = '_blank'
+			link.click();
+			},
+		(error) => { return error }
+	);
+
+	// ------------------------------------------------------------------------
+
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// 						   PDF DELIVERY
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
 
 function agregarProductoPedidoCommon(data){
 	
@@ -7542,5 +7587,7 @@ export {
 		generarRptPdfInventarioGondolaCommon,
 		obtenerSucursalesInventarioCommon,
 		generarReporteInventarioSeccionCommon,
-		obtenerCotizacionBannerCommon
+		obtenerCotizacionBannerCommon,
+		reporteCajeroVentaCommon,
+		busquedaCajeroCommon
 		};
