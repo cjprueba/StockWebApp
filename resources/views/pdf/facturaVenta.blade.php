@@ -4,35 +4,27 @@
     <title>BOLETA DE VENTA</title>
     <style type="text/css">
     body{
-        font-size: 12px;
+        font-size: 15px;
         font-family: "Arial";
     }
     table{
         border-collapse: collapse;
     }
     td{
-        padding: 2.8px 5px;
-        font-size: 8px;
-    }
-    .h1{
-        font-size: 21px;
-        font-weight: bold;
-    }
-    .h2{
-        font-size: 18px;
-        font-weight: bold;
+        padding: 1.85px 4px;
+        font-size: 11px;
     }
     .tabla1{
         margin-bottom: 3px;
     }
     .tabla2 {
-        padding-top: 80px;
+        padding-top: 92px;
         margin-bottom: 0px;
         padding-bottom: 0px;
     }
     .tabla3{
         border: 1px solid #000;
-        margin-top: 55px;
+        margin-top: 63px;
     }
     .tabla3 td{
         border: 1px solid #fff;
@@ -97,7 +89,7 @@
     }
 
     .tablaFooter {
-        margin-top: 30px;
+        margin-top: 33.5px;
     }
 
     .tablaFooter td {
@@ -105,7 +97,7 @@
     }
 
     .tablaFooter2 td {
-        border: 1px solid #fff;
+        margin-top: -20px;
     }
 
     @if($tipo=='fisico')
@@ -124,23 +116,23 @@
                 <td width="12%">Señor (es):</td>
                 <td width="36%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
                 <td width="5%">&nbsp;</td>
-                <td width="13%">&nbsp;</td>
+                <td width="14%">&nbsp;</td>
                 <td width="4%" align="left" class="border fondo"><span class="text">{{ $contado_x }}</span></td>
                 <td width="7%"></td>
-                <td width="7%" align="left"><span class="text">{{ $credito_x }}</span></td>
-                <td width="7%" ></td>
+                <td width="9%" align="left"><span class="text">{{ $credito_x }}</span></td>
+                <td width="4%" ></td>
             </tr>
         </table>
         <table width="100%" class="tablaRazon">
             <tr>
                 <td width="10%">Señor (es):</td>
                 <td width="38%" align="left"><span class="text">{{ $cliente }}</span></td>
-                <td width="9%">&nbsp;</td>
+                <td width="14%">&nbsp;</td>
                 <td width="9%"><span class="text">{{ $ruc }}</span></td>
                 <td width="13%">&nbsp;</td>
                 <td width="7%" ><span class="text"></span></td>
-                <td width="7%"></td>
-                <td width="7%"></td>
+                <td width="4%"></td>
+                <td width="5%"></td>
             </tr>
             <tr>
                 <td>Dirección:</td>
@@ -151,19 +143,20 @@
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
+               
             </tr>
         </table>
         <table width="100%" class="tabla3">
-            @for ($i = 0; $i < 10; $i++)
+            @for ($i = 0; $i < 9; $i++)
             @if (array_key_exists($i, $articulos))
             <tr>
-                <td width="11%" align="center"><span class="text">{{ $articulos[$i]['cod_prod']}}</span></td>
-                <td width="6%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="31%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td width="11%" align="left"><span class="text">{{ $articulos[$i]['cod_prod']}}</span></td>
+                <td width="8%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
+                <td width="32%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
                 <td width="10%" align="left"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
                 <td width="10%" align="center"><span class="text">{{ $articulos[$i]['exentas'] }}</span></td>
-                <td width="11%" align="center"><span class="text">{{ $articulos[$i]['base5'] }}</span></td>
-                <td width="21%" align="left"><span class="text">{{ $articulos[$i]['base10'] }}</span></td>
+                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['base5'] }}</span></td>
+                <td width="16%" align="left"><span class="text">{{ $articulos[$i]['base10'] }}</span></td>
             </tr>
             @else
             <tr>
@@ -177,39 +170,25 @@
             </tr>
             @endif
             @endfor
-            <!-- <tr>
-                <td style="border:0;">&nbsp;</td>
-                <td style="border:0;">&nbsp;</td>
-                <td align="right"><strong>TOTAL S/.</strong></td>
-                <td align="right"><span class="text">{{ $total }}</span></td>
-            </tr> -->
-            <!-- <tr>
-                <td style="border:0;">&nbsp;</td>
-                <td align="center" style="border:0;">
-                    <table width="200" border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td align="center" class="cancelado">CANCELADO</td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="border:0;">&nbsp;</td>
-                <td align="center" style="border:0;" class="emisor"><strong>EMISOR</strong></td>
-            </tr> -->
         </table>
+
+
+
+
+
         <table width="100%" class="tablaFooter">
             <tr>
-                <td width="20%" align="center"></td>
-                <td width="60%" align="left"><span class="text">{{ $letra }}</span></td>
-                <td width="20%" align="left"><span class="text">{{ $total }}</span></td>
+                <td width="15%" align="center"></td>
+                <td width="70%" align="left"><span class="text">{{ $letra }}</span></td>
+                <td width="15%" align="left"><span class="text">{{ $total }}</span></td>
             </tr>
         </table>
         <table width="100%" class="tablaFooter2">
             <tr>
-                <td width="20%" align="center"></td>
-                <td width="14%" align="left"><span class="text">{{ $base5 }}</span></td>
+                <td width="23%"></td>
+                <td width="15%" align="left"><span class="text">{{ $base5 }}</span></td>
                 <td width="21%" align="left"><span class="text">{{ $base10 }}</span></td>
-                <td width="19%" align="left"><span class="text">{{ $iva }}</span></td>
-                <td width="23%" align="right"><span class="text"></span></td>
+                <td width="41%" align="left"><span class="text">{{ $iva }}</span></td>
             </tr>
         </table>
     </div>
