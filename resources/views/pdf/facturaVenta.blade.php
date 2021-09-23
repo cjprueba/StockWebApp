@@ -126,19 +126,19 @@
         <table width="100%" class="tablaRazon">
             <tr>
                 <td width="10%">Señor (es):</td>
-                <td width="38%" align="left"><span class="text">{{ $cliente }}</span></td>
-                <td width="14%">&nbsp;</td>
-                <td width="9%"><span class="text">{{ $ruc }}</span></td>
+                <td width="41%" align="left"><span class="text">{{ $cliente }}</span></td>
+                <td width="11%">&nbsp;</td>
+                <td width="12%"><span class="text">{{ $ruc }}</span></td>
                 <td width="13%">&nbsp;</td>
                 <td width="7%" ><span class="text"></span></td>
                 <td width="4%"></td>
-                <td width="5%"></td>
+                <td width="2%"></td>
             </tr>
             <tr>
                 <td>Dirección:</td>
                 <td ><span class="text">{{ $direccion }}</span></td>
                 <td>&nbsp;</td>
-                <td width="9%"><span class="text">{{ $telefono }}</span></td>
+                <td width="12%"><span class="text">{{ $telefono }}</span></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
