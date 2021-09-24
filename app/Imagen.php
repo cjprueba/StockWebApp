@@ -195,11 +195,19 @@ class Imagen extends Model
 
         try {
             
+            
             /*  --------------------------------------------------------------------------------- */
 
             $file = '../storage/app/public/imagenes/productos/'.$data["COD_PROD"].'.jpg';
-            $handle=fopen($file, 'a+');
-            fwrite($handle, base64_decode($data["PICTURE"]));
+          
+           
+                $handle=fopen($file, 'w');
+                fwrite($handle, base64_decode($data["PICTURE"]));
+                // file was successfully deleted
+         
+              
+           
+           
 
             /*  --------------------------------------------------------------------------------- */
 
