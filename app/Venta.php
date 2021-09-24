@@ -6112,8 +6112,7 @@ class Venta extends Model
                 VENTAS.TOTAL AS TOTAL,
                 VENTAS.ID AS ID'))
             ->Where('VENTAS.ID','=',$datos['data']['id_venta'])
-            ->get()
-            ->toArray();
+            ->get();
             
             if(count($venta) <= 0){
                return ["response" => false, 'status_text' => "No existe la venta seleccionada"];
@@ -6178,8 +6177,7 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->where('VENTASDET.DESCRIPCION', 'NOT LIKE', 'DESCUENTO%')
-            ->get()
-            ->toArray();
+            ->get();
 
             foreach ($venta as $key => $value) {
 
@@ -6190,9 +6188,9 @@ class Venta extends Model
                 ->delete();
             }
             
-            $ventas = Venta::where('CODIGO', $datos['data']['codigo'])
-            ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
-            ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
+            $ventas = Ventas_det::where('CODIGO', $datos['data']['codigo'])
+            ->Where('CAJA','=',$datos['data']['caja'])
+            ->Where('ID_SUCURSAL','=',$user->id_sucursal) 
             ->update([
                 'ANULADO' => 1,
                 'FECMODIF' => $dia,
