@@ -32,9 +32,15 @@
 							<input  type="checkbox" class="custom-control-input" id="customSwitch2" v-model="onGondola" v-on:change="seleccionarTodo">
 							<label class="custom-control-label" for="customSwitch2">Seleccionar todos</label>
 
+							
+						</div>
+						<div class="custom-control custom-switch mt-1">
 							<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_stock">
 							<label class="custom-control-label" for="customControlAutosizing" data-toggle="tooltip" data-placement="top" title="Cuando activas esta opcion muestra los productos con Stock en las gondolas, Si la desactivas te mostrara los productos sin Stock de las Gondolas">Stock</label>
+
+							
 						</div>
+						
 		            </div>
 				</div>
 				
