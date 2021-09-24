@@ -3,7 +3,7 @@
 	<div class="col-9">
 
 		<div class="card mt-4 ml-4 shadow border-bottom-primary" v-if="$can('reporte.venta.cajero')">
-		  	<div class="card-header">HOLA</div>
+		  	<div class="card-header">Tickets por cajero</div>
 		  	<div class="card-body">
 		  		<div class="col-12">
 					<div class="row">
