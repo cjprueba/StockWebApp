@@ -419,6 +419,16 @@ Route::get('generarDeliveryDatatable', 'ServicioController@generarRptDelivery');
 
 /* -------------------------------------------------------------------------- */
 
+// CAJERO
+Route::post('cajeros', 'CajeroController@mostrar');
+Route::post('/cajero/datatable', 'CajeroController@datatable');
+Route::post('busquedaCajero', 'CajeroController@cajeroBusqueda');
+Route::post('ventaCajeroDatatable', 'CajeroController@generarVentaCajero');
+
+Route::post('pdf-rptCajero', 'CajeroController@reporteCajero');
+
+/* -------------------------------------------------------------------------- */
+
 //	PARAMETROS
 
 Route::get('parametro', 'ParametroController@mostrar');
