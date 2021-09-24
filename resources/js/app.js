@@ -404,7 +404,9 @@ Vue.component('venta-tarjeta-rpt' , require('./components/reportes/VentaTarjeta.
 Vue.component('productos-salida-rpt', require('./components/reportes/producto/Salida/SalidaDeProductoRpt.vue').default);
 Vue.component('compra-entrada-rpt', require('./components/reportes/compra/Entrada/EntradaCompra.vue').default);
 Vue.component('inventario-seccion-rpt', require('./components/reportes/producto/Inventario/ReporteInventarioSeccion.vue').default);
+Vue.component('gondola-producto-rpt', require('./components/reportes/producto/Gondola/ReporteProductosEnGondola.vue').default);
 Vue.component('venta-cajero-rpt', require('./components/reportes/venta/Cajero/CajeroTicket.vue').default);
+
 
 
 
