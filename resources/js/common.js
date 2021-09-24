@@ -3076,6 +3076,7 @@ function obtenerGondolaCommon(){
 
 }
 
+
 function obtenerGondolasProductoCommon(codigo){
 
 			// ------------------------------------------------------------------------
@@ -7279,6 +7280,25 @@ function obtenerCotizacionBannerCommon(sucursal){
 
 	// ------------------------------------------------------------------------
 }
+function obtenerGondolasEncargadaSeccionCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.get('/gondola/encargada/seccion').then(function (response) {
+					return response.data.gondolas;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
 
 
 // ------------------------------------------------------------------------
@@ -7588,6 +7608,8 @@ export {
 		obtenerSucursalesInventarioCommon,
 		generarReporteInventarioSeccionCommon,
 		obtenerCotizacionBannerCommon,
+		obtenerGondolasEncargadaSeccionCommon,
 		reporteCajeroVentaCommon,
 		busquedaCajeroCommon
+
 		};
