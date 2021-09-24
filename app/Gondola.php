@@ -648,6 +648,37 @@ blob:https://web.whatsapp.com/3c60c7d0-5c70-40fc-93b4-53017c2e03ef
          }
          return;
       }
+     public static function obtener_gondolas_encargada()
+    {
 
+        /*  --------------------------------------------------------------------------------- */
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER TODAS LAS GONDOLAS
+        $gondolas=Gondola::Select(Db::raw('GONDOLAS.ID, GONDOLAS.CODIGO, GONDOLAS.DESCRIPCION'))
+        ->Rightjoin('Gondola_Tiene_Seccion','Gondola_Tiene_Seccion.ID_GONDOLA','=','GONDOLAS.ID')
+        ->Rightjoin('USERS_TIENE_SECCION','USERS_TIENE_SECCION.FK_SECCION','=','Gondola_Tiene_Seccion.ID_SECCION')
+        ->where('GONDOLAS.ID_SUCURSAL','=',$user->id_sucursal)
+        ->where('USERS_TIENE_SECCION.FK_USER','=',$user->id)
+        ->orderby(DB::raw('TRIM(GONDOLAS.DESCRIPCION)'))
+        ->get();
+       
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // RETORNAR EL VALOR
+
+        if ($gondolas) {
+            return ['gondolas' => $gondolas];
+        } else {
+            return ['gondolas' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
     
 }
