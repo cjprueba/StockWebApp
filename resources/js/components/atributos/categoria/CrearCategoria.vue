@@ -21,7 +21,7 @@
           <div class="row">
 
             <div class="col-12">
-              <categoria-nombre ref="componente_textbox_categoria" @nombre_categoria='enviar_nombre' @existe_categoria='existe' :nombre='nombreCategoria' :validarCategoria='validarCategoria' @marcados_traer='marcados_traer' @marcaMarcados_traer='marcadosMarca_traer' @id='enviar_id' @descripcion='traer_descripcion'></categoria-nombre>
+              <categoria-nombre ref="componente_textbox_categoria" @nombre_categoria='enviar_nombre' @existe_categoria='existe' :nombre='nombreCategoria' :validarCategoria='validarCategoria' @marcados_traer='marcados_traer' @marcaMarcados_traer='marcadosMarca_traer' @id='enviar_id' @traer_Descripcion='traer_descripcion' @traer_Marca='traer_marca' @traer_Color='traer_color' @traer_Genero='traer_genero' @traer_Talle='traer_talle' @traer_Tela='traer_tela' @traer_Temporada='traer_temporada'></categoria-nombre>
             </div>   
               <div class="col-12">
 
@@ -108,39 +108,72 @@
 
 
 
-
-                  <hr>
-  <div  class="col-3 mt-3 text-right">
-                  <div class="btn-group" role="group">
-                 
-                   
-                 
-      <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" v-bind:class="{ 'text-danger': validarMarcados}"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-       Asignar
-      </button>
-      <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target=".subcategoria-modal" v-bind:class="{ 'text-danger': validarSubMarcados }">Subcategorias</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target=".Marca-modal" v-bind:class="{ 'text-danger': validarMarcaMarcados }">Marcas</a>
-      </div>
-    </div>
-         </div>           <div  class="col-3 mt-3 text-right">
-                       <button v-on:click="nuevaCategoria" type="submit" class="btn btn-primary">Nuevo(F2)</button>
-                    </div>
-                     
-                      
-                    <div v-if='guardar' class="col-3 mt-3 float-center">
-                       <button v-on:click="guardarCategoria" type="submit" class="btn btn-primary">Guardar(F3)</button>
-                    </div>
-                     <div v-else class="col-3 mt-3 float-center">
-                       <button v-on:click="guardarCategoria" type="submit" class="btn btn-warning">Editar(F3)</button>
-                    </div>
+          <div class=" mt-2 row col-12">
+                <div class=" ml-3 form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox1"  v-model="atribMarca"  value=1>
+                  <label class="form-check-label" for="inlineCheckbox1" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar una marca al momento de Registrar el Producto">MARCA</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox2" v-model="atribColor" value=1>
+                  <label class="form-check-label" for="inlineCheckbox2" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar un color al momento de Registrar el Producto">COLOR</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox3"  v-model="atribTalle"  value=1 >
+                  <label class="form-check-label" for="inlineCheckbox3" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar una talla (tamañp) al momento de Registrar el Producto">TALLE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox4"  v-model="atribGenero"  value=1 >
+                  <label class="form-check-label" for="inlineCheckbox4" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar un Genero al momento de Registrar el Producto">GENERO</label>
+                </div>
+                <div class=" form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox5"  v-model="atribTela"  value=1 >
+                  <label class="form-check-label" for="inlineCheckbox5" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar una Tela al momento de Registrar el Producto">TELA  </label>
+                </div>
                 
+          </div>
+          <div class=" mt-1 row col-12">
 
-                      <div  class="col-3 mt-3 text-right">
-                       <button v-on:click="eliminarCategoria" type="submit" class="btn btn-danger">Eliminar(F6)</button>
-                    </div>
+                <div class=" ml-3 form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox6"  v-model="atribTemporada"  value=1 >
+                        <label class="form-check-label" for="inlineCheckbox6" title="Esta opción si esta activada es para que en Registro de productos puedas seleccionar una Temporada al momento de Registrar el Producto">TEMPORADA</label>
+                </div>
+          </div>
+
+
+         
+              <div  class="col-3 mt-3 text-right">
+                 <div class="btn-group" role="group">
+                        
+                          
+                        
+                     <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" v-bind:class="{ 'text-danger': validarMarcados}"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Asignar
+                     </button>
+                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                       <a class="dropdown-item" href="#" data-toggle="modal" data-target=".subcategoria-modal" v-bind:class="{ 'text-danger': validarSubMarcados }">Subcategorias</a>
+                       <a class="dropdown-item" href="#" data-toggle="modal" data-target=".Marca-modal" v-bind:class="{ 'text-danger': validarMarcaMarcados }">Marcas</a>
+                     </div>
+                  </div>
+              </div> 
+
+              <div  class="col-3 mt-3 text-right">
+                    <button v-on:click="nuevaCategoria" type="submit" class="btn btn-primary">Nuevo(F2)</button>
+              </div>   
+                          
+              <div v-if='guardar' class="col-3 mt-3 float-center">
+                   <button v-on:click="guardarCategoria" type="submit" class="btn btn-primary">Guardar(F3)</button>
+              </div>
+
+              <div v-else class="col-3 mt-3 float-center">
+                   <button v-on:click="guardarCategoria" type="submit" class="btn btn-warning">Editar(F3)</button>
+              </div>
+                    
+
+              <div  class="col-3 mt-3 text-right">
+                   <button v-on:click="eliminarCategoria" type="submit" class="btn btn-danger">Eliminar(F6)</button>
+              </div>
                      
-
+        
 
 
 
@@ -192,7 +225,13 @@
           info2:"",
           array_marcados: [],
           nuevoMarcados: [],
-          marcadosMarca:[]
+          marcadosMarca:[],
+          atribMarca:0,
+          atribGenero:0,
+          atribTalle:0,
+          atribColor:0,
+          atribTemporada:0,
+          atribTela:0
         }
       }, 
       methods: {
@@ -202,6 +241,7 @@
            if(data===false){
              this.guardar=true;
              this.descripcionCategoria="";
+             this.limpiar();
 
            }else{
              this.guardar=false;
@@ -209,9 +249,40 @@
           
 
         },
-           traer_descripcion(data){
-          
+        traer_descripcion(data){
+         
          this.descripcionCategoria=data;
+
+
+        },
+        traer_color(data){
+          
+         this.atribColor=data;
+
+        },
+        traer_genero(data){
+          
+         this.atribGenero=data;
+
+        },
+        traer_marca(data){
+          
+         this.atribMarca=data;
+
+        },
+        traer_talle(data){
+          
+         this.atribTalle=data;
+
+        },
+        traer_tela(data){
+          
+         this.atribTela=data;
+
+        },
+        traer_temporada(data){
+          
+         this.atribTemporada=data;
 
         },
           marcados_traer(data){
@@ -226,7 +297,7 @@
             this.validarMarcados=true;
             this.validarSubMarcados=true;
          }
-         console.log(this.nuevoMarcados);
+        /* console.log(this.nuevoMarcados);*/
          this.Marcar();
         },
           marcadosMarca_traer(data){
@@ -241,19 +312,23 @@
             this.validarMarcados=true;
             this.validarMarcaMarcados=true;
          }
-         console.log(this.marcadosMarca);
+         /*console.log(this.marcadosMarca);*/
          this.MarcarMarca();
         },
         nuevaCategoria(){
           let me=this;
+          me.nombreCategoria='';
           me.nuevoMarcados=[];
           me.marcadosMarca=[];
+
+           me.limpiar();
           $('.call-checkbox').prop('checked', false);
         Common.nuevaCategoriaCommon().then(data => {
               me.nombreCategoria =data.categoria[0].CODIGO+1;
               me.guardar = true;    
+            
               });
-         me.limpiar();
+        
         },
          traer_descuento(data){
          this.descuento=data;
@@ -287,7 +362,7 @@
            
 
              me.marcadosMarca.map(function (x) {
-             console.log(x);
+           /*  console.log(x);*/
               $("#"+x).prop('checked', true);
             });
                              
@@ -300,8 +375,14 @@
         limpiar(){
          
           let me =this;
-          me.nombreCategoria="";
+         
           me.descripcionCategoria="";
+          me.atribTemporada=0;
+          me.atribTela=0;
+          me.atribTalle=0;
+          me.atribMarca=0;
+          me.atribColor=0;
+          me.atribGenero=0;
         },
 
         Eliminar_Array(element){
@@ -367,7 +448,9 @@ if (this.marcadosMarca.length > 0) {
               //console.log("este es nuevo marcados");
               //console.log(this.nuevoMarcados);
               //return;
-             let me =this;
+               let me =this;
+              
+            
              if(me.nombreCategoria===""){
                
               me.validarCategoria=true;
@@ -399,14 +482,28 @@ if (this.marcadosMarca.length > 0) {
               me.validarMarcados=false;
               me.validarMarcaMarcados=false;
              }
+            
+
 
              var data = {
               Codigo:me.nombreCategoria,
               Descripcion:me.descripcionCategoria,
               Existe:me.existeCategoria,
               Marcados:me.nuevoMarcados,
-              MarcaMarcados:me.marcadosMarca
+              MarcaMarcados:me.marcadosMarca,
+              AtribMarca:me.atribMarca,
+              AtribColor:me.atribColor,
+              AtribGenero:me.atribGenero,
+              AtribTela:me.atribTela,
+              AtribTalle:me.atribTalle,
+              AtribTemporada:me.atribTemporada
              }
+              /*console.log("Marca: "+me.atribMarca);
+             console.log("Genero: "+me.atribGenero);
+             console.log("Tela: "+me.atribTela);
+             console.log("Talle: "+me.atribTalle);
+             console.log("Temporada: "+me.atribTemporada);
+              console.log("Color: "+me.atribColor);*/
 
               Common.guardarCategoriaCommon(data).then(data => {
                if(data.response===true){
@@ -415,12 +512,14 @@ if (this.marcadosMarca.length > 0) {
                      'Se ha guardado correctamente la Categoria!!!',
                      'success'
                   )
+                    me.nuevaCategoria();
                }else{
                 Swal.fire(
                      'Error!!',
                      data.statusText,
                      'warning'
                   )
+                  me.nuevaCategoria();
                }
            
            			
@@ -428,8 +527,11 @@ if (this.marcadosMarca.length > 0) {
                 console.log(err);
                 this.mostrar_error = true;
                 this.mensaje = err;
+                
               });
-              me.limpiar();
+            /*  me.limpiar();*/
+
+
       	},
                 eliminarCategoria(){
 
@@ -472,31 +574,6 @@ if (this.marcadosMarca.length > 0) {
               
               me.limpiar();
               me.nuevaCategoria();
-        },
-       Accesos(){
-        let me =this;
-          
-         if(me.radioPermisos==="1"){
-
-              me.deshabilitar=true;
-              me.permisos.map(function(x) {
-                 me.permisosSelected.push(x.id);
-              });
-
-
-         }else{
-
-          if(me.radioPermisos==="2"){
-             me.permisosSelected=[];
-             me.deshabilitar=true;
-          }else{ 
-
-            me.deshabilitar=false;
-
-          }
-
-         }
-          
         }
          
        },

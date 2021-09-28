@@ -43,7 +43,7 @@ class Categoria extends Model
         /*  --------------------------------------------------------------------------------- */
      
         // OBTENER TODOS LOS DATOS DEL TALLE
-        $categoria = Categoria::select(DB::raw('CODIGO, DESCRIPCION'))->Where('CODIGO','=',$datos['id'])->get()->toArray();
+        $categoria = Categoria::select(DB::raw('CODIGO, DESCRIPCION, IFNULL(ATRIBTELA,0) AS ATRIBTELA, IFNULL(ATRIBCOLOR,0) AS ATRIBCOLOR, IFNULL(ATRIBTALLE,0) ATRIBTALLE, IFNULL(ATRIBGENERO,0) AS ATRIBGENERO, IFNULL(ATRIBMARCA,0) AS ATRIBMARCA, IFNULL(ATRIBTEMPORADA,0) AS ATRIBTEMPORADA'))->Where('CODIGO','=',$datos['id'])->get()->toArray();
         if(count($categoria)<=0){
            return ["response"=>false];
         }
@@ -389,7 +389,20 @@ class Categoria extends Model
         /*  --------------------------------------------------------------------------------- */
          if($datos['data']['Existe']=== false){
          $categoria=Categoria::insertGetId(
-         ['DESCRIPCION'=> $datos['data']['Descripcion'], 'USER'=>$user->name,'FECALTAS'=>$dia,'HORALTAS'=>$hora]);
+         [
+          'DESCRIPCION'=> $datos['data']['Descripcion'],
+          'ATRIBCOLOR'=> $datos['data']['AtribColor'], 
+          'ATRIBGENERO'=> $datos['data']['AtribGenero'], 
+          'ATRIBTELA'=> $datos['data']['AtribTela'], 
+          'ATRIBTALLE'=> $datos['data']['AtribTalle'], 
+          'ATRIBMARCA'=> $datos['data']['AtribMarca'], 
+          'ATRIBTEMPORADA'=> $datos['data']['AtribTemporada'], 
+          'USER'=>$user->name,
+          'FECALTAS'=>$dia,
+          'HORALTAS'=>$hora,
+          'ID_SUCURSAL'=>$user->id_sucursal
+        ]);
+
          $codigo_categoria = $categoria;
   
           foreach ($datos['data']['Marcados'] as $key => $marcados) {
@@ -400,7 +413,7 @@ class Categoria extends Model
  
          
           }
-                    foreach ($datos['data']['MarcaMarcados'] as $key => $marcados) {
+          foreach ($datos['data']['MarcaMarcados'] as $key => $marcados) {
 
 
                  $categoriaporMarca=DB::connection('retail')->table('lineas_tiene_marcas')->insertGetId(
@@ -412,7 +425,18 @@ class Categoria extends Model
         }else{
              //LINEAS UPDATE
             $categoria=Categoria::where('CODIGO', $codigo_categoria)
-            ->update(['DESCRIPCION'=> $datos['data']['Descripcion'], 'USERM'=>$user->name,'FECMODIF'=>$dia,'HORMODIF'=>$hora]);
+            ->update([
+              'DESCRIPCION'=> $datos['data']['Descripcion'], 
+              'ATRIBCOLOR'=> $datos['data']['AtribColor'], 
+              'ATRIBGENERO'=> $datos['data']['AtribGenero'], 
+              'ATRIBTELA'=> $datos['data']['AtribTela'], 
+              'ATRIBTALLE'=> $datos['data']['AtribTalle'], 
+              'ATRIBMARCA'=> $datos['data']['AtribMarca'], 
+              'ATRIBTEMPORADA'=> $datos['data']['AtribTemporada'], 
+              'USERM'=>$user->name,
+              'FECMODIF'=>$dia,
+              'HORMODIF'=>$hora
+            ]);
             // ------------------------------------------------------------------------
             //LINEAS_TIENE_SUBLINEAS UPDATE ACTIVOS
 
