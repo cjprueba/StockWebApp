@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Log;
 class Venta extends Model
 {
     protected $connection = 'retail';
+    protected $table = 'ventas';
     public $timestamps = false;
 
     public static function ventas($fecha){
@@ -9400,9 +9401,9 @@ class Venta extends Model
                 $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
                      ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
                 })
-             ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
-             ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
-             ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+            ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+            ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
+            ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->Where('LOTES.ID_SUCURSAL', '=', $datos["datos"]["Sucursal"])
         ->where(DB::raw('(SELECT MAX(L6.FECMODIF) AS ULT_FECHA FROM LOTES AS L6 WHERE L6.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L6.COD_PROD=LOTES.COD_PROD)'), '<', $inicio)
         ->whereNotBetween(DB::raw('(SELECT MAX(L3.FECMODIF) AS ULT_FECHA FROM LOTES AS L3 WHERE L3.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L3.COD_PROD=LOTES.COD_PROD)'), [$inicio, $final]);
