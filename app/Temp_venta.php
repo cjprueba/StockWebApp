@@ -427,14 +427,14 @@ class Temp_venta extends Model
 					         	})
 					           
 					            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
-					             ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
+					            ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
 					            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
 					            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
 					            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 					            ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
 					            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 					            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
-					             ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+					             ->leftjoin('VENTAS','VENTAS.ID','=','VENTASDET.FK_VENTA')
 					                        /* ->leftjoin('VENTAS',function($join){
 					             $join->on('VENTAS.CODIGO','=','VENTASDET.CODIGO')
 					             ->on('VENTAS.CAJA','=','VENTASDET.CAJA')
@@ -518,6 +518,7 @@ class Temp_venta extends Model
 				                $value->MARCA=' ';
 				             }
 
+
 	         	  		$nestedDataNC['COD_PROD'] = $value->COD_PROD;
 						$nestedDataNC['VENDIDO'] =-$value->VENDIDO;
 					    $nestedDataNC['CATEGORIA'] =$value->CATEGORIA;
@@ -555,7 +556,9 @@ class Temp_venta extends Model
          }
           foreach (array_chunk($venta_nc,1000) as $t) {
                      Temp_venta::insert($t);
-           } 
+           }
+           /*Temp_venta::nota_credito_venta_credito($datos);
+		   Temp_venta::venta_credito_cobrados($datos); */
 
            	     		if(isset($datos["gondolas"])){
 	            		Temp_venta::nota_credito_venta_credito($datos);
@@ -1023,16 +1026,18 @@ class Temp_venta extends Model
 		            DB::raw('IFNULL(LINEAS.CODIGO,0) AS LINEA_CODIGO'),
 		            DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'),
 		            DB::raw('IFNULL(VENTASDET_DESCUENTO.PORCENTAJE,0) AS DESCUENTO_PORCENTAJE'))
-		            ->whereBetween('VENTAS_CREDITO.FECHA_CANCELACION', [$datos["inicio"], $datos["final"] ])
+		           ->whereBetween(DB::raw('DATE(VENTAS_CREDITO.FECHA_CANCELACION)'), array($datos["inicio"], $datos["final"]))
+/*		            ->whereBetween('VENTAS_CREDITO.FECHA_CANCELACION', [$datos["inicio"], $datos["final"] ])*/
 					->where('VENTAS_CREDITO.SALDO','=',0)
 					->Where('VENTAS.ID_SUCURSAL','=',$datos["sucursal"]) 
 			        ->Where('VENTASDET.ANULADO','<>',1)
-			        ->orderby('VENTASDET.COD_PROD')->get()->toArray();
-		           /*if(isset($datos ["checkedMarca"])){
+			        ->orderby('VENTASDET.COD_PROD');/*->get()->toArray()*/;
+			        /*log::error(["venta"=>$reporte]);*/
+		          /* if(isset($datos ["checkedMarca"])){
 			        	if(!$datos ["checkedMarca"]){
 			        	$reporte->whereIn('PRODUCTOS.MARCA', $datos["marcas"]);
 			       		}
-			        }
+			        }*/
 			        if(isset($datos["checkedCategoria"])){
 			        	if(!$datos["checkedCategoria"]){
 			        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
@@ -1049,7 +1054,8 @@ class Temp_venta extends Model
 			        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
 			            
 			        }
-			        if(isset($datos["gondolas"])){
+			         $reporte=$reporte->get()->toArray();
+/*			        if(isset($datos["gondolas"])){
 			        	$reporte->leftjoin('gondola_tiene_productos','gondola_tiene_productos.FK_PRODUCTOS_AUX','=','PRODUCTOS_AUX.ID') 
 			        	->leftjoin('GONDOLAS','GONDOLAS.ID','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
 		           		->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
@@ -1269,7 +1275,25 @@ class Temp_venta extends Model
 					->WHERE('VENTAS.TIPO','=','CR')
 					->whereBetween('NOTA_CREDITO.FECMODIF', [$datos["inicio"], $datos["final"] ])
 					->Where('NOTA_CREDITO_DET.ID_SUCURSAL','=',$datos["sucursal"]) 
-					->orderby('VENTASDET.COD_PROD')->get()->toArray();
+					->orderby('VENTASDET.COD_PROD');
+					if(isset($datos["checkedCategoria"])){
+			        	if(!$datos["checkedCategoria"]){
+			        	$reporte->whereIn('PRODUCTOS.LINEA',$datos["linea"]);
+			        	}
+			        }
+			        
+			        if(isset($datos["checkedProveedor"])){
+			        	if(!$datos["checkedProveedor"]){
+			        		$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+			            }
+			        }
+			        if(isset($datos["tipos"])){
+			        
+			        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
+			            
+			        }
+			         $reporte=$reporte->get()->toArray();
+					/*->get()->toArray();*/
 					$venta_nc=array();
 
 			

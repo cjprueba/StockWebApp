@@ -1,333 +1,338 @@
 <template>
 	<!-- ******************************************************************* -->
 
-		<!-- MODAL DETALLE PRODUCTO -->
-		<div class="container-fluid">
-				<div class="modal fade modal-detalle" tabindex="-1" role="dialog"  aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle"><small>Detalle</small></h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        	<div class="row">
-			                    <div class="col-md-4">
-			                        <div class="profile-img">
-			                        	<span v-on:click="agrandarImagen" v-html="producto.IMAGEN"></span>
-			                            <!-- <img id="myImg" :src="producto.IMAGEN" alt="" class="img-thumbnail"/> -->
+	<!-- MODAL DETALLE PRODUCTO -->
+	<div class="container-fluid">
+		<div class="modal fade modal-detalle" tabindex="-1" role="dialog"  aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+		    <div class="modal-content">
+		      	<div class="modal-header">
+		        	<h5 class="modal-title" id="exampleModalCenterTitle"><small>Detalle</small></h5>
+		        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          		<span aria-hidden="true">&times;</span>
+		        	</button>
+		     	</div>
+		      	<div class="modal-body">
+		        	<div class="row">
+	                    <div class="col-md-4">
+	                        <div class="profile-img">
+	                        	<span v-on:click="agrandarImagen" v-html="producto.IMAGEN"></span>
+	                            <!-- <img id="myImg" :src="producto.IMAGEN" alt="" class="img-thumbnail"/> -->
+	                        </div>
+	                        <div class="row">
+	                        	<div class="col-md-12">
+			                        <div class="profile-work">
+			                            <p>PRECIOS</p>
+			                            <span class="detalle"><strong>Venta:</strong> <span class="float-right">{{producto.PREC_VENTA}} </span></span><br/>
+			                            <span class="detalle"><strong>Mayorista:</strong> <span class="float-right">{{producto.PREMAYORISTA}}</span></span><br/>
+			                            <span class="detalle"><strong>VIP:</strong> <span class="float-right">{{producto.PREVIP}} </span></span><br/>
+			                            <span class="detalle"><strong>Costo:</strong> <span class="float-right">{{producto.PRECOSTO}} </span></span>
+			                            <p>FECHAS</p>
+			                            <span class="detalle"><strong>Creación:</strong> <span class="float-right">{{producto.FECALTAS}} </span></span><br/>
+			                            <span class="detalle"><strong>Modificación:</strong> <span class="float-right">{{producto.FECMODIF}} </span></span><br/>
+			                            <span class="detalle"><strong>Ult. Venta:</strong> <span class="float-right">{{producto.FECHULT_V}}</span></span><br/>
+			                            <span class="detalle"><strong>Ult. Compra:</strong> <span class="float-right">{{producto.FECHULT_C}}</span></span>
+			                            <p>STOCK</p>
+			                            <span class="detalle"><strong>Minimo:</strong> <span class="float-right">{{producto.STOCK_MIN}} </span></span><br/>
+			                            <span class="detalle"><strong>Máximo:</strong> <span class="float-right">2,000</span></span><br/>
+			                            <table class="table-borderless detalle">
+											<tr v-for="deposito in deposito" >
+												<td align="left" width="100%"><strong>{{deposito.DESCRIPCION}}</strong></td>
+												<td align="right">{{deposito.CANTIDAD}}</td>
+											</tr>
+										</table>
 			                        </div>
-			                        <div class="row">
-			                        	<div class="col-md-12">
-					                        <div class="profile-work">
-					                            <p>PRECIOS</p>
-					                            <span class="detalle"><strong>Venta:</strong> <span class="float-right">{{producto.PREC_VENTA}} </span></span><br/>
-					                            <span class="detalle"><strong>Mayorista:</strong> <span class="float-right">{{producto.PREMAYORISTA}}</span></span><br/>
-					                            <span class="detalle"><strong>VIP:</strong> <span class="float-right">{{producto.PREVIP}} </span></span><br/>
-					                            <span class="detalle"><strong>Costo:</strong> <span class="float-right">{{producto.PRECOSTO}} </span></span>
-					                            <p>FECHAS</p>
-					                            <span class="detalle"><strong>Creación:</strong> <span class="float-right">{{producto.FECALTAS}} </span></span><br/>
-					                            <span class="detalle"><strong>Modificación:</strong> <span class="float-right">{{producto.FECMODIF}} </span></span><br/>
-					                            <span class="detalle"><strong>Ult. Venta:</strong> <span class="float-right">{{producto.FECHULT_V}}</span></span><br/>
-					                            <span class="detalle"><strong>Ult. Compra:</strong> <span class="float-right">{{producto.FECHULT_C}}</span></span>
-					                            <p>STOCK</p>
-					                            <span class="detalle"><strong>Minimo:</strong> <span class="float-right">{{producto.STOCK_MIN}} </span></span><br/>
-					                            <span class="detalle"><strong>Máximo:</strong> <span class="float-right">2,000</span></span><br/>
-					                            <table class="table-borderless detalle">
-													<tr v-for="deposito in deposito" >
-														<td align="left" width="100%"><strong>{{deposito.DESCRIPCION}}</strong></td>
-														<td align="right">{{deposito.CANTIDAD}}</td>
-													</tr>
+	                    		</div>
+	                        </div>	
+	                    </div>
+	                    <div class="col-md-8">
+	                        <div class="profile-head">
+                                <h5>
+                                    {{codigo}}
+                                </h5>
+                                <h6>
+                                    {{producto.DESCRIPCION}}
+                                </h6>
+                                <h6>
+                                   <span v-html="producto.BAJA"></span>
+                                </h6>
+                                <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span> 
+                                </p>
+	                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+	                                <li class="nav-item">
+	                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Info</a>
+	                                </li>
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="lotes-tab" data-toggle="tab" href="#lotes" role="tab" aria-controls="lotes" aria-selected="true" v-on:click="obtenerLotes" :selected="seleccion.lotes">Lotes</a>
+	                                </li>
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true" v-on:click="obtenerGondolas">Góndolas</a>
+	                                </li>
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="true" v-on:click="obtenerProveedores">Compras</a>
+	                                </li>
+	                                <!-- <li class="nav-item">
+	                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>aria-controls="movivmientos" aria-selected="true" v-on:click="obtenerMovimientosProductos" :selected="seleccion.movimientos"
+	                                </li> -->
+	                                <!-- <li class="nav-item">
+	                                    <a class="nav-link" id="ubicacion-tab" data-toggle="tab" href="#ubicacion" role="tab" aria-controls="ubicacion" aria-selected="true" v-on:click="obtenerUbicacion">Ubicación</a>
+	                                </li> -->
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
+	                                </li>
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="movimientos-tab" data-toggle="tab" href="#movimientos" role="tab"  aria-controls="movimientos" aria-selected="true" v-on:click="obtenerMovimientosProductos">Movimientos</a>
+	                                </li>
+
+	                                <li class="nav-item">
+	                                    <a class="nav-link" id="inventarios-tab" data-toggle="tab" href="#inventarios" role="tab" aria-controls="inventarios" aria-selected="true" v-on:click="obtenerInventario">Inventarios</a>
+	                                </li>
+	                            </ul>
+	                            <div class="row">
+	                            	<div class="col-md-12">
+				                        <div class="tab-content informacion-tab" id="myTabContent">
+				                            <div class="tab-pane fade show active" id="informacion" role="tabpanel" aria-labelledby="informacion-tab">
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Código Interno</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.CODIGO_INTERNO}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Categoría</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.CATEGORIA}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Sub Categoría</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.SUBCATEGORIA}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Color</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.COLOR}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Temporada</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.TEMPORADA}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Periodo</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.PERIODO}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>IVA</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.IMPUESTO}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Cantidad Mayorista</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.CANT_MAYORISTA}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Unidad de Medida</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.PRESENTACION}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Moneda</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.MONEDA}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+		                                            <div class="col-md-6">
+		                                                <label>Descuento</label>
+		                                            </div>
+		                                            <div class="col-md-6">
+		                                                <p>{{producto.DESCUENTO}}</p>
+		                                            </div>
+		                                        </div>
+		                                        <div class="row">
+				                                    <div class="col-md-12">
+				                                        <label>Observación</label><br/>
+				                                        <p>{{producto.OBSERVACION}}</p>
+				                                    </div>
+				                                </div>
+				                            </div>
+				                            <div class="tab-pane fade" id="lotes" role="tabpanel" aria-labelledby="lotes-tab">
+
+		                            			<div v-if="loading.lotes" class="d-flex justify-content-center">
+										     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
+												</div>
+
+		                                        <table class="table" v-if="lotes.length > 0 && loading.lotes === false">
+												  <thead>
+												    <tr>
+												      <th scope="col">#</th>
+												      <th scope="col">Lote</th>
+												      <th scope="col">Inicial</th>
+												      <th scope="col">Existente</th>
+												      <th scope="col">Costo</th>
+												      <th scope="col">Creación</th>
+												      <th scope="col">Vencimiento</th>
+												    </tr>
+												  </thead>
+												  <tbody>
+												    <tr v-for="(lote, index) in lotes" class="cuerpoTabla">
+												      <th scope="row">{{index + 1}}</th>	
+												      <th>{{lote.LOTE}}</th>
+												      <td>{{lote.CANTIDAD_INICIAL}}</td>
+												      <td>{{lote.CANTIDAD}}</td>
+												      <td>{{lote.COSTO}}</td>
+												      <td>{{lote.FECALTAS}}</td>
+												      <td>{{lote.VENCIMIENTO}}</td>
+												    </tr>
+												  </tbody>
 												</table>
-					                        </div>
-			                    		</div>
-			                        </div>	
-			                    </div>
-			                    <div class="col-md-8">
-			                        <div class="profile-head">
-			                                    <h5>
-			                                        {{codigo}}
-			                                    </h5>
-			                                    <h6>
-			                                        {{producto.DESCRIPCION}}
-			                                    </h6>
-			                                    <h6>
-			                                       <span v-html="producto.BAJA"></span>
-			                                    </h6>
-			                                    <p class="proile-rating">STOCK : <span>{{producto.STOCK}}</span> 
-			                                    </p>
-			                            <ul class="nav nav-tabs" id="myTab" role="tablist">
-			                                <li class="nav-item">
-			                                    <a class="nav-link active" id="informacion-tab" data-toggle="tab" href="#informacion" role="tab" aria-controls="informacion" aria-selected="true" :selected="seleccion.informacion">Info</a>
-			                                </li>
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="lotes-tab" data-toggle="tab" href="#lotes" role="tab" aria-controls="lotes" aria-selected="true" v-on:click="obtenerLotes" :selected="seleccion.lotes">Lotes</a>
-			                                </li>
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true" v-on:click="obtenerGondolas">Góndolas</a>
-			                                </li>
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="proveedores-tab" data-toggle="tab" href="#proveedores" role="tab" aria-controls="proveedor" aria-selected="true" v-on:click="obtenerProveedores">Compras</a>
-			                                </li>
-			                                <!-- <li class="nav-item">
-			                                    <a class="nav-link" id="gondola-tab" data-toggle="tab" href="#gondola" role="tab" aria-controls="gondola" aria-selected="true">Depósitos</a>aria-controls="movivmientos" aria-selected="true" v-on:click="obtenerMovimientosProductos" :selected="seleccion.movimientos"
-			                                </li> -->
-			                                <!-- <li class="nav-item">
-			                                    <a class="nav-link" id="ubicacion-tab" data-toggle="tab" href="#ubicacion" role="tab" aria-controls="ubicacion" aria-selected="true" v-on:click="obtenerUbicacion">Ubicación</a>
-			                                </li> -->
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="transferencias-tab" data-toggle="tab" href="#transferencias" role="tab" aria-controls="transferencias" aria-selected="true" v-on:click="obtenerTransferenciaProductos" :selected="seleccion.transferencias">Transferencias</a>
-			                                </li>
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="movimientos-tab" data-toggle="tab" href="#movimientos" role="tab"  aria-controls="movimientos" aria-selected="true" v-on:click="obtenerMovimientosProductos">Movimientos</a>
-			                                </li>
 
-			                                <li class="nav-item">
-			                                    <a class="nav-link" id="inventarios-tab" data-toggle="tab" href="#inventarios" role="tab" aria-controls="inventarios" aria-selected="true" v-on:click="obtenerInventario">Inventarios</a>
-			                                </li>
-			                            </ul>
-			                            <div class="row">
-			                            	<div class="col-md-12">
-						                        <div class="tab-content informacion-tab" id="myTabContent">
-						                            <div class="tab-pane fade show active" id="informacion" role="tabpanel" aria-labelledby="informacion-tab">
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Código Interno</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.CODIGO_INTERNO}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Categoría</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.CATEGORIA}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Sub Categoría</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.SUBCATEGORIA}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Color</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.COLOR}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Temporada</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.TEMPORADA}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Periodo</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.PERIODO}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>IVA</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.IMPUESTO}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Cantidad Mayorista</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.CANT_MAYORISTA}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Unidad de Medida</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.PRESENTACION}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Moneda</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.MONEDA}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-						                                            <div class="col-md-6">
-						                                                <label>Descuento</label>
-						                                            </div>
-						                                            <div class="col-md-6">
-						                                                <p>{{producto.DESCUENTO}}</p>
-						                                            </div>
-						                                        </div>
-						                                        <div class="row">
-								                                    <div class="col-md-12">
-								                                        <label>Observación</label><br/>
-								                                        <p>{{producto.OBSERVACION}}</p>
-								                                    </div>
-								                                </div>
+												<div v-if="lotes.length === 0 && loading.lotes === false">
+													<div class="alert alert-primary" role="alert">
+													  <font-awesome-icon icon="info-circle" /> No hay lotes
+													</div>
+												</div>
+				                            </div>
+				                            <div class="tab-pane fade" id="gondola" role="tabpanel" aria-labelledby="gondola-tab">
+
+			                            		<div v-if="loading.gondolas" class="d-flex justify-content-center">
+											     	<div class="spinner-grow" role="status" aria-hidden="true"></div>
+												</div>
+
+												<div v-if="loading.gondolas === false">
+													<!-- TABLA DE GONDOLAS POR COMPRA  -->
+													<div class="col-md-6">
+						                                <label>POR PRODUCTO</label>
 						                            </div>
-						                            <div class="tab-pane fade" id="lotes" role="tabpanel" aria-labelledby="lotes-tab">
+			                                        <table class="table" v-if="gondolas.length > 0">
+													  <thead>
+													    <tr>
+													      <th scope="col">#</th>
+													      <th scope="col">Código</th>
+													      <th scope="col">Descripción</th>
+													      <th scope="col">Asignacion</th>
+													    </tr>
+													  </thead>
+													  <tbody>
+													    <tr v-for="(gondola, index) in gondolas" class="cuerpoTabla">
+													      <th scope="row">{{index + 1}}</th>	
+													      <th>{{gondola.ID}}</th>
+													      <td>{{gondola.DESCRIPCION}}</td>
+													      <td>{{gondola.FECALTAS}}</td>
+													    </tr>
+													  </tbody>
+													</table>
 
-						                            			<div v-if="loading.lotes" class="d-flex justify-content-center">
-														     		<div class="spinner-grow" role="status" aria-hidden="true"></div>
-																</div>
-
-						                                        <table class="table" v-if="lotes.length > 0 && loading.lotes === false">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Lote</th>
-																      <th scope="col">Inicial</th>
-																      <th scope="col">Existente</th>
-																      <th scope="col">Costo</th>
-																      <th scope="col">Creación</th>
-																      <th scope="col">Vencimiento</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="(lote, index) in lotes" class="cuerpoTabla">
-																      <th scope="row">{{index + 1}}</th>	
-																      <th>{{lote.LOTE}}</th>
-																      <td>{{lote.CANTIDAD_INICIAL}}</td>
-																      <td>{{lote.CANTIDAD}}</td>
-																      <td>{{lote.COSTO}}</td>
-																      <td>{{lote.FECALTAS}}</td>
-																      <td>{{lote.VENCIMIENTO}}</td>
-																    </tr>
-																  </tbody>
-																</table>
-
-																<div v-if="lotes.length === 0 && loading.lotes === false">
-																	<div class="alert alert-primary" role="alert">
-																	  <font-awesome-icon icon="info-circle" /> No hay lotes
-																	</div>
-																</div>
-						                            </div>
-						                            <div class="tab-pane fade" id="gondola" role="tabpanel" aria-labelledby="gondola-tab">
-
-						                            		  <div v-if="loading.gondolas" class="d-flex justify-content-center">
-														     	<div class="spinner-grow" role="status" aria-hidden="true"></div>
-															  </div>
-														<div v-if="loading.gondolas === false">
-															<!-- TABLA DE GONDOLAS POR COMPRA  -->
-															<div class="col-md-6">
-								                                <label>POR PRODUCTO</label>
-								                            </div>
-						                                        <table class="table" v-if="gondolas.length > 0">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Código</th>
-																      <th scope="col">Descripción</th>
-																      <th scope="col">Asignacion</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="(gondola, index) in gondolas" class="cuerpoTabla">
-																      <th scope="row">{{index + 1}}</th>	
-																      <th>{{gondola.ID}}</th>
-																      <td>{{gondola.DESCRIPCION}}</td>
-																      <td>{{gondola.FECALTAS}}</td>
-																    </tr>
-																  </tbody>
-																</table>
-
-																<div v-if="gondolas.length === 0">
-																	<div class="alert alert-primary" role="alert">
-																	  <font-awesome-icon icon="info-circle" /> No se asignaron góndolas
-																	</div>
-																</div>
-														<div v-if="rack === 'SI'">
-																	
-															<!-- TABLA DE GONDOLAS POR COMPRA  -->
-															<div class="col-md-6 mt-3">
-								                                <label>POR COMPRA</label>
-								                            </div>
-															<table class="table" v-if="comprasGondolas.length > 0">
-																<thead>
-																	<tr>
-																	    <th scope="col">#</th>
-																	    <th scope="col">Código Compra</th>
-																	    <th scope="col">Nro. Caja</th>
-																	    <th scope="col">Góndola</th>
-																	    <th scope="col">Sección</th>
-																	    <th scope="col">Sector</th>
-																	    <th scope="col">Piso</th>
-																	    <th scope="col">Fecha</th>
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr v-for="(compra_gondola, index) in comprasGondolas" class="cuerpoTabla">
-																	    <th scope="row">{{index + 1}}</th>	
-																	    <th>{{compra_gondola.CODIGO}}</th>
-																	    <td>{{compra_gondola.NRO_CAJA}}</td>
-																	    <td>{{compra_gondola.GONDOLA}}</td>
-																	    <td>{{compra_gondola.SECCION}}</td>
-																	    <td>{{compra_gondola.SECTOR}}</td>
-																	    <td>{{compra_gondola.PISO}}</td>
-																	    <td>{{compra_gondola.FECHA}}</td>
-																	</tr>
-																</tbody>
-															 </table>
-															<div v-if="comprasGondolas.length === 0">
-																<div class="alert alert-primary" role="alert">
-																	<font-awesome-icon icon="info-circle" /> No hay compras con gondolas del producto.
-																</div>
+													<div v-if="gondolas.length === 0">
+														<div class="alert alert-primary" role="alert">
+														  <font-awesome-icon icon="info-circle" /> No se asignaron góndolas.
+														</div>
+													</div>
+													<div v-if="rack === 'SI'">
+																
+														<!-- TABLA DE GONDOLAS POR COMPRA  -->
+														<div class="col-md-6 mt-3">
+							                                <label>POR COMPRA</label>
+							                            </div>
+														<table class="table" v-if="comprasGondolas.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">Cód. Compra</th>
+																    <th scope="col">Lote</th>
+																    <th scope="col">Nro. Caja</th>
+																    <th scope="col">Góndola</th>
+																    <th scope="col">Sección</th>
+																    <th scope="col">Sector</th>
+																    <th scope="col">Piso</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(compra_gondola, index) in comprasGondolas" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>	
+																    <th>{{compra_gondola.CODIGO}}</th>
+																    <td>{{compra_gondola.LOTE}}</td>
+																    <td>{{compra_gondola.NRO_CAJA}}</td>
+																    <td>{{compra_gondola.GONDOLA}}</td>
+																    <td>{{compra_gondola.SECCION}}</td>
+																    <td>{{compra_gondola.SECTOR}}</td>
+																    <td>{{compra_gondola.PISO}}</td>
+																    <td>{{compra_gondola.FECHA}}</td>
+																</tr>
+															</tbody>
+														 </table>
+														<div v-if="comprasGondolas.length === 0">
+															<div class="alert alert-primary" role="alert">
+																<font-awesome-icon icon="info-circle" /> No hay compras con gondolas del producto.
 															</div>
+														</div>
 															 
-															 <!-- TABLA DE DEVOLUCIONES -->
-															 
-															<div class="col-md-6">
-								                                <label>POR TRANSFERENCIA</label>
-								                            </div>
-															<table class="table" v-if="transferenciasGondolas.length > 0">
-																<thead>
-																	<tr>
-																	    <th scope="col">#</th>
-																	    <th scope="col">Código Transferencia</th>
-																	    <th scope="col">Nro. Caja</th>
-																	    <th scope="col">Góndola</th>
-																	    <th scope="col">Sección</th>
-																	    <th scope="col">Sector</th>
-																	    <th scope="col">Piso</th>
-																	    <th scope="col">Fecha</th>
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr v-for="(transferencia_gondola, index) in transferenciasGondolas" class="cuerpoTabla">
-																	    <th scope="row">{{index + 1}}</th>
-																	    <th>{{transferencia_gondola.CODIGO}}</th>
-																	    <td>{{transferencia_gondola.NRO_CAJA}}</td>
-																	    <td>{{transferencia_gondola.GONDOLA}}</td>
-																	    <td>{{transferencia_gondola.SECCION}}</td>
-																	    <td>{{transferencia_gondola.SECTOR}}</td>
-																	    <td>{{transferencia_gondola.PISO}}</td>
-																	    <td>{{transferencia_gondola.FECHA}}</td>
+														<!-- TABLA DE DEVOLUCIONES -->
+														 
+														<div class="col-md-6">
+							                                <label>POR TRANSFERENCIA</label>
+							                            </div>
+														<table class="table" v-if="transferenciasGondolas.length > 0">
+															<thead>
+																<tr>
+																    <th scope="col">#</th>
+																    <th scope="col">Cód. Transferencia</th>
+																    <th scope="col">Lote</th>
+																    <th scope="col">Nro. Caja</th>
+																    <th scope="col">Góndola</th>
+																    <th scope="col">Sección</th>
+																    <th scope="col">Sector</th>
+																    <th scope="col">Piso</th>
+																    <th scope="col">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(transferencia_gondola, index) in transferenciasGondolas" class="cuerpoTabla">
+																    <th scope="row">{{index + 1}}</th>
+																    <th>{{transferencia_gondola.CODIGO}}</th>
+																    <td>{{transferencia_gondola.LOTE}}</td>
+																    <td>{{transferencia_gondola.NRO_CAJA}}</td>
+																    <td>{{transferencia_gondola.GONDOLA}}</td>
+																    <td>{{transferencia_gondola.SECCION}}</td>
+																    <td>{{transferencia_gondola.SECTOR}}</td>
+																    <td>{{transferencia_gondola.PISO}}</td>
+																    <td>{{transferencia_gondola.FECHA}}</td>
 
-																	</tr>
-																</tbody>
-															 </table>
+																</tr>
+															</tbody>
+														 </table>
 															<div v-if="transferenciasGondolas.length === 0">
 																<div class="alert alert-primary" role="alert">
 																	<font-awesome-icon icon="info-circle" /> No hay transferencias con gondolas del producto.
@@ -337,44 +342,44 @@
 													  </div>
 						                            </div>
 						                            <div class="tab-pane fade" id="proveedores" role="tabpanel" aria-labelledby="proveedores-tab">
-																<div v-if="loading.compras" class="d-flex justify-content-center">
-														            <div class="spinner-grow" role="status" aria-hidden="true"></div>
-														        </div>
+														<div v-if="loading.compras" class="d-flex justify-content-center">
+												            <div class="spinner-grow" role="status" aria-hidden="true"></div>
+												        </div>
 
-						                                        <table class="table" v-if="proveedores.length > 0 && loading.compras === false">
-																  <thead>
-																    <tr>
-																      <th scope="col">#</th>
-																      <th scope="col">Código</th>
-																      <th scope="col">Proveedor</th>
-																      <th scope="col">Cantidad</th>
-																      <th scope="col">Guaranies</th>
-																      <th scope="col">Dolares</th>
-																      <th scope="col">Reales</th>
-																      <th scope="col">Pesos</th>
-																      <th scope="col">Ult. Compra</th>
-																    </tr>
-																  </thead>
-																  <tbody>
-																    <tr v-for="proveedor in proveedores" class="cuerpoTabla">
-																      <th scope="row">{{proveedor.C}}</th>	
-																      <th>{{proveedor.CODIGO}}</th>
-																      <th>{{proveedor.NOMBRE}}</th>
-																      <td>{{proveedor.CANTIDAD}}</td>
-																      <td>{{proveedor.GUARANIES}}</td>
-																      <td>{{proveedor.DOLARES}}</td>
-																      <td>{{proveedor.PESOS}}</td>
-																      <td>{{proveedor.REALES}}</td>
-																      <td>{{proveedor.FECALTAS}}</td>
-																    </tr>
-																  </tbody>
-																</table>
+				                                        <table class="table" v-if="proveedores.length > 0 && loading.compras === false">
+														  <thead>
+														    <tr>
+														      <th scope="col">#</th>
+														      <th scope="col">Código</th>
+														      <th scope="col">Proveedor</th>
+														      <th scope="col">Cantidad</th>
+														      <th scope="col">Guaranies</th>
+														      <th scope="col">Dolares</th>
+														      <th scope="col">Reales</th>
+														      <th scope="col">Pesos</th>
+														      <th scope="col">Ult. Compra</th>
+														    </tr>
+														  </thead>
+														  <tbody>
+														    <tr v-for="proveedor in proveedores" class="cuerpoTabla">
+														      <th scope="row">{{proveedor.C}}</th>	
+														      <th>{{proveedor.CODIGO}}</th>
+														      <th>{{proveedor.NOMBRE}}</th>
+														      <td>{{proveedor.CANTIDAD}}</td>
+														      <td>{{proveedor.GUARANIES}}</td>
+														      <td>{{proveedor.DOLARES}}</td>
+														      <td>{{proveedor.PESOS}}</td>
+														      <td>{{proveedor.REALES}}</td>
+														      <td>{{proveedor.FECALTAS}}</td>
+														    </tr>
+														  </tbody>
+														</table>
 
-																<div v-if="proveedores.length === 0 && loading.compras === false">
-																	<div class="alert alert-primary" role="alert">
-																	  <font-awesome-icon icon="info-circle" /> No hay compras
-																	</div>
-																</div>
+														<div v-if="proveedores.length === 0 && loading.compras === false">
+															<div class="alert alert-primary" role="alert">
+															  <font-awesome-icon icon="info-circle" /> No hay compras.
+															</div>
+														</div>
 						                            </div>
 
 						                            <div class="tab-pane fade" id="transferencias" role="tabpanel" aria-labelledby="transferencias-tab">
@@ -783,23 +788,23 @@
 			                        </div>
 			                    </div>
 			                </div>  
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				      </div>
-				    </div>
-				  </div>
+				      	</div>
+			      	<div class="modal-footer">
+			        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			      	</div>
 				</div>
-
-				<!-- The Modal PARA LA IMAGEN -->
-
-				<div id="myModal" class="modal modal-imagen">
-					<span class="close-imagen">&times;</span>
-					<img class="modal-content modal-content-imagen" id="img01">
-					<div id="caption"></div>
-				</div>
-
+			</div>
 		</div>
+
+		<!-- The Modal PARA LA IMAGEN -->
+
+		<div id="myModal" class="modal modal-imagen">
+			<span class="close-imagen">&times;</span>
+			<img class="modal-content modal-content-imagen" id="img01">
+			<div id="caption"></div>
+		</div>
+
+	</div>
 		<!-- ******************************************************************* -->	
 </template>
 <script>
