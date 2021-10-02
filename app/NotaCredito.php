@@ -2038,21 +2038,21 @@ class NotaCredito extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'NOTA_CREDITO.FECALTAS', 
-                            1 => 'NOTA_CREDITO.ID',
-                            2 => 'CLIENTES.NOMBRE',
-                            3 => 'NOTA_CREDITO.CAJA',
-                            4 => 'NOTA_CREDITO.NUMERO_FACTURA',
-                            5 => 'NOTA_CREDITO.FK_VENTA',
-                            6 => 'NOTA_CREDITO.FECALTAS',
-                            7 => 'NOTA_CREDITO.TIPO',
-                            8 => 'NOTA_CREDITO.PROCESADO',
-                            9 => 'NOTA_CREDITO.DESCUENTO_MONTO',
-                            10 => 'NOTA_CREDITO.IVA',
-                            11 => 'NOTA_CREDITO.SUB_TOTAL',
-                            12 => 'NOTA_CREDITO.TOTAL'
-                        );
-        
+            0 => 'NOTA_CREDITO.FECALTAS', 
+            1 => 'NOTA_CREDITO.ID',
+            2 => 'CLIENTES.NOMBRE',
+            3 => 'NOTA_CREDITO.CAJA',
+            4 => 'NOTA_CREDITO.NUMERO_FACTURA',
+            5 => 'NOTA_CREDITO.FK_VENTA',
+            6 => 'NOTA_CREDITO.FECALTAS',
+            7 => 'NOTA_CREDITO.TIPO',
+            8 => 'NOTA_CREDITO.PROCESADO',
+            9 => 'NOTA_CREDITO.DESCUENTO_MONTO',
+            10 => 'NOTA_CREDITO.IVA',
+            11 => 'NOTA_CREDITO.SUB_TOTAL',
+            12 => 'NOTA_CREDITO.TOTAL'
+        );
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2065,27 +2065,20 @@ class NotaCredito extends Model
         $item = 1;
 
         $datos = array(
-                'Sucursal' => $request->input('Sucursal'),
-                'Inicio' => date('Y-m-d', strtotime($request->input('Inicio'))),
-                'Final' => date('Y-m-d', strtotime($request->input('Final'))),
-                'Procesado' => $request->input('Procesado'),
-                'Tipo' => $request->input('Tipo'),
-                'Cliente' => $request->input('Cliente'),
-                'Caja' => $request->input('Caja'),
-            );
+            'Sucursal' => $request->input('Sucursal'),
+            'Inicio' => date('Y-m-d', strtotime($request->input('Inicio'))),
+            'Final' => date('Y-m-d', strtotime($request->input('Final'))),
+            'Procesado' => $request->input('Procesado'),
+            'Tipo' => $request->input('Tipo'),
+            'Cliente' => $request->input('Cliente'),
+            'Caja' => $request->input('Caja'),
+        );
     
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS DATOS ENCONTRADOS 
 
-
         $posts = NotaCredito::generarConsulta($datos, $order, $dir);     
-
-
-        /*  ************************************************************ */
-
-        $moneda = $posts[0]->MONEDA;
-        $candec = (Parametro::candec($moneda))["CANDEC"];
         $data = array();
         
         /*  --------------------------------------------------------------------------------- */
@@ -2093,6 +2086,12 @@ class NotaCredito extends Model
         // REVISAR SI LA VARIABLES POST ESTA VACIA 
 
         if(!empty($posts)){
+
+	        /*  ************************************************************ */
+
+	        $moneda = $posts[0]->MONEDA;
+	        $candec = (Parametro::candec($moneda))["CANDEC"];
+
             foreach ($posts as $post){
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2142,11 +2141,11 @@ class NotaCredito extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "draw"            => intval($request->input('draw')),  
-                    "recordsTotal"    => intval($item),  
-                    "recordsFiltered" => intval($item), 
-                    "data"            => $data   
-                    );
+            "draw"            => intval($request->input('draw')),  
+            "recordsTotal"    => intval($item),  
+            "recordsFiltered" => intval($item), 
+            "data"            => $data   
+        );
         
         /*  --------------------------------------------------------------------------------- */
 
