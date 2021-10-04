@@ -1985,40 +1985,73 @@ class NotaCredito extends Model
         $cod_cliente = $data['Cliente'];
         $caja = $data['Caja'];
 
-        $notaCredito = NotaCredito::select(
-                    DB::raw('NOTA_CREDITO.ID AS ID'),
-        			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-                    DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
-                    DB::raw('NOTA_CREDITO.FECALTAS AS FECHA'),
-                    DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
-                    DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
-                    DB::raw('NOTA_CREDITO.IVA AS IVA'),
-                    DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
-                    DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
-                    DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
-                    DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
-                    DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
-                    DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
-                ->leftJoin('CLIENTES', function($join){
-                                $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
-                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
-                            })
-                ->whereBetween('NOTA_CREDITO.FECALTAS', [$inicio , $final])
-                ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
-                ->whereIn('NOTA_CREDITO.TIPO', $tipo)
-                ->whereIn('NOTA_CREDITO.PROCESADO', $procesado)
-                ->groupBy('NOTA_CREDITO.ID')
-                ->orderBy($order, $dir);
-        
-        if(!empty($cod_cliente)){
+        if(count($data['Procesado']) == 1 && $data['Procesado'][0] == 1){
+        	
+        	$procesado = $data['Procesado'][0];
 
-            $notaCredito->where('NOTA_CREDITO.CLIENTE', '=', $cod_cliente);
+	        $notaCredito = NotaCredito::select(
+	                DB::raw('NOTA_CREDITO.ID AS ID'),
+	    			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+	                DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
+	                DB::raw('NOTA_CREDITO.FECMODIF AS FECHA'),
+	                DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
+	                DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
+	                DB::raw('NOTA_CREDITO.IVA AS IVA'),
+	                DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
+	                DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
+	                DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
+	                DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
+	                DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
+	                DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
+	            ->leftJoin('CLIENTES', function($join){
+	                    $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+	                         ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+	                })
+	        ->whereBetween('NOTA_CREDITO.FECMODIF', [$inicio , $final])
+	        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
+	        ->whereIn('NOTA_CREDITO.TIPO', $tipo)
+	        ->where('NOTA_CREDITO.PROCESADO', '=', $procesado)
+	        ->groupBy('NOTA_CREDITO.ID')
+	        ->orderBy($order, $dir);
+
+        }else{
+
+	        $notaCredito = NotaCredito::select(
+	                DB::raw('NOTA_CREDITO.ID AS ID'),
+	    			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+	                DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
+	                DB::raw('NOTA_CREDITO.FECALTAS AS FECHA'),
+	                DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
+	                DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
+	                DB::raw('NOTA_CREDITO.IVA AS IVA'),
+	                DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
+	                DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
+	                DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
+	                DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
+	                DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
+	                DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
+	            ->leftJoin('CLIENTES', function($join){
+	                    $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+	                         ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+	                })
+	        ->whereBetween('NOTA_CREDITO.FECALTAS', [$inicio , $final])
+	        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
+	        ->whereIn('NOTA_CREDITO.TIPO', $tipo)
+	        ->whereIn('NOTA_CREDITO.PROCESADO', $procesado)
+	        ->groupBy('NOTA_CREDITO.ID')
+	        ->orderBy($order, $dir);
         }
 
         if(!empty($caja) && $caja!='NaN'){
 
             $notaCredito->where('NOTA_CREDITO.CAJA', '=', $caja);
         }
+        
+        if(!empty($cod_cliente)){
+
+            $notaCredito->where('NOTA_CREDITO.CLIENTE', '=', $cod_cliente);
+        }
+
 
         $notaCredito = $notaCredito->get();
 
@@ -2088,9 +2121,12 @@ class NotaCredito extends Model
         if(!empty($posts)){
 
 	        /*  ************************************************************ */
+	        if(count($posts) > 0){
 
-	        $moneda = $posts[0]->MONEDA;
-	        $candec = (Parametro::candec($moneda))["CANDEC"];
+		        $moneda = $posts[0]->MONEDA;
+		        $candec = (Parametro::candec($moneda))["CANDEC"];
+
+	        }
 
             foreach ($posts as $post){
 
