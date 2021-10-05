@@ -21,6 +21,7 @@ use App\ComprasDet;
 use App\Cotizacion;
 use App\LineasDescuento;
 use App\Categoria;
+use Illuminate\Support\Facades\Log;
 
 class Producto extends Model
 {
@@ -1000,132 +1001,148 @@ $lotes= DB::connection('retail')
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-
-        $user = auth()->user();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INICIAR VARIABLES 
-
-        $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
-        $datos = $datos["datos"];
-        $blob = '';
+        try{
+             DB::connection('retail')->beginTransaction();
+           
+             $user = auth()->user();
 
         /*  --------------------------------------------------------------------------------- */
 
-        // REVISAR SI EXISTE CODIGO INTERNO 
-		
-        if (Producto::existeProductoCodigoInterno($datos["codigo_interno"]) === true) {
-			
+            // INICIAR VARIABLES 
+
+            $img = preg_replace('#^data:image/[^;]+;base64,#', '', $datos["datos"]["imagen"]);
+            $datos = $datos["datos"];
+            $blob = '';
+
             /*  --------------------------------------------------------------------------------- */
 
-            // GENERAR NUEVAMENTE CODIGO INTERNO 
-
-            $codigo_interno = Producto::generar_ci();
-			$datos["codigo_interno"] = $codigo_interno["codigo_interno"];
-			
-            /*  --------------------------------------------------------------------------------- */
-
-            // REVISAR DE VUELTA SI EXISTO CODIGO INTERNO 
-
-            if (Producto::existeProductoCodigoInterno($codigo_interno["codigo_interno"]) === true) {
-                return ["response" => false, "statusText" => "Codigo Interno Existente"];
-            } 
+            // REVISAR SI EXISTE CODIGO INTERNO 
             
+            if (Producto::existeProductoCodigoInterno($datos["codigo_interno"]) === true) {
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // GENERAR NUEVAMENTE CODIGO INTERNO 
+
+                $codigo_interno = Producto::generar_ci();
+                $datos["codigo_interno"] = $codigo_interno["codigo_interno"];
+                
+                /*  --------------------------------------------------------------------------------- */
+
+                // REVISAR DE VUELTA SI EXISTO CODIGO INTERNO 
+
+                if (Producto::existeProductoCodigoInterno($codigo_interno["codigo_interno"]) === true) {
+                    return ["response" => false, "statusText" => "Codigo Interno Existente"];
+                } 
+                
+                /*  --------------------------------------------------------------------------------- */
+
+            }
+
             /*  --------------------------------------------------------------------------------- */
 
-        }
+            // REVISAR SI EXISTE CODIGO PRODUCTO
 
-        /*  --------------------------------------------------------------------------------- */
+            if (Producto::existeProductoTodasSucursales($datos["codigo_producto"]) === true) {
 
-        // REVISAR SI EXISTE CODIGO PRODUCTO
+                /*  --------------------------------------------------------------------------------- */
 
-        if (Producto::existeProductoTodasSucursales($datos["codigo_producto"]) === true) {
+                // DEVOLVER QUE REPITIO PRODUCTO
+
+                return ["response" => false, "statusText" => "Codigo Producto Existente"];
+                
+                /*  --------------------------------------------------------------------------------- */
+
+            }
 
             /*  --------------------------------------------------------------------------------- */
 
-            // DEVOLVER QUE REPITIO PRODUCTO
+            // OBTENER CANDEC
 
-            return ["response" => false, "statusText" => "Codigo Producto Existente"];
-            
+            $candec = (Parametro::candec($datos["moneda"]))['CANDEC'];
+
             /*  --------------------------------------------------------------------------------- */
 
-        }
+            // GUARDAR PRODUCTO 
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // OBTENER CANDEC
-
-        $candec = (Parametro::candec($datos["moneda"]))['CANDEC'];
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // GUARDAR PRODUCTO 
-
-        $producto = Producto::insert(
-            [
-            'CODIGO' => $datos["codigo_producto"],
-            'CODIGO_INTERNO' => $datos["codigo_interno"],
-            'CODIGO_REAL' => $datos["codigo_real"],
-            'DESCRIPCION' => $datos["descripcion"],
-            'LINEA' => $datos["categoria"],
-            'SUBLINEA' => $datos["subCategoria"],
-            'SUBLINEADET' => $datos["subCategoriaDet"],
-            'COLOR' => $datos["color"],
-            'TELA' => $datos["tela"],
-            'TALLE' => $datos["talle"],
-            'GENERO' => $datos["genero"],
-            'MARCA' => $datos["marca"],
-            'PROVEEDOR' => $datos["proveedor"],
-            'PRESENTACION' => $datos["presentacion"],
-            'IMPUESTO' => $datos["iva"],
-            'DESCUENTO' => $datos["descuentoMaximo"],
-            'PORCENTAJE' => 0,
-            'MONEDA' => $datos["moneda"],
-            'PREC_VENTA' => Common::quitar_coma($datos["precioVenta"], 2),
-            'PREMAYORISTA' => Common::quitar_coma($datos["precioMayorista"], 2),
-            'PREVIP' => Common::quitar_coma($datos["precioVip"], 2),
-            'PRECOSTO' => Common::quitar_coma($datos["precioCosto"], 2),
-            'STOCK_MIN' => $datos["stockMinimo"],
-            'OBSERVACION' => $datos["observacion"],
-            'BAJA' => "NO",
-            'FECALTAS' => date("Y-m-d H:i:s"),
-            'HORALTAS' => date("H:i:s"),
-            'USER' => $user->id,
-            'ID_SUCURSAL' => $user->id_sucursal,
-            'GENERADO' => $datos["generado"],
-            'VENCIMIENTO' => $datos["vencimiento"],
-            'TEMPORADA' => $datos["temporada"],
-            'PERIODO' => $datos["periodo"]
-            ]
-        );
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR IMAGEN 
-        
-        if ($img !== "") { 
-            Imagen::guardar_imagen_storage([
-                'COD_PROD' => $datos["codigo_producto"],
+            $producto = Producto::insert(
+                [
+                'CODIGO' => $datos["codigo_producto"],
                 'CODIGO_INTERNO' => $datos["codigo_interno"],
-                'PICTURE' => $img
-            ]);
+                'CODIGO_REAL' => $datos["codigo_real"],
+                'DESCRIPCION' => $datos["descripcion"],
+                'LINEA' => $datos["categoria"],
+                'SUBLINEA' => $datos["subCategoria"],
+                'SUBLINEADET' => $datos["subCategoriaDet"],
+                'COLOR' => $datos["color"],
+                'TELA' => $datos["tela"],
+                'TALLE' => $datos["talle"],
+                'GENERO' => $datos["genero"],
+                'MARCA' => $datos["marca"],
+                'PROVEEDOR' => $datos["proveedor"],
+                'PRESENTACION' => $datos["presentacion"],
+                'IMPUESTO' => $datos["iva"],
+                'DESCUENTO' => $datos["descuentoMaximo"],
+                'PORCENTAJE' => 0,
+                'MONEDA' => $datos["moneda"],
+                'PREC_VENTA' => Common::quitar_coma($datos["precioVenta"], 2),
+                'PREMAYORISTA' => Common::quitar_coma($datos["precioMayorista"], 2),
+                'PREVIP' => Common::quitar_coma($datos["precioVip"], 2),
+                'PRECOSTO' => Common::quitar_coma($datos["precioCosto"], 2),
+                'STOCK_MIN' => $datos["stockMinimo"],
+                'OBSERVACION' => $datos["observacion"],
+                'BAJA' => "NO",
+                'FECALTAS' => date("Y-m-d H:i:s"),
+                'HORALTAS' => date("H:i:s"),
+                'USER' => $user->id,
+                'ID_SUCURSAL' => $user->id_sucursal,
+                'GENERADO' => $datos["generado"],
+                'VENCIMIENTO' => $datos["vencimiento"],
+                'TEMPORADA' => $datos["temporada"],
+                'PERIODO' => $datos["periodo"]
+                ]
+            );
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR IMAGEN 
+            
+            if ($img !== "") { 
+                Imagen::guardar_imagen_storage([
+                    'COD_PROD' => $datos["codigo_producto"],
+                    'CODIGO_INTERNO' => $datos["codigo_interno"],
+                    'PICTURE' => $img
+                ]);
+            }
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // INSERTAR GONDOLA
+
+            Gondola_tiene_Productos::asignar_gondolas($datos["codigo_producto"],$datos["gondola"]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            DB::connection('retail')->commit();
+            if ($producto === true) {
+                return ["response" => true];
+            }
+
+        }catch (Exception $e) {
+
+            DB::connection('retail')->rollBack();
+
+            /*  --------------------------------------------------------------------------------- */
+
+            // RETORNAR VALOR 
+            
+            return ["response" => false,"statusText"=>"Error al registrar el producto! El registro no fue realizado."];
+
+            /*  --------------------------------------------------------------------------------- */
         }
 
-        /*  --------------------------------------------------------------------------------- */
-
-        // INSERTAR GONDOLA
-
-        Gondola_tiene_Productos::asignar_gondolas($datos["codigo_producto"], $datos["gondola"]);
-
-        /*  --------------------------------------------------------------------------------- */
-
-        // RETORNAR VALOR 
-
-        if ($producto === true) {
-            return ["response" => true];
-        }
-
+       
         /*  --------------------------------------------------------------------------------- */
     }
 
