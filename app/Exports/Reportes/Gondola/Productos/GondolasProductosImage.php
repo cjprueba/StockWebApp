@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use App\Gondola_tiene_Productos;
 
-class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, WithEvents, WithDrawings,WithColumnFormatting 
+class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, WithEvents,WithColumnFormatting 
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -43,7 +43,7 @@ class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, With
 
         $productos = Gondola_tiene_Productos::Select(
             DB::raw('PRODUCTOS_AUX.CODIGO AS COD_PROD, 
-                    0 AS IMAGEN, 
+                  
                     IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),"0") AS STOCK,
                     PROVEEDORES.NOMBRE AS PROVEEDOR,
                     LINEAS.DESCRIPCION AS CATEGORIA, 
@@ -86,7 +86,7 @@ class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, With
 
     public function headings(): array
     {
-        return ["CODIGO", "IMAGEN", "STOCK","PROVEEDOR","CATEGORIA", "DESCRIPCION", "PRE. V.", "PRE. M."];
+        return ["CODIGO", "STOCK","PROVEEDOR","CATEGORIA", "DESCRIPCION", "PRE. V.", "PRE. M."];
         
     }
 
@@ -128,29 +128,28 @@ class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, With
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
 
-                $event->sheet->getStyle('A1:H1')->applyfromarray($styleArray);
-                $event ->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
+                $event->sheet->getStyle('A1:G1')->applyfromarray($styleArray);
                 $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
+                $event ->sheet->getDelegate()->getColumnDimension('C')->setWidth(35);
                 $event ->sheet->getDelegate()->getColumnDimension('D')->setWidth(35);
-                $event ->sheet->getDelegate()->getColumnDimension('E')->setWidth(35);
-                $event ->sheet->getDelegate()->getColumnDimension('F')->setWidth(100);
+                $event ->sheet->getDelegate()->getColumnDimension('E')->setWidth(100);
+                $event ->sheet->getDelegate()->getColumnDimension('F')->setWidth(15);
                 $event ->sheet->getDelegate()->getColumnDimension('G')->setWidth(15);
-                $event ->sheet->getDelegate()->getColumnDimension('H')->setWidth(15);
 
                 for( $intRowNumber = 2; $intRowNumber <= $this->total + 1; $intRowNumber++){
-                    $event->sheet->getRowDimension($intRowNumber)->setRowHeight(80);
+                    $event->sheet->getRowDimension($intRowNumber)->setRowHeight(20);
                 }
                 
-                foreach ($this->productos as $key => $value) {
+               /* foreach ($this->productos as $key => $value) {
                 	$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 			        $drawing->setName('Logo');
 			        $drawing->setDescription('Logo');
 
-			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';*/
 			      /* $imagen = 'C:/laragon/www/StockWebApp/public/storage/imagenes/productos/'.$value['COD_PROD'].'.jpg';*/
 			        
 
-			        if(!file_exists($imagen)) {
+			        /*if(!file_exists($imagen)) {
 			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
 			        } else {
 			        	$drawing->setPath($imagen);
@@ -163,31 +162,21 @@ class GondolasProductosImage implements FromArray, WithHeadings, WithTitle, With
 
 			        $this->row_number +=1;
 
-                }
+                }*/
             }
 
         ];
     }
-     public function drawings(): array
+/*     public function drawings(): array
     {
 
     	$drawing_array = [];
     	
         
 
-     //    for( $intRowNumber = 1; $intRowNumber <= 30; $intRowNumber++){
-     //    	$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-	    //     $drawing->setName('Logo');
-	    //     $drawing->setDescription('Logo');
-	    //     $drawing->setPath('C:\laragon\www\StockWebApp\public\images\SinImagen.png');
-	    //     $drawing->setHeight(30);
-	    //     $drawing->setCoordinates('B'.$intRowNumber);
-	    //     $drawing_array[] = $drawing;
-	    // }   
-     //   /*  $drawing->ShouldAutoSize(true);*/
 
         return $drawing_array;
-    }
+    }*/
         public function columnFormats(): array
     {
          return [
