@@ -9168,7 +9168,7 @@ class Venta extends Model
             $reporte->where('LOTES.CANTIDAD','>',0);
         }
 
-        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
+        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get();
         
         $precio = 100;
         $descuento_precio = 0;
@@ -9297,7 +9297,7 @@ class Venta extends Model
             $reporte->where('LOTES.CANTIDAD','>',0);
         }
 
-        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
+        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get();
 
         foreach ($reporte as $key => $value) {
        
