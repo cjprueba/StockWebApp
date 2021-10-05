@@ -2256,8 +2256,8 @@
 	          	this.seleccion_proveedor = 'null';
 	          	this.seleccion_moneda = String(this.monedaCodigo);
 	          	this.seleccion_proveedor = 'null';
-	          	this.seleccion_gondola = null;
-	          	this.seleccion_gondola_modificar = null;
+	          	this.seleccion_gondola = [];
+	          	this.seleccion_gondola_modificar =  [];
 	          	this.seleccion_presentacion = 'UNIDADES';
 	          	this.seleccion.temporada = '0';
 	          	this.seleccion.periodo = '0';
