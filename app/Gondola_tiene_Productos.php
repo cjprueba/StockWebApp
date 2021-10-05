@@ -18,7 +18,8 @@ class Gondola_tiene_Productos extends Model
         /*  --------------------------------------------------------------------------------- */
          
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-         
+       /*  log::error(["gondolas"=>$gondolas[0]["ID"]]);
+         var_dump($gondolas);*/
 
         $user = auth()->user();
 
@@ -35,8 +36,9 @@ class Gondola_tiene_Productos extends Model
         }
 
         try {
+          
         
-          if (isset($gondolas[0])) {
+          if (isset($gondolas[0]["ID"])) {
 
             foreach ($gondolas as $key => $value) {
 
