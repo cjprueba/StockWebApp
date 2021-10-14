@@ -174,7 +174,7 @@ class BusquedaController extends Controller
                     'cliente'=>$cliente,
                     'proveedores'=>$proveedores,
                     'sucursalesgeneral'=>$sucursalesgeneral,
-                    'seccion' => $seccion,
+                    'seccion' => [],
                     'secciones' => $secciones];
         }
     }

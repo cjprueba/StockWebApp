@@ -2430,5 +2430,189 @@ class Temp_venta extends Model
 
     
     }
+    
+    public static function insertar_reporte_venta_seccion($datos){
 
+ 		$user = auth()->user();
+
+ 		// ELIMINAR TODOS LOS REGISTROS INSERTADOS POR SUCURSAL Y USUARIO
+
+ 		Temp_venta::where('USER_ID', '=', $user->id)
+ 		->where('ID_SUCURSAL', '=', $datos["sucursal"])
+ 		->delete();
+
+ 		// OBTENER DATOS NECESARIOS PARA TEMP_VENTAS
+
+   		$reporte = DB::connection('retail')->table('VENTASDET')
+            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
+            ->leftjoin('MARCA', 'MARCA.CODIGO', '=', 'PRODUCTOS.MARCA')
+            ->leftjoin('PRODUCTOS_AUX',function($join){
+             $join->on('PRODUCTOS_AUX.CODIGO','=','VENTASDET.COD_PROD')
+               ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
+            })
+            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
+            ->leftjoin('VENTASDET_TIENE_LOTES', 'VENTASDET_TIENE_LOTES.ID_VENTAS_DET', '=', 'VENTASDET.ID')
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
+            ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
+            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
+            ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
+           	->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
+            ->leftjoin('VENTAS_CUPON','VENTAS_CUPON.FK_VENTA','=','VENTAS.ID')
+            ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
+            	->select(DB::raw('VENTASDET.COD_PROD AS COD_PROD,
+	            	VENTASDET.CODIGO,
+	            	VENTASDET_TIENE_LOTES.CANTIDAD AS VENDIDO,
+	            	IFNULL(MARCA.DESCRIPCION,"INDEFINIDO") AS MARCA,
+	            	LOTES.LOTE AS LOTE,
+	            	LOTES.COSTO AS COSTO_UNIT,
+	            	(VENTASDET_TIENE_LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_TOTAL,
+	            	IFNULL(LINEAS.DESCRIPCION, "INDEFINIDO") AS CATEGORIA,
+	            	IFNULL(SUBLINEAS.DESCRIPCION, "INDEFINIDO") AS SUBCATEGORIA,
+	            	IFNULL(SUBLINEA_DET.DESCRIPCION, "INDEFINIDO") AS NOMBRE,
+	            	PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+	            	PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
+	            	VENTAS.ID AS ID,
+	            	(VENTASDET.PRECIO_UNIT * VENTASDET_TIENE_LOTES.CANTIDAD) AS PRECIO,
+	            	VENTASDET.PRECIO_UNIT AS PRECIO_UNIT'),
+		            DB::raw('IFNULL(VENTASDET_DESCUENTO.TOTAL, 0) AS DESCUENTO'),
+		            DB::raw('IFNULL(VENTAS_DESCUENTO.PORCENTAJE, 0) AS PORCENTAJE_GENERAL'),
+		            DB::raw('IFNULL(VENTAS_CUPON.CUPON_PORCENTAJE, 0) AS CUPON_PORCENTAJE'),
+		            DB::raw('IFNULL(MARCA.CODIGO, 0) AS MARCA_CODIGO'),
+		            DB::raw('IFNULL(LINEAS.CODIGO, 0) AS LINEA_CODIGO'),
+		            DB::raw('IFNULL(SUBLINEAS.CODIGO,0) AS SUBLINEA_CODIGO'),
+		            DB::raw('IFNULL(VENTASDET_DESCUENTO.PORCENTAJE, 0) AS DESCUENTO_PORCENTAJE'))
+        ->Where('VENTASDET.ANULADO','<>', 1)
+        ->whereBetween('VENTASDET.FECALTAS', [$datos["inicio"], $datos["final"] ])
+        ->Where('VENTASDET.ID_SUCURSAL','=',$datos["sucursal"]) 
+        ->orderby('VENTASDET.COD_PROD');
+
+        // FILTRAR POR DATOS NECESARIOS PARA EL REPORTE
+
+       	if(isset($datos["secciones"])){
+
+       		$reporte->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.FK_PRODUCTOS_AUX','=','PRODUCTOS_AUX.ID') 
+	        	->leftjoin('GONDOLAS','GONDOLAS.ID','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
+	       		->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
+	       		->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
+	       			->addSelect(DB::raw('
+		       			IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO,
+		        		IFNULL(GONDOLAS.ID,0)AS GONDOLA,
+		        		GONDOLAS.DESCRIPCION AS GONDOLA_NOMBRE,
+		         		SECCIONES.DESCRIPCION AS SECCION,
+		         		VENTAS.VENDEDOR AS VENDEDOR'))
+       		->where('VENTAS.TIPO','<>','CR')
+       		->where('SECCIONES.ID', '=', $datos["secciones"]);
+
+       		if(isset($datos["gondolas"])){
+	       		if(!$datos["checkedGondola"]){
+	       			$reporte->whereIn('GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA', $datos["gondolas"]);
+	       		}
+       		}
+       	}
+
+        if(isset($datos["proveedores"])){
+	       	if(!$datos["checkedProveedores"]){
+        		$reporte->whereIn('PROVEEDORES.CODIGO', $datos["proveedores"]);
+	       	}
+        }
+
+        $reporte = $reporte->get()->toArray();
+
+        //----------------------------------------------------------------------------------------
+        // INICIAR VARIABLES
+
+		$precio = 100;
+		$descuento_precio = 0;
+		$precio_descontado = 0;
+		$costo = 0;
+		$descuento_cupon = 0;
+		$precio_descontado_cupon = 0;
+		$total_dev = 0;
+		$total_des = 0;
+		$descuento = 0;
+		$descuento_general = 0;
+		$precio_descontado_general = 0;
+		$precio_descontado_total = 0;
+		$descuento_real = 0;
+		$compra_in = array();
+	     
+	   	foreach ($reporte as $key => $value ) {
+			             
+			if ($value->PORCENTAJE_GENERAL > 0 && $value->CUPON_PORCENTAJE > 0) {
+
+      	 		//DESCUENTO GENERAL
+
+             	$descuento_precio = round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
+             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
+             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
+             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
+
+         		//CUPON
+
+             	$descuento_precio = round((($value->PRECIO*$value->CUPON_PORCENTAJE)/100),2);
+             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
+             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
+             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->CUPON_PORCENTAJE)/100),2);
+
+            }else{
+
+             	//SI TIENE SOLO CUPON
+
+                if ($value->CUPON_PORCENTAJE>0) {
+
+	             	$descuento_precio = round((($value->PRECIO*$value->CUPON_PORCENTAJE)/100),2);
+	             	$total_des = $total_des+$descuento_precio;
+	             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
+	             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
+	             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
+
+	            } else{
+				    
+				    //SI TIENE SOLO DESCUENTO GENERAL
+
+			        if ($value->PORCENTAJE_GENERAL>0 ) {
+
+		             	$descuento_precio = round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
+		             	$total_des = $total_des+$descuento_precio;
+		             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
+		             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
+		             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
+			        }
+			    }
+			}
+	                    
+			$nestedData['COD_PROD'] = $value->COD_PROD;
+		    $nestedData['VENDIDO'] = $value->VENDIDO;
+            $nestedData['CATEGORIA'] = $value->CATEGORIA;
+            $nestedData['SUBCATEGORIA'] = $value->SUBCATEGORIA;
+            $nestedData['NOMBRE'] = $value->NOMBRE;
+            $nestedData['PRECIO'] = $value->PRECIO;
+            $nestedData['PRECIO_UNIT'] = $value->PRECIO_UNIT;
+			$nestedData['DESCUENTO'] = $value->DESCUENTO;
+            $nestedData['COSTO_UNIT'] = $value->COSTO_UNIT;
+            $nestedData['COSTO_TOTAL'] = $value->COSTO_TOTAL;
+            $nestedData['MARCAS_CODIGO'] = $value->MARCA_CODIGO;
+            $nestedData['LINEA_CODIGO'] = $value->LINEA_CODIGO;
+            $nestedData['SUBLINEA_CODIGO'] = $value->SUBLINEA_CODIGO;
+            $nestedData['PROVEEDOR'] = $value->PROVEEDOR;
+        	$nestedData['PROVEEDOR_NOMBRE'] = $value->PROVEEDOR_NOMBRE;
+            $nestedData['MARCA'] = $value->MARCA;
+            $nestedData['LOTE'] = $value->LOTE;
+            $nestedData['ID_SUCURSAL'] = $datos["sucursal"];
+    	    $nestedData['USER_ID'] = $user->id;
+            $nestedData['SECCION'] = $value->SECCION;
+            $nestedData['SECCION_CODIGO'] = $value->SECCION_CODIGO;
+			$nestedData['GONDOLA'] = $value->GONDOLA;
+       		$nestedData['GONDOLA_NOMBRE'] = $value->GONDOLA_NOMBRE;
+       		$nestedData["UTILIDAD"]= $value->PRECIO - $value->COSTO_TOTAL;
+
+            $compra_in[] = $nestedData;
+	    }
+	       
+        foreach (array_chunk($compra_in, 1000) as $t) {
+
+            Temp_venta::insert($t);
+        }
+    }
 }
