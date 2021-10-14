@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Seccion;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Reportes\ProveedorSeccionExport;
+use App\Exports\Reportes\VentaSeccionProveedorExport;
+use App\Temp_venta;
 
 
 class SeccionController extends Controller
@@ -125,7 +129,64 @@ class SeccionController extends Controller
     }
 
     public function seccionEliminar(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
         $seccion = Seccion::eliminarSeccion($request->all());
         return response()->json($seccion);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+
+    public function reporteSeccionProveedor(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        $data = array();
+        $datos = array(
+            'Inicio' => $request->Inicio,
+            'Final' => $request->Final,
+            'Sucursal' => $request->Sucursal,
+            'AllProveedores' => $request->AllProveedores,
+            'Proveedores' => $request->Proveedores,
+            'Seccion' => $request->Seccion,
+            'Insert' => $request->Insert
+        );
+
+        $data["data"] = $datos;
+        $respuesta = Seccion::generar_reporte_proveedor_seccion($data);
+          
+         
+        return Excel::download(new ProveedorSeccionExport($respuesta), 'SeccionProveedor.xlsx');
+        
+        /*  --------------------------------------------------------------------------------- */
+        
+    }
+
+    public function reporteSeccionProveedorVenta(Request $request){
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR REPORTE VENTAS POR PROVEEDOR
+
+
+        if($request->Insert == true){
+
+            $datos = array(
+                'inicio' => date('Y-m-d', strtotime($request->Inicio)),
+                'final' => date('Y-m-d', strtotime($request->Final)),
+                'sucursal' => $request->Sucursal,
+                'checkedProveedores' => $request->AllProveedores,
+                'proveedores' => $request->Proveedores,
+                'secciones' => $request->Seccion,
+            );
+
+            Temp_venta::insertar_reporte_venta_seccion($datos);
+        }
+         
+        return Excel::download(new VentaSeccionProveedorExport($request->all()), 'VentaEncargadaSeccionProveedor.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
     }
 }

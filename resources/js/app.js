@@ -406,8 +406,9 @@ Vue.component('compra-entrada-rpt', require('./components/reportes/compra/Entrad
 Vue.component('inventario-seccion-rpt', require('./components/reportes/producto/Inventario/ReporteInventarioSeccion.vue').default);
 Vue.component('gondola-producto-rpt', require('./components/reportes/producto/Gondola/ReporteProductosEnGondola.vue').default);
 Vue.component('venta-cajero-rpt', require('./components/reportes/venta/Cajero/CajeroTicket.vue').default);
-
-
+Vue.component('seccion-proveedor-rpt', require('./components/reportes/venta/Seccion/ReporteSeccionProveedores.vue').default);
+Vue.component('venta-seccion-gondola-rpt', require('./components/reportes/venta/Seccion/ReporteSeccionGondola.vue').default);
+Vue.component('venta-seccion-proveedor-rpt', require('./components/reportes/venta/Seccion/ReporteVentaProveedorSeccion.vue').default);
 
 
 /* ********************************************* */
