@@ -186,7 +186,7 @@ if($this->hojas==1){
 
 		            );
 
-	          	/*  $this->sheets[]= new RptTransferenciaVenta($datos);*/
+	          	  $this->sheets[]= new RptTransferenciaVenta($datos);
 	          	# code...
 	          }
 
