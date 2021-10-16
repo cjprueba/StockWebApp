@@ -2084,7 +2084,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
             $guaranies = NewCotizacion::
-            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 1)
@@ -2097,7 +2097,7 @@ class Cotizacion extends Model
             if(count($guaranies)<=0){
 
                 $guaranies = NewCotizacion::
-                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
                 ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
                 ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
                 ->where('COTIZACIONES.FK_A', '=', 1)
@@ -2111,7 +2111,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
             $dolares = NewCotizacion::
-            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 2)
@@ -2124,7 +2124,7 @@ class Cotizacion extends Model
             if(count($dolares)<=0){
 
                 $dolares = NewCotizacion::
-                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+                select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
                 ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
                 ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
                 ->where('COTIZACIONES.FK_A', '=', 2)
@@ -2138,7 +2138,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $pesos = NewCotizacion::
-        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
         ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
         ->where('COTIZACIONES.FK_A', '=', 3)
@@ -2151,7 +2151,7 @@ class Cotizacion extends Model
         if(count($pesos)<=0){
 
             $pesos = NewCotizacion::
-            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 3)
@@ -2165,7 +2165,7 @@ class Cotizacion extends Model
         /*  --------------------------------------------------------------------------------- */
 
         $reales = NewCotizacion::
-        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+        select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
         ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
         ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
         ->where('COTIZACIONES.FK_A', '=', 4)
@@ -2179,7 +2179,7 @@ class Cotizacion extends Model
         if(count($reales)<=0){
 
             $reales = NewCotizacion::
-            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,COTIZACIONES.VALOR AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
+            select(DB::raw('IFNULL(COTIZACIONES.ID,0) AS ID,ROUND(COTIZACIONES.VALOR,2) AS CAMBIO,FORMULAS_COTIZACION.FORMULA AS FORMULA'))
             ->leftjoin('FORMULAS_COTIZACION','FORMULAS_COTIZACION.ID','=','COTIZACIONES.FK_FORMULA')
             ->where('COTIZACIONES.FK_DE', '=', $monedaSistema)
             ->where('COTIZACIONES.FK_A', '=', 4)
