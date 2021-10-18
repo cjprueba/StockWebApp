@@ -1198,14 +1198,15 @@ class Inventario extends Model
                             Lote_tiene_ConteoDet::guardar_referencia($value->ID, $valor["id"] , 2, $user->id, $valor["cantidad"]);
                         }
                     } else if ((float)$value->STOCK < (float)$value->CONTEO) {
-                        $costo=Stock::Select(DB::raw('IFNULL((sum(lotes.costo)/count(lotes.id)),0) AS COSTO'))
+                        $costo_proveedor=Stock::Select(DB::raw('IFNULL((sum(lotes.costo)/count(lotes.id)),0) AS COSTO,
+                        IFNULL((SELECT l1.FK_PROVEEDOR FROM LOTES AS l1 where l1.COD_PROD=lotes.COD_PROD and l1.id_sucursal=lotes.id_sucursal ORDER BY l1.id DESC LIMIT 1),0) as PROVEEDOR'))
                         ->where('ID_SUCURSAL','=',$user->id_sucursal)
                         ->where('lotes.costo','<>',0)
                         ->where('LOTES.COD_PROD','=',$value->COD_PROD)
                         ->get();
 
-                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$value->STOCK), $costo[0]->COSTO, 5, 'INV-'.$id, 'N/A');
-                        Lote_tiene_ConteoDet::guardar_referencia($value->ID, $lote["id"] , 1, $user->id, ((float)$value->CONTEO - (float)$value->STOCK));
+                        $lote = Stock::insetar_lote($value->COD_PROD, ((float)$value->CONTEO - (float)$value->STOCK), $costo_proveedor[0]->COSTO, 5, 'INV-'.$id, 'N/A',$costo_proveedor[0]->PROVEEDOR);
+                        Lote_tiene_ConteoDet::guardar_referencia($value->ID, $lote["id"] , 1, $user->id, ((float)$value->CONTEO - (float)$value->STOCK) );
                     }
             /*    }*/
            }
@@ -1292,10 +1293,10 @@ class Inventario extends Model
                           IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO") AS GONDOLA_NOMBRE,
                           CONCAT(IFNULL(temp_ventas.SECCION,"INDEFINIDO")," ", IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO")) AS DESCRIPCION,
                           temp_ventas.SECCION_CODIGO AS SECCION_CODIGO,
-                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_PERDIDA,
-                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_SOBRANTE,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_PERDIDA ,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_SOBRANTE,
+                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA ), 0) AS CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_PERDIDA ,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO AND t.GONDOLA=temp_ventas.GONDOLA), 0) AS COSTO_SOBRANTE,
                           IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE'))
                        ->where('USER_ID','=',$user)
                        ->where('ID_SUCURSAL','=',$sucursal)
@@ -1317,10 +1318,10 @@ class Inventario extends Model
                           IFNULL(temp_ventas.GONDOLA_NOMBRE,"INDEFINIDO") AS GONDOLA_NOMBRE,
                           IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS DESCRIPCION,
                           IFNULL(temp_ventas.SECCION_CODIGO,0) AS SECCION_CODIGO,
-                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_PERDIDA,
-                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_SOBRANTE,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_PERDIDA ,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_SOBRANTE,
+                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_PERDIDA ,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO ), 0) AS COSTO_SOBRANTE,
                           IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE'))
                        ->where('USER_ID','=',$user)
                        ->where('ID_SUCURSAL','=',$sucursal)
@@ -1334,10 +1335,10 @@ class Inventario extends Model
 
            $TOTALG=DB::connection('retail')->table('temp_ventas')
               ->select(
-               DB::raw(  'IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as CANTIDAD_PERDIDA,
-                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as CANTIDAD_SOBRANTE,
-                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as COSTO_PERDIDA,
-                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as COSTO_SOBRANTE'))
+               DB::raw(  'IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as CANTIDAD_PERDIDA,
+                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as CANTIDAD_SOBRANTE,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1),0) as COSTO_PERDIDA,
+                          IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0),0) as COSTO_SOBRANTE'))
               ->where('USER_ID','=',$user)
               ->where('ID_SUCURSAL','=',$sucursal)
               ->limit(1)
@@ -1379,10 +1380,10 @@ class Inventario extends Model
                         
                         SUM(temp_ventas.VENDIDO) AS VENDIDO,
                         IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
-                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_PERDIDA,
-                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_SOBRANTE,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_PERDIDA,
-                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_SOBRANTE,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_PERDIDA,
+                        IFNULL((SELECT SUM(t.vendido) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as CANTIDAD_SOBRANTE,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=1 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_PERDIDA,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas as t where t.ID_SUCURSAL=temp_ventas.ID_SUCURSAL and t.USER_ID=temp_ventas.user_id and t.CREDITO_COBRADO=0 and t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.COD_PROD=temp_ventas.COD_PROD),0) as COSTO_SOBRANTE,
                         temp_ventas.CATEGORIA AS CATEGORIA,
                         IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO,
                         temp_ventas.SUBCATEGORIA AS SUBCATEGORIA,
