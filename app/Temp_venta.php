@@ -139,7 +139,7 @@ class Temp_venta extends Model
 				              if ($value->PORCENTAJE_GENERAL>0 && $value->CUPON_PORCENTAJE>0 ) {
 				              	 	//DESCUENTO GENERAL
 						             	$descuento_precio=round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
-						             	$total_des=$total_des+$descuento_precio;
+						             	$total_des=$total_des + $descuento_precio;
 						             	$value->PRECIO=(round($value->PRECIO-$descuento_precio,2));
 						             	$value->DESCUENTO=($value->DESCUENTO+round($descuento_precio,2));
 						             	$value->PRECIO_UNIT=round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
@@ -2469,7 +2469,7 @@ class Temp_venta extends Model
 	            	(VENTASDET_TIENE_LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_TOTAL,
 	            	IFNULL(LINEAS.DESCRIPCION, "INDEFINIDO") AS CATEGORIA,
 	            	IFNULL(SUBLINEAS.DESCRIPCION, "INDEFINIDO") AS SUBCATEGORIA,
-	            	IFNULL(SUBLINEA_DET.DESCRIPCION, "INDEFINIDO") AS NOMBRE,
+	            	IFNULL(PRODUCTOS.DESCRIPCION, "INDEFINIDO") AS NOMBRE,
 	            	PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
 	            	PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 	            	VENTAS.ID AS ID,
@@ -2539,47 +2539,84 @@ class Temp_venta extends Model
 	     
 	   	foreach ($reporte as $key => $value ) {
 			             
-			if ($value->PORCENTAJE_GENERAL > 0 && $value->CUPON_PORCENTAJE > 0) {
+			if ($value->PORCENTAJE_GENERAL > 0 && $value->CUPON_PORCENTAJE > 0 ) {
+				
+				//DESCUENTO GENERAL
 
-      	 		//DESCUENTO GENERAL
-
-             	$descuento_precio = round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
-             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
-             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
-             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
+             	$descuento_precio = round((($value->PRECIO * $value->PORCENTAJE_GENERAL)/100), 2);
+             	$total_des = $total_des + $descuento_precio;
+             	$value->PRECIO = (round($value->PRECIO - $descuento_precio,2));
+             	$value->DESCUENTO = ($value->DESCUENTO + round($descuento_precio,2));
+             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT * $value->PORCENTAJE_GENERAL)/100), 2);
 
          		//CUPON
 
-             	$descuento_precio = round((($value->PRECIO*$value->CUPON_PORCENTAJE)/100),2);
-             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
-             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
-             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->CUPON_PORCENTAJE)/100),2);
+             	$descuento_precio = round((($value->PRECIO * $value->CUPON_PORCENTAJE)/100), 2);
+             	$total_des = $total_des + $descuento_precio;
+             	$value->PRECIO = (round($value->PRECIO - $descuento_precio,2));
+             	$value->DESCUENTO = ($value->DESCUENTO + round($descuento_precio,2));
+             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT * $value->CUPON_PORCENTAJE)/100), 2);
 
-            }else{
+                $descuento = ($precio * $value->DESCUENTO_PORCENTAJE)/100;
+                $precio_descontado = $precio - $descuento;
+                $descuento_general = ($precio_descontado * $value->PORCENTAJE_GENERAL)/100;
+                $precio_descontado_general = $precio_descontado - $descuento_general;
+                $precio_descontado_total = $descuento + $descuento_general;
 
+            	//CUPON
+
+                $descuento_cupon = ($precio_descontado_general * $value->CUPON_PORCENTAJE)/100;
+                $precio_descontado_total = $precio_descontado_total + $descuento_cupon;
+
+           		//---------------------------------------------------------
+
+              	$descuento_real = ($precio_descontado_total * 100)/$precio;
+
+              	$value->DESCUENTO_PORCENTAJE = $descuento_real;
+				                
+             }else{
+             	
              	//SI TIENE SOLO CUPON
 
-                if ($value->CUPON_PORCENTAJE>0) {
+                if ($value->CUPON_PORCENTAJE>0 ) {
 
-	             	$descuento_precio = round((($value->PRECIO*$value->CUPON_PORCENTAJE)/100),2);
-	             	$total_des = $total_des+$descuento_precio;
-	             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
-	             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
-	             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
+	             	$descuento_precio = round((($value->PRECIO * $value->CUPON_PORCENTAJE)/100), 2);
+	             	$total_des = $total_des + $descuento_precio;
+	             	$value->PRECIO = (round($value->PRECIO - $descuento_precio, 2));
+	             	$value->DESCUENTO = ($value->DESCUENTO + round($descuento_precio, 2));
+	             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT * $value->PORCENTAJE_GENERAL)/100), 2);
 
-	            } else{
-				    
-				    //SI TIENE SOLO DESCUENTO GENERAL
+	               $descuento = ($precio * $value->CUPON_PORCENTAJE)/100;
+	               $precio_descontado = $precio - $descuento;
+	               $descuento_general = ($precio_descontado * $value->CUPON_PORCENTAJE)/100;
+	               $precio_descontado_general = $precio_descontado - $descuento_general;
+	               $precio_descontado_total = $descuento + $descuento_general;
+	               $descuento_real = ($precio_descontado_total * 100)/$precio;
+	               $value->DESCUENTO_PORCENTAJE = $descuento_real;
+                
+	            }else{
+			        
+			        //SI TIENE SOLO DESCUENTO GENERAL
 
-			        if ($value->PORCENTAJE_GENERAL>0 ) {
+		            if ($value->PORCENTAJE_GENERAL>0 ) {
 
-		             	$descuento_precio = round((($value->PRECIO*$value->PORCENTAJE_GENERAL)/100),2);
-		             	$total_des = $total_des+$descuento_precio;
-		             	$value->PRECIO = (round($value->PRECIO-$descuento_precio,2));
-		             	$value->DESCUENTO = ($value->DESCUENTO+round($descuento_precio,2));
-		             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT*$value->PORCENTAJE_GENERAL)/100),2);
-			        }
-			    }
+		             	$descuento_precio = round((($value->PRECIO * $value->PORCENTAJE_GENERAL)/100), 2);
+		             	$total_des = $total_des + $descuento_precio;
+
+		             	$value->PRECIO = (round($value->PRECIO - $descuento_precio, 2));
+		             	$value->DESCUENTO = ($value->DESCUENTO + round($descuento_precio, 2));
+		             	$value->PRECIO_UNIT = round((($value->PRECIO_UNIT * $value->PORCENTAJE_GENERAL)/100), 2);
+
+		               	$descuento = ($precio * $value->DESCUENTO_PORCENTAJE)/100;
+		               	$precio_descontado = $precio - $descuento;
+		               	$descuento_general = ($precio_descontado * $value->PORCENTAJE_GENERAL)/100;
+		               	$precio_descontado_general = $precio_descontado - $descuento_general;
+		               	$precio_descontado_total = $descuento + $descuento_general;
+		               	$descuento_real = ($precio_descontado_total * 100)/$precio;
+		               	$value->DESCUENTO_PORCENTAJE = $descuento_real;
+	                
+		            }
+	            }
 			}
 	                    
 			$nestedData['COD_PROD'] = $value->COD_PROD;
@@ -2606,6 +2643,8 @@ class Temp_venta extends Model
 			$nestedData['GONDOLA'] = $value->GONDOLA;
        		$nestedData['GONDOLA_NOMBRE'] = $value->GONDOLA_NOMBRE;
        		$nestedData["UTILIDAD"]= $value->PRECIO - $value->COSTO_TOTAL;
+       		$nestedData["DESCUENTO_PORCENTAJE"] = $value->PORCENTAJE_GENERAL;
+       		$nestedData["DESCUENTO_PRODUCTO"] = $value->DESCUENTO_PORCENTAJE;
 
             $compra_in[] = $nestedData;
 	    }

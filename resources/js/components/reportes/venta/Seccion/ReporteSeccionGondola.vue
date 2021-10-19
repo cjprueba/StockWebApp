@@ -150,7 +150,20 @@
 
 	        },        
 
-	       habilitar_insert() {
+	      	seleccionarTodo(){
+
+	      		let me = this;
+
+	      		if(me.onGondola === true) {
+			        for (var key in me.gondolas){
+			        	me.selectedGondola[key] = me.gondolas[key].ID;
+			        }
+			    }
+			    
+			    me.habilitar_insert();
+	      	},
+
+	       	habilitar_insert() {
 		       	let me = this;
 		       	me.insert = true;
 	       	},

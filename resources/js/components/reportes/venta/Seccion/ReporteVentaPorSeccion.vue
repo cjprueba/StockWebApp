@@ -76,7 +76,6 @@
 					</div>
 				</div>
 				<button class="btn btn-dark btn-sm" type="submit" v-on:click="descargar()"><font-awesome-icon icon="download" /> Descargar</button>
-			    <button class="btn btn-primary btn-sm" type="submit" v-on:click="llamarDatos">Generar</button>
 			</div>
 		</div>
 
@@ -92,177 +91,7 @@
 	                <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
 	             </div>
             </div>
-
-			<!-- SPINNER CONSULTA -->
-
-			<div class="col-md-12">
-				<div v-if="cargado" class="d-flex justify-content-center mt-3">
-					<strong>Cargando...   </strong>
-	                <div class="spinner-grow" role="status" aria-hidden="true"></div>
-	             </div>
-            </div>
-            
-            <!-- CHART MARCAS -->
-
-      	 <div class="col-md-12">
-	            <div class="card-body">
-					<div class="ct-chart">
-						<canvas id="categorias">
-								
-						</canvas>
-					</div>
-				</div>
-	    	</div>
-         
-	        <div class="col-md-12">
-		     	<table class="table table-striped table-hover table-light table-sm" v-if="responseCategoria.length > 0">
-					<thead>
-					    <tr>
-					      <th scope="col">#</th>
-					      <th scope="col">Categoria</th>
-					      <th scope="col">Vendido</th>
-					      <th scope="col">Descuento</th>
-					      <th scope="col">Costo Total</th>
-					      <th scope="col">Totales</th>
-					    </tr>
-					</thead>
-					<tbody>
-					    <tr v-for="(categoria, index) in responseCategoria" v-on:click="clicked(categoria)"  data-toggle="modal" data-target="#exampleModalCenter">
-					      <th scope="row">{{index+1}}</th>
-					      <td>{{categoria.TOTALES}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.VENDIDO)}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.DESCUENTO)}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.COSTO)}}</td>
-					      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.TOTAL)}}</td>
-					    </tr>
-					</tbody>
-					<tfoot>
-						<tr>
-						  <th></th>
-						  <th>TOTALES</th>
-						  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseCategoria.reduce((aca, item) => aca + parseInt(item.VENDIDO), 0))}}</th>
-						  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseCategoria.reduce((acc, item) => acc + item.DESCUENTO, 0))}}</th>
-						   <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseCategoria.reduce((acc, item) => acc + item.COSTO, 0))}}</th>
-						  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(responseCategoria.reduce((acc, item) => acc + item.TOTAL, 0))}}</th>
-						</tr>
-					</tfoot>
-				</table>
-		    </div>
-        </div>
-
-		<!-- MODAL DE TABLA PARA DATOS CRUDOS -->
-
-		<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
-				<div class="modal-content">
-				    <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">Categoria: <small>{{categoriaTitulo}}</small></h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				    </div>
-				    <div class="modal-body">
-				        <table class="table" v-if="datosFilas !== null">
-						  <thead>
-						    <tr >
-						      <th style="font-size: 12px" scope="col">#</th>
-						      <th style="font-size: 12px" scope="col">CODIGO</th>
-						      <th style="font-size: 12px" scope="col">LOTE</th>
-						      <th style="font-size: 12px" scope="col">CATEGORIA</th>
-						      <th style="font-size: 12px" scope="col">SUBCATEGORIA</th>
-						      <th style="font-size: 12px" scope="col">STOCK</th>
-						      <th style="font-size: 12px" scope="col">VENDIDO</th>
-						      <th style="font-size: 12px" scope="col">PRECIO UNITARIO</th>
-						      <th style="font-size: 12px" scope="col">TOTAL</th>
-						      <th style="font-size: 12px" scope="col">DESCUENTO TOTAL</th>
-						      <th style="font-size: 12px" scope="col">COSTO UNITARIO</th>
-						      <th style="font-size: 12px" scope="col">COSTO TOTAL</th>
-						      <th style="font-size: 12px" scope="col">DESCUENTO %</th>
-						    </tr>
-						  </thead>
-						  <tbody>
-						    <tr style="font-size: 12px" v-for="(venta, index) in filterProductos(responseVenta, datosFilas)">
-						      <th scope="row">{{index+1}}</th>
-						      <td>{{venta.COD_PROD}}</td>
-						       <td>{{venta.LOTE}}</td>
-						      <td>{{venta.CATEGORIA}}</td>
-						      <td>{{venta.SUBCATEGORIA}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.STOCK)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.VENDIDO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.PRECIO_UNIT)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.TOTAL)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.DESCUENTO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.COSTO_UNIT)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.COSTO_TOTAL)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(venta.DESCUENTO_PORCENTAJE)}}</td>
-						    </tr>
-						  </tbody>
-						</table>
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>	
-
-			<!-- FIN DE TALA DE DATOS CRUDOS -->
-
-			<div class="col-md-12">
-				<div class="card border-left-primary mt-3" v-for="categoria in responseCategoria">
-					<div class="row">
-						
-						<div class="col-md-6">
-							  <div class="card-header font-weight-bold text-primary">
-							    {{categoria.TOTALES}}
-							  </div>
-					    </div>
-					    <div class="col-md-6">
-							  <div class="card-header font-weight-bold text-primary text-right">
-							    {{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.TOTAL)}}
-							  </div>
-					    </div>
-					</div>  
-					
-					<div class="card-body">
-						<table class="table table-sm">
-						  <thead class="thead-light">
-						    <tr>
-						      <th scope="col">#</th>
-						      <th scope="col">SubCategoria</th>
-						      <th scope="col">Vendido</th>
-						      <th scope="col">Descuento</th>
-						      <th scope="col">Costo Total</th>
-						      <th scope="col">Total</th>
-						    </tr>
-						  </thead>
-						  <tbody>
-						    <tr v-for="(categoria, index) in filterItems(responseCategoria, categoria.CATEGORIAS)">
-						      <th scope="row">{{index+1}}</th>
-						      <td>{{categoria.DESCRI_L}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(subCategoria.VENDIDO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(subCategoria.DESCUENTO)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(subCategoria.COSTO_TOTAL)}}</td>
-						      <td>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(subCategoria.TOTAL)}}</td>
-						    </tr>
-						  </tbody>
-						  <tfoot>
-							<tr>
-							  <th></th>
-							  <th>TOTALES</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.VENDIDO)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.DESCUENTO)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.COSTO_TOTAL)}}</th>
-							  <th>{{new Intl.NumberFormat("de-DE", {style: "decimal", decimal: "0"}).format(categoria.TOTAL)}}</th>
-							</tr>
-						  </tfoot>
-						</table>
-					</div>
-				</div>
-			</div>
-
-		<!-- CARD PARA CATEGORIA Y SUB CATEGORIA -->
-
+		</div>
 	</div>
 
 	<!-- FIN DE VENTA POR SECCION -->
@@ -316,7 +145,6 @@
               	cargado: false,
               	descarga: false,
               	secciones: [],
-              	selectedSeccion: '',
               	validarSeccion: false,
               	messageInvalidSeccion: ''
             }
@@ -391,29 +219,6 @@
 
 	        todasSubCategorias(e){
 	        	this.onSubCategoria = !this.onSuvCategoria;
-	        },
-
-	        llamarDatos(){
-
-	        	let me = this;	
-	        	if(this.generarConsulta() === true) {
-
-	        		me.cargado = true;
-
-		        	Common.generarReporteVentaSeccionCommon(this.datos).then(data => {
-		        		  
-	             		me.cargado = false;
-						me.responseVenta = data.ventas;
-						const categoriaArray = Object.keys(data.categorias).map(i => data.categorias[i])
-						me.responseCategoria = categoriaArray
-						   
-						const subCategoriaArray = Object.keys(data.subCategorias).map(i => data.subCategorias[i])
-						me.responsesubCategoria = subCategoriaArray
-						me.loadCategorias();
-	              	});
-	        	} 
-
-	        	me.insert = false;
 	        },
 
 	        generarConsulta(){
