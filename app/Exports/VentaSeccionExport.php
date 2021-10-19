@@ -26,118 +26,120 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
     * @return \Illuminate\Support\Collection
     */
 
-    protected $inicio;
-    protected $final;
     protected $categorias;
     protected $sucursal;
     protected $sublineas;
     protected $seccion;
     protected $AllSubCategory;
     protected $AllCategory;
+    protected $total_venta = 0;
+    protected $total_vendido = 0;
+    protected $total_stock = 0;
+    protected $total_descuento = 0;
+    protected $total_precio = 0;
+    public  $posicion = 1;
+    public  $venta_array = [];
+    private $total_cant_descuento = 0;
+    private $total_utilidad = 0;
+    private $total_costo = 0;
+    private $total_costo_unit = 0;
 
+    public function __construct($datos){
 
-    public function __construct($datos)
-    {
+        $this->AllCategory = $datos["AllCategory"];
         $this->categorias = $datos["Categorias"];
+        $this->AllSubCategory = $datos["AllSubCategory"];
+        $this->sublineas = $datos["SubCategorias"];
         $this->sucursal = $datos["Sucursal"];
-        $this->AllCategory=$datos["AllCategory"];
-        $this->seccion=$datos["Seccion"];
-        $this->proveedores=$datos["SubCategorias"];
-        $this->AllSubCategory=$datos["AllSubCategory"];
-        $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
-        $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
+        $this->seccion = $datos["Seccion"];
     }
 
-    public function  array(): array
-    {
+    public function  array(): array {
 
-        $ventas = Ventas_det::query()->select(
-            DB::raw('VENTASDET.COD_PROD, SUM(CANTIDAD) AS CANTIDAD, SUM(VENTASDET.PRECIO) AS TOTAL, VENTASDET.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, 0 as 10OFF, 0 as T, 0 as C, 0 as R, GONDOLAS.DESCRIPCION AS GONDOLA'),
-            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = VENTASDET.COD_PROD) AND (l.ID_SUCURSAL = VENTASDET.ID_SUCURSAL))),"0") AS STOCK')
-        )
-        ->leftJoin('PRODUCTOS_AUX', function($join){
-                            $join->on('PRODUCTOS_AUX.CODIGO', '=', 'VENTASDET.COD_PROD')
-                                 ->on('VENTASDET.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
-                         })
-        
-        ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-        ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
-             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','PRODUCTOS.CODIGO')
-                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-        })
-        /*->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')*/
-        ->leftjoin('productos_tiene_seccion','productos_tiene_seccion.COD_PROD','=','VENTASDET.COD_PROD')
-        ->leftJoin('gondolas', 'gondolas.ID', '=', 'gondola_tiene_productos.ID_GONDOLA')
-        ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
-        ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
-        ->where('VENTASDET.ANULADO', '=', 0)
-        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final]);
-        if($this->AllSubCategory==false){
-            $ventas->whereIn('PRODUCTOS.LINEA', $this->categorias);
-        }
-        if($this->AllSubCategory==false){
-            $ventas->whereIn('PRODUCTOS.SUBLINEA', $this->sublineas);
-        }
-        
-        
-        $ventas=$ventas->groupBy('VENTASDET.COD_PROD')
+        $user = auth()->user();
+
+        $ventas = DB::connection('retail')->table('temp_ventas')
+            ->select(DB::raw('
+                temp_ventas.COD_PROD, 
+                temp_ventas.NOMBRE AS DESCRIPCION,
+                temp_ventas.GONDOLA_NOMBRE AS GONDOLA, 
+                SUM(temp_ventas.VENDIDO) AS VENDIDO, 
+                SUM(temp_ventas.PRECIO) AS TOTAL, 
+                SUM(temp_ventas.COSTO_TOTAL) AS COSTO_TOTAL,
+                AVG(temp_ventas.PRECIO_UNIT) AS PRECIO, 
+                AVG(temp_ventas.COSTO_UNIT) AS COSTO, 
+                SUM(temp_ventas.DESCUENTO) AS DESCUENTO_TOTAL,
+                SUM(temp_ventas.UTILIDAD) AS UTILIDAD,
+                IF(temp_ventas.DESCUENTO_PRODUCTO > 0, SUM(temp_ventas.VENDIDO), "0") AS DESCUENTO'),
+            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),"0") AS STOCK'))
+        ->where('temp_ventas.ID_SUCURSAL', '=', $this->sucursal)
+        ->where('temp_ventas.SECCION_CODIGO', '=', $this->seccion)
+        ->where('temp_ventas.USER_ID', '=', $user->id)
+        ->whereIn('temp_ventas.LINEA_CODIGO', $this->categorias)
+        ->whereIn('temp_ventas.SUBLINEA_CODIGO', $this->sublineas)
+        ->groupBy('temp_ventas.COD_PROD')
+        ->orderBy('temp_ventas.COD_PROD')
         ->get()
         ->toArray();
 
         foreach ($ventas as $key => $value) {
+            
+            $this->posicion = $this->posicion + 1;
+            $this->total_precio = $this->total_precio + $value->PRECIO;
+            $this->total_vendido = $this->total_vendido + $value->VENDIDO;
+            $this->total_venta = $this->total_venta + $value->TOTAL;
+            $this->total_cant_descuento = $this->total_descuento + $value->DESCUENTO;
+            $this->total_stock = $this->total_stock + $value->STOCK;
+            $this->total_utilidad = $this->total_utilidad + $value->UTILIDAD;
+            $this->total_costo = $this->total_costo + $value->COSTO_TOTAL;
+            $this->total_costo_unit = $this->total_costo_unit + $value->COSTO;
+            $this->total_descuento = $this->total_descuento + $value->DESCUENTO_TOTAL;
 
-            $producto = Ventas_det::select(
-                DB::raw('SUM(CANTIDAD) AS CANTIDAD, PORCENTAJE')
-            )
-            ->leftJoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
-            ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
-            ->Where('VENTASDET.COD_PROD', '=', $value['COD_PROD'])
-            ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final])
-            ->groupBy('VENTASDET_DESCUENTO.PORCENTAJE')
-            ->get()
-            ->toArray();
+            $venta_array[] = array(
 
-            foreach ($producto as $key_descuento => $value) {
-
-                if ( $value['PORCENTAJE']===10  ) {
-                    $ventas[$key]['10OFF'] = $value['CANTIDAD'];
-                } else {
-                    $ventas[$key]['10OFF'] = '0';
-                }
-
-                if ($value['PORCENTAJE'] === 30) {
-                    $ventas[$key]['T'] = $value['CANTIDAD'];
-                } else {
-                    $ventas[$key]['T'] = '0';
-                }
-
-                if ($value['PORCENTAJE'] === 50) {
-                    $ventas[$key]['C'] = $value['CANTIDAD'];
-                } else {
-                    $ventas[$key]['C'] = '0';
-                }
-
-                if ($value['PORCENTAJE'] === 100) {
-                    $ventas[$key]['R'] = $value['CANTIDAD'];
-                } else {
-                    $ventas[$key]['R'] = '0';
-                }
-            }
+                'CODIGO'=> $value->COD_PROD,
+                'DESCRIPCION'=>$value->DESCRIPCION,
+                'GONDOLA'=>$value->GONDOLA,
+                'VENTAS'=> $value->VENDIDO,
+                'PRECIO'=> $value->PRECIO,
+                'CANTIDAD DESCUENTO'=> $value->DESCUENTO,
+                'TOTAL DESCUENTO' => $value->DESCUENTO_TOTAL,
+                'TOTAL'=> $value->TOTAL,
+                'COSTO' => $value->COSTO,
+                'TOTAL COSTO' => $value->COSTO_TOTAL,
+                'UTILIDAD' => $value->UTILIDAD,
+                'STOCK'=> $value->STOCK
+            );
 
         }
 
-        return $ventas;
+        $venta_array[] = array(
+                'CODIGO'=> '',
+                'DESCRIPCION'=>'',
+                'GONDOLA'=> 'TOTALES',
+                'VENTAS'=> $this->total_vendido,
+                'PRECIO'=> $this->total_precio,
+                'CANTIDAD DESCUENTO'=> $this->total_cant_descuento,
+                'TOTAL DESCUENTO' => $this->total_descuento,
+                'TOTAL'=> $this->total_venta,
+                'COSTO' => $this->total_costo_unit,
+                'TOTAL COSTO' => $this->total_costo,
+                'UTILIDAD' => $this->total_utilidad,
+                'STOCK'=> $this->total_stock
+        );
+
+        return $venta_array;
 
     }
 
     public function headings(): array
     {
-        return ["CODIGO", "VENTAS", "TOTAL", "DESCRIPCION", "PRECIO", "10% OFF", "30% OFF", "50% OFF", "100% OFF", "GONDOLA", "STOCK"];
+        return ["CODIGO", "DESCRIPCION", "GONDOLA", "VENTAS", "PRECIO", "CANTIDAD DESCUENTO", "TOTAL DESCUENTO", "TOTAL", "COSTO", "COSTO TOTAL", "UTILIDAD", "STOCK"];
     }
 
     public function title(): string
     {
-        return 'TOP VENTAS';
+        return 'GENERAL';
     }
 
     public function registerEvents(): array
@@ -171,9 +173,19 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
         return [
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-                $event->sheet->getStyle('A1:K1')->applyfromarray($styleArray);
-                // $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(500);
-                // $event->sheet->getRowDimension(1)->setRowHeight(500);
+                $event->sheet->getStyle('A1:L1')->applyfromarray($styleArray);
+                $this->posicion = $this->posicion + 1;
+                $event->sheet->getStyle('A'.$this->posicion.':L'.$this->posicion)->applyfromarray($styleArray);
+                $event->sheet->getStyle('A2:'.'A'.$this->posicion)->getNumberFormat()->setFormatCode('#');
+                $event->sheet->getStyle('D2:'.'D'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+                $event->sheet->getStyle('E2:'.'E'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('F2:'.'F'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+                $event->sheet->getStyle('G2:'.'G'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('H2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('I2:'.'I'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('J2:'.'J'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('K2:'.'K'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('L2:'.'L'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
             }
 
         ];

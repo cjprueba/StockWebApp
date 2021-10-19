@@ -339,18 +339,21 @@ class VentaController extends Controller
 
         // DESCARGAR ARCHIVO EXCEL 
 
-        /*$inicio = new DateTime(($request->all())['Inicio']);
-        $inicio = $inicio->format('Y-m-d');
+        if($request->Insert == true){
 
-        $final = new DateTime(($request->all())['Final']);
-        $final = $final->format('Y-m-d');
+            $datos = array(
+                'inicio' => date('Y-m-d', strtotime($request->Inicio)),
+                'final' => date('Y-m-d', strtotime($request->Final)),
+                'sucursal' => $request->Sucursal,
+                'secciones' => $request->Seccion,
+                'checkedCategoria' => $request->AllCategory,
+                'checkedSubCategoria' => $request->AllSubCategory,
+                'sublinea' => $request->SubCategorias,
+                'linea' => $request->Categorias,
+            );
 
-        $categorias = ($request->all())['Categorias'];
-        $subcategorias = ($request->all())['SubCategorias'];
-
-        $sucursal = ($request->all())['Sucursal'];
-
-        $seccion = ($request->all())['Seccion'];*/
+            Temp_venta::insertar_reporte_venta_seccion($datos);
+        }
 
         return Excel::download(new SeccionExport($request->all()), 'VENTA_SECCION.xlsx');
 
