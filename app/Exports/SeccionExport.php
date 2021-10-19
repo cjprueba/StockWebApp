@@ -25,16 +25,16 @@ class SeccionExport implements WithMultipleSheets
     protected $AllCategory;
     protected $datos2;
 
-    public function __construct($datos)
-    {
-        $this->datos2=$datos;
+    public function __construct($datos){
 
-        
+        $this->datos2 = $datos;
+
     }
 
     /**
      * @return array
     */
+
     public function sheets(): array
     {
         $sheets = [];

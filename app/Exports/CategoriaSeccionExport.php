@@ -22,8 +22,6 @@ class CategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize,
     * @return \Illuminate\Support\Collection
     */
 
-    protected $inicio;
-    protected $final;
     protected $categorias;
     protected $sucursal;
     protected $sublineas;
@@ -31,58 +29,79 @@ class CategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize,
     protected $AllSubCategory;
     protected $AllCategory;
     protected $datos2;
+    protected $total_vendido = 0;
+    protected $total_venta = 0;
+    protected $porcentaje;
+    public  $posicion = 1;
+    public  $categoria_array = [];
 
-    public function __construct($datos)
-    {
+    public function __construct($datos) {
+
+        $this->AllCategory = $datos["AllCategory"];
         $this->categorias = $datos["Categorias"];
+        $this->AllSubCategory = $datos["AllSubCategory"];
+        $this->sublineas = $datos["SubCategorias"];
         $this->sucursal = $datos["Sucursal"];
-        $this->AllCategory=$datos["AllCategory"];
-        $this->seccion=$datos["Seccion"];
-        $this->proveedores=$datos["SubCategorias"];
-        $this->AllSubCategory=$datos["AllSubCategory"];
-        $this->inicio = date('Y-m-d', strtotime($datos["Inicio"]));
-        $this->final  =  date('Y-m-d', strtotime($datos["Final"]));
+        $this->seccion = $datos["Seccion"];
     }
+    
+    public function  array(): array {
 
-    public function  array(): array
-    {
+        $user = auth()->user();
 
-        $categorias = Ventas_det::select(
-            DB::raw('LINEAS.CODIGO, SUM(CANTIDAD) AS CANTIDAD, LINEAS.DESCRIPCION, 0 AS PORCENTAJE')
-        )
-        ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'VENTASDET.COD_PROD')
-        ->leftJoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
-        ->leftjoin('GONDOLA_TIENE_PRODUCTOS',function($join){
-             $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','PRODUCTOS.CODIGO')
-                  ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','VENTASDET.ID_SUCURSAL');
-        })
-        /* ->leftjoin('GONDOLA_TIENE_PRODUCTOS','GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','VENTASDET.COD_PROD')*/
-        ->leftjoin('productos_tiene_seccion','productos_tiene_seccion.COD_PROD','=','VENTASDET.COD_PROD')
-        ->leftJoin('gondolas', 'gondolas.ID', '=', 'gondola_tiene_productos.ID_GONDOLA')
-        ->Where('VENTASDET.ID_SUCURSAL', '=', $this->sucursal)
-        ->Where('VENTASDET.ANULADO', '=',0)
-       ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
-        ->whereBetween('VENTASDET.FECALTAS', [$this->inicio, $this->final]);
-        if($this->AllSubCategory==false){
-            $categorias->whereIn('PRODUCTOS.LINEA', $this->categorias);
-        }
-        $categorias=$categorias->groupBy('PRODUCTOS.LINEA')
+        $categorias = DB::connection('retail')->table('TEMP_VENTAS')
+            ->select(DB::raw('
+                TEMP_VENTAS.LINEA_CODIGO, 
+                TEMP_VENTAS.CATEGORIA AS DESCRIPCION,
+                SUM(TEMP_VENTAS.VENDIDO) AS CANTIDAD, 
+                SUM(TEMP_VENTAS.PRECIO) AS TOTAL,
+                0 AS PORCENTAJE'))
+        ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'TEMP_VENTAS.COD_PROD')
+        ->where('TEMP_VENTAS.ID_SUCURSAL', '=', $this->sucursal)
+        ->where('TEMP_VENTAS.SECCION_CODIGO', '=', $this->seccion)
+        ->where('TEMP_VENTAS.USER_ID', '=', $user->id)
+        ->whereIn('temp_ventas.LINEA_CODIGO', $this->categorias)
+        ->whereIn('temp_ventas.SUBLINEA_CODIGO', $this->sublineas)
+        ->groupBy('TEMP_VENTAS.LINEA_CODIGO')
+        ->orderBy('TEMP_VENTAS.CATEGORIA')
         ->get()
         ->toArray();
 
         $total_ventas = array_sum(array_column($categorias, 'CANTIDAD'));
 
         foreach ($categorias as $key => $value) {
-            $categorias[$key]['PORCENTAJE'] = round(($value['CANTIDAD'] * 100) / $total_ventas, 2);
+
+            $categorias[$key]->PORCENTAJE = round(($value->CANTIDAD * 100) / $total_ventas, 2);
+
+            $this->posicion = $this->posicion + 1;
+            $this->total_vendido = $this->total_vendido + $value->CANTIDAD;
+            $this->total_venta = $this->total_venta + $value->TOTAL;
+            $this->porcentaje = $this->porcentaje + $value->PORCENTAJE;
+
+            $categoria_array[] = array(
+                'CODIGO' => $value->LINEA_CODIGO,
+                'DESCRIPCION' => $value->DESCRIPCION,
+                'VENTAS' => $value->CANTIDAD,
+                'TOTAL' => $value->TOTAL,
+                'PORCENTAJE' => $value->PORCENTAJE
+            );
         }
 
-        return $categorias;
+        $categoria_array[] = array(
+            'CODIGO' => '',
+            'DESCRIPCION' => 'TOTALES',
+            'VENTAS' =>$this->total_vendido,
+            'TOTAL' => $this->total_venta,
+            'PORCENTAJE' => $this->porcentaje
+        );
+
+        return $categoria_array;
 
     }
 
-    public function headings(): array
-    {
-        return ["CODIGO", "VENTAS", "DESCRIPCION", "PORCENTAJE"];
+    public function headings(): array {
+
+        return ["CODIGO", "DESCRIPCION", "VENTAS", "TOTAL", "PORCENTAJE"];
     }
 
     public function title(): string
@@ -90,8 +109,7 @@ class CategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize,
         return 'CATEGORIAS';
     }
 
-    public function registerEvents(): array
-    {
+    public function registerEvents(): array {
 
         $styleArray = [
             'font' => [
@@ -121,7 +139,12 @@ class CategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSize,
         return [
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-                $event->sheet->getStyle('A1:D1')->applyfromarray($styleArray);
+                $event->sheet->getStyle('A1:E1')->applyfromarray($styleArray);
+                $this->posicion = $this->posicion + 1;
+                $event->sheet->getStyle('A'.$this->posicion.':E'.$this->posicion)->applyfromarray($styleArray);
+                $event->sheet->getStyle('C2:'.'C'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+                $event->sheet->getStyle('D2:'.'D'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('E2:'.'E'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
             }
 
         ];
