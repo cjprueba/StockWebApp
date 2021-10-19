@@ -864,7 +864,7 @@ class Stock extends Model
 		}
     }
 
-    public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere, $vencimiento)
+    public static function insetar_lote($codigo, $cantidad, $costo, $modo, $usere, $vencimiento,$proveedor)
     {
 
     	/*  --------------------------------------------------------------------------------- */
@@ -930,7 +930,8 @@ class Stock extends Model
 			'ID_SUCURSAL' => $user->id_sucursal,
 			'MODO' => $modo,
 			'USERE' => $usere,
-			'FECHA_VENC' => $vencimiento
+			'FECHA_VENC' => $vencimiento,
+            'FK_PROVEEDOR'=>$proveedor,
 		]
 		);
 
