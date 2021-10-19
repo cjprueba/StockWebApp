@@ -2535,7 +2535,8 @@ class Transferencia extends Model
                             TRANSFERENCIADET_TIENE_LOTES.CANTIDAD, 
                             TRANSFERENCIAS_DET.PRECIO,
                             LOTES.FECHA_VENC AS VENCIMIENTO,
-                            LOTES.COSTO'
+                            LOTES.COSTO,
+                            LOTES.FK_PROVEEDOR AS PROVEEDOR'
                         ))
             ->where('TRANSFERENCIAS_DET.ID_SUCURSAL','=', $codigo_origen)
             ->where('TRANSFERENCIAS_DET.CODIGO','=', $codigo)
@@ -2680,7 +2681,7 @@ class Transferencia extends Model
 
                     // CREAR LOTE DEL PRODUCTO 
 
-                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO*$cambio, 2, $usere, $td->VENCIMIENTO))["id"];
+                    $lote = (Stock::insetar_lote($td->CODIGO_PROD, $td->CANTIDAD, $td->COSTO*$cambio, 2, $usere, $td->VENCIMIENTO,$td->PROVEEDOR))["id"];
 
 
                     // MODOS
