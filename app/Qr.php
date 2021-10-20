@@ -420,9 +420,9 @@ class Qr extends Model
                    
                     $x=25;
                    }
-                  if ($datos['codigo']==='2'){
+                  if ($datos['codigo']==='2' and $datos['precio']<>'4'){
                     $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
-                  }else{
+                  }else if($datos['precio']<>'4'){
                     $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
                   }
                    
@@ -444,12 +444,32 @@ class Qr extends Model
                     }else{
                       $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
                     }                   
+                  }else if ($datos['precio']==='4') {
+                    $pdf->SetFontSize(12);
+                    $pdf->SetFont('','B');
+                    if($datos['tipomoneda']==='1'){
+                      if ($value['MONEDA']===1) {
+                        $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
+                      }else {
+                        $conversion = $datos['cotizacion']*$value['PRECIO'];
+                        $restar=strlen($conversion);
+                        if($restar>6){
+                          $restar=$restar-3;
+                        }else{
+                          $restar=0;
+                        }
+                        $pdf->text($x-18.5-$restar, $y+9, "G$ ".$conversion, false, false, true);
+                      }
+                      
+                    }elseif($datos['tipomoneda']==='2'){
+                       $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                    } 
                   }
                   $pdf->SetFontSize(5.7);
                   $pdf->SetFont('freesans');
-                  $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), 0,22), false, false, true, 0, 1, '', false, '', 0); 
-
-                    
+                  if ($datos['precio']<>'4') {
+                    $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), 0,22), false, false, true, 0, 1, '', false, '', 0);
+                  }
                    //$y=$y+35;
 
                    $x=$x+37-1.5;
