@@ -462,7 +462,11 @@ class Qr extends Model
                       }
                       
                     }elseif($datos['tipomoneda']==='2'){
-                       $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                      if ($value['MONEDA']===2) {
+                        $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                      }else{
+                        $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                      }
                     } 
                   }
                   $pdf->SetFontSize(5.7);
