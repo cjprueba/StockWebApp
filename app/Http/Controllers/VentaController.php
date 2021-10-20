@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SeccionExport;
 use DateTime;
 use App\Exports\Reportes\Gondola\VentaGondolaExport;
+use App\Exports\Reportes\Gondola\VentaSeccionGondolaExport;
 use App\Temp_venta;
 
 class VentaController extends Controller
@@ -338,18 +339,21 @@ class VentaController extends Controller
 
         // DESCARGAR ARCHIVO EXCEL 
 
-        /*$inicio = new DateTime(($request->all())['Inicio']);
-        $inicio = $inicio->format('Y-m-d');
+        if($request->Insert == true){
 
-        $final = new DateTime(($request->all())['Final']);
-        $final = $final->format('Y-m-d');
+            $datos = array(
+                'inicio' => date('Y-m-d', strtotime($request->Inicio)),
+                'final' => date('Y-m-d', strtotime($request->Final)),
+                'sucursal' => $request->Sucursal,
+                'secciones' => $request->Seccion,
+                'checkedCategoria' => $request->AllCategory,
+                'checkedSubCategoria' => $request->AllSubCategory,
+                'sublinea' => $request->SubCategorias,
+                'linea' => $request->Categorias,
+            );
 
-        $categorias = ($request->all())['Categorias'];
-        $subcategorias = ($request->all())['SubCategorias'];
-
-        $sucursal = ($request->all())['Sucursal'];
-
-        $seccion = ($request->all())['Seccion'];*/
+            Temp_venta::insertar_reporte_venta_seccion($datos);
+        }
 
         return Excel::download(new SeccionExport($request->all()), 'VENTA_SECCION.xlsx');
 
@@ -417,5 +421,30 @@ class VentaController extends Controller
         //return response()->json([$request->all()]);
     }
 
+    public function descargarVentaGondolaSeccion(Request $request){
 
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR REPORTE VENTAS POR GONDOLA
+
+
+        if($request->Insert == true){
+
+            $datos = array(
+                'inicio' => date('Y-m-d', strtotime($request->Inicio)),
+                'final' => date('Y-m-d', strtotime($request->Final)),
+                'sucursal' => $request->Sucursal,
+                'checkedGondola' => $request->AllGondolas,
+                'gondolas' => $request->Gondolas,
+                'secciones' => $request->Seccion,
+            );
+
+            Temp_venta::insertar_reporte_venta_seccion($datos);
+        }
+         
+        return Excel::download(new VentaSeccionGondolaExport($request->all()), 'VentaEncargadaSeccionGondola.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
 }

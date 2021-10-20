@@ -239,6 +239,8 @@ Route::post('gondolaEliminar', 'GondolaController@gondolaEliminar');
 Route::get('nuevaGondola','GondolaController@obtenerCodigo');
 Route::post('gondola/producto', 'GondolaController@obtenerGondolasProducto');
 Route::get('configuracion/gondola','GondolaController@ConfiguracionInicioGondola');
+Route::get('gondola/encargada/seccion', 'GondolaController@obtenerGondolasEncargada');
+
 
 
 /* -------------------------------------------------------------------------- */
@@ -565,6 +567,8 @@ Route::post('export_venta_gondola', 'VentaController@descargarVentaGondola');
 Route::post('export_producto_salida', 'SalidaProductoController@descargarSalida');
 Route::get('export_inventario_gonodola', 'ExportController@descargarInventario');
 Route::post('export_venta_producto_vencido', 'StockController@descagrarVentaProductoVencido');
+Route::post('export_productos_en_gondola', 'GondolaController@descagrarProductosEnGondola');
+Route::post('export_venta_seccion_gondola', 'VentaController@descargarVentaGondolaSeccion');
 
 
 /* -------------------------------------------------------------------------- */
@@ -774,6 +778,8 @@ Route::get('nuevaSeccion', 'SeccionController@seccionNuevo');
 Route::post('seccionFiltrar', 'SeccionController@filtrarSeccion');
 Route::post('guardarSeccion', 'SeccionController@SeccionGuardar');
 Route::post('eliminarSeccion', 'SeccionController@SeccionEliminar');
+Route::post('export_seccion_proveedor', 'SeccionController@reporteSeccionProveedor');
+Route::post('export_venta_seccion_proveedor', 'SeccionController@reporteSeccionProveedorVenta');
 
 /* -------------------------------------------------------------------------- */
 // 	PRESTAMOS DE PRODUCTOS

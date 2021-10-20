@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Gondola;
-
+use App\Exports\Reportes\Gondola\Productos\GondolasProductosImageExport;
+use Maatwebsite\Excel\Facades\Excel;
 class GondolaController extends Controller
 {
     public function obtenerGondolas(){
@@ -94,7 +95,7 @@ class GondolaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
-        public function ConfiguracionInicioGondola(){
+    public function ConfiguracionInicioGondola(){
         
         /*  --------------------------------------------------------------------------------- */
 
@@ -105,4 +106,28 @@ class GondolaController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+    public function obtenerGondolasEncargada(){
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER GONDOLAS
+
+        $gondolas = Gondola::obtener_gondolas_encargada();
+        return response()->json($gondolas);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+       public function descagrarProductosEnGondola(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // DESCARGAR REPORTE PROVEEDORES 
+        
+        return Excel::download(new GondolasProductosImageExport($request->all()), 'ProductosEnGondola.xlsx');
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    
 }

@@ -69,7 +69,8 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
                     PRODUCTOS.DESCRIPCION, 
                     DETALLE_PROD.DESCRIPCION AS DESCRIPCION_LARGA, 
                     PRODUCTOS_AUX.PREC_VENTA, 
-                    PRODUCTOS_AUX.PREMAYORISTA')
+                    PRODUCTOS_AUX.PREMAYORISTA,
+                    ROUND(AVG(LOTES.COSTO),2) AS COSTO_PROMEDIO')
         )
         ->leftJoin('PRODUCTOS_AUX', function($join){
                             $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
@@ -130,7 +131,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
     public function headings(): array
     {
-        return ["CODIGO", "IMAGEN", "STOCK","CANTIDAD_INICIAL","ULTIMA_ENTRADA","CANTIDAD_PEDIDO","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M."];
+        return ["CODIGO", "IMAGEN", "STOCK","CANTIDAD_INICIAL","ULTIMA_ENTRADA","CANTIDAD_PEDIDO","PROVEEDOR","CATEGORIA", "DESCRIPCION", "DESCRIPCION DETALLADA", "PRE. V.", "PRE. M.","COSTO_PROMEDIO"];
     }
 
     public function title(): string
@@ -172,7 +173,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
 
-                $event->sheet->getStyle('A1:L1')->applyfromarray($styleArray);
+                $event->sheet->getStyle('A1:M1')->applyfromarray($styleArray);
                 $event ->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
                 $event ->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
                 $event ->sheet->getDelegate()->getColumnDimension('D')->setWidth(15);
@@ -193,9 +194,11 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 			        $drawing->setDescription('Logo');
 
 			        $imagen = 'C:/inetpub/wwwroot/Master/storage/app/public/imagenes/productos/'.$value['COD_PROD'].'.jpg';
+                    /*  $imagen = 'C:/laragon/www/StockWebApp/public/imagenes/'.$value['COD_PROD'].'.jpg';*/
 
 			        if(!file_exists($imagen)) {
 			        	$drawing->setPath('C:/inetpub/wwwroot/Master/public/images/SinImagen.png');
+                       /* $drawing->setPath('C:/laragon/www/StockWebApp/public/imagenes/product.png');*/
 			        } else {
 			        	$drawing->setPath($imagen);
 			        }
