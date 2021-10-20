@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Log;
 class Venta extends Model
 {
     protected $connection = 'retail';
+    protected $table = 'ventas';
     public $timestamps = false;
 
     public static function ventas($fecha){
@@ -402,8 +403,8 @@ class Venta extends Model
         ->Where('VENTAS_ANULADO.ANULADO','=',0)
         ->Where('VENTAS.ID_SUCURSAL','=',$sucursal)
         ->whereBetween('VENTAS.FECALTAS', [$inicio, $final])
-        ->get()
-        ->toArray();
+        ->get();
+       
 
         if(count($ser) > 0){
     
@@ -462,21 +463,22 @@ class Venta extends Model
         /*  --------------------------------------------------------------------------------- */
                    
         $temp = DB::connection('retail')->table('temp_ventas')->select(
-            DB::raw('temp_ventas.COD_PROD AS COD_PROD'),
-            DB::raw('temp_ventas.LOTE AS LOTE'),
-            DB::raw('SUM(temp_ventas.VENDIDO) AS VENDIDO'),
-            DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL temp_ventas.ID_SUCURSAL))),0)   AS STOCK'),
-            DB::raw('SUM(temp_ventas.DESCUENTO) AS DESCUENTO'),
-            DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
-            DB::raw('COSTO_UNIT AS COSTO_UNIT'),
-            DB::raw('SUM(temp_ventas.PRECIO) AS TOTAL'),
-            DB::raw('temp_ventas.PRECIO_UNIT AS PRECIO_UNIT'),
-            DB::raw('temp_ventas.CATEGORIA AS CATEGORIA'),
-            DB::raw('temp_ventas.SUBCATEGORIA AS SUBCATEGORIA'),
-            DB::raw('temp_ventas.MARCA AS MARCA'),
-            DB::raw('temp_ventas.MARCAS_CODIGO AS MARCAS_CODIGO'),
-            DB::raw('temp_ventas.DESCUENTO_PORCENTAJE AS DESCUENTO_PORCENTAJE'),
-            DB::raw('temp_ventas.DESCUENTO_PRODUCTO AS DESCUENTO_PRODUCTO'))
+            DB::raw('temp_ventas.COD_PROD AS COD_PROD,
+                     temp_ventas.LOTE AS LOTE,
+                     SUM(temp_ventas.VENDIDO) AS VENDIDO,
+                     IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
+                     SUM(temp_ventas.DESCUENTO) AS DESCUENTO,
+                     SUM(COSTO_TOTAL) AS COSTO_TOTAL,
+                     COSTO_UNIT AS COSTO_UNIT,
+                     SUM(temp_ventas.PRECIO) AS TOTAL,
+                     temp_ventas.PRECIO_UNIT AS PRECIO_UNIT,
+                     temp_ventas.CATEGORIA AS CATEGORIA,
+                     temp_ventas.SUBCATEGORIA AS SUBCATEGORIA,
+                     temp_ventas.MARCA AS MARCA,
+                     temp_ventas.MARCAS_CODIGO AS MARCAS_CODIGO,
+                     temp_ventas.DESCUENTO_PORCENTAJE AS DESCUENTO_PORCENTAJE,
+                     temp_ventas.DESCUENTO_PRODUCTO AS DESCUENTO_PRODUCTO'))
+          
         ->where('temp_ventas.ID_SUCURSAL','=',$sucursal)
         ->where('temp_ventas.USER_ID','=',$user)
         ->GROUPBY('temp_ventas.COD_PROD','temp_ventas.LOTE','temp_ventas.DESCUENTO_PRODUCTO') 
@@ -540,6 +542,7 @@ class Venta extends Model
 
         return ['ventas' => $marcas_productos_array, 'marcas' => $marcas_array, 'categorias' => $marcas_categoria_array];
     }
+
 
     public static function generarConsulta($datos) {
          
@@ -6112,8 +6115,7 @@ class Venta extends Model
                 VENTAS.TOTAL AS TOTAL,
                 VENTAS.ID AS ID'))
             ->Where('VENTAS.ID','=',$datos['data']['id_venta'])
-            ->get()
-            ->toArray();
+            ->get();
             
             if(count($venta) <= 0){
                return ["response" => false, 'status_text' => "No existe la venta seleccionada"];
@@ -6178,8 +6180,7 @@ class Venta extends Model
             ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
             ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
             ->where('VENTASDET.DESCRIPCION', 'NOT LIKE', 'DESCUENTO%')
-            ->get()
-            ->toArray();
+            ->get();
 
             foreach ($venta as $key => $value) {
 
@@ -6190,9 +6191,9 @@ class Venta extends Model
                 ->delete();
             }
             
-            $ventas = Venta::where('CODIGO', $datos['data']['codigo'])
-            ->Where('VENTASDET.CAJA','=',$datos['data']['caja'])
-            ->Where('VENTASDET.ID_SUCURSAL','=',$user->id_sucursal) 
+            $ventas = Ventas_det::where('CODIGO', $datos['data']['codigo'])
+            ->Where('CAJA','=',$datos['data']['caja'])
+            ->Where('ID_SUCURSAL','=',$user->id_sucursal) 
             ->update([
                 'ANULADO' => 1,
                 'FECMODIF' => $dia,
@@ -9167,7 +9168,7 @@ class Venta extends Model
             $reporte->where('LOTES.CANTIDAD','>',0);
         }
 
-        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
+        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get();
         
         $precio = 100;
         $descuento_precio = 0;
@@ -9296,7 +9297,7 @@ class Venta extends Model
             $reporte->where('LOTES.CANTIDAD','>',0);
         }
 
-        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get()->toArray();
+        $reporte = $reporte->orderby('VENTASDET.COD_PROD')->get();
 
         foreach ($reporte as $key => $value) {
        
@@ -9402,9 +9403,9 @@ class Venta extends Model
                 $join->on('PRODUCTOS_AUX.CODIGO', '=', 'lOTES.COD_PROD')
                      ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
                 })
-             ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
-             ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
-             ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
+            ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
+            ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
+            ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->Where('LOTES.ID_SUCURSAL', '=', $datos["datos"]["Sucursal"])
         ->where(DB::raw('(SELECT MAX(L6.FECMODIF) AS ULT_FECHA FROM LOTES AS L6 WHERE L6.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L6.COD_PROD=LOTES.COD_PROD)'), '<', $inicio)
         ->whereNotBetween(DB::raw('(SELECT MAX(L3.FECMODIF) AS ULT_FECHA FROM LOTES AS L3 WHERE L3.ID_SUCURSAL=LOTES.ID_SUCURSAL AND L3.COD_PROD=LOTES.COD_PROD)'), [$inicio, $final]);
@@ -9656,8 +9657,7 @@ class Venta extends Model
         ->Where('VENTAS_ANULADO.ANULADO','=',0)
         ->Where('VENTAS.ID_SUCURSAL','=',$sucursal)
         ->whereBetween('VENTAS.FECALTAS', [$inicio, $final])
-        ->get()
-        ->toArray();
+        ->get();
         
         if(count($ser) > 0){
         
@@ -9836,7 +9836,8 @@ class Venta extends Model
                 'secciones' => $datos["data"]["secciones"],
                 'mayoristaContado' => $datos["data"]["MayoristaContado"],
                 'mayoristaCredito' => $datos["data"]["MayoristaCredito"],
-                'servicioDelivery' => $datos["data"]["ServicioDelivery"]
+                'servicioDelivery' => $datos["data"]["ServicioDelivery"],
+                'utilidad'=> true
             );
                 
             Temp_venta::insertar_reporte($data);
@@ -9869,8 +9870,7 @@ class Venta extends Model
             DB::raw('SUM(temp_ventas.PRECIO_UNIT) AS PRECIO_UNIT'))
         ->where('USER_ID','=',$user)
         ->where('ID_SUCURSAL','=',$sucursal)
-        ->get()
-        ->toArray();
+        ->get();
 
         $ser = VentasDetServicios::leftjoin('VENTAS',function($join){
                 $join->on('VENTAS.CODIGO','=','ventasdet_servicios.CODIGO')
@@ -9885,8 +9885,7 @@ class Venta extends Model
         ->Where('VENTAS_ANULADO.ANULADO','=',0)
         ->Where('VENTAS.ID_SUCURSAL','=',$sucursal)
         ->whereBetween('VENTAS.FECALTAS', [$inicio, $final])
-        ->get()
-        ->toArray();
+        ->get();
 
         if(count($ser) > 0){
             $total_porcentaje = $TOTALG[0]->TOTAL+$ser[0]->PRECIO_SERVICIO;
@@ -9950,8 +9949,7 @@ class Venta extends Model
             ->where('TEMP_VENTAS.CREDITO_COBRADO','=',0)
             ->where('TEMP_VENTAS.USER_ID','=',$user)
             ->where('TEMP_VENTAS.ID_SUCURSAL','=',$sucursal)
-            ->get()
-            ->toArray();
+            ->get();
 
             $secciones_array[] = array(
                 'TOTALES' => "MAYORISTA AL CONTADO",
@@ -9977,8 +9975,7 @@ class Venta extends Model
             ->where('TEMP_VENTAS.CREDITO_COBRADO','=',1)
             ->where('TEMP_VENTAS.USER_ID','=',$user)
             ->where('TEMP_VENTAS.ID_SUCURSAL','=',$sucursal)
-            ->get()
-            ->toArray();
+            ->get();
 
             $secciones_array[] = array(
                 'TOTALES'=> "MAYORISTA CREDITO COBRADO",

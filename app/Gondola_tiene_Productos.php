@@ -13,11 +13,13 @@ class Gondola_tiene_Productos extends Model
    	protected $connection = 'retail';
     protected $table = 'gondola_tiene_productos';
     
-   	public static function asignar_gondolas($codigo, $gondolas){
+   	public static function asignar_gondolas($codigo, array $gondolas ){
 
         /*  --------------------------------------------------------------------------------- */
-
+         
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+       /*  log::error(["gondolas"=>$gondolas[0]["ID"]]);
+         var_dump($gondolas);*/
 
         $user = auth()->user();
 
@@ -29,20 +31,21 @@ class Gondola_tiene_Productos extends Model
 
         // INSERTAR REFERENCIA 
         
-        if ($gondolas === "null") {
+        if ($gondolas === "null" || $gondolas===NULL) {
           return ['response' => false];
         }
 
         try {
+          
         
-          if (count($gondolas[0]) > 0) {
+          if (isset($gondolas[0]["ID"])) {
 
             foreach ($gondolas as $key => $value) {
 
               /*  --------------------------------------------------------------------------------- */
 
               // INSERTAR GONDOLAS 
-
+           
 
             	$gondola = Gondola_tiene_Productos::insertGetId([
                 'FK_PRODUCTOS_AUX'=> $ID_PRODUCTO[0]["ID"],
@@ -60,6 +63,7 @@ class Gondola_tiene_Productos extends Model
             }
 
           } else {
+            
             return ["response" => false];
           }
 

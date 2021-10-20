@@ -1985,40 +1985,73 @@ class NotaCredito extends Model
         $cod_cliente = $data['Cliente'];
         $caja = $data['Caja'];
 
-        $notaCredito = NotaCredito::select(
-                    DB::raw('NOTA_CREDITO.ID AS ID'),
-        			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
-                    DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
-                    DB::raw('NOTA_CREDITO.FECALTAS AS FECHA'),
-                    DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
-                    DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
-                    DB::raw('NOTA_CREDITO.IVA AS IVA'),
-                    DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
-                    DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
-                    DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
-                    DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
-                    DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
-                    DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
-                ->leftJoin('CLIENTES', function($join){
-                                $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
-                                     ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
-                            })
-                ->whereBetween('NOTA_CREDITO.FECALTAS', [$inicio , $final])
-                ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
-                ->whereIn('NOTA_CREDITO.TIPO', $tipo)
-                ->whereIn('NOTA_CREDITO.PROCESADO', $procesado)
-                ->groupBy('NOTA_CREDITO.ID')
-                ->orderBy($order, $dir);
-        
-        if(!empty($cod_cliente)){
+        if(count($data['Procesado']) == 1 && $data['Procesado'][0] == 1){
+        	
+        	$procesado = $data['Procesado'][0];
 
-            $notaCredito->where('NOTA_CREDITO.CLIENTE', '=', $cod_cliente);
+	        $notaCredito = NotaCredito::select(
+	                DB::raw('NOTA_CREDITO.ID AS ID'),
+	    			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+	                DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
+	                DB::raw('NOTA_CREDITO.FECMODIF AS FECHA'),
+	                DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
+	                DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
+	                DB::raw('NOTA_CREDITO.IVA AS IVA'),
+	                DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
+	                DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
+	                DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
+	                DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
+	                DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
+	                DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
+	            ->leftJoin('CLIENTES', function($join){
+	                    $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+	                         ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+	                })
+	        ->whereBetween('NOTA_CREDITO.FECMODIF', [$inicio , $final])
+	        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
+	        ->whereIn('NOTA_CREDITO.TIPO', $tipo)
+	        ->where('NOTA_CREDITO.PROCESADO', '=', $procesado)
+	        ->groupBy('NOTA_CREDITO.ID')
+	        ->orderBy($order, $dir);
+
+        }else{
+
+	        $notaCredito = NotaCredito::select(
+	                DB::raw('NOTA_CREDITO.ID AS ID'),
+	    			DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
+	                DB::raw('NOTA_CREDITO.CAJA AS CAJA'),
+	                DB::raw('NOTA_CREDITO.FECALTAS AS FECHA'),
+	                DB::raw('NOTA_CREDITO.TIPO AS TIPO'),
+	                DB::raw('NOTA_CREDITO.PROCESADO AS PROCESADO'),
+	                DB::raw('NOTA_CREDITO.IVA AS IVA'),
+	                DB::raw('NOTA_CREDITO.SUB_TOTAL AS SUBTOTAL'),
+	                DB::raw('NOTA_CREDITO.TOTAL AS TOTAL'),
+	                DB::raw('NOTA_CREDITO.FK_VENTA AS FK_VENTA'),
+	                DB::raw('NOTA_CREDITO.MONEDA AS MONEDA'),
+	                DB::raw('NOTA_CREDITO.NUMERO_FACTURA AS NRO_FACTURA'),
+	                DB::raw('NOTA_CREDITO.DESCUENTO_MONTO AS DESCUENTO_MONTO'))
+	            ->leftJoin('CLIENTES', function($join){
+	                    $join->on('CLIENTES.CODIGO', '=', 'NOTA_CREDITO.CLIENTE')
+	                         ->on('CLIENTES.ID_SUCURSAL', '=', 'NOTA_CREDITO.ID_SUCURSAL');
+	                })
+	        ->whereBetween('NOTA_CREDITO.FECALTAS', [$inicio , $final])
+	        ->where('NOTA_CREDITO.ID_SUCURSAL', '=', $sucursal)
+	        ->whereIn('NOTA_CREDITO.TIPO', $tipo)
+	        ->whereIn('NOTA_CREDITO.PROCESADO', $procesado)
+	        ->groupBy('NOTA_CREDITO.ID')
+	        ->orderBy($order, $dir);
         }
 
         if(!empty($caja) && $caja!='NaN'){
 
             $notaCredito->where('NOTA_CREDITO.CAJA', '=', $caja);
         }
+        
+        if(!empty($cod_cliente)){
+
+            $notaCredito->where('NOTA_CREDITO.CLIENTE', '=', $cod_cliente);
+        }
+
 
         $notaCredito = $notaCredito->get();
 
@@ -2038,21 +2071,21 @@ class NotaCredito extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
-                            0 => 'NOTA_CREDITO.FECALTAS', 
-                            1 => 'NOTA_CREDITO.ID',
-                            2 => 'CLIENTES.NOMBRE',
-                            3 => 'NOTA_CREDITO.CAJA',
-                            4 => 'NOTA_CREDITO.NUMERO_FACTURA',
-                            5 => 'NOTA_CREDITO.FK_VENTA',
-                            6 => 'NOTA_CREDITO.FECALTAS',
-                            7 => 'NOTA_CREDITO.TIPO',
-                            8 => 'NOTA_CREDITO.PROCESADO',
-                            9 => 'NOTA_CREDITO.DESCUENTO_MONTO',
-                            10 => 'NOTA_CREDITO.IVA',
-                            11 => 'NOTA_CREDITO.SUB_TOTAL',
-                            12 => 'NOTA_CREDITO.TOTAL'
-                        );
-        
+            0 => 'NOTA_CREDITO.FECALTAS', 
+            1 => 'NOTA_CREDITO.ID',
+            2 => 'CLIENTES.NOMBRE',
+            3 => 'NOTA_CREDITO.CAJA',
+            4 => 'NOTA_CREDITO.NUMERO_FACTURA',
+            5 => 'NOTA_CREDITO.FK_VENTA',
+            6 => 'NOTA_CREDITO.FECALTAS',
+            7 => 'NOTA_CREDITO.TIPO',
+            8 => 'NOTA_CREDITO.PROCESADO',
+            9 => 'NOTA_CREDITO.DESCUENTO_MONTO',
+            10 => 'NOTA_CREDITO.IVA',
+            11 => 'NOTA_CREDITO.SUB_TOTAL',
+            12 => 'NOTA_CREDITO.TOTAL'
+        );
+
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2065,27 +2098,20 @@ class NotaCredito extends Model
         $item = 1;
 
         $datos = array(
-                'Sucursal' => $request->input('Sucursal'),
-                'Inicio' => date('Y-m-d', strtotime($request->input('Inicio'))),
-                'Final' => date('Y-m-d', strtotime($request->input('Final'))),
-                'Procesado' => $request->input('Procesado'),
-                'Tipo' => $request->input('Tipo'),
-                'Cliente' => $request->input('Cliente'),
-                'Caja' => $request->input('Caja'),
-            );
+            'Sucursal' => $request->input('Sucursal'),
+            'Inicio' => date('Y-m-d', strtotime($request->input('Inicio'))),
+            'Final' => date('Y-m-d', strtotime($request->input('Final'))),
+            'Procesado' => $request->input('Procesado'),
+            'Tipo' => $request->input('Tipo'),
+            'Cliente' => $request->input('Cliente'),
+            'Caja' => $request->input('Caja'),
+        );
     
         /*  --------------------------------------------------------------------------------- */
 
         //  CARGAR TODOS LOS DATOS ENCONTRADOS 
 
-
         $posts = NotaCredito::generarConsulta($datos, $order, $dir);     
-
-
-        /*  ************************************************************ */
-
-        $moneda = $posts[0]->MONEDA;
-        $candec = (Parametro::candec($moneda))["CANDEC"];
         $data = array();
         
         /*  --------------------------------------------------------------------------------- */
@@ -2093,6 +2119,15 @@ class NotaCredito extends Model
         // REVISAR SI LA VARIABLES POST ESTA VACIA 
 
         if(!empty($posts)){
+
+	        /*  ************************************************************ */
+	        if(count($posts) > 0){
+
+		        $moneda = $posts[0]->MONEDA;
+		        $candec = (Parametro::candec($moneda))["CANDEC"];
+
+	        }
+
             foreach ($posts as $post){
 
                 /*  --------------------------------------------------------------------------------- */
@@ -2142,11 +2177,11 @@ class NotaCredito extends Model
         // PREPARAR EL ARRAY A ENVIAR 
 
         $json_data = array(
-                    "draw"            => intval($request->input('draw')),  
-                    "recordsTotal"    => intval($item),  
-                    "recordsFiltered" => intval($item), 
-                    "data"            => $data   
-                    );
+            "draw"            => intval($request->input('draw')),  
+            "recordsTotal"    => intval($item),  
+            "recordsFiltered" => intval($item), 
+            "data"            => $data   
+        );
         
         /*  --------------------------------------------------------------------------------- */
 

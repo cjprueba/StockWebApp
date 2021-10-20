@@ -34,7 +34,7 @@
 
 						<label class="mt-3">Agregar Apartado De: </label>
 						<div class="form-check">
-							<input  v-model="MayoristaContado" class="form-check-input ml-2" type="checkbox" id="mayContado" checked>
+							<input   v-model="MayoristaContado" class="form-check-input ml-2" type="checkbox" id="mayContado" checked>
 							<label class="form-check-label ml-4" for="mayContado">
 								Mayorista (Contado)
 							</label>
@@ -614,6 +614,7 @@
      				"changeDate", () => {
 			     		
 			     		me.selectedInicialFecha = $('#selectedInicialFecha').val();
+			     		console.log(me.selectedInicialFecha);
 			     	}
 				);
 				$("#selectedFinalFecha").datepicker().on(

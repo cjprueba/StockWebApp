@@ -1657,8 +1657,7 @@
 
       	BusquedaSeccion(){
         	axios.get('busquedas/').then((response) => {
-          		this.secciones = response.data.seccion;
-
+          		this.secciones = response.data.secciones;
         	});
       	}
       },

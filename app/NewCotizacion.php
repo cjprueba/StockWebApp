@@ -78,7 +78,7 @@ class NewCotizacion extends Model
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
              $posts =NewCotizacion::
-            select(DB::raw('cotizaciones.ID,monedas1.DESCRIPCION AS DE,monedas2.DESCRIPCION AS A,cotizaciones.VALOR,cotizaciones.FECHA,cotizaciones.FECALTAS'))
+            select(DB::raw('cotizaciones.ID,monedas1.DESCRIPCION AS DE,monedas2.DESCRIPCION AS A,round(cotizaciones.VALOR,2) AS VALOR,cotizaciones.FECHA,cotizaciones.FECALTAS'))
             ->leftjoin('monedas as monedas1','monedas1.codigo','=','FK_DE')
             ->leftjoin('monedas as monedas2','monedas2.codigo','=','FK_A')
             ->where('cotizaciones.ID_SUCURSAL', '=', $user->id_sucursal)
@@ -108,7 +108,7 @@ class NewCotizacion extends Model
             	'cotizaciones.ID,
             	monedas1.DESCRIPCION AS DE,
             	monedas2.DESCRIPCION AS A,
-            	cotizaciones.VALOR,
+            	round(cotizaciones.VALOR,2) AS VALOR,
             	cotizaciones.FECHA,
             	cotizaciones.FECALTAS'))
             ->leftjoin('monedas as monedas1','monedas1.codigo','=','FK_DE')

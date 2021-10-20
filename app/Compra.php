@@ -153,7 +153,7 @@ class Compra extends Model
 
     			// INSERTAR LOTE 
 
-    			$lote = Stock::insetar_lote($value['CODIGO'], Common::quitar_coma($value['CANTIDAD'],$candec), Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO']);
+    			$lote = Stock::insetar_lote($value['CODIGO'], Common::quitar_coma($value['CANTIDAD'],$candec), Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO'],$data->data["proveedor"]);
     			$compra_det->LOTE = $lote["lote"];
                  Stock::actualizar_Stock_Minimo($value['CODIGO']);
 
@@ -1377,7 +1377,7 @@ class Compra extends Model
 
     			// INSERTAR LOTE 
 
-    			$lote = Stock::insetar_lote($value['CODIGO'], Common::quitar_coma($value['CANTIDAD'],$candec), Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO']);
+    			$lote = Stock::insetar_lote($value['CODIGO'], Common::quitar_coma($value['CANTIDAD'],$candec), Common::quitar_coma($value['COSTO'], $candec), 1, '', $value['VENCIMIENTO'],$data->data["proveedor"]);
     			$compra_det->LOTE = $lote["lote"];
 
     			/*  --------------------------------------------------------------------------------- */
@@ -1762,6 +1762,7 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                                             IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS VENDIDO,
                                              IFNULL((SELECT SUM(t.PRECIO) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS TOTAL,
                                             IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS COSTO_TOTAL,
+                                               IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS COSTO_TOTAL_VENTA,
                                             IFNULL(temp_ventas.SECCION,"INDEFINIDO") AS SECCION_NOMBRE,
                                             IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
                                          ->where('USER_ID','=',$user)
@@ -1775,9 +1776,9 @@ public static function generar_Reporte_Entrada_Seccion($datos)
 
                                 $TOTALG=DB::connection('retail')->table('temp_ventas')
                                    ->select(
-                                    DB::raw('  IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
+                                    DB::raw('IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
                                         SUM(COSTO_UNIT) AS COSTO_UNIT,
-                                        SUM(COSTO_TOTAL) AS COSTO_TOTAL'))
+                                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID), 0) AS COSTO_TOTAL'))
                                    ->where('USER_ID','=',$user)
                                    ->where('ID_SUCURSAL','=',$sucursal)
                                   ->get()
@@ -1808,6 +1809,7 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                                 'COSTO_TOTAL'=> $value->COSTO_TOTAL,
                                 'PRECIO_UNIT'=>0,
                                 'TOTAL'=>$value->TOTAL,
+                                'COSTO_TOTAL_VENTA'=>$value->COSTO_TOTAL_VENTA,
                                 'SECCIONES'=>$value->SECCION_CODIGO,
                                 'PROVEEDORES'=>$value->PROVEEDOR,
                                 'PROVEEDOR_NOMBRE'=>$value->PROVEEDOR_NOMBRE,
@@ -1840,9 +1842,9 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                          IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS ENTRADA,
                         IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS VENDIDO,
                          IFNULL((SELECT SUM(t.PRECIO) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS TOTAL,
-
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS COSTO_TOTAL_VENTA,
                         IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = temp_ventas.COD_PROD) AND (l.ID_SUCURSAL = temp_ventas.ID_SUCURSAL))),0) AS STOCK,
-                        SUM(COSTO_TOTAL) AS COSTO_TOTAL,
+                        IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE t.COD_PROD=temp_ventas.COD_PROD AND t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO and t.PROVEEDOR=temp_ventas.PROVEEDOR), 0) AS COSTO_TOTAL,
                         COSTO_UNIT AS COSTO_UNIT,
                         temp_ventas.CATEGORIA AS CATEGORIA,
                         IFNULL(temp_ventas.LINEA_CODIGO,0) AS LINEA_CODIGO,
@@ -1889,6 +1891,7 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                                 'COSTO_UNIT'=>$value->COSTO_UNIT,
                                 'COSTO_TOTAL'=>$value->COSTO_TOTAL,
                                 'TOTAL'=>$value->TOTAL,
+                                'COSTO_TOTAL_VENTA'=>$value->COSTO_TOTAL_VENTA,
                                 'ENTRADA'=>$value->ENTRADA,
                                 'PROVEEDOR_CODIGO'=> $value->PROVEEDOR,
                                 'SECCION'=> $value->SECCION,
@@ -1904,6 +1907,7 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                                             IFNULL((SELECT SUM(t.vendido) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS VENDIDO,
                                             IFNULL((SELECT SUM(t.precio) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS TOTAL,
                                            IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =0 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS COSTO_TOTAL,
+                                             IFNULL((SELECT SUM(t.COSTO_TOTAL) FROM temp_ventas AS t WHERE  t.ID_SUCURSAL = temp_ventas.ID_SUCURSAL AND t.CREDITO_COBRADO =1 and t.USER_ID=temp_ventas.USER_ID and  t.SECCION_CODIGO=temp_ventas.SECCION_CODIGO), 0) AS COSTO_TOTAL_VENTA,
                                             IFNULL(SUM(COSTO_UNIT),0) AS COSTO_UNIT'))
                                          ->where('USER_ID','=',$user)
                                          ->where('ID_SUCURSAL','=',$sucursal)
@@ -1922,6 +1926,7 @@ public static function generar_Reporte_Entrada_Seccion($datos)
                                     'VENDIDO'=> $value->VENDIDO,
                                     'COSTO'=> $value->COSTO_UNIT,
                                     'COSTO_TOTAL'=> $value->COSTO_TOTAL,
+                                    'COSTO_TOTAL_VENTA'=>$value->COSTO_TOTAL_VENTA,
                                     'ENTRADA'=>$value->ENTRADA,
                                     'TOTAL'=>$value->TOTAL,
                                     'SECCIONES'=>$value->SECCION_CODIGO,
