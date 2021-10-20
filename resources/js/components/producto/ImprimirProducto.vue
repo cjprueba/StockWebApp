@@ -99,6 +99,10 @@
 											<label class="form-check-label font-weight-bold ">Precio de Productos</label>
 											<br>
 											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto4" v-model="seleccionPrecio" value="4">
+											  <label class="form-check-label" for="precioProducto4">Precio de Venta sin descripción</label>
+											</div>
+											<div class="form-check ml-5" align="left">
 											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto1" v-model="seleccionPrecio" value="1">
 											  <label class="form-check-label" for="precioProducto1">Precio de Venta</label>
 											</div>
@@ -154,6 +158,24 @@
 											<div class="form-check ml-5" align="left">
 											  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo2" v-model="seleccionCodigo" value="2">
 											  <label class="form-check-label" for="TipoDeCodigo2">Código Producto </label>
+											</div>
+											<label class="form-check-label font-weight-bold ml-5">Tipo de moneda</label>
+											<br>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda1"  v-model="seleccionMoneda" value="1">
+											  <label class="form-check-label" for="TipoDeMoneda1" >Guaranies (G$)</label>
+											</div>
+											<div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda2" v-model="seleccionMoneda" value="2">
+											  <label class="form-check-label" for="TipoDeMoneda2">Dolares (U$)</label>
+											</div>
+											<div v-if="seleccionMoneda>0" align="left">
+								                  <hr>
+
+												 
+								                  <label for="cotizacion" class="col-7 ml-5 font-weight-bold">Cotización</label>
+
+								                   <input  id="cotizacion" v-model="ingresarCotizacion" type="text" class="form-control col-7 ml-5" >
 											</div>
 										</div>
 									</div>
@@ -529,6 +551,8 @@
 				codigo_remision: '',
 				seleccionTamaño: 0,
 				seleccionCodigo: 0,
+				seleccionMoneda: 0,
+				ingresarCotizacion: 0,
 				seleccionPrecio: 0,
 
 				productoImagen: [{
@@ -1690,12 +1714,15 @@
 			    var precio=me.seleccionPrecio;
 				var tamañoEtiqueta = me.seleccionTamaño;
 				var tipoCodigo = me.seleccionCodigo;
+				var tipoMoneda = me.seleccionMoneda;
+				var cotizacion = me.ingresarCotizacion;
 				var proveedorA = me.proveedor;
 				var tableProductos = $('#tablaProductos').DataTable();
 				var delayInMilliseconds = 3000;
+				console.log( cotizacion);
 	        	
-
-				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA).then(response => {	
+				
+				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, me.ingresarCotizacion).then(response => {	
 					var reader = new FileReader();
 					reader.readAsDataURL(new Blob([response])); 
 					reader.onloadend = function() {
