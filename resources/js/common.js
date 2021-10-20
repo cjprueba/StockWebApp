@@ -1917,6 +1917,25 @@ function filtrarSucursalCommon(data){
 	// ------------------------------------------------------------------------
 }
 
+function filtrarSucursalUserCommon(data){
+
+	// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// GUARDAR PERMISO
+
+			return axios.post('/sucursalFiltrarUser', {'data':data}).then(function (response) {
+					return response.data;
+				});
+
+	// ------------------------------------------------------------------------
+}
+
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // 							    GUARDAR SUCURSAL
@@ -3457,7 +3476,7 @@ function eliminarMarcaCommon(data){
 
 			// ------------------------------------------------------------------------
 }
-function guardarUsuarioCommon(nombre,email,contraseña){
+function guardarUsuarioCommon(nombre,email,contraseña,btn_guardar,idUsuario, mostrarSucursales, sucursalesSelected){
 	// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
@@ -3468,7 +3487,7 @@ function guardarUsuarioCommon(nombre,email,contraseña){
 
 			// GUARDAR PERMISO
 
-			return axios.post('/usuarioGuardar', {'nombre':nombre,'email':email,'contraseña':contraseña	}).then(function (response) {
+			return axios.post('/usuarioGuardar', {'nombre':nombre,'email':email,'contraseña':contraseña, 'btn_guardar':btn_guardar,'idUsuario':idUsuario, 'mostrarSucursales':mostrarSucursales, 'sucursalesSelected':sucursalesSelected}).then(function (response) {
 					return response.data;
 				});
 
@@ -4253,7 +4272,7 @@ function generarPdfQrProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion){
 
 			// ------------------------------------------------------------------------
 
@@ -4265,7 +4284,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor}}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4290,7 +4309,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor }}).then( 
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion }}).then( 
 // 				(response) => {
 // 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 // 					const link = document.createElement('a');
@@ -7610,6 +7629,9 @@ export {
 		obtenerCotizacionBannerCommon,
 		obtenerGondolasEncargadaSeccionCommon,
 		reporteCajeroVentaCommon,
-		busquedaCajeroCommon
+		busquedaCajeroCommon,
+		filtrarSucursalUserCommon
+
+
 
 		};
