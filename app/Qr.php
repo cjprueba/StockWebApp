@@ -465,7 +465,9 @@ class Qr extends Model
                       if ($value['MONEDA']===2) {
                         $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
                       }else{
-                        $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                        $conversion = $value['PRECIO']/$datos['cotizacion'];
+                        $restar=strlen($conversion);
+                        $pdf->text($x-16.5, $y+9, "U$ ".$conversion, false, false, true);
                       }
                     } 
                   }
