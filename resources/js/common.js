@@ -4272,7 +4272,7 @@ function generarPdfQrProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion, gondola, impresion, stock){
 
 			// ------------------------------------------------------------------------
 
@@ -4284,7 +4284,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion}}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4309,7 +4309,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion }}).then( 
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock}}).then( 
 // 				(response) => {
 // 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 // 					const link = document.createElement('a');
