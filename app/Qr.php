@@ -317,6 +317,7 @@ class Qr extends Model
                         ->leftjoin('productos_aux AS PRA', 'PRA.ID', '=', 'GTP.FK_PRODUCTOS_AUX')
                         ->leftjoin('productos AS PR', 'PR.CODIGO', '=', 'PRA.CODIGO')
                         ->where('GTP.ID_GONDOLA', '=', $value['ID'])
+                        ->where('PRA.BATCH_UPDATE', '=', 2)
                         ->where('PRA.proveedor', '=', 19);
                      
           if ($datos['tipoStock'] === '1') {
