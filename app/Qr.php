@@ -8,7 +8,7 @@ use Fpdf\Fpdf;
 use App\Barcode;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use TCPDF;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File; 
 class Qr extends Model
 {
@@ -185,6 +185,9 @@ class Qr extends Model
     }
              
     public static function crear_barcode($datos){
+      if ($datos['seleccionImpresion']==='1') {
+        $datos['tamaño']='1';
+      }
       if($datos['tamaño']==='1'){
         return(qr::etiqueta_tipo_1($datos));
       }else if($datos['tamaño']==='2'){
@@ -231,84 +234,173 @@ class Qr extends Model
       $y = 0.3;
       $z = 2;
       $c=0;
-      
-      foreach ($datos["data"] as $key => $value) {
-        while($c<$value["CANTIDAD"]){
-          $c=$c+1;
-          if($y > 28){
-            $pag=$pag+1;
-            $pdf->AddPage();
-            $y = 0.3;
-          }
-    
+      if($datos['seleccionImpresion']<>'1'){
+          foreach ($datos["data"] as $key => $value) {
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($y > 28){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+        
 
-          // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
-          $pdf->SetFont('helvetica', 'B', 15);
-          
-          // //Color Negro
-          $pdf->SetTextColor(0, 0, 0);
-          $pdf->text($x-24.5, $y, utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), false, false, true, 0, 1, '', false, '', 0);
-          //Tamaño de fuente
-          $pdf->SetFontSize(13);
-          if($value['MONEDA']===1){
-            $pdf->text($x+28, $y+13, 'G$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-          }elseif ($value['MONEDA']===2) {
-            $pdf->SetFontSize(16);
-            $pdf->text($x+28, $y+13, 'U$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-            $pdf->SetFontSize(13);
-          }elseif ($value['MONEDA']===4) {
-            $pdf->SetFontSize(16);
-            $pdf->text($x+28, $y+13, 'R$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-            $pdf->SetFontSize(13);
-          }elseif ($value['MONEDA']===3){
-            $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-          }
-          $pdf->SetFontSize(10);
-          $pdf->text($x+28, $y+9, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
-          $pdf->SetFontSize(6.5);
-          $pdf->text($x+43.5, $y+19.2, 'COD. INTERNO', false, false, true, 0, 1, '', false, '', 0);
-          // //background
-          $pdf->SetFontSize(28);
-          $pdf->writeHTMLCell(51, 0, $x-23, $y+8,  '',1, 0, 1, 'C', true, 'J', true);
+              // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
+              $pdf->SetFont('helvetica', 'B', 15);
+              
+              // //Color Negro
+              $pdf->SetTextColor(0, 0, 0);
+              $pdf->text($x-24.5, $y, utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), false, false, true, 0, 1, '', false, '', 0);
+              //Tamaño de fuente
+              $pdf->SetFontSize(13);
+              if($value['MONEDA']===1){
+                $pdf->text($x+28, $y+13, 'G$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+              }elseif ($value['MONEDA']===2) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x+28, $y+13, 'U$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value['MONEDA']===4) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x+28, $y+13, 'R$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value['MONEDA']===3){
+                $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+              }
+              $pdf->SetFontSize(10);
+              $pdf->text($x+28, $y+9, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(6.5);
+              $pdf->text($x+43.5, $y+19.2, 'COD. INTERNO', false, false, true, 0, 1, '', false, '', 0);
+              // //background
+              $pdf->SetFontSize(28);
+              $pdf->writeHTMLCell(51, 0, $x-23, $y+8,  '',1, 0, 1, 'C', true, 'J', true);
 
-          $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+43, $y+20.5, 30, 12, 0, $style, 'N');
-          $pdf->write1DBarcode($value["CODIGO"], $type, $x-12.8, $y+20.5, 45, 12, 0, $style, 'N');
-          
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+43, $y+20.5, 30, 12, 0, $style, 'N');
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x-12.8, $y+20.5, 45, 12, 0, $style, 'N');
+              //------------------------------------------------------------------------------------------------------
+              //Color Blanco
+              $pdf->SetTextColor(1000, 1000, 1000);
+              //Tamaño de fuente
+              $pdf->SetFontSize(10); 
+              $pdf->text($x-22, $y+10, 'DESDE 6', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->text($x-16, $y+14, 'UNID.', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(13);
+              if($value['MONEDA']===1){
+                $pdf->text($x-4, $y+13, 'G$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+              }elseif ($value['MONEDA']===2) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x-4, $y+13, 'U$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value['MONEDA']===4) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x-4, $y+13, 'R$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value['MONEDA']===3) {
+                $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
+              }
+              $pdf->SetFontSize(10);
+              $pdf->text($x-4, $y+9, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(20);
+              $pdf->SetFont('helvetica');
+              $pdf->text($x-6.3, $y+7.5, '|', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->text($x-6.3, $y+11, '|', false, false, true, 0, 1, '', false, '', 0);
 
-
-
-          //Color Blanco
-          $pdf->SetTextColor(1000, 1000, 1000);
-          //Tamaño de fuente
-          $pdf->SetFontSize(10); 
-          $pdf->text($x-22, $y+10, 'DESDE 6', false, false, true, 0, 1, '', false, '', 0);
-          $pdf->text($x-16, $y+14, 'UNID.', false, false, true, 0, 1, '', false, '', 0);
-          $pdf->SetFontSize(13);
-          if($value['MONEDA']===1){
-            $pdf->text($x-4, $y+13, 'G$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
-          }elseif ($value['MONEDA']===2) {
-            $pdf->SetFontSize(16);
-            $pdf->text($x-4, $y+13, 'U$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
-            $pdf->SetFontSize(13);
-          }elseif ($value['MONEDA']===4) {
-            $pdf->SetFontSize(16);
-            $pdf->text($x-4, $y+13, 'R$:'.$value['PRECIO_MAYORISTA'], false, false, true, 0, 1, '', false, '', 0);
-            $pdf->SetFontSize(13);
-          }elseif ($value['MONEDA']===3) {
-            $pdf->text($x+28, $y+13, 'P$:'.$value['PRECIO'], false, false, true, 0, 1, '', false, '', 0);
-          }
-          $pdf->SetFontSize(10);
-          $pdf->text($x-4, $y+9, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
-          $pdf->SetFontSize(20);
-          $pdf->SetFont('helvetica');
-          $pdf->text($x-6.3, $y+7.5, '|', false, false, true, 0, 1, '', false, '', 0);
-          $pdf->text($x-6.3, $y+11, '|', false, false, true, 0, 1, '', false, '', 0);
-
-          $y=$y+28;
+              $y=$y+28;
+            }
+          $c=0;
         }
-        $c=0;
       }
-        return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      else{
+        foreach ($datos['seleccion_gondola'] as $key => $value) {
+          $productos=DB::connection('retail')
+                        ->table('gondola_tiene_productos AS GTP')
+                        ->select(DB::raw('PRA.CODIGO, PR.DESCRIPCION, PRA.PREC_VENTA AS PRECIO, PRA.PREMAYORISTA AS PRECIO_MAYORISTA, PRA.CODIGO_INTERNO, PRA.MONEDA'))
+                        ->leftjoin('productos_aux AS PRA', 'PRA.ID', '=', 'GTP.FK_PRODUCTOS_AUX')
+                        ->leftjoin('productos AS PR', 'PR.CODIGO', '=', 'PRA.CODIGO')
+                        ->where('GTP.ID_GONDOLA', '=', $value['ID'])
+                        ->where('PRA.proveedor', '=', 19);
+                     
+          if ($datos['tipoStock'] === '1') {
+            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) > 0');
+          }else{
+            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) <= 0');
+          }
+          $productos = $productos->get()
+
+                                 ->toArray();
+           
+          foreach ($productos as $key => $value2) {
+                         if($y > 28){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+        
+
+              // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
+              $pdf->SetFont('helvetica', 'B', 15);
+              
+              // //Color Negro
+              $pdf->SetTextColor(0, 0, 0);
+              $pdf->text($x-24.5, $y, Qr::quitar_tildes($value2->DESCRIPCION), false, false, true, 0, 1, '', false, '', 0);
+              //Tamaño de fuente
+              $pdf->SetFontSize(13);
+              if($value2->MONEDA===1){
+                $pdf->text($x+28, $y+13, 'G$:'.$value2->PRECIO, false, false, true, 0, 1, '', false, '', 0);
+              }elseif ($value2->MONEDA===2) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x+28, $y+13, 'U$:'.$value2->PRECIO, false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value2->MONEDA===4) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x+28, $y+13, 'R$:'.$value2->PRECIO, false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value2->MONEDA===3){
+                $pdf->text($x+28, $y+13, 'P$:'.$value2->PRECIO, false, false, true, 0, 1, '', false, '', 0);
+              }
+              $pdf->SetFontSize(10);
+              $pdf->text($x+28, $y+9, 'UNITARIO', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(6.5);
+              $pdf->text($x+43.5, $y+19.2, 'COD. INTERNO', false, false, true, 0, 1, '', false, '', 0);
+              // //background
+              $pdf->SetFontSize(28);
+              $pdf->writeHTMLCell(51, 0, $x-23, $y+8,  '',1, 0, 1, 'C', true, 'J', true);
+
+              $pdf->write1DBarcode($value2->CODIGO_INTERNO, $type, $x+43, $y+20.5, 30, 12, 0, $style, 'N');
+              $pdf->write1DBarcode($value2->CODIGO, $type, $x-12.8, $y+20.5, 45, 12, 0, $style, 'N');
+              //------------------------------------------------------------------------------------------------------
+              //Color Blanco
+              $pdf->SetTextColor(1000, 1000, 1000);
+              //Tamaño de fuente
+              $pdf->SetFontSize(10); 
+              $pdf->text($x-22, $y+10, 'DESDE 6', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->text($x-16, $y+14, 'UNID.', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(13);
+              if($value2->MONEDA===1){
+                $pdf->text($x-4, $y+13, 'G$:'.$value2->PRECIO_MAYORISTA, false, false, true, 0, 1, '', false, '', 0);
+              }elseif ($value2->MONEDA===2) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x-4, $y+13, 'U$:'.$value2->PRECIO_MAYORISTA, false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value2->MONEDA===4) {
+                $pdf->SetFontSize(16);
+                $pdf->text($x-4, $y+13, 'R$:'.$value2->PRECIO_MAYORISTA, false, false, true, 0, 1, '', false, '', 0);
+                $pdf->SetFontSize(13);
+              }elseif ($value2->MONEDA===3) {
+                $pdf->text($x+28, $y+13, 'P$:'.$value2->PRECIO, false, false, true, 0, 1, '', false, '', 0);
+              }
+              $pdf->SetFontSize(10);
+              $pdf->text($x-4, $y+9, 'MAYORISTA', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(20);
+              $pdf->SetFont('helvetica');
+              $pdf->text($x-6.3, $y+7.5, '|', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->text($x-6.3, $y+11, '|', false, false, true, 0, 1, '', false, '', 0);
+
+              $y=$y+28;
+          }
+        }
+      }
+      
+      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     } 
 
 
@@ -715,6 +807,12 @@ class Qr extends Model
         
 
 //     }
+    public static function quitar_tildes($cadena) {
+      $no_permitidas= array ("á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","À","Ã","Ì","Ò","Ù","Ã™","Ã ","Ã¨","Ã¬","Ã²","Ã¹","ç","Ç","Ã¢","ê","Ã®","Ã´","Ã»","Ã‚","ÃŠ","ÃŽ","Ã”","Ã›","ü","Ã¶","Ã–","Ã¯","Ã¤","«","Ò","Ã","Ã„","Ã‹");
+      $permitidas= array ("a","e","i","o","u","A","E","I","O","U","n","N","A","E","I","O","U","a","e","i","o","u","c","C","a","e","i","o","u","A","E","I","O","U","u","o","O","i","a","e","U","I","A","E");
+      $texto = str_replace($no_permitidas, $permitidas ,$cadena);
+      return $texto;
+    }
            public static function crear_etiqueta_gondola()
     {
 $pdf = new TCPDF('L','mm',array(90,48));
@@ -802,6 +900,7 @@ $pdf->Output('example_001.pdf', 'I');
 
     }
 }
+
 /*<p><a  style="text-decoration:none;background-color:#000000;color:white;"><span style="color:WHITE;">DESDE &nbsp; 6<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNID.</span></a></p>*/
 /*<table width="140"  cellspacing="0" cellpadding="0" border="0" bgcolor="#000000">
 <tr>
