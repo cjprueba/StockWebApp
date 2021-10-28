@@ -26,8 +26,43 @@
 						<!-- ------------------------------------------------- PRIMER CUADRO ---------------------------------------------------------- -->
 						
 					    <div class="col-12">
+					    	<div class="col-12" align="center">
+					    		<label class="form-check-label font-weight-bold mr-5">Impresion a base de: </label>
+					    		<br>
+					    	</div>
+							
+							<div class="col-12 row" >
+								<div class="form-check col-6" align="right">
+								  <input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion1" v-model="seleccionImpresion" value="2">
+								  <label class="form-check-label" for="TipoImpresion1" >Productos</label>
+								</div>
+								<div class="form-check col-6" align="left">
+								  <input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion2" v-model="seleccionImpresion" value="1">
+								  <label class="form-check-label" for="TipoImpresion2">Gondolas</label>
+								</div>
+							</div>
 				    		<div class="card">
-				      			<div class="card-body">
+				    			
+
+				    			<div v-if="seleccionImpresion=='1'" class="card-body row">
+				    				<div class="col-5" align="center">
+				    					<select-gondola ref="gondola" v-model="seleccion_gondola"> </select-gondola>	
+				    				</div>
+				    				<div class="col-7" align="left">
+				    					<label class="form-check-label font-weight-bold ml-5">Productos</label>
+										<br>
+										<div class="form-check ml-4">
+										  <input class="form-check-input" type="radio" name="tipoStock" id="tipoStock1" v-model="tipoStock" value="1">
+										  <label class="form-check-label" for="tipoStock1" >Solo con stock</label>
+										</div>
+										<div class="form-check ml-4">
+										  <input class="form-check-input" type="radio" name="tipoStock" id="tipoStock2" v-model="tipoStock" value="2">
+										  <label class="form-check-label" for="tipoStock2">Solo sin stock</label>
+										</div>
+				    				</div>
+				    			</div>
+
+				      			<div v-else class="card-body">
 
 					  				<!-- ----------------------------------- CODIGO, DESCRIPCION Y LINEA DEL PRODUCTO ------------------------------------- -->
 									<div class="row mt--2">
@@ -554,7 +589,9 @@
 				seleccionMoneda: 0,
 				ingresarCotizacion: 0,
 				seleccionPrecio: 0,
-
+				seleccionImpresion: '2',
+				seleccion_gondola: [{}],
+				tipoStock: 0,
 				productoImagen: [{
 	         		PREVIP: '',
 	         		IMAGEN: '',
@@ -1117,6 +1154,7 @@
 				this.validar.codigo = false;
 				this.validar.cantidadExistente = false;
 				this.validar.precioUnitario = false;
+				this.seleccion_gondola= null;
 				this.validar.descripcion = false;
 				this.validar.linea = false;
 				this.ivaProducto = '';
@@ -1717,12 +1755,15 @@
 				var tipoMoneda = me.seleccionMoneda;
 				var cotizacion = me.ingresarCotizacion;
 				var proveedorA = me.proveedor;
+				var seleccion_gondola = me.seleccion_gondola;
+				var seleccionImpresion = me.seleccionImpresion;
+				var tipoStock = me.tipoStock;
 				var tableProductos = $('#tablaProductos').DataTable();
 				var delayInMilliseconds = 3000;
 				console.log( cotizacion);
 	        	
 				
-				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, me.ingresarCotizacion).then(response => {	
+				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock).then(response => {	
 					var reader = new FileReader();
 					reader.readAsDataURL(new Blob([response])); 
 					reader.onloadend = function() {
