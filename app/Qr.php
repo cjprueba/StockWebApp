@@ -185,9 +185,6 @@ class Qr extends Model
     }
              
     public static function crear_barcode($datos){
-      if ($datos['seleccionImpresion']==='1') {
-        $datos['tamaño']='1';
-      }
       if($datos['tamaño']==='1'){
         return(qr::etiqueta_tipo_1($datos));
       }else if($datos['tamaño']==='2'){
@@ -476,108 +473,150 @@ class Qr extends Model
 
       //definir estilo del Barcode 
       //-------------------------------------------------------------------------
-        $style = array(
-            'position' => '',
-            'align' => 'N',
-            'stretch' => true,
-            'fitwidth' => false,
-            'cellfitalign' => '',
-            'border' => false, // border
-            'hpadding' => 3,
-            'vpadding' => 1.5,
-            'fgcolor' => array(0, 0, 0),
-            'bgcolor' => false, //array(255,255,255),
-                     'text' => true, // whether to display the text below the barcode
-                     'font' => 'courier', //font
-                     'fontsize' => 9, //font size
-            'stretchtext' => 4
-        );
-         $pag=1;
-         $x=25;
-         $y = 0.3;
-         $z = 2;
-         $c=0;
+      $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 3,
+          'vpadding' => 1.5,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+                   'text' => true, // whether to display the text below the barcode
+                   'font' => 'courier', //font
+                   'fontsize' => 9, //font size
+          'stretchtext' => 4
+      );
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      if($datos['seleccionImpresion']<>'1'){
+         foreach ($datos["data"] as $key => $value) {
+          while($c<$value["CANTIDAD"]){
+            $c=$c+1;
+            if($x>97){
+                 $y=$y+27;
+                 if($y > 22){
 
-          foreach ($datos["data"] as $key => $value) {
-                  while($c<$value["CANTIDAD"]){
-                    $c=$c+1;
-                    if($x>97){
-                         $y=$y+27;
-                         if($y > 22){
+                    $pag=$pag+1;
+                    $pdf->AddPage();
+        
+                    $y = 0.3;
+                }
+           
+            $x=25;
+           }
+          if ($datos['codigo']==='2' and $datos['precio']<>'4'){
+            $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
+          }else if($datos['precio']<>'4'){
+            $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
+          }
+           
+          if($datos['precio']==='1'){
+            $pdf->SetFontSize(8);
+            $pdf->SetFont('','B');
+            $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
+          
+          }else if($datos['precio']==='2'){
+            $pdf->SetFontSize(8);
+            $pdf->SetFont('','B');
+            $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
-                            $pag=$pag+1;
-                            $pdf->AddPage();
-                
-                            $y = 0.3;
-                        }
-                   
-                    $x=25;
-                   }
-                  if ($datos['codigo']==='2' and $datos['precio']<>'4'){
-                    $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
-                  }else if($datos['precio']<>'4'){
-                    $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
-                  }
-                   
-                  if($datos['precio']==='1'){
-                    $pdf->SetFontSize(8);
-                    $pdf->SetFont('','B');
-                    $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
-                  
-                  }else if($datos['precio']==='2'){
-                    $pdf->SetFontSize(8);
-                    $pdf->SetFont('','B');
-                    $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
+          }else if($datos['precio']==='3'){
+            $pdf->SetFontSize(8);
+            $pdf->SetFont('','B');
+            if($value['MONEDA']===2){
+              $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+            }else{
+              $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+            }                   
+          }else if ($datos['precio']==='4') {
+            $pdf->SetFontSize(12);
+            $pdf->SetFont('','B');
+            if($datos['tipomoneda']==='1'){
+              if ($value['MONEDA']===1) {
+                $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
+              }else {
+                $conversion = $datos['cotizacion']*$value['PRECIO'];
+                $restar=strlen($conversion);
+                if($restar>6){
+                  $restar=$restar-3;
+                }else{
+                  $restar=0;
+                }
+                $pdf->text($x-18.5-$restar, $y+9, "G$ ".$conversion, false, false, true);
+              }
+              
+            }elseif($datos['tipomoneda']==='2'){
+              if ($value['MONEDA']===2) {
+                $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+              }else{
+                $conversion = $value['PRECIO']/$datos['cotizacion'];
+                $restar=strlen($conversion);
+                $pdf->text($x-16.5, $y+9, "U$ ".$conversion, false, false, true);
+              }
+            } 
+          }
+          $pdf->SetFontSize(5.7);
+          $pdf->SetFont('freesans');
+          if ($datos['precio']<>'4') {
+            $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 1, '', false, '', 0);
+          }
+           //$y=$y+35;
 
-                  }else if($datos['precio']==='3'){
-                    $pdf->SetFontSize(8);
-                    $pdf->SetFont('','B');
-                    if($value['MONEDA']===2){
-                      $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
-                    }else{
-                      $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
-                    }                   
-                  }else if ($datos['precio']==='4') {
-                    $pdf->SetFontSize(12);
-                    $pdf->SetFont('','B');
-                    if($datos['tipomoneda']==='1'){
-                      if ($value['MONEDA']===1) {
-                        $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
-                      }else {
-                        $conversion = $datos['cotizacion']*$value['PRECIO'];
-                        $restar=strlen($conversion);
-                        if($restar>6){
-                          $restar=$restar-3;
-                        }else{
-                          $restar=0;
-                        }
-                        $pdf->text($x-18.5-$restar, $y+9, "G$ ".$conversion, false, false, true);
-                      }
-                      
-                    }elseif($datos['tipomoneda']==='2'){
-                      if ($value['MONEDA']===2) {
-                        $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
-                      }else{
-                        $conversion = $value['PRECIO']/$datos['cotizacion'];
-                        $restar=strlen($conversion);
-                        $pdf->text($x-16.5, $y+9, "U$ ".$conversion, false, false, true);
-                      }
-                    } 
-                  }
-                  $pdf->SetFontSize(5.7);
-                  $pdf->SetFont('freesans');
-                  if ($datos['precio']<>'4') {
-                    $pdf->text($x-23.8, $y+14, substr(utf8_decode(utf8_encode(utf8_decode(utf8_encode($value['DESCRIPCION'])))), 0,22), false, false, true, 0, 1, '', false, '', 0);
-                  }
-                   //$y=$y+35;
-
-                   $x=$x+37-1.5;
-                  }
-        $c=0;
-     
-      
+           $x=$x+37-1.5;
+          }
+          $c=0;
         }
-           return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      }else{
+        foreach ($datos['seleccion_gondola'] as $key => $value) {
+          $productos=DB::connection('retail')
+                      ->table('gondola_tiene_productos AS GTP')
+                      ->select(DB::raw('PRA.CODIGO, PR.DESCRIPCION, PRA.PREC_VENTA AS PRECIO, PRA.PREMAYORISTA AS PRECIO_MAYORISTA, PRA.CODIGO_INTERNO, PRA.MONEDA'))
+                      ->leftjoin('productos_aux AS PRA', 'PRA.ID', '=', 'GTP.FK_PRODUCTOS_AUX')
+                      ->leftjoin('productos AS PR', 'PR.CODIGO', '=', 'PRA.CODIGO')
+                      ->where('GTP.ID_GONDOLA', '=', $value['ID'])
+                      ->where('PRA.BATCH_UPDATE', '=', 2)
+                      ->where('PRA.proveedor', '=', 19);           
+          if ($datos['tipoStock'] === '1') {
+            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) > 0');
+          }else{
+            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) <= 0');
+          }
+          $productos = $productos->get()
+                                 ->toArray();
+           
+          foreach ($productos as $key => $value2) {
+            if($x>97){
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $x=25;
+            }
+            $pdf->write1DBarcode($value2->CODIGO, $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
+            $pdf->SetFontSize(8);
+            $pdf->SetFont('','B');
+            if($value2->MONEDA===2){
+              $pdf->text($x-19.5, $y+10, $value2->PRECIO."$ / ".$value2->PRECIO_MAYORISTA."$", false, false, true);
+            }else{
+              $pdf->text($x-21, $y+10, $value2->PRECIO." / ".$value2->PRECIO_MAYORISTA, false, false, true);
+            }
+            $pdf->SetFontSize(5.7);
+            $pdf->SetFont('freesans');
+            $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value2->DESCRIPCION), 0,22), false, false, true, 0, 1, '', false, '', 0);
+            //$y=$y+35;
+            $x=$x+37-1.5;
+          }
+        }
+      }
+      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     }
 
     public static function etiqueta_tipo_4($datos){
