@@ -5,7 +5,7 @@
 			<div class="card shadow border-bottom-primary mb-3">
 				<div v-if="$can('producto.etiquetas') && $can('producto')">
 					<!-- -------------------------------------------------------- TITULO ----------------------------------------------------------- -->
-					<div class="text-center card-header">Imprimir Codigo QR o Codigo de Barra</div>
+					<div class="text-center card-header">Imprimir etiquetas</div>
 					<div class="card-body">
 
 						
@@ -48,18 +48,30 @@
 				    				<div class="col-5" align="center">
 				    					<select-gondola ref="gondola" v-model="seleccion_gondola"> </select-gondola>	
 				    				</div>
-				    				<div class="col-7" align="left">
-				    					<label class="form-check-label font-weight-bold ml-5">Productos</label>
+				    				<div class="col-3" align="center">
+				    					<label class="form-check-label font-weight-bold">Productos</label>
 										<br>
-										<div class="form-check ml-4">
+										<div class="form-check ml-5" align="left">
 										  <input class="form-check-input" type="radio" name="tipoStock" id="tipoStock1" v-model="tipoStock" value="1">
 										  <label class="form-check-label" for="tipoStock1" >Solo con stock</label>
 										</div>
-										<div class="form-check ml-4">
+										<div class="form-check ml-5" align="left">
 										  <input class="form-check-input" type="radio" name="tipoStock" id="tipoStock2" v-model="tipoStock" value="2">
 										  <label class="form-check-label" for="tipoStock2">Solo sin stock</label>
 										</div>
 				    				</div>
+				    				<div class="col-4" align="center">
+										<label class="form-check-label font-weight-bold ">Tamaño de Etiquetas</label>
+										<br>
+										<div class="form-check ml-5" align="left">
+										  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet1" v-model="seleccionTamaño" value="1">
+										  <label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
+										</div>
+										<div class="form-check ml-5" align="left">
+										  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
+										  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
+										</div>
+									</div>
 				    			</div>
 
 				      			<div v-else class="card-body">
