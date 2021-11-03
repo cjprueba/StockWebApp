@@ -54,7 +54,7 @@ class VentaVale extends Model
                     })
         ->select(DB::raw('CLIENTES.NOMBRE AS CLIENTE'),
             DB::raw('CLIENTES.FK_EMPRESA AS EMPRESA_ID'),
-            DB::raw('SUM(VENTAS.TOTAL) AS TOTAL'),
+            DB::raw('SUM(VENTAS_VALE.MONTO) AS TOTAL'),
             DB::raw('VENTAS_VALE.MONEDA AS MONEDA'),
             DB::raw('CLIENTES.CODIGO AS COD_CLI'),
             DB::raw('EMPRESAS.NOMBRE AS EMPRESA'),
