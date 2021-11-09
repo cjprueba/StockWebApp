@@ -663,14 +663,27 @@ class Qr extends Model
             $y = 0.3;
           }
           $pdf->SetFontSize(7);
-          $pdf->SetFont('freesans', 'B');
-          $pdf->text($x-23.8, $y+2, utf8_decode(utf8_encode($value['DESCRIPCION'])), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFont('freesans', 'B'); 
 
-          if ($datos['codigo']==='2'){
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+9, 55, 12, 0.2, $style, 'N');
+          $pdf->text($x-23.8, $y+2, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,34), false, false, true, 0, 1, '', false, '', 0);
+          if ($datos['precio']==='1') {
+            $pdf->SetFontSize(10);
+            $pdf->text($x-9, $y+6, "U$ ".$value['PRECIO'], false, false, true);
+            $pdf->SetFontSize(7);
+            if ($datos['codigo']==='2'){
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+10, 55, 12, 0.2, $style, 'N');
+            }else{
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+10, 55, 12, 0.2, $style, 'N');
+            }
           }else{
-            $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+9, 55, 12, 0.2, $style, 'N');
+            if ($datos['codigo']==='2'){
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x+6, $y+6, 55, 12, 0.2, $style, 'N');
+            }else{
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"],  $type, $x+6, $y+6, 55, 12, 0.2, $style, 'N');
+            }
           }
+          
+          
           $y=$y+28;
         }
 
