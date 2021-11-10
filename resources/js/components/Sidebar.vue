@@ -159,6 +159,13 @@
             <router-link v-if="$can('compra.mostrar')" class="collapse-item" :to="{name: 'compraMostrar'}">Mostrar Compras</router-link>
             <router-link v-if="$can('compra.crear')" class="collapse-item" :to="{name: 'compra'}">Realizar Compras</router-link>
             <router-link v-if="$can('compra.crearcontainer')" class="collapse-item" :to="{name: 'compraContainer'}">Crear Container</router-link>
+            <a v-if="$can('compra.nota')" class="nav-item accordion collapse-item font-weight-bold text-muted" href="#" data-toggle="collapse" data-target="#collapseNotaDeCredito" aria-expanded="true" aria-controls="collapseNotaDeCredito" >Nota de Credito</a>
+            <div id="collapseNotaDeCredito" class="collapse bg-#ced4da"   aria-labelledby="headingNotaDeCredito" data-parent="#accordionMov">
+              <hr>
+              <router-link v-if="$can('compra.notadecredito')" class="collapse-item" :to="{name: 'notaCredito'}">Realizar Nota</router-link>
+              <router-link v-if="$can('compra.mostrarnotadecredito')" class="collapse-item" :to="{name: 'notaCreditoMostrar'}">Mostrar Notas</router-link>
+              <hr>
+            </div>
           </div>
         </div>
       </li>
