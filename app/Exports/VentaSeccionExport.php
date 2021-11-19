@@ -71,7 +71,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
                 AVG(temp_ventas.COSTO_UNIT) AS COSTO, 
                 SUM(temp_ventas.DESCUENTO) AS DESCUENTO_TOTAL,
                 SUM(temp_ventas.UTILIDAD) AS UTILIDAD'),
-                DB::raw('IFNULL((SELECT SUM(VENDIDO) FROM TEMP_VENTAS AS T WHERE T.DESCUENTO_PRODUCTO > 0 AND T.COD_PROD = TEMP_VENTAS.COD_PROD AND T.ID_SUCURSAL = TEMP_VENTAS.ID_SUCURSAL AND T.USER_ID = TEMP_VENTAS.USER_ID AND T.SECCION_CODIGO = TEMP_VENTAS.SECCION_CODIGO AND T.LINEA_CODIGO = TEMP_VENTAS.LINEA_CODIGO AND T.SUBLINEA_CODIGO = TEMP_VENTAS.SUBLINEA_CODIGO), "0") AS DESCUENTO'))
+                DB::raw('IFNULL((SELECT SUM(T.VENDIDO) FROM TEMP_VENTAS AS T WHERE T.DESCUENTO_PRODUCTO > 0 AND T.COD_PROD = TEMP_VENTAS.COD_PROD AND T.ID_SUCURSAL = TEMP_VENTAS.ID_SUCURSAL AND T.USER_ID = TEMP_VENTAS.USER_ID AND T.SECCION_CODIGO = TEMP_VENTAS.SECCION_CODIGO AND T.LINEA_CODIGO = TEMP_VENTAS.LINEA_CODIGO AND T.SUBLINEA_CODIGO = TEMP_VENTAS.SUBLINEA_CODIGO), "0") AS DESCUENTO'))
         ->where('temp_ventas.ID_SUCURSAL', '=', $this->sucursal)
         ->where('temp_ventas.SECCION_CODIGO', '=', $this->seccion)
         ->where('temp_ventas.USER_ID', '=', $user->id)
@@ -86,7 +86,7 @@ class VentaSeccionExport implements FromArray, WithHeadings, WithTitle, WithEven
             
             $lotes = DB::connection('retail')->table('LOTES')
                 ->select(DB::raw('SUM(CANTIDAD) AS STOCK, 
-                    SUM(CANTIDAD * COSTO) AS COSTO_RESTANTE')
+                    SUM(CANTIDAD * COSTO) AS COSTO_RESTANTE'))
             ->where('COD_PROD', '=', $value->COD_PROD)
             ->where('ID_SUCURSAL', '=', $this->sucursal)
             ->get();
