@@ -26,13 +26,13 @@ use DateTime;
 
 class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, ShouldAutoSize, WithColumnFormatting {
 
-    private $total_descuento;
-    private $total_utilidad;
-    private $total_general;
-    private $total_preciounit;
-    private $costo;
-    private $totalcosto;
-    private $cantidadvendida;
+    private $total_descuento = 0;
+    private $total_utilidad = 0;
+    private $total_general = 0;
+    private $total_preciounit = 0;
+    private $costo = 0;
+    private $totalcosto = 0;
+    private $cantidadvendida = 0;
     public  $posicion = 1;
     public  $gondola_array = [];
     private $seccion;
@@ -40,6 +40,9 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
     private $descri_s;
     private $gondola;
     private $descri_g;
+    private $total_costo_restante = 0;
+    protected $total_stock = 0;
+
 
     /**
     * @return \Illuminate\Support\Collection
@@ -56,10 +59,11 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
 
         $user = auth()->user();
 
-        $gondola_array[] = array('GONDOLAS','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO TOTAL','TOTAL VENTA','UTILIDAD');
+        $gondola_array[] = array('GONDOLAS','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO TOTAL','TOTAL VENTA','UTILIDAD', "STOCK", "COSTO RESTANTE");
 
         $TOTAL = DB::connection('retail')->table('TEMP_VENTAS')->select(
             DB::raw('SUM(TEMP_VENTAS.VENDIDO) AS VENDIDO'),
+            DB::raw('GONDOLA AS ID_GONDOLA'),
             DB::raw('GONDOLA_NOMBRE AS DESCRI_G'),
             DB::raw('SUM(TEMP_VENTAS.DESCUENTO) AS DESCUENTO'),
             DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
@@ -77,6 +81,22 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
 
         foreach ($TOTAL as $key => $value) {
 
+            $lotes = DB::connection('retail')->table('LOTES')
+                ->leftjoin('GONDOLA_TIENE_PRODUCTOS', function($join){
+                    $join->on('GONDOLA_TIENE_PRODUCTOS.GONDOLA_COD_PROD','=','LOTES.COD_PROD')
+                        ->on('GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL','=','LOTES.ID_SUCURSAL');
+                    })
+                ->leftjoin('GONDOLA_TIENE_SECCION', function($join){
+                    $join->on('GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
+                        ->on('GONDOLA_TIENE_SECCION.ID_SUCURSAL','=','GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL');
+                    })
+                ->select(DB::raw('SUM(LOTES.CANTIDAD) AS STOCK, 
+                    SUM(LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_RESTANTE'))
+            ->where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
+            ->where('GONDOLA_TIENE_SECCION.ID_GONDOLA', '=', $value->ID_GONDOLA)
+            ->where('GONDOLA_TIENE_SECCION.ID_SECCION', '=', $this->seccion)
+            ->get();
+
             $this->posicion = $this->posicion + 1;
             $this->total_general = $this->total_general + $value->TOTAL;
             $this->total_descuento = $this->total_descuento + $value->DESCUENTO;
@@ -85,6 +105,8 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
             $this->costo = $this->costo + $value->COSTO_UNIT;
             $this->totalcosto = $this->totalcosto + $value->COSTO_TOTAL;
             $this->total_utilidad = $this->total_utilidad + $value->UTILIDAD;
+            $this->total_stock = $this->total_stock + $lotes[0]->STOCK;
+            $this->total_costo_restante = $this->total_costo_restante + $lotes[0]->COSTO_RESTANTE;
             
             $gondola_array[] = array(
                 'GONDOLAS'=> $value->DESCRI_G,
@@ -94,7 +116,9 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
                 'PRECIO PROMEDIO'=> $value->PRECIO_UNIT,
                 'COSTO TOTAL'=> $value->COSTO_TOTAL,
                 'TOTAL VENTA'=> $value->TOTAL,
-                'UTILIDAD'=> $value->UTILIDAD
+                'UTILIDAD'=> $value->UTILIDAD,
+                'STOCK'=> $lotes[0]->STOCK,
+                'COSTO RESTANTE'=> $lotes[0]->COSTO_RESTANTE
             );
         }
 
@@ -106,7 +130,9 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
             'PRECIO PROMEDIO'=> $this->total_preciounit,
             'COSTO TOTAL'=> $this->totalcosto,
             'TOTAL VENTA'=> $this->total_general,
-            'UTILIDAD'=> $this->total_utilidad
+            'UTILIDAD'=> $this->total_utilidad,
+            'STOCK'=> $this->total_stock,
+            'COSTO RESTANTE'=> $this->total_costo_restante
         );
 
         return $gondola_array;
@@ -141,9 +167,9 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
         return [
             
             AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-                $event->sheet->getStyle('A1:H1')->applyfromarray($styleArray);
+                $event->sheet->getStyle('A1:J1')->applyfromarray($styleArray);
                 $this->posicion = $this->posicion + 1;
-                $event->sheet->getStyle('A'.$this->posicion.':H'.$this->posicion)->applyfromarray($styleArray);
+                $event->sheet->getStyle('A'.$this->posicion.':J'.$this->posicion)->applyfromarray($styleArray);
                 $event->sheet->getStyle('B2:'.'B'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
                 $event->sheet->getStyle('C2:'.'C'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
                 $event->sheet->getStyle('D2:'.'D'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
@@ -151,12 +177,14 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
                 $event->sheet->getStyle('F2:'.'F'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
                 $event->sheet->getStyle('G2:'.'G'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
                 $event->sheet->getStyle('H2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('I2:'.'I'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+                $event->sheet->getStyle('J2:'.'J'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
             }
         ];
     }
 
     public function columnFormats(): array {
-         return [
+        return [
            'A' => NumberFormat::FORMAT_NUMBER,
            'M' => NumberFormat::FORMAT_NUMBER
         ];
