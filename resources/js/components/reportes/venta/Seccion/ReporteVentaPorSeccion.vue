@@ -22,13 +22,25 @@
 						<!-- -----------------------------------SELECT SECCION------------------------------------- -->
 
 					    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
-						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
-							 <option value="null" selected>Seleccionar</option>
-							 <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
-						</select>
-						<div class="invalid-feedback">
-					        {{messageInvalidSeccion}}
-					    </div>
+						<div v-if="$can('reporte.venta.proveedor')">
+							<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option value="true">TODAS</option>
+								 <option v-for="seccion in secciones" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
+						<div v-else>
+							<select class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option v-for="seccion in seccion" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
 
 						<!-- -----------------------------------SELECT INTERVALO------------------------------------- -->
 						
@@ -145,8 +157,11 @@
               	cargado: false,
               	descarga: false,
               	secciones: [],
+              	seccion: [],
               	validarSeccion: false,
-              	messageInvalidSeccion: ''
+              	messageInvalidSeccion: '',
+              	onSeccion: false,
+              	selectedSecciones: []
             }
         }, 
         methods:{
@@ -157,7 +172,8 @@
 	           	this.sucursales = response.data.sucursales;
 	           	this.subCategorias = response.data.seccionSubCategorias;
 	           	this.categorias = response.data.seccionCategorias;
-	           	this.secciones = response.data.seccion;
+	           	this.seccion = response.data.seccion;
+	           	this.secciones = response.data.secciones;
 	          }); 
 	        },
 
@@ -281,6 +297,12 @@
 	        		me.messageInvalidSubCategoria = '';
 	        	}
 	        			
+	        	if(me.selectedSeccion === "true"){
+	        		me.onSeccion = true;
+	        	}else{
+	        		me.onSeccion = false;
+	        	}
+
 	        	if(me.controlar===true){
 	        		me.controlar = false;
 	        		return;
@@ -297,18 +319,43 @@
 	        			me.selectedSubCategoria[key] = me.subCategorias[key].CODIGO;
 	        		}
 	        	}
+				
+				if(me.onSeccion === true){
 
-	        	me.datos = {
-		        	Sucursal: me.selectedSucursal,
-		        	Inicio: String(me.selectedInicialFecha),
-		        	Final: String(me.selectedFinalFecha),
-		        	SubCategorias: me.selectedSubCategoria,
-		        	Categorias: me.selectedCategoria,
-		        	AllSubCategory: me.onSubCategoria,
-		        	AllCategory: me.onCategoria, 
-		        	Insert:me.insert,
-		        	Seccion: me.selectedSeccion
-	        	};
+		        	for (var key in me.secciones){
+		        		me.selectedSecciones[key] = me.secciones[key].ID_SECCION;
+		        	}
+
+		        	me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	SubCategorias: me.selectedSubCategoria,
+			        	Categorias: me.selectedCategoria,
+			        	AllSubCategory: me.onSubCategoria,
+			        	AllCategory: me.onCategoria, 
+						AllSecciones: me.onSeccion,
+		        		Insert: me.insert,
+			        	Seccion: me.selectedSecciones,
+						Descripcion: 'GENERAL'
+		        	}
+
+	        	}else{
+
+	        		me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	SubCategorias: me.selectedSubCategoria,
+			        	Categorias: me.selectedCategoria,
+			        	AllSubCategory: me.onSubCategoria,
+			        	AllCategory: me.onCategoria, 
+						AllSecciones: me.onSeccion,
+		        		Insert: me.insert,
+			        	Seccion: me.selectedSeccion.ID_SECCION,
+						Descripcion: me.selectedSeccion.DESCRIPCION
+		        	}
+	        	}
 	      
 	        	return true;
 	        },

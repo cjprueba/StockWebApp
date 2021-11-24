@@ -37,9 +37,9 @@ class ProveedorSeccionExport implements FromArray, WithTitle, WithEvents, WithCo
     */
 
     public function __construct($datos){
-    	// var_dump($datos);
+    	
     	$this->seccion_proveedor = $datos["proveedores"];
-    	$this->titulo = $datos["proveedores"][0]["SECCION"];
+    	$this->titulo = $datos["descripcion"];
     }
     
     public function  array(): array{

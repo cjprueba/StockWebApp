@@ -348,6 +348,7 @@ class VentaController extends Controller
                 'secciones' => $request->Seccion,
                 'checkedCategoria' => $request->AllCategory,
                 'checkedSubCategoria' => $request->AllSubCategory,
+                'checkedSeccion' => $request->AllSecciones,
                 'sublinea' => $request->SubCategorias,
                 'linea' => $request->Categorias,
             );
@@ -435,6 +436,7 @@ class VentaController extends Controller
                 'final' => date('Y-m-d', strtotime($request->Final)),
                 'sucursal' => $request->Sucursal,
                 'checkedGondola' => $request->AllGondolas,
+                'checkedSeccion' => $request->AllSecciones,
                 'gondolas' => $request->Gondolas,
                 'secciones' => $request->Seccion,
             );

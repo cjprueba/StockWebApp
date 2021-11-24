@@ -33,6 +33,7 @@ class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSi
     protected $porcentaje;
     public  $posicion = 1;
     public  $subcategoria_array = [];
+    private $AllSecciones;
 
     public function __construct($datos){
         
@@ -42,28 +43,45 @@ class SubCategoriaSeccionExport implements FromArray, WithHeadings, ShouldAutoSi
         $this->AllSubCategory = $datos["AllSubCategory"];
         $this->sublineas = $datos["SubCategorias"];
         $this->seccion = $datos["Seccion"];
+        $this->AllSecciones = $datos["AllSecciones"];
     }
 
     public function  array(): array {
 
         $user = auth()->user();
 
-        $subcategoria = DB::connection('retail')->table('TEMP_VENTAS')
-            ->select(DB::raw('
-                TEMP_VENTAS.LINEA_CODIGO, 
-                SUM(TEMP_VENTAS.VENDIDO) AS CANTIDAD, 
-                TEMP_VENTAS.SUBCATEGORIA AS DESCRIPCION,
-                SUM(TEMP_VENTAS.PRECIO) AS TOTAL,
-                0 AS PORCENTAJE'))
-        ->where('TEMP_VENTAS.ID_SUCURSAL', '=', $this->sucursal)
-        ->where('TEMP_VENTAS.SECCION_CODIGO', '=', $this->seccion)
-        ->where('TEMP_VENTAS.USER_ID', '=', $user->id)
-        ->whereIn('temp_ventas.LINEA_CODIGO', $this->categorias)
-        ->whereIn('temp_ventas.SUBLINEA_CODIGO', $this->sublineas)
-        ->groupBy('TEMP_VENTAS.SUBLINEA_CODIGO')
-        ->orderBy('TEMP_VENTAS.SUBCATEGORIA')
-        ->get()
-        ->toArray();
+        if($this->AllSecciones){
+            $subcategoria = DB::connection('retail')->table('TEMP_VENTAS')
+                ->select(DB::raw('
+                    TEMP_VENTAS.LINEA_CODIGO, 
+                    SUM(TEMP_VENTAS.VENDIDO) AS CANTIDAD, 
+                    TEMP_VENTAS.SUBCATEGORIA AS DESCRIPCION,
+                    SUM(TEMP_VENTAS.PRECIO) AS TOTAL,
+                    0 AS PORCENTAJE'))
+            ->where('TEMP_VENTAS.ID_SUCURSAL', '=', $this->sucursal)
+            ->where('TEMP_VENTAS.USER_ID', '=', $user->id)
+            ->groupBy('TEMP_VENTAS.SUBLINEA_CODIGO')
+            ->orderBy('TEMP_VENTAS.SUBCATEGORIA')
+            ->get()
+            ->toArray();
+        }else{
+             $subcategoria = DB::connection('retail')->table('TEMP_VENTAS')
+                ->select(DB::raw('
+                    TEMP_VENTAS.LINEA_CODIGO, 
+                    SUM(TEMP_VENTAS.VENDIDO) AS CANTIDAD, 
+                    TEMP_VENTAS.SUBCATEGORIA AS DESCRIPCION,
+                    SUM(TEMP_VENTAS.PRECIO) AS TOTAL,
+                    0 AS PORCENTAJE'))
+            ->where('TEMP_VENTAS.ID_SUCURSAL', '=', $this->sucursal)
+            ->where('TEMP_VENTAS.SECCION_CODIGO', '=', $this->seccion)
+            ->where('TEMP_VENTAS.USER_ID', '=', $user->id)
+            ->whereIn('temp_ventas.LINEA_CODIGO', $this->categorias)
+            ->whereIn('temp_ventas.SUBLINEA_CODIGO', $this->sublineas)
+            ->groupBy('TEMP_VENTAS.SUBLINEA_CODIGO')
+            ->orderBy('TEMP_VENTAS.SUBCATEGORIA')
+            ->get()
+            ->toArray();
+        }
 
         $total_ventas = array_sum(array_column($subcategoria, 'CANTIDAD'));
 

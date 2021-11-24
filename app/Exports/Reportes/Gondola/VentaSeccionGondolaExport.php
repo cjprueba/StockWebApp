@@ -42,6 +42,9 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
     private $descri_g;
     private $total_costo_restante = 0;
     protected $total_stock = 0;
+    private $AllSecciones;
+    private $costo_restante = 0;
+    protected $stock = 0;
 
 
     /**
@@ -53,29 +56,32 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
         $this->sucursal = $datos['Sucursal'];
         $this->seccion = $datos['Seccion'];
         $this->descri_s = $datos['Descripcion'];
+        $this->AllSecciones = $datos['AllSecciones'];
     }
 
     public function  array(): array {
 
         $user = auth()->user();
 
-        $gondola_array[] = array('GONDOLAS','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO TOTAL','TOTAL VENTA','UTILIDAD', "STOCK", "COSTO RESTANTE");
+        $gondola_array[] = array('GONDOLAS','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO VENTA','TOTAL VENTA','UTILIDAD', "STOCK", "COSTO RESTANTE");
 
         $TOTAL = DB::connection('retail')->table('TEMP_VENTAS')->select(
             DB::raw('SUM(TEMP_VENTAS.VENDIDO) AS VENDIDO'),
-            DB::raw('GONDOLA AS ID_GONDOLA'),
-            DB::raw('GONDOLA_NOMBRE AS DESCRI_G'),
+            DB::raw('TEMP_VENTAS.GONDOLA AS ID_GONDOLA'),
+            DB::raw('TEMP_VENTAS.GONDOLA_NOMBRE AS DESCRI_G'),
             DB::raw('SUM(TEMP_VENTAS.DESCUENTO) AS DESCUENTO'),
             DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
             DB::raw('AVG(COSTO_UNIT) AS COSTO_UNIT'),
             DB::raw('SUM(TEMP_VENTAS.PRECIO) AS TOTAL'),
             DB::raw('AVG(TEMP_VENTAS.PRECIO_UNIT) AS PRECIO_UNIT'),
-            DB::raw('SUM(TEMP_VENTAS.UTILIDAD) AS UTILIDAD'))
+            DB::raw('SUM(TEMP_VENTAS.UTILIDAD) AS UTILIDAD'),
+            DB::raw('TEMP_VENTAS.SECCION_CODIGO AS SECCION_CODIGO'),
+            DB::raw('TEMP_VENTAS.SECCION AS SECCION'))
         ->where('TEMP_VENTAS.USER_ID', '=', $user->id)
         ->where('TEMP_VENTAS.ID_SUCURSAL', '=', $this->sucursal)
-        ->where('TEMP_VENTAS.SECCION_CODIGO','=', $this->seccion)
         ->where('TEMP_VENTAS.CREDITO_COBRADO', '=', 0)
         ->groupBy('TEMP_VENTAS.GONDOLA', 'TEMP_VENTAS.SECCION_CODIGO')
+        ->orderBy('TEMP_VENTAS.SECCION')
         ->get()
         ->toArray();
 
@@ -90,11 +96,11 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
                     $join->on('GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLA_TIENE_PRODUCTOS.ID_GONDOLA')
                         ->on('GONDOLA_TIENE_SECCION.ID_SUCURSAL','=','GONDOLA_TIENE_PRODUCTOS.ID_SUCURSAL');
                     })
-                ->select(DB::raw('SUM(LOTES.CANTIDAD) AS STOCK, 
-                    SUM(LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_RESTANTE'))
+                ->select(DB::raw('IFNULL(SUM(LOTES.CANTIDAD), 0) AS STOCK, 
+                    IFNULL(SUM(LOTES.CANTIDAD * LOTES.COSTO), 0) AS COSTO_RESTANTE'))
             ->where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
             ->where('GONDOLA_TIENE_SECCION.ID_GONDOLA', '=', $value->ID_GONDOLA)
-            ->where('GONDOLA_TIENE_SECCION.ID_SECCION', '=', $this->seccion)
+            ->where('GONDOLA_TIENE_SECCION.ID_SECCION', '=', $value->SECCION_CODIGO)
             ->get();
 
             $this->posicion = $this->posicion + 1;
@@ -107,11 +113,17 @@ class VentaSeccionGondolaExport implements FromArray, WithTitle, WithEvents, Sho
             $this->total_utilidad = $this->total_utilidad + $value->UTILIDAD;
             $this->total_stock = $this->total_stock + $lotes[0]->STOCK;
             $this->total_costo_restante = $this->total_costo_restante + $lotes[0]->COSTO_RESTANTE;
+
+            if($this->AllSecciones){
+                $this->gondola = $value->SECCION.', '.$value->DESCRI_G;
+            }else{
+                $this->gondola = $value->DESCRI_G;
+            }
             
             $gondola_array[] = array(
-                'GONDOLAS'=> $value->DESCRI_G,
+                'GONDOLAS'=> $this->gondola,
                 'VENDIDO'=> $value->VENDIDO,
-                'DESCUENTO'=>$value->DESCUENTO,
+                'DESCUENTO'=> $value->DESCUENTO,
                 'COSTO PROMEDIO'=> $value->COSTO_UNIT,
                 'PRECIO PROMEDIO'=> $value->PRECIO_UNIT,
                 'COSTO TOTAL'=> $value->COSTO_TOTAL,

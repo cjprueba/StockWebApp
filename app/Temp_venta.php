@@ -2486,7 +2486,7 @@ class Temp_venta extends Model
         ->Where('VENTASDET.ANULADO','<>', 1)
         ->whereBetween('VENTASDET.FECALTAS', [$datos["inicio"], $datos["final"] ])
         ->Where('VENTASDET.ID_SUCURSAL','=',$datos["sucursal"]) 
-        ->orderby('VENTASDET.COD_PROD');
+        ->orderby('VENTASDET.COD_PROD', 'ASC');
 
         // FILTRAR POR DATOS NECESARIOS PARA EL REPORTE
 
@@ -2497,13 +2497,18 @@ class Temp_venta extends Model
 	       		->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
 	       		->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
 	       			->addSelect(DB::raw('
-		       			IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO,
-		        		IFNULL(GONDOLAS.ID,0)AS GONDOLA,
-		        		GONDOLAS.DESCRIPCION AS GONDOLA_NOMBRE,
-		         		SECCIONES.DESCRIPCION AS SECCION,
-		         		VENTAS.VENDEDOR AS VENDEDOR'))
-       		->where('VENTAS.TIPO','<>','CR')
-       		->where('SECCIONES.ID', '=', $datos["secciones"]);
+		       			IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+		        		IFNULL(GONDOLAS.ID, 0)AS GONDOLA,
+		        		IFNULL(GONDOLAS.DESCRIPCION, "INDEFINIDO") AS GONDOLA_NOMBRE,
+		         		IFNULL(SECCIONES.DESCRIPCION, "INDEFINIDO") AS SECCION'))
+       		->where('VENTAS.TIPO','<>','CR');
+
+       		if(!$datos['checkedSeccion']){
+       			$reporte->where('SECCIONES.ID', '=', $datos["secciones"]);
+			}else{
+
+       			$reporte->whereIn('SECCIONES.ID', $datos["secciones"]);
+			}
 
        		if(isset($datos["gondolas"])){
 	       		if(!$datos["checkedGondola"]){

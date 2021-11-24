@@ -36,11 +36,13 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
     public  $posicion = 1;
     public  $proveedor_array = [];
     private $seccion;
+    private $descripcion;
     private $sucursal;
     private $descri_s;
     private $descri_g;
     private $total_costo_restante = 0;
     protected $total_stock = 0;
+    private $AllSecciones;
 
     /**
     * @return \Illuminate\Support\Collection
@@ -51,13 +53,14 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
         $this->sucursal = $datos['Sucursal'];
         $this->descri_s = $datos['Descripcion'];
     	$this->seccion = $datos['Seccion'];
+        $this->AllSecciones = $datos['AllSecciones'];
     }
 
     public function  array(): array{
 
 		$user = auth()->user();
 
-        $proveedor_array[] = array('PROVEEDORES','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO TOTAL', 'TOTAL VENTA', 'UTILIDAD', "STOCK", "COSTO RESTANTE");
+        $proveedor_array[] = array('PROVEEDORES','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO VENTA', 'TOTAL VENTA', 'UTILIDAD', "STOCK", "COSTO RESTANTE");
 
     	$TOTAL = DB::connection('retail')->table('TEMP_VENTAS')->select(
             DB::raw('SUM(TEMP_VENTAS.VENDIDO) AS VENDIDO'),
@@ -69,12 +72,14 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
             DB::raw('SUM(TEMP_VENTAS.PRECIO) AS TOTAL'),
             DB::raw('AVG(TEMP_VENTAS.PRECIO_UNIT) AS PRECIO_UNIT'),
             DB::raw('IFNULL(SUM(TEMP_VENTAS.UTILIDAD), "0") AS UTILIDAD'),
-            DB::raw('TEMP_VENTAS.PROVEEDOR'))
+            DB::raw('TEMP_VENTAS.PROVEEDOR'),
+            DB::raw('TEMP_VENTAS.SECCION_CODIGO'),
+            DB::raw('TEMP_VENTAS.SECCION AS SECCION'))
         ->where('TEMP_VENTAS.USER_ID','=',$user->id)
         ->where('TEMP_VENTAS.ID_SUCURSAL','=', $this->sucursal)
-        ->where('TEMP_VENTAS.SECCION_CODIGO','=', $this->seccion)
         ->where('TEMP_VENTAS.CREDITO_COBRADO','=', 0)
         ->groupBy('TEMP_VENTAS.SECCION_CODIGO', 'TEMP_VENTAS.PROVEEDOR')
+        ->orderBy('TEMP_VENTAS.SECCION')
         ->orderBy('TEMP_VENTAS.PROVEEDOR_NOMBRE')
         ->get()
         ->toArray();
@@ -90,7 +95,7 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
                     SUM(LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_RESTANTE'))
             ->where('LOTES.FK_PROVEEDOR', '=', $value->PROVEEDOR)
             ->where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
-            ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $this->seccion)
+            ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $value->SECCION_CODIGO)
             ->get();
 
            	$this->posicion = $this->posicion + 1;
@@ -104,8 +109,15 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
             $this->total_stock = $this->total_stock + $lotes[0]->STOCK;
             $this->total_costo_restante = $this->total_costo_restante + $lotes[0]->COSTO_RESTANTE;
 
+            if($this->AllSecciones){
+                $this->descripcion = $value->SECCION.', '.$value->DESCRI_G;
+            }else{
+                $this->descripcion = $value->DESCRI_G;
+            }
+
+
             $proveedor_array[]=array(
-                'PROVEEDORES'=> $value->DESCRI_G,
+                'PROVEEDORES'=> $this->descripcion,
                 'VENDIDO'=> $value->VENDIDO,
                 'DESCUENTO'=>$value->DESCUENTO,
                 'COSTO PROMEDIO'=> $value->COSTO_UNIT,
