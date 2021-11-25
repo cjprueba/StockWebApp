@@ -32,18 +32,23 @@
 					    	</div>
 							
 							<div class="col-12 row" >
-								<div class="form-check col-6" align="right">
+								<div class="form-check col-4" align="right">
 								  <input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion1" v-model="seleccionImpresion" value="2">
 								  <label class="form-check-label" for="TipoImpresion1" >Productos</label>
 								</div>
-								<div class="form-check col-6" align="left">
+								<div class="form-check col-4" align="center">
 								  <input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion2" v-model="seleccionImpresion" value="1">
 								  <label class="form-check-label" for="TipoImpresion2">Gondolas</label>
 								</div>
+								<div class="form-check col-4" align="left">
+								  <input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion3" v-model="seleccionImpresion" value="3">
+								  <label class="form-check-label" for="TipoImpresion3">Descripción</label>
+								</div>
 							</div>
-				    		<div class="card">
-				    			
+							<br>
 
+							<!-- |||||||||||||||||||||||||||||||||||||| GONDOLAS |||||||||||||||||||||||||||||||||||||| -->
+				    		<div class="card">
 				    			<div v-if="seleccionImpresion=='1'" class="card-body row">
 				    				<div class="col-5" align="center">
 				    					<select-gondola ref="gondola" v-model="seleccion_gondola"> </select-gondola>	
@@ -74,8 +79,8 @@
 									</div>
 				    			</div>
 
-				      			<div v-else class="card-body">
-
+				    			<!-- |||||||||||||||||||||||||||||||||||||| PRODUCTOS |||||||||||||||||||||||||||||||||||||| -->
+				      			<div v-if="seleccionImpresion=='2'" class="card-body">
 					  				<!-- ----------------------------------- CODIGO, DESCRIPCION Y LINEA DEL PRODUCTO ------------------------------------- -->
 									<div class="row mt--2">
 
@@ -140,6 +145,9 @@
 
 
 									</div>
+
+
+
 									<hr>
 									<div class="row mt-3">
 										<div class="col-4" align="center">
@@ -292,6 +300,60 @@
 										
 									</div>
 								</div>
+
+								<!-- |||||||||||||||||||||||||||||||||||||| DESCRIPCION |||||||||||||||||||||||||||||||||||||| -->
+								<div v-if="seleccionImpresion=='3'" class="card-body">
+									<div class="row mt--2">
+
+										<div class="col-3">
+											<codigo-producto-desc v-bind:class="{ 'is-invalid': validar.codigoProd }" @codigo_producto="cargarProductos"
+											 ref="compontente_codigo_producto" v-model="producto.codigoProd" disabled></codigo-producto-desc>
+										</div>
+
+										<div class="col-6">
+							    			<label>Descripción Del Producto</label>
+								      		<input v-bind:class="{ 'is-invalid': validar.descripion }" v-model="producto.descripcion" type="text" class="form-control form-control-sm" disabled>
+								    	</div>
+								    	<div class="col">
+						    				<label>Cantidad</label>
+							      			<input ref="cantidad_ticket" v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
+										</div>
+
+										<!-- ------------------------------------------------------------------ -->
+										<!-- GONDOLA -->
+										<div class="col-3">
+										    <label v-if="checkedQr" for="validationTooltip01">Lotes</label>
+					            			<select  class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validar.lote }" v-model="loteSeleccion" v-on:change="cambiar_stock" v-if="checkedQr" @input="$emit('input', $event.target.value)" >
+							                    <option :value="{id : 0, nlote: 0,cantidad : 0 }">0 - Seleccionar</option>
+							                    <option  data-item-type="lote.LOTE" v-for="lote in lotes"  :id="lote.LOTE" :value="{id : lote.ID, nlote: lote.LOTE,cantidad : lote.CANTIDAD }">{{ lote.LOTE }} - {{ lote.CANTIDAD }}</option>
+					            			</select>
+										</div>
+									</div>
+									<div class="row mt-3">
+
+					      				<!-- -------------------------------------- PRECIO MAYORISTA------------------------------------------------------- -->
+										<div class="col" >
+						    				<label>Precio Mayorista</label>
+							      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioMayorista" type="text" class="form-control form-control-sm" disabled>
+										</div>
+
+										<!-- -------------------------------------- PRECIO UNITARIO ------------------------------------------------------- -->
+										<div class="col" >
+						    				<label>Precio Unitario</label>
+							      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioUnitario" type="text" class="form-control form-control-sm" disabled>
+										</div>
+
+										<!-- -------------------------------------- CANTIDAD EXIST. ------------------------------------------------------- -->
+										<div class="col">
+											<label>Cantidad Existente</label>
+											<input v-bind:class="{ 'is-invalid': validar.cantidadExistente }" v-model="producto.cantidadExistente" type="text" class="form-control form-control-sm" disabled>
+										</div>
+
+										<!-- --------------------------------------------- CANTIDAD ------------------------------------------------------- -->
+										
+									</div>
+								</div>
+
 							</div>
 						</div>
 
@@ -630,7 +692,8 @@
 					precioMayorista:'',
 					cantidadExistente: '',
 					descuento: '',
-					moneda:''
+					moneda:'',
+					nombre_desc:''
 
 				},
 
@@ -684,7 +747,8 @@
            		usuarioId: '',
            		nombreUsuario: '',
            		
-           		checkedMayorista: false
+           		checkedMayorista: false,
+           		NameDescRecibido: ''
 
 			}
 		},
@@ -1276,101 +1340,110 @@
 			//CARGA LOS DATOS DEL PRODUCTO
 
 			cargarProductos(codigo) {
-        	
-	            // ------------------------------------------------------------------------
-
-	            // INICIAR VARIABLES
-
-	            let me = this;
 
 	            // ------------------------------------------------------------------------
-
-	            // CONTROLAR SI HAY DATOS EN EL TEXTBOX Y RETORNAR SI NO EXISTE DATO
-
-	            if (codigo.length <= 0) {
-	                me.inivarAgregarProducto();
-	                return;
-	            }	
 	            
-	            // ------------------------------------------------------------------------
-	    			
-	    		// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
-	    		
-		        var data = {
-		            'codigo': codigo,
-		            'monedaSistema': me.monedaCodigo, 
-		            'candec': me.candec, 
-		            'tab_unica': me.tab_unica,
-		            'mayorista': me.checkedMayorista
-		        }; 
-		        
-	            // ------------------------------------------------------------------------
+		            	// INICIAR VARIABLES
 
-	            // CONSULTAR PRODUCTO DETERMINADO
+			            let me = this;
 
-	            axios.post('/producto', {'data': data, 'Opcion': 1}).then(function (response) {
-	                   
-	                    if(response.data.producto === 0) {
+			            // ------------------------------------------------------------------------
 
-	                        // *******************************************************************
+			            // CONTROLAR SI HAY DATOS EN EL TEXTBOX Y RETORNAR SI NO EXISTE DATO
+			            console.log(" me.NameDescRecibido: "+me.NameDescRecibido);
+			            console.log("seleccionImpresion: "+me.seleccionImpresion);
+			            if (codigo.length <= 0) {
+			                me.inivarAgregarProducto();
+			                return;
+			            }	
+			            if (me.seleccionImpresion==='3') {
+			                me.NameDescRecibido='1';
+			            }else{
+			            	me.NameDescRecibido='0';
+			            }
+			            // ------------------------------------------------------------------------
+			    			
+			    		// SI DATA ES IGUAL A 0 NO ENCONTRO CODIGO INTERNO 
+			    			var data = {
+					            'codigo': codigo,
+					            'monedaSistema': me.monedaCodigo, 
+					            'candec': me.candec, 
+					            'tab_unica': me.tab_unica,
+					            'mayorista': me.checkedMayorista,
+					            'NameDesc' : me.NameDescRecibido
+				        	};
+				        	console.log(data.NameDesc); 
+				        	console.log(data); 
+			            // ------------------------------------------------------------------------
 
-	                        // MARCAR EN ROJO TEXTBOX SI NO EXISTE PRODUCTO
-	                    
-	                        me.validar.codigoProd = true;
-	                        me.producto.codigoProd = '';
-	                        me.producto.descripcion = '';
-	                        me.producto.precioUnitario = '';
-	                        me.producto.cantidadExistente = '';
-	                        me.ivaProducto = '';
-	                        me.producto.linea = '';
-	                        me.producto.descuento = '';
-	                        me.producto.interno='';
-	                        me.$refs.compontente_codigo_producto.vaciarDevolver();
+			            // CONSULTAR PRODUCTO DETERMINADO
+			            axios.post('/producto', {'data': data, 'Opcion': 1, 'NameDesc':data.NameDesc}).then(function (response) {
+			                   
+			                    if(response.data.producto === 0) {
 
-	                        // *******************************************************************
+			                        // *******************************************************************
 
-	                    } else {
+			                        // MARCAR EN ROJO TEXTBOX SI NO EXISTE PRODUCTO
+			                    
+			                        me.validar.codigoProd = true;
+			                        me.producto.codigoProd = '';
+			                        me.producto.descripcion = '';
+			                        me.producto.precioUnitario = '';
+			                        me.producto.cantidadExistente = '';
+			                        me.ivaProducto = '';
+			                        me.producto.linea = '';
+			                        me.producto.descuento = '';
+			                        me.producto.interno='';
+			                        me.$refs.compontente_codigo_producto.vaciarDevolver();
 
-	                        // *******************************************************************
+			                        // *******************************************************************
 
-	                        // LLENAR DESCRIPCION DE PRODUCTO
-	                     
-	                        me.producto.codigoProd = response.data.producto.CODIGO;
-	                        me.producto.descripcion = response.data.producto.DESCRIPCION;
-	                        me.producto.cantidadExistente  = response.data.producto.STOCK;
-	                        me.ivaProducto = response.data.producto.IVA;
-	                        me.producto.precioUnitario = response.data.valor;
-                            me.producto.interno=response.data.producto.CODIGO_INTERNO;
-	                         me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
-	                        me.producto.linea = response.data.producto.LINEA;
-	                        me.producto.moneda= response.data.producto.MONEDA;
-                            me.lotes=response.data.lote;
-                            me.$refs.cantidad_ticket.focus();
-	                        if(me.checkedMayorista === true){
+			                    } else {
 
-	                        	me.producto.descuento = 0;
-	                        }else{
-	                        	me.producto.descuento = response.data.producto.DESCUENTO;
-	                        }
+			                        // *******************************************************************
+
+			                        // LLENAR DESCRIPCION DE PRODUCTO
+			                     
+			                        me.producto.codigoProd = response.data.producto.CODIGO;
+			                        me.producto.descripcion = response.data.producto.DESCRIPCION;
+			                        me.producto.cantidadExistente  = response.data.producto.STOCK;
+			                        me.ivaProducto = response.data.producto.IVA;
+			                        me.producto.precioUnitario = response.data.valor;
+		                            me.producto.interno=response.data.producto.CODIGO_INTERNO;
+			                         me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
+			                        me.producto.linea = response.data.producto.LINEA;
+			                        me.producto.moneda= response.data.producto.MONEDA;
+			                        me.producto.nombre_desc= response.data.producto.NOMBRE;
+		                            me.lotes=response.data.lote;
+		                            me.$refs.cantidad_ticket.focus();
+			                        if(me.checkedMayorista === true){
+
+			                        	me.producto.descuento = 0;
+			                        }else{
+			                        	me.producto.descuento = response.data.producto.DESCUENTO;
+			                        }
 
 
-							// *******************************************************************
+									// *******************************************************************
 
-		                    // AGREGAR PRODUCTO AUTOMATICAMENTE 
+				                    // AGREGAR PRODUCTO AUTOMATICAMENTE 
 
-					    	// if (me.switch_un_producto === true) {
-					    	// 	me.producto.cantidad = 1;
-					    	// 	me.agregarProductoRemision();
-					    	// 	me.producto.codigoProd = '';
-					    	// }
+							    	// if (me.switch_un_producto === true) {
+							    	// 	me.producto.cantidad = 1;
+							    	// 	me.agregarProductoRemision();
+							    	// 	me.producto.codigoProd = '';
+							    	// }
 
-				            // *******************************************************************
+						            // *******************************************************************
 
-	                        me.validar.codigoProd = false;
+			                        me.validar.codigoProd = false;
 
-	                        // *******************************************************************
-	                    }
-	            });
+			                        // *******************************************************************
+			                    }
+			            	});
+			        
+
+          		
 
 	    		// ------------------------------------------------------------------------
 
@@ -1470,7 +1543,7 @@
 
 	            // CARGAR DATO EN TABLA
 
-	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda );
+	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda, me.producto.nombre_desc );
 	          
 
 
@@ -1492,7 +1565,7 @@
 
 	        },
 
-	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda){
+	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda, nombre_desc){
 
 	        	// ------------------------------------------------------------------------
 
@@ -1577,7 +1650,8 @@
 			                  
 			                    "STOCK": stock,
 			                    "ID_LOTE": me.loteSeleccion.id,
-			                    "MONEDA": moneda
+			                    "MONEDA": moneda,
+			                    "NOMBRE": nombre_desc
 
 			                   
 			                } ] )
@@ -1772,9 +1846,6 @@
 				var tipoStock = me.tipoStock;
 				var tableProductos = $('#tablaProductos').DataTable();
 				var delayInMilliseconds = 3000;
-				console.log( cotizacion);
-	        	
-				
 				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock).then(response => {	
 					var reader = new FileReader();
 					reader.readAsDataURL(new Blob([response])); 
