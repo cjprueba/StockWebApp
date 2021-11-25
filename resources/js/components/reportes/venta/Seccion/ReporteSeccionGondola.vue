@@ -23,24 +23,35 @@
 						<!-- -----------------------------------SELECT SECCION------------------------------------- -->
 
 					    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
-						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
-							 <option value="null" selected>Seleccionar</option>
-							 <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
-						</select>
-						<div class="invalid-feedback">
-					        {{messageInvalidSeccion}}
-					    </div>
-
+						<div v-if="$can('reporte.venta.proveedor')">
+							<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option value="true">TODAS</option>
+								 <option v-for="seccion in secciones" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
+						<div v-else>
+							<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option v-for="seccion in seccion" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
 						<!-- -----------------------------------SELECT INTERVALO------------------------------------- -->
 						
 					  	<label class="mt-3" for="validationTooltip01">Seleccione Intervalo de Tiempo</label>
 						<div id="sandbox-container">
 							<div class="input-daterange input-group">
-								   <input   type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
+								   <input type="text" class="input-sm form-control form-control-sm" id="selectedInicialFecha" v-model="selectedInicialFecha" v-bind:class="{ 'is-invalid': validarInicialFecha }"/>
 								   <div class="input-group-append form-control-sm">
 								   		<span class="input-group-text">a</span>
 								   </div>
-								   <input   type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
+								   <input type="text" class="input-sm form-control form-control-sm" name="end" id="selectedFinalFecha" v-model="selectedFinalFecha" v-bind:class="{ 'is-invalid': validarFinalFecha }"/>
 							</div>
 							<div class="invalid-feedback">
 					        	{{messageInvalidFecha}}
@@ -106,6 +117,7 @@
 				sucursales: [],
               	selectedSucursal: 'null',
               	selectedSeccion: 'null',
+              	selectedSecciones: [],
 				validarSucursal: false,
               	messageInvalidSucursal: '',
 				selectedInicialFecha: '',
@@ -115,6 +127,7 @@
               	validarFinalFecha: false,
 				descarga: false,
               	secciones: [],
+              	seccion: [],
               	validarSeccion: false,
               	messageInvalidSeccion: '',
               	proveedores: [],
@@ -122,6 +135,7 @@
               	messageInvalidProveedor: '',
               	validarProveedor: false,
               	onProveedor: false,
+              	onSeccion: false,
               	insert:true,
               	controlar: false,
               	datos: [],
@@ -138,7 +152,8 @@
 
 		        axios.get('busquedas/').then((response) => {
 		           	this.sucursales = response.data.sucursales;
-		           	this.secciones = response.data.seccion;
+		           	this.secciones = response.data.secciones;
+		           	this.seccion = response.data.seccion;
 		        }); 
 
       			// LLAMAR FUNCION PARA FILTRAR GONDOLAS
@@ -216,28 +231,57 @@
 	        		me.messageInvalidGondola = '';
 	        		me.validarGondola = false;
 	        	}	
+	        		
+	        	if(me.selectedSeccion === "true"){
+	        		me.onSeccion = true;
+	        	}else{
+	        		me.onSeccion = false;
+	        	}
 
 	        	if(me.controlar === true){
 	        		return false;
 	        	}
+	        	
 
  				if(me.onGondola === true) {
 		        	for (var key in me.gondolas){
 		        		me.selectedGondola[key] = me.gondolas[key].ID;
 		        	}
 		        }
-	        			
-	        	me.datos = {
-		        	Sucursal: me.selectedSucursal,
-		        	Inicio: String(me.selectedInicialFecha),
-		        	Final: String(me.selectedFinalFecha),
-		        	Insert: me.insert,
-		        	Seccion: me.selectedSeccion,
-					Gondolas: me.selectedGondola,
-					AllGondolas: me.onGondola,
-					Descripcion: me.secciones[0].DESCRIPCION
-	        	};
-	      
+
+	        	if(me.onSeccion === true){
+
+		        	for (var key in me.secciones){
+		        		me.selectedSecciones[key] = me.secciones[key].ID_SECCION;
+		        	}
+		        	
+		        	me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	Insert: me.insert,
+						Gondolas: me.selectedGondola,
+						AllGondolas: me.onGondola,
+						AllSecciones: me.onSeccion,
+			        	Seccion: me.selectedSecciones,
+						Descripcion: 'GENERAL'
+		        	}
+
+	        	}else{
+
+	        		me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	Insert: me.insert,
+						Gondolas: me.selectedGondola,
+						AllGondolas: me.onGondola,
+						AllSecciones: me.onSeccion,
+			        	Seccion: me.selectedSeccion.ID_SECCION,
+						Descripcion: me.selectedSeccion.DESCRIPCION
+		        	}
+	        	}
+
 	        	return true;
 	        },
 

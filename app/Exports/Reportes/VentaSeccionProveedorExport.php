@@ -26,19 +26,23 @@ use DateTime;
 
 class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, ShouldAutoSize, WithColumnFormatting {
 
-    private $total_descuento;
-    private $total_utilidad;
-    private $total_general;
-    private $total_preciounit;
-    private $costo;
-    private $totalcosto;
-    private $cantidadvendida;
+    private $total_descuento = 0;
+    private $total_utilidad = 0;
+    private $total_general = 0;
+    private $total_preciounit = 0;
+    private $costo = 0;
+    private $totalcosto = 0;
+    private $cantidadvendida = 0;
     public  $posicion = 1;
     public  $proveedor_array = [];
     private $seccion;
+    private $descripcion;
     private $sucursal;
     private $descri_s;
     private $descri_g;
+    private $total_costo_restante = 0;
+    protected $total_stock = 0;
+    private $AllSecciones;
 
     /**
     * @return \Illuminate\Support\Collection
@@ -49,34 +53,50 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
         $this->sucursal = $datos['Sucursal'];
         $this->descri_s = $datos['Descripcion'];
     	$this->seccion = $datos['Seccion'];
+        $this->AllSecciones = $datos['AllSecciones'];
     }
 
     public function  array(): array{
 
 		$user = auth()->user();
 
-        $proveedor_array[] = array('PROVEEDORES','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO TOTAL', 'TOTAL VENTA', 'UTILIDAD');
+        $proveedor_array[] = array('PROVEEDORES','VENDIDO','DESCUENTO','COSTO PROMEDIO','PRECIO PROMEDIO','COSTO VENTA', 'TOTAL VENTA', 'UTILIDAD', "STOCK", "COSTO RESTANTE");
 
     	$TOTAL = DB::connection('retail')->table('TEMP_VENTAS')->select(
             DB::raw('SUM(TEMP_VENTAS.VENDIDO) AS VENDIDO'),
             DB::raw('TEMP_VENTAS.PROVEEDOR_NOMBRE AS DESCRI_G'),
             DB::raw('TEMP_VENTAS.SECCION AS SECCION'),
-            DB::raw('SUM(TEMP_VENTAS.DESCUENTO) AS DESCUENTO'),
+            DB::raw('IFNULL(SUM(TEMP_VENTAS.DESCUENTO), "0") AS DESCUENTO'),
             DB::raw('SUM(COSTO_TOTAL) AS COSTO_TOTAL'),
             DB::raw('AVG(COSTO_UNIT) AS COSTO_UNIT'),
             DB::raw('SUM(TEMP_VENTAS.PRECIO) AS TOTAL'),
             DB::raw('AVG(TEMP_VENTAS.PRECIO_UNIT) AS PRECIO_UNIT'),
-            DB::raw('SUM(TEMP_VENTAS.UTILIDAD) AS UTILIDAD'))
+            DB::raw('IFNULL(SUM(TEMP_VENTAS.UTILIDAD), "0") AS UTILIDAD'),
+            DB::raw('TEMP_VENTAS.PROVEEDOR'),
+            DB::raw('TEMP_VENTAS.SECCION_CODIGO'),
+            DB::raw('TEMP_VENTAS.SECCION AS SECCION'))
         ->where('TEMP_VENTAS.USER_ID','=',$user->id)
         ->where('TEMP_VENTAS.ID_SUCURSAL','=', $this->sucursal)
-        ->where('TEMP_VENTAS.SECCION_CODIGO','=', $this->seccion)
         ->where('TEMP_VENTAS.CREDITO_COBRADO','=', 0)
         ->groupBy('TEMP_VENTAS.SECCION_CODIGO', 'TEMP_VENTAS.PROVEEDOR')
+        ->orderBy('TEMP_VENTAS.SECCION')
         ->orderBy('TEMP_VENTAS.PROVEEDOR_NOMBRE')
         ->get()
         ->toArray();
 
        	foreach ($TOTAL as $key => $value) {
+
+            $lotes = DB::connection('retail')->table('LOTES')
+                ->leftjoin('PRODUCTOS_TIENE_SECCION', function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','LOTES.COD_PROD')
+                        ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','LOTES.ID_SUCURSAL');
+                    })
+                ->select(DB::raw('SUM(LOTES.CANTIDAD) AS STOCK, 
+                    SUM(LOTES.CANTIDAD * LOTES.COSTO) AS COSTO_RESTANTE'))
+            ->where('LOTES.FK_PROVEEDOR', '=', $value->PROVEEDOR)
+            ->where('LOTES.ID_SUCURSAL', '=', $this->sucursal)
+            ->where('PRODUCTOS_TIENE_SECCION.SECCION', '=', $value->SECCION_CODIGO)
+            ->get();
 
            	$this->posicion = $this->posicion + 1;
             $this->total_general = $this->total_general + $value->TOTAL;
@@ -86,16 +106,27 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
             $this->costo = $this->costo + $value->COSTO_UNIT;
             $this->totalcosto = $this->totalcosto + $value->COSTO_TOTAL;
             $this->total_utilidad = $this->total_utilidad + $value->UTILIDAD;
+            $this->total_stock = $this->total_stock + $lotes[0]->STOCK;
+            $this->total_costo_restante = $this->total_costo_restante + $lotes[0]->COSTO_RESTANTE;
+
+            if($this->AllSecciones){
+                $this->descripcion = $value->SECCION.', '.$value->DESCRI_G;
+            }else{
+                $this->descripcion = $value->DESCRI_G;
+            }
+
 
             $proveedor_array[]=array(
-                'PROVEEDORES'=> $value->DESCRI_G,
+                'PROVEEDORES'=> $this->descripcion,
                 'VENDIDO'=> $value->VENDIDO,
                 'DESCUENTO'=>$value->DESCUENTO,
                 'COSTO PROMEDIO'=> $value->COSTO_UNIT,
                 'PRECIO PROMEDIO'=> $value->PRECIO_UNIT,
                 'COSTO TOTAL'=> $value->COSTO_TOTAL,
                 'TOTAL VENTA'=> $value->TOTAL,
-                'UTILIDAD' => $value->UTILIDAD
+                'UTILIDAD' => $value->UTILIDAD,
+                'STOCK'=> $lotes[0]->STOCK,
+                'COSTO RESTANTE'=> $lotes[0]->COSTO_RESTANTE
             );
         }
 					
@@ -107,7 +138,9 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
 	        'PRECIO PROMEDIO'=> $this->total_preciounit,
 	        'COSTO TOTAL'=> $this->totalcosto,
 	        'TOTAL VENTA' => $this->total_general,
-            'UTILIDAD' => $this->total_utilidad
+            'UTILIDAD' => $this->total_utilidad,
+            'STOCK'=> $this->total_stock,
+            'COSTO RESTANTE'=> $this->total_costo_restante
         );
 
         return $proveedor_array;
@@ -141,9 +174,9 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
         return [
 
 	        AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-	            $event->sheet->getStyle('A1:H1')->applyfromarray($styleArray);
+	            $event->sheet->getStyle('A1:J1')->applyfromarray($styleArray);
 	            $this->posicion = $this->posicion + 1;
-	            $event->sheet->getStyle('A'.$this->posicion.':H'.$this->posicion)->applyfromarray($styleArray);
+	            $event->sheet->getStyle('A'.$this->posicion.':J'.$this->posicion)->applyfromarray($styleArray);
 	            $event->sheet->getStyle('B2:'.'B'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
 	            $event->sheet->getStyle('C2:'.'C'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
 	            $event->sheet->getStyle('D2:'.'D'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
@@ -151,6 +184,8 @@ class VentaSeccionProveedorExport implements FromArray, WithTitle, WithEvents, S
 	            $event->sheet->getStyle('F2:'.'F'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
 	            $event->sheet->getStyle('G2:'.'G'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
                 $event->sheet->getStyle('H2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
+                $event->sheet->getStyle('I2:'.'I'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0');
+                $event->sheet->getStyle('J2:'.'J'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
 	        }
         ];
     }

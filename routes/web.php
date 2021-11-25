@@ -364,6 +364,7 @@ Route::post('sucursalFiltrar', 'SucursalController@filtrarSucursal');
 Route::post('sucursalGuardar', 'SucursalController@guardarSucursal');
 Route::post('sucursalEliminar', 'SucursalController@eliminarSucursal');
 Route::get('nuevaSucursal', 'SucursalController@sucursalNueva');
+Route::post('sucursalFiltrarUser', 'SucursalController@filtrarSucursalUser');
 
 /* -------------------------------------------------------------------------- */
 
@@ -384,6 +385,7 @@ Route::post('empleado/recibe', 'EmpleadoController@datatable_recibe');
 // PRODUCTOS
 
 Route::post('productoDatatable', 'ProductoController@mostrar');
+Route::post('productoDatatableDesc', 'ProductoController@mostrarDesc');
 Route::post('producto', 'ProductoController@encontrar');
 Route::get('productoCodigoInterno', 'ProductoController@generarCI');
 Route::get('productoCodigo', 'ProductoController@generarCodigo');

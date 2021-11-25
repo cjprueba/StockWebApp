@@ -33,11 +33,9 @@ class Producto extends Model
 
     public static function encontrarProducto($data)
     {
-
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
-
         $user = auth()->user();
 
     	/*  --------------------------------------------------------------------------------- */
@@ -64,14 +62,110 @@ class Producto extends Model
     	// OBTENER EL PRODUCTO
 
     	$producto = ProductosAux::leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-        ->select(DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS_AUX.CODIGO_INTERNO,PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA,PRODUCTOS_AUX.DESCUENTO,PRODUCTOS_AUX.PREMAYORISTA, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA'),
+        ->select(DB::raw('
+            PRODUCTOS_AUX.CODIGO, 
+            PRODUCTOS_AUX.CODIGO_INTERNO,
+            PRODUCTOS.DESCRIPCION, 
+            PRODUCTOS_AUX.PREC_VENTA,
+            PRODUCTOS_AUX.DESCUENTO,
+            PRODUCTOS_AUX.PREMAYORISTA, 
+            PRODUCTOS.IMPUESTO AS IVA, 
+            PRODUCTOS_AUX.MONEDA'),
     	DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
         ->where('PRODUCTOS_AUX.CODIGO', '=', $cod_prod)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
-$lotes= DB::connection('retail')
+        $lotes= DB::connection('retail')
+        ->table('Lotes')->select(DB::raw('ID,CANTIDAD,LOTE'))
+        ->where('COD_PROD', '=', $cod_prod)
+        ->where('id_sucursal', '=', $user->id_sucursal)
+        ->get();
+        // CONSEGUIR COTIZACION 
+
+        foreach ($producto as $key => $value) {
+            
+            /*  --------------------------------------------------------------------------------- */
+
+            // Cotizacion
+            
+            $cotizacion = Cotizacion::CALMONED([
+                                'monedaProducto' => $value->MONEDA,
+                                'monedaSistema' => $data['data']['monedaSistema'],
+                                'precio' => $value->PREC_VENTA,
+                                'tab_unica' => $data['data']['tab_unica'],
+                                'decSistema' => $data['data']['candec'],
+                                "id_sucursal" => $user->id_sucursal]);
+
+            /*  --------------------------------------------------------------------------------- */
+
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+       
+        // RETORNAR EL VALOR
+        
+        if (count($producto) > 0) {
+            return ['producto' => $producto[0], 'valor' => $cotizacion["valor"],'lote' => $lotes];
+        } else {
+            return ['producto' => 0,'lote' => 0];
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+    public static function encontrarProductoDesc($data)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        // INICIAR VARIABLES 
+
+        $cotizacion = '';
+        $cod_prod = '';
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CODIGO INTERNO 
+
+        $codigo = Producto::codigoInterno(['codigo' => $data['data']['codigo']]);
+       
+        if ($codigo["producto"] === 0) {
+            $cod_prod = $data['data']['codigo'];
+        } else {
+            $cod_prod = $codigo["producto"][0]["CODIGO"]; 
+        }
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER EL PRODUCTO
+
+        $producto = ProductosAux::rightjoin('DETALLE_PROD', 'DETALLE_PROD.COD_PROD', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+        ->select(DB::raw('
+            PRODUCTOS_AUX.CODIGO, 
+            PRODUCTOS_AUX.CODIGO_INTERNO,
+            PRODUCTOS.DESCRIPCION, 
+            PRODUCTOS_AUX.PREC_VENTA,
+            PRODUCTOS_AUX.DESCUENTO,
+            PRODUCTOS_AUX.PREMAYORISTA, 
+            PRODUCTOS.IMPUESTO AS IVA, 
+            PRODUCTOS_AUX.MONEDA,
+            DETALLE_PROD.COD_PROD,
+            DETALLE_PROD.NOMBRE'),
+        DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+        ->where('PRODUCTOS_AUX.CODIGO', '=', $cod_prod)
+        ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
+        ->get();
+
+        /*  --------------------------------------------------------------------------------- */
+        $lotes= DB::connection('retail')
         ->table('Lotes')->select(DB::raw('ID,CANTIDAD,LOTE'))
         ->where('COD_PROD', '=', $cod_prod)
         ->where('id_sucursal', '=', $user->id_sucursal)
