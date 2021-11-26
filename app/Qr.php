@@ -234,11 +234,9 @@ class Qr extends Model
       $y = 0.3;
       $z = 2;
       $c=0;
-
-
-
-
-      
+      $a=0;
+      $b=17.5;
+      $sum=0;
       foreach ($datos["data"] as $key => $value) {
         $htmldesc=
         '<html>
@@ -271,28 +269,21 @@ class Qr extends Model
           }
           $pdf->SetAutoPageBreak(FALSE, 0);
           $pdf->SetFontSize(9.5);
-          $pdf->SetFont('freesans', 'B'); 
-          $pdf->text($x, $y, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->SetFont('freesans', 'B');
           $cantCaract=strlen($value['NOMBRE']);
           log::error(["cantidad de caracteres: ",$cantCaract]);
-          $caract = str_split($value['NOMBRE'], 42);
-          $a=0;
-          $b=42;
-          $cCaratc=0;
-            // while($cCaratc<$cantCaract){
-            //   $substrNombre=substr(Qr::quitar_tildes($value['NOMBRE']), ($a+$cCaratc), $b);
-            //   $cCaratc=$cCaratc+42;
-            //   if ($cCaratc<$cantCaract) {
-            //     $pdf->text($x-23.8, $y+2.5, $substrNombre."-", false, false, true, 0, 1, '', false, '', 0);
-            //   }else{
-            //     $pdf->text($x-23.8, $y+2.5, $substrNombre, false, false, true, 0, 1, '', false, '', 0);
-            //   }
-              
-            //   $y=$y+2.5;
-            // }
-            // $cCaratc=0;
-
-          $pdf->writeHTMLCell(0, 2, 0, 4, $htmldesc, 0, 0, 0, false, 'left', false);
+          while ($a<$cantCaract) {
+            $cantCaract=($cantCaract-44);
+            $sum=$sum+1.15;
+          }
+          if ($sum>7.5) {
+            $pdf->SetFontSize(8.5);
+          }else if($sum>8.5){
+            $pdf->SetFontSize(8);
+          }
+          $pdf->text($x, (($b-3.5)-$sum), substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, '', 0);
+          
+          $pdf->writeHTMLCell(0, 2, 0, $b-$sum, $htmldesc, 0, 0, 0, false, 'left', false);
 
           $y=$y+28;
         }
@@ -617,6 +608,7 @@ class Qr extends Model
            
             $x=25;
            }
+          // $pdf->SetAutoPageBreak(FALSE, 0);
           if ($datos['codigo']==='2' and $datos['precio']<>'4'){
             $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
           }else if($datos['precio']<>'4'){
@@ -709,22 +701,27 @@ class Qr extends Model
             $pdf->write1DBarcode($value2->CODIGO, $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
             $pdf->SetFontSize(8);
             $pdf->SetFont('','B');
-            if($value2->MONEDA===1){
-                $pdf->SetFontSize(7);
-                $número_formato_prec = number_format($value2->PRECIO);
-                $número_formato_may = number_format($value2->PRECIO_MAYORISTA);
-                $cantCaract=strlen($value2->PRECIO);
-                if ($cantCaract>=7) {
-                  $pdf->SetFont('','B');
-                  $pdf->text($x-24, $y+10, "UNIT.: ", false, false, true);
-                  $pdf->text($x-24, $y+12.5, "MAY.: ", false, false, true);
-                  $pdf->SetFont('','L');
-                  $pdf->text($x-16.5, $y+10, $número_formato_prec." G$.", false, false, true);
-                  $pdf->text($x-16.5, $y+12.5, $número_formato_may." G$.", false, false, true);
-                }else{
-                  $pdf->text($x-23.6, $y+10, $número_formato_prec."G$. / ".$número_formato_may."G$.", false, false, true);
-                }
-            }elseif($value2->MONEDA===2){
+            // if($value2->MONEDA===1){
+            //     $pdf->SetFontSize(7);
+            //     $número_formato_prec = number_format($value2->PRECIO);
+            //     $número_formato_may = number_format($value2->PRECIO_MAYORISTA);
+            //     $cantCaract=strlen($value2->PRECIO);
+            //     if ($cantCaract>=7) {
+            //       $pdf->SetFont('','B');
+            //       $pdf->text($x-24, $y+10, "UNIT.: ", false, false, true);
+            //       $pdf->text($x-24, $y+12.5, "MAY.: ", false, false, true);
+            //       $pdf->SetFont('','L');
+            //       $pdf->text($x-16.5, $y+10, $número_formato_prec." G$.", false, false, true);
+            //       $pdf->text($x-16.5, $y+12.5, $número_formato_may." G$.", false, false, true);
+            //     }else{
+            //       $pdf->text($x-23.6, $y+10, $número_formato_prec."G$. / ".$número_formato_may."G$.", false, false, true);
+            //     }
+            // }elseif($value2->MONEDA===2){
+            //   $pdf->text($x-19.5, $y+10, $value2->PRECIO."$ / ".$value2->PRECIO_MAYORISTA."$", false, false, true);
+            // }else{
+            //   $pdf->text($x-21, $y+10, $value2->PRECIO." / ".$value2->PRECIO_MAYORISTA, false, false, true);
+            // }
+            if($value2->MONEDA===2){
               $pdf->text($x-19.5, $y+10, $value2->PRECIO."$ / ".$value2->PRECIO_MAYORISTA."$", false, false, true);
             }else{
               $pdf->text($x-21, $y+10, $value2->PRECIO." / ".$value2->PRECIO_MAYORISTA, false, false, true);
