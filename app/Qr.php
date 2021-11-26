@@ -222,8 +222,7 @@ class Qr extends Model
                      'fontsize' => 6, //font size
             'stretchtext' => 4
         );
-        // 57,28
-      $pdf = new TCPDF('L','mm',array(57, 28));
+      $pdf = new TCPDF('L','mm',array(78, 38));
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
@@ -246,7 +245,7 @@ class Qr extends Model
                     <style>
                     </style>
                     <body>
-                    <table style="width:130%" height="100px">
+                    <table style="width:115%" height="100px">
                       <tr nobr="true">
                         <td>'.$value['NOMBRE'].'</td>
                       </tr>
@@ -271,9 +270,9 @@ class Qr extends Model
             $y = 0.3;
           }
           $pdf->SetAutoPageBreak(FALSE, 0);
-          $pdf->SetFontSize(7);
+          $pdf->SetFontSize(9.5);
           $pdf->SetFont('freesans', 'B'); 
-          $pdf->text($x-10, $y, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, '', 0);
+          $pdf->text($x, $y, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, '', 0);
           $cantCaract=strlen($value['NOMBRE']);
           log::error(["cantidad de caracteres: ",$cantCaract]);
           $caract = str_split($value['NOMBRE'], 42);
@@ -293,7 +292,7 @@ class Qr extends Model
             // }
             // $cCaratc=0;
 
-          $pdf->writeHTMLCell(0, 0, 0, 3, $htmldesc, 0, 0, 0, false, 'left', false);
+          $pdf->writeHTMLCell(0, 2, 0, 4, $htmldesc, 0, 0, 0, false, 'left', false);
 
           $y=$y+28;
         }
