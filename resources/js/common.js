@@ -257,7 +257,9 @@ function quitarComaCommon(valor) {
 function calcularIVACommon(valor, porcentaje, candec) {
 
 			// ------------------------------------------------------------------------
-
+				/*console.log(valor);
+				console.log(porcentaje);
+				console.log(candec);*/
 			//	CALCULAR IVA DE ACUERDO AL PORCENTAJE
 			
 			if (porcentaje === 10) {
@@ -6705,6 +6707,7 @@ function existeProductoConDescuentoDataTableCommon(tabla, codigo, tipo_respuesta
 				    			'respuesta': true,
 				    			'cantidad': data['CANTIDAD'],
 				    			'costo': data['COSTO'],
+				    			'iva': data['IVA'],
 				    			'row': tabla.row( this )
 				    		}
 				    	} else if (tipo_respuesta === 3) {
