@@ -501,7 +501,11 @@
       			let me = this;
 
       			// ------------------------------------------------------------------------
+      			
+	 			
+	 			
 
+	 		
       			this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
 	                "processing": true,
 	                "serverSide": true,
@@ -541,18 +545,11 @@
 	                "createdRow": function( row, data, dataIndex){
 	                    $(row).addClass(data['ESTATUS']);
 	                },
-	                initComplete: function(){
-	                    var api = this.api();
-	                    $('#tablaVentaMostrar_filter input')
-	                    .off('.DT')
-	                    .on('keyup.DT', function (e) {
-	                        if (e.keyCode == 13) {
-	                            api.search(this.value).draw();
-	                        }
-	                    });
-	                },       
+	                 
 	            });
 
+		           
+               
       			// ------------------------------------------------------------------------
 
       		}, imprimirPDF() {
@@ -620,6 +617,14 @@
 	 		this.obtenerDatatable();
 	 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable();
 
+	 		 $('#tablaVentaMostrar_filter input').unbind();
+	         $('#tablaVentaMostrar_filter input').bind('keyup', function (e) {
+	                    if (e.keyCode == 13) {
+	                       $('#tablaVentaMostrar').DataTable().search(this.value).draw();
+	                    }
+               });
+
+
 	 		// ------------------------------------------------------------------------
 
 	 		// PARA BUSCAR POR COLUMNA 
@@ -629,13 +634,16 @@
                     var title = $(this).text();
                     $(this).html( '<input type="text" class="form-control form-control-sm" placeholder="Buscar '+title+'" />' );
              
-                    $( 'input', this ).on( 'keyup change', function () {
-                        if ( me.tableVentaMostrar.column(i).search() !== this.value ) {
-                            me.tableVentaMostrar
-                                .column(i)
-                                .search( this.value )
-                                .draw();
-                        }
+                    $( 'input', this ).on( 'keyup', function (e) {
+                    	 if (e.keyCode == 13) {
+		                      if ( me.tableVentaMostrar.column(i).search() !== this.value ) {
+	                            me.tableVentaMostrar
+	                                .column(i)
+	                                .search( this.value )
+	                                .draw();
+	                        	}
+	                    }
+                      
                     } );
             } );
 

@@ -284,8 +284,8 @@ class Qr extends Model
           $pdf->text($x, (($b-3.5)-$sum), substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, '', 0);
           
           $pdf->writeHTMLCell(0, 2, 0, $b-$sum, $htmldesc, 0, 0, 0, false, 'left', false);
-
           $y=$y+28;
+          $sum=0;
         }
 
         $c=0;
