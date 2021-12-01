@@ -8,7 +8,7 @@
 			
 			<div class="col-md-12">
 				<vs-divider>
-					Mostrar Ventas
+					Mostrar Ventasaa
 				</vs-divider>
 			</div>
 			
@@ -516,6 +516,8 @@
       			// ------------------------------------------------------------------------
 
 	            // PREPARAR DATATABLE 
+	            $(document).ready( function () {
+
 
 		 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
 	                "processing": true,
@@ -554,6 +556,13 @@
 	                    $(row).addClass(data['ESTATUS']);
 	                }       
 	            });
+	             $('#tablaVentaMostrar_filter input').unbind();
+	         	 $('#tablaVentaMostrar_filter input').bind('keyup', function (e) {
+	                    if (e.keyCode == 13) {
+	                       $('#tablaVentaMostrar').DataTable().search(this.value).draw();
+	                    }
+               });
+		    });
 
 	            // ------------------------------------------------------------------------
 
@@ -575,6 +584,7 @@
 
         	me.inicio();
         	me.obtenerCaja();
+
 
 	        // ------------------------------------------------------------------------
 

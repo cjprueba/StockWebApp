@@ -524,22 +524,31 @@
 
             $(document).ready( function () {
 
+
             		// ------------------------------------------------------------------------
 
-            		// PREPARAR DATATABLE 
+            		// PREPARAR DATATABLE
 
+
+            		
 	 				var tableCompra = $('#tablaCompras').DataTable({
                         "processing": true,
                         "serverSide": true,
                         "destroy": true,
                         "bAutoWidth": true,
                         "select": true,
+                       
+                         "searching": {
+					            "return": true
+					        },
                         "ajax":{
                                  "url": "/compra/datatable",
                                  "dataType": "json",
                                  "type": "GET",
                                  "contentType": "application/json; charset=utf-8"
                                },
+
+                       
                         "columns": [
                             { "data": "CODIGO" },
                             { "data": "PROVEEDOR" },
@@ -550,12 +559,18 @@
                             { "data": "ACCION" }
                         ]      
                     });
-                    
+                    $('#tablaCompras_filter input').unbind();
+				    $('#tablaCompras_filter input').bind('keyup', function (e) {
+				        if (e.keyCode == 13) {
+				            tableCompra.search(this.value).draw();
+				        }
+				    });
+                   
 	 				// ------------------------------------------------------------------------
 
 	 				// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
 
-            		tableCompra.columns.adjust().draw();
+            		/*tableCompra.columns.adjust().draw();*/
 
             		// ------------------------------------------------------------------------
 

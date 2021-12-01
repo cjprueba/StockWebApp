@@ -352,13 +352,19 @@
                             //{ width: "40%", "targets": [5] }
                         ]      
                     });
+                 $('#tablaModalProductos_filter input').unbind();
+                $('#tablaModalProductos_filter input').bind('keyup', function (e) {
+                    if (e.keyCode == 13) {
+                        tableProductos.search(this.value).draw();
+                    }
+                });
 
                 // ------------------------------------------------------------------------
 
             	// AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
 	
 				$("table#tablaModalProductos").css("font-size", 12);
-            	tableProductos.columns.adjust().draw();
+           /* 	tableProductos.columns.adjust().draw();*/
 
             	// ------------------------------------------------------------------------
                 
