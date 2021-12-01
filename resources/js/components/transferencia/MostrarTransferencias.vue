@@ -378,6 +378,12 @@
                             { "data": "ACCION" }
                         ]      
                     });
+                     $('#tablaTransferencias_filter input').unbind();
+				    $('#tablaTransferencias_filter input').bind('keyup', function (e) {
+				        if (e.keyCode == 13) {
+				            tableTransferencia.search(this.value).draw();
+				        }
+				    });
                     
 	 				// ------------------------------------------------------------------------
 
