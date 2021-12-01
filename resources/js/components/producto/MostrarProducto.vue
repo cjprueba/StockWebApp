@@ -300,13 +300,16 @@
                     var title = $(this).text();
                     $(this).html( '<input type="text" class="form-control form-control-sm" placeholder="Buscar '+title+'" />' );
              
-                    $( 'input', this ).on( 'keyup change', function () {
+                    $( 'input', this ).on( 'keyup', function (e) {
+                      if (e.keyCode == 13){
                         if ( tableProductos.column(i).search() !== this.value ) {
                             tableProductos
                                 .column(i)
                                 .search( this.value )
                                 .draw();
                         }
+                      }
+
                     } );
                 } );
 
