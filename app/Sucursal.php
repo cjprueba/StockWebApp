@@ -112,6 +112,24 @@ class Sucursal extends Model
 
     }
 
+    public static function filtrarSucursal($datos){
+
+        $user = auth()->user();
+
+        // OBTENER TODAS LAS SUCURSALES
+
+        $sucursal = Sucursal::select(DB::raw('CODIGO, DESCRIPCION, RAZON_SOCIAL, DIRECCION, RUC, TELEFONO, CIUDAD, CR_DESCRIPCION')) 
+                            ->get()
+                            ->toArray();
+        $Sucursal_creado = $user->id_sucursal;
+        // RETORNAR EL VALOR
+
+       return ["sucursal"=>$sucursal, "Sucursal_creado"=>$Sucursal_creado];
+
+        /*  --------------------------------------------------------------------------------- */
+
+    }
+
     public static function nuevaSucursal(){
 
         $user = auth()->user();

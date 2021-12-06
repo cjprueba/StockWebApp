@@ -43,6 +43,12 @@ class SucursalController extends Controller
         return response()->json($sucursal);
     }
 
+    public function filtrarSucursalUser(Request $request){
+
+        $sucursal = Sucursal::filtrarSucursal($request->all());
+        return response()->json($sucursal);
+    }
+
     /*  ---------------------------------CODIGO---------------------------------------- */
 
     public function sucursalNueva(){
