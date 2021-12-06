@@ -8,7 +8,7 @@
 			
 			<div class="col-md-12">
 				<vs-divider>
-					Mostrar Ventasaa
+					Mostrar Ventas
 				</vs-divider>
 			</div>
 			
@@ -468,6 +468,12 @@
 	                	  if (response.data.response === true) {
 	                	  	  me.caja.CODIGO  =   response.data.caja[0].CAJA;
 	                	  	  me.obtenerDatatable();
+	                	  	  $('#tablaVentaMostrar_filter input').unbind();
+						         $('#tablaVentaMostrar_filter input').bind('keyup', function (e) {
+						                    if (e.keyCode == 13) {
+						                       $('#tablaVentaMostrar').DataTable().search(this.value).draw();
+						                    }
+					               });
 	                	  	  // me.caja.CANTIDAD_PERSONALIZADA  =   response.data.caja[0].CANTIDAD_PERSONALIZADA;
 	                	  	  // me.caja.CANTIDAD_TICKET = response.data.caja[0].CANTIDAD_TICKET;
 	                	  	  // me.numeracion();
@@ -516,7 +522,7 @@
       			// ------------------------------------------------------------------------
 
 	            // PREPARAR DATATABLE 
-	            $(document).ready( function () {
+	           
 
 
 		 		this.tableVentaMostrar = $('#tablaVentaMostrar').DataTable({
@@ -556,13 +562,8 @@
 	                    $(row).addClass(data['ESTATUS']);
 	                }       
 	            });
-	             $('#tablaVentaMostrar_filter input').unbind();
-	         	 $('#tablaVentaMostrar_filter input').bind('keyup', function (e) {
-	                    if (e.keyCode == 13) {
-	                       $('#tablaVentaMostrar').DataTable().search(this.value).draw();
-	                    }
-               });
-		    });
+	             
+		   
 
 	            // ------------------------------------------------------------------------
 
@@ -584,6 +585,7 @@
 
         	me.inicio();
         	me.obtenerCaja();
+
 
 
 	        // ------------------------------------------------------------------------
