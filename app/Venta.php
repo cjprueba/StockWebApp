@@ -2835,65 +2835,6 @@ class Venta extends Model
 
         /*  --------------------------------------------------------------------------------- */
 
-        // DEVOLUCIONES 
-
-        $ventas_det_devoluciones = VentasDetDevolucion::select(DB::raw('
-                VENTASDET_DEVOLUCIONES.ID,
-                VENTASDET_DEVOLUCIONES.ITEM, 
-                VENTASDET_DEVOLUCIONES.COD_PROD, 
-                VENTASDET_DEVOLUCIONES.DESCRIPCION, 
-                VENTASDET_DEVOLUCIONES.CANTIDAD, 
-                VENTASDET_DEVOLUCIONES.PRECIO_UNIT,
-                VENTASDET_DEVOLUCIONES.IVA,
-                VENTASDET_DEVOLUCIONES.EXENTA AS EXENTAS,
-                VENTASDET_DEVOLUCIONES.BASE5,
-                VENTASDET_DEVOLUCIONES.BASE10,
-                VENTASDET_DEVOLUCIONES.PRECIO,
-                VENTAS.MONEDA,
-                0 AS IVA_PORCENTAJE'))
-            ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'VENTASDET_DEVOLUCIONES.FK_VENTASDET')
-            ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
-        ->where('VENTASDET_DEVOLUCIONES.ID_SUCURSAL','=', $user->id_sucursal)
-        ->where('VENTASDET_DEVOLUCIONES.CODIGO','=', $codigo)
-        ->where('VENTASDET_DEVOLUCIONES.CAJA','=', $caja)
-        ->get();
-
-        /*  --------------------------------------------------------------------------------- */
-
-        foreach ($ventas_det_devoluciones as $key => $value) {
-
-            // BUSCAR IVA PRODUCTO
-
-            $producto = Producto::select(DB::raw('IMPUESTO'))
-            ->where('CODIGO', '=', $value->COD_PROD)
-            ->get();
-
-            /*  --------------------------------------------------------------------------------- */
-
-            $nestedData['ID'] = $value->ID;
-            $nestedData['ITEM'] = $value->ITEM;
-            $nestedData['COD_PROD'] = $value->COD_PROD;
-            $nestedData['DESCRIPCION'] = $value->DESCRIPCION;
-            $nestedData['CANTIDAD'] = Common::precio_candec_sin_letra($value->CANTIDAD, 1);
-            $nestedData['PRECIO_UNIT'] = Common::precio_candec_sin_letra($value->PRECIO_UNIT, $value->MONEDA);
-            $nestedData['IVA'] = Common::precio_candec_sin_letra($value->IVA, $value->MONEDA);
-            $nestedData['EXENTAS'] = $value->EXENTAS;
-            $nestedData['BASE5'] = $value->BASE5;
-            $nestedData['BASE10'] = $value->BASE10;
-            $nestedData['PRECIO'] = Common::precio_candec_sin_letra($value->PRECIO, $value->MONEDA);
-            $nestedData['MONEDA'] = $value->MONEDA;
-            $nestedData['IVA_PORCENTAJE'] = $producto[0]->IMPUESTO;
-
-            /*  --------------------------------------------------------------------------------- */
-
-            // CARGAR DATOS EN ARRAY
-
-            $data[] = $nestedData;
-            $item_array[] = $nestedData['ITEM'];
-        }
-
-        /*  --------------------------------------------------------------------------------- */
-
         // DESCUENTO 
 
         $ventas_descuento = Ventas_Descuento::select(DB::raw('
