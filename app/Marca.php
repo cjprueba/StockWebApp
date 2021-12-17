@@ -124,7 +124,7 @@ class Marca extends Model
 
          }else{
          $marca_aux=MarcaAux::insert([
-         ['CODIGO_MARCA' => $codigo_marca,'DESCUENTO' => $datos['data']['descuento'], 'FECHAINI'=> $datos['data']['fechaini'],'FECHAFIN'=> $datos['data']['fechafin'],'FECALTAS'=>$dia, 'ID_SUCURSAL'=>$user->id_sucursal,'USER'=>$user->name]
+         ['CODIGO_MARCA' => $codigo_marca,'DESCUENTO' => $datos['data']['descuento'], 'FECHAINI'=> $datos['data']['fechaini'],'FECHAFIN'=> $datos['data']['fechafin'],'FECALTAS'=>$dia, 'ID_SUCURSAL'=>$user->id_sucursal,'USERM'=>$user->name]
          ]);
          }
 
