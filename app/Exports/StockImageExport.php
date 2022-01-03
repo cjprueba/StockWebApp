@@ -101,7 +101,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
             ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
             ->where('SECCIONES.ID','=', $this->seccion);
              if($this->AllProveedores==false){
-                 $ventas->whereIn('PRODUCTOS_AUX.PROVEEDOR',$this->proveedores);
+                 $ventas->whereIn('LOTES.FK_PROVEEDOR',$this->proveedores);
              }
              if($this->AllCategorySeccion==false){
                 $ventas->whereIn('PRODUCTOS.LINEA',$this->categoriaSeccion);
