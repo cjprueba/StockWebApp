@@ -4309,7 +4309,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock}}).then( 
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
 // 				(response) => {
 // 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 // 					const link = document.createElement('a');

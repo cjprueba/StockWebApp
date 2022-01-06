@@ -696,7 +696,7 @@
 				ingresarCotizacion: 0,
 				seleccionPrecio: 0,
 				seleccionImpresion: '2',
-				switch_desc:0,
+				switch_desc:false,
 				seleccion_gondola: [{}],
 				tipoStock: 0,
 				productoImagen: [{

@@ -196,6 +196,7 @@ class Qr extends Model
         return(qr::etiqueta_tipo_4($datos));
       }elseif ($datos['tamaño']==='5') {
         return(qr::crear_pdf_qr_2($datos));
+        var_dump($datos['switch_desc']);
       }elseif ($datos['seleccionImpresion']==='3' && $datos['switch_desc']===false) {
         return(qr::etiqueta_nombre_desc($datos));
       }elseif ($datos['seleccionImpresion']==='3' && $datos['switch_desc']===true) {
@@ -358,10 +359,13 @@ class Qr extends Model
               p#normal  {
                 white-space: normal;
               }
+              p#tamaño  {
+                font: normal 12px arial, helvetica, sans-serif;
+              }
             </style>
             <body>
               <div class="col-2">
-                <p id="normal">'.$producto_det[0]->MARCA.'</p>
+                <p align="center"><font size="9">'.$producto_det[0]->MARCA.'</font></p>
                 <p id="normal">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</p>
                 <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
                 <p id="normal">FORMA DE USO: '.$producto_det[0]->FORMA_DE_USO.'</p>
@@ -384,23 +388,17 @@ class Qr extends Model
           $pdf->SetFont('freesans', 'B');
 
           $pdf->StartTransform();
-          $pdf->Rotate(90, 5, 50);
-          $pdf->text(5,50, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+          $pdf->Rotate(90, 5, 48);
+          $pdf->text(5,48, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
           $pdf->StopTransform();
           $pdf->SetFontSize(6.3);
           $pdf->StartTransform();
           $pdf->Rotate(90, 3, 74);
           $pdf->writeHTMLCell(73, 0, 3, 74, $htmldesc, 0, 0, 0, false, 'left', false);
           $pdf->StopTransform();
-          
-          
-         
-           
           $y=$y+28;
           $sum=0;
-         
         }
-
         $c=0;
       }
 
@@ -508,7 +506,6 @@ class Qr extends Model
               $pdf->SetFont('helvetica');
               $pdf->text($x-6.3, $y+7.5, '|', false, false, true, 0, 1, '', false, '', 0);
               $pdf->text($x-6.3, $y+11, '|', false, false, true, 0, 1, '', false, '', 0);
-
               $y=$y+28;
             }
           $c=0;
@@ -516,7 +513,6 @@ class Qr extends Model
       }
       else{
         foreach ($datos['seleccion_gondola'] as $key => $value) {
-
           $productos=DB::connection('retail')
                         ->table('gondola_tiene_productos AS GTP')
                         ->select(DB::raw('PRA.CODIGO, PR.DESCRIPCION, PRA.PREC_VENTA AS PRECIO, PRA.PREMAYORISTA AS PRECIO_MAYORISTA, PRA.CODIGO_INTERNO, PRA.MONEDA'))
@@ -536,16 +532,13 @@ class Qr extends Model
                                 log::error(["datos del producto"=>$productos]);
            
           foreach ($productos as $key => $value2) {
-                         if($y > 28){
+              if($y > 28){
                 $pag=$pag+1;
                 $pdf->AddPage();
                 $y = 0.3;
               }
-        
-
               // $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
               $pdf->SetFont('helvetica', 'B', 15);
-              
               // //Color Negro
               $pdf->SetTextColor(0, 0, 0);
               $pdf->text($x-24.5, $y, Qr::quitar_tildes($value2->DESCRIPCION), false, false, true, 0, 1, '', false, '', 0);
