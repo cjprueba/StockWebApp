@@ -142,21 +142,19 @@ class SeccionController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
 
-        $data = array();
         $datos = array(
-            'Inicio' => $request->Inicio,
-            'Final' => $request->Final,
-            'Sucursal' => $request->Sucursal,
-            'AllProveedores' => $request->AllProveedores,
-            'Proveedores' => $request->Proveedores,
-            'Seccion' => $request->Seccion,
-            'Insert' => $request->Insert
+            'inicio' => date('Y-m-d', strtotime($request->Inicio)),
+            'final' => date('Y-m-d', strtotime($request->Final)),
+            'sucursal' => $request->Sucursal,
+            'checkedProveedor' => $request->AllProveedores,
+            'checkedSeccion' => $request->AllSecciones,
+            'proveedores' => $request->Proveedores,
+            'secciones' => $request->Seccion,
+            'descripcion' => $request->Descripcion
         );
 
-        $data["data"] = $datos;
-        $respuesta = Seccion::generar_reporte_proveedor_seccion($data);
-          
-         
+        $respuesta = Seccion::generar_reporte_proveedor_seccion($datos);
+        
         return Excel::download(new ProveedorSeccionExport($respuesta), 'SeccionProveedor.xlsx');
         
         /*  --------------------------------------------------------------------------------- */
@@ -177,6 +175,7 @@ class SeccionController extends Controller
                 'final' => date('Y-m-d', strtotime($request->Final)),
                 'sucursal' => $request->Sucursal,
                 'checkedProveedores' => $request->AllProveedores,
+                'checkedSeccion' => $request->AllSecciones,
                 'proveedores' => $request->Proveedores,
                 'secciones' => $request->Seccion,
             );

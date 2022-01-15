@@ -23,13 +23,25 @@
 						<!-- -----------------------------------SELECT SECCION------------------------------------- -->
 
 					    <label class="mt-3" for="validationTooltip01">Seleccione Sección</label>
-						<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
-							 <option value="null" selected>Seleccionar</option>
-							 <option v-for="seccion in secciones" :value="seccion.ID_SECCION">{{ seccion.DESCRIPCION }}</option>
-						</select>
-						<div class="invalid-feedback">
-					        {{messageInvalidSeccion}}
-					    </div>
+						<div v-if="$can('reporte.venta.proveedor')">
+							<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option value="true">TODAS</option>
+								 <option v-for="seccion in secciones" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
+						<div v-else>
+							<select v-on:change="habilitar_insert" class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validarSeccion }" v-model="selectedSeccion">
+								 <option value="null" selected>Seleccionar</option>
+								 <option v-for="seccion in seccion" :value="seccion">{{ seccion.DESCRIPCION }}</option>
+							</select>
+							<div class="invalid-feedback">
+						        {{messageInvalidSeccion}}
+						    </div>
+						</div>
 
 						<!-- -----------------------------------SELECT INTERVALO------------------------------------- -->
 						
@@ -115,6 +127,7 @@
               	validarFinalFecha: false,
 				descarga: false,
               	secciones: [],
+              	seccion: [],
               	validarSeccion: false,
               	messageInvalidSeccion: '',
               	proveedores: [],
@@ -124,7 +137,10 @@
               	onProveedor: false,
               	insert:true,
               	controlar: false,
-              	datos: []
+              	datos: [],
+              	onSeccion: false,
+              	selectedSecciones: [],
+              	descripcionSeccion: 'GENERAL'
             }
         }, 
         methods:{
@@ -133,8 +149,9 @@
 
 		        axios.get('busquedas/').then((response) => {
 		           	this.sucursales = response.data.sucursales;
-		           	this.secciones = response.data.seccion;
 	           		this.proveedores = response.data.proveedores;
+		           	this.secciones = response.data.secciones;
+		           	this.seccion = response.data.seccion;
 		        }); 
 	        },        
 
@@ -204,7 +221,13 @@
 	        		me.messageInvalidProveedor = '';
 	        		me.validarProveedor = false;
 	        	}
-	        			
+	        		
+	        	if(me.selectedSeccion === "true"){
+	        		me.onSeccion = true;
+	        	}else{
+	        		me.onSeccion = false;
+	        	}
+
 	        	if(me.controlar === true){
 	        		return false;
 	        	}
@@ -214,17 +237,39 @@
 		        		me.selectedProveedor[key] = me.proveedores[key].CODIGO;
 		        	}
 		        }
+				
+				if(me.onSeccion === true){
 
-	        	me.datos = {
-		        	Sucursal: me.selectedSucursal,
-		        	Inicio: String(me.selectedInicialFecha),
-		        	Final: String(me.selectedFinalFecha),
-		        	Insert:me.insert,
-		        	Seccion: me.selectedSeccion,
-					Proveedores: me.selectedProveedor,
-					AllProveedores: me.onProveedor,
-					Descripcion: me.secciones[0].DESCRIPCION
-	        	};
+		        	for (var key in me.secciones){
+		        		me.selectedSecciones[key] = me.secciones[key].ID_SECCION;
+		        	}
+
+		        	me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	Insert: me.insert,
+						Proveedores: me.selectedProveedor,
+						AllProveedores: me.onProveedor,
+						AllSecciones: me.onSeccion,
+			        	Seccion: me.selectedSecciones,
+						Descripcion: 'GENERAL'
+		        	}
+
+	        	}else{
+
+	        		me.datos = {
+			        	Sucursal: me.selectedSucursal,
+			        	Inicio: String(me.selectedInicialFecha),
+			        	Final: String(me.selectedFinalFecha),
+			        	Insert: me.insert,
+						Proveedores: me.selectedProveedor,
+						AllProveedores: me.onProveedor,
+						AllSecciones: me.onSeccion,
+			        	Seccion: me.selectedSeccion.ID_SECCION,
+						Descripcion: me.selectedSeccion.DESCRIPCION
+		        	}
+	        	}
 	      
 	        	return true;
 	        },
@@ -245,7 +290,7 @@
 					   const url = window.URL.createObjectURL(new Blob([response.data]));
 					   const link = document.createElement('a');
 					   link.href = url;
-					   link.setAttribute('download', 'Proveedor-Seccion-'+me.selectedInicialFecha+'al'+me.selectedFinalFecha+'.xlsx'); //or any other extension
+					   link.setAttribute('download', 'Venta-Proveedor-Seccion-'+me.selectedInicialFecha+'al'+me.selectedFinalFecha+'.xlsx'); //or any other extension
 					   document.body.appendChild(link);
 					   link.click();
 					});

@@ -358,104 +358,210 @@ class Seccion extends Model
 
         $ganancia = 0;
 
-        $compra = Compra::select(DB::raw('
-                PROVEEDORES.NOMBRE AS PROVEEDOR,
-                SUM(COMPRASDET.CANTIDAD) AS ENTRADA,
-                LOTES.LOTE AS LOTE,
-                AVG(LOTES.COSTO) AS COSTO_PROMEDIO,
-                SUM(COMPRASDET.COSTO_TOTAL) AS COSTO_TOTAL,
-                PROVEEDORES.CODIGO AS COD_PROVEEDOR,
-                IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
-                IFNULL(SECCIONES.DESCRIPCION,"INDEFINIDO") AS SECCION,
-                IFNULL(SUM(LOTES.CANTIDAD), 0) AS STOCK_ACTUAL,
-                IFNULL(SUM(LOTES.CANTIDAD * LOTES.COSTO),0) AS COSTO_SOBRANTE'))
-            ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
-            ->leftjoin('PRODUCTOS_AUX', function($join){
-                $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+        if($datos["checkedSeccion"]){
+
+            $compra = Compra::select(DB::raw('
+                    PROVEEDORES.NOMBRE AS PROVEEDOR,
+                    SUM(COMPRASDET.CANTIDAD) AS ENTRADA,
+                    LOTES.LOTE AS LOTE,
+                    AVG(LOTES.COSTO) AS COSTO_PROMEDIO,
+                    SUM(COMPRASDET.COSTO_TOTAL) AS COSTO_TOTAL,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    IFNULL(SECCIONES.DESCRIPCION,"INDEFINIDO") AS SECCION,
+                    IFNULL(SUM(LOTES.CANTIDAD), 0) AS STOCK_ACTUAL,
+                    IFNULL(SUM(LOTES.CANTIDAD * LOTES.COSTO),0) AS COSTO_SOBRANTE,
+                    SECCIONES.DESCRIPCION AS SECCION'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX', function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                    })
+                ->leftjoin('PRODUCTOS_TIENE_SECCION', function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                    })
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
+                ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->Where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"])
+            ->whereIn('SECCIONES.ID', $datos["secciones"])
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->groupBy('SECCIONES.ID', 'COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
+
+            $venta = Compra::select(DB::raw('
+                    IFNULL(SUM(VENTASDET.PRECIO_UNIT * VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_VENTA,
+                    IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS VENDIDO,
+                    IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD * LOTES.COSTO), 0) AS VENTA_COSTO,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    PROVEEDORES.NOMBRE AS PROVEEDOR'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX',function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
                 })
-            ->leftjoin('PRODUCTOS_TIENE_SECCION', function($join){
-                $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
                 })
             ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
             ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
-        ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
-        ->Where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"])
-        ->where('SECCIONES.ID', '=', $datos["secciones"])
-        ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
-        ->groupBy('COMPRAS.PROVEEDOR')
-        ->orderBy('PROVEEDORES.NOMBRE')
-        ->get();
+            ->leftjoin('VENTASDET_TIENE_LOTES','VENTASDET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
+            ->leftjoin('VENTASDET','VENTASDET.ID','=','VENTASDET_TIENE_LOTES.ID_VENTAS_DET')
+            ->leftjoin('VENTAS','VENTAS.ID','=','VENTASDET.FK_VENTA')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->whereIn('SECCIONES.ID', $datos["secciones"])
+            ->groupBy('SECCIONES.ID','COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
 
-        $venta = Compra::select(DB::raw('
-                IFNULL(SUM(VENTASDET.PRECIO_UNIT * VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_VENTA,
-                IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS VENDIDO,
-                IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD * LOTES.COSTO), 0) AS VENTA_COSTO,
-                PROVEEDORES.CODIGO AS COD_PROVEEDOR,
-                PROVEEDORES.NOMBRE AS PROVEEDOR'))
-            ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
-            ->leftjoin('PRODUCTOS_AUX',function($join){
-                $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
-            })
-            ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
-                $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
-            })
-        ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
-        ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
-        ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
-        ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
-        ->leftjoin('VENTASDET_TIENE_LOTES','VENTASDET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
-        ->leftjoin('VENTASDET','VENTASDET.ID','=','VENTASDET_TIENE_LOTES.ID_VENTAS_DET')
-        ->leftjoin('VENTAS','VENTAS.ID','=','VENTASDET.FK_VENTA')
-        ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
-        ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
-        ->where('SECCIONES.ID', '=', $datos["secciones"])
-        ->whereIn('COMPRAS.PROVEEDOR',$datos["proveedores"])
-        ->groupBy('COMPRAS.PROVEEDOR')
-        ->orderBy('PROVEEDORES.NOMBRE')
-        ->get();
-        
-        $transferencia = Compra::select(DB::raw('
-                IFNULL(SUM(TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TRANSFERENCIA,
-                IFNULL(SUM(TRANSFERENCIAS_DET.PRECIO * TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_TRANSFERENCIA,
-                PROVEEDORES.CODIGO AS COD_PROVEEDOR,
-                PROVEEDORES.NOMBRE AS PROVEEDOR'))
-            ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
-            ->leftjoin('PRODUCTOS_AUX',function($join){
-                $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
-            })
-            ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
-                $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
-                     ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
-            })
+            $transferencia = Compra::select(DB::raw('
+                    IFNULL(SUM(TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TRANSFERENCIA,
+                    IFNULL(SUM(TRANSFERENCIAS_DET.PRECIO * TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_TRANSFERENCIA,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    PROVEEDORES.NOMBRE AS PROVEEDOR'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX',function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
+                ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
+                ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
+                ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
+                ->leftjoin('TRANSFERENCIAS_DET','TRANSFERENCIAS_DET.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA')
+                ->leftjoin('TRANSFERENCIAS','TRANSFERENCIAS.ID','=','TRANSFERENCIAS_DET.FK_TRANSFERENCIA')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->whereIn('SECCIONES.ID', $datos["secciones"])
+            ->groupBy('SECCIONES.ID','COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
+          
+        }else{
+            $compra = Compra::select(DB::raw('
+                    PROVEEDORES.NOMBRE AS PROVEEDOR,
+                    SUM(COMPRASDET.CANTIDAD) AS ENTRADA,
+                    LOTES.LOTE AS LOTE,
+                    AVG(LOTES.COSTO) AS COSTO_PROMEDIO,
+                    SUM(COMPRASDET.COSTO_TOTAL) AS COSTO_TOTAL,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    IFNULL(SECCIONES.DESCRIPCION,"INDEFINIDO") AS SECCION,
+                    IFNULL(SUM(LOTES.CANTIDAD), 0) AS STOCK_ACTUAL,
+                    IFNULL(SUM(LOTES.CANTIDAD * LOTES.COSTO),0) AS COSTO_SOBRANTE,
+                    SECCIONES.DESCRIPCION AS SECCION'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX', function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                    })
+                ->leftjoin('PRODUCTOS_TIENE_SECCION', function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                    })
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
+                ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->Where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"])
+            ->where('SECCIONES.ID', '=', $datos["secciones"])
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->groupBy('SECCIONES.ID', 'COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
+
+            $venta = Compra::select(DB::raw('
+                    IFNULL(SUM(VENTASDET.PRECIO_UNIT * VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_VENTA,
+                    IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD), 0) AS VENDIDO,
+                    IFNULL(SUM(VENTASDET_TIENE_LOTES.CANTIDAD * LOTES.COSTO), 0) AS VENTA_COSTO,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    PROVEEDORES.NOMBRE AS PROVEEDOR'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX',function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
+                ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
             ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
             ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
-            ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
-            ->leftjoin('TRANSFERENCIAS_DET','TRANSFERENCIAS_DET.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA')
-            ->leftjoin('TRANSFERENCIAS','TRANSFERENCIAS.ID','=','TRANSFERENCIAS_DET.FK_TRANSFERENCIA')
-        ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
-        ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
-        ->where('SECCIONES.ID', '=', $datos["secciones"])
-        ->whereIn('COMPRAS.PROVEEDOR',$datos["proveedores"])
-        ->groupBy('COMPRAS.PROVEEDOR')
-        ->orderBy('PROVEEDORES.NOMBRE')
-        ->get();
+            ->leftjoin('VENTASDET_TIENE_LOTES','VENTASDET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
+            ->leftjoin('VENTASDET','VENTASDET.ID','=','VENTASDET_TIENE_LOTES.ID_VENTAS_DET')
+            ->leftjoin('VENTAS','VENTAS.ID','=','VENTASDET.FK_VENTA')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->where('SECCIONES.ID', '=', $datos["secciones"])
+            ->groupBy('SECCIONES.ID','COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
 
+            $transferencia = Compra::select(DB::raw('
+                    IFNULL(SUM(TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TRANSFERENCIA,
+                    IFNULL(SUM(TRANSFERENCIAS_DET.PRECIO * TRANSFERENCIADET_TIENE_LOTES.CANTIDAD), 0) AS TOTAL_TRANSFERENCIA,
+                    PROVEEDORES.CODIGO AS COD_PROVEEDOR,
+                    IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+                    PROVEEDORES.NOMBRE AS PROVEEDOR'))
+                ->leftjoin('COMPRASDET','COMPRASDET.FK_COMPRAS','=','COMPRAS.ID')
+                ->leftjoin('PRODUCTOS_AUX',function($join){
+                    $join->on('PRODUCTOS_AUX.CODIGO','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_AUX.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
+                ->leftjoin('PRODUCTOS_TIENE_SECCION',function($join){
+                    $join->on('PRODUCTOS_TIENE_SECCION.COD_PROD','=','COMPRASDET.COD_PROD')
+                         ->on('PRODUCTOS_TIENE_SECCION.ID_SUCURSAL','=','COMPRASDET.ID_SUCURSAL');
+                })
+                ->leftjoin('SECCIONES','SECCIONES.ID','=','PRODUCTOS_TIENE_SECCION.SECCION')
+                ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'COMPRAS.PROVEEDOR')
+                ->leftjoin('LOTE_TIENE_COMPRASDET', 'LOTE_TIENE_COMPRASDET.ID_COMPRAS_DET', '=', 'COMPRASDET.ID')
+                ->leftjoin('LOTES', 'LOTES.ID', '=', 'LOTE_TIENE_COMPRASDET.ID_LOTE')
+                ->leftjoin('TRANSFERENCIADET_TIENE_LOTES','TRANSFERENCIADET_TIENE_LOTES.ID_LOTE','=','LOTES.ID')
+                ->leftjoin('TRANSFERENCIAS_DET','TRANSFERENCIAS_DET.ID','=','TRANSFERENCIADET_TIENE_LOTES.ID_TRANSFERENCIA')
+                ->leftjoin('TRANSFERENCIAS','TRANSFERENCIAS.ID','=','TRANSFERENCIAS_DET.FK_TRANSFERENCIA')
+            ->whereBetween('COMPRAS.FECALTAS', [$datos["inicio"], $datos["final"] ])
+            ->where('COMPRAS.ID_SUCURSAL','=',$datos["sucursal"]) 
+            ->whereIn('COMPRAS.PROVEEDOR', $datos["proveedores"])
+            ->where('SECCIONES.ID', '=', $datos["secciones"])
+            ->groupBy('SECCIONES.ID','COMPRAS.PROVEEDOR')
+            ->orderBy('SECCIONES.DESCRIPCION')
+            ->orderBy('PROVEEDORES.NOMBRE')
+            ->get();
+        }
         $venta_in = array();
 
         foreach ($compra as $key =>  $value_compra ) {
 
             foreach ($venta as $key => $value_venta) {
 
-                if($value_venta->COD_PROVEEDOR == $value_compra->COD_PROVEEDOR){ 
+                if($value_venta->COD_PROVEEDOR == $value_compra->COD_PROVEEDOR && $value_venta->SECCION_CODIGO == $value_compra->SECCION_CODIGO){ 
 
                     $total_venta_proveedor = $value_venta->TOTAL_VENTA;
                     $cantidadvendida = $value_venta->VENDIDO;
@@ -466,14 +572,21 @@ class Seccion extends Model
             }
 
             foreach ($transferencia as $key => $value_transf) {
-                if($value_transf->COD_PROVEEDOR == $value_compra->COD_PROVEEDOR){ 
+                if($value_transf->COD_PROVEEDOR == $value_compra->COD_PROVEEDOR && $value_transf->SECCION_CODIGO == $value_compra->SECCION_CODIGO){ 
 
                     $nestedData['TOTAL_TRANSFERENCIA'] = $value_transf->TOTAL_TRANSFERENCIA;
                     $nestedData['TRANSFERENCIA'] =  $value_transf->TRANSFERENCIA;
                 }
             }
 
-            $nestedData['PROVEEDOR'] = $value_compra->PROVEEDOR;
+
+            if($datos["checkedSeccion"]){
+                $nestedData['PROVEEDOR'] = $value_compra->SECCION.", ".$value_compra->PROVEEDOR;
+            
+            }else{
+
+                $nestedData['PROVEEDOR'] = $value_compra->PROVEEDOR;
+            }
             $nestedData['ENTRADA'] = $value_compra->ENTRADA;
             $nestedData['COSTO_TOTAL'] = $value_compra->COSTO_TOTAL;
             $nestedData['COSTO_PROMEDIO'] = $value_compra->COSTO_PROMEDIO;
@@ -491,38 +604,25 @@ class Seccion extends Model
 
         // INCICIAR VARIABLES 
     
-        $insert = $datos["data"]["Insert"];
         $totales[] = array();
-        $secciones_array = array();
         $secciones_totales_array = array();
         $user = auth()->user();
         $user_id = $user->id;
-        $inicio = date('Y-m-d', strtotime($datos["data"]['Inicio']));
-        $final = date('Y-m-d', strtotime($datos["data"]['Final']));
-        $sucursal = $datos["data"]['Sucursal'];
         $total_general = 0;
         $total_descuento = 0;
         $total_preciounit = 0;
         $cantidadvendida = 0;
         $costo = 0;
         $totalcosto = 0;
-        $datos[] = array();
-            
-        $data = array(
-            'inicio' => date('Y-m-d', strtotime($datos["data"]["Inicio"])),
-            'final' => date('Y-m-d', strtotime($datos["data"]["Final"])),
-            'sucursal' => $datos["data"]["Sucursal"],
-            'checkedProveedor' => $datos["data"]["AllProveedores"],
-            'proveedores' => $datos["data"]["Proveedores"],
-            'secciones' => $datos["data"]["Seccion"]
-        );
-        
-        $datos = Seccion::obtenerDatos($data);
+        $data[] = array();
+
+        $descripcion = $datos["descripcion"];
+        $data = Seccion::obtenerDatos($datos);
 
        //  // RETORNAR TODOS LOS ARRAYS
 
 
-        return ['proveedores' => $datos["proveedores"]];
+        return ['proveedores' => $data["proveedores"], 'descripcion' => $descripcion];
 
         /*  --------------------------------------------------------------------------------- */
     }

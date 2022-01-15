@@ -2452,15 +2452,16 @@ class Temp_venta extends Model
             })
             ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
             ->leftjoin('VENTASDET_TIENE_LOTES', 'VENTASDET_TIENE_LOTES.ID_VENTAS_DET', '=', 'VENTASDET.ID')
-            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
             ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
            	->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
             ->leftjoin('VENTAS_CUPON','VENTAS_CUPON.FK_VENTA','=','VENTAS.ID')
             ->leftjoin('VENTAS_DESCUENTO', 'VENTAS_DESCUENTO.FK_VENTAS', '=', 'VENTAS.ID')
-            	->select(DB::raw('VENTASDET.COD_PROD AS COD_PROD,
+            	->select(DB::raw('
+            		VENTASDET.COD_PROD AS COD_PROD,
 	            	VENTASDET.CODIGO,
 	            	VENTASDET_TIENE_LOTES.CANTIDAD AS VENDIDO,
 	            	IFNULL(MARCA.DESCRIPCION,"INDEFINIDO") AS MARCA,
@@ -2470,7 +2471,7 @@ class Temp_venta extends Model
 	            	IFNULL(LINEAS.DESCRIPCION, "INDEFINIDO") AS CATEGORIA,
 	            	IFNULL(SUBLINEAS.DESCRIPCION, "INDEFINIDO") AS SUBCATEGORIA,
 	            	IFNULL(PRODUCTOS.DESCRIPCION, "INDEFINIDO") AS NOMBRE,
-	            	PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+	            	LOTES.FK_PROVEEDOR AS PROVEEDOR,
 	            	PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 	            	VENTAS.ID AS ID,
 	            	(VENTASDET.PRECIO_UNIT * VENTASDET_TIENE_LOTES.CANTIDAD) AS PRECIO,
@@ -2485,7 +2486,7 @@ class Temp_venta extends Model
         ->Where('VENTASDET.ANULADO','<>', 1)
         ->whereBetween('VENTASDET.FECALTAS', [$datos["inicio"], $datos["final"] ])
         ->Where('VENTASDET.ID_SUCURSAL','=',$datos["sucursal"]) 
-        ->orderby('VENTASDET.COD_PROD');
+        ->orderby('VENTASDET.COD_PROD', 'ASC');
 
         // FILTRAR POR DATOS NECESARIOS PARA EL REPORTE
 
@@ -2496,13 +2497,18 @@ class Temp_venta extends Model
 	       		->leftjoin('GONDOLA_TIENE_SECCION','GONDOLA_TIENE_SECCION.ID_GONDOLA','=','GONDOLAS.ID')
 	       		->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
 	       			->addSelect(DB::raw('
-		       			IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO,
-		        		IFNULL(GONDOLAS.ID,0)AS GONDOLA,
-		        		GONDOLAS.DESCRIPCION AS GONDOLA_NOMBRE,
-		         		SECCIONES.DESCRIPCION AS SECCION,
-		         		VENTAS.VENDEDOR AS VENDEDOR'))
-       		->where('VENTAS.TIPO','<>','CR')
-       		->where('SECCIONES.ID', '=', $datos["secciones"]);
+		       			IFNULL(SECCIONES.ID, 0) AS SECCION_CODIGO,
+		        		IFNULL(GONDOLAS.ID, 0)AS GONDOLA,
+		        		IFNULL(GONDOLAS.DESCRIPCION, "INDEFINIDO") AS GONDOLA_NOMBRE,
+		         		IFNULL(SECCIONES.DESCRIPCION, "INDEFINIDO") AS SECCION'))
+       		->where('VENTAS.TIPO','<>','CR');
+
+       		if(!$datos['checkedSeccion']){
+       			$reporte->where('SECCIONES.ID', '=', $datos["secciones"]);
+			}else{
+
+       			$reporte->whereIn('SECCIONES.ID', $datos["secciones"]);
+			}
 
        		if(isset($datos["gondolas"])){
 	       		if(!$datos["checkedGondola"]){
@@ -2646,6 +2652,7 @@ class Temp_venta extends Model
        		$nestedData["DESCUENTO_PORCENTAJE"] = $value->PORCENTAJE_GENERAL;
        		$nestedData["DESCUENTO_PRODUCTO"] = $value->DESCUENTO_PORCENTAJE;
 
+
             $compra_in[] = $nestedData;
 	    }
 	       
@@ -2654,4 +2661,5 @@ class Temp_venta extends Model
             Temp_venta::insert($t);
         }
     }
+
 }

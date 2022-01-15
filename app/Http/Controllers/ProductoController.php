@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Producto;
 use Illuminate\Support\Facades\DB;
 use App\ProductosAux;
+use Illuminate\Support\Facades\Log;
 
 class ProductoController extends Controller
 {
@@ -27,11 +28,27 @@ class ProductoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+    public function mostrarDesc(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $productos = ProductosAux::mostrar_datatable_desc($request);
+        return response()->json($productos);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
      public function encontrar(Request $request)
     {
+        log::error(["NameDesc: ",$request["NameDesc"]]);
+        log::error(["Opcion: ",$request["Opcion"]]);
         if ($request["Opcion"] === 1) {
-            $productos = Producto::encontrarProducto($request->all());
+            if ($request["NameDesc"] === '1') {
+                $productos = Producto::encontrarProductoDesc($request->all());
+            }else{
+                $productos = Producto::encontrarProducto($request->all());
+            }
             return response()->json($productos);
         } else if ($request["Opcion"] === 2) {
             $productos = Producto::mostrarProductoImagen($request->all());
@@ -42,7 +59,7 @@ class ProductoController extends Controller
         } else if ($request["Opcion"] === 4) {
             $productos = Producto::codigoInterno($request->all());
             return response()->json($productos);
-        } 
+        }
     }
 
     public function generarCI()
