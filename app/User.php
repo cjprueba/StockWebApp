@@ -14,6 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 use App\PermisoTienePermisos;
+USE App\UsersTieneSucursales;
 
 class User extends Authenticatable
 {
@@ -119,28 +120,21 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
     }
             public static function  obtener_usuario_roles($datos)
-    {
+    { 
         /* -------------------------------------------------------------------------- */
 
         // DEFINIR ARRAY PERMISOS 
-         $user = User::find($datos['id']);
-         $roles=$user->getRoleNames();
-         $permisos=$user->getAllPermissions();
-
+        $user = User::find($datos['id']);
+        $roles=$user->getRoleNames();
+        $permisos=$user->getAllPermissions();
+        $sucursal_User = UsersTieneSucursales::obtener_user_sucursales($datos['id']);
         $permissions = [];
         foreach ($permisos as $permission) {
             $permissions[] = $permission->id;
         }
-        
         /* -------------------------------------------------------------------------- */
-
-         
-        
-        /* -------------------------------------------------------------------------- */
-
         // DEVOLVER PERMISOS 
-        
-        return ["roles"=>$roles,"permisos"=>$permissions];
+        return ["roles"=>$roles,"permisos"=>$permissions, "sucursalesUser"=>$sucursal_User];
 
         /* -------------------------------------------------------------------------- */
     }
@@ -404,38 +398,73 @@ class User extends Authenticatable
         /* -------------------------------------------------------------------------- */
 
     }
-                public static function guardar_usuario($datos)
-    {
+    
+    public static function guardar_usuario($datos){
       /*  --------------------------------------------------------------------------------- */
-
         // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
 
         $user = auth()->user();
-
         /*  --------------------------------------------------------------------------------- */
         // verificar si existe 
-         $usuario =DB::table('users')->SELECT(['id'])->Where([['email','=',$datos['email']]])->get()->toArray();
-       if(count($usuario)>0){
-         return ["response"=>false,"status"=>"ESTE CORREO YA POSEE UN USUARIO!"];
-         }
-        // GUARDAR USUARIO
-      
-        $userc= User::create([
-            'name' => $datos['nombre'],
-            'email' => $datos['email'],
-            'password' => Hash::make($datos['contraseña']),
-            'id_sucursal' => $user->id_sucursal,
-        ]);
 
-      
+        $usuarioEmail =DB::table('users')
+                    ->SELECT(['id'])
+                    ->Where([['email','=',$datos['email']]])
+                    ->get()
+                    ->toArray();
+        if(count($usuarioEmail)>0 && $datos['btn_guardar']==true){
+            return ["response"=>false,"status"=>"ESTE CORREO YA POSEE UN USUARIO!"];
+        }
+        // GUARDAR USUARIO[]
+        try{
+            DB::connection('retail')->beginTransaction();
+            if($datos['btn_guardar']==true){
+                $userc= User::insertGetId([
+                    'name' => $datos['nombre'],
+                    'email' => $datos['email'],
+                    'password' => Hash::make($datos['contraseña']),
+                    'id_sucursal' => $user->id_sucursal,
+                ]);
+                if($datos['mostrarSucursales']==true){
+                    $posts = $datos['sucursalesSelected'];
+                    foreach ($posts as $post){
+                        UsersTieneSucursales::guardar_sucursales($datos['idUsuario'], $post);
+                    }
+                }
+                DB::connection('retail')->commit();
+            }else{
+                $aux=0;
+                $userc= User::Where('id', '=', $datos['idUsuario'])
+                    ->Update([
+                        'name' => $datos['nombre'],
+                        'email' => $datos['email'],
+                    ]);
+                if($datos['mostrarSucursales']==true){
+                    $posts = $datos['sucursalesSelected'];
+                    foreach ($posts as $post){
+                        $aux++;
+                        UsersTieneSucursales::guardar_sucursales($datos['idUsuario'], $post, $aux);
 
+                    }
+                }
+                DB::connection('retail')->commit();
+                return['response'=>true];
+            }
+        }catch(Exception $ex){
+            DB::connection('retail')->rollBack();
+            if($ex->errorInfo[1]==1062){
+                return ["response"=>false,'statusText'=>'¡Este usuario ya fue registrado!'];
+            }else{
+                return ["response"=>false,'statusText'=>$ex->getMessage()];
+            }
+        }
+        
         /* -------------------------------------------------------------------------- */
 
-        return ["response" => true];
-
+        
         /* -------------------------------------------------------------------------- */
-
     }
+
 
         public static function asignar_permisos($rol, $permisos)
     {
@@ -503,7 +532,7 @@ class User extends Authenticatable
 
             //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
 
-            $posts = User::select(DB::raw('id,name,email'))
+            $posts = User::select(DB::raw('id,name,email,password'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                          ->offset($start)
                          ->limit($limit)
@@ -524,7 +553,7 @@ class User extends Authenticatable
 
             // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
 
-            $posts =  User::select(DB::raw('id,name,email'))
+            $posts =  User::select(DB::raw('id,name,email,password'))
                          ->where('ID_SUCURSAL','=', $user->id_sucursal)
                             ->where(function ($query) use ($search) {
                                 $query->where('email','LIKE',"%{$search}%")
@@ -568,6 +597,7 @@ class User extends Authenticatable
                 $nestedData['id'] = $post->id;
                 $nestedData['name'] = $post->name;
                 $nestedData['email'] = $post->email;
+                $nestedData['password'] = $post->password;
 
                 $data[] = $nestedData;
 
