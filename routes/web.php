@@ -139,6 +139,8 @@ Route::post('/inventario/reporte', 'InventarioController@reporte');
 Route::post('/inventario/procesar', 'InventarioController@procesar');
 Route::post('reporte_inventario_seccion', 'InventarioController@generar_reporte_inventario_seccion');
 Route::post('export_inventario_seccion_gondola', 'InventarioController@ExportInventarioSeccion');
+Route::post('export_inventario_gondola', 'InventarioController@Inventario_Gondola_Productos');
+
 
 /* -------------------------------------------------------------------------- */
 
