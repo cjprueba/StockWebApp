@@ -4851,7 +4851,12 @@ class Venta extends Model
         $pdf->Ln(3);
 
         if ($parametro[0]->PIE_TICKET_PERSONALIZABLE === 1) {
-            $pdf->Multicell(0,2,"Guarde este ticket.\n\nPara compras online visite www.calbea.com.\n\n ** GRACIAS POR SU COMPRA **", 0, 'C', false);
+            if($user->id_sucursal==27){
+                 $pdf->Multicell(0,4,"Por favor lea atentamente las instrucciones del establecimiento.\n\nJump Zone no se responsabiliza por las lesiones causadas en caso del incumplimiento de las normas de seguridad establecidas.\n\n ** GRACIAS POR SU COMPRA **\n\n ____________________", 0, 'C', false);
+            }else{
+                 $pdf->Multicell(0,2,"Guarde este ticket.\n\nPara compras online visite www.calbea.com.\n\n ** GRACIAS POR SU COMPRA **", 0, 'C', false);
+            }
+           
         } else {
             $pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
         }
