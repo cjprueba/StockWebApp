@@ -73,16 +73,20 @@
 
 				// ------------------------------------------------------------------------
 
-			}, enviarCodigoPadre(nombre,id,roles,permisos){
+			}, enviarCodigoPadre(password, email,nombre,id,roles,permisos,sucursales_recibido,password_recibido){
 
 				// ------------------------------------------------------------------------
 
 				// ENVIAR CODIGO
-                  
-				this.$emit('nombre_usuario',nombre);
-                 this.$emit('id', id);
-                 this.$emit('roles', roles);
-                 this.$emit('permisos', permisos);
+                this.$emit('password_usuario',password); 
+                this.$emit('email_usuario',email);  
+				        this.$emit('nombre_usuario',nombre);
+                this.$emit('id', id);
+                this.$emit('roles', roles);
+                this.$emit('permisos', permisos);
+                this.$emit('sucursales_recibido', sucursales_recibido);
+                this.$emit('password_recibido', password_recibido);
+                
 				// ------------------------------------------------------------------------
 
 			}, vaciarDevolver(){
@@ -150,13 +154,25 @@
                     // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
 
                     me.id = tableUsuarios.row(this).data().id;
+                    me.password = tableUsuarios.row(this).data().password;
                     me.email = tableUsuarios.row(this).data().email;  
                     me.name = tableUsuarios.row(this).data().name;
+                    me.password_recibido = true;
+                    me.sucursales_recibido = false;
                     Common.traerRolUsuarioCommon(me.id).then(data => {
                         
-                        me.enviarCodigoPadre(me.name,me.id,data.roles,data.permisos);
-                    })
-
+                        me.enviarCodigoPadre(me.password,
+                                              me.email,
+                                              me.name,
+                                              me.id,
+                                              data.roles,
+                                              data.permisos,
+                                              data.sucursalesUser,
+                                              me.password_recibido
+                                              );
+                        console.log("aveeer");
+                        console.log(data.sucursalesUser);
+                        })
                   
                     // *******************************************************************
 

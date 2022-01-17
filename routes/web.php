@@ -388,6 +388,7 @@ Route::post('empleado/recibe', 'EmpleadoController@datatable_recibe');
 
 Route::post('productoDatatable', 'ProductoController@mostrar');
 Route::post('productoDatatableDesc', 'ProductoController@mostrarDesc');
+Route::post('productoDatatableDescOld', 'ProductoController@mostrarDescOld');
 Route::post('producto', 'ProductoController@encontrar');
 Route::get('productoCodigoInterno', 'ProductoController@generarCI');
 Route::get('productoCodigo', 'ProductoController@generarCodigo');

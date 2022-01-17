@@ -38,6 +38,16 @@ class ProductoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+    public function mostrarDescOld(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $productos = ProductosAux::mostrar_datatable_desc_old($request);
+        return response()->json($productos);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
      public function encontrar(Request $request)
     {

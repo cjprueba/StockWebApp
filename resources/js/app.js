@@ -284,6 +284,7 @@ Vue.component('permiso-nombre', require('./components/textboxs/PermisoTextbox.vu
 Vue.component('selected-sucursal', require('./components/textboxs/Sucursal.vue').default);
 Vue.component('codigo-producto', require('./components/textboxs/CodigoProducto.vue').default);
 Vue.component('codigo-producto-desc', require('./components/textboxs/CodigoProductoDesc.vue').default);
+Vue.component('codigo-producto-desc-old', require('./components/textboxs/CodigoProductoDescOld.vue').default);
 Vue.component('usuario-nombre', require('./components/textboxs/UsuarioTextbox.vue').default);
 Vue.component('selected-categoria', require('./components/textboxs/CategoriaTextbox.vue').default);
 Vue.component('selected-sub-categoria', require('./components/textboxs/SubCategoriaTextbox.vue').default);
