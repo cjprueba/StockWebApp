@@ -4,6 +4,7 @@
 		<!-- ------------------------------------------------------------------ -->
 
 		<!-- SIDEBAR -->
+		
 
 		<b-sidebar   id="sidebar-right" title="Opciones"  right shadow>
 	      <div class="px-3 py-2">
@@ -1248,13 +1249,16 @@
 								me.impresion.TIPO = datos.TIPO_IMPRESION;
 
 								if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
-									Common.generarPdfFacturaVentaVisualizarCommon(data.CODIGO, data.CAJA);
+									
+									Common.generarPdfFacturaVentaVisualizarCommon(data.CODIGO, data.CAJA,data.ID_VENTA);
 								} 
 
 								if (me.checked.TICKET === true) {
-									Common.generarPdfTicketVentaVisualizarCommon(data.CODIGO, data.CAJA);
+									
+									Common.generarPdfTicketVentaVisualizarCommon(data.CODIGO, data.CAJA,data.ID_VENTA);
 								} else {
-									me.ticket(data.CODIGO, data.CAJA);
+									
+									me.ticket(data.CODIGO, data.CAJA,data.ID_VENTA);
 								}
 
 								// ------------------------------------------------------------------------
@@ -2246,6 +2250,7 @@
 		            // CALCULAR IVA
 
 	            	me.producto.IMPUESTO = Common.calcularIVACommon(me.producto.PRECIO_TOTAL, me.producto.IVA, me.moneda.DECIMAL);
+	            /*	console.log(me.producto.IMPUESTO);*/
 	            	impuesto=me.producto.IMPUESTO;
 
 	            }
@@ -2308,7 +2313,8 @@
 	            // ------------------------------------------------------------------------
 
 	        }, editarCantidadProducto(tabla, cantidad, impuesto,iva_producto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
-	        	
+	        /*  console.log(iva_producto);
+	          console.log(impuesto);*/
 	        	// ------------------------------------------------------------------------
 
 	        	// INICIAR VARIABLES
@@ -2347,6 +2353,7 @@
 	            // CARGAR IMPUESTO
 	          
 	            tabla.cell(row, 7).data(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)).draw();
+	          /* console.log(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)) ;*/
 
 	            // ------------------------------------------------------------------------
 
@@ -2500,7 +2507,7 @@
 				}).catch(function(e) { console.error(e); });
 
 			},
-			factura(numero, caja) {
+			factura(numero, caja, id_venta) {
 
 				// ------------------------------------------------------------------------ 
 
@@ -2508,7 +2515,7 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfFacturaVentaCommon(numero, caja).then(response => {
+				Common.generarPdfFacturaVentaCommon(numero, caja, id_venta).then(response => {
 
 						var reader = new FileReader();
 						 reader.readAsDataURL(new Blob([response])); 
@@ -2525,7 +2532,7 @@
 				// Common.generarPdfTicketVentaTestCommon();
 
 			},
-			ticket(numero, caja) {
+			ticket(numero, caja,id_venta) {
 
 				// ------------------------------------------------------------------------ 
 
@@ -2533,14 +2540,14 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfTicketVentaCommon(numero, caja).then(response => {
+				Common.generarPdfTicketVentaCommon(numero, caja, id_venta).then(response => {
 
 						var reader = new FileReader();
 						 reader.readAsDataURL(new Blob([response])); 
 						reader.onloadend = function() {
 						     var base64data = reader.result;
 						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						     me.imprimir(base64data, numero, caja);
+						     me.imprimir(base64data, numero, caja, id_venta);
 						 }
 
 				});
@@ -2549,7 +2556,7 @@
 
 				// Common.generarPdfTicketVentaTestCommon();
 
-			}, imprimir(base64, numero, caja) {
+			}, imprimir(base64, numero, caja,id_venta) {
 
 				let me = this;
 
@@ -2580,7 +2587,7 @@
 					   		qz.websocket.disconnect();
 
 					   		if (me.impresion.TIPO === "2" && me.checked.FACTURA === false) {
-								me.factura(numero, caja);
+								me.factura(numero, caja , id_venta);
 							}
 
 					   		// ------------------------------------------------------------------------ 
