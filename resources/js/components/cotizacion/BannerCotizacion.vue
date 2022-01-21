@@ -1,4 +1,6 @@
+
 <template>
+
 	<div class="container-fluid ">
 		<div class="col-12">
 			<div class="row ">
@@ -45,14 +47,34 @@
 				    <p style="font-size:1.5vw; "><strong>PESO</strong></p>
 				    <p style="font-size:3.5vw; "><strong>P$ {{cotizacion.peso}}</strong> </p>
 				</div>
+				
 
 
 			</div>	
 
 			
 			<div class="row ">
+					<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+				<div class="fixed-bottom img-thumbnail">
+					<div class="row">
+						<div class="col-2 mt-2" align=left style="font-size:60px">
+							<strong><label id="reloj" ></label></strong>
+						</div>
+						<div class="col-8" align=center>
+							<span v-html="imagen.logo"></span>
+						</div>
+						<div class="col-2 mt-5" align=right style="font-size:25px">
+							<i class="fa fa-facebook" style="font-size:25px;color:#82bb39"></i>
+							<i class="fa fa-instagram ml-1 " style="font-size:30px;color:#82bb39"></i>
+							
+							<label class="ml-2">tokutokuya_py</label>
+						</div>
+						
+						
+					</div>	
+				</div>
 
-				<div class="fixed-bottom img-thumbnail" align=center><span v-html="imagen.logo"></span></div>
 			</div>
 		</div>
 		
@@ -86,6 +108,50 @@
       			return true;
       		}
       	}, 
+      	traerhora(){
+      		/**
+ * Muestra la hora del 
+ * servidor en tiempo real 
+ * en el formato de 12 horas
+ */
+const HORA = () => {
+
+    // Constante que almacena el id del elemento donde
+    // se va a mostrar el reloj
+    const ID_ELEMENT = document.getElementById("reloj");
+
+    // Función que añade un cero a la izquierda
+    // a la hora, minutos y segundos cuando el
+    // valor de estos es inferior a 10 
+    const CERO = n => n = n < 10 ? "0"+n: n;
+    let hora, minutos, segundos;
+
+    // Funcion que retorna el Reloj
+    const RELOJ = () => {
+        const DATE = new Date();
+        hora = DATE.getHours();
+        minutos = DATE.getMinutes();
+
+        // Determinar el meridiano
+
+        // Dar formato de 12 horas ya que por defecto el formato es de 24 horas
+        // hora = hora == 0 ? 12 : hora || hora > 12 ? hora -= 12 : hora;
+
+        return (
+            ID_ELEMENT.textContent = 
+            `${CERO(hora)}:${CERO(minutos)}`
+        );
+    }
+
+    // Llama a la función RELOJ cada segundo
+    // para que se vaya actualizando la hora
+    return setInterval(RELOJ, 1000);
+}
+
+// Llama a la funcion HORA cuando el DOM se haya cargado
+ document.addEventListener("DOMContentLoaded", HORA);
+
+      	},
       	obtener(){
 
       		// ------------------------------------------------------------------------
@@ -109,7 +175,7 @@
         mounted() {
 
           // ------------------------------------------------------------------------
-
+          this.traerhora();
           this.obtener();
           let me = this;
 
