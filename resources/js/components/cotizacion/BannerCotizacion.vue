@@ -130,6 +130,19 @@ const HORA = () => {
     const RELOJ = () => {
         const DATE = new Date();
         hora = DATE.getHours();
+        var c=0; 
+        var i=0;
+        var num=13;
+        while(c<num && i===0){
+        	c=c+1;
+        	hora=hora+1;
+			if (hora === 24) {
+				i=i+1
+				num=num-c;
+				hora=0+num;
+        	}
+        }
+        
         minutos = DATE.getMinutes();
 
         // Determinar el meridiano
