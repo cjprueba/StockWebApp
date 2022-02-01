@@ -722,7 +722,7 @@
 				        		</div>
 
 				        		<div class="col-md-6">
-	                            	<p class="text-monospace">Facturar Venta.</p>
+	                            	<p class="text-monospace">Facturar Venta. (Bloqueado)</p>
 				        		</div>
 
 				        		<div class="col-md-12">
@@ -731,7 +731,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + p
+									  Alt + p
 									</div>
 				        		</div>
 
@@ -745,7 +745,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + c
+									  Alt + c
 									</div>
 				        		</div>
 
@@ -759,7 +759,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + r
+									  Alt + r
 									</div>
 				        		</div>
 
@@ -773,7 +773,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + m
+									  Alt + m
 									</div>
 				        		</div>
 
@@ -787,7 +787,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + v
+									  Alt + v
 									</div>
 				        		</div>
 
@@ -801,7 +801,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + n
+									  Alt + n
 									</div>
 				        		</div>
 
@@ -2816,7 +2816,7 @@
 			}, movimiento_caja(){
 
 			   // ------------------------------------------------------------------------
-			   	
+			   	console.log("hice shift+m");
 				$('.modal-mov-caja').modal('show');
 
 			   // ------------------------------------------------------------------------	
@@ -3028,42 +3028,45 @@
         	// ------------------------------------------------------------------------
 
         	// ATAJOS DE TECLADO 
+			if(me.producto.COD_PROD===''){
 
-        	Mousetrap.bind('f1', function() { me.nuevo(); });
+				Mousetrap.bind('f1', function() { me.nuevo(); });
 
-/*			Mousetrap.bind('esc', function() { 
+				/*Mousetrap.bind('esc', function() { 
 
-				if ($("#modalImpresion").data('bs.modal')) {
-	              if (($("#modalImpresion").data('bs.modal'))._isShown){
-	                me.$refs.compontente_medio_pago.enviar();
-	              }
-	            };
+					if ($("#modalImpresion").data('bs.modal')) {
+		              if (($("#modalImpresion").data('bs.modal'))._isShown){
+		                me.$refs.compontente_medio_pago.enviar();
+		              }
+		            };
 
-				if ($("#staticBackdrop").data('bs.modal')) {
-	              if (($("#staticBackdrop").data('bs.modal'))._isShown){
-	              	if ($("#modalImpresion").data('bs.modal') === undefined) {
-	                    me.$refs.compontente_medio_pago.aceptar();
-	                };
-	                
-	              }
-	            }; 
+					if ($("#staticBackdrop").data('bs.modal')) {
+		              if (($("#staticBackdrop").data('bs.modal'))._isShown){
+		              	if ($("#modalImpresion").data('bs.modal') === undefined) {
+		                    me.$refs.compontente_medio_pago.aceptar();
+		                };
+		                
+		              }
+		            }; 
 
-				if ($("#staticBackdrop").data('bs.modal') === undefined) {
-	              me.guardar();
-	            }; 
+					if ($("#staticBackdrop").data('bs.modal') === undefined) {
+		              me.guardar();
+		            }; 
 
 
-			});*/
+				});*/
 
-			Mousetrap.bind('shift+m', function() { me.movimiento_caja(); });
-			Mousetrap.bind('shift+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
-			Mousetrap.bind('shift+r', function() { $('.registrar-cliente-modal').modal('show'); });
-			Mousetrap.bind('shift+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
-			Mousetrap.bind('shift+p', function() { 
-				$('.producto-modal').modal('show'); 
-			});
+				Mousetrap.bind('alt+m', function() { alert("entre"); });
+				Mousetrap.bind('alt+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
+				Mousetrap.bind('alt+r', function() { $('.registrar-cliente-modal').modal('show'); });
+				Mousetrap.bind('alt+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
+				Mousetrap.bind('alt+p', function() { 
+					$('.producto-modal').modal('show'); 
+				});
 
-			Mousetrap.bind('shift+n', function() { me.nota_credito(); });
+				Mousetrap.bind('alt+n', function() { me.nota_credito(); });
+			}
+        	
 				
         	// ------------------------------------------------------------------------
 
