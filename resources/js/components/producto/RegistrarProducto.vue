@@ -1011,7 +1011,7 @@
           },
           checked_codigo_real: false,
           checked_vencimiento: false,
-          checked_auto_descripcion: true,
+          checked_auto_descripcion: false,
           checked_detalleWeb: false,
           checked_dimension: false,
           checked_online: false,
