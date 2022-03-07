@@ -607,7 +607,7 @@ class Qr extends Model
 
 
     public static function etiqueta_tipo_2($datos){
-       $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf = new TCPDF('L','mm',array(105,22));
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
@@ -672,7 +672,7 @@ class Qr extends Model
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
 
-      $pdf->SetFont('helvetica', '', 6);
+      $pdf->SetFont('helvetica', '', 4.5);
       $name = '111'; 
       $type = 'C128B';
 
@@ -723,17 +723,17 @@ class Qr extends Model
           }
            
           if($datos['precio']==='1'){
-            $pdf->SetFontSize(8);
+            $pdf->SetFontSize(4);
             $pdf->SetFont('','B');
             $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
           
           }else if($datos['precio']==='2'){
-            $pdf->SetFontSize(8);
+            $pdf->SetFontSize(4);
             $pdf->SetFont('','B');
             $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
           }else if($datos['precio']==='3'){
-            $pdf->SetFontSize(8);
+            $pdf->SetFontSize(4);
             $pdf->SetFont('','B');
             if($value['MONEDA']===2){
               $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
@@ -741,7 +741,7 @@ class Qr extends Model
               $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
             }                   
           }else if ($datos['precio']==='4') {
-            $pdf->SetFontSize(12);
+            $pdf->SetFontSize(4);
             $pdf->SetFont('','B');
             if($datos['tipomoneda']==='1'){
               if ($value['MONEDA']===1) {
@@ -767,7 +767,7 @@ class Qr extends Model
               }
             } 
           }
-          $pdf->SetFontSize(5.7);
+          $pdf->SetFontSize(4.5);
           $pdf->SetFont('freesans');
           if ($datos['precio']<>'4') {
             $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 1, '', false, '', 0);
@@ -806,7 +806,7 @@ class Qr extends Model
               $x=25;
             }
             $pdf->write1DBarcode($value2->CODIGO, $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
-            $pdf->SetFontSize(8);
+            $pdf->SetFontSize(4.5);
             $pdf->SetFont('','B');
             // if($value2->MONEDA===1){
             //     $pdf->SetFontSize(7);
@@ -833,7 +833,7 @@ class Qr extends Model
             }else{
               $pdf->text($x-21, $y+10, $value2->PRECIO." / ".$value2->PRECIO_MAYORISTA, false, false, true);
             }
-            $pdf->SetFontSize(5.7);
+            $pdf->SetFontSize(4.5);
             $pdf->SetFont('freesans');
             $pdf->text($x-23.8, $y+16, substr(Qr::quitar_tildes($value2->DESCRIPCION), 0,22), false, false, true, 0, 1, '', false, '', 0);
             //$y=$y+35;
