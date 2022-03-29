@@ -42,7 +42,7 @@
 								</div>
 								<div class="form-check col-4" align="left">
 								  	<input class="form-check-input" type="radio" name="TipoImpresion" id="TipoImpresion3" v-model="seleccionImpresion" value="3">
-								  	<label class="form-check-label" for="TipoImpresion3">Descripción</label>
+								  	<label class="form-check-label" for="TipoImpresion3">Traducción</label>
 							  		<div class="custom-control custom-switch sm-2">
 										<input type="checkbox" class="custom-control-input" id="customControlAutosizing" v-model="switch_desc">
 										<label class="custom-control-label" for="customControlAutosizing" data-toggle="tooltip" data-placement="top">(Versión anterior)</label>
@@ -66,7 +66,7 @@
 										</div>
 										<div class="form-check ml-5" align="left">
 										  <input class="form-check-input" type="radio" name="tipoStock" id="tipoStock2" v-model="tipoStock" value="2">
-										  <label class="form-check-label" for="tipoStock2">Solo sin stock</label>
+										  <label class="form-check-label" for="tipoStock2">Solo con y sin stock</label>
 										</div>
 				    				</div>
 				    				<div class="col-4" align="center">
@@ -77,7 +77,7 @@
 										  <label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
 										</div>
 										<div class="form-check ml-5" align="left">
-										  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
+										  <input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
 										  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
 										</div>
 									</div>
@@ -185,22 +185,22 @@
 											</div>
 
 											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet2" v-model="seleccionTamaño" value="2">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="2">
 											  <label class="form-check-label" for="tamañoTiquet2">Proveedor (3,3cm x 2,2cm)</label>
 											</div>
 											
 											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
 											  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
 											</div>
 											
 											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet4" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
 											  <label class="form-check-label" for="tamañoTiquet4">Producto (5,5cm x 2,9cm)</label>
 											</div>
 
 											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet5" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
 											  <label class="form-check-label" for="tamañoTiquet5">QR Link (3,3cm x 2,2cm)</label>
 											</div>
 
@@ -313,7 +313,7 @@
 												<codigo-producto-desc-old v-bind:class="{ 'is-invalid': validar.codigoProd }" @codigo_producto="cargarProductos"
 												 ref="compontente_codigo_producto" v-model="producto.codigoProd" disabled></codigo-producto-desc-old>
 											</div>
-											<div class="col-6">
+											<div class="col-6" v-if="producto.codigoProd">
 								    			<label>Descripción Del Producto</label>
 									      		<input v-bind:class="{ 'is-invalid': validar.descripion }" v-model="producto.descripcion" type="text" class="form-control form-control-sm" disabled>
 									    	</div>
@@ -360,7 +360,6 @@
 											</div>
 										</div>
 									</div>
-										
 									<div class="row mt-3">
 
 					      				<!-- -------------------------------------- PRECIO MAYORISTA------------------------------------------------------- -->
@@ -384,8 +383,34 @@
 										<!-- --------------------------------------------- CANTIDAD ------------------------------------------------------- -->
 										
 									</div>
-								</div>
 
+									<hr>
+									<div class="row mt-4" v-if="switch_desc==false">
+										<div class="col" align="center">
+											<label class="form-check-label font-weight-bold " >Tamaño de Etiquetas</label>
+										</div>
+									</div>
+
+									<div class="row mt-4" v-if="switch_desc==false">
+										<div class="col ml-4" align="right">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet1Desc" id="tamañoTiquet1Desc" v-model="seleccionTamaño" value="6">
+											<label class="form-check-label" for="tamañoTiquet1Desc">3,3cm x 2,2cm</label>
+										</div>
+
+										<div class="col ml-4" align="center">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7">
+											<label class="form-check-label" for="tamañoTiquet2">5,5cm x 3cm</label>
+										</div>
+										<div class="col ml-4" align="center">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8">
+											<label class="form-check-label" for="tamañoTiquet3">8cm x 4cm</label>
+										</div>
+										<div class="col ml-4" align="left">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9">
+											<label class="form-check-label" for="tamañoTiquet4Desc">10cm x 7,5cm</label>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 
@@ -394,7 +419,7 @@
 						
 				    	<div class="col-12">
 
-				    			<!-- -------------------------------- BOTONES LIMPIAR, GUARDAR, MODIFICAR Y ELIMINAR --------------------------------- -->	
+				    			<!-- -------------------------------- BOTONES LIMPIAR, GUARDAR, MODIFICAR Y ELIMINAR --------------------------------- -->
 							<div class="row mt-4"> 
 								<!-- <div class="col text-center">
 									<button v-on:click="Imprimir_QR" type="button" class="btn btn-outline-info btn-block" :disabled="!checkedQr" >Imprimir Qr</button>
@@ -1388,7 +1413,11 @@
 			                return;
 			            }	
 			            if (me.seleccionImpresion==='3') {
-			                me.NameDescRecibido='1';
+			            	if (me.switch_desc === false){
+			            		me.NameDescRecibido='2';
+			            	}else{
+			            		me.NameDescRecibido='1';	
+			            	}
 			            }else{
 			            	me.NameDescRecibido='0';
 			            }
@@ -1409,7 +1438,6 @@
 
 			            // CONSULTAR PRODUCTO DETERMINADO
 			            axios.post('/producto', {'data': data, 'Opcion': 1, 'NameDesc':data.NameDesc}).then(function (response) {
-			                   
 			                    if(response.data.producto === 0) {
 
 			                        // *******************************************************************
@@ -1444,7 +1472,7 @@
 			                         me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
 			                        me.producto.linea = response.data.producto.LINEA;
 			                        me.producto.moneda= response.data.producto.MONEDA;
-			                        me.producto.nombre_desc= response.data.producto.NOMBRE;
+			                        me.producto.nombre_desc= response.data.producto.NOMBRE_DEL_PRODUCTO;
 		                            me.lotes=response.data.lote;
 		                            me.$refs.cantidad_ticket.focus();
 			                        if(me.checkedMayorista === true){

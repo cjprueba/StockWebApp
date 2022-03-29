@@ -44,6 +44,8 @@
                                             <th>Ingredientes</th>
                                             <th>Valor nutricional</th>
                                             <th>Contenido</th>
+                                            <th>Calorias</th>
+                                            <th>Grado de Alcohol</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -153,7 +155,9 @@
                             { "data": "FORMA_DE_USO", "visible": false  },
                             { "data": "INGREDIENTES", "visible": false  },
                             { "data": "VALOR_NUTRICIONAL", "visible": false  },
-                            { "data": "CONTENIDO", "visible": false }
+                            { "data": "CONTENIDO", "visible": false },
+                            { "data": "CALORIAS", "visible": false },
+                            { "data": "GRAD_ALCOH", "visible": false }
                         ]      
                     });
                 
