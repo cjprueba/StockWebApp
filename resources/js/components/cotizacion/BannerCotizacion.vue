@@ -132,7 +132,7 @@ const HORA = () => {
         hora = DATE.getHours();
         var c=0; 
         var i=0;
-        var num=13;
+        var num=12;
         while(c<num && i===0){
         	c=c+1;
         	hora=hora+1;
