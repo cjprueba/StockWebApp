@@ -251,7 +251,6 @@ class Producto extends Model
         ->where('PRODUCTOS_AUX.CODIGO', '=', $cod_prod)
         ->where('PRODUCTOS_AUX.ID_SUCURSAL', '=', $user->id_sucursal)
         ->get();
-        var_dump($producto);
         /*  --------------------------------------------------------------------------------- */
         $lotes= DB::connection('retail')
         ->table('Lotes')->select(DB::raw('ID,CANTIDAD,LOTE'))
