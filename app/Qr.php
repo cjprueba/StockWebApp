@@ -573,14 +573,12 @@ class Qr extends Model
                     line-height: 0.8;
                     margin-left: 20px;
                   } 
-
                   p#tamaño  {
                     font: normal 12px arial, helvetica, sans-serif;
                   }
                 </style>
                 <body>
                   <p class="col-2">
-                    <p><strong align="center"><font size="8">'.$producto_det[0]->MARCA.'</font></strong></p>
                     <p id="normal"><font size="7">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</font></p>
                     <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
                     <p id="normal">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</p>
@@ -599,9 +597,9 @@ class Qr extends Model
               }
               $pdf->SetFontSize(5.5);
               $pdf->SetAutoPageBreak(FALSE, 0);
-              $pdf->SetFont('freesans', 'L');
+              $pdf->SetFont('freesans', 'B');
               $pdf->text(18.7,1.5, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
-              $pdf->writeHTMLCell(52.5, 0, 1, 1, $htmldesc, 0, 0, 0, false, 'center', false);
+              $pdf->writeHTMLCell(52.5, 0, 1, 0, $htmldesc, 0, 0, 0, false, 'center', false);
               $y=$y+28;
               $sum=0;
             }
@@ -671,25 +669,19 @@ class Qr extends Model
                   }
                   p#normal  {
                     white-space: normal;
-                    line-height: 0.5;
+                    line-height: 0.65;
                   }
                   p#diferente  {
                     white-space: normal;
-                    line-height: 0.8;
-                  }
-
-                  p#tamaño  {
-                    font: normal 12px arial, helvetica, sans-serif;
-                  }
-                </style>
+                    line-height: 0.9;
+                  }                </style>
                 <body>
                   <p class="col-2">
-                    <p id="normal"><strong align="center"><font size="6">'.$producto_det[0]->MARCA.'</font></strong></p>
-                    <p id="diferente"><font size="4.5">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</font></p>
-                    <p id="diferente">   '.$producto_det[0]->PROPIEDADES.'</p>
-                    <p id="normal"><font size="4.5">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</font></p>
-                    <p id="normal"><font size="4.5">CALORIAS: '.$producto_det[0]->CALORIAS.'</font></p>
-                    <p id="normal"><font size="4.5">GRADO DE ALCOHOL: '.$producto_det[0]->GRAD_ALCOH.'%</font></p>
+                    <p id="diferente"><strong><font size="5">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</font></strong></p>
+                    <p id="diferente"><strong><font size= "5.8">   '.$producto_det[0]->PROPIEDADES.'</font></strong></p>
+                    <p id="normal"><strong><font size="5">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</font></strong></p>
+                    <p id="normal"><strong><font size="5">CALORIAS: '.$producto_det[0]->CALORIAS.'</font></strong></p>
+                    <p id="normal"><strong><font size="5">GRADO DE ALCOHOL: '.$producto_det[0]->GRAD_ALCOH.'%</font></strong></p>
                   </p>
                 </body>
               </html>';
@@ -705,11 +697,13 @@ class Qr extends Model
                 }
                 $x=25;
               }
-              $pdf->SetFontSize(4.5);
+              $pdf->SetFontSize(5);
               $pdf->SetAutoPageBreak(FALSE, 0);
+              $pdf->SetFont('freesans', 'B');
+              $pdf->text($x-15.5,$y+0.3, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
               $pdf->SetFont('freesans', 'L');
-              $pdf->text($x-15.5,$y+1, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
-              $pdf->writeHTMLCell(31.5, 0, $x-24, $y+1.5, $htmldesc, 0, 0, 0, false, 'center', false);
+              $pdf->SetFontSize(1.5);
+              $pdf->writeHTMLCell(31.5, 0, $x-24, $y+1.3, $htmldesc, 0, 0, 0, false, 'center', false);
               $x=$x+37-1.5;
             }
             $c=0;
