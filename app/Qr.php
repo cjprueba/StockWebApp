@@ -552,41 +552,43 @@ class Qr extends Model
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
                                     DESCRIPCION_DETALLADA.PROPIEDADES,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
-                                    DESCRIPCION_DETALLADA.CALORIAS,
-                                    DESCRIPCION_DETALLADA.GRAD_ALCOH'))
+                                    IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
+                                    IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
-            $htmldesc=
-            ' <html>
-                <style>
-                  p{
-                    width: 80px;
-                    margin: 0px 0;
-                    padding: 0px;
-                    font: normal 9px arial, helvetica, sans-serif;
-                    line-height: 0.5;
+                  $nestedData['COD_PROD']=$value["CODIGO"];
+                  $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+                  $nestedData['MARCA']=$producto_det[0]->MARCA;
+                  $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  $nestedData['TAMAÑO']="7";
+                  if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
+                    $nestedData['CALORIAS_CHECK']=false;
+                    $nestedData['CALORIAS']='';
+                  }else{
+                    $nestedData['CALORIAS_CHECK']=true;
+                    $nestedData['CALORIAS']=$producto_det[0]->CALORIAS;
                   }
-                  p#normal  {
-                    white-space: normal;
-                    line-height: 0.8;
-                    margin-left: 20px;
-                  } 
-                  p#tamaño  {
-                    font: normal 12px arial, helvetica, sans-serif;
+                  if($producto_det[0]->INGREDIENTES==="INDEFINIDO" || $producto_det[0]->INGREDIENTES==""){
+                    $nestedData['INGRE_CHECK']=false;
+                    $nestedData['INGREDIENTES']='';
+                  }else{
+                    $nestedData['INGRE_CHECK']=true;
+                    $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
                   }
-                </style>
-                <body>
-                  <p class="col-2">
-                    <p id="normal"><font size="7">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</font></p>
-                    <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
-                    <p id="normal">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</p>
-                    <p id="normal">CALORIAS: '.$producto_det[0]->CALORIAS.'</p>
-                    <p id="normal">GRADO DE ALCOHOL: '.$producto_det[0]->GRAD_ALCOH.'%</p>
-                  </p>
-                </body>
-              </html>';
+                  if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
+                    $nestedData['ALCO_CHECK']=false;
+                    $nestedData['GRAD_ALCOH']='';
+                  }else{
+                    $nestedData['ALCO_CHECK']=true;
+                    $nestedData['GRAD_ALCOH']=$producto_det[0]->GRAD_ALCOH;
+                  }
+         $htmldesc= view('pdf.traduccion', $nestedData)->render();
 
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
@@ -597,7 +599,7 @@ class Qr extends Model
               }
               $pdf->SetFontSize(5.5);
               $pdf->SetAutoPageBreak(FALSE, 0);
-              $pdf->SetFont('freesans', 'B');
+              $pdf->SetFont('freesans', 'L');
               $pdf->text(18.7,1.5, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
               $pdf->writeHTMLCell(52.5, 0, 1, 0, $htmldesc, 0, 0, 0, false, 'center', false);
               $y=$y+28;
@@ -651,41 +653,45 @@ class Qr extends Model
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
                                     DESCRIPCION_DETALLADA.PROPIEDADES,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
-                                    DESCRIPCION_DETALLADA.CALORIAS,
-                                    DESCRIPCION_DETALLADA.GRAD_ALCOH'))
+                                    IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
+                                    IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
-            $htmldesc=
-            ' <html>
-                <style>
-                  p{
-                    width: 80px;
-                    margin: 0px 0;
-                    padding: 0px;
-                    font: normal 3px arial, helvetica, sans-serif;
-                    line-height: 0.1;
+                  $nestedData['COD_PROD']=$value["CODIGO"];
+                  $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+                  $nestedData['MARCA']=$producto_det[0]->MARCA;
+                  $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  $nestedData['TAMAÑO']="6";
+                  if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
+                    $nestedData['CALORIAS_CHECK']=false;
+                    $nestedData['CALORIAS']='';
+                  }else{
+                    $nestedData['CALORIAS_CHECK']=true;
+                    $nestedData['CALORIAS']=$producto_det[0]->CALORIAS;
                   }
-                  p#normal  {
-                    white-space: normal;
-                    line-height: 0.65;
+                  if($producto_det[0]->INGREDIENTES==="INDEFINIDO" || $producto_det[0]->INGREDIENTES==""){
+                    $nestedData['INGRE_CHECK']=false;
+                    $nestedData['INGREDIENTES']='';
+                  }else{
+                    $nestedData['INGRE_CHECK']=true;
+                    $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
                   }
-                  p#diferente  {
-                    white-space: normal;
-                    line-height: 0.9;
-                  }                </style>
-                <body>
-                  <p class="col-2">
-                    <p id="diferente"><strong><font size="5">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</font></strong></p>
-                    <p id="diferente"><strong><font size= "5.8">   '.$producto_det[0]->PROPIEDADES.'</font></strong></p>
-                    <p id="normal"><strong><font size="5">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</font></strong></p>
-                    <p id="normal"><strong><font size="5">CALORIAS: '.$producto_det[0]->CALORIAS.'</font></strong></p>
-                    <p id="normal"><strong><font size="5">GRADO DE ALCOHOL: '.$producto_det[0]->GRAD_ALCOH.'%</font></strong></p>
-                  </p>
-                </body>
-              </html>';
+                  if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
+                    $nestedData['ALCO_CHECK']=false;
+                    $nestedData['GRAD_ALCOH']='';
+                  }else{
+                    $nestedData['ALCO_CHECK']=true;
+                    $nestedData['GRAD_ALCOH']=$producto_det[0]->GRAD_ALCOH;
+                  }
+         $htmldesc= view('pdf.traduccion', $nestedData)->render();
 
+              $nestedData=[];  
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
               if($x>97){
@@ -701,7 +707,7 @@ class Qr extends Model
               $pdf->SetAutoPageBreak(FALSE, 0);
               $pdf->SetFont('freesans', 'B');
               $pdf->text($x-15.5,$y+0.3, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
-              $pdf->SetFont('freesans', 'L');
+              $pdf->SetFont('freesans', 'B');
               $pdf->SetFontSize(1.5);
               $pdf->writeHTMLCell(31.5, 0, $x-24, $y+1.3, $htmldesc, 0, 0, 0, false, 'center', false);
               $x=$x+37-1.5;

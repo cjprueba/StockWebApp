@@ -346,7 +346,9 @@
 									    	</div>
 									    	<div class="col">
 							    				<label>Cantidad</label>
-								      			<input ref="cantidad_ticket" v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
+								      			<input  v-if="(seleccionTamaño==null || seleccionTamaño=='')" ref="cantidad_ticket" v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm" :disabled="true">
+
+								      			<input  v-else ref="cantidad_ticket" v-bind:class="{ 'is-invalid': validar.cantidad }" v-on:blur="agregarProductoRemision()" v-on:keyup.prevent.13="agregarProductoRemision()" v-model="producto.cantidad" type="text" class="form-control form-control-sm">
 											</div>
 
 											<!-- ------------------------------------------------------------------ -->
@@ -393,20 +395,20 @@
 
 									<div class="row mt-4" v-if="switch_desc==false">
 										<div class="col ml-4" align="right">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet1Desc" id="tamañoTiquet1Desc" v-model="seleccionTamaño" value="6">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet1Desc" id="tamañoTiquet1Desc" v-model="seleccionTamaño" value="6" :disabled="checktamaño_chi">
 											<label class="form-check-label" for="tamañoTiquet1Desc">3,3cm x 2,2cm</label>
 										</div>
 
-										<div class="col ml-4" align="center">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7">
-											<label class="form-check-label" for="tamañoTiquet2">5,5cm x 3cm</label>
+										<div class="col ml-4" align="center" >
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7" :disabled="checktamaño_chi">
+											<label class="form-check-label" for="tamañoTiquet2" >5,5cm x 3cm</label>
 										</div>
 										<div class="col ml-4" align="center">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8" :disabled="checktamaño_gra">
 											<label class="form-check-label" for="tamañoTiquet3">8cm x 4cm</label>
 										</div>
 										<div class="col ml-4" align="left">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9" :disabled="checktamaño_gra">
 											<label class="form-check-label" for="tamañoTiquet4Desc">10cm x 7,5cm</label>
 										</div>
 									</div>
@@ -806,7 +808,11 @@
            		nombreUsuario: '',
            		
            		checkedMayorista: false,
-           		NameDescRecibido: ''
+           		NameDescRecibido: '',
+           		checkmarca: '',
+           		checktamaño_chi:'',
+           		checktamaño_gra:'',
+           		check_cantidad: true
 
 			}
 		},
@@ -1430,10 +1436,11 @@
 					            'candec': me.candec, 
 					            'tab_unica': me.tab_unica,
 					            'mayorista': me.checkedMayorista,
-					            'NameDesc' : me.NameDescRecibido
+					            'NameDesc' : me.NameDescRecibido,
+					            'Check_marca':me.checkmarca
 				        	};
 				        	console.log(data.NameDesc); 
-				        	console.log(data); 
+				        	// console.log(data); 
 			            // ------------------------------------------------------------------------
 
 			            // CONSULTAR PRODUCTO DETERMINADO
@@ -1454,6 +1461,11 @@
 			                        me.producto.descuento = '';
 			                        me.producto.interno='';
 			                        me.$refs.compontente_codigo_producto.vaciarDevolver();
+			                        if (data.NameDesc === '2'){
+			                        	me.checktamaño_chi = true;
+		                            	me.checktamaño_gra = true;
+		                            	me.seleccionTamaño = null;
+			                        }
 
 			                        // *******************************************************************
 
@@ -1469,12 +1481,26 @@
 			                        me.ivaProducto = response.data.producto.IVA;
 			                        me.producto.precioUnitario = response.data.valor;
 		                            me.producto.interno=response.data.producto.CODIGO_INTERNO;
-			                         me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
+			                        me.producto.precioMayorista = Common.darFormatoCommon(response.data.producto.PREMAYORISTA,me.candec);
 			                        me.producto.linea = response.data.producto.LINEA;
 			                        me.producto.moneda= response.data.producto.MONEDA;
 			                        me.producto.nombre_desc= response.data.producto.NOMBRE_DEL_PRODUCTO;
 		                            me.lotes=response.data.lote;
-		                            me.$refs.cantidad_ticket.focus();
+		                            me.checkmarca = response.data.producto.CHECK_MARCA
+		                            console.log("Check_marca: "+me.checkmarca);
+		                            if (data.NameDesc === '2'){
+		                            	if (me.checkmarca === null || me.checkmarca === "" || me.checkmarca === 0){
+		                            		me.checktamaño_chi = false;
+		                            		me.checktamaño_gra = true;
+		                            		console.log("chico: "+me.checktamaño_chi); 
+		                            	}else{
+		                            		me.checktamaño_chi = true;
+		                            		me.checktamaño_gra = false;
+		                            		console.log("grande: "+me.checktamaño_gra); 
+		                            	}
+		                            }else{
+		                            	me.$refs.cantidad_ticket.focus();
+		                            }
 			                        if(me.checkedMayorista === true){
 
 			                        	me.producto.descuento = 0;
@@ -1618,11 +1644,14 @@
 		        // LLAMAR AL METODO HIJO 
 
 		        this.producto.codigoProd = '';
+		       	this.seleccionTamaño = null;
+
 		        // this.$refs.compontente_codigo_producto.vaciarDevolver();
 
 		        // ------------------------------------------------------------------------
 
 	        },
+
 
 	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda, nombre_desc){
 
@@ -1731,6 +1760,7 @@
 	            // AJUSTAR COLUMNAS DE ACUERDO AL DATO QUE CONTIENEN
 
 	            tableProductos.columns.adjust().draw();
+
 
 	            // ------------------------------------------------------------------------
 
