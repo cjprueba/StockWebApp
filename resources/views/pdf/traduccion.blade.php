@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	@if ($TAMAÑO == 7)
+	<style type="text/css">
+		p{
+            width: 80px;
+            margin: 0px 0;
+            padding: 0px;
+            font: normal 9px arial, helvetica, sans-serif;
+            line-height: 0.5;
+        }
+        .normal  {
+            white-space: normal;
+            line-height: 0.8;
+            margin-left: 20px;
+        } 
+
+        p#tamaño  {
+            font: normal 12px arial, helvetica, sans-serif;
+        }
+	</style>
+	<body>
+		@if ($ALCO_CHECK == true && $CALORIAS_CHECK == true)
+		<p class="col-2">
+            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+            <p class="normal">CALORIAS: {{$CALORIAS}}</p>
+            <p class="normal">GRADO DE ALCOHOL: {{$GRAD_ALCOH}} %</p>
+        </p>
+        @else
+	        @if ($ALCO_CHECK == true && $CALORIAS_CHECK == false)
+	        <p class="col-2">
+	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+	            <p class="normal">{{$PROPIEDADES}}</p>
+	            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+	            <p class="normal">GRADO DE ALCOHOL: {{$GRAD_ALCOH}} %</p>
+	        </p>
+	        @endif
+	    @endif
+
+        @if ($INGRE_CHECK == true)
+        <p class="col-2">
+            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+        @else
+	        @if ($INGRE_CHECK == FALSE && $ALCO_CHECK == FALSE)
+	        <p class="col-2">
+	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+	            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+	        </p>
+	        @endif
+	    @endif
+	</body>
+	@endif
+	@if ($TAMAÑO == 6)
+	<style type="text/css">
+		p{
+            width: 80px;
+            margin: 0px 0;
+            padding: 0px;
+            font: normal 3px arial, helvetica, sans-serif;
+            line-height: 0.1;
+        }
+        .normal  {
+            white-space: normal;
+            line-height: 0.65;
+        }
+        .diferente  {
+            white-space: normal;
+            line-height: 0.9;
+        } 
+
+        p#tamaño  {
+            font: normal 12px arial, helvetica, sans-serif;
+        }
+	</style>
+	<body>
+		@if ($ALCO_CHECK == true && $CALORIAS_CHECK == true)
+		<p class="col-2">
+            <p class="diferente"><font size="5">{{$NOMBRE}}</font></p>
+            <p class="diferente"><font size="5.8">{{$PROPIEDADES}}</font></p>
+            <p class="normal"><font size="5">CONTENIDO: {{$CONTENIDO}}</font></p>
+            <p class="normal"><font size="5">CALORIAS: {{$CALORIAS}}</font></p>
+            <p class="normal"><font size="5">GRADO DE ALCOHOL: {{$GRAD_ALCOH}} %</font></p>
+        </p>
+        @else
+	        @if ($ALCO_CHECK == true && $CALORIAS_CHECK == false)
+	        <p class="col-2">
+	            <p class="diferente"><font size="5">{{$NOMBRE}}</font></p>
+	            <p class="diferente"><font size="5.8">{{$PROPIEDADES}}</font></p>
+	            <p class="normal"><font size="5">CONTENIDO: {{$CONTENIDO}}</font></p>
+	            <p class="normal"><font size="5">GRADO DE ALCOHOL: {{$GRAD_ALCOH}} %</font></p>
+	        </p>
+	        @endif
+	    @endif
+
+        @if ($INGRE_CHECK == true)
+        <p class="col-2">
+            <p class="diferente"><font size="5">{{$NOMBRE}}</font></p>
+            <p class="normal"><font size="5">INGREDIENTES: {{$INGREDIENTES}}</font></p>
+            <p class="normal"><font size="5">CONTENIDO: {{$CONTENIDO}}</font></p>
+        </p>
+        @else
+	        @if ($INGRE_CHECK == FALSE && $ALCO_CHECK == FALSE)
+	        <p class="col-2">
+	            <p class="diferente"><font size="5">{{$NOMBRE}}</font></p>
+	            <p class="normal"><font size="5">CONTENIDO: {{$CONTENIDO}}</font></p>
+	        </p>
+	        @endif
+	    @endif
+	</body>
+	@endif
+</html>
