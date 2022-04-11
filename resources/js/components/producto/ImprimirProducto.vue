@@ -395,20 +395,20 @@
 
 									<div class="row mt-4" v-if="switch_desc==false">
 										<div class="col ml-4" align="right">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet1Desc" id="tamañoTiquet1Desc" v-model="seleccionTamaño" value="6" :disabled="checktamaño_chi">
-											<label class="form-check-label" for="tamañoTiquet1Desc">3,3cm x 2,2cm</label>
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet1Desc" id="tamañoTiquet1Desc" v-model="seleccionTamaño" value="6" :disabled="checktamaño_chi" v-on:change="focuscantidad()">
+											<label class="form-check-label" for="tamañoTiquet1Desc" >3,3cm x 2,2cm</label>
 										</div>
 
 										<div class="col ml-4" align="center" >
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7" :disabled="checktamaño_chi">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7" :disabled="checktamaño_chi" v-on:change="focuscantidad()">
 											<label class="form-check-label" for="tamañoTiquet2" >5,5cm x 3cm</label>
 										</div>
 										<div class="col ml-4" align="center">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8" :disabled="checktamaño_gra">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8" :disabled="checktamaño_gra" v-on:change="focuscantidad()">
 											<label class="form-check-label" for="tamañoTiquet3">8cm x 4cm</label>
 										</div>
 										<div class="col ml-4" align="left">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9" :disabled="checktamaño_gra">
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9" :disabled="checktamaño_gra" v-on:change="focuscantidad()">
 											<label class="form-check-label" for="tamañoTiquet4Desc">10cm x 7,5cm</label>
 										</div>
 									</div>
@@ -1400,8 +1400,15 @@
 	        	// ------------------------------------------------------------------------
 
 	        },
-
+	        focuscantidad(){
+	        	let me = this;
+	        	setTimeout(()=>{
+		        	me.$refs.cantidad_ticket.focus();
+	            },500)
+	        	
+	        },
 			//CARGA LOS DATOS DEL PRODUCTO
+
 
 			cargarProductos(codigo) {
 
@@ -1439,8 +1446,7 @@
 					            'NameDesc' : me.NameDescRecibido,
 					            'Check_marca':me.checkmarca
 				        	};
-				        	console.log(data.NameDesc); 
-				        	// console.log(data); 
+				        	console.log(data); 
 			            // ------------------------------------------------------------------------
 
 			            // CONSULTAR PRODUCTO DETERMINADO
@@ -1464,7 +1470,6 @@
 			                        if (data.NameDesc === '2'){
 			                        	me.checktamaño_chi = true;
 		                            	me.checktamaño_gra = true;
-		                            	me.seleccionTamaño = null;
 			                        }
 
 			                        // *******************************************************************
@@ -1487,16 +1492,16 @@
 			                        me.producto.nombre_desc= response.data.producto.NOMBRE_DEL_PRODUCTO;
 		                            me.lotes=response.data.lote;
 		                            me.checkmarca = response.data.producto.CHECK_MARCA
-		                            console.log("Check_marca: "+me.checkmarca);
 		                            if (data.NameDesc === '2'){
 		                            	if (me.checkmarca === null || me.checkmarca === "" || me.checkmarca === 0){
 		                            		me.checktamaño_chi = false;
 		                            		me.checktamaño_gra = true;
-		                            		console.log("chico: "+me.checktamaño_chi); 
 		                            	}else{
 		                            		me.checktamaño_chi = true;
 		                            		me.checktamaño_gra = false;
-		                            		console.log("grande: "+me.checktamaño_gra); 
+		                            	}
+		                            	if (me.seleccionTamaño !== null || me.seleccionTamaño === ""){
+		                            		me.$refs.cantidad_ticket.focus();
 		                            	}
 		                            }else{
 		                            	me.$refs.cantidad_ticket.focus();
@@ -1644,7 +1649,6 @@
 		        // LLAMAR AL METODO HIJO 
 
 		        this.producto.codigoProd = '';
-		       	this.seleccionTamaño = null;
 
 		        // this.$refs.compontente_codigo_producto.vaciarDevolver();
 
