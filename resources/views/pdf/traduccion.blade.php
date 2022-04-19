@@ -1,5 +1,85 @@
 <!DOCTYPE html>
 <html>
+	@if ($TAMAÑO == 9)
+	<style type="text/css">
+		p{
+            width: 100px;
+            margin: 0px 0;
+            padding: 0px;
+            font: normal 8px arial, helvetica, sans-serif;
+        }
+        .normal  {
+            white-space: normal;width: 	
+
+        p#tamaño  {
+            font: normal 12px arial, helvetica, sans-serif;
+        }
+	</style>
+	<body>
+		@if ($VALORNUTRCIONAL_CHECK == true)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</font></p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">VALOR NUTRICIONAL: {{$VALORNUTRICIONAL}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
+	    @if ($VALORNUTRCIONAL_CHECK == false)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</font></p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
+	</body>
+	@endif
+
+	@if ($TAMAÑO == 8)
+	<style type="text/css">
+		p{
+            width: 80px;
+            margin: 0px 0;
+            padding: 0px;
+            font: normal 8px arial, helvetica, sans-serif;
+        }
+        .normal  {
+            white-space: normal;width: 	
+
+        p#tamaño  {
+            font: normal 12px arial, helvetica, sans-serif;
+        }
+	</style>
+	<body>
+		@if ($$VALORNUTRCIONAL_CHECK == true)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</font></p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">VALOR NUTRICIONAL: {{$VALORNUTRICIONAL}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
+	    @if ($$VALORNUTRCIONAL_CHECK == false)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</font></p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
+	</body>
+	@endif
+
 	@if ($TAMAÑO == 7)
 	<style type="text/css">
 		p{
