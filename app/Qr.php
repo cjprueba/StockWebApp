@@ -338,40 +338,27 @@ class Qr extends Model
                                     DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
-                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
-                                    DESCRIPCION_DETALLADA.CONTENIDO'))
+                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALORNUTRCIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
-            $htmldesc=
-            ' <html>
-                <style>
-                  p{
-                    width: 100px;
-                    margin: 0px 0;
-                    padding: 0px;
-                    font: normal 8px arial, helvetica, sans-serif;
-                  }
-                  p#normal  {
-                    white-space: normal;
-                  }
-                  p#tamaño  {
-                    font: normal 12px arial, helvetica, sans-serif;
-                  }
-                </style>
-                <body>
-                  <div class="col-2">
-                    <p align="center"><font size="9">'.$producto_det[0]->MARCA.'</font></p>
-                    <p id="normal">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</p>
-                    <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
-                    <p id="normal">FORMA DE USO: '.$producto_det[0]->FORMA_DE_USO.'</p>
-                    <p id="normal">INGREDIENTES: '.$producto_det[0]->INGREDIENTES.'</p>
-                    <p id="normal">VALOR NUTRICIONAL: '.$producto_det[0]->VALOR_NUTRICIONAL.'</p>
-                    <p id="normal">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</p>
-                  </div>
-                </body>
-              </html>';
-
+            $nestedData['COD_PROD']=$value["CODIGO"];
+            $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+            $nestedData['MARCA']=$producto_det[0]->MARCA;
+            $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
+            $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+            $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+            $nestedData['TAMAÑO']="9";
+            if($producto_det[0]->VALORNUTRCIONAL==="INDEFINIDO" || $producto_det[0]->VALORNUTRCIONAL == ""){
+              $nestedData['VALORNUTRCIONAL_CHECK']=false;
+              $nestedData['VALORNUTRCIONAL']='';
+            }else{
+              $nestedData['VALORNUTRCIONAL_CHECK']=true;
+              $nestedData['VALORNUTRCIONAL']=$producto_det[0]->VALORNUTRCIONAL;
+            }
+            $htmldesc= view('pdf.traduccion', $nestedData)->render();
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
               if($y > 28){
@@ -448,39 +435,27 @@ class Qr extends Model
                                     DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
-                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
-                                    DESCRIPCION_DETALLADA.CONTENIDO'))
+                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALORNUTRCIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
-            $htmldesc=
-            ' <html>
-                <style>
-                  p{
-                    width: 80px;
-                    margin: 0px 0;
-                    padding: 0px;
-                    font: normal 8px arial, helvetica, sans-serif;
-                  }
-                  p#normal  {
-                    white-space: normal;
-                  }
-                  p#tamaño  {
-                    font: normal 12px arial, helvetica, sans-serif;
-                  }
-                </style>
-                <body>
-                  <div class="col-2">
-                    <p align="center"><font size="9">'.$producto_det[0]->MARCA.'</font></p>
-                    <p id="normal">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</p>
-                    <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
-                    <p id="normal">FORMA DE USO: '.$producto_det[0]->FORMA_DE_USO.'</p>
-                    <p id="normal">INGREDIENTES: '.$producto_det[0]->INGREDIENTES.'</p>
-                    <p id="normal">VALOR NUTRICIONAL: '.$producto_det[0]->VALOR_NUTRICIONAL.'</p>
-                    <p id="normal">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</p>
-                  </div>
-                </body>
-              </html>';
+            $nestedData['COD_PROD']=$value["CODIGO"];
+            $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+            $nestedData['MARCA']=$producto_det[0]->MARCA;
+            $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
+            $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+            $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+            $nestedData['TAMAÑO']="9";
+            if($producto_det[0]->VALORNUTRCIONAL==="INDEFINIDO" || $producto_det[0]->VALORNUTRCIONAL == ""){
+              $nestedData['VALORNUTRCIONAL_CHECK']=false;
+              $nestedData['VALORNUTRCIONAL']='';
+            }else{
+              $nestedData['VALORNUTRCIONAL_CHECK']=true;
+              $nestedData['VALORNUTRCIONAL']=$producto_det[0]->VALORNUTRCIONAL;
+            }
+            $htmldesc= view('pdf.traduccion', $nestedData)->render();
 
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
@@ -493,10 +468,10 @@ class Qr extends Model
               $pdf->SetAutoPageBreak(FALSE, 0);
               $pdf->SetFont('freesans', 'L');
               $pdf->StartTransform();
-              $pdf->Rotate(90, 5, 48);
-              $pdf->text(5,48, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+              $pdf->Rotate(90, 3, 30);
+              $pdf->text(3,30, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
               $pdf->StopTransform();
-              $pdf->SetFontSize(5);
+              $pdf->SetFontSize(5.7);
               $pdf->StartTransform();
               $pdf->Rotate(90, -4, 38.5);
               $pdf->writeHTMLCell(37, 0, -4, 38.5, $htmldesc, 0, 0, 0, false, 'left', false);
