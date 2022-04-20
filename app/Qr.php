@@ -339,7 +339,7 @@ class Qr extends Model
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
-                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALORNUTRCIONAL'))
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
@@ -351,12 +351,12 @@ class Qr extends Model
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
             $nestedData['TAMAÑO']="9";
-            if($producto_det[0]->VALORNUTRCIONAL==="INDEFINIDO" || $producto_det[0]->VALORNUTRCIONAL == ""){
-              $nestedData['VALORNUTRCIONAL_CHECK']=false;
-              $nestedData['VALORNUTRCIONAL']='';
+            if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
+              $nestedData['VALOR_NUTRICIONAL']='';
             }else{
-              $nestedData['VALORNUTRCIONAL_CHECK']=true;
-              $nestedData['VALORNUTRCIONAL']=$producto_det[0]->VALORNUTRCIONAL;
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
+              $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
             }
             $htmldesc= view('pdf.traduccion', $nestedData)->render();
             while($c<$value["CANTIDAD"]){
@@ -376,8 +376,8 @@ class Qr extends Model
               $pdf->StopTransform();
               $pdf->SetFontSize(6.3);
               $pdf->StartTransform();
-              $pdf->Rotate(90, 3, 74);
-              $pdf->writeHTMLCell(73, 0, 3, 74, $htmldesc, 0, 0, 0, false, 'left', false);
+              $pdf->Rotate(90, -3, 74);
+              $pdf->writeHTMLCell(73, 0, -3, 74, $htmldesc, 0, 0, 0, false, 'left', false);
               $pdf->StopTransform();
 
               
@@ -436,7 +436,7 @@ class Qr extends Model
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
-                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALORNUTRCIONAL'))
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
@@ -448,12 +448,12 @@ class Qr extends Model
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
             $nestedData['TAMAÑO']="9";
-            if($producto_det[0]->VALORNUTRCIONAL==="INDEFINIDO" || $producto_det[0]->VALORNUTRCIONAL == ""){
-              $nestedData['VALORNUTRCIONAL_CHECK']=false;
-              $nestedData['VALORNUTRCIONAL']='';
+            if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
+              $nestedData['VALOR_NUTRICIONAL']='';
             }else{
-              $nestedData['VALORNUTRCIONAL_CHECK']=true;
-              $nestedData['VALORNUTRCIONAL']=$producto_det[0]->VALORNUTRCIONAL;
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
+              $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
             }
             $htmldesc= view('pdf.traduccion', $nestedData)->render();
 
