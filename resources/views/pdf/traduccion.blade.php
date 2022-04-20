@@ -16,18 +16,18 @@
         }
 	</style>
 	<body>
-		@if ($VALORNUTRCIONAL_CHECK == true)
+		@if ($VALOR_NUTRCIONAL_CHECK == true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
             <p class="normal">{{$PROPIEDADES}}</p>
             <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
             <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
-            <p class="normal">VALOR NUTRICIONAL: {{$VALORNUTRICIONAL}}</p>
+            <p class="normal">VALOR NUTRICIONAL: {{$VALOR_NUTRICIONAL}}</p>
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($VALORNUTRCIONAL_CHECK == false)
+	    @if ($VALOR_NUTRCIONAL_CHECK == false)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
@@ -56,18 +56,18 @@
         }
 	</style>
 	<body>
-		@if ($$VALORNUTRCIONAL_CHECK == true)
+		@if ($$VALOR_NUTRCIONAL_CHECK == true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
             <p class="normal">{{$PROPIEDADES}}</p>
             <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
             <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
-            <p class="normal">VALOR NUTRICIONAL: {{$VALORNUTRICIONAL}}</p>
+            <p class="normal">VALOR NUTRICIONAL: {{$VALOR_NUTRICIONAL}}</p>
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($$VALORNUTRCIONAL_CHECK == false)
+	    @if ($$VALOR_NUTRCIONAL_CHECK == false)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
