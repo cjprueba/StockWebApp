@@ -539,9 +539,15 @@ class Qr extends Model
                   $nestedData['COD_PROD']=$value["CODIGO"];
                   $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
                   $nestedData['MARCA']=$producto_det[0]->MARCA;
-                  $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
                   $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
                   $nestedData['TAMAÑO']="7";
+                  if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+                    $nestedData['PROPIEDADES_CHECK']=false;
+                    $nestedData['PROPIEDADES']='';
+                  }else{
+                    $nestedData['PROPIEDADES_CHECK']=true;
+                    $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  }
                   if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
                     $nestedData['CALORIAS_CHECK']=false;
                     $nestedData['CALORIAS']='';
@@ -628,10 +634,10 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
                                     IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
                                     IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
@@ -641,9 +647,15 @@ class Qr extends Model
                   $nestedData['COD_PROD']=$value["CODIGO"];
                   $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
                   $nestedData['MARCA']=$producto_det[0]->MARCA;
-                  $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
                   $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
                   $nestedData['TAMAÑO']="6";
+                  if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+                    $nestedData['PROPIEDADES_CHECK']=false;
+                    $nestedData['PROPIEDADES']='';
+                  }else{
+                    $nestedData['PROPIEDADES_CHECK']=true;
+                    $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  }
                   if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
                     $nestedData['CALORIAS_CHECK']=false;
                     $nestedData['CALORIAS']='';
