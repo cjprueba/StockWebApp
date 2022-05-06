@@ -16,7 +16,7 @@
         }
 	</style>
 	<body>
-		@if ($VALOR_NUTRCIONAL_CHECK == true && PROPIEDADES_CHECK== true)
+		@if ($VALOR_NUTRCIONAL_CHECK == true && $PROPIEDADES_CHECK== true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
@@ -27,7 +27,7 @@
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($VALOR_NUTRCIONAL_CHECK == false && PROPIEDADES_CHECK== true)
+	    @if ($VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK== true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
@@ -37,7 +37,7 @@
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($VALOR_NUTRCIONAL_CHECK == false && PROPIEDADES_CHECK== false)
+	    @if ($VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK== false)
 		<p class="col-2">
             <p align="center"><font size="9">{{$NOMBRE_DEL_PRODUCTO}}</p>
             <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
@@ -64,7 +64,7 @@
         }
 	</style>
 	<body>
-		@if ($$VALOR_NUTRCIONAL_CHECK == true && PROPIEDADES_CHECK== true)
+		@if ($$VALOR_NUTRCIONAL_CHECK == true && $PROPIEDADES_CHECK== true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
@@ -75,7 +75,7 @@
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($$VALOR_NUTRCIONAL_CHECK == false && PROPIEDADES_CHECK== true)
+	    @if ($$VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK== true)
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</font></p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
@@ -85,7 +85,7 @@
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
-	    @if ($VALOR_NUTRCIONAL_CHECK == false && PROPIEDADES_CHECK== false)
+	    @if ($VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK== false)
 		<p class="col-2">
             <p align="center"><font size="9">{{$NOMBRE_DEL_PRODUCTO}}</p>
             <p class="normal">FORMA DE USO: {{$FORMA_DE_USO}}</p>
@@ -119,7 +119,7 @@
 
 		<!-- ....................................GRADO DE ALCOHOL..................................... -->
 
-		
+
 		@if ($ALCO_CHECK == true && $CALORIAS_CHECK == true && $CONTENIDO_CHECK == true)
 		<p class="col-2">
             <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
