@@ -116,6 +116,10 @@
         }
 	</style>
 	<body>
+
+		<!-- ....................................GRADO DE ALCOHOL..................................... -->
+
+		
 		@if ($ALCO_CHECK == true && $CALORIAS_CHECK == true && $CONTENIDO_CHECK == true)
 		<p class="col-2">
             <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
@@ -142,28 +146,64 @@
 	        @endif
 	    @endif
 
-        @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == true)
+	    <!-- ....................................INGREDIENTES Y CONTENIDO......................................... -->
+
+
+        @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == true && $PROPIEDADES_CHECK == false)
         <p class="col-2">
             <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
             <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
         @else
-	        @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == true)
+	        @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == true && $PROPIEDADES_CHECK == false)
 	        <p class="col-2">
 	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
 	            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
 	        </p>
 	        @endif
-	        @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == false)
+	        @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == false && $PROPIEDADES_CHECK == false)
 	        <p class="col-2">
 	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
 	        </p>
 	        @endif
-	        @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == false)
+	        @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == false && $PROPIEDADES_CHECK == false)
 	        <p class="col-2">
 	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
 	            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+	        </p>
+	        @endif
+	    @endif
+	    @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == true && $PROPIEDADES_CHECK == true)
+	    <p class="col-2">
+            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</font></p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @else
+
+	    <!-- ..........................................PROPIEDADES...................................................... -->
+
+
+	    @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == true && $PROPIEDADES_CHECK == true)
+	        <p class="col-2">
+	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+	            <p class="normal">{{$PROPIEDADES}}</p>
+	            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+	        </p>
+	        @endif
+	        @if ($INGRE_CHECK == false && $ALCO_CHECK == false && $CONTENIDO_CHECK == false && $PROPIEDADES_CHECK == true)
+	        <p class="col-2">
+	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+	            <p class="normal">{{$PROPIEDADES}}</p>
+	        </p>
+	        @endif
+	        @if ($INGRE_CHECK == true && $ALCO_CHECK == false && $CONTENIDO_CHECK == false && $PROPIEDADES_CHECK == true)
+	        <p class="col-2">
+	            <p class="normal"><font size="7">{{$NOMBRE}}</font></p>
+	            <p class="normal">{{$PROPIEDADES}}</p>
+	            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</font></p>
 	        </p>
 	        @endif
 	    @endif
