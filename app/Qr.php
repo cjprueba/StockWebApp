@@ -438,10 +438,10 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
@@ -449,11 +449,17 @@ class Qr extends Model
             $nestedData['COD_PROD']=$value["CODIGO"];
             $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
             $nestedData['MARCA']=$producto_det[0]->MARCA;
-            $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
             $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
-            $nestedData['TAMAÑO']="9";
+            $nestedData['TAMAÑO']="8";
+            if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+              $nestedData['PROPIEDADES_CHECK']=false;
+              $nestedData['PROPIEDADES']='';
+            }else{
+              $nestedData['PROPIEDADES_CHECK']=true;
+              $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            }
             if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
               $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
               $nestedData['VALOR_NUTRICIONAL']='';
