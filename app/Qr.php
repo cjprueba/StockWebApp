@@ -335,10 +335,10 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
@@ -346,11 +346,17 @@ class Qr extends Model
             $nestedData['COD_PROD']=$value["CODIGO"];
             $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
             $nestedData['MARCA']=$producto_det[0]->MARCA;
-            $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
             $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
             $nestedData['TAMAÑO']="9";
+            if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+              $nestedData['PROPIEDADES_CHECK']=false;
+              $nestedData['PROPIEDADES']='';
+            }else{
+              $nestedData['PROPIEDADES_CHECK']=true;
+              $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            }
             if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
               $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
               $nestedData['VALOR_NUTRICIONAL']='';
@@ -526,10 +532,10 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.PROPIEDADES,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
-                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.CONTENIDO, "INDEFINIDO") AS CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
                                     IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
                                     IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
@@ -539,8 +545,14 @@ class Qr extends Model
                   $nestedData['COD_PROD']=$value["CODIGO"];
                   $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
                   $nestedData['MARCA']=$producto_det[0]->MARCA;
-                  $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
                   $nestedData['TAMAÑO']="7";
+                  if($producto_det[0]->CONTENIDO==="INDEFINIDO" || $producto_det[0]->CONTENIDO == ""){
+                    $nestedData['CONTENIDO_CHECK']=false;
+                    $nestedData['CONTENIDO']='';
+                  }else{
+                    $nestedData['CONTENIDO_CHECK']=true;
+                    $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  }
                   if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
                     $nestedData['PROPIEDADES_CHECK']=false;
                     $nestedData['PROPIEDADES']='';
@@ -636,7 +648,7 @@ class Qr extends Model
                                     DESCRIPCION_DETALLADA.MARCA,
                                     DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
-                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.CONTENIDO, "INDEFINIDO") AS CONTENIDO,
                                     IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
                                     IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
@@ -647,8 +659,14 @@ class Qr extends Model
                   $nestedData['COD_PROD']=$value["CODIGO"];
                   $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
                   $nestedData['MARCA']=$producto_det[0]->MARCA;
-                  $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
                   $nestedData['TAMAÑO']="6";
+                  if($producto_det[0]->CONTENIDO==="INDEFINIDO" || $producto_det[0]->CONTENIDO == ""){
+                    $nestedData['CONTENIDO_CHECK']=false;
+                    $nestedData['CONTENIDO']='';
+                  }else{
+                    $nestedData['CONTENIDO_CHECK']=true;
+                    $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  }
                   if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
                     $nestedData['PROPIEDADES_CHECK']=false;
                     $nestedData['PROPIEDADES']='';
