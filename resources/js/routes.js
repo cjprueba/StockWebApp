@@ -462,7 +462,7 @@ export default new Router({
 			path: '/rptNotaCre',
 			name: 'notaDeCraeditoReporte',
 			component: require('./components/reportes/creditoNota/NotaCreditoReporte.vue').default
-		},
+		}
 		
 
 

@@ -1327,7 +1327,7 @@ function generarPdfFacturaTransferenciaCommon(data){
 
 // }
 
-function generarPdfFacturaVentaVisualizarCommon(codigo, caja){
+function generarPdfFacturaVentaVisualizarCommon(codigo, caja,id_venta){
 
 			// ------------------------------------------------------------------------
 
@@ -1339,7 +1339,7 @@ function generarPdfFacturaVentaVisualizarCommon(codigo, caja){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja,'id_venta':id_venta}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -1358,7 +1358,7 @@ function generarPdfFacturaVentaVisualizarCommon(codigo, caja){
 
 }
 
-function generarPdfTicketVentaVisualizarCommon(codigo, caja){
+function generarPdfTicketVentaVisualizarCommon(codigo, caja,id_venta){
 
 			// ------------------------------------------------------------------------
 
@@ -1370,7 +1370,7 @@ function generarPdfTicketVentaVisualizarCommon(codigo, caja){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja,'id_venta':id_venta}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -1388,7 +1388,7 @@ function generarPdfTicketVentaVisualizarCommon(codigo, caja){
 
 }
 
-function generarPdfFacturaVentaCommon(codigo, caja){
+function generarPdfFacturaVentaCommon(codigo, caja, id_venta){
 
 			// ------------------------------------------------------------------------
 
@@ -1400,7 +1400,7 @@ function generarPdfFacturaVentaCommon(codigo, caja){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+			return axios({url: 'venta/factura', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja, 'id_venta': id_venta}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -1430,7 +1430,7 @@ function generarPdfFacturaVentaCommon(codigo, caja){
 
 }
 
-function generarPdfTicketVentaCommon(codigo, caja){
+function generarPdfTicketVentaCommon(codigo, caja, id_venta){
 
 			// ------------------------------------------------------------------------
 
@@ -1442,7 +1442,7 @@ function generarPdfTicketVentaCommon(codigo, caja){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja}}).then( 
+			return axios({url: 'venta/ticket', method: 'post', responseType: 'arraybuffer', data: {'codigo': codigo, 'caja': caja, 'id_venta': id_venta}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4274,7 +4274,7 @@ function generarPdfQrProductoCommon(datos){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion, gondola, impresion, stock){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion, gondola, impresion, stock, switch_desc){
 
 			// ------------------------------------------------------------------------
 
@@ -4286,7 +4286,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock}}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4311,7 +4311,7 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 				},
 				(error) => { return error }
 			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock}}).then( 
+// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
 // 				(response) => {
 // 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 // 					const link = document.createElement('a');
@@ -5072,7 +5072,7 @@ function generarRptPdfPedidoCommon(data, moneda){
 
 }
 
-function generarRptPdfVentaCommon(data, caja, moneda){
+function generarRptPdfVentaCommon(data, caja, moneda,id_venta){
 
 			// ------------------------------------------------------------------------
 
@@ -5084,7 +5084,7 @@ function generarRptPdfVentaCommon(data, caja, moneda){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/venta/reporte/unico', method: 'post', responseType: 'arraybuffer', data: {'codigo':data, 'caja': caja, 'moneda': moneda}}).then( 
+			return axios({url: '/venta/reporte/unico', method: 'post', responseType: 'arraybuffer', data: {'codigo':data, 'caja': caja, 'moneda': moneda,'id_venta':id_venta}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');

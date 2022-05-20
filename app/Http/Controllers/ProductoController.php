@@ -38,13 +38,25 @@ class ProductoController extends Controller
 
         /*  --------------------------------------------------------------------------------- */
     }
+    public function mostrarDescOld(Request $request)
+    {
+
+        /*  --------------------------------------------------------------------------------- */
+        
+        $productos = ProductosAux::mostrar_datatable_desc_old($request);
+        return response()->json($productos);
+
+        /*  --------------------------------------------------------------------------------- */
+    }
 
      public function encontrar(Request $request)
     {
         log::error(["NameDesc: ",$request["NameDesc"]]);
         log::error(["Opcion: ",$request["Opcion"]]);
         if ($request["Opcion"] === 1) {
-            if ($request["NameDesc"] === '1') {
+            if ($request["NameDesc"] === "1") {
+                $productos = Producto::encontrarProductoDescOld($request->all());
+            }elseif ($request["NameDesc"] === "2") {
                 $productos = Producto::encontrarProductoDesc($request->all());
             }else{
                 $productos = Producto::encontrarProducto($request->all());

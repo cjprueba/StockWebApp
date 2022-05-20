@@ -77,7 +77,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
                                  ->on('lOTES.ID_SUCURSAL', '=', 'PRODUCTOS_AUX.ID_SUCURSAL');
                          })
         ->leftJoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'LOTES.COD_PROD')
-        ->leftjoin('proveedores','proveedores.codigo','=','PRODUCTOS_AUX.PROVEEDOR')
+        ->leftjoin('proveedores','proveedores.codigo','=','LOTES.FK_PROVEEDOR')
         ->leftjoin('LINEAS','LINEAS.CODIGO','=','PRODUCTOS.LINEA')
         ->leftjoin('DETALLE_PROD', 'PRODUCTOS.CODIGO', '=', 'DETALLE_PROD.COD_PROD')
         ->Where('LOTES.ID_SUCURSAL', '=', $this->sucursal);
@@ -101,7 +101,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
             ->leftjoin('SECCIONES','SECCIONES.ID','=','GONDOLA_TIENE_SECCION.ID_SECCION')
             ->where('SECCIONES.ID','=', $this->seccion);
              if($this->AllProveedores==false){
-                 $ventas->whereIn('PRODUCTOS_AUX.PROVEEDOR',$this->proveedores);
+                 $ventas->whereIn('LOTES.FK_PROVEEDOR',$this->proveedores);
              }
              if($this->AllCategorySeccion==false){
                 $ventas->whereIn('PRODUCTOS.LINEA',$this->categoriaSeccion);

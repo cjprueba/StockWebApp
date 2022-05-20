@@ -1885,7 +1885,7 @@ class Venta extends Model
             $items  = array_column( $data["data"]["productos"], 'ITEM');
             array_multisort($items, SORT_ASC, $data["data"]["productos"]);
 
-            Log::error(["PRODUCTOS"=>$data["data"]["productos"]]);
+         
 
             $venta = Venta::insertGetId([
                 "CODIGO" => $codigo, 
@@ -2549,7 +2549,7 @@ class Venta extends Model
 
             // RETORNAR VALOR 
 
-            return ["response" => true, "statusText" => "¡Se ha guardado correctamente la venta!", "CODIGO" => $codigo, "CAJA" => $caja];
+            return ["response" => true, "statusText" => "¡Se ha guardado correctamente la venta!", "CODIGO" => $codigo, "CAJA" => $caja,"ID_VENTA"=>$venta];
 
             /*  --------------------------------------------------------------------------------- */
 
@@ -2731,6 +2731,7 @@ class Venta extends Model
 
         $codigo = $data['codigo'];
         $caja = $data['caja'];
+        $id_venta=$data['id_venta'];
 
         /*  --------------------------------------------------------------------------------- */
 
@@ -2769,9 +2770,10 @@ class Venta extends Model
                 $join->on('EMPLEADOS.CODIGO', '=', 'VENTAS.VENDEDOR')
                      ->on('EMPLEADOS.ID_SUCURSAL', '=', 'VENTAS.ID_SUCURSAL');
             })
-        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('VENTAS.ID','=',$id_venta)
+        /*->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTAS.CODIGO','=', $codigo)
-        ->where('VENTAS.CAJA','=', $caja)
+        ->where('VENTAS.CAJA','=', $caja)*/
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2829,6 +2831,7 @@ class Venta extends Model
 
         $codigo = $data['codigo'];
         $caja = $data['caja'];
+        $id_venta= $data['id_venta'];
         $data = array();
         $item_array = array();
         $cantidad_items  = 0;
@@ -2852,9 +2855,10 @@ class Venta extends Model
                 VENTAS.MONEDA,
                 0 AS IVA_PORCENTAJE'))
             ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_DESCUENTO.FK_VENTAS')
-        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+            ->where('VENTAS.ID','=',$id_venta)
+        /*->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTAS.CODIGO','=', $codigo)
-        ->where('VENTAS.CAJA','=', $caja)
+        ->where('VENTAS.CAJA','=', $caja)*/
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2902,9 +2906,10 @@ class Venta extends Model
                 VENTAS.MONEDA,
                 10 AS IVA_PORCENTAJE'))
             ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_CUPON.FK_VENTA')
-        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.ID','=',$id_venta)
+       /* ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTAS.CODIGO','=', $codigo)
-        ->where('VENTAS.CAJA','=', $caja)
+        ->where('VENTAS.CAJA','=', $caja)*/
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -2953,9 +2958,10 @@ class Venta extends Model
                 10 AS IVA_PORCENTAJE'))
             ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTAS_TIENE_NOTA_CREDITO.FK_VENTA')
             ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'VENTAS_TIENE_NOTA_CREDITO.FK_NOTA_CREDITO')
-        ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.ID','=',$id_venta)
+       /* ->where('VENTAS.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTAS.CODIGO','=', $codigo)
-        ->where('VENTAS.CAJA','=', $caja)
+        ->where('VENTAS.CAJA','=', $caja)*/
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -3001,9 +3007,10 @@ class Venta extends Model
                 VENTAS.MONEDA,
                 0 AS IVA_PORCENTAJE'))
             ->leftJoin('VENTAS', 'VENTAS.ID', '=', 'VENTASDET.FK_VENTA')
-        ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
+        ->where('VENTAS.ID','=',$id_venta)
+       /* ->where('VENTASDET.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('VENTASDET.CODIGO','=', $codigo)
-        ->where('VENTASDET.CAJA','=', $caja)
+        ->where('VENTASDET.CAJA','=', $caja)*/
         ->get();
 
         $cantidad_items = count($ventas_det);
@@ -3066,9 +3073,10 @@ class Venta extends Model
                      ->on('VENTAS.ID_SUCURSAL', '=', 'ventasdet_servicios.ID_SUCURSAL')
                      ->on('VENTAS.CAJA', '=', 'ventasdet_servicios.CAJA');
             })
-        ->where('ventasdet_servicios.ID_SUCURSAL','=', $user->id_sucursal)
+         ->where('VENTAS.ID','=',$id_venta)
+        /*->where('ventasdet_servicios.ID_SUCURSAL','=', $user->id_sucursal)
         ->where('ventasdet_servicios.CODIGO','=', $codigo)
-        ->where('ventasdet_servicios.CAJA','=', $caja)
+        ->where('ventasdet_servicios.CAJA','=', $caja)*/
         ->get();
 
         /*  --------------------------------------------------------------------------------- */
@@ -4325,7 +4333,7 @@ class Venta extends Model
         // OBTENER DATOS DE CABECERA 
 
         $ventas = Venta::mostrar_cabecera($dato);
-        
+        //aca ale
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER DATOS DETALLE 
@@ -4851,7 +4859,12 @@ class Venta extends Model
         $pdf->Ln(3);
 
         if ($parametro[0]->PIE_TICKET_PERSONALIZABLE === 1) {
-            $pdf->Multicell(0,2,"Guarde este ticket.\n\nPara compras online visite www.calbea.com.\n\n ** GRACIAS POR SU COMPRA **", 0, 'C', false);
+            if($user->id_sucursal==27){
+                 $pdf->Multicell(0,4,"Por favor lea atentamente las instrucciones del establecimiento.\n\nJump Zone no se responsabiliza por las lesiones causadas en caso del incumplimiento de las normas de seguridad establecidas.\n\n ** GRACIAS POR SU COMPRA **\n\n ____________________", 0, 'C', false);
+            }else{
+                 $pdf->Multicell(0,2,"Guarde este ticket.\n\nPara compras online visite www.calbea.com.\n\n ** GRACIAS POR SU COMPRA **", 0, 'C', false);
+            }
+           
         } else {
             $pdf->Cell(60,0,$parametro[0]->MENSAJE,0,1,'C');
         }
@@ -7509,13 +7522,13 @@ class Venta extends Model
 
         // OBTENER DATOS DE CABECERA 
 
-        $pedido = Venta::mostrar_cabecera(['codigo' => $dato['codigo'], 'caja' => $dato['caja']]);
+        $pedido = Venta::mostrar_cabecera(['codigo' => $dato['codigo'], 'caja' => $dato['caja'], 'id_venta'=>$dato['id_venta']]);
 
         /*  --------------------------------------------------------------------------------- */
 
         // OBTENER DATOS DETALLE 
 
-        $pedido_det = Venta::mostrar_cuerpo(['codigo' => $dato['codigo'], 'caja' => $dato['caja']]);
+        $pedido_det = Venta::mostrar_cuerpo(['codigo' => $dato['codigo'], 'caja' => $dato['caja'], 'id_venta'=>$dato['id_venta']]);
 
         /*  --------------------------------------------------------------------------------- */
 

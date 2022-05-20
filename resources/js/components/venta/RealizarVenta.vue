@@ -4,6 +4,7 @@
 		<!-- ------------------------------------------------------------------ -->
 
 		<!-- SIDEBAR -->
+		
 
 		<b-sidebar   id="sidebar-right" title="Opciones"  right shadow>
 	      <div class="px-3 py-2">
@@ -721,7 +722,7 @@
 				        		</div>
 
 				        		<div class="col-md-6">
-	                            	<p class="text-monospace">Facturar Venta.</p>
+	                            	<p class="text-monospace">Facturar Venta. (Bloqueado)</p>
 				        		</div>
 
 				        		<div class="col-md-12">
@@ -730,7 +731,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + p
+									  Alt + p
 									</div>
 				        		</div>
 
@@ -744,7 +745,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + c
+									  Alt + c
 									</div>
 				        		</div>
 
@@ -758,7 +759,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + r
+									  Alt + r
 									</div>
 				        		</div>
 
@@ -772,7 +773,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + m
+									  Alt + m
 									</div>
 				        		</div>
 
@@ -786,7 +787,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + v
+									  Alt + v
 									</div>
 				        		</div>
 
@@ -800,7 +801,7 @@
 
 				        		<div class="col-md-6">
 	                            	<div class="badge badge-dark text-wrap" style="width: 6rem;">
-									  Shift + n
+									  Alt + n
 									</div>
 				        		</div>
 
@@ -1248,13 +1249,16 @@
 								me.impresion.TIPO = datos.TIPO_IMPRESION;
 
 								if (me.checked.FACTURA === true && datos.TIPO_IMPRESION === "2") {
-									Common.generarPdfFacturaVentaVisualizarCommon(data.CODIGO, data.CAJA);
+									
+									Common.generarPdfFacturaVentaVisualizarCommon(data.CODIGO, data.CAJA,data.ID_VENTA);
 								} 
 
 								if (me.checked.TICKET === true) {
-									Common.generarPdfTicketVentaVisualizarCommon(data.CODIGO, data.CAJA);
+									
+									Common.generarPdfTicketVentaVisualizarCommon(data.CODIGO, data.CAJA,data.ID_VENTA);
 								} else {
-									me.ticket(data.CODIGO, data.CAJA);
+									
+									me.ticket(data.CODIGO, data.CAJA,data.ID_VENTA);
 								}
 
 								// ------------------------------------------------------------------------
@@ -2246,6 +2250,7 @@
 		            // CALCULAR IVA
 
 	            	me.producto.IMPUESTO = Common.calcularIVACommon(me.producto.PRECIO_TOTAL, me.producto.IVA, me.moneda.DECIMAL);
+	            /*	console.log(me.producto.IMPUESTO);*/
 	            	impuesto=me.producto.IMPUESTO;
 
 	            }
@@ -2308,7 +2313,8 @@
 	            // ------------------------------------------------------------------------
 
 	        }, editarCantidadProducto(tabla, cantidad, impuesto,iva_producto, precio, row, descuento, descuento_total, descuento_unitario, rowClass){
-	        	
+	        /*  console.log(iva_producto);
+	          console.log(impuesto);*/
 	        	// ------------------------------------------------------------------------
 
 	        	// INICIAR VARIABLES
@@ -2347,6 +2353,7 @@
 	            // CARGAR IMPUESTO
 	          
 	            tabla.cell(row, 7).data(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)).draw();
+	          /* console.log(Common.calcularIVACommon(precio_total, iva_producto, me.moneda.DECIMAL)) ;*/
 
 	            // ------------------------------------------------------------------------
 
@@ -2500,7 +2507,7 @@
 				}).catch(function(e) { console.error(e); });
 
 			},
-			factura(numero, caja) {
+			factura(numero, caja, id_venta) {
 
 				// ------------------------------------------------------------------------ 
 
@@ -2508,7 +2515,7 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfFacturaVentaCommon(numero, caja).then(response => {
+				Common.generarPdfFacturaVentaCommon(numero, caja, id_venta).then(response => {
 
 						var reader = new FileReader();
 						 reader.readAsDataURL(new Blob([response])); 
@@ -2525,7 +2532,7 @@
 				// Common.generarPdfTicketVentaTestCommon();
 
 			},
-			ticket(numero, caja) {
+			ticket(numero, caja,id_venta) {
 
 				// ------------------------------------------------------------------------ 
 
@@ -2533,14 +2540,14 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfTicketVentaCommon(numero, caja).then(response => {
+				Common.generarPdfTicketVentaCommon(numero, caja, id_venta).then(response => {
 
 						var reader = new FileReader();
 						 reader.readAsDataURL(new Blob([response])); 
 						reader.onloadend = function() {
 						     var base64data = reader.result;
 						     base64data = base64data.replace("data:application/octet-stream;base64,", "");
-						     me.imprimir(base64data, numero, caja);
+						     me.imprimir(base64data, numero, caja, id_venta);
 						 }
 
 				});
@@ -2549,7 +2556,7 @@
 
 				// Common.generarPdfTicketVentaTestCommon();
 
-			}, imprimir(base64, numero, caja) {
+			}, imprimir(base64, numero, caja,id_venta) {
 
 				let me = this;
 
@@ -2580,7 +2587,7 @@
 					   		qz.websocket.disconnect();
 
 					   		if (me.impresion.TIPO === "2" && me.checked.FACTURA === false) {
-								me.factura(numero, caja);
+								me.factura(numero, caja , id_venta);
 							}
 
 					   		// ------------------------------------------------------------------------ 
@@ -2809,7 +2816,7 @@
 			}, movimiento_caja(){
 
 			   // ------------------------------------------------------------------------
-			   	
+			   	console.log("hice shift+m");
 				$('.modal-mov-caja').modal('show');
 
 			   // ------------------------------------------------------------------------	
@@ -3021,42 +3028,45 @@
         	// ------------------------------------------------------------------------
 
         	// ATAJOS DE TECLADO 
+			if(me.producto.COD_PROD===''){
 
-        	Mousetrap.bind('f1', function() { me.nuevo(); });
+				Mousetrap.bind('f1', function() { me.nuevo(); });
 
-/*			Mousetrap.bind('esc', function() { 
+				/*Mousetrap.bind('esc', function() { 
 
-				if ($("#modalImpresion").data('bs.modal')) {
-	              if (($("#modalImpresion").data('bs.modal'))._isShown){
-	                me.$refs.compontente_medio_pago.enviar();
-	              }
-	            };
+					if ($("#modalImpresion").data('bs.modal')) {
+		              if (($("#modalImpresion").data('bs.modal'))._isShown){
+		                me.$refs.compontente_medio_pago.enviar();
+		              }
+		            };
 
-				if ($("#staticBackdrop").data('bs.modal')) {
-	              if (($("#staticBackdrop").data('bs.modal'))._isShown){
-	              	if ($("#modalImpresion").data('bs.modal') === undefined) {
-	                    me.$refs.compontente_medio_pago.aceptar();
-	                };
-	                
-	              }
-	            }; 
+					if ($("#staticBackdrop").data('bs.modal')) {
+		              if (($("#staticBackdrop").data('bs.modal'))._isShown){
+		              	if ($("#modalImpresion").data('bs.modal') === undefined) {
+		                    me.$refs.compontente_medio_pago.aceptar();
+		                };
+		                
+		              }
+		            }; 
 
-				if ($("#staticBackdrop").data('bs.modal') === undefined) {
-	              me.guardar();
-	            }; 
+					if ($("#staticBackdrop").data('bs.modal') === undefined) {
+		              me.guardar();
+		            }; 
 
 
-			});*/
+				});*/
 
-			Mousetrap.bind('shift+m', function() { me.movimiento_caja(); });
-			Mousetrap.bind('shift+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
-			Mousetrap.bind('shift+r', function() { $('.registrar-cliente-modal').modal('show'); });
-			Mousetrap.bind('shift+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
-			Mousetrap.bind('shift+p', function() { 
-				$('.producto-modal').modal('show'); 
-			});
+				Mousetrap.bind('alt+m', function() { alert("entre"); });
+				Mousetrap.bind('alt+c', function() { me.$refs.componente_cliente_modal.procesarFormas(); });
+				Mousetrap.bind('alt+r', function() { $('.registrar-cliente-modal').modal('show'); });
+				Mousetrap.bind('alt+v', function() { $('.busqueda-vendedor-modal').modal('show'); });
+				Mousetrap.bind('alt+p', function() { 
+					$('.producto-modal').modal('show'); 
+				});
 
-			Mousetrap.bind('shift+n', function() { me.nota_credito(); });
+				Mousetrap.bind('alt+n', function() { me.nota_credito(); });
+			}
+        	
 				
         	// ------------------------------------------------------------------------
 

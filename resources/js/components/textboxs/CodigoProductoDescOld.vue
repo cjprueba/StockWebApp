@@ -5,7 +5,7 @@
             </div>
             <div class="input-group" id="validationTooltip01" >
                 <div class="input-group-prepend">
-                    <button  type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".producto-modal"><font-awesome-icon icon="search"/></button>
+                    <button :disabled="checked_codigo_real" type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".producto-modal"><font-awesome-icon icon="search"/></button>
                 </div>
 
                 <datalist id="productos">
@@ -14,7 +14,7 @@
 
                 <!-- <input ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm" type="text" list="productos" v-model="value" v-bind:class="{ 'is-invalid': validarCodigoProducto }" v-on:keyup="filtrarProductos()" v-on:keyup.prevent.13="enviarCodigoPadre()" v-on:blur="enviarCodigoPadre()" > -->
 
-                <input :tabindex="tabIndexPadre"  ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm shadow-sm mousetrap" type="text" list="productos" :value="value" @input="$emit('input', $event.target.value)" v-bind:class="{ 'is-invalid': validar_codigo_producto }" v-on:keyup="filtrarProductos($event.target.value)" v-on:keyup.prevent.13="enviarCodigoPadre($event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)">
+                <input :tabindex="tabIndexPadre" :disabled="checked_codigo_real" ref="codigo" id="codigo_Producto" class="custom-select custom-select-sm shadow-sm mousetrap" type="text" list="productos" :value="value" @input="$emit('input', $event.target.value)" v-bind:class="{ 'is-invalid': validar_codigo_producto }" v-on:keyup="filtrarProductos($event.target.value)" v-on:keyup.prevent.13="enviarCodigoPadre($event.target.value)" v-on:blur="enviarCodigoPadre($event.target.value)">
 
             </div>
 
@@ -35,17 +35,15 @@
                                 <table id="tablaModalProductos" class="table table-hover table-bordered table-sm mb-3" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
                                             <th>Codigo</th>
-                                            <th>Nombre del producto</th>
-                                            <th>Marca</th>
-                                            <th>Propiedades</th>
-                                            <th>Forma de uso</th>
-                                            <th>Ingredientes</th>
-                                            <th>Valor nutricional</th>
-                                            <th>Contenido</th>
-                                            <th>Calorias</th>
-                                            <th>Grado de Alcohol</th>
+                                            <th>Descripcion</th>
+                                            <th>Precio Venta</th>
+                                            <th>Precio Costo</th>
+                                            <th>Precio Mayorista</th>
+                                            <th>Stock</th>
+                                            <th>IVA</th>
+                                            <th>Imagen</th>
+                                            <th>Moneda</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -65,56 +63,38 @@
 </template>
 <script>
     export default {
-
-      props: ['value', 'validar_codigo_producto', 'tabIndexPadre'],
+      props: ['value', 'monedaCodigo', 'candec', 'tab_unica', 'checked_codigo_real', 'validar_codigo_producto', 'tabIndexPadre'],
       data(){
-
         return {
             productos: []
         }
       }, 
       methods: {
             filtrarProductos(codigo){
-
                 // ------------------------------------------------------------------------
-
                 // LLAMAR FUNCION PARA FILTRAR PRODUCTOS
-
                 // Common.filtrarProductosCommon(codigo).then(data => {
                 //   this.productos = data
                 // });
-
                 // ------------------------------------------------------------------------
-
             }, enviarCodigoPadre(codigo){
-
                 // ------------------------------------------------------------------------
-
                 // ENVIAR CODIGO
-
                 this.$emit('codigo_producto', codigo);
                 // ------------------------------------------------------------------------
-
             }, vaciarDevolver(){
-
                 // ------------------------------------------------------------------------
-
                 // VACIAR Y DEVOLVER FOCUS AL TEXTBOX
-
                 $("#codigo_Producto").focus();
     
                 // ------------------------------------------------------------------------
-
             }
       },
         mounted() {
             
             // ------------------------------------------------------------------------
-
             // INICIAR VARIABLES 
-
             let me = this;
-
             // ------------------------------------------------------------------------
             
             // FOCUS EN SEARCH INPUT DESPUES DE ABRIR MODAL 
@@ -122,11 +102,8 @@
             $('.producto-modal').on('shown.bs.modal', function() {
               $('div#tablaModalProductos_filter input').focus();
             })
-
             // ------------------------------------------------------------------------
-
             $(document).ready( function () {
-
                 // ------------------------------------------------------------------------
                 // >>
                 // INICIAR EL DATATABLE PRODUCTOS MODAL
@@ -142,71 +119,51 @@
                                  "data": {
                                     "_token": $('meta[name="csrf-token"]').attr('content')
                                  },
-                                 "url": "/productoDatatableDesc",
+                                 "url": "/productoDatatableDescOld",
                                  "dataType": "json",
                                  "type": "POST"
                                },
                         "columns": [
-                            { "data": "ID" },
                             { "data": "CODIGO" },
-                            { "data": "NOMBRE_DEL_PRODUCTO" },
-                            { "data": "MARCA" },
-                            { "data": "PROPIEDADES", "visible": false  },
-                            { "data": "FORMA_DE_USO", "visible": false  },
-                            { "data": "INGREDIENTES", "visible": false  },
-                            { "data": "VALOR_NUTRICIONAL", "visible": false  },
-                            { "data": "CONTENIDO", "visible": false },
-                            { "data": "CALORIAS", "visible": false },
-                            { "data": "GRAD_ALCOH", "visible": false }
+                            { "data": "DESCRIPCION" },
+                            { "data": "PREC_VENTA" },
+                            { "data": "PRECOSTO" },
+                            { "data": "PREMAYORISTA" },
+                            { "data": "STOCK" },
+                            { "data": "IVA" },
+                            { "data": "IMAGEN" },
+                            { "data": "MONEDA" }
                         ]      
                     });
                 
                 // ------------------------------------------------------------------------
-
                 // RECARGAR SIEMPRE TABLA PRODUCTOS 
-
     //             setInterval( function () {
                 //     tableProductos.ajax.reload( null, false ); // user paging is not reset on reload
                 // }, 300000 );
-
                 // ------------------------------------------------------------------------
                 
                 // CAMBIAR TAMAÑO FUENTE 
-
                 $("#tablaModalProductos").css("font-size", 12);
                /* tableProductos.columns.adjust()
                 .responsive.recalc()
                 .draw();*/
-
                 // ------------------------------------------------------------------------
-
                 // SELECCIONAR UNA FILA - SE PUEDE BORRAR - SIN USO
-
-
                 $('#tablaModalProductos').on('click', 'tbody tr', function() {
-
                     // *******************************************************************
-
                     // CARGAR LOS VALORES A LAS VARIABLES DE PRODUCTO
-
                     me.codigoProducto = tableProductos.row(this).data().CODIGO;
                     // me.descripcionProducto = tableProductos.row(this).data().DESCRIPCION;  
                     // me.stockProducto = tableProductos.row(this).data().STOCK;
-
                     me.enviarCodigoPadre(me.codigoProducto);
-
                     // me.ivaProducto = tableProductos.row(this).data().IVA;
-
                     // *******************************************************************
-
                     // CERRAR EL MODAL
                      
                      $('.producto-modal').modal('hide');
-
                     // *******************************************************************
-
                 });
-
                 //FIN TABLA MODAL PRODUCTOS
                 // <<   
                 // ------------------------------------------------------------------------

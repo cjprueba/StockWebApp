@@ -139,6 +139,8 @@ Route::post('/inventario/reporte', 'InventarioController@reporte');
 Route::post('/inventario/procesar', 'InventarioController@procesar');
 Route::post('reporte_inventario_seccion', 'InventarioController@generar_reporte_inventario_seccion');
 Route::post('export_inventario_seccion_gondola', 'InventarioController@ExportInventarioSeccion');
+Route::post('export_inventario_gondola', 'InventarioController@Inventario_Gondola_Productos');
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -386,6 +388,7 @@ Route::post('empleado/recibe', 'EmpleadoController@datatable_recibe');
 
 Route::post('productoDatatable', 'ProductoController@mostrar');
 Route::post('productoDatatableDesc', 'ProductoController@mostrarDesc');
+Route::post('productoDatatableDescOld', 'ProductoController@mostrarDescOld');
 Route::post('producto', 'ProductoController@encontrar');
 Route::get('productoCodigoInterno', 'ProductoController@generarCI');
 Route::get('productoCodigo', 'ProductoController@generarCodigo');

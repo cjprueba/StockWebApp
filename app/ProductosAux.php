@@ -215,6 +215,218 @@ class ProductosAux extends Model
         // CREAR COLUMNA DE ARRAY 
 
         $columns = array( 
+                            0 =>'ID', 
+                            1 =>'CODIGO',
+                            2=> 'NOMBRE_DEL_PRODUCTO',
+                            3=> 'MARCA',
+                            4=> 'PROPIEDADES',
+                            5=> 'FORMA_DE_USO',
+                            6=> 'INGREDIENTES',
+                            7=> 'VALOR_NUTRICIONAL',
+                            8=> 'CONTENIDO',
+                            9=> 'CALORIAS',
+                            10=> 'GRAD_ALCOH',
+                        );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONTAR LA CANTIDAD DE PRODUCTOS ENCONTRADOS 
+        
+        $totalData = ProductosAux::rightjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                     ->count();  
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // INICIAR VARIABLES 
+
+        $totalFiltered = $totalData; 
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI EXISTE VALOR EN VARIABLE SEARCH
+
+        if(empty($request->input('search.value')))
+        {            
+
+            /*  ************************************************************ */
+
+            //  CARGAR TODOS LOS PRODUCTOS ENCONTRADOS 
+            //$starttime = microtime(true);
+            $posts = ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO,
+                DESCRIPCION_DETALLADA.ID,
+                DESCRIPCION_DETALLADA.CODIGO,
+                DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                DESCRIPCION_DETALLADA.MARCA,
+                DESCRIPCION_DETALLADA.PROPIEDADES,
+                DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                DESCRIPCION_DETALLADA.INGREDIENTES,
+                DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
+                DESCRIPCION_DETALLADA.CONTENIDO,
+                DESCRIPCION_DETALLADA.CALORIAS,
+                DESCRIPCION_DETALLADA.GRAD_ALCOH,
+                IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         
+                         ->rightjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                         ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                         ->where('DESCRIPCION_DETALLADA.CODIGO','<>','')
+                         ->offset($start)
+                         ->limit($limit)
+                         //->orderBy($order,$dir)
+                         ->get();
+            //$endtime = microtime(true);
+            //$duration = $endtime - $starttime; 
+            //var_dump($duration);
+            //return;           
+            /*  ************************************************************ */
+
+        } else {
+
+            /*  ************************************************************ */
+
+            // CARGAR EL VALOR A BUSCAR 
+
+            $search = $request->input('search.value'); 
+
+            /*  ************************************************************ */
+
+            // CARGAR LOS PRODUCTOS FILTRADOS EN DATATABLE
+            
+            //$posts = DB::select( DB::raw('PRODUCTOS_AUX.CODIGO, PRODUCTOS.DESCRIPCION, PRODUCTOS_AUX.PREC_VENTA, PRODUCTOS_AUX.PRECOSTO, PRODUCTOS_AUX.PREMAYORISTA, MONEDAS.CANDEC, PRODUCTOS.IMPUESTO AS IVA, PRODUCTOS_AUX.MONEDA from (SELECT  productos_aux.codigo FROM    productos_aux ORDER BY productos_aux.'.$order.' '.$dir.' LIMIT   '.$limit.' OFFSET  '.$start.')'), array(
+                   //'order' => $order,
+                  // 'dir' => $dir,
+                   //'limit' => $limit,
+                  // 'offset' => $start,
+                // ),
+                //   DB::raw('IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                //   ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                  //       ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                    //      ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                    //      ->where(function ($query) use($search) {
+                     //           $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                     //                 ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                     //       })
+                     //       ->get();
+                     
+            $posts =  ProductosAux::select(DB::raw('PRODUCTOS_AUX.CODIGO, 
+                DESCRIPCION_DETALLADA.ID,
+                DESCRIPCION_DETALLADA.CODIGO,
+                DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                DESCRIPCION_DETALLADA.MARCA,
+                DESCRIPCION_DETALLADA.PROPIEDADES,
+                DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                DESCRIPCION_DETALLADA.INGREDIENTES,
+                DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
+                DESCRIPCION_DETALLADA.CONTENIDO,
+                DESCRIPCION_DETALLADA.CALORIAS,
+                DESCRIPCION_DETALLADA.GRAD_ALCOH,
+                IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
+                         
+                        ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                        ->rightjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                        ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
+                        ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
+                        ->where(function ($query) use($search) {
+                            $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                            ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                            })
+                            ->offset($start)
+                            ->limit($limit)
+                            //->orderBy($order,$dir)
+                            ->get();
+
+            /*  ************************************************************ */
+
+            // CARGAR LA CANTIDAD DE PRODUCTOS FILTRADOS 
+
+            $totalFiltered = ProductosAux::rightjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                            ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                            ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)   
+                            ->where(function ($query) use($search) {
+                                $query->where('PRODUCTOS_AUX.CODIGO','LIKE',"%{$search}%")
+                                      ->orWhere('PRODUCTOS.DESCRIPCION', 'LIKE',"%{$search}%");
+                             })
+                             ->count();
+
+            /*  ************************************************************ */  
+
+        }
+
+        $data = array();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // REVISAR SI LA VARIABLES POST ESTA VACIA 
+        
+        if(!empty($posts))
+        {
+            foreach ($posts as $post)
+            {
+
+                /*  --------------------------------------------------------------------------------- */
+
+                // BUSCAR IMAGEN
+
+                
+
+                $nestedData['ID'] = $post->ID;
+                $nestedData['CODIGO'] = $post->CODIGO;
+                $nestedData['NOMBRE_DEL_PRODUCTO'] = $post->NOMBRE_DEL_PRODUCTO;
+                $nestedData['MARCA'] = $post->MARCA;
+                $nestedData['PROPIEDADES'] = $post->PROPIEDADES;
+                $nestedData['FORMA_DE_USO'] = $post->FORMA_DE_USO;
+                $nestedData['INGREDIENTES'] = $post->INGREDIENTES;
+                $nestedData['VALOR_NUTRICIONAL'] = $post->VALOR_NUTRICIONAL;
+                $nestedData['CONTENIDO'] = $post->CONTENIDO;
+                $nestedData['CALORIAS'] = $post->CALORIAS;
+                $nestedData['GRAD_ALCOH'] = $post->GRAD_ALCOH;
+
+                //    $nestedData['IMAGEN'] = "<img src='' class='img-thumbnail previsualizar width='50px' alt=''>";
+                //    foreach ($imagen as $key => $image) {
+                //     $nestedData['IMAGEN'] = "<img src='data:image/jpg;base64,".base64_encode($image->PICTURE)."' class='img-thumbnail' style='width:60px;height:60px;'>";
+                // }
+                
+                $data[] = $nestedData;
+
+            }
+        }
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // PREPARAR EL ARRAY A ENVIAR 
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+        
+        /*  --------------------------------------------------------------------------------- */
+
+        // CONVERTIR EN JSON EL ARRAY Y ENVIAR 
+
+        return $json_data; 
+
+        /*  --------------------------------------------------------------------------------- */
+    }
+    public static function mostrar_datatable_desc_old($request)
+    {
+        /*  --------------------------------------------------------------------------------- */
+
+        // OBTENER LOS DATOS DEL USUARIO LOGUEADO 
+        
+        $user = auth()->user();
+
+        /*  --------------------------------------------------------------------------------- */
+
+        // CREAR COLUMNA DE ARRAY 
+
+        $columns = array( 
                             0 =>'CODIGO', 
                             1 =>'DESCRIPCION',
                             2=> 'PREC_VENTA',

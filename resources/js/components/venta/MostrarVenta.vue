@@ -170,6 +170,7 @@
       data(){
         return {
           	codigoVenta: '',
+          	id_venta_pdf:'',
           	procesar: false,
           	ajustes: {
           		IMPRESORA_TICKET: '',
@@ -233,7 +234,7 @@
 
 				// ------------------------------------------------------------------------ 
 
-			}, factura(numero, caja) {
+			}, factura(numero, caja, id_venta) {
 
 					// ------------------------------------------------------------------------ 
 
@@ -241,7 +242,7 @@
 
 					// ------------------------------------------------------------------------ 
 
-					Common.generarPdfFacturaVentaCommon(numero, caja).then(response => {
+					Common.generarPdfFacturaVentaCommon(numero, caja,id_venta).then(response => {
 
 							var reader = new FileReader();
 							 reader.readAsDataURL(new Blob([response])); 
@@ -258,7 +259,7 @@
 					// Common.generarPdfTicketVentaTestCommon();
 
 			},
-      		ticket(numero, caja) {
+      		ticket(numero, caja, id_venta) {
 
 				// ------------------------------------------------------------------------ 
 
@@ -266,7 +267,7 @@
 
 				// ------------------------------------------------------------------------ 
 
-				Common.generarPdfTicketVentaCommon(numero, caja).then(response => {
+				Common.generarPdfTicketVentaCommon(numero, caja, id_venta).then(response => {
 
 						var reader = new FileReader();
 						 reader.readAsDataURL(new Blob([response])); 
@@ -559,7 +560,7 @@
       			// LLAMAR EL METODO DEL COMPONENTE HIJO
 
 
-      			Common.generarRptPdfVentaCommon(this.codigoVenta, this.caja.CODIGO, this.radio.moneda).then( () => {
+      			Common.generarRptPdfVentaCommon(this.codigoVenta, this.caja.CODIGO, this.radio.moneda,this.id_venta_pdf).then( () => {
 	                   		
 	            });
 
@@ -678,7 +679,7 @@
 	                   	
 	            var row  = $(this).parents('tr')[0];
 	                   	
-	            me.ticket(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+	            me.ticket(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA, me.tableVentaMostrar.row( row ).data().ID);
 
 	            Swal.fire({
 					title: '¡ Imprimiendo Ticket !',
@@ -704,7 +705,7 @@
 
 	            var row  = $(this).parents('tr')[0];
 
-	            me.factura(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA);
+	            me.factura(me.tableVentaMostrar.row( row ).data().CODIGO, me.tableVentaMostrar.row( row ).data().CAJA,me.tableVentaMostrar.row( row ).data().ID);
 
 	            Swal.fire({
 					title: '¡ Imprimiendo Factura !',
@@ -773,6 +774,7 @@
 			        
 			        me.codigoVenta = me.tableVentaMostrar.row( row ).data().CODIGO;
 			        me.caja.CODIGO = me.tableVentaMostrar.row( row ).data().CAJA;
+			        me.id_venta_pdf= me.tableVentaMostrar.row( row ).data().ID;
 
 			        // *******************************************************************
 
