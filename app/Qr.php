@@ -600,8 +600,8 @@ class Qr extends Model
               $pdf->SetAutoPageBreak(FALSE, 0);
               $pdf->SetFont('freesans', 'L');
               $pdf->text(18.7,1.5, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
-              $pdf->SetFontSize(5.7);
-              $pdf->writeHTMLCell(52.5, 0, 1, 0, $htmldesc, 0, 0, 0, false, 'center', false);
+              $pdf->SetFontSize(0.01);
+              $pdf->writeHTMLCell(52.5, 0, 1, 4, $htmldesc, 0, 0, 0, false, 'center', false);
               $y=$y+28;
               $sum=0;
             }
@@ -720,7 +720,7 @@ class Qr extends Model
               $pdf->SetFont('freesans', 'B');
               $pdf->text($x-15.5,$y+0.3, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
               $pdf->SetFont('freesans', 'B');
-              $pdf->SetFontSize(1.5);
+              $pdf->SetFontSize(2);
               $pdf->writeHTMLCell(31.5, 0, $x-24, $y+1.3, $htmldesc, 0, 0, 0, false, 'center', false);
               $x=$x+37-1.5;
             }
