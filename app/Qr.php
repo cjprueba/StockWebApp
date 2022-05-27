@@ -18,22 +18,22 @@ class Qr extends Model
     {
      $c=0;
 
-    	 $file=public_path('qr.png');
+       $file=public_path('qr.png');
         /*  --------------------------------------------------------------------------------- */
 /*       var_dump($datos);*/
         $pag=1;
-        	$pdf = new FPDF('L','mm',array(105,22));
-     	    $pdf->AddPage();
-     	    $x=3;
-     	   $y = -3;
-    	foreach ($datos["data"] as $key => $value) {
-    		# code...
+          $pdf = new FPDF('L','mm',array(105,22));
+          $pdf->AddPage();
+          $x=3;
+         $y = -3;
+      foreach ($datos["data"] as $key => $value) {
+        # code...
            
                while ($c<$value["CANTIDAD"]){
-                	$c=$c+1;
+                  $c=$c+1;
                       if($x>77){
-           	             $y=$y+27;
-           	              if($y > 22){
+                         $y=$y+27;
+                          if($y > 22){
 
                            $pag=$pag+1;
                            $pdf->AddPage();
@@ -48,21 +48,20 @@ class Qr extends Model
              Qr::crear_qr($value["ID_LOTE"]);
 
              $file=public_path(''.$value["ID_LOTE"].'.png');
-     	     $pdf->Image($file,$x,$y,28,28);
-     	     File::delete(''.$value["ID_LOTE"].'.png');
-     	     //$y=$y+35;
-     	     $x=$x+37-2;
+           $pdf->Image($file,$x,$y,28,28);
+           File::delete(''.$value["ID_LOTE"].'.png');
+           //$y=$y+35;
+           $x=$x+37-2;
          }
          $c=0;
-    	}
+      }
 
 
      
 /*        foreach ($codigos as $key => $value) {
            if($x>73){
-           	 $y=$y+27;
-           	 if($y > 22){
-
+             $y=$y+27;
+             if($y > 22){
                 $pag=$pag+1;
                 $pdf->AddPage();
     
@@ -71,16 +70,14 @@ class Qr extends Model
            
             $x=-1;
            }
-
            
              Qr::crear_qr($value->CODIGO);
-
              $file=public_path(''.$value->CODIGO.'.png');
-     	     $pdf->Image($file,$x,$y,28,28);
-     	     File::delete(''.$value->CODIGO.'.png');
-     	     //$y=$y+35;
-     	     $x=$x+37-1.5;
-     	
+           $pdf->Image($file,$x,$y,28,28);
+           File::delete(''.$value->CODIGO.'.png');
+           //$y=$y+35;
+           $x=$x+37-1.5;
+      
         }*/
 
 
@@ -138,7 +135,6 @@ class Qr extends Model
            if($x>73){
              $y=$y+27;
              if($y > 22){
-
                 $pag=$pag+1;
                 $pdf->AddPage();
     
@@ -147,10 +143,8 @@ class Qr extends Model
            
             $x=-1;
            }
-
            
              Qr::crear_qr($value->CODIGO);
-
              $file=public_path(''.$value->CODIGO.'.png');
            $pdf->Image($file,$x,$y,28,28);
            File::delete(''.$value->CODIGO.'.png');
@@ -297,113 +291,446 @@ class Qr extends Model
     }
 
     public static function etiqueta_nombre_desc($datos){
-      $name = '111'; 
-      $type = 'C128B';
-
-      //definir estilo del Barcode 
-      //-------------------------------------------------------------------------
-        $style = array(
-            'position' => '',
-            'align' => 'N',
-            'stretch' => true,
-            'fitwidth' => false,
-            'cellfitalign' => '',
-            'border' => false, // border
-            'hpadding' => 3,
-            'vpadding' => 1.5,
-            'fgcolor' => array(0, 0, 0),
-            'bgcolor' => false, //array(255,255,255),
-                     'text' => true, // whether to display the text below the barcode
-                     'font' => 'helvetica', //font
-                     'fontsize' => 6, //font size
-            'stretchtext' => 4
-        );
-      $pdf = new TCPDF('L','mm',array(100, 75));
-      $pdf->SetPrintHeader(false);
-      $pdf->SetPrintFooter(false);
-      $pdf->addPage();
-
-
-      $pdf->SetFont('helvetica', '', 6);
-      $pag=1;
-      $x=25;
-      $y = 0.3;
-      $z = 2;
-      $c=0;
-      $a=0;
-      $b=17.5;
-      $sum=0;
+      if ($datos['tamaño']==='9'){
       
-      foreach ($datos["data"] as $key => $value) {
-        $producto_det = DB::connection('retail')
-              ->table('DESCRIPCION_DETALLADA')
-              ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
-                                DESCRIPCION_DETALLADA.MARCA,
-                                DESCRIPCION_DETALLADA.PROPIEDADES,
-                                DESCRIPCION_DETALLADA.FORMA_DE_USO,
-                                DESCRIPCION_DETALLADA.INGREDIENTES,
-                                DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
-                                DESCRIPCION_DETALLADA.CONTENIDO'))
-              ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
-              ->get()
-              ->toArray();
-        $htmldesc=
-        ' <html>
-            <style>
-              p{
-                width: 100px;
-                margin: 0px 0;
-                padding: 0px;
-                font: normal 8px arial, helvetica, sans-serif;
-              }
-              p#normal  {
-                white-space: normal;
-              }
-              p#tamaño  {
-                font: normal 12px arial, helvetica, sans-serif;
-              }
-            </style>
-            <body>
-              <div class="col-2">
-                <p align="center"><font size="9">'.$producto_det[0]->MARCA.'</font></p>
-                <p id="normal">'.$producto_det[0]->NOMBRE_DEL_PRODUCTO.'</p>
-                <p id="normal">'.$producto_det[0]->PROPIEDADES.'</p>
-                <p id="normal">FORMA DE USO: '.$producto_det[0]->FORMA_DE_USO.'</p>
-                <p id="normal">INGREDIENTES: '.$producto_det[0]->INGREDIENTES.'</p>
-                <p id="normal">VALOR NUTRICIONAL: '.$producto_det[0]->VALOR_NUTRICIONAL.'</p>
-                <p id="normal">CONTENIDO: '.$producto_det[0]->CONTENIDO.'</p>
-              </div>
-            </body>
-          </html>';
+        $name = '111'; 
+        $type = 'C128B';
 
-        while($c<$value["CANTIDAD"]){
-          $c=$c+1;
-          if($y > 28){
-            $pag=$pag+1;
-            $pdf->AddPage();
-            $y = 0.3;
-          }
-          $pdf->SetFontSize(7);
-          $pdf->SetAutoPageBreak(FALSE, 0);
-          $pdf->SetFont('freesans', 'B');
+        //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+          $style = array(
+              'position' => '',
+              'align' => 'N',
+              'stretch' => true,
+              'fitwidth' => false,
+              'cellfitalign' => '',
+              'border' => false, // border
+              'hpadding' => 3,
+              'vpadding' => 1.5,
+              'fgcolor' => array(0, 0, 0),
+              'bgcolor' => false, //array(255,255,255),
+                       'text' => true, // whether to display the text below the barcode
+                       'font' => 'helvetica', //font
+                       'fontsize' => 6, //font size
+              'stretchtext' => 4
+          );
+        $pdf = new TCPDF('L','mm',array(100, 75));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
 
-          $pdf->StartTransform();
-          $pdf->Rotate(90, 5, 48);
-          $pdf->text(5,48, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
-          $pdf->StopTransform();
-          $pdf->SetFontSize(6.3);
-          $pdf->StartTransform();
-          $pdf->Rotate(90, 3, 74);
-          $pdf->writeHTMLCell(73, 0, 3, 74, $htmldesc, 0, 0, 0, false, 'left', false);
-          $pdf->StopTransform();
-          $y=$y+28;
-          $sum=0;
-        }
+
+        $pdf->SetFont('helvetica', '', 6);
+        $pag=1;
+        $x=25;
+        $y = 0.3;
+        $z = 2;
         $c=0;
-      }
+        $a=0;
+        $b=17.5;
+        $sum=0;
+        
+        foreach ($datos["data"] as $key => $value) {
+            $producto_det = DB::connection('retail')
+                  ->table('DESCRIPCION_DETALLADA')
+                  ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                                    DESCRIPCION_DETALLADA.MARCA,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.INGREDIENTES,
+                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
+                  ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
+                  ->get()
+                  ->toArray();
+            $nestedData['COD_PROD']=$value["CODIGO"];
+            $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+            $nestedData['MARCA']=$producto_det[0]->MARCA;
+            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
+            $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+            $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+            $nestedData['TAMAÑO']="9";
+            if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+              $nestedData['PROPIEDADES_CHECK']=false;
+              $nestedData['PROPIEDADES']='';
+            }else{
+              $nestedData['PROPIEDADES_CHECK']=true;
+              $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            }
+            if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
+              $nestedData['VALOR_NUTRICIONAL']='';
+            }else{
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
+              $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
+            }
+            $htmldesc= view('pdf.traduccion', $nestedData)->render();
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($y > 28){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $pdf->SetFontSize(7);
+              $pdf->SetAutoPageBreak(FALSE, 0);
+              $pdf->SetFont('freesans', 'B');
+
+              $pdf->StartTransform();
+              $pdf->Rotate(90, 5, 48);
+              $pdf->text(5,48, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+              $pdf->StopTransform();
+              $pdf->SetFontSize(6.3);
+              $pdf->StartTransform();
+              $pdf->Rotate(90, -3, 74);
+              $pdf->writeHTMLCell(73, 0, -3, 74, $htmldesc, 0, 0, 0, false, 'left', false);
+              $pdf->StopTransform();
+
+              
+
+              $y=$y+28;
+              $sum=0;
+            }
+            $c=0;
+        }
 
         return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      }else if($datos['tamaño']==='8') {
+        $name = '111'; 
+        $type = 'C128B';
+
+        //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+          $style = array(
+              'position' => '',
+              'align' => 'N',
+              'stretch' => true,
+              'fitwidth' => false,
+              'cellfitalign' => '',
+              'border' => false, // border
+              'hpadding' => 3,
+              'vpadding' => 1.5,
+              'fgcolor' => array(0, 0, 0),
+              'bgcolor' => false, //array(255,255,255),
+                       'text' => true, // whether to display the text below the barcode
+                       'font' => 'helvetica', //font
+                       'fontsize' => 6, //font size
+              'stretchtext' => 4
+          );
+        $pdf = new TCPDF('L','mm',array(80, 40));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
+
+
+        $pdf->SetFont('helvetica', 'B', 6);
+        $pag=1;
+        $x=25;
+        $y = 0.3;
+        $z = 2;
+        $c=0;
+        $a=0;
+        $b=17.5;
+        $sum=0;
+        
+        foreach ($datos["data"] as $key => $value) {
+            $producto_det = DB::connection('retail')
+                  ->table('DESCRIPCION_DETALLADA')
+                  ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                                    DESCRIPCION_DETALLADA.MARCA,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.INGREDIENTES,
+                                    DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
+                                    IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
+                  ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
+                  ->get()
+                  ->toArray();
+            $nestedData['COD_PROD']=$value["CODIGO"];
+            $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+            $nestedData['MARCA']=$producto_det[0]->MARCA;
+            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
+            $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+            $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+            $nestedData['TAMAÑO']="8";
+            if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+              $nestedData['PROPIEDADES_CHECK']=false;
+              $nestedData['PROPIEDADES']='';
+            }else{
+              $nestedData['PROPIEDADES_CHECK']=true;
+              $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+            }
+            if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
+              $nestedData['VALOR_NUTRICIONAL']='';
+            }else{
+              $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
+              $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
+            }
+            $htmldesc= view('pdf.traduccion', $nestedData)->render();
+
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($y > 28){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $pdf->SetFontSize(7);
+              $pdf->SetAutoPageBreak(FALSE, 0);
+              $pdf->SetFont('freesans', 'L');
+              $pdf->StartTransform();
+              $pdf->Rotate(90, 3, 30);
+              $pdf->text(3,30, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+              $pdf->StopTransform();
+              $pdf->SetFontSize(5.7);
+              $pdf->StartTransform();
+              $pdf->Rotate(90, -4, 38.5);
+              $pdf->writeHTMLCell(37, 0, -4, 38.5, $htmldesc, 0, 0, 0, false, 'left', false);
+              $pdf->StopTransform();
+              $y=$y+28;
+              $sum=0;
+            }
+            $c=0;
+        }
+
+        return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      }else if($datos['tamaño']==='7'){
+        $name = '111'; 
+        $type = 'C128B';
+
+        //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+          $style = array(
+              'position' => '',
+              'align' => 'N',
+              'stretch' => true,
+              'fitwidth' => false,
+              'cellfitalign' => '',
+              'border' => false, // border
+              'hpadding' => 3,
+              'vpadding' => 1.5,
+              'fgcolor' => array(0, 0, 0),
+              'bgcolor' => false, //array(255,255,255),
+                       'text' => true, // whether to display the text below the barcode
+                       'font' => 'helvetica', //font
+                       'fontsize' => 6, //font size
+              'stretchtext' => 4
+          );
+        $pdf = new TCPDF('L','mm',array(55, 29));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
+
+
+        $pdf->SetFont('helvetica', 'B', 6);
+        $pag=1;
+        $x=25;
+        $y = 0.3;
+        $z = 2;
+        $c=0;
+        $a=0;
+        $b=17.5;
+        $sum=0;
+        
+        foreach ($datos["data"] as $key => $value) {
+            $producto_det = DB::connection('retail')
+                  ->table('DESCRIPCION_DETALLADA')
+                  ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                                    DESCRIPCION_DETALLADA.MARCA,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
+                                    IFNULL(DESCRIPCION_DETALLADA.CONTENIDO, "INDEFINIDO") AS CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
+                                    IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
+                                    IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
+                  ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
+                  ->get()
+                  ->toArray();
+                  $nestedData['COD_PROD']=$value["CODIGO"];
+                  $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+                  $nestedData['MARCA']=$producto_det[0]->MARCA;
+                  $nestedData['TAMAÑO']="7";
+                  if($producto_det[0]->CONTENIDO==="INDEFINIDO" || $producto_det[0]->CONTENIDO == ""){
+                    $nestedData['CONTENIDO_CHECK']=false;
+                    $nestedData['CONTENIDO']='';
+                  }else{
+                    $nestedData['CONTENIDO_CHECK']=true;
+                    $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  }
+                  if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+                    $nestedData['PROPIEDADES_CHECK']=false;
+                    $nestedData['PROPIEDADES']='';
+                  }else{
+                    $nestedData['PROPIEDADES_CHECK']=true;
+                    $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  }
+                  if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
+                    $nestedData['CALORIAS_CHECK']=false;
+                    $nestedData['CALORIAS']='';
+                  }else{
+                    $nestedData['CALORIAS_CHECK']=true;
+                    $nestedData['CALORIAS']=$producto_det[0]->CALORIAS;
+                  }
+                  if($producto_det[0]->INGREDIENTES==="INDEFINIDO" || $producto_det[0]->INGREDIENTES==""){
+                    $nestedData['INGRE_CHECK']=false;
+                    $nestedData['INGREDIENTES']='';
+                  }else{
+                    $nestedData['INGRE_CHECK']=true;
+                    $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+                  }
+                  if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
+                    $nestedData['ALCO_CHECK']=false;
+                    $nestedData['GRAD_ALCOH']='';
+                  }else{
+                    $nestedData['ALCO_CHECK']=true;
+                    $nestedData['GRAD_ALCOH']=$producto_det[0]->GRAD_ALCOH;
+                  }
+         $htmldesc= view('pdf.traduccion', $nestedData)->render();
+
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($y > 28){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $pdf->SetFontSize(6.4);
+              $pdf->SetAutoPageBreak(FALSE, 0);
+              $pdf->SetFont('freesans', 'L');
+              $pdf->text(18.7,1.5, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+              $pdf->SetFontSize(0.01);
+              $pdf->writeHTMLCell(52.5, 0, 1, 4, $htmldesc, 0, 0, 0, false, 'center', false);
+              $y=$y+28;
+              $sum=0;
+            }
+            $c=0;
+        }
+
+        return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      }else if($datos['tamaño']==='6'){
+        $name = '111'; 
+        $type = 'C128B';
+
+        //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+          $style = array(
+              'position' => '',
+              'align' => 'N',
+              'stretch' => true,
+              'fitwidth' => false,
+              'cellfitalign' => '',
+              'border' => false, // border
+              'hpadding' => 3,
+              'vpadding' => 1.5,
+              'fgcolor' => array(0, 0, 0),
+              'bgcolor' => false, //array(255,255,255),
+                       'text' => true, // whether to display the text below the barcode
+                       'font' => 'helvetica', //font
+                       'fontsize' => 6, //font size
+              'stretchtext' => 4
+          );
+        $pdf = new TCPDF('L','mm',array(105, 22));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
+
+
+        $pdf->SetFont('helvetica', 'B', 6);
+        $pag=1;
+        $x=25;
+        $y = 0.3;
+        $z = 2;
+        $c=0;
+        $a=0;
+        $b=17.5;
+        $sum=0;
+        
+        foreach ($datos["data"] as $key => $value) {
+            $producto_det = DB::connection('retail')
+                  ->table('DESCRIPCION_DETALLADA')
+                  ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
+                                    DESCRIPCION_DETALLADA.MARCA,
+                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
+                                    DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
+                                    IFNULL(DESCRIPCION_DETALLADA.CONTENIDO, "INDEFINIDO") AS CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
+                                    IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
+                                    IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
+                  ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
+                  ->get()
+                  ->toArray();
+                  $nestedData['COD_PROD']=$value["CODIGO"];
+                  $nestedData['NOMBRE']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
+                  $nestedData['MARCA']=$producto_det[0]->MARCA;
+                  $nestedData['TAMAÑO']="6";
+                  if($producto_det[0]->CONTENIDO==="INDEFINIDO" || $producto_det[0]->CONTENIDO == ""){
+                    $nestedData['CONTENIDO_CHECK']=false;
+                    $nestedData['CONTENIDO']='';
+                  }else{
+                    $nestedData['CONTENIDO_CHECK']=true;
+                    $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
+                  }
+                  if($producto_det[0]->PROPIEDADES==="INDEFINIDO" || $producto_det[0]->PROPIEDADES == ""){
+                    $nestedData['PROPIEDADES_CHECK']=false;
+                    $nestedData['PROPIEDADES']='';
+                  }else{
+                    $nestedData['PROPIEDADES_CHECK']=true;
+                    $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
+                  }
+                  if($producto_det[0]->CALORIAS==="INDEFINIDO" || $producto_det[0]->CALORIAS == ""){
+                    $nestedData['CALORIAS_CHECK']=false;
+                    $nestedData['CALORIAS']='';
+                  }else{
+                    $nestedData['CALORIAS_CHECK']=true;
+                    $nestedData['CALORIAS']=$producto_det[0]->CALORIAS;
+                  }
+                  if($producto_det[0]->INGREDIENTES==="INDEFINIDO" || $producto_det[0]->INGREDIENTES==""){
+                    $nestedData['INGRE_CHECK']=false;
+                    $nestedData['INGREDIENTES']='';
+                  }else{
+                    $nestedData['INGRE_CHECK']=true;
+                    $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+                  }
+                  if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
+                    $nestedData['ALCO_CHECK']=false;
+                    $nestedData['GRAD_ALCOH']='';
+                  }else{
+                    $nestedData['ALCO_CHECK']=true;
+                    $nestedData['GRAD_ALCOH']=$producto_det[0]->GRAD_ALCOH;
+                  }
+         $htmldesc= view('pdf.traduccion', $nestedData)->render();
+
+              $nestedData=[];  
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($x>97){
+                $y=$y+27;
+                if($y > 22){
+                  $pag=$pag+1;
+                  $pdf->AddPage();
+                  $y = 0.3;
+                }
+                $x=25;
+              }
+              $pdf->SetFontSize(5);
+              $pdf->SetAutoPageBreak(FALSE, 0);
+              $pdf->SetFont('freesans', 'B');
+              $pdf->text($x-15.5,$y+0.3, substr(Qr::quitar_tildes($value["CODIGO"]), 0,45), false, false, true, 0, 1, '', false, 'center', 0);
+              $pdf->SetFont('freesans', 'B');
+              $pdf->SetFontSize(2);
+              $pdf->writeHTMLCell(31.5, 0, $x-24, $y+1.3, $htmldesc, 0, 0, 0, false, 'center', false);
+              $x=$x+37-1.5;
+            }
+            $c=0;
+        }
+
+        return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+      }
     }
+
     public static function etiqueta_tipo_1($datos){
       $user = auth()->user();
       $name = '111'; 
@@ -607,7 +934,7 @@ class Qr extends Model
 
 
     public static function etiqueta_tipo_2($datos){
-       $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf = new TCPDF('L','mm',array(105,22));
       $pdf->SetPrintHeader(false);
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
@@ -1141,7 +1468,6 @@ $pdf->writeHTMLCell(0, 0, 5, 3, $html, 0, 0, 0, false, '', false);
 
 $html = 
 '
-
 <table border=1 cellspacing="1" >
 <tr  align="left">
 <td bgcolor="#000000" align="right" style="color:white" width="55"><p>DESDE 6 UNID.</p></td>
@@ -1151,13 +1477,9 @@ $html =
 </td>
 <td bgcolor="#FFFFFF" width="65"  align="left">
 <p  style="color:black">   UNITARIO&nbsp;&nbsp;'.$descriM.' '.$precio.'</p>
-
 </td>
-
 </tr>
 </table>
-
-
 ';
 
 /*$html .= '<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" 
@@ -1167,11 +1489,8 @@ $pdf->writeHTMLCell(0, 0, 4, 10, $html, 0, 0, 0, false, '', false);
 
 $htmldesc='<html>
 <style>
-
 </style>
 <body>
-
-
 <table style="width:32%">
   <tr>
     <th></th>
@@ -1179,10 +1498,7 @@ $htmldesc='<html>
   <tr>
     <td>'.$value['NOMBRE'].'</td>
   </tr>
-
 </table>
-
-
 </body>
 </html>';
   
@@ -1204,7 +1520,6 @@ $pdf->Output('example_001.pdf', 'I');
    <td bgcolor="#000000" style="border-rigth: 1px solid white; padding: 5px;">
    <font face="arial, verdana, helvetica" style="color:white">DESDE 6  MAYORISTA
    </font>
-
    <font face="arial, verdana, helvetica" style="color:white">&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNID.| '.$descriM.': '.$precio.'
    </font>
    </td>

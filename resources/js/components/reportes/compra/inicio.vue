@@ -9,8 +9,8 @@
 				<label for="validationTooltip01">Seleccione Reporte Compra - Venta</label>
 				<select v-model="reporte" class="custom-select custom-select-sm" >
 					<option value="0" selected>Seleccionar</option>
-            <option v-if="$can('reporte.compras') && $can('reporte.compras.entrada')" value="3">Entrada</option> 
-    
+          <option v-if="$can('reporte.compras') && $can('reporte.compras.entrada')" value="3">Entrada</option> 
+          <option  value="4">Entrada General</option>
 				</select>			
 			</div>
 
@@ -20,6 +20,7 @@
 				<!-- FIN DE VENTA POR MARCA -->
 			<transition name="slide-fade">	
 				<compra-entrada-rpt v-if="reporte === '3'" id="reporte2"></compra-entrada-rpt>
+        <compra-entradagnrl-rpt v-if="reporte === '4'" id="reporte2"> </compra-entradagnrl-rpt>
 			</transition>
 
       <!-- REPORTE DIARIO -->

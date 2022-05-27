@@ -224,6 +224,8 @@ class ProductosAux extends Model
                             6=> 'INGREDIENTES',
                             7=> 'VALOR_NUTRICIONAL',
                             8=> 'CONTENIDO',
+                            9=> 'CALORIAS',
+                            10=> 'GRAD_ALCOH',
                         );
         
         /*  --------------------------------------------------------------------------------- */
@@ -264,10 +266,12 @@ class ProductosAux extends Model
                 DESCRIPCION_DETALLADA.INGREDIENTES,
                 DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
                 DESCRIPCION_DETALLADA.CONTENIDO,
+                DESCRIPCION_DETALLADA.CALORIAS,
+                DESCRIPCION_DETALLADA.GRAD_ALCOH,
                 IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          
-                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
-                         ->rightjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->rightjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
+                         ->leftjoin('DESCRIPCION_DETALLADA', 'DESCRIPCION_DETALLADA.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
                          ->leftjoin('MONEDAS', 'MONEDAS.CODIGO', '=', 'PRODUCTOS_AUX.MONEDA')
                          ->where('PRODUCTOS_AUX.ID_SUCURSAL','=', $user->id_sucursal)
                          ->where('DESCRIPCION_DETALLADA.CODIGO','<>','')
@@ -319,6 +323,8 @@ class ProductosAux extends Model
                 DESCRIPCION_DETALLADA.INGREDIENTES,
                 DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL,
                 DESCRIPCION_DETALLADA.CONTENIDO,
+                DESCRIPCION_DETALLADA.CALORIAS,
+                DESCRIPCION_DETALLADA.GRAD_ALCOH,
                 IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE((l.COD_PROD = PRODUCTOS_AUX.CODIGO) AND (l.ID_SUCURSAL = PRODUCTOS_AUX.ID_SUCURSAL))),0) AS STOCK'))
                          
                         ->leftjoin('PRODUCTOS', 'PRODUCTOS.CODIGO', '=', 'PRODUCTOS_AUX.CODIGO')
@@ -377,6 +383,8 @@ class ProductosAux extends Model
                 $nestedData['INGREDIENTES'] = $post->INGREDIENTES;
                 $nestedData['VALOR_NUTRICIONAL'] = $post->VALOR_NUTRICIONAL;
                 $nestedData['CONTENIDO'] = $post->CONTENIDO;
+                $nestedData['CALORIAS'] = $post->CALORIAS;
+                $nestedData['GRAD_ALCOH'] = $post->GRAD_ALCOH;
 
                 //    $nestedData['IMAGEN'] = "<img src='' class='img-thumbnail previsualizar width='50px' alt=''>";
                 //    foreach ($imagen as $key => $image) {
