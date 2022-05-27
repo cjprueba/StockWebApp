@@ -121,7 +121,7 @@
 	      	<button class="btn btn-dark btn-sm btn-block" v-on:click="resumen_test"><small>Resumen Caja</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="nota_credito"><small>Nota Crédito</small></button>
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="agencia_seleccionar"><small>Agencia</small></button>
-			<button class="btn btn-dark btn-sm btn-block" v-on:click="movimiento_caja"><small>Movimiento de Caja</small></button>
+			<!-- <button class="btn btn-dark btn-sm btn-block" v-on:click="movimiento_caja"><small>Movimiento de Caja</small></button> -->
 			<button class="btn btn-dark btn-sm btn-block" v-on:click="factura_test"><small>Última Factura</small></button>
 	    </div>
 	    </b-sidebar>
@@ -1934,7 +1934,7 @@
 								
 								//SI SOLO ALGUNOS LOTES TIENEN CANTIDAD PERO SOBRO LOS QUE NO, SEPARAR EN EL DATATABLE.
 								me.descuento_lote_validar=false;
-							    me.checked.MAYORISTA_AUT=true;
+							    me.checked.MAYORISTA_AUT=me.mayoristaAutReemplazo;
 							    me.descuento_precio_controlar=true;
 
 								//UNA VEZ QUE TERMINE DE RECORRER TODOS LOS LOTES CON CANTIDADES RESTANTES Y LOS QUE NO TIENEN DESCUENTO (SI NO TIENEN DESCUENTO) SE COMIENZA LA LIMPIEZA DE LAS VARIABLES
@@ -2816,6 +2816,7 @@
 			}, movimiento_caja(){
 
 			   // ------------------------------------------------------------------------
+			   console.log("hice shift+m");
 			   	
 				$('.modal-mov-caja').modal('show');
 
