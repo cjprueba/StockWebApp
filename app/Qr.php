@@ -544,7 +544,8 @@ class Qr extends Model
                                     IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
                                     IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
-                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES,
+                                    IFNULL(DESCRIPCION_DETALLADA.MATERIAL, "INDEFINIDO") AS MATERIAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
@@ -579,6 +580,13 @@ class Qr extends Model
                   }else{
                     $nestedData['INGRE_CHECK']=true;
                     $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+                  }
+                  if($producto_det[0]->MATERIAL==="INDEFINIDO" || $producto_det[0]->MATERIAL==""){
+                    $nestedData['MATE_CHECK']=false;
+                    $nestedData['MATERIAL']='';
+                  }else{
+                    $nestedData['MATE_CHECK']=true;
+                    $nestedData['MATERIAL']=$producto_det[0]->MATERIAL;
                   }
                   if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
                     $nestedData['ALCO_CHECK']=false;
@@ -658,7 +666,8 @@ class Qr extends Model
                                     IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.CALORIAS, "INDEFINIDO") AS CALORIAS,
                                     IFNULL(DESCRIPCION_DETALLADA.GRAD_ALCOH,"INDEFINIDO") AS GRAD_ALCOH,
-                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES'))
+                                    IFNULL(DESCRIPCION_DETALLADA.INGREDIENTES,"INDEFINIDO") AS INGREDIENTES,
+                                    IFNULL(DESCRIPCION_DETALLADA.MATERIAL, "INDEFINIDO") AS MATERIAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
                   ->get()
                   ->toArray();
@@ -693,6 +702,13 @@ class Qr extends Model
                   }else{
                     $nestedData['INGRE_CHECK']=true;
                     $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
+                  }
+                  if($producto_det[0]->MATERIAL==="INDEFINIDO" || $producto_det[0]->MATERIAL==""){
+                    $nestedData['MATE_CHECK']=false;
+                    $nestedData['MATERIAL']='';
+                  }else{
+                    $nestedData['MATE_CHECK']=true;
+                    $nestedData['MATERIAL']=$producto_det[0]->MATERIAL;
                   }
                   if($producto_det[0]->GRAD_ALCOH=="INDEFINIDO" || $producto_det[0]->GRAD_ALCOH==""){
                     $nestedData['ALCO_CHECK']=false;
@@ -1166,6 +1182,68 @@ class Qr extends Model
             //$y=$y+35;
             $x=$x+37-1.5;
           }
+        }
+      }
+      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+    }
+
+public static function nuevaetiquetapequeñita($datos){
+      $user = auth()->user();
+      $pdf = new TCPDF('L','mm',array(105,12));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+
+      $pdf->SetFont('helvetica', '', 6);
+      $name = '111'; 
+      $type = 'C128B';
+
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
+      $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 2.5,
+          'vpadding' => 3.2,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+                   'text' => true, // whether to display the text below the barcode
+                   'font' => 'courier', //font
+                   'fontsize' => 7, //font size
+          'stretchtext' => 8
+      );
+      $pag=1;
+      $x=28;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      $made="MADE IN KOREA";
+      if($datos['seleccionImpresion']<>'1'){
+        foreach ($datos["data"] as $key => $value){
+          while($c<$value["CANTIDAD"]){
+            $c=$c+1;
+            if($x>97){
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $x=28;
+            }
+            // $pdf->SetAutoPageBreak(FALSE, 0);
+            $pdf->write1DBarcode($value["CODIGO"], $type, $x+15, $y-2.4, 32, 12, 0.2, $style, 'N');
+            $pdf->SetFont('helvetica', '', 7);
+            $pdf->text($x-16, $y+5.5, "U$ ".$value['PRECIO'], false, false, true);
+            $pdf->SetFont('helvetica', '', 5);
+            $pdf->text($x-18.8, $y+8, $made, false, false, true, 0, 1, '', false, '', 0);
+            $x=$x+90;
+          }
+          $c=0;
         }
       }
       return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
