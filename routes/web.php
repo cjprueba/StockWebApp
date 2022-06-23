@@ -413,6 +413,7 @@ Route::post('detalleProductoVentasDatatable', 'ProductoController@detalleProduct
 Route::post('barcodeFiltrar', 'ProductoController@filtrarBarcode');
 Route::post('productoBuscar', 'ProductoController@buscarProducto');
 Route::post('producto/inventario', 'ProductoController@inventario');
+Route::get('comprimir/Imagen','ProductoController@comprimir_imagen');
 
 /* -------------------------------------------------------------------------- */
 
@@ -797,6 +798,8 @@ Route::post('prestamo/devolver', 'PrestamoProductoController@devolver');
 
 /* -------------------------------------------------------------------------- */
 
+//FACTURA EXPORTACION
+Route::post('exportacion/factura', 'FactExp/FacturaExportacionController@factura');
 
 Route::get('{any}', function () {
     return view('home');
