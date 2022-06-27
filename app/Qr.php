@@ -192,9 +192,9 @@ class Qr extends Model
         return(qr::crear_pdf_qr_2($datos));
       }elseif ($datos['tamaño']==='6') {
         return(qr::etiqueta_tipo_6($datos));
-      }elseif ($datos['tamaño']==='7') {
+      }elseif ($datos['tamaño']==='10') {
         return(qr::etiqueta_tipo_7($datos));
-      }elseif ($datos['tamaño']==='8'){
+      }elseif ($datos['tamaño']==='11'){
         return(qr::etiqueta_rotulo_8($datos));
       }elseif ($datos['seleccionImpresion']==='3' && $datos['switch_desc']===false) {
         return(qr::etiqueta_nombre_desc($datos));

@@ -77,8 +77,8 @@
 										  <label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
 										</div>
 										<div class="form-check ml-5" align="left">
-										  <input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
-										  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
+										  <input class="form-check-input" type="radio" name="tamañoTiquet3G" id="tamañoTiquet3G" v-model="seleccionTamaño" value="3">
+										  <label class="form-check-label" for="tamañoTiquet3G">Producto (3,3cm x 2,2cm)</label>
 										</div>
 									</div>
 				    			</div>
@@ -195,7 +195,7 @@
 											</div>
 
 											<div class="form-check ml-5" align="left" v-if="seleccionPrecio == '1'">
-											  	<input class="form-check-input" type="radio" name="tamañoTiquet7" id="tamañoTiquet7" v-model="seleccionTamaño" value="7">
+											  	<input class="form-check-input" type="radio" name="tamañoTiquet7" id="tamañoTiquet7" v-model="seleccionTamaño" value="10">
 											  	<label class="form-check-label" for="tamañoTiquet7">Bijouterie (3,3cm x 2,2cm)</label>
 											</div>
 
@@ -253,7 +253,7 @@
 									
 									<div class="row mt-3 ml-5">
 										<div class="col-3">
-											<input class="form-check-input" type="radio" name="tamañoTiquet8" id="tamañoTiquet8" v-model="seleccionTamaño" value="8">
+											<input class="form-check-input" type="radio" name="tamañoTiquet8" id="tamañoTiquet8" v-model="seleccionTamaño" value="11">
 									  		<label class="form-check-label" for="tamañoTiquet8">Rótulo (3,3cm x 2,2cm)</label>
 										</div>
 									  	<div class="col-3">
@@ -453,12 +453,12 @@
 										</div>
 
 										<div class="col ml-4" align="center" >
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="7" :disabled="checktamaño_chi" v-on:change="focuscantidad()">
-											<label class="form-check-label" for="tamañoTiquet2" >5,5cm x 3cm</label>
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet2tr" id="tamañoTiquet2tr" v-model="seleccionTamaño" value="7" :disabled="checktamaño_chi" v-on:change="focuscantidad()">
+											<label class="form-check-label" for="tamañoTiquet2tr" >5,5cm x 3cm</label>
 										</div>
 										<div class="col ml-4" align="center">
-						    				<input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="8" :disabled="checktamaño_gra" v-on:change="focuscantidad()">
-											<label class="form-check-label" for="tamañoTiquet3">8cm x 4cm</label>
+						    				<input class="form-check-input" type="radio" name="tamañoTiquet3tr" id="tamañoTiquet3tr" v-model="seleccionTamaño" value="8" :disabled="checktamaño_gra" v-on:change="focuscantidad()">
+											<label class="form-check-label" for="tamañoTiquet3tr">8cm x 4cm</label>
 										</div>
 										<div class="col ml-4" align="left">
 						    				<input class="form-check-input" type="radio" name="tamañoTiquet4Desc" id="tamañoTiquet4Desc" v-model="seleccionTamaño" value="9" :disabled="checktamaño_gra" v-on:change="focuscantidad()">
