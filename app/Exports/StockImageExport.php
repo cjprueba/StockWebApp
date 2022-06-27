@@ -111,7 +111,7 @@ class StockImageExport implements FromArray, WithHeadings, WithTitle, WithEvents
 
         if($this->filtro=="PROVEEDOR"){
             if($this->AllProveedores==false){
-                 $ventas->whereIn('PRODUCTOS_AUX.PROVEEDOR',$this->proveedores);
+                  $ventas->whereIn('LOTES.FK_PROVEEDOR',$this->proveedores);
              }
              if($this->AllCategory==false){
                 $ventas->whereIn('PRODUCTOS.LINEA',$this->categorias);
