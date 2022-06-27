@@ -205,7 +205,7 @@
 				
 				qz.websocket.connect().then(function() { 
 
-					return qz.printers.find('NOMBRE IMPRESORA');              
+					return qz.printers.find('Canon G6000 series');              
 
 				}).then(function(printer) {
 
