@@ -4274,19 +4274,19 @@ return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data: 
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion, gondola, impresion, stock, switch_desc){
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, textura,cotizacion, gondola, impresion, stock, switch_desc, rotulo){
 
-			// ------------------------------------------------------------------------
+		// ------------------------------------------------------------------------
 
 			// INICIAR VARIABLES
 
-			/*let me = this;
+			let me = this;
 
 			// ------------------------------------------------------------------------
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'tipotextura':textura,'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc, 'rotulo':rotulo}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4310,8 +4310,8 @@ function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveed
 					// };
 				},
 				(error) => { return error }
-			);*/
-return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
+			);
+/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4323,8 +4323,7 @@ return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:
 					link.click();
 				},
 				(error) => { return error }
-			);
-	
+			);*/
 
 }
 function generarPdfBarinternoProductoCommon(datos){
