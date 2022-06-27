@@ -799,7 +799,8 @@ Route::post('prestamo/devolver', 'PrestamoProductoController@devolver');
 /* -------------------------------------------------------------------------- */
 
 //FACTURA EXPORTACION
-Route::post('exportacion/factura', 'FactExp/FacturaExportacionController@factura');
+
+Route::post('exportacion/factura', 'FactExp\FacturaExportacionController@factura');
 
 Route::get('{any}', function () {
     return view('home');
