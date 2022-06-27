@@ -63,9 +63,8 @@ class FacturaExportacion extends Model
           
             /*  --------------------------------------------------------------------------------- */
             
-            // CARGAR ITEMS
+            // CARGAR ITEM
 
-            $c_rows = $c_rows + 1;    
             $articulos[$c_rows]["item"] = $value["ITEM"];
             $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,60)));
             $articulos[$c_rows]["precio"] = $value["PRECIO"];
