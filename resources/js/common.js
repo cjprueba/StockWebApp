@@ -4603,6 +4603,8 @@ function generarPdfFacturaOrdenCommon(data){
 
 			// ------------------------------------------------------------------------
 
+			
+
 }
 
 // ------------------------------------------------------------------------
@@ -7340,7 +7342,7 @@ function comprimirImagenCommon(){
 			// ------------------------------------------------------------------------
 
 }
-function generarPdfFacturaExportacionCommon(cabecera,cuerpo){
+function generarPdfFacturaExportacionCommon(cabecera, cuerpo){
 
 			// ------------------------------------------------------------------------
 
@@ -7353,7 +7355,7 @@ function generarPdfFacturaExportacionCommon(cabecera,cuerpo){
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
 			return axios({url: 'exportacion/factura', method: 'post', responseType: 'arraybuffer', data: {'cabecera': cabecera, 'cuerpo': cuerpo}}).then( 
-				(response) => {
+			(response) => {
 
 					// var base64data = '';
 
@@ -7696,7 +7698,4 @@ export {
 		filtrarSucursalUserCommon,
 		comprimirImagenCommon,
 		generarPdfFacturaExportacionCommon
-
-
-
 		};

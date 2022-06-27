@@ -21,7 +21,7 @@
 		     	</div>
 		     	<div class="col-5">
 		     		<label>Señores:</label>
-		     		<input class="input-sm form-control form-control-sm" id="SeñoresTxt" v-bind:class="{ 'is-invalid': validar.señores }" v-model="cabecera.señores">
+		     		<input class="input-sm form-control form-control-sm" id="SenoresTxt" v-bind:class="{ 'is-invalid': validar.senores }" v-model="cabecera.senores">
 		     	</div>
 		     	<div class="col-4">
 		     		<label>Pais:</label>
@@ -53,7 +53,7 @@
 		     	<div class="col-12 mt-3" align="center">
 		     	
 		     		
-		     			<button type="button"  class="btn btn-secondary btn-block" v-on:click="imprimirFact" ><font-awesome-icon icon="print" /> Imprimir</button>
+		     			<button class="btn btn-secondary btn-block" v-on:click="imprimirFact"><font-awesome-icon icon="print" /> Imprimir</button>
 		     		
 		     	
 		     	</div>
@@ -98,7 +98,7 @@
 	          carga:false,
 	          validar: {
 	          	fecha:false,
-	          	señores:false,
+	          	senores:false,
 	          	pais:false,
 	          	ciudad:false,
 	          	direccion:false,
@@ -108,7 +108,7 @@
 	          },
 	          cabecera:{
 	          	SelectedFecha:'',
-	          	señores:'',
+	          	senores:'',
 	          	pais:'',
 	          	ciudad:'',
 	          	direccion:'',
@@ -135,11 +135,11 @@
 				}else{
 					me.validar.fecha=false;
 				}
-				if(me.cabecera.señores==='' || me.cabecera.señores===null || me.cabecera.señores==='null'){
+				if(me.cabecera.senores==='' || me.cabecera.senores===null || me.cabecera.senores==='null'){
 					me.controlar=false;
-					me.validar.señores=true;
+					me.validar.senores=true;
 				}else{
-					me.validar.señores=false;
+					me.validar.senores=false;
 				}
 				if(me.cabecera.pais==='' || me.cabecera.pais===null || me.cabecera.pais==='null'){
 					me.controlar=false;
@@ -172,16 +172,21 @@
 				}else{
 					me.validar.condiciones_p=false;
 				}
+				
 				return me.controlar;
 			},
+
 			imprimirFact(){
+
 				let me=this;
 				var tablaFactura = $('#tabla_factura').DataTable();
 				if(!me.control()){
 					
 					return;
 				}
-				Common.generarPdfFacturaExportacionCommon(me.cabecera,tablaFactura).then(response => {
+
+				Common.generarPdfFacturaExportacionCommon(me.cabecera, tablaFactura.rows().data().toArray())
+				.then(response => {
 
 							var reader = new FileReader();
 							 reader.readAsDataURL(new Blob([response])); 
@@ -193,13 +198,14 @@
 
 				});
 			},
+
 			imprimir_factura(base64) {
 
 				let me = this;
 				
 				qz.websocket.connect().then(function() { 
 
-					return qz.printers.find('NOMBRE IMPRESORA');              // Pass the printer name into the next Promise
+					return qz.printers.find('NOMBRE IMPRESORA');              
 
 				}).then(function(printer) {
 
@@ -219,7 +225,9 @@
 				}).catch(function(e) { console.error(e); });
 
 			},
+
 			subirExcel(){
+
 				let me=this;
 				const input=document.getElementById("archivoExcel");
 				readXlsFile(input.files[0]).then((rows) => {
