@@ -4233,7 +4233,60 @@ function generarPdfQrProductoCommon(datos){
 
 			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
 			
-			return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+		/*	return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos }}).then( 
+				(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);*/
+return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+				(response) => {
+					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+					const link = document.createElement('a');
+					link.href = url;
+					//DESCARGAR
+					// link.setAttribute('download', 'file.pdf');
+					// document.body.appendChild(link);
+					link.target = '_blank'
+					link.click();
+				},
+				(error) => { return error }
+			);
+			// ------------------------------------------------------------------------
+
+}
+function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, textura,cotizacion, gondola, impresion, stock, switch_desc, rotulo){
+
+		// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'tipotextura':textura,'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc, 'rotulo':rotulo}}).then( 
 				(response) => {
 
 					// var base64data = '';
@@ -4258,7 +4311,7 @@ function generarPdfQrProductoCommon(datos){
 				},
 				(error) => { return error }
 			);
-/*return axios({url: 'qrcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos }}).then( 
+/*return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
 				(response) => {
 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
 					const link = document.createElement('a');
@@ -4271,60 +4324,6 @@ function generarPdfQrProductoCommon(datos){
 				},
 				(error) => { return error }
 			);*/
-			// ------------------------------------------------------------------------
-
-}
-function generarPdfBarcodeProductoCommon(datos, tamaño, codigo, precio, proveedor, moneda, cotizacion, gondola, impresion, stock, switch_desc){
-
-			// ------------------------------------------------------------------------
-
-			// INICIAR VARIABLES
-
-			let me = this;
-
-			// ------------------------------------------------------------------------
-
-			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
-			
-			return axios({url: '/barcode', method: 'post', responseType: 'arraybuffer',data: {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
-				(response) => {
-
-					// var base64data = '';
-
-					// const url = window.URL.createObjectURL(new Blob([response.data]));
-					// var reader = new FileReader();
-					//  reader.readAsDataURL(new Blob([response.data])); 
-					//  reader.onloadend = function() {
-					//      base64data = reader.result;
-					//  }
-
-					 return response.data;
-					// return var blobToBase64 = function(blob, callback) {
-					//     var reader = new FileReader();
-					//     reader.onload = function() {
-					//         var dataUrl = reader.result;
-					//         var base64 = dataUrl.split(',')[1];
-					//         callback(base64);
-					//     };
-					//     reader.readAsDataURL(blob);
-					// };
-				},
-				(error) => { return error }
-			);
-// return axios({url: 'barcode', method: 'post', responseType: 'arraybuffer', data:  {'data': datos, 'tamaño': tamaño, 'codigo':codigo, 'precio':precio, 'proveedor': proveedor, 'tipomoneda':moneda, 'cotizacion':cotizacion, 'seleccion_gondola':gondola, 'seleccionImpresion':impresion, 'tipoStock':stock, 'switch_desc':switch_desc}}).then( 
-// 				(response) => {
-// 					const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-// 					const link = document.createElement('a');
-// 					link.href = url;
-// 					//DESCARGAR
-// 					// link.setAttribute('download', 'file.pdf');
-// 					// document.body.appendChild(link);
-// 					link.target = '_blank'
-// 					link.click();
-// 				},
-// 				(error) => { return error }
-// 			);
-			// ------------------------------------------------------------------------
 
 }
 function generarPdfBarinternoProductoCommon(datos){
@@ -4602,6 +4601,8 @@ function generarPdfFacturaOrdenCommon(data){
 			);
 
 			// ------------------------------------------------------------------------
+
+			
 
 }
 
@@ -7321,6 +7322,66 @@ function obtenerGondolasEncargadaSeccionCommon(){
 			// ------------------------------------------------------------------------
 
 }
+function comprimirImagenCommon(){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR LOS DIEZ PRIMEROS DATOS DE ACUERDO AL TIPEAR EL TEXTBOX 
+
+			return axios.get('/comprimir/Imagen').then(function (response) {
+					return response.data;
+				});
+
+			// ------------------------------------------------------------------------
+
+}
+function generarPdfFacturaExportacionCommon(cabecera, cuerpo){
+
+			// ------------------------------------------------------------------------
+
+			// INICIAR VARIABLES
+
+			let me = this;
+
+			// ------------------------------------------------------------------------
+
+			// CONSEGUIR EL CODIGO DEL PRODUCTO MEDIANTE EL CODIGO INTERNO
+			
+			return axios({url: 'exportacion/factura', method: 'post', responseType: 'arraybuffer', data: {'cabecera': cabecera, 'cuerpo': cuerpo}}).then( 
+			(response) => {
+
+					// var base64data = '';
+
+					// const url = window.URL.createObjectURL(new Blob([response.data]));
+					// var reader = new FileReader();
+					//  reader.readAsDataURL(new Blob([response.data])); 
+					//  reader.onloadend = function() {
+					//      base64data = reader.result;
+					//  }
+
+					 return response.data;
+					// return var blobToBase64 = function(blob, callback) {
+					//     var reader = new FileReader();
+					//     reader.onload = function() {
+					//         var dataUrl = reader.result;
+					//         var base64 = dataUrl.split(',')[1];
+					//         callback(base64);
+					//     };
+					//     reader.readAsDataURL(blob);
+					// };
+				},
+				(error) => { return error }
+			);
+
+			// ------------------------------------------------------------------------
+
+}
 
 
 // ------------------------------------------------------------------------
@@ -7633,8 +7694,7 @@ export {
 		obtenerGondolasEncargadaSeccionCommon,
 		reporteCajeroVentaCommon,
 		busquedaCajeroCommon,
-		filtrarSucursalUserCommon
-
-
-
+		filtrarSucursalUserCommon,
+		comprimirImagenCommon,
+		generarPdfFacturaExportacionCommon
 		};

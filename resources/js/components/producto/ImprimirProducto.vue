@@ -178,66 +178,98 @@
 										<div class="col-4" align="center">
 											<label class="form-check-label font-weight-bold ">Tamaño de Etiquetas</label>
 											<br>
-											
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet1" v-model="seleccionTamaño" value="1">
-											  <label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
-											</div>
 
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="2">
-											  <label class="form-check-label" for="tamañoTiquet2">Proveedor (3,3cm x 2,2cm)</label>
-											</div>
+											<!-- <div class="form-check ml-5" align="left">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet6" id="tamañoTiquet6" v-model="seleccionTamaño" value="6">
+											  <label class="form-check-label" for="tamañoTiquet6">Bijouterie (2,5cm x 1,2cm)</label>
+											</div> -->
 											
 											<div class="form-check ml-5" align="left">
 											  <input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
 											  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
 											</div>
 											
-											<div class="form-check ml-5" align="left">
+											<div class="form-check ml-5" align="left" v-if="seleccionPrecio !== '4'">
 											  <input class="form-check-input" type="radio" name="tamañoTiquet4" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
 											  <label class="form-check-label" for="tamañoTiquet4">Producto (5,5cm x 2,9cm)</label>
 											</div>
 
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet5" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
-											  <label class="form-check-label" for="tamañoTiquet5">QR Link (3,3cm x 2,2cm)</label>
+											<div class="form-check ml-5" align="left" v-if="seleccionPrecio == '1'">
+											  	<input class="form-check-input" type="radio" name="tamañoTiquet7" id="tamañoTiquet7" v-model="seleccionTamaño" value="7">
+											  	<label class="form-check-label" for="tamañoTiquet7">Bijouterie (3,3cm x 2,2cm)</label>
 											</div>
 
+											
 										</div>
 
 										<!-- --------------------------------------------- TIPO DE CODIGO ------------------------------------------------------- -->
-										<div class="col-4">
-											<label class="form-check-label font-weight-bold ml-5">Tipo de Código</label>
-											<br>
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo1"  v-model="seleccionCodigo" value="1">
-											  <label class="form-check-label" for="TipoDeCodigo1" >Código Interno</label>
+										<div class="col-4"">
+											<div v-if="seleccionPrecio !== '4'">
+												<label class="form-check-label font-weight-bold ml-5">Tipo de Código</label>
+												<br>
+												<div class="form-check ml-5" align="left">
+												  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo1"  v-model="seleccionCodigo" value="1">
+												  <label class="form-check-label" for="TipoDeCodigo1" >Código Interno</label>
+												</div>
+												<div class="form-check ml-5" align="left">
+												  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo2" v-model="seleccionCodigo" value="2">
+												  <label class="form-check-label" for="TipoDeCodigo2">Código Producto </label>
+												</div>
 											</div>
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="TipoCodigo" id="TipoDeCodigo2" v-model="seleccionCodigo" value="2">
-											  <label class="form-check-label" for="TipoDeCodigo2">Código Producto </label>
-											</div>
-											<label class="form-check-label font-weight-bold ml-5">Tipo de moneda</label>
-											<br>
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda1"  v-model="seleccionMoneda" value="1">
-											  <label class="form-check-label" for="TipoDeMoneda1" >Guaranies (G$)</label>
-											</div>
-											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda2" v-model="seleccionMoneda" value="2">
-											  <label class="form-check-label" for="TipoDeMoneda2">Dolares (U$)</label>
-											</div>
-											<div v-if="seleccionMoneda>0" align="left">
-								                  <hr>
 
-												 
-								                  <label for="cotizacion" class="col-7 ml-5 font-weight-bold">Cotización</label>
+											<div v-if="seleccionPrecio == 4">
+											    <label class="form-check-label font-weight-bold ml-5">Tipo de moneda</label>
+											    <br>
+												<div class="form-check ml-5" align="left">
+												  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda1"  v-model="seleccionMoneda" value="1">
+												  <label class="form-check-label" for="TipoDeMoneda1" >Guaranies (G$)</label>
+												</div>
+												<div class="form-check ml-5" align="left">
+												  <input class="form-check-input" type="radio" name="TipoMoneda" id="TipoDeMoneda2" v-model="seleccionMoneda" value="2">
+												  <label class="form-check-label" for="TipoDeMoneda2">Dolares (U$)</label>
+												</div>
+												<div v-if="seleccionMoneda>0" align="left">
+									                <hr>
+									                <label for="cotizacion" class="col-7 ml-5 font-weight-bold">Cotización</label>
+									                <input  id="cotizacion" v-model="ingresarCotizacion" type="text" class="form-control col-7 ml-5" >
+												</div>
+											</div>
 
-								                   <input  id="cotizacion" v-model="ingresarCotizacion" type="text" class="form-control col-7 ml-5" >
+											<div v-if="(seleccionTamaño=='6' || seleccionTamaño=='7') && seleccionPrecio == '1'">
+												<hr>
+												<label class="form-check-label font-weight-bold ml-5" for="seleccionTextura">Textura</label>
+												<select class="form-control" id="seleccionTextura" v-model="seleccionTextura" >
+												    <option value="1">Silver 925</option>
+												</select>	
 											</div>
 										</div>
 									</div>
+									<hr>
+									<div class="row">
+										<div class="col" align="center">
+											<label class="form-check-label font-weight-bold " >Predefinido</label>
+										</div>
+									</div>
+									
+									<div class="row mt-3 ml-5">
+										<div class="col-3">
+											<input class="form-check-input" type="radio" name="tamañoTiquet8" id="tamañoTiquet8" v-model="seleccionTamaño" value="8">
+									  		<label class="form-check-label" for="tamañoTiquet8">Rótulo (3,3cm x 2,2cm)</label>
+										</div>
+									  	<div class="col-3">
+									  		<input class="form-check-input" type="radio" name="tamañoTiquet2" id="tamañoTiquet2" v-model="seleccionTamaño" value="2">
+									  		<label class="form-check-label" for="tamañoTiquet2">Proveedor (3,3cm x 2,2cm)</label>
+									  	</div>
+									  	<div class="col-3">
+									  		<input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet1" v-model="seleccionTamaño" value="1">
+									  		<label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
+									  	</div>
+									  	<div class="col-3">
+									  		<input class="form-check-input" type="radio" name="tamañoTiquet5" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
+									  		<label class="form-check-label" for="tamañoTiquet5">QR Link (3,3cm x 2,2cm)</label>
+									  	</div>
+									</div>
+										
 
 									<!-- --------------------------------------------- PROVEEDOR ------------------------------------------------------- -->
 									<div v-if="seleccionTamaño=='2'" class="col-12" >
@@ -258,52 +290,73 @@
 												</div>
 												
 												<div class="mb-3">
-												  	<label for="formGroupExampleInput3" class="form-label font-weight-bold mt-2 ml-2">Dirección</label>
+												  	<label for="formGroupExampleInput3" class="form-label font-weight-bold ml-2">Dirección</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput3" v-model="proveedor.direccion" v-bind:class="{ 'is-invalid': validarProveedor.direccion }">
 												</div>
 
 
 												<div class="mb-3">
-												  	<label for="formGroupExampleInput4" class="form-label font-weight-bold  mt-2 ml-2">Teléfono</label>
+												  	<label for="formGroupExampleInput4" class="form-label font-weight-bold ml-2">Teléfono</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput4" v-model="proveedor.telefono" v-bind:class="{ 'is-invalid': validarProveedor.telefono }">
 												</div>
 											</div>
 
 											<div class="col-6">
-												
-												
 												<div class="mb-3">
-												  	<label for="formGroupExampleInput5" class="form-label font-weight-bold  mt-2 ml-2">FAX</label>
+												  	<label for="formGroupExampleInput5" class="form-label font-weight-bold ml-2">FAX</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput5" v-model="proveedor.fax" v-bind:class="{ 'is-invalid': validarProveedor.fax }">
 												</div>
 												<div class="mb-3">
-												  	<label for="formGroupExampleInput6" class="form-label  mt-2 font-weight-bold ml-2">RUC</label>
+												  	<label for="formGroupExampleInput6" class="form-label  font-weight-bold ml-2">RUC</label>
 												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.ruc" v-bind:class="{ 'is-invalid': validarProveedor.ruc }">
 												</div>
 
 												<div class="mb-3">
-												  	<label for="formGroupExampleInput7" class="form-label  mt-2 font-weight-bold ml-2">Ciudad</label>
+												  	<label for="formGroupExampleInput7" class="form-label font-weight-bold ml-2">Ciudad</label>
 												  	<input type="text" class="form-control form-control-sm"" id="formGroupExampleInput7" v-model="proveedor.ciudad" v-bind:class="{ 'is-invalid': validarProveedor.ciudad }">
 												</div>
 												<hr>
 												<div class="row">
-													
 													<div class="col-7"></div>
 													<div class="mb-3 col " align="center">
-													  	<label for="formGroupExampleInput6" class="form-label  mt-2 font-weight-bold" >Cantidad de ticket</label>
+													  	<label for="formGroupExampleInput6" class="form-label font-weight-bold" >Cantidad de ticket</label>
 													  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.cantidad" v-bind:class="{ 'is-invalid': validarProveedor.cantidad }">
-													</div>
-														
-												</div>
-												
-													
+													</div>	
 												</div>
 											</div>
-											
 										</div>
-										
+									</div>
+										<!-- --------------------------------------------- PROVEEDOR ------------------------------------------------------- -->
+									<div v-if="seleccionTamaño=='8'" class="col-12" align="center" >
+										<div class="row">
+											<div class="col-1"></div>
+											<div class="col-10"><hr></div>										
+										</div>
+
+										<div class="row">
+											<div class="col" >
+												<div class="col-4">
+												  	<label for="rotuloForm" class="form-label font-weight-bold ml-2">Primera fila</label>
+												  	<input type="text" class="form-control form-control-sm" id="rotuloForm" v-model="rotulo.priFila">
+												</div>
+												<div class="col-4">
+												  	<label for="rotuloForm2" class="form-label font-weight-bold ml-2">Segunda fila</label>
+												  	<input type="text" class="form-control form-control-sm" id="rotuloForm2" v-model="rotulo.segFila">
+												</div>
+												<div class="col-4">
+												  	<label for="rotuloForm3" class="form-label font-weight-bold ml-2 ">Tercera fila</label>
+												  	<input type="text" class="form-control form-control-sm" id="rotuloForm3" v-model="rotulo.terFila">
+												</div>
+												<div class="col-2">
+												  	<label for="formGroupExampleInput6" class="form-label font-weight-bold" >Cantidad de ticket</label>
+												  	<input type="text" class="form-control form-control-sm" id="formGroupExampleInput6" v-model="proveedor.cantidad" v-bind:class="{ 'is-invalid': validarProveedor.cantidad }">
+												</div>
+											</div>
+										</div>
+
 									</div>
 								</div>
+							</div>
 
 								<!-- |||||||||||||||||||||||||||||||||||||| DESCRIPCION |||||||||||||||||||||||||||||||||||||| -->
 								<div v-if="seleccionImpresion=='3'" class="card-body">
@@ -720,10 +773,12 @@
 				seleccionTamaño: 0,
 				seleccionCodigo: 0,
 				seleccionMoneda: 0,
+				seleccionTextura: 1,
 				ingresarCotizacion: 0,
 				seleccionPrecio: 0,
 				seleccionImpresion: '2',
 				switch_desc:false,
+				switch_moneda: false,
 				seleccion_gondola: [{}],
 				tipoStock: 0,
 				productoImagen: [{
@@ -778,7 +833,11 @@
 					cantidad: '',
 					controlar:true
 				},
-
+				rotulo:{
+					priFila: '',
+					segFila: '',
+					terFila: ''
+				},
 
 				validar:{
 				
@@ -1927,20 +1986,27 @@
 					me.proveedor.controlar=true;
 					return;
 				}
-
+				me.rotulo.priFila=me.rotulo.priFila.toUpperCase();
+				me.rotulo.segFila=me.rotulo.segFila.toUpperCase();
+				me.rotulo.terFila=me.rotulo.terFila.toUpperCase();
+				
+				var tipoMoneda = me.seleccionMoneda;
 			    var precio=me.seleccionPrecio;
 				var tamañoEtiqueta = me.seleccionTamaño;
 				var tipoCodigo = me.seleccionCodigo;
-				var tipoMoneda = me.seleccionMoneda;
+				var tipoTextura = me.seleccionTextura;
 				var cotizacion = me.ingresarCotizacion;
 				var proveedorA = me.proveedor;
+				var rotulo=me.rotulo;
 				var switch_desc = me.switch_desc;
 				var seleccion_gondola = me.seleccion_gondola;
 				var seleccionImpresion = me.seleccionImpresion;
 				var tipoStock = me.tipoStock;
 				var tableProductos = $('#tablaProductos').DataTable();
 				var delayInMilliseconds = 3000;
-				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock, me.switch_desc).then(response => {	
+
+				console.log(tipoMoneda+" tipo moneda");
+				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, tipoTextura,me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock, me.switch_desc, rotulo).then(response => {	
 					var reader = new FileReader();
 					reader.readAsDataURL(new Blob([response])); 
 					reader.onloadend = function() {

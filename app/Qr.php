@@ -190,7 +190,12 @@ class Qr extends Model
         return(qr::etiqueta_tipo_4($datos));
       }elseif ($datos['tamaño']==='5') {
         return(qr::crear_pdf_qr_2($datos));
-        var_dump($datos['switch_desc']);
+      }elseif ($datos['tamaño']==='6') {
+        return(qr::etiqueta_tipo_6($datos));
+      }elseif ($datos['tamaño']==='7') {
+        return(qr::etiqueta_tipo_7($datos));
+      }elseif ($datos['tamaño']==='8'){
+        return(qr::etiqueta_rotulo_8($datos));
       }elseif ($datos['seleccionImpresion']==='3' && $datos['switch_desc']===false) {
         return(qr::etiqueta_nombre_desc($datos));
       }elseif ($datos['seleccionImpresion']==='3' && $datos['switch_desc']===true) {
@@ -1064,20 +1069,19 @@ class Qr extends Model
           }else if($datos['precio']<>'4'){
             $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
           }
-           
           if($datos['precio']==='1'){
             $pdf->SetFontSize(8);
-            $pdf->SetFont('','B');
+            $pdf->SetFont('helvetica','B');
             $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
           
           }else if($datos['precio']==='2'){
             $pdf->SetFontSize(8);
-            $pdf->SetFont('','B');
+            $pdf->SetFont('helvetica','B');
             $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
 
           }else if($datos['precio']==='3'){
             $pdf->SetFontSize(8);
-            $pdf->SetFont('','B');
+            $pdf->SetFont('helvetica','B');
             if($value['MONEDA']===2){
               $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
             }else{
@@ -1085,7 +1089,7 @@ class Qr extends Model
             }                   
           }else if ($datos['precio']==='4') {
             $pdf->SetFontSize(12);
-            $pdf->SetFont('','B');
+            $pdf->SetFont('helvetica','B');
             if($datos['tipomoneda']==='1'){
               if ($value['MONEDA']===1) {
                 $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
@@ -1110,9 +1114,10 @@ class Qr extends Model
               }
             } 
           }
-          $pdf->SetFontSize(5.7);
-          $pdf->SetFont('freesans');
+          
           if ($datos['precio']<>'4') {
+            $pdf->SetFontSize(5.7);
+            $pdf->SetFont('freesans');
             $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 1, '', false, '', 0);
           }
            //$y=$y+35;
@@ -1187,67 +1192,6 @@ class Qr extends Model
       return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     }
 
-public static function nuevaetiquetapequeñita($datos){
-      $user = auth()->user();
-      $pdf = new TCPDF('L','mm',array(105,12));
-      $pdf->SetPrintHeader(false);
-      $pdf->SetPrintFooter(false);
-      $pdf->addPage();
-
-      $pdf->SetFont('helvetica', '', 6);
-      $name = '111'; 
-      $type = 'C128B';
-
-      //definir estilo del Barcode 
-      //-------------------------------------------------------------------------
-      $style = array(
-          'position' => '',
-          'align' => 'N',
-          'stretch' => true,
-          'fitwidth' => false,
-          'cellfitalign' => '',
-          'border' => false, // border
-          'hpadding' => 2.5,
-          'vpadding' => 3.2,
-          'fgcolor' => array(0, 0, 0),
-          'bgcolor' => false, //array(255,255,255),
-                   'text' => true, // whether to display the text below the barcode
-                   'font' => 'courier', //font
-                   'fontsize' => 7, //font size
-          'stretchtext' => 8
-      );
-      $pag=1;
-      $x=28;
-      $y = 0.3;
-      $z = 2;
-      $c=0;
-      $made="MADE IN KOREA";
-      if($datos['seleccionImpresion']<>'1'){
-        foreach ($datos["data"] as $key => $value){
-          while($c<$value["CANTIDAD"]){
-            $c=$c+1;
-            if($x>97){
-              $y=$y+27;
-              if($y > 22){
-                $pag=$pag+1;
-                $pdf->AddPage();
-                $y = 0.3;
-              }
-              $x=28;
-            }
-            // $pdf->SetAutoPageBreak(FALSE, 0);
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+15, $y-2.4, 32, 12, 0.2, $style, 'N');
-            $pdf->SetFont('helvetica', '', 7);
-            $pdf->text($x-16, $y+5.5, "U$ ".$value['PRECIO'], false, false, true);
-            $pdf->SetFont('helvetica', '', 5);
-            $pdf->text($x-18.8, $y+8, $made, false, false, true, 0, 1, '', false, '', 0);
-            $x=$x+90;
-          }
-          $c=0;
-        }
-      }
-      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
-    }
 
     public static function etiqueta_tipo_4($datos){
       $name = '111'; 
@@ -1320,12 +1264,207 @@ public static function nuevaetiquetapequeñita($datos){
         $c=0;
       }
         return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+    }
+
+    public static function etiqueta_tipo_6($datos){
+      $user = auth()->user();
+      $pdf = new TCPDF('L','mm',array(105,12));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+
+      $pdf->SetFont('helvetica', '', 6);
+      $name = '111'; 
+      $type = 'C128B';
+
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
+      $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 2.5,
+          'vpadding' => 3.2,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+                   'text' => true, // whether to display the text below the barcode
+                   'font' => 'courier', //font
+                   'fontsize' => 7, //font size
+          'stretchtext' => 8
+      );
+      $pag=1;
+      $x=28;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      $made="MADE IN KOREA";
+      if($datos['seleccionImpresion']<>'1'){
+        foreach ($datos["data"] as $key => $value){
+          while($c<$value["CANTIDAD"]){
+            $c=$c+1;
+            if($x>97){
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $x=28;
+            }
+            // $pdf->SetAutoPageBreak(FALSE, 0);
+            $pdf->write1DBarcode($value["CODIGO"], $type, $x+15, $y-2.4, 32, 12, 0.2, $style, 'N');
+            $pdf->SetFont('helvetica', '', 7);
+            $pdf->text($x-16, $y+5.5, "U$ ".$value['PRECIO'], false, false, true);
+            $pdf->SetFont('helvetica', '', 5);
+            $pdf->text($x-18.8, $y+8, $made, false, false, true, 0, 1, '', false, '', 0);
+            $x=$x+90;
+          }
+          $c=0;
+        }
+      }
+      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     } 
 
-      public static function crear_pdf_CajaCompra_qr($datos)
-    {
-      
+    public static function etiqueta_tipo_7($datos){
+      $user = auth()->user();
+      $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
 
+      $pdf->SetFont('helvetica', '', 6);
+      $name = '111'; 
+      $type = 'C128B';
+
+      //definir estilo del Barcode 
+      //-------------------------------------------------------------------------
+      $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 2,
+          'vpadding' => 1.5,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+                   'text' => true, // whether to display the text below the barcode
+                   'font' => 'courier', //font
+                   'fontsize' => 9, //font size
+          'stretchtext' => 4
+      );
+      $textura = array(
+        'SILVER 925'
+      );
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      $made="MADE IN KOREA";
+      if($datos['seleccionImpresion']<>'1'){
+        foreach ($datos["data"] as $key => $value){
+          while($c<$value["CANTIDAD"]){
+            $c=$c+1;
+            if($x>97){
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
+              }
+              $x=25;
+            }
+            // $pdf->SetAutoPageBreak(FALSE, 0);
+            $pdf->SetFont('helvetica', '', 10);
+
+            if ($datos['codigo']==='2' || $datos['codigo']===NULL || $datos['codigo']===''){
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x+4, $y+1.5, 32, 12, 0.2, $style, 'N');
+            }else{
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+4, $y+1.5, 32, 12, 0.2, $style, 'N');
+            }
+            $pdf->text($x-14.5, $y+11.5, "U$ ".$value['PRECIO'], false, false, true);
+            $pdf->SetFont('helvetica', '', 7);
+            $pdf->text($x-15, $y+16.5, $textura[($datos['tipotextura']-1)], false, false, true, 0, 1, '', false, '', 0);
+            $pdf->text($x-18, $y+19, $made, false, false, true, 0, 1, '', false, '', 0);
+            $x=$x+37-1.5;
+          }
+          $c=0;
+        }
+      }
+      return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
+    }
+
+     public static function etiqueta_rotulo_8($datos){
+      $pdf = new TCPDF('L','mm',array(105,22));
+      $pdf->SetPrintHeader(false);
+      $pdf->SetPrintFooter(false);
+      $pdf->addPage();
+      $pdf->SetFont('helvetica', '', 6);
+      $pag=1;
+      $x=25;
+      $y = 0.3;
+      $z = 2;
+      $c=0;
+      while($datos['proveedor']['cantidad']>$c){
+        $c=$c+1;
+        if($x>97){
+          $y=$y+27;
+          if($y > 22){
+            $pag=$pag+1;
+            $pdf->AddPage();
+            $y = 0.3;
+          }
+          $x=25;
+        }
+        $pdf->SetFontSize(14); 
+        $pdf->SetFont('freesans');
+        $restar=strlen($datos['rotulo']['priFila']);
+        $restar_AUX=$restar;
+        if($restar_AUX<5){
+          $restar=$restar-7;
+        }elseif($restar_AUX>6 && $restar_AUX<11){
+          $restar=$restar-5.5;
+          if($restar_AUX==8 || $restar_AUX>8){
+            $pdf->SetFontSize(10);
+          }
+        }elseif($restar_AUX>10){
+          $restar=$restar-10;
+          $pdf->SetFontSize(7);
+        }else{
+          $restar=0;
+        }
+        $pdf->text($x-18-$restar, $y+2, $datos['rotulo']['priFila'], false, false, true, 0, 1, '', false, '', 0);
+        //--------------------------------------
+        $pdf->SetFontSize(14);
+        $restar=strlen($datos['rotulo']['segFila']);
+        $restar_AUX=$restar;
+        if($restar_AUX>6){
+          $restar=$restar-5;
+        }else{
+          $restar=0;
+        }
+        $pdf->text($x-16.5-$restar, $y+8, $datos['rotulo']['segFila'], false, false, true, 0, 1, '', false, '', 0);
+        //--------------------------------------
+        $pdf->SetFontSize(14);
+        $restar=strlen($datos['rotulo']['terFila']);
+        $restar_AUX=$restar;
+        if($restar_AUX>6){
+          $restar=$restar-5;
+        }else{
+          $restar=0;
+        }
+        $pdf->text($x-15.5-$restar, $y+15, $datos['rotulo']['terFila'], false, false, true, 0, 1, '', false, '', 0);
+        $x=$x+37-1.5;
+      }
+       return $pdf->Output("etiqueta_tipo_2" . ".pdf", 'D'); //D Download I Show
+    } 
+
+      public static function crear_pdf_CajaCompra_qr($datos){
           $file=public_path('qr.png');
      
           $pdf = new FPDF('L','mm',array(50,50));
