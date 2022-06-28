@@ -180,7 +180,7 @@
 											<br>
 
 											<!-- <div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet6" id="tamañoTiquet6" v-model="seleccionTamaño" value="6">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet6" id="tamañoTiquet6" v-model="seleccionTamaño" value="12">
 											  <label class="form-check-label" for="tamañoTiquet6">Bijouterie (2,5cm x 1,2cm)</label>
 											</div> -->
 											
@@ -235,7 +235,7 @@
 												</div>
 											</div>
 
-											<div v-if="(seleccionTamaño=='6' || seleccionTamaño=='7') && seleccionPrecio == '1'">
+											<div v-if="(seleccionTamaño=='12' || seleccionTamaño=='10') && seleccionPrecio == '1'">
 												<hr>
 												<label class="form-check-label font-weight-bold ml-5" for="seleccionTextura">Textura</label>
 												<select class="form-control" id="seleccionTextura" v-model="seleccionTextura" >
@@ -327,7 +327,7 @@
 										</div>
 									</div>
 										<!-- --------------------------------------------- PROVEEDOR ------------------------------------------------------- -->
-									<div v-if="seleccionTamaño=='8'" class="col-12" align="center" >
+									<div v-if="seleccionTamaño=='11'" class="col-12" align="center" >
 										<div class="row">
 											<div class="col-1"></div>
 											<div class="col-10"><hr></div>										
