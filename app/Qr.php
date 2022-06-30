@@ -340,9 +340,9 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.FORMA_DE_USO, "INDEFINIDO") AS FORMA_DE_USO,
                                     IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
@@ -351,7 +351,6 @@ class Qr extends Model
             $nestedData['COD_PROD']=$value["CODIGO"];
             $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
             $nestedData['MARCA']=$producto_det[0]->MARCA;
-            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
             $nestedData['TAMAÑO']="9";
@@ -362,6 +361,7 @@ class Qr extends Model
               $nestedData['PROPIEDADES_CHECK']=true;
               $nestedData['PROPIEDADES']=$producto_det[0]->PROPIEDADES;
             }
+
             if($producto_det[0]->VALOR_NUTRICIONAL==="INDEFINIDO" || $producto_det[0]->VALOR_NUTRICIONAL == ""){
               $nestedData['VALOR_NUTRCIONAL_CHECK']=false;
               $nestedData['VALOR_NUTRICIONAL']='';
@@ -369,6 +369,15 @@ class Qr extends Model
               $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
               $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
             }
+
+            if($producto_det[0]->FORMA_DE_USO==="INDEFINIDO" || $producto_det[0]->FORMA_DE_USO == ""){
+              $nestedData['FORMA_DE_USO_CHECK']=false;
+              $nestedData['FORMA_DE_USO']='';
+            }else{
+              $nestedData['FORMA_DE_USO_CHECK']=true;
+              $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
+            }
+
             $htmldesc= view('pdf.traduccion', $nestedData)->render();
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
@@ -443,9 +452,9 @@ class Qr extends Model
                   ->table('DESCRIPCION_DETALLADA')
                   ->select(DB::raw('DESCRIPCION_DETALLADA.NOMBRE_DEL_PRODUCTO,
                                     DESCRIPCION_DETALLADA.MARCA,
-                                    DESCRIPCION_DETALLADA.FORMA_DE_USO,
                                     DESCRIPCION_DETALLADA.INGREDIENTES,
                                     DESCRIPCION_DETALLADA.CONTENIDO,
+                                    IFNULL(DESCRIPCION_DETALLADA.FORMA_DE_USO, "INDEFINIDO") AS FORMA_DE_USO,
                                     IFNULL(DESCRIPCION_DETALLADA.PROPIEDADES, "INDEFINIDO") AS PROPIEDADES,
                                     IFNULL(DESCRIPCION_DETALLADA.VALOR_NUTRICIONAL, "INDEFINIDO") AS VALOR_NUTRICIONAL'))
                   ->where('DESCRIPCION_DETALLADA.CODIGO','=', $value["CODIGO"])
@@ -454,7 +463,6 @@ class Qr extends Model
             $nestedData['COD_PROD']=$value["CODIGO"];
             $nestedData['NOMBRE_DEL_PRODUCTO']=$producto_det[0]->NOMBRE_DEL_PRODUCTO;
             $nestedData['MARCA']=$producto_det[0]->MARCA;
-            $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
             $nestedData['CONTENIDO']=$producto_det[0]->CONTENIDO;
             $nestedData['INGREDIENTES']=$producto_det[0]->INGREDIENTES;
             $nestedData['TAMAÑO']="8";
@@ -471,6 +479,13 @@ class Qr extends Model
             }else{
               $nestedData['VALOR_NUTRCIONAL_CHECK']=true;
               $nestedData['VALOR_NUTRICIONAL']=$producto_det[0]->VALOR_NUTRICIONAL;
+            }
+            if($producto_det[0]->FORMA_DE_USO==="INDEFINIDO" || $producto_det[0]->FORMA_DE_USO == ""){
+              $nestedData['FORMA_DE_USO_CHECK']=false;
+              $nestedData['FORMA_DE_USO']='';
+            }else{
+              $nestedData['FORMA_DE_USO_CHECK']=true;
+              $nestedData['FORMA_DE_USO']=$producto_det[0]->FORMA_DE_USO;
             }
             $htmldesc= view('pdf.traduccion', $nestedData)->render();
 
