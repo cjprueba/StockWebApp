@@ -14,17 +14,14 @@
         padding: 1.85px 4px;
         font-size: 11px;
     }
-    .tabla1{
-        margin-bottom: 3px;
-    }
     .tabla2 {
-        padding-top: 98px;
+        padding-top: 100px;
         margin-bottom: 0px;
         padding-bottom: 0px;
     }
     .tabla3{
         border: 1px solid #000;
-        margin-top: 63px;
+        margin-top: 69px;
     }
     .tabla3 td{
         border: 1px solid #fff;
@@ -82,14 +79,14 @@
     }
 
     .tablaRazon {
-        margin-top: -2px;
+        margin-top: -6px;
         padding-top: 0px;
        border-collapse:separate; 
-       border-spacing: 8px;
+       border-spacing: 10px;
     }
 
     .tablaFooter {
-        margin-top: 17px;
+        margin-top: 6px;
     }
 
     .tablaFooter td {
@@ -109,25 +106,25 @@
     <div class="@if($tipo=='fisico') fisico @endif">
         <table width="100%" class="tabla2" >
             <tr>
-                <td width="12%"></td>
-                <td width="88%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
+                <td width="11%"></td>
+                <td width="89%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
             </tr>
         </table>
         <table width="100%" class="tablaRazon">
             <tr>
                 <td width="16%"></td>
                 <td width="50%" align="left"><span class="text">{{ $senores }}</span></td>
-                <td width="14%">&nbsp;</td>
-                <td width="20%"><span class="text">{{ $pais }}</span></td>
+                <td width="15%">&nbsp;</td>
+                <td width="19%"><span class="text">{{ $pais }}</span></td>
             </tr>
             <tr>
                 <td width="16%"></td>
                 <td width="50%" align="left"><span class="text">{{ $direccion }}</span></td>
-                <td width="14%">&nbsp;</td>
-                <td width="20%"><span class="text">{{ $ciudad }}</span></td>
+                <td width="15%">&nbsp;</td>
+                <td width="19%"><span class="text">{{ $ciudad }}</span></td>
             </tr>
         </table>
-        <table width="100%">
+        <table width="100%" style="margin-top: 2px;">
             <tr>
                 <td width="18%"></td>
                 <td width="21%" align="left"><span class="text">{{ $telefono }}</span></td>
@@ -136,34 +133,34 @@
             </tr>
         </table>
         <table width="100%" class="tabla3">
-            @for ($i = 0; $i < 38; $i++)
+            @for ($i = 0; $i < 39; $i++)
             @if (array_key_exists($i, $articulos))
             <tr>
-                <td width="8%" align="left"><span class="text">{{ $articulos[$i]['item']}}</span></td>
-                <td width="12%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="55%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
-                <td width="9%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
-                <td width="16%" align="center"><span class="text">{{ $articulos[$i]['total'] }}</span></td>
+                <td width="6%" align="left"><span class="text">{{ $articulos[$i]['item']}}</span></td>
+                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
+                <td width="54%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td width="14%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
+                <td width="13%" align="right"><span class="text">{{ $articulos[$i]['total'] }}</span></td>
 
             </tr>
             @else
             <tr>
-                <td width="8%" align="left">&nbsp;</td>
-                <td width="12%"  align="center">&nbsp;</td>
-                <td width="55%" align="left">&nbsp;</td>
-                <td width="9%" align="left">&nbsp;</td>
-                <td width="16%" align="center">&nbsp;</td>
+                <td width="6%" align="left">&nbsp;</td>
+                <td width="13%"  align="center">&nbsp;</td>
+                <td width="54%" align="left">&nbsp;</td>
+                <td width="14%" align="center">&nbsp;</td>
+                <td width="13%" align="right">&nbsp;</td>
             </tr>
             @endif
             @endfor
         </table>
  
-
+<br>
         <table width="100%" class="tablaFooter">
             <tr>
-                <td width="15%" align="center"></td>
-                <td width="60%" align="left"><span class="text">{{ $letra }}</span></td>
-                <td width="25%" align="center"><span class="text">{{ $total }}</span></td>
+                <td width="14%" align="center"></td>
+                <td width="68%" align="left"><span class="text">{{ $letra }}</span></td>
+                <td width="18%" align="center"><span class="text">{{ $total }}</span></td>
             </tr>
         </table>
     </div>
