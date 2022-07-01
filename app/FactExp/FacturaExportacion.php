@@ -33,11 +33,11 @@ class FacturaExportacion extends Model
         
         $data['fecha'] = date("d-m-Y", strtotime($cabecera["SelectedFecha"]));
         $data['senores'] = substr($cabecera["senores"], 0,60);
-        $data['pais'] = substr($cabecera["pais"], 0,21);
-        $data['ciudad'] = substr($cabecera["ciudad"], 0,23);
+        $data['pais'] = substr($cabecera["pais"], 0,16);
+        $data['ciudad'] = substr($cabecera["ciudad"], 0,18);
         $data['direccion'] = substr($cabecera["direccion"], 0,60);
         $data['telefono'] = substr($cabecera["telefono"], 0,24);
-        $data['condiciones_p'] = substr($cabecera["condiciones_p"], 0,36);
+        $data['condiciones_p'] = substr($cabecera["condiciones_p"], 0,30);
         $data['tipo'] = 'fisico';
 
         /*  --------------------------------------------------------------------------------- */
@@ -51,10 +51,12 @@ class FacturaExportacion extends Model
         $fontData = $defaultFontConfig['fontdata'];
 
         $mpdf = new Mpdf([
-            'margin_left' => 10,
-            'margin_right' => 10,
-            'margin_top' => 20,
-            'margin_header' => 10
+            'margin_left' => 7,
+            'margin_right' => 7,
+            'margin_top' => 30,
+            'margin_bottom' => 2,
+            'margin_header' => 10,
+            "format" => [ 210, 307 ],
         ]);
 
         $mpdf->SetDisplayMode('fullpage');
@@ -87,9 +89,9 @@ class FacturaExportacion extends Model
             /*  --------------------------------------------------------------------------------- */
 
 
-            // SI CANTIDAD DE FILAS ES IGUAL A 38 ENTONCES CREAR PAGINA 
+            // SI CANTIDAD DE FILAS ES IGUAL A 39 ENTONCES CREAR PAGINA 
 
-            if ($c_rows === 38){
+            if ($c_rows === 39){
 
                 // AGREGAR ARTICULOS 
 
@@ -97,7 +99,7 @@ class FacturaExportacion extends Model
 
                 // RESTAR LAS CANTIDADES CARGADAS 
 
-                $c_rows_array = $c_rows_array - 38;
+                $c_rows_array = $c_rows_array - 39;
 
                 // PONER TRUE SWITCH YA QUE CREO UNA PAGINA 
 
@@ -114,7 +116,7 @@ class FacturaExportacion extends Model
 
                 // SI NO ES LA PRIMERA HOJA AGREGAR PAGINA
 
-                if ($c !== 38) {
+                if ($c !== 39) {
                     $mpdf->AddPage();
                 }
 
@@ -131,7 +133,7 @@ class FacturaExportacion extends Model
 
                 /*  --------------------------------------------------------------------------------- */
 
-            }  else if ($c_rows_array < 38 && $c_filas_total === $c) {
+            }  else if ($c_rows_array < 39 && $c_filas_total === $c) {
                 
                 // AGREGAR ARTICULOS 
                 
