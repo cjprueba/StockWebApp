@@ -29,9 +29,10 @@ class Temp_venta extends Model
            
             ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
             ->leftjoin('VENTASDET_TIENE_LOTES', 'VENTASDET_TIENE_LOTES.ID_VENTAS_DET', '=', 'VENTASDET.ID')
-            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+          
             ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
             ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
+            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
            ->leftjoin('ventas','ventas.ID','ventasdet.FK_VENTA')
@@ -55,7 +56,7 @@ class Temp_venta extends Model
              IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
              SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
              SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+             LOTES.FK_PROVEEDOR AS PROVEEDOR,
              PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
              VENTAS.ID AS ID,
              (VENTASDET.PRECIO_UNIT*VENTASDET_TIENE_LOTES.CANTIDAD) AS PRECIO,
@@ -85,7 +86,7 @@ class Temp_venta extends Model
 	        
 	        if(isset($datos["checkedProveedor"])){
 	        	if(!$datos["checkedProveedor"]){
-	        		$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+	        		$reporte->whereIn('LOTES.FK_PROVEEDOR',$datos["proveedores"]);
 	            }
 	        }
 	        if(isset($datos["tipos"])){
@@ -108,10 +109,10 @@ class Temp_venta extends Model
            		}
 
            		if(!$datos["checkedSeccion"]){
-           			$reporte->whereIn('GONDOLA_TIENE_SECCION.ID_SECCION',$datos["seccion"]);
+           			 $reporte->whereIn('GONDOLA_TIENE_SECCION.ID_SECCION',$datos["secciones"]);
            		}
 	        }
-
+	       
 	        $reporte=$reporte->get()->toArray();
 	        	
 
@@ -285,9 +286,10 @@ class Temp_venta extends Model
 			                 ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 			                 ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'VENTASDET_DEVOLUCIONES.FK_VENTASDET')
 			                 ->leftjoin('VENTASDET_TIENE_LOTES', 'VENTASDET_TIENE_LOTES.ID_VENTAS_DET', '=', 'VENTASDET.ID')
-			                 ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+			                 
 			                 ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 			                 ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
+			                 ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
 			                 ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 			                 ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
 			                  /*->leftjoin('VENTAS',function($join){
@@ -309,7 +311,7 @@ class Temp_venta extends Model
 			            		 (VENTASDET_DEVOLUCIONES.CANTIDAD*LOTES.COSTO) AS COSTO_TOTAL,
 			            		 SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 			            		 SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-			            		 PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+			            		 LOTES.FK_PROVEEDOR AS PROVEEDOR,
 			            		 PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 			            		 (VENTASDET_DEVOLUCIONES.PRECIO_UNIT*VENTASDET_DEVOLUCIONES.CANTIDAD) AS PRECIO,
 			            		 VENTASDET_DEVOLUCIONES.PRECIO_UNIT AS PRECIO_UNIT'),
@@ -336,7 +338,7 @@ class Temp_venta extends Model
 							        }
 							        if(isset($datos["checkedProveedor"])){
 							        	if(!$datos["checkedProveedor"]){
-							        	$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+							        	$reporte->whereIn('LOTES.FK_PROVEEDOR',$datos["proveedores"]);
 							            }
 							        }
 							        if(isset($datos["tipos"])){
@@ -429,9 +431,10 @@ class Temp_venta extends Model
 					            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 					            ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
 					            ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
-					            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+					           
 					            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 					            ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
+					             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
 					            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 					            ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
 					             ->leftjoin('VENTAS','VENTAS.ID','=','VENTASDET.FK_VENTA')
@@ -454,7 +457,7 @@ class Temp_venta extends Model
  								     IFNULL(LINEAS.DESCRIPCION,"INDEFINIDO") AS CATEGORIA,
 						             SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 						             SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-						             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+						             LOTES.FK_PROVEEDOR AS PROVEEDOR,
 						             PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 						            (nota_credito_tiene_lote.CANTIDAD*NOTA_CREDITO_DET.PRECIO) AS PRECIO,
 						             NOTA_CREDITO_DET.PRECIO AS PRECIO_UNIT'),
@@ -504,9 +507,10 @@ class Temp_venta extends Model
 						           		}
 
 						           		if(!$datos["checkedSeccion"]){
-						           			$reporte->whereIn('GONDOLA_TIENE_SECCION.ID_SECCION',$datos["seccion"]);
+						           			$reporte->whereIn('GONDOLA_TIENE_SECCION.ID_SECCION',$datos["secciones"]);
 						           		}
 							        }
+							        
 					     $reporte=$reporte->get()->toArray();
 
           foreach ($reporte as $key => $value) {
@@ -557,7 +561,7 @@ class Temp_venta extends Model
           foreach (array_chunk($venta_nc,1000) as $t) {
                      Temp_venta::insert($t);
            }
-           /*Temp_venta::nota_credito_venta_credito($datos);
+          /* Temp_venta::nota_credito_venta_credito($datos);
 		   Temp_venta::venta_credito_cobrados($datos); */
 
            	     		if(isset($datos["gondolas"])){
@@ -567,7 +571,7 @@ class Temp_venta extends Model
 	            		}
 	            		
             		}
-
+      
     }
     public static function insertar_transferencia_reporte($datos)
     {
@@ -994,9 +998,10 @@ class Temp_venta extends Model
 		           
 		            ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 		            ->leftjoin('VENTASDET_TIENE_LOTES', 'VENTASDET_TIENE_LOTES.ID_VENTAS_DET', '=', 'VENTASDET.ID')
-		            ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+		           
 		            ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 		            ->leftjoin('LOTES', 'LOTES.ID', '=', 'VENTASDET_TIENE_LOTES.ID_LOTE')
+		             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
 		            ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 		            ->leftjoin('VENTASDET_DESCUENTO', 'VENTASDET_DESCUENTO.FK_VENTASDET', '=', 'VENTASDET.ID')
 	           
@@ -1014,7 +1019,7 @@ class Temp_venta extends Model
 		             LINEAS.DESCRIPCION AS CATEGORIA,
 		             SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 		             SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-		             PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+		             LOTES.FK_PROVEEDOR AS PROVEEDOR,
 		             PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 		             VENTAS.ID AS ID,
 		             (VENTASDET.PRECIO_UNIT*VENTASDET_TIENE_LOTES.CANTIDAD) AS PRECIO,
@@ -1046,14 +1051,14 @@ class Temp_venta extends Model
 			        
 			        if(isset($datos["checkedProveedor"])){
 			        	if(!$datos["checkedProveedor"]){
-			        		$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+			        		$reporte->whereIn('LOTES.FK_PROVEEDOR',$datos["proveedores"]);
 			            }
 			        }
-			        if(isset($datos["tipos"])){
+			       /* if(isset($datos["tipos"])){
 			        
 			        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
 			            
-			        }
+			        }*/
 			         $reporte=$reporte->get()->toArray();
 /*			        if(isset($datos["gondolas"])){
 			        	$reporte->leftjoin('gondola_tiene_productos','gondola_tiene_productos.FK_PRODUCTOS_AUX','=','PRODUCTOS_AUX.ID') 
@@ -1238,9 +1243,10 @@ class Temp_venta extends Model
 			      ->leftjoin('LINEAS', 'LINEAS.CODIGO', '=', 'PRODUCTOS.LINEA')
 			      ->leftjoin('VENTASDET', 'VENTASDET.ID', '=', 'NOTA_CREDITO_DET.FK_VENTASDET')
 			      ->leftjoin('nota_credito_tiene_lote', 'nota_credito_tiene_lote.FK_NOTA_CREDITO_DET', '=', 'NOTA_CREDITO_DET.ID')
-			      ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
+			     
 			      ->leftjoin('SUBLINEAS', 'SUBLINEAS.CODIGO', '=', 'PRODUCTOS.SUBLINEA')
 			      ->leftjoin('LOTES', 'LOTES.ID', '=', 'nota_credito_tiene_lote.ID_LOTE')
+			       ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'LOTES.FK_PROVEEDOR')
 			      ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
 			      ->leftjoin('NOTA_CREDITO', 'NOTA_CREDITO.ID', '=', 'NOTA_CREDITO_DET.FK_NOTA_CREDITO')
 			       ->leftjoin('VENTAS','VENTAS.ID','VENTASDET.FK_VENTA')
@@ -1262,7 +1268,7 @@ class Temp_venta extends Model
 					     LINEAS.DESCRIPCION AS CATEGORIA,
 					     SUBLINEAS.DESCRIPCION AS SUBCATEGORIA,
 					     SUBLINEA_DET.DESCRIPCION AS NOMBRE,
-					     PRODUCTOS_AUX.PROVEEDOR AS PROVEEDOR,
+					     LOTES.FK_PROVEEDOR AS PROVEEDOR,
 					     PROVEEDORES.NOMBRE AS PROVEEDOR_NOMBRE,
 					     (nota_credito_tiene_lote.CANTIDAD*NOTA_CREDITO_DET.PRECIO) AS PRECIO,
 					     NOTA_CREDITO.TIPO AS TIPO_NOTA,
@@ -1284,14 +1290,14 @@ class Temp_venta extends Model
 			        
 			        if(isset($datos["checkedProveedor"])){
 			        	if(!$datos["checkedProveedor"]){
-			        		$reporte->whereIn('PRODUCTOS_AUX.PROVEEDOR',$datos["proveedores"]);
+			        		$reporte->whereIn('LOTES.FK_PROVEEDOR',$datos["proveedores"]);
 			            }
 			        }
-			        if(isset($datos["tipos"])){
+			        /*if(isset($datos["tipos"])){
 			        
 			        	$reporte->whereIn('VENTAS.TIPO',$datos["tipos"]);
 			            
-			        }
+			        }*/
 			         $reporte=$reporte->get()->toArray();
 					/*->get()->toArray();*/
 					$venta_nc=array();
@@ -2208,6 +2214,7 @@ class Temp_venta extends Model
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
             ->leftjoin('GONDOLAS','GONDOLAS.ID','=','CONTEO.GONDOLA')
+            ->leftjoin('EMPLEADO_TIENE_GONDOLA','EMPLEADO_TIENE_GONDOLA.FK_GONDOLA','=','GONDOLAS.ID')
             
             
             ->select(
@@ -2227,6 +2234,7 @@ class Temp_venta extends Model
              IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO,
              GONDOLAS.ID AS GONDOLA,
              GONDOLAS.DESCRIPCION AS GONDOLA_NOMBRE,
+             IFNULL(EMPLEADO_TIENE_GONDOLA.FK_EMPLEADO,0) AS VENDEDOR,
              IFNULL(SECCIONES.DESCRIPCION,"INDEFINIDO") AS SECCION'))
 	      
 	        ->whereBetween('CONTEO.FECALTAS', [$datos["inicio"], $datos["final"] ])
@@ -2286,6 +2294,7 @@ class Temp_venta extends Model
 				            $nestedData['SECCION_CODIGO']= $value->SECCION_CODIGO;
 				            $nestedData['GONDOLA']=$value->GONDOLA;
 				            $nestedData['GONDOLA_NOMBRE']=$value->GONDOLA_NOMBRE;
+				            $nestedData['VENDEDOR']=$value->VENDEDOR;
 				    	    
 							    
 
@@ -2329,7 +2338,7 @@ class Temp_venta extends Model
             ->leftjoin('SUBLINEA_DET', 'SUBLINEA_DET.CODIGO', '=', 'PRODUCTOS.SUBLINEADET')
             ->leftjoin('PROVEEDORES', 'PROVEEDORES.CODIGO', '=', 'PRODUCTOS_AUX.PROVEEDOR')
             ->leftjoin('GONDOLAS','GONDOLAS.ID','=','CONTEO.GONDOLA')
-            
+            ->leftjoin('EMPLEADO_TIENE_GONDOLA','EMPLEADO_TIENE_GONDOLA.FK_GONDOLA','=','GONDOLAS.ID')
             
             ->select(
             DB::raw(
@@ -2348,6 +2357,7 @@ class Temp_venta extends Model
              IFNULL(SECCIONES.ID,0) AS SECCION_CODIGO,
              GONDOLAS.ID AS GONDOLA,
              GONDOLAS.DESCRIPCION AS GONDOLA_NOMBRE,
+             IFNULL(EMPLEADO_TIENE_GONDOLA.FK_EMPLEADO,0) AS VENDEDOR,
              IFNULL(SECCIONES.DESCRIPCION,"INDEFINIDO") AS SECCION'))
 	      
 	        ->whereBetween('CONTEO.FECALTAS', [$datos["inicio"], $datos["final"] ])
@@ -2407,6 +2417,7 @@ class Temp_venta extends Model
 				            $nestedData_venta['SECCION_CODIGO']= $value->SECCION_CODIGO;
 				            $nestedData_venta['GONDOLA']=$value->GONDOLA;
 				            $nestedData_venta['GONDOLA_NOMBRE']=$value->GONDOLA_NOMBRE;
+				            $nestedData_venta['VENDEDOR']=$value->VENDEDOR;
 				    	    $nestedData_venta['CREDITO_COBRADO']= 1;
 							    
 
