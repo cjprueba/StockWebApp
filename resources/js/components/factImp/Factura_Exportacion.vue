@@ -196,6 +196,7 @@
 							     me.imprimir_factura(base64data);
 							 }
 
+
 				});
 			},
 
@@ -206,6 +207,7 @@
 				qz.websocket.connect().then(function() { 
 
 					return qz.printers.find('EPSON L3110 Series');              
+
 
 				}).then(function(printer) {
 
