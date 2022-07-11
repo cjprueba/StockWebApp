@@ -205,7 +205,7 @@
 				
 				qz.websocket.connect().then(function() { 
 
-					return qz.printers.find('Canon G6000 series');              
+					return qz.printers.find('EPSON L3110 Series');              
 
 				}).then(function(printer) {
 
