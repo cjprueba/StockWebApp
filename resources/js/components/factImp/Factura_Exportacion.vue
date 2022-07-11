@@ -196,6 +196,7 @@
 							     me.imprimir_factura(base64data);
 							 }
 
+
 				});
 			},
 
@@ -204,8 +205,9 @@
 				let me = this;
 				
 				qz.websocket.connect().then(function() { 
+					//NOMBRE IMPRESORA
+					return qz.printers.find('EPSON L3110 Series');  
 
-					return qz.printers.find('EPSON L3110 Series');              
 
 				}).then(function(printer) {
 
