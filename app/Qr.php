@@ -190,7 +190,7 @@ class Qr extends Model
         return(qr::etiqueta_tipo_4($datos));
       }elseif ($datos['tamaño']==='5') {
         return(qr::crear_pdf_qr_2($datos));
-      }elseif ($datos['tamaño']==='6') {
+      }elseif ($datos['tamaño']==='12') {
         return(qr::etiqueta_tipo_6($datos));
       }elseif ($datos['tamaño']==='10') {
         return(qr::etiqueta_tipo_7($datos));
