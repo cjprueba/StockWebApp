@@ -54,6 +54,15 @@
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
 	    @endif
+	    @if ($VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK == true && $FORMA_DE_USO_CHECK == false)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
 	</body>
 	@endif
 
@@ -107,6 +116,15 @@
 		<p class="col-2">
             <p align="center"><font size="9">{{$MARCA}}</p>
             <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
+            <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
+        </p>
+	    @endif
+	    @if ($VALOR_NUTRCIONAL_CHECK == false && $PROPIEDADES_CHECK == true && $FORMA_DE_USO_CHECK == false)
+		<p class="col-2">
+            <p align="center"><font size="9">{{$MARCA}}</p>
+            <p class="normal">{{$NOMBRE_DEL_PRODUCTO}}</p>
+            <p class="normal">{{$PROPIEDADES}}</p>
             <p class="normal">INGREDIENTES: {{$INGREDIENTES}}</p>
             <p class="normal">CONTENIDO: {{$CONTENIDO}}</p>
         </p>
