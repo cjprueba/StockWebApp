@@ -158,8 +158,10 @@
 											<label class="form-check-label font-weight-bold ">Precio de Productos</label>
 											<br>
 											<div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto4" v-model="seleccionPrecio" value="4">
-											  <label class="form-check-label" for="precioProducto4">Precio de Venta sin descripción</label>
+											  	<input class="form-check-input" type="radio" name="precioProducto" id="precioProducto4" v-model="seleccionPrecio" value="4">
+											  	<label class="form-check-label" for="precioProducto4" v-if="invertircheck == ''">Solo precio de Venta</label>
+											  	<label class="form-check-label" for="precioProducto4" v-if="invertircheck == '1'">Solo Descripción</label>
+											  	<input class="form-check-input ml-2 mt-2" type="checkbox" id="invertir" value="1" align="right" title="Invertir 🔁" v-model="invertircheck">
 											</div>
 											<div class="form-check ml-5" align="left">
 											  <input class="form-check-input" type="radio" name="precioProducto" id="precioProducto1" v-model="seleccionPrecio" value="1">
@@ -178,20 +180,20 @@
 										<div class="col-4" align="center">
 											<label class="form-check-label font-weight-bold ">Tamaño de Etiquetas</label>
 											<br>
-
-											<!-- <div class="form-check ml-5" align="left">
-											  <input class="form-check-input" type="radio" name="tamañoTiquet6" id="tamañoTiquet6" v-model="seleccionTamaño" value="12">
-											  <label class="form-check-label" for="tamañoTiquet6">Bijouterie (2,5cm x 1,2cm)</label>
-											</div> -->
 											
-											<div class="form-check ml-5" align="left">
+											<div class="form-check ml-5" align="left" v-if="seleccionPrecio !== '4' || invertircheck == ''">
 											  <input class="form-check-input" type="radio" name="tamañoTiquet3" id="tamañoTiquet3" v-model="seleccionTamaño" value="3">
 											  <label class="form-check-label" for="tamañoTiquet3">Producto (3,3cm x 2,2cm)</label>
 											</div>
 											
-											<div class="form-check ml-5" align="left" v-if="seleccionPrecio !== '4'">
+											<div class="form-check ml-5" align="left" v-if="seleccionPrecio !== '4' || invertircheck == '1'">
 											  <input class="form-check-input" type="radio" name="tamañoTiquet4" id="tamañoTiquet4" v-model="seleccionTamaño" value="4">
 											  <label class="form-check-label" for="tamañoTiquet4">Producto (5,5cm x 2,9cm)</label>
+											</div>
+
+											<div class="form-check ml-5" align="left" v-if="seleccionPrecio == '1'">
+											  <input class="form-check-input" type="radio" name="tamañoTiquet6" id="tamañoTiquet6" v-model="seleccionTamaño" value="12">
+											  <label class="form-check-label" for="tamañoTiquet6">Bijouterie (2,5cm x 1,2cm)</label>
 											</div>
 
 											<div class="form-check ml-5" align="left" v-if="seleccionPrecio == '1'">
@@ -770,6 +772,7 @@
 				ivaProducto: '',
 				btnguardar: true,
 				codigo_remision: '',
+				invertircheck: '',
 				seleccionTamaño: 0,
 				seleccionCodigo: 0,
 				seleccionMoneda: 0,

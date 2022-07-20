@@ -190,7 +190,7 @@ class Qr extends Model
         return(qr::etiqueta_tipo_4($datos));
       }elseif ($datos['tamaño']==='5') {
         return(qr::crear_pdf_qr_2($datos));
-      }elseif ($datos['tamaño']==='6') {
+      }elseif ($datos['tamaño']==='12') {
         return(qr::etiqueta_tipo_6($datos));
       }elseif ($datos['tamaño']==='10') {
         return(qr::etiqueta_tipo_7($datos));
@@ -1288,7 +1288,7 @@ class Qr extends Model
       $pdf->SetPrintFooter(false);
       $pdf->addPage();
 
-      $pdf->SetFont('helvetica', '', 6);
+      $pdf->SetFont('', '', 10);
       $name = '111'; 
       $type = 'C128B';
 
@@ -1311,7 +1311,7 @@ class Qr extends Model
           'stretchtext' => 8
       );
       $pag=1;
-      $x=28;
+      $x=25;
       $y = 0.3;
       $z = 2;
       $c=0;
@@ -1320,22 +1320,27 @@ class Qr extends Model
         foreach ($datos["data"] as $key => $value){
           while($c<$value["CANTIDAD"]){
             $c=$c+1;
-            if($x>97){
-              $y=$y+27;
-              if($y > 22){
+            if($x>105){
+              $y=$y+13;
+              if($y > 12){
                 $pag=$pag+1;
                 $pdf->AddPage();
                 $y = 0.3;
               }
-              $x=28;
+              $x=25;
             }
             // $pdf->SetAutoPageBreak(FALSE, 0);
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+15, $y-2.4, 32, 12, 0.2, $style, 'N');
+
+            if ($datos['codigo']==='2' || $datos['codigo']===NULL || $datos['codigo']===''){
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x+10.5, $y-0.8, 28, 12, 0.2, $style, 'N');
+            }else{
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+10.5, $y-0.8, 28, 12, 0.2, $style, 'N');
+            }
             $pdf->SetFont('helvetica', '', 7);
-            $pdf->text($x-16, $y+5.5, "U$ ".$value['PRECIO'], false, false, true);
+            $pdf->text($x-19, $y+7.5, "U$ ".$value['PRECIO'], false, false, true);
             $pdf->SetFont('helvetica', '', 5);
-            $pdf->text($x-18.8, $y+8, $made, false, false, true, 0, 1, '', false, '', 0);
-            $x=$x+90;
+            $pdf->text($x-20, $y+10, $made, false, false, true, 0, 1, '', false, '', 0);
+            $x=$x+25;
           }
           $c=0;
         }

@@ -106,8 +106,8 @@
     <div class="@if($tipo=='fisico') fisico @endif">
         <table width="100%" class="tabla2" >
             <tr>
-                <td width="12%"></td>
-                <td width="88%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
+                <td width="11%"></td>
+                <td width="89%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
             </tr>
         </table>
         <table width="100%" class="tablaRazon">
