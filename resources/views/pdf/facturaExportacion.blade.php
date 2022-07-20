@@ -137,18 +137,18 @@
             @if (array_key_exists($i, $articulos))
             <tr>
                 <td width="6%" align="left"><span class="text">{{ $articulos[$i]['item']}}</span></td>
-                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="54%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
-                <td width="14%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
+                <td width="15%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
+                <td width="53%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
                 <td width="13%" align="right"><span class="text">{{ $articulos[$i]['total'] }}</span></td>
 
             </tr>
             @else
             <tr>
                 <td width="6%" align="left">&nbsp;</td>
-                <td width="13%"  align="center">&nbsp;</td>
-                <td width="54%" align="left">&nbsp;</td>
-                <td width="14%" align="center">&nbsp;</td>
+                <td width="15%"  align="center">&nbsp;</td>
+                <td width="53%" align="left">&nbsp;</td>
+                <td width="13%" align="center">&nbsp;</td>
                 <td width="13%" align="right">&nbsp;</td>
             </tr>
             @endif
