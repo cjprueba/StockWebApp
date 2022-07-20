@@ -106,8 +106,8 @@
     <div class="@if($tipo=='fisico') fisico @endif">
         <table width="100%" class="tabla2" >
             <tr>
-                <td width="11%"></td>
-                <td width="89%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
+                <td width="12%"></td>
+                <td width="88%" class="linea" align="left"><span class="text">{{ $fecha }}</span></td>
             </tr>
         </table>
         <table width="100%" class="tablaRazon">
@@ -137,18 +137,18 @@
             @if (array_key_exists($i, $articulos))
             <tr>
                 <td width="6%" align="left"><span class="text">{{ $articulos[$i]['item']}}</span></td>
-                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="54%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
-                <td width="14%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
+                <td width="15%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
+                <td width="53%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                <td width="13%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
                 <td width="13%" align="right"><span class="text">{{ $articulos[$i]['total'] }}</span></td>
 
             </tr>
             @else
             <tr>
                 <td width="6%" align="left">&nbsp;</td>
-                <td width="13%"  align="center">&nbsp;</td>
-                <td width="54%" align="left">&nbsp;</td>
-                <td width="14%" align="center">&nbsp;</td>
+                <td width="15%"  align="center">&nbsp;</td>
+                <td width="53%" align="left">&nbsp;</td>
+                <td width="13%" align="center">&nbsp;</td>
                 <td width="13%" align="right">&nbsp;</td>
             </tr>
             @endif

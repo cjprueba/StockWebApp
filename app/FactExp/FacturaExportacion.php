@@ -66,9 +66,10 @@ class FacturaExportacion extends Model
             /*  --------------------------------------------------------------------------------- */
             
             // CARGAR ITEM
-
+            
+            $descripcion = FacturaExportacion::quitar_tildes(utf8_decode(utf8_encode($value["DESCRIPCION"])));
             $articulos[$c_rows]["item"] = $value["ITEM"];
-            $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,60)));
+            $articulos[$c_rows]["descripcion"] = substr($descripcion, 0, 60);
             $articulos[$c_rows]["precio"] = $value["PRECIO"];
             $articulos[$c_rows]["total"] = $value["TOTAL"];
             $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
@@ -169,5 +170,12 @@ class FacturaExportacion extends Model
         // DESCARGAR ARCHIVO PDF 
 
         $mpdf->Output();
+    }
+
+    public static function quitar_tildes($cadena) {
+      $no_permitidas= array ("á", "ã","Á","Ã","À","Ã™","Ã ","Ã¨","Ã¬","Ã²","Ã¹","Ã®","Ã´","Ã»","Ã‚","ÃŠ","ÃŽ","Ã”","Ã›","Ã„","Ã‹","Ã¢","Ã¶","Ã–","Ã¯","Ã¤","Ã","é","É","ê","í","Í","Ì","ó", "ô", "õ","Ó","Ò", "Õ", "Ô","Ú","Ù","ú","ü","ñ","«","ç","Ç", "Nº");
+      $permitidas= array ("a", "a", "A","A","A","A","A","A","A","A","A","A","A","A","AS","AZ","A","A","A","A","A","A","A","A","A","A","A","e","E","e","i","I","I","o", "o", "o","O","O","O", "O","U","U","u","u","n","","c","C", "N");
+      $texto = str_replace($no_permitidas, $permitidas ,$cadena);
+      return $texto;
     }
 }
