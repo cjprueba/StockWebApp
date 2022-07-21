@@ -136,9 +136,14 @@
             @for ($i = 0; $i < 39; $i++)
             @if (array_key_exists($i, $articulos))
             <tr>
+               
                 <td width="6%" align="left"><span class="text">{{ $articulos[$i]['item']}}</span></td>
                 <td width="15%" align="center"><span class="text">{{ $articulos[$i]['cantidad'] }}</span></td>
-                <td width="53%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                @if ($articulos[$i]['descripcion']!=" ")
+                    <td width="53%" align="left"><span class="text">{{ $articulos[$i]['descripcion'] }}</span></td>
+                @else
+                    <td width="53%" align="left">&nbsp;</td>
+                @endif
                 <td width="13%" align="center"><span class="text">{{ $articulos[$i]['precio'] }}</span></td>
                 <td width="13%" align="right"><span class="text">{{ $articulos[$i]['total'] }}</span></td>
 
