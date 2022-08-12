@@ -4659,10 +4659,10 @@ class Venta extends Model
 
             // CARGAR VARIABLES 
 
-            $articulos["cantidad"] = $value["CANTIDAD"];
+            $articulos["cantidad"] = Common::quitar_coma($value["CANTIDAD"],0);
             $articulos["cod_prod"] = $value["COD_PROD"];
             $articulos["descripcion"] = utf8_decode(substr($value["DESCRIPCION"], 0,38));
-            $cantidad = $cantidad + $value["CANTIDAD"];
+            $cantidad = $cantidad + Common::quitar_coma($value["CANTIDAD"],0);
 
             /*  --------------------------------------------------------------------------------- */
 
