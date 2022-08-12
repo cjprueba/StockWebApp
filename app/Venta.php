@@ -5209,6 +5209,7 @@ class Venta extends Model
         $c_filas_total = count($ventas_det);
         $codigo = $ventas->CODIGO;
         $cliente = utf8_decode(utf8_encode($ventas->CLIENTE));
+       
         $direccion = utf8_decode(utf8_encode($ventas->DIRECCION));
         $ruc = $ventas->RUC;
         $tipo = $ventas->TIPO;
@@ -5243,6 +5244,7 @@ class Venta extends Model
         
         $data['codigo'] = $codigo;
         $data['cliente'] = $cliente;
+        
         $data['direccion'] = $direccion;
         $data['ruc'] = $ruc;
         $data['fecha'] = $fecha;
@@ -5269,7 +5271,7 @@ class Venta extends Model
             'fontdata' => $fontData + [
                 'arial' => [
                     'R' => 'arial.ttf',
-                    'B' => 'arialbd.ttf',
+                    'B' => 'arial.ttf',
                 ],
             ],
             'default_font' => 'arial',
@@ -5346,11 +5348,12 @@ class Venta extends Model
             /*  --------------------------------------------------------------------------------- */
 
             // CARGAR VARIABLES 
+            $articulos[$c_rows]["cantidad"] =  Common::quitar_coma($value["CANTIDAD"],0);
 
-            $articulos[$c_rows]["cantidad"] = $value["CANTIDAD"];
             $articulos[$c_rows]["cod_prod"] = $value["COD_PROD"];
+
             $articulos[$c_rows]["descripcion"] = utf8_decode(utf8_encode(substr($value["DESCRIPCION"], 0,29)));
-            $cantidad = $cantidad + $value["CANTIDAD"];
+            $cantidad = $cantidad + Common::quitar_coma($value["CANTIDAD"],0);
 
             /*  --------------------------------------------------------------------------------- */
 
