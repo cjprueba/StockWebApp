@@ -784,6 +784,7 @@
 				switch_moneda: false,
 				seleccion_gondola: [{}],
 				tipoStock: 0,
+				idSucursal: 0,
 				productoImagen: [{
 	         		PREVIP: '',
 	         		IMAGEN: '',
@@ -2058,7 +2059,12 @@
 
 				qz.websocket.connect().then(function() {
 					if(me.seleccionTamaño==='1'){
-						return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
+						if (me.idSucursal==9 || me.idSucursal == '9'){
+							return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise	
+						}else{
+							return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
+						}
+						
 					}else{
 						return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise
 					} 
@@ -2103,6 +2109,12 @@
             let me = this;
             var precio = 0;
             var iva = 0;
+            Common.obtenerParametroCommon().then(data => {
+		    
+				me.idSucursal = data.parametros[0].ID_SUCURSAL;
+				console.log("id sucursal: " + me.idSucursal);
+			 });
+            
             me.$refs.compontente_codigo_producto.vaciarDevolver();
 		    me.codigo_remision = me.nuevaNotaDeRemision();
 		 	
