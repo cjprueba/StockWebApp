@@ -2059,11 +2059,13 @@
 
 				qz.websocket.connect().then(function() {
 					if(me.seleccionTamaño==='1'){
-						if (me.idSucursal==9 || me.idSucursal == '9'){
-							return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise	
-						}else{
-							return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
-						}
+						//POR SI SOLO QUEDA UNA SOLA IMPRESORA(SUCURSAL)
+						// if (me.idSucursal==9 || me.idSucursal == '9'){
+						// 	return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise	
+						// }else{
+						// 	return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
+						// }
+						return qz.printers.find("GONDOLA"); // Pass the printer name into the next Promise
 						
 					}else{
 						return qz.printers.find("ETIQUETA"); // Pass the printer name into the next Promise
