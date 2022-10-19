@@ -57,7 +57,7 @@ class InventarioSeccion implements FromArray, WithTitle,WithEvents,ShouldAutoSiz
     	$this->gondola_id=$datos["GONDOLA"];
     }
          public function  array(): array{
-    	    $produtos_seccion_array[]=array('COD_PROD',"LOTE",'CATEGORIA','SUBCATEGORIA','STOCK','CANTIDAD PERDIDA','CANTIDAD SOBRANTE','COSTO PERDIDA', 'COSTO SOBRANTE');
+    	    $produtos_seccion_array[]=array('COD_PROD','CATEGORIA','SUBCATEGORIA','STOCK','CANTIDAD PERDIDA','CANTIDAD SOBRANTE','COSTO PERDIDA', 'COSTO SOBRANTE');
 
 	    	foreach ($this->productos as $key => $value) {
 	    		if($this->agrupado==2){
@@ -75,10 +75,9 @@ class InventarioSeccion implements FromArray, WithTitle,WithEvents,ShouldAutoSiz
 
 				$produtos_seccion_array[]=array(
 				    'COD_PROD'=> $value["COD_PROD"],
-                    'LOTE'=> $value["LOTE"],
-                    'STOCK'=> $value["STOCK"],
                     'CATEGORIA'=> $value["CATEGORIA"],
                     'SUBCATEGORIA'=> $value["SUBCATEGORIA"],
+                    'STOCK'=> $value["STOCK"],
                     'CANTIDAD_PERDIDA'=> $value["CANTIDAD_PERDIDA"],
                     'CANTIDAD_SOBRANTE'=>$value["CANTIDAD_SOBRANTE"],
                     'COSTO_PERDIDA'=>$value["COSTO_PERDIDA"],
@@ -92,7 +91,6 @@ class InventarioSeccion implements FromArray, WithTitle,WithEvents,ShouldAutoSiz
 
 		      $produtos_seccion_array[]=array(
 			     'COD_PROD'=> '',
-			     'LOTE'=>"",
 			     'CATEGORIA'=>"",
 			     'SUBCATEGORIA'=>"",
 			     'STOCK'=>"TOTALES GENERALES",
@@ -144,14 +142,14 @@ class InventarioSeccion implements FromArray, WithTitle,WithEvents,ShouldAutoSiz
         return [
             // Handle by a closure.
          AfterSheet::class => function(AfterSheet $event) use($styleArray)  {
-            $event->sheet->getStyle('A1:I1')->applyfromarray($styleArray);
+            $event->sheet->getStyle('A1:H1')->applyfromarray($styleArray);
             $this->posicion=$this->posicion+1;
             $event->sheet->getStyle('A'.$this->posicion.':I'.$this->posicion)->applyfromarray($styleArray);
             $event->sheet->getStyle('E2:'.'E'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
             $event->sheet->getStyle('F2:'.'F'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');
             $event->sheet->getStyle('G2:'.'G'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00'); 
             $event->sheet->getStyle('H2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00'); 
-            $event->sheet->getStyle('I2:'.'H'.$this->posicion)->getNumberFormat()->setFormatCode('#,##0.00');   
+            
              
         }
 
