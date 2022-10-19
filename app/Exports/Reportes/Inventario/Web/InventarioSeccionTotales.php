@@ -47,6 +47,7 @@ class InventarioSeccionTotales implements FromArray, WithTitle,WithEvents,Should
     {
     	
     	$this->seccion_inventario=$secciones_inventario;
+        log::error(["inventario_seccion"=>$this->seccion_inventario]);
     }
      public function  array(): array{
     	    $seccion_inventario_array[]=array('TOTALES',"",'CANTIDAD PERDIDA','CANTIDAD SOBRANTE','COSTO PERDIDA','COSTO SOBRANTE','% CANTIDAD PERDIDA','% CANTIDAD SOBRANTE','% COSTO PERDIDA','% COSTO SOBRANTE');
