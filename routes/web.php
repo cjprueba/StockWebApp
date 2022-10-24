@@ -35,6 +35,7 @@ Route::get('/productoqr', 'ApiController@productoqr')->name('productoqr');
 Route::get('/catalogo', 'ApiController@catalogo')->name('catalogo');
 Route::get('/cajaqr', 'ApiController@Cajaqr')->name('cajaqr');
 Route::get('/bannerCotizacion', 'ApiController@bannerCotizacion')->name('bannerCotizacion');
+Route::get('/bannerMantenimiento', 'ApiController@bannerMantenimiento')->name('bannerMantenimiento');
 //Route::apiResource('categorias', 'CategoriaController');
 
 /* -------------------------------------------------------------------------- */
