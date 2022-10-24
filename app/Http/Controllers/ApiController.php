@@ -30,5 +30,10 @@ class ApiController extends Controller
 
         return view('bannerCotizacion');
     }
+    public function bannerMantenimiento()
+    {
+
+        return view('bannerMantenimiento');
+    }
     
 }

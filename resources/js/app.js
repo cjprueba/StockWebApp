@@ -164,10 +164,10 @@ Vue.component('multiselect', Multiselect);
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode, faWrench } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode )
+library.add(faPlus, faAmbulance, faCog, faChartArea, faTv, faStickyNote, faBell, faEnvelope, faSearch, faDownload, faCaretUp, faCaretDown, faInfoCircle, faBan, faTruck, faHome, faShoppingBasket, faBarcode, faListAlt, faCheck, faExclamationTriangle, faTags, faSave, faFile, faCopy, faCartPlus,faUserCircle, faCalendar, faListOl, faCreditCard, faMoneyCheckAlt, faMoneyBillAlt, faAddressCard, faSyncAlt, faExternalLinkAlt, faInfo, faShoppingBag, faCamera, faUniversity, faCoins, faTruckMoving, faBuilding, faComments, faCheckSquare, faPrint, faTrash, faUser, faUserPlus, faCashRegister, faFileAlt, faSortAmountDown, faThLarge, faSign, faGlobe, faUserTie, faUserCog, faWalking, faCalendarAlt, faCalendarDay, faBoxOpen,faQrcode, faWrench )
 
 
 
@@ -538,7 +538,9 @@ Vue.component('productoqr', require('./components/producto/MostrarProductoQR.vue
 Vue.component('cajacompraqr', require('./components/compra/MostrarCajaCompraQr.vue').default);
 Vue.component('banner-cotizacion', require('./components/cotizacion/BannerCotizacion.vue').default);
 
-
+/* ********************************************* */
+//MANTENIMINETO
+Vue.component('banner-mantenimiento', require('./components/bannerMantenimiento.vue').default);
 
 /* ********************************************* */
 
