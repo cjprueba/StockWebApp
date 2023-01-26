@@ -847,7 +847,7 @@ class Qr extends Model
               $pdf->SetTextColor(1000, 1000, 1000);
               //Tamaño de fuente
               $pdf->SetFontSize(10); 
-              $pdf->text($x-22, $y+10, 'DESDE 6', false, false, true, 0, 1, '', false, '', 0);
+              $pdf->text($x-22, $y+10, 'DESDE '.$value['MAYORISTA_DESDE'], false, false, true, 0, 1, '', false, '', 0);
               $pdf->text($x-16, $y+14, 'UNID.', false, false, true, 0, 1, '', false, '', 0);
               $pdf->SetFontSize(13);
               if($value['MONEDA']===1){
