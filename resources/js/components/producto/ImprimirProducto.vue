@@ -101,12 +101,10 @@
 										<!-- ------------------------------------------------------------------ -->
 										<!-- GONDOLA -->
 
-										<div class="col-3">
-										    <label v-if="checkedQr" for="validationTooltip01">Lotes</label>
-					            			<select  class="custom-select custom-select-sm" v-bind:class="{ 'is-invalid': validar.lote }" v-model="loteSeleccion" v-on:change="cambiar_stock" v-if="checkedQr" @input="$emit('input', $event.target.value)" >
-							                    <option :value="{id : 0, nlote: 0,cantidad : 0 }">0 - Seleccionar</option>
-							                    <option  data-item-type="lote.LOTE" v-for="lote in lotes"  :id="lote.LOTE" :value="{id : lote.ID, nlote: lote.LOTE,cantidad : lote.CANTIDAD }">{{ lote.LOTE }} - {{ lote.CANTIDAD }}</option>
-					            			</select>
+										
+										<div class="col-3" >
+							    				<label>Precio Unitario</label>
+								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioUnitario" type="text" class="form-control form-control-sm" disabled>
 										</div>
 
 									<!-- ------------------------------------------------------------------ -->
@@ -119,15 +117,15 @@
 					      				<!-- -------------------------------------- PRECIO MAYORISTA------------------------------------------------------- -->
 
 										<div class="col-3" >
-							    				<label>Precio Mayorista</label>
-								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioMayorista" type="text" class="form-control form-control-sm" disabled>
+							    				<label>Mayorista Desde</label>
+								      			<input v-model="producto.mayoristaDesde" type="text" class="form-control form-control-sm" >
 										</div>
 
 										<!-- -------------------------------------- PRECIO UNITARIO ------------------------------------------------------- -->
 
 										<div class="col-3" >
-							    				<label>Precio Unitario</label>
-								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioUnitario" type="text" class="form-control form-control-sm" disabled>
+							    				<label>Precio Mayorista</label>
+								      			<input v-bind:class="{ 'is-invalid': validar.precioUnitario }" v-model="producto.precioMayorista" type="text" class="form-control form-control-sm" disabled>
 										</div>
 
 										<!-- -------------------------------------- CANTIDAD EXIST. ------------------------------------------------------- -->
@@ -526,6 +524,7 @@
 					                        		<th>Stock</th>
 					                        		<th>Id Lote</th>
 					                        		<th>Moneda</th>
+					                        		<th>Mayorista Desde</th>
 					                        		
 							                    </tr>
 							                </thead>
@@ -542,7 +541,8 @@
 								                	<th></th>
 								                	<th></th>
 								                	<th></th>
-								                <th></th>
+								                	<th></th>
+								                	<th></th>
 								                	<th></th>
 								                	<th></th>
 								                	<th></th>
@@ -809,6 +809,7 @@
 					descripcion: '',
 					precioUnitario: '',
 					precioMayorista:'',
+					mayoristaDesde:6,
 					cantidadExistente: '',
 					descuento: '',
 					moneda:'',
@@ -1349,6 +1350,7 @@
 				this.producto.descripcion = '';
 				this.producto.precioUnitario = '';
 				this.producto.cantidadExistente = '';
+				this.producto.mayoristaDesde = 6;
 				this.producto.linea = '';
 				this.codigo_remision = '';
 				this.producto.cantidad = '';
@@ -1696,7 +1698,7 @@
 
 	            // CARGAR DATO EN TABLA
 
-	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda, me.producto.nombre_desc );
+	            me.agregarFilaTabla(me.producto.codigoProd, me.producto.descripcion, me.producto.cantidad,iva, me.producto.precioUnitario,me.producto.precioMayorista,me.producto.cantidadExistente,me.producto.interno,me.producto.moneda, me.producto.nombre_desc,me.producto.mayoristaDesde );
 	          
 
 
@@ -1720,7 +1722,7 @@
 	        },
 
 
-	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda, nombre_desc){
+	        agregarFilaTabla(codigo, descripcion, cantidad,lote, precio,mayorista, stock,interno, moneda, nombre_desc,mayorista_desde){
 
 	        	// ------------------------------------------------------------------------
 
@@ -1768,7 +1770,7 @@
 
 	            	// EDITAR CANTIDAD PRODUCTO 
 
-	            	me.editarCantidadProducto(tableProductos, cantidadNueva, productoExistente.precio, productoExistente.stock, productoExistente.row);
+	            	me.editarCantidadProducto(tableProductos, cantidadNueva, productoExistente.precio, productoExistente.stock, productoExistente.row,me.producto.mayoristaDesde);
 	            	return;
 
 	            	// ------------------------------------------------------------------------
@@ -1806,8 +1808,8 @@
 			                    "STOCK": stock,
 			                    "ID_LOTE": me.loteSeleccion.id,
 			                    "MONEDA": moneda,
-			                    "NOMBRE": nombre_desc
-
+			                    "NOMBRE": nombre_desc,
+			                    "MAYORISTA_DESDE": mayorista_desde
 			                   
 			                } ] )
 			     .draw();
@@ -1868,7 +1870,7 @@
 
 			},
 
-			editarCantidadProducto(tabla, cantidad, precio_producto, stock, row){
+			editarCantidadProducto(tabla, cantidad, precio_producto, stock, row,mayorista_desde){
 
 	        	// ------------------------------------------------------------------------
 
@@ -1899,8 +1901,9 @@
 	            // ------------------------------------------------------------------------
 
 	            // CARGAR LO EDITADO
-
+	            console.log(mayorista_desde);
 	            tabla.cell(row, 5).data(cantidad).draw();
+	            tabla.cell(row, 12).data(mayorista_desde).draw();
 	            /*tabla.cell(row, 5).data(precio_producto).draw();*/
 
 	            // ------------------------------------------------------------------------
@@ -2154,7 +2157,12 @@
 				                "targets": [ 11 ],
 				                "visible": false,
 				                "searchable": false
-				            }
+				            },
+				            {
+				                "targets": [ 12 ],
+				                "visible": false,
+				                "searchable": false
+				            },
 
 				           
 				        ], 
@@ -2171,6 +2179,7 @@
                             { "data": "STOCK" },
                             { "data": "ID_LOTE" },
                             { "data": "MONEDA" },
+                            { "data": "MAYORISTA_DESDE" },
                         ],
 
                         "footerCallback": function(row, data, start, end, display) {
@@ -2439,7 +2448,7 @@
 
                 	// EDITAR 
 
-                	me.editarCantidadProducto(tableProductos, me.editarCantidad, me.editarPrecio, me.editarStock, me.editarRow);
+                	me.editarCantidadProducto(tableProductos, me.editarCantidad, me.editarPrecio, me.editarStock, me.editarRow,me.producto.mayoristaDesde);
 
                 	// *******************************************************************
 
