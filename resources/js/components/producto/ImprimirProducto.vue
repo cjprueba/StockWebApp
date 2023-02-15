@@ -203,7 +203,7 @@
 										</div>
 
 										<!-- --------------------------------------------- TIPO DE CODIGO ------------------------------------------------------- -->
-										<div class="col-4"">
+										<div class="col-4">
 											<div v-if="seleccionPrecio !== '4'">
 												<label class="form-check-label font-weight-bold ml-5">Tipo de Código</label>
 												<br>
@@ -263,6 +263,11 @@
 									  	<div class="col-3">
 									  		<input class="form-check-input" type="radio" name="tamañoTiquet1" id="tamañoTiquet1" v-model="seleccionTamaño" value="1">
 									  		<label class="form-check-label" for="tamañoTiquet1">Gondola (9cm x 3,5cm)</label>
+
+									  		<div v-if="seleccionTamaño == '1'" class="custom-control custom-switch sm-2">
+												<input type="checkbox" class="custom-control-input" id="switchGondola" v-model="switch_gondola">
+												<label class="custom-control-label" for="switchGondola" data-toggle="tooltip" data-placement="top">Dividir etiqueta</label>
+											</div>
 									  	</div>
 									  	<div class="col-3">
 									  		<input class="form-check-input" type="radio" name="tamañoTiquet5" id="tamañoTiquet5" v-model="seleccionTamaño" value="5">
@@ -781,6 +786,7 @@
 				seleccionPrecio: 0,
 				seleccionImpresion: '2',
 				switch_desc:false,
+				switch_gondola:false,
 				switch_moneda: false,
 				seleccion_gondola: [{}],
 				tipoStock: 0,
@@ -2009,11 +2015,12 @@
 				var seleccion_gondola = me.seleccion_gondola;
 				var seleccionImpresion = me.seleccionImpresion;
 				var tipoStock = me.tipoStock;
+				var switch_gondola = me.switch_gondola;
 				var tableProductos = $('#tablaProductos').DataTable();
 				var delayInMilliseconds = 3000;
 
 				console.log(tipoMoneda+" tipo moneda");
-				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, tipoTextura,me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock, me.switch_desc, rotulo).then(response => {	
+				Common.generarPdfBarcodeProductoCommon(tableProductos.rows().data().toArray(), tamañoEtiqueta, tipoCodigo, precio, proveedorA, tipoMoneda, tipoTextura,me.ingresarCotizacion, seleccion_gondola, seleccionImpresion, tipoStock, me.switch_desc, switch_gondola, rotulo).then(response => {	
 					var reader = new FileReader();
 					reader.readAsDataURL(new Blob([response])); 
 					reader.onloadend = function() {
