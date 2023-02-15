@@ -771,36 +771,36 @@ class Qr extends Model
       $user = auth()->user();
       $name = '111'; 
       $type = 'C128B';
+      if ($datos['switch_gondola']===false){
+        //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+        $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 3,
+          'vpadding' => 1.5,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+          'text' => true, // whether to display the text below the barcode
+          'font' => 'helvetica', //font
+          'fontsize' => 6, //font size
+          'stretchtext' => 4
+        );
 
-      //definir estilo del Barcode 
-      //-------------------------------------------------------------------------
-      $style = array(
-        'position' => '',
-        'align' => 'N',
-        'stretch' => true,
-        'fitwidth' => false,
-        'cellfitalign' => '',
-        'border' => false, // border
-        'hpadding' => 3,
-        'vpadding' => 1.5,
-        'fgcolor' => array(0, 0, 0),
-        'bgcolor' => false, //array(255,255,255),
-        'text' => true, // whether to display the text below the barcode
-        'font' => 'helvetica', //font
-        'fontsize' => 6, //font size
-        'stretchtext' => 4
-      );
-
-      $pdf = new TCPDF('L','mm',array(90,35));
-      $pdf->SetPrintHeader(false);
-      $pdf->SetPrintFooter(false);
-      $pdf->addPage();
-      $pag=1;
-      $x=25;
-      $y = 0.3;
-      $z = 2;
-      $c=0;
-      if($datos['seleccionImpresion']==='2'){
+        $pdf = new TCPDF('L','mm',array(90,35));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
+        $pag=1;
+        $x=25;
+        $y = 0.3;
+        $z = 2;
+        $c=0;
+        if($datos['seleccionImpresion']==='2'){
           foreach ($datos["data"] as $key => $value) {
             while($c<$value["CANTIDAD"]){
               $c=$c+1;
@@ -872,29 +872,28 @@ class Qr extends Model
               $y=$y+28;
             }
           $c=0;
-        }
-      }
-      else{
-        foreach ($datos['seleccion_gondola'] as $key => $value) {
-          $productos=DB::connection('retail')
-                        ->table('gondola_tiene_productos AS GTP')
-                        ->select(DB::raw('PRA.CODIGO, PR.DESCRIPCION, PRA.PREC_VENTA AS PRECIO, PRA.PREMAYORISTA AS PRECIO_MAYORISTA, PRA.CODIGO_INTERNO, PRA.MONEDA'))
-                        ->leftjoin('productos_aux AS PRA', 'PRA.ID', '=', 'GTP.FK_PRODUCTOS_AUX')
-                        ->leftjoin('productos AS PR', 'PR.CODIGO', '=', 'PRA.CODIGO')
-                        ->where('GTP.ID_GONDOLA', '=', $value['ID'])
-                        ->where('PRA.ID_SUCURSAL', '=', $user->id_sucursal);
-                     
-          if ($datos['tipoStock'] === '1') {
-            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) > 0');
-          }else{
-            $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) <= 0');
           }
-          $productos = $productos->get()
+        }else{
+          foreach ($datos['seleccion_gondola'] as $key => $value) {
+            $productos=DB::connection('retail')
+                          ->table('gondola_tiene_productos AS GTP')
+                          ->select(DB::raw('PRA.CODIGO, PR.DESCRIPCION, PRA.PREC_VENTA AS PRECIO, PRA.PREMAYORISTA AS PRECIO_MAYORISTA, PRA.CODIGO_INTERNO, PRA.MONEDA'))
+                          ->leftjoin('productos_aux AS PRA', 'PRA.ID', '=', 'GTP.FK_PRODUCTOS_AUX')
+                          ->leftjoin('productos AS PR', 'PR.CODIGO', '=', 'PRA.CODIGO')
+                          ->where('GTP.ID_GONDOLA', '=', $value['ID'])
+                          ->where('PRA.ID_SUCURSAL', '=', $user->id_sucursal);
+                       
+            if ($datos['tipoStock'] === '1') {
+              $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) > 0');
+            }else{
+              $productos = $productos->whereRaw('(IFNULL((SELECT SUM(l.CANTIDAD) FROM lotes as l WHERE ((l.COD_PROD = PRA.CODIGO) AND (l.ID_SUCURSAL = PRA.ID_SUCURSAL))),0)) <= 0');
+            }
+            $productos = $productos->get()
 
-                                 ->toArray();
-                                log::error(["datos del producto"=>$productos]);
-           
-          foreach ($productos as $key => $value2) {
+                                   ->toArray();
+                                  log::error(["datos del producto"=>$productos]);
+             
+            foreach ($productos as $key => $value2) {
               if($y > 28){
                 $pag=$pag+1;
                 $pdf->AddPage();
@@ -961,10 +960,81 @@ class Qr extends Model
               $pdf->text($x-6.3, $y+11, '|', false, false, true, 0, 1, '', false, '', 0);
 
               $y=$y+28;
+            }
+          }
+        }
+      }else{
+                //definir estilo del Barcode 
+        //-------------------------------------------------------------------------
+        $style = array(
+          'position' => '',
+          'align' => 'N',
+          'stretch' => true,
+          'fitwidth' => false,
+          'cellfitalign' => '',
+          'border' => false, // border
+          'hpadding' => 3,
+          'vpadding' => 1.5,
+          'fgcolor' => array(0, 0, 0),
+          'bgcolor' => false, //array(255,255,255),
+          'text' => true, // whether to display the text below the barcode
+          'font' => 'helvetica', //font
+          'fontsize' => 6, //font size
+          'stretchtext' => 4
+        );
+
+        $pdf = new TCPDF('L','mm',array(70,30));
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->addPage();
+
+        $pag=1;
+        $x=14;
+        $y = 0.3;
+        $z = 2;
+        $c=0;
+        if($datos['seleccionImpresion']=='2'){
+          foreach ($datos["data"] as $key => $value) {
+            while($c<$value["CANTIDAD"]){
+              $c=$c+1;
+              if($x>60){
+                $y=$y+35;
+                if($y > 22){
+                  $pag=$pag+1;
+                  $pdf->AddPage();
+                  $y = 0.3;
+                }
+                $x=14;
+              }
+
+              $productos=DB::connection('retail')
+              ->table('MARCA')
+              ->select(DB::raw('MARCA.DESCRIPCION'))
+              ->leftjoin('PRODUCTOS', 'PRODUCTOS.MARCA', '=', 'MARCA.CODIGO')
+              ->where('PRODUCTOS.CODIGO', '=', $value['CODIGO'])
+              ->get();
+              $longitud = strlen($productos);
+              $sustraido = substr(Qr::quitar_tildes($productos), 17,$longitud-20);
+              
+              $pdf->SetFont('helvetica','B');
+              $pdf->SetFontSize(7.5);
+              $pdf->text($x-13.5, $y+1, $sustraido, false, false, true);
+              $pdf->SetFont('helvetica','L');
+              $pdf->SetFontSize(6.5);
+              $pdf->text($x-13.5, $y+4, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,23), false, false, true, 0, 0, '', false, '', 0);
+              $pdf->SetFont('helvetica','B');
+              $pdf->SetFontSize(8.5);
+              $pdf->text($x-13.5, $y+9, "U$ ".$value['PRECIO']." UNITARIO", false, false, true);
+              $pdf->text($x-13.5, $y+13, "U$ ".$value['PRECIO_MAYORISTA']." MAYORISTA", false, false, true);
+              $pdf->text($x-13.5, $y+16, 'DESDE '.$value['MAYORISTA_DESDE']." UNIDADES", false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(7);
+              $pdf->text($x-13, $y+22, "Cod.: ".$value['CODIGO'], false, false, true);
+              $x=$x+35;
+            }
+            $c=0;
           }
         }
       }
-      
       return $pdf->Output($name . ".pdf", 'D'); //D Download I Show
     } 
 
@@ -1067,77 +1137,74 @@ class Qr extends Model
           while($c<$value["CANTIDAD"]){
             $c=$c+1;
             if($x>97){
-                 $y=$y+27;
-                 if($y > 22){
-
-                    $pag=$pag+1;
-                    $pdf->AddPage();
-        
-                    $y = 0.3;
-                }
-           
-            $x=25;
-           }
-          // $pdf->SetAutoPageBreak(FALSE, 0);
-          if ($datos['codigo']==='2' and $datos['precio']<>'4'){
-            $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
-          }else if($datos['precio']<>'4'){
-            $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
-          }
-          if($datos['precio']==='1'){
-            $pdf->SetFontSize(8);
-            $pdf->SetFont('helvetica','B');
-            $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
-          
-          }else if($datos['precio']==='2'){
-            $pdf->SetFontSize(8);
-            $pdf->SetFont('helvetica','B');
-            $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
-
-          }else if($datos['precio']==='3'){
-            $pdf->SetFontSize(8);
-            $pdf->SetFont('helvetica','B');
-            if($value['MONEDA']===2){
-              $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
-            }else{
-              $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
-            }                   
-          }else if ($datos['precio']==='4') {
-            $pdf->SetFontSize(12);
-            $pdf->SetFont('helvetica','B');
-            if($datos['tipomoneda']==='1'){
-              if ($value['MONEDA']===1) {
-                $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
-              }else {
-                $conversion = $datos['cotizacion']*$value['PRECIO'];
-                $restar=strlen($conversion);
-                if($restar>6){
-                  $restar=$restar-3;
-                }else{
-                  $restar=0;
-                }
-                $pdf->text($x-18.5-$restar, $y+9, "G$ ".$conversion, false, false, true);
+              $y=$y+27;
+              if($y > 22){
+                $pag=$pag+1;
+                $pdf->AddPage();
+                $y = 0.3;
               }
-              
-            }elseif($datos['tipomoneda']==='2'){
-              if ($value['MONEDA']===2) {
-                $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+              $x=25;
+            }
+            // $pdf->SetAutoPageBreak(FALSE, 0);
+            if ($datos['codigo']==='2' and $datos['precio']<>'4'){
+              $pdf->write1DBarcode($value["CODIGO"], $type, $x+1, $y, 32, 12, 0.2, $style, 'N');
+            }else if($datos['precio']<>'4'){
+              $pdf->write1DBarcode($value["CODIGO_INTERNO"], $type, $x+1.5, $y, 32, 12, 0.2, $style, 'N');
+            }
+            if($datos['precio']==='1'){
+              $pdf->SetFontSize(8);
+              $pdf->SetFont('helvetica','B');
+              $pdf->text($x-14.5, $y+11, $value['PRECIO'], false, false, true);
+            
+            }else if($datos['precio']==='2'){
+              $pdf->SetFontSize(8);
+              $pdf->SetFont('helvetica','B');
+              $pdf->text($x-14.5, $y+11, $value['PRECIO_MAYORISTA'], false, false, true);
+
+            }else if($datos['precio']==='3'){
+              $pdf->SetFontSize(8);
+              $pdf->SetFont('helvetica','B');
+              if($value['MONEDA']===2){
+                $pdf->text($x-17.5, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
               }else{
-                $conversion = $value['PRECIO']/$datos['cotizacion'];
-                $restar=strlen($conversion);
-                $pdf->text($x-16.5, $y+9, "U$ ".$conversion, false, false, true);
-              }
-            } 
-          }
-          
-          if ($datos['precio']<>'4') {
-            $pdf->SetFontSize(5.7);
-            $pdf->SetFont('freesans');
-            $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 1, '', false, '', 0);
-          }
-           //$y=$y+35;
+                $pdf->text($x-21, $y+10, $value['PRECIO']." / ".$value['PRECIO_MAYORISTA'], false, false, true);
+              }                   
+            }else if ($datos['precio']==='4') {
+              $pdf->SetFontSize(12);
+              $pdf->SetFont('helvetica','B');
+              if($datos['tipomoneda']==='1'){
+                if ($value['MONEDA']===1) {
+                  $pdf->text($x-18.5, $y+9, "G$ ".$value['PRECIO'], false, false, true);
+                }else {
+                  $conversion = $datos['cotizacion']*$value['PRECIO'];
+                  $restar=strlen($conversion);
+                  if($restar>6){
+                    $restar=$restar-3;
+                  }else{
+                    $restar=0;
+                  }
+                  $pdf->text($x-18.5-$restar, $y+9, "G$ ".$conversion, false, false, true);
+                }
+                
+              }elseif($datos['tipomoneda']==='2'){
+                if ($value['MONEDA']===2) {
+                  $pdf->text($x-16.5, $y+9, "U$ ".$value['PRECIO'], false, false, true);
+                }else{
+                  $conversion = $value['PRECIO']/$datos['cotizacion'];
+                  $restar=strlen($conversion);
+                  $pdf->text($x-16.5, $y+9, "U$ ".$conversion, false, false, true);
+                }
+              } 
+            }
+            
+            if ($datos['precio']<>'4') {
+              $pdf->SetFontSize(5.7);
+              $pdf->SetFont('freesans');
+              $pdf->text($x-23.8, $y+14, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 1, '', false, '', 0);
+            }
+            //$y=$y+35;
 
-           $x=$x+37-1.5;
+            $x=$x+37-1.5;
           }
           $c=0;
         }
