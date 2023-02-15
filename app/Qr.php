@@ -983,7 +983,7 @@ class Qr extends Model
           'stretchtext' => 4
         );
 
-        $pdf = new TCPDF('L','mm',array(70,30));
+        $pdf = new TCPDF('L','mm',array(70,20));
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
         $pdf->addPage();
@@ -1017,19 +1017,19 @@ class Qr extends Model
               $sustraido = substr(Qr::quitar_tildes($productos), 17,$longitud-20);
               
               $pdf->SetFont('helvetica','B');
-              $pdf->SetFontSize(7.5);
+              $pdf->SetFontSize(7);
               $pdf->text($x-13.5, $y+1, $sustraido, false, false, true);
               $pdf->SetFont('helvetica','L');
-              $pdf->SetFontSize(6.5);
+              $pdf->SetFontSize(6);
               $pdf->text($x-13.5, $y+4, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,23), false, false, true, 0, 0, '', false, '', 0);
               $pdf->SetFont('helvetica','B');
-              $pdf->SetFontSize(8.5);
-              $pdf->text($x-13.5, $y+9, "U$ ".$value['PRECIO']." UNITARIO", false, false, true);
-              $pdf->text($x-13.5, $y+13, "U$ ".$value['PRECIO_MAYORISTA']." MAYORISTA", false, false, true);
-              $pdf->text($x-13.5, $y+16, 'DESDE '.$value['MAYORISTA_DESDE']." UNIDADES", false, false, true, 0, 1, '', false, '', 0);
-              $pdf->SetFontSize(7);
-              $pdf->text($x-13, $y+22, "Cod.: ".$value['CODIGO'], false, false, true);
-              $x=$x+35;
+              $pdf->SetFontSize(6.5);
+              $pdf->text($x-13.5, $y+7, "U$ ".$value['PRECIO']." UNITARIO", false, false, true);
+              $pdf->text($x-13.5, $y+9, "U$ ".$value['PRECIO_MAYORISTA']." MAYORISTA", false, false, true);
+              $pdf->text($x-13.5, $y+11, 'DESDE '.$value['MAYORISTA_DESDE']." UNIDADES", false, false, true, 0, 1, '', false, '', 0);
+              $pdf->SetFontSize(6.5);
+              $pdf->text($x-13, $y+15, "Cod.: ".$value['CODIGO'], false, false, true);
+              $x=$x+29.5;
             }
             $c=0;
           }
