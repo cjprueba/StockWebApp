@@ -1018,17 +1018,26 @@ class Qr extends Model
               
               $pdf->SetFont('helvetica','B');
               $pdf->SetFontSize(7);
-              $pdf->text($x-13.5, $y+1, $sustraido, false, false, true);
+              // $pdf->text($x-13.5, $y+1, $sustraido, false, false, true);
               $pdf->SetFont('helvetica','L');
               $pdf->SetFontSize(6);
-              $pdf->text($x-13.5, $y+4, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,23), false, false, true, 0, 0, '', false, '', 0);
+              // $pdf->text($x-13.5, $y+4, substr(Qr::quitar_tildes($value['DESCRIPCION']), 0,22), false, false, true, 0, 0, '', false, '', 0);
               $pdf->SetFont('helvetica','B');
+              $pdf->SetFontSize(6);
+              $pdf->text($x-13.5, $y+3,"UNI.", false, false, true);
+              $pdf->text($x-9, $y+3, "U$ ", false, false, true);
+
+              $pdf->text($x-13.5, $y+9,"MAY.", false, false, true);
+              $pdf->text($x-8, $y+9, "U$ ", false, false, true);
+              
+              
+              $pdf->text($x-13.5, $y+11.5, 'DESDE '.$value['MAYORISTA_DESDE']." UNIDADES", false, false, true, 0, 1, '', false, '', 0);
+
+              $pdf->SetFontSize(10);
+              $pdf->text($x-6, $y+1.7, $value['PRECIO'], false, false, true);
+              $pdf->text($x-5, $y+7.7,$value['PRECIO_MAYORISTA'], false, false, true);
               $pdf->SetFontSize(6.5);
-              $pdf->text($x-13.5, $y+7, "U$ ".$value['PRECIO']." UNITARIO", false, false, true);
-              $pdf->text($x-13.5, $y+9, "U$ ".$value['PRECIO_MAYORISTA']." MAYORISTA", false, false, true);
-              $pdf->text($x-13.5, $y+11, 'DESDE '.$value['MAYORISTA_DESDE']." UNIDADES", false, false, true, 0, 1, '', false, '', 0);
-              $pdf->SetFontSize(6.5);
-              $pdf->text($x-13, $y+15, "Cod.: ".$value['CODIGO'], false, false, true);
+              $pdf->text($x-13, $y+17, "Cod.: ".$value['CODIGO'], false, false, true);
               $x=$x+29.5;
             }
             $c=0;
